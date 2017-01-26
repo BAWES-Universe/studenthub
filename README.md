@@ -1,55 +1,35 @@
-Yii 2 Advanced Project Template
-===============================
+# Studenthub Payroll Platform
+## Youth Training Program
 
-Yii 2 Advanced Project Template is a skeleton [Yii 2](http://www.yiiframework.com/) application best for
-developing complex Web applications with multiple tiers.
+The payroll platform enables the admin to create `Corporate` accounts and `Studenthub Staff` accounts that will manage the employees that are part of the program.
 
-The template includes three tiers: front end, back end, and console, each of which
-is a separate Yii application.
+## Types of Users
 
-The template is designed to work in a team development environment. It supports
-deploying the application in different environments.
+### Studenthub Staff
 
-Documentation is at [docs/guide/README.md](docs/guide/README.md).
+Studenthub staff will be offering trainee recruitment and administrative services to the corporate.
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-app-advanced/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-app-advanced)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-app-advanced/downloads.png)](https://packagist.org/packages/yiisoft/yii2-app-advanced)
-[![Build Status](https://travis-ci.org/yiisoft/yii2-app-advanced.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-app-advanced)
+* Create and manage Employee accounts
+* Assign and unassign employee to a company.
 
-DIRECTORY STRUCTURE
--------------------
+### Corporate
 
-```
-common
-    config/              contains shared configurations
-    mail/                contains view files for e-mails
-    models/              contains model classes used in both backend and frontend
-    tests/               contains tests for common classes    
-console
-    config/              contains console configurations
-    controllers/         contains console controllers (commands)
-    migrations/          contains database migrations
-    models/              contains console-specific model classes
-    runtime/             contains files generated during runtime
-backend
-    assets/              contains application assets such as JavaScript and CSS
-    config/              contains backend configurations
-    controllers/         contains Web controller classes
-    models/              contains backend-specific model classes
-    runtime/             contains files generated during runtime
-    tests/               contains tests for backend application    
-    views/               contains view files for the Web application
-    web/                 contains the entry script and Web resources
-frontend
-    assets/              contains application assets such as JavaScript and CSS
-    config/              contains frontend configurations
-    controllers/         contains Web controller classes
-    models/              contains frontend-specific model classes
-    runtime/             contains files generated during runtime
-    tests/               contains tests for frontend application
-    views/               contains view files for the Web application
-    web/                 contains the entry script and Web resources
-    widgets/             contains frontend widgets
-vendor/                  contains dependent 3rd-party packages
-environments/            contains environment-based overrides
-```
+* Will sign a contract with admin for a fixed hourly rate they will pay for their assigned trainees.
+* Will be able to list and view details of their currently assigned trainees.
+* Every month, they will need to create a `TransferRequest` and fill in the number of hours worked by every assigned employee. System will calculate the total amount of money they need to transfer to `Studenthub Admin` to be sent out to the `Employees`.
+* Transfer requests need to be verified and accepted by the corporate before it is sent out to admin.
+* Once the transfer is received by admin, the corporate will be notified and be sent a `Receipt`
+* System will notify admin if a corporate hasn't created a transfer request by the X day of every month.
+
+### Employee
+
+Employees are recruited to join the training program by Studenthub staff. They have to sign a contract and provide their identity documents and bank info. They will then be assigned to work for companies.
+
+### Admin
+
+* Approve a transfer request, send employer a receipt.
+* Send an approved transfer request to the payment company via API which will transfer the salaries out to the employees.
+
+## Database
+
+Proposed database structure is at [docs/database/STRUCTURE.md](docs/database/STRUCTURE.md).
