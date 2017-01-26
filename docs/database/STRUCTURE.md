@@ -1,4 +1,4 @@
-# Entity Relationship
+# Entity Relationship Plan
 
 ## Admin
 Oversee the project, create corporate accounts, and approve payouts.
