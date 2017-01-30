@@ -1,7 +1,7 @@
 # Entity Relationship Plan
 
 ## Admin
-Oversee the project, create corporate accounts, and approve payouts.
+Oversee the project, create company accounts, and approve payouts.
 
 * **admin_id**
 * admin_name
@@ -24,24 +24,24 @@ Studenthub Staff, will be handling communication.
 * staff_created_at
 * staff_updated_at
 
-## Corporate
+## Company
 The companies which will be assigned candidates to work for them.
 
-* **corporate_id**
-* corporate_name
-* corporate_email
-* corporate_auth_key
-* corporate_password_hash
-* corporate_password_reset_token
-* corporate_created_at
-* corporate_updated_at
+* **company_id**
+* company_name
+* company_email
+* company_auth_key
+* company_password_hash
+* company_password_reset_token
+* company_created_at
+* company_updated_at
 
 ## Candidate
 A user is a candidate until he is assigned to a company, then he becomes their employee.
 Once removed from a company, he still has his candidate account to show his work history.
 
 * **candidate_id**
-* **corporate_id** (default null) - which corporate he currently works for
+* **company_id** (default null) - which company he currently works for
 * candidate_name
 * candidate_email
 * candidate_civil_id
