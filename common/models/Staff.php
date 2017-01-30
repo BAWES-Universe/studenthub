@@ -45,6 +45,17 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
     }
 
+    public function behaviors() {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'staff_created_at',
+                'updatedAtAttribute' => 'staff_updated_at',
+                'value' => new Expression('NOW()'),
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */

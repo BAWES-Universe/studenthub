@@ -47,6 +47,17 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
     }
 
+    public function behaviors() {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'company_created_at',
+                'updatedAtAttribute' => 'company_updated_at',
+                'value' => new Expression('NOW()'),
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
