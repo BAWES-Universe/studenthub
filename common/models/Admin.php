@@ -3,22 +3,25 @@
 namespace common\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
+use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-use yii\web\IdentityInterface;
+
 
 /**
  * Admin model
  *
  * @property integer $admin_id
- * @property string $admin_name 
+ * @property string $admin_name
  * @property string $admin_email
  * @property string $admin_auth_key
  * @property string $admin_password_hash write-only password
  * @property string $admin_password_reset_token
- * @property string $admin_datetime
+ * @property string $admin_status
+ * @property string $admin_created_at
+ * @property string $admin_updated_at
  */
 class Admin extends ActiveRecord implements IdentityInterface {
 
@@ -43,8 +46,8 @@ class Admin extends ActiveRecord implements IdentityInterface {
         return [
             [
                 'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'admin_datetime',
-                'updatedAtAttribute' => false,
+                'createdAtAttribute' => 'admin_created_at',
+                'updatedAtAttribute' => 'admin_updated_at',
                 'value' => new Expression('NOW()'),
             ],
         ];
@@ -56,12 +59,14 @@ class Admin extends ActiveRecord implements IdentityInterface {
     public function attributeLabels() {
         return [
             'admin_id' => Yii::t('app', 'Admin ID'),
-            'admin_name' => Yii::t('app', 'Admin Name'), 
+            'admin_name' => Yii::t('app', 'Admin Name'),
             'admin_email' => Yii::t('app', 'Admin Email'),
             'admin_auth_key' => Yii::t('app', 'Admin Auth Key'),
             'admin_password_hash' => Yii::t('app', 'Admin Password'),
             'admin_password_reset_token' => Yii::t('app', 'Admin Password Reset Token'),
-            'admin_datetime' => Yii::t('app', 'Admin Datetime'),
+            'admin_status' => 'Admin Status',
+            'admin_created_at' => 'Admin Created At',
+            'admin_updated_at' => 'Admin Updated At',
         ];
     }
 
