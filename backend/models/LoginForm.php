@@ -1,19 +1,20 @@
 <?php
-namespace common\models;
+namespace backend\models;
 
 use Yii;
 use yii\base\Model;
+use common\models\Admin;
 
 /**
  * Login form
  */
 class LoginForm extends Model
 {
-    public $username;
+    public $email;
     public $password;
     public $rememberMe = true;
 
-    private $_user;
+    private $_admin = false;
 
 
     /**
@@ -22,8 +23,10 @@ class LoginForm extends Model
     public function rules()
     {
         return [
-            // username and password are both required
-            [['username', 'password'], 'required'],
+            // email and password are both required
+            [['email', 'password'], 'required'],
+            // email must be an email
+            ['email', 'email'],
             // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
             // password is validated by validatePassword()
@@ -41,38 +44,39 @@ class LoginForm extends Model
     public function validatePassword($attribute, $params)
     {
         if (!$this->hasErrors()) {
-            $user = $this->getUser();
-            if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+            $admin = $this->getAdmin();
+            if (!$admin || !$admin->validatePassword($this->password)) {
+                $this->addError($attribute, 'Incorrect email or password.');
             }
         }
     }
 
     /**
-     * Logs in a user using the provided username and password.
+     * Logs in a admin using the provided email and password.
      *
-     * @return bool whether the user is logged in successfully
+     * @return boolean whether the admin is logged in successfully
      */
     public function login()
     {
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            return Yii::$app->user->login($this->getAdmin(), $this->rememberMe ? 3600 * 24 * 30 : 0);
         } else {
+            Yii::error("[Admin Login Attempt Failed] ".$this->email, __METHOD__);
             return false;
         }
     }
 
     /**
-     * Finds user by [[username]]
+     * Finds admin by [[username]]
      *
-     * @return User|null
+     * @return Admin|null
      */
-    protected function getUser()
+    public function getAdmin()
     {
-        if ($this->_user === null) {
-            $this->_user = User::findByUsername($this->username);
+        if ($this->_admin === false) {
+            $this->_admin = Admin::findByEmail($this->email);
         }
 
-        return $this->_user;
+        return $this->_admin;
     }
 }
