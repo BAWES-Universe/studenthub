@@ -25,6 +25,8 @@ Studenthub staff will be offering trainee recruitment and administrative service
 
 Employees are recruited to join the training program by Studenthub staff. They have to sign a contract and provide their identity documents and bank info. They will then be assigned to work for companies.
 
+Employees are to also sign a "Tanazol" document forfeiting their rights as a full timer. 
+
 ### Admin
 
 * Approve a transfer request, send employer a receipt.
