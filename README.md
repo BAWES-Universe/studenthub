@@ -1,4 +1,4 @@
-# Studenthub Payroll Platform
+# SH Payroll Platform
 ## Youth Training Program
 
 The payroll platform enables the admin to create `Corporate` accounts and `Studenthub Staff` accounts that will manage the employees that are part of the program.
