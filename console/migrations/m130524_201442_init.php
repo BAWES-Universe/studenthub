@@ -98,7 +98,7 @@ class m130524_201442_init extends Migration
             'candidate'
         );
         $this->dropTable('candidate');
-        $this->dropTable('corporate');
+        $this->dropTable('company');
         $this->dropTable('staff');
         $this->dropTable('admin');
     }
