@@ -11,19 +11,23 @@ return [
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'admin\controllers',
     'bootstrap' => ['log'],
-    'modules' => [],
+    'modules' => [
+        'v1' => [
+            'class' => 'admin\modules\v1\Module',
+        ],
+    ],
     'components' => [
         'request' => [
-            'csrfParam' => '_csrf-admin',
+            // Accept and parse JSON Requests
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ]
         ],
         'user' => [
-            'identityClass' => 'common\models\User',
-            'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-admin', 'httpOnly' => true],
-        ],
-        'session' => [
-            // this is the name of the session cookie used for login on the admin
-            'name' => 'advanced-admin',
+            'identityClass' => 'common\models\Admin',
+            'enableAutoLogin' => false,
+            'enableSession' => false,
+            'loginUrl' => null
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -34,17 +38,45 @@ return [
                 ],
             ],
         ],
-        'errorHandler' => [
-            'errorAction' => 'site/error',
-        ],
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
+            'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
+                [ // AuthController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/auth',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET login' => 'login',
+                        'PATCH verify' => 'verify-email',
+                        'PATCH update-password' => 'update-password',
+                        'POST create-account' => 'create-account',
+                        'POST request-reset-password' => 'request-reset-password',
+                        'POST resend-verification-email' => 'resend-verification-email',
+                        'POST validate' => 'validate',
+                        // OPTIONS VERBS
+                        'OPTIONS verify' => 'options',
+                        'OPTIONS validate' => 'options',
+                        'OPTIONS login' => 'options',
+                        'OPTIONS create-account' => 'options',
+                        'OPTIONS request-reset-password' => 'options',
+                        'OPTIONS resend-verification-email' => 'options',
+                    ]
+                ],
+                [ // AccountController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/account',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET stats' => 'stats',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS stats' => 'options',
+                    ]
+                ],
             ],
         ],
-        */
     ],
     'params' => $params,
 ];
