@@ -1,10 +1,10 @@
 <?php
-namespace backend\controllers;
+namespace admin\controllers;
 
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use backend\models\LoginForm;
+use admin\models\LoginForm;
 use yii\filters\VerbFilter;
 
 /**
