@@ -13,7 +13,7 @@ return [
         ],
         'slack' => [
             'class' => 'understeam\slack\Client',
-            'url' => 'https://hooks.slack.com/services/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',
+            'url' => 'https://hooks.slack.com/services/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',
             'username' => 'Payroll',
         ],
         'httpclient' => [
@@ -25,7 +25,7 @@ return [
                     'class' => 'common\components\SlackLogger',
                     'logVars' => [],
                     'levels' => ['info', 'error', 'warning'],
-                    'categories' => ['backend\*', 'agent\*', 'common\*', 'console\*', 'api\*'],
+                    'categories' => ['admin\*', 'candidate\*', 'company\*', 'staff\*', 'common\*', 'console\*'],
                 ],
             ],
         ],
