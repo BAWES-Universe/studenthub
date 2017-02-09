@@ -24,6 +24,8 @@ use yii\behaviors\TimestampBehavior;
  * @property string $admin_updated_at
  */
 class Admin extends ActiveRecord implements IdentityInterface {
+    //Values for `admin_status`
+    const STATUS_ACTIVE = 10;
 
     /**
      * @inheritdoc

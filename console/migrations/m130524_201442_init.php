@@ -21,8 +21,8 @@ class m130524_201442_init extends Migration
             'admin_password_hash' => $this->string()->notNull(),
             'admin_password_reset_token' => $this->string()->unique(),
             'admin_status' => $this->smallInteger()->notNull()->defaultValue(10),
-            'admin_created_at' => $this->integer()->notNull(),
-            'admin_updated_at' => $this->integer()->notNull(),
+            'admin_created_at' => $this->datetime()->notNull(),
+            'admin_updated_at' => $this->datetime()->notNull(),
         ], $tableOptions);
 
         // Staff working for Studenthub
@@ -34,8 +34,8 @@ class m130524_201442_init extends Migration
             'staff_password_hash' => $this->string()->notNull(),
             'staff_password_reset_token' => $this->string()->unique(),
             'staff_status' => $this->smallInteger()->notNull()->defaultValue(10),
-            'staff_created_at' => $this->integer()->notNull(),
-            'staff_updated_at' => $this->integer()->notNull(),
+            'staff_created_at' => $this->datetime()->notNull(),
+            'staff_updated_at' => $this->datetime()->notNull(),
         ], $tableOptions);
 
         // Company who will recruit
@@ -47,8 +47,8 @@ class m130524_201442_init extends Migration
             'company_password_hash' => $this->string()->notNull(),
             'company_password_reset_token' => $this->string()->unique(),
             'company_status' => $this->smallInteger()->notNull()->defaultValue(10),
-            'company_created_at' => $this->integer()->notNull(),
-            'company_updated_at' => $this->integer()->notNull(),
+            'company_created_at' => $this->datetime()->notNull(),
+            'company_updated_at' => $this->datetime()->notNull(),
         ], $tableOptions);
 
         // Candidates added by staff
@@ -62,8 +62,8 @@ class m130524_201442_init extends Migration
             'candidate_password_hash' => $this->string()->notNull(),
             'candidate_password_reset_token' => $this->string()->unique(),
             'candidate_status' => $this->smallInteger()->notNull()->defaultValue(10),
-            'candidate_created_at' => $this->integer()->notNull(),
-            'candidate_updated_at' => $this->integer()->notNull(),
+            'candidate_created_at' => $this->datetime()->notNull(),
+            'candidate_updated_at' => $this->datetime()->notNull(),
         ], $tableOptions);
 
         // creates index for column `company_id`
