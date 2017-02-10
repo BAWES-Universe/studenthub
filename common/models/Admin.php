@@ -22,6 +22,8 @@ use yii\behaviors\TimestampBehavior;
  * @property string $admin_status
  * @property string $admin_created_at
  * @property string $admin_updated_at
+ *
+ * @property AdminToken[] $accessTokens
  */
 class Admin extends ActiveRecord implements IdentityInterface {
     //Values for `admin_status`
@@ -70,6 +72,15 @@ class Admin extends ActiveRecord implements IdentityInterface {
             'admin_created_at' => 'Admin Created At',
             'admin_updated_at' => 'Admin Updated At',
         ];
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens()
+    {
+        return $this->hasMany(AdminToken::className(), ['admin_id' => 'admin_id']);
     }
 
     /**

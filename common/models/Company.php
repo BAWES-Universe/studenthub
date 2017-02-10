@@ -20,6 +20,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_created_at
  * @property integer $company_updated_at
  *
+ * @property CompanyToken[] $accessTokens
  * @property Candidate[] $candidates
  */
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
@@ -82,6 +83,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getCandidates()
     {
         return $this->hasMany(Candidate::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens()
+    {
+        return $this->hasMany(CompanyToken::className(), ['company_id' => 'company_id']);
     }
 
     /**

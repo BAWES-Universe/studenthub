@@ -19,6 +19,8 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $staff_status
  * @property integer $staff_created_at
  * @property integer $staff_updated_at
+ *
+ * @property StaffToken[] $accessTokens
  */
 class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -72,6 +74,15 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'staff_created_at' => 'Staff Created At',
             'staff_updated_at' => 'Staff Updated At',
         ];
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens()
+    {
+        return $this->hasMany(StaffToken::className(), ['staff_id' => 'staff_id']);
     }
 
 
