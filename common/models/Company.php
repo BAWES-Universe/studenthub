@@ -99,14 +99,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AgentToken::find()->where(['token_value' => $token])->with('agent')->one();
+        $token = CompanyToken::find()->where(['token_value' => $token])->with('company')->one();
         if($token){
-            return $token->agent;
+            return $token->company;
         }
     }
 
     /**
-     * Finds agent by email
+     * Finds company by email
      *
      * @param string $email
      * @return static|null
@@ -220,27 +220,27 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Create an Access Token Record for this Agent
-     * if the agent already has one, it will return it instead
-     * @return \common\models\AgentToken
+     * Create an Access Token Record for this Company
+     * if the company already has one, it will return it instead
+     * @return \common\models\CompanyToken
      */
     public function getAccessToken(){
         // Return existing inactive token if found
-        // $token = AgentToken::findOne([
-        //     'company_id' => $this->company_id,
-        //     'token_status' => AgentToken::STATUS_ACTIVE
-        // ]);
-        // if($token){
-        //     return $token;
-        // }
-        //
-        // // Create new inactive token
-        // $token = new AgentToken();
-        // $token->company_id = $this->company_id;
-        // $token->token_value = AgentToken::generateUniqueTokenString();
-        // $token->token_status = AgentToken::STATUS_ACTIVE;
-        // $token->save(false);
-        //
-        // return $token;
+        $token = CompanyToken::findOne([
+            'company_id' => $this->company_id,
+            'token_status' => CompanyToken::STATUS_ACTIVE
+        ]);
+        if($token){
+            return $token;
+        }
+
+        // Create new inactive token
+        $token = new CompanyToken();
+        $token->company_id = $this->company_id;
+        $token->token_value = CompanyToken::generateUniqueTokenString();
+        $token->token_status = CompanyToken::STATUS_ACTIVE;
+        $token->save(false);
+
+        return $token;
     }
 }

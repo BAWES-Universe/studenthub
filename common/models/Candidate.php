@@ -105,14 +105,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AgentToken::find()->where(['token_value' => $token])->with('agent')->one();
+        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
         if($token){
-            return $token->agent;
+            return $token->candidate;
         }
     }
 
     /**
-     * Finds agent by email
+     * Finds candidate by email
      *
      * @param string $email
      * @return static|null
@@ -226,27 +226,27 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Create an Access Token Record for this Agent
-     * if the agent already has one, it will return it instead
-     * @return \common\models\AgentToken
+     * Create an Access Token Record for this Candidate
+     * if the candidate already has one, it will return it instead
+     * @return \common\models\CandidateToken
      */
     public function getAccessToken(){
         // Return existing inactive token if found
-        // $token = AgentToken::findOne([
-        //     'candidate_id' => $this->candidate_id,
-        //     'token_status' => AgentToken::STATUS_ACTIVE
-        // ]);
-        // if($token){
-        //     return $token;
-        // }
-        //
-        // // Create new inactive token
-        // $token = new AgentToken();
-        // $token->candidate_id = $this->candidate_id;
-        // $token->token_value = AgentToken::generateUniqueTokenString();
-        // $token->token_status = AgentToken::STATUS_ACTIVE;
-        // $token->save(false);
-        //
-        // return $token;
+        $token = CandidateToken::findOne([
+            'candidate_id' => $this->candidate_id,
+            'token_status' => CandidateToken::STATUS_ACTIVE
+        ]);
+        if($token){
+            return $token;
+        }
+
+        // Create new inactive token
+        $token = new CandidateToken();
+        $token->candidate_id = $this->candidate_id;
+        $token->token_value = CandidateToken::generateUniqueTokenString();
+        $token->token_status = CandidateToken::STATUS_ACTIVE;
+        $token->save(false);
+
+        return $token;
     }
 }

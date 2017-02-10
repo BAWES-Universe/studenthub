@@ -90,14 +90,14 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AgentToken::find()->where(['token_value' => $token])->with('agent')->one();
+        $token = StaffToken::find()->where(['token_value' => $token])->with('staff')->one();
         if($token){
-            return $token->agent;
+            return $token->staff;
         }
     }
 
     /**
-     * Finds agent by email
+     * Finds staff by email
      *
      * @param string $email
      * @return static|null
@@ -211,27 +211,27 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Create an Access Token Record for this Agent
-     * if the agent already has one, it will return it instead
-     * @return \common\models\AgentToken
+     * Create an Access Token Record for this Staff
+     * if the staff user already has one, it will return it instead
+     * @return \common\models\StaffToken
      */
     public function getAccessToken(){
         // Return existing inactive token if found
-        // $token = AgentToken::findOne([
-        //     'staff_id' => $this->staff_id,
-        //     'token_status' => AgentToken::STATUS_ACTIVE
-        // ]);
-        // if($token){
-        //     return $token;
-        // }
-        //
-        // // Create new inactive token
-        // $token = new AgentToken();
-        // $token->staff_id = $this->staff_id;
-        // $token->token_value = AgentToken::generateUniqueTokenString();
-        // $token->token_status = AgentToken::STATUS_ACTIVE;
-        // $token->save(false);
-        //
-        // return $token;
+        $token = StaffToken::findOne([
+            'staff_id' => $this->staff_id,
+            'token_status' => StaffToken::STATUS_ACTIVE
+        ]);
+        if($token){
+            return $token;
+        }
+
+        // Create new inactive token
+        $token = new StaffToken();
+        $token->staff_id = $this->staff_id;
+        $token->token_value = StaffToken::generateUniqueTokenString();
+        $token->token_status = StaffToken::STATUS_ACTIVE;
+        $token->save(false);
+
+        return $token;
     }
 }
