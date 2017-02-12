@@ -83,7 +83,7 @@ class StaffController extends Controller
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
-                    "message" => print_r($model->errors, true)
+                    "message" => $model->errors
                 ];
             }else{
                 return [
@@ -96,6 +96,76 @@ class StaffController extends Controller
         return [
             "operation" => "success",
             "message" => "Staff account successfully created"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Create a staff account
+     */
+    public function actionUpdate($id)
+    {
+        // Attempt to create new account
+        $model = Staff::findOne((int) $id);
+        $model->staff_name = Yii::$app->request->getBodyParam("name");
+        $model->staff_email =Yii::$app->request->getBodyParam("email");
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info("[Staff Account Updated] ".$model->staff_email, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Staff account successfully updated"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Delete an account
+     * @param  integer $id
+     * @return array
+     */
+    public function actionDelete($id)
+    {
+        $staffMember = Staff::findOne((int)$id);
+
+        if($staffMember){
+            Yii::warning("[Staff Account Deleted] ".$staffMember->staff_email, __METHOD__);
+
+            // Delete the account
+            $staffMember->delete();
+            return [
+                "operation" => "success",
+            ];
+        }else{
+            return [
+                "operation" => "error",
+                "message" => "Account not found or already deleted."
+            ];
+        }
+
+        // Error for cases not accounted for
+        return [
+            "operation" => "error",
+            "message" => "Unknown error occured, please contact us for assistance."
         ];
 
         // Check SQL Query Count and Duration
