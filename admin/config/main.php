@@ -77,6 +77,19 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CompanyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
