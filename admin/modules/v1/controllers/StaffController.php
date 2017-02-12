@@ -5,11 +5,12 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
+use common\models\Staff;
 
 /**
- * Account controller will return the actual Instagram Accounts and all controls associated
+ * Staff controller - Manage staff accounts as Admin
  */
-class AccountController extends Controller
+class StaffController extends Controller
 {
     public function behaviors()
     {
@@ -57,26 +58,45 @@ class AccountController extends Controller
     }
 
     /**
-     * Return a List of Accounts Managed by User
+     * Return a List of Staff Accounts available.
      */
     public function actionList()
     {
-        // Get cached managed accounts list from account manager component
-        $managedAccounts = Yii::$app->accountManager->managedAccounts;
-
-        return $managedAccounts;
+        return Staff::find()->all();
     }
 
     /**
-     * Return stats records for account with $accountId
+     * Create a staff account
      */
-    public function actionStats($accountId)
+    public function actionCreate()
     {
-        // Get Instagram account from Account Manager component
-        $instagramAccount = Yii::$app->accountManager->getManagedAccount($accountId);
+        // Attempt to create new account
+        $model = new Staff();
+        $model->scenario = "newAccount";
 
-        $records = $instagramAccount->records;
-        return $records;
+        $model->staff_name = Yii::$app->request->getBodyParam("name");
+        $model->staff_email =Yii::$app->request->getBodyParam("email");
+        $model->staff_password_hash = Yii::$app->request->getBodyParam("password");
+
+        if (!$model->signup())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => print_r($model->errors, true)
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Staff account successfully created"
+        ];
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();

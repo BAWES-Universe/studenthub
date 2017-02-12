@@ -41,8 +41,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['company_id', 'candidate_status', 'candidate_created_at', 'candidate_updated_at'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_auth_key', 'candidate_password_hash', 'candidate_created_at', 'candidate_updated_at'], 'required'],
+            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_auth_key'], 'required'],
+            [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
+            [['company_id', 'candidate_status'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_email'], 'unique'],
@@ -98,6 +99,29 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getAccessTokens()
     {
         return $this->hasMany(CandidateToken::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * Signs user up.
+     * @return static|null the saved model or null if saving fails
+     */
+    public function signup() {
+        $oldPasswordInput = $this->candidate_password_hash;
+
+        $this->setPassword($this->candidate_password_hash);
+        $this->generateAuthKey();
+
+        if ($this->save()) {
+            //Log candidate signup
+            Yii::info("[New Candidate Account Created] ".$this->candidate_email, __METHOD__);
+
+            return $this;
+        }else{
+            //Reset password to hide encrypted value
+            $this->candidate_password_hash = $oldPasswordInput;
+        }
+
+        return null;
     }
 
     /**

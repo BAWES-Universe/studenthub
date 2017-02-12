@@ -91,7 +91,7 @@ class AuthController extends Controller
     {
         $admin = Yii::$app->user->identity;
 
-        // Return agent access token if everything valid
+        // Return Admin access token if everything valid
         $accessToken = $admin->accessToken->token_value;
         return [
             "operation" => "success",
