@@ -64,15 +64,17 @@ return [
                         'OPTIONS resend-verification-email' => 'options',
                     ]
                 ],
-                [ // AccountController
+                [ // StaffController
                     'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/account',
+                    'controller' => 'v1/staff',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET stats' => 'stats',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS stats' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],
