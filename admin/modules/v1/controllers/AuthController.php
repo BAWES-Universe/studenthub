@@ -51,12 +51,6 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
-            'verify-email',
-            'validate',
-            'update-password',
-            'create-account',
-            'request-reset-password',
-            'resend-verification-email'
         ];
 
         return $behaviors;
@@ -91,7 +85,7 @@ class AuthController extends Controller
     {
         $admin = Yii::$app->user->identity;
 
-        // Return agent access token if everything valid
+        // Return Admin access token if everything valid
         $accessToken = $admin->accessToken->token_value;
         return [
             "operation" => "success",

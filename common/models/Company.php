@@ -39,8 +39,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name', 'company_email', 'company_auth_key', 'company_password_hash', 'company_created_at', 'company_updated_at'], 'required'],
-            [['company_status', 'company_created_at', 'company_updated_at'], 'integer'],
+            [['company_name', 'company_email', 'company_auth_key'], 'required'],
+            [['company_password_hash'], 'required', 'on'=>'newAccount'],
+            [['company_status'], 'integer'],
             [['company_name', 'company_email', 'company_password_hash', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_email'], 'unique'],
@@ -92,6 +93,29 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getAccessTokens()
     {
         return $this->hasMany(CompanyToken::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * Signs user up.
+     * @return static|null the saved model or null if saving fails
+     */
+    public function signup() {
+        $oldPasswordInput = $this->company_password_hash;
+
+        $this->setPassword($this->company_password_hash);
+        $this->generateAuthKey();
+
+        if ($this->save()) {
+            //Log company signup
+            Yii::info("[New Company Account Created] ".$this->company_email, __METHOD__);
+
+            return $this;
+        }else{
+            //Reset password to hide encrypted value
+            $this->company_password_hash = $oldPasswordInput;
+        }
+
+        return null;
     }
 
     /**
