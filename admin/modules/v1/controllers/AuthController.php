@@ -112,7 +112,7 @@ class AuthController extends Controller
         $token = Yii::$app->request->getBodyParam("token");
         $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
-        $agent =  Agent::findByPasswordResetToken($token);
+        $agent =  Admin::findByPasswordResetToken($token);
         if(!$agent || !$newPassword){
             return [
                 'operation' => 'error',
