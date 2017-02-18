@@ -44,6 +44,7 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
+            [['staff_email'], 'email'],
             [['staff_password_reset_token'], 'unique'],
         ];
     }

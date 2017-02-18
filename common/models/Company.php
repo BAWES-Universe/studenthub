@@ -45,6 +45,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_name', 'company_email', 'company_password_hash', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_email'], 'unique'],
+            [['company_email'], 'email'],
             [['company_password_reset_token'], 'unique'],
         ];
     }

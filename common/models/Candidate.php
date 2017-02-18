@@ -47,6 +47,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_email'], 'unique'],
+            [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
             [['candidate_password_reset_token'], 'unique'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
