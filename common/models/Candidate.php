@@ -41,7 +41,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_auth_key'], 'required'],
+            [['candidate_name', 'candidate_email', 'candidate_civil_id'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['company_id', 'candidate_status'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
@@ -77,7 +77,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_email' => 'Candidate Email',
             'candidate_civil_id' => 'Candidate Civil ID',
             'candidate_auth_key' => 'Candidate Auth Key',
-            'candidate_password_hash' => 'Candidate Password Hash',
+            'candidate_password_hash' => 'Password',
             'candidate_password_reset_token' => 'Candidate Password Reset Token',
             'candidate_status' => 'Candidate Status',
             'candidate_created_at' => 'Candidate Created At',
@@ -107,21 +107,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return static|null the saved model or null if saving fails
      */
     public function signup() {
-        $oldPasswordInput = $this->candidate_password_hash;
+        if($this->validate()){
+            $this->setPassword($this->candidate_password_hash);
+            $this->generateAuthKey();
+            $this->save(false);
 
-        $this->setPassword($this->candidate_password_hash);
-        $this->generateAuthKey();
-
-        if ($this->save()) {
-            //Log candidate signup
             Yii::info("[New Candidate Account Created] ".$this->candidate_email, __METHOD__);
 
             return $this;
-        }else{
-            //Reset password to hide encrypted value
-            $this->candidate_password_hash = $oldPasswordInput;
         }
-
         return null;
     }
 

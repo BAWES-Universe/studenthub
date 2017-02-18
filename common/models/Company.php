@@ -39,7 +39,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name', 'company_email', 'company_auth_key'], 'required'],
+            [['company_name', 'company_email'], 'required'],
             [['company_password_hash'], 'required', 'on'=>'newAccount'],
             [['company_status'], 'integer'],
             [['company_name', 'company_email', 'company_password_hash', 'company_password_reset_token'], 'string', 'max' => 255],
@@ -71,7 +71,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_name' => 'Company Name',
             'company_email' => 'Company Email',
             'company_auth_key' => 'Company Auth Key',
-            'company_password_hash' => 'Company Password Hash',
+            'company_password_hash' => 'Password',
             'company_password_reset_token' => 'Company Password Reset Token',
             'company_status' => 'Company Status',
             'company_created_at' => 'Company Created At',
@@ -101,21 +101,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @return static|null the saved model or null if saving fails
      */
     public function signup() {
-        $oldPasswordInput = $this->company_password_hash;
+        if($this->validate()){
+            $this->setPassword($this->company_password_hash);
+            $this->generateAuthKey();
+            $this->save(false);
 
-        $this->setPassword($this->company_password_hash);
-        $this->generateAuthKey();
-
-        if ($this->save()) {
-            //Log company signup
             Yii::info("[New Company Account Created] ".$this->company_email, __METHOD__);
 
             return $this;
-        }else{
-            //Reset password to hide encrypted value
-            $this->company_password_hash = $oldPasswordInput;
         }
-
         return null;
     }
 

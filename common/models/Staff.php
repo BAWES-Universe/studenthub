@@ -38,7 +38,7 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['staff_name', 'staff_email', 'staff_auth_key', 'staff_password_hash'], 'required'],
+            [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
             [['staff_status'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token'], 'string', 'max' => 255],
@@ -70,7 +70,7 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'staff_name' => 'Staff Name',
             'staff_email' => 'Staff Email',
             'staff_auth_key' => 'Staff Auth Key',
-            'staff_password_hash' => 'Staff Password Hash',
+            'staff_password_hash' => 'Password',
             'staff_password_reset_token' => 'Staff Password Reset Token',
             'staff_status' => 'Staff Status',
             'staff_created_at' => 'Staff Created At',
@@ -92,21 +92,15 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @return static|null the saved model or null if saving fails
      */
     public function signup() {
-        $oldPasswordInput = $this->staff_password_hash;
+        if($this->validate()){
+            $this->setPassword($this->staff_password_hash);
+            $this->generateAuthKey();
+            $this->save(false);
 
-        $this->setPassword($this->staff_password_hash);
-        $this->generateAuthKey();
-
-        if ($this->save()) {
-            //Log staff signup
             Yii::info("[New Staff Account Created] ".$this->staff_email, __METHOD__);
 
             return $this;
-        }else{
-            //Reset password to hide encrypted value
-            $this->staff_password_hash = $oldPasswordInput;
         }
-
         return null;
     }
 
