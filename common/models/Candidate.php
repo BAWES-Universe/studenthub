@@ -13,14 +13,20 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $candidate_id
  * @property integer $company_id
  * @property string $candidate_name
+ * @property string $candidate_name_ar
  * @property string $candidate_email
+ * @property string $candidate_birth_date
  * @property string $candidate_civil_id
+ * @property string $candidate_civil_expiry_date
+ * @property string $candidate_civil_photo_front
+ * @property string $candidate_civil_photo_back
+ * @property float $candidate_hourly_rate
  * @property string $candidate_auth_key
  * @property string $candidate_password_hash
  * @property string $candidate_password_reset_token
  * @property integer $candidate_status
- * @property integer $candidate_created_at
- * @property integer $candidate_updated_at
+ * @property string $candidate_created_at
+ * @property string $candidate_updated_at
  *
  * @property CandidateToken[] $accessTokens
  * @property Company $company
@@ -41,7 +47,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['candidate_name', 'candidate_email', 'candidate_civil_id'], 'required'],
+            [['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['company_id', 'candidate_status'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
@@ -73,15 +79,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             'candidate_id' => 'Candidate ID',
             'company_id' => 'Company ID',
-            'candidate_name' => 'Candidate Name',
-            'candidate_email' => 'Candidate Email',
-            'candidate_civil_id' => 'Candidate Civil ID',
-            'candidate_auth_key' => 'Candidate Auth Key',
+            'candidate_name' => 'Name [English]',
+            'candidate_name_ar' => 'Name [Arabic]',
+            'candidate_email' => 'Email',
+            'candidate_birth_date' => 'Birth Date',
+            'candidate_civil_id' => 'Civil ID',
+            'candidate_civil_expiry_date' => 'Civil Expiry Date',
+            'candidate_civil_photo_front' => 'Civil Photo Front',
+            'candidate_civil_photo_back' => 'Civil Photo Back',
+            'candidate_hourly_rate' => 'Hourly Rate',
+            'candidate_auth_key' => 'Auth Key',
             'candidate_password_hash' => 'Password',
-            'candidate_password_reset_token' => 'Candidate Password Reset Token',
-            'candidate_status' => 'Candidate Status',
-            'candidate_created_at' => 'Candidate Created At',
-            'candidate_updated_at' => 'Candidate Updated At',
+            'candidate_password_reset_token' => 'Password Reset Token',
+            'candidate_status' => 'Status',
+            'candidate_created_at' => 'Created At',
+            'candidate_updated_at' => 'Updated At',
         ];
     }
 
