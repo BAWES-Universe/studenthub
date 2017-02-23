@@ -77,6 +77,7 @@ class CompanyController extends Controller
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->company_password_hash = Yii::$app->request->getBodyParam("password");
+        $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
 
         if (!$model->signup())
         {
@@ -111,7 +112,8 @@ class CompanyController extends Controller
         $model = Company::findOne((int) $id);
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
-
+        $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
