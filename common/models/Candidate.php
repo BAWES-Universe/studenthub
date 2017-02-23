@@ -12,6 +12,7 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property integer $candidate_id
  * @property integer $company_id
+ * @property integer $store_id
  * @property string $candidate_name
  * @property string $candidate_name_ar
  * @property string $candidate_email
@@ -49,7 +50,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             [['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
-            [['company_id', 'candidate_status'], 'integer'],
+            [['company_id', 'store_id', 'candidate_status'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_email'], 'unique'],
@@ -79,6 +80,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             'candidate_id' => 'Candidate ID',
             'company_id' => 'Company ID',
+            'store_id' => 'Store ID',
             'candidate_name' => 'Name [English]',
             'candidate_name_ar' => 'Name [Arabic]',
             'candidate_email' => 'Email',
