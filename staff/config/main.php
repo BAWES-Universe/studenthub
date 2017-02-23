@@ -53,6 +53,19 @@ return [
                         'OPTIONS login' => 'options',
                     ]
                 ],
+                [ // CandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        //'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
