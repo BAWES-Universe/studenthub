@@ -11,6 +11,7 @@ use yii\behaviors\TimestampBehavior;
  * This is the model class for table "company".
  *
  * @property integer $company_id
+ * @property integer $parent_company_id
  * @property string $company_name
  * @property string $company_email
  * @property string $company_auth_key
@@ -41,7 +42,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return [
             [['company_name', 'company_email'], 'required'],
             [['company_password_hash'], 'required', 'on'=>'newAccount'],
-            [['company_status'], 'integer'],
+            [['parent_company_id', 'company_status'], 'integer'],
             [['company_name', 'company_email', 'company_password_hash', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_email'], 'unique'],
@@ -68,6 +69,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             'company_id' => 'Company ID',
+            'parent_company_id' => 'Parent Company',
             'company_name' => 'Company Name',
             'company_email' => 'Company Email',
             'company_auth_key' => 'Company Auth Key',
