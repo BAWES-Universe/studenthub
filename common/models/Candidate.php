@@ -34,6 +34,9 @@ use yii\behaviors\TimestampBehavior;
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    const STATUS_INCOMPLETE = 10;
+    const STATUS_READY = 1;
+
     /**
      * @inheritdoc
      */
@@ -69,6 +72,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
  
         if($years < 18 || $years > 21) {
             $this->addError('password', 'Candidate age should be between 18 to 21.');
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            //check all values 
+            
+            $attr = $this->attributes;
+            
+            unset($attr['candidate_password_reset_token']);
+
+            //if have empty value 
+
+            if(in_array('', $attr)) {
+                $this->candidate_status = Candidate::STATUS_INCOMPLETE;
+            } else {
+                $this->candidate_status = Candidate::STATUS_READY;
+            } 
+
+            return true;
+        } else {
+            return false;
         }
     }
 
