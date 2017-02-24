@@ -53,6 +53,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['company_id', 'store_id', 'candidate_status'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
             [['candidate_auth_key'], 'string', 'max' => 32],
+            [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
