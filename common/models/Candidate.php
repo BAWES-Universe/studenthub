@@ -56,9 +56,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
+            [['candidate_birth_date'], 'validateAge'],
             [['candidate_password_reset_token'], 'unique'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
+    }
+
+    public function validateAge()
+    {
+        $years = floor((time() - strtotime($this->candidate_birth_date))/31556926);
+ 
+        if($years < 18 || $years > 21) {
+            $this->addError('password', 'Candidate age should be between 18 to 21.');
+        }
     }
 
     public function behaviors() {
