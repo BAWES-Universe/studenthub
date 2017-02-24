@@ -60,6 +60,7 @@ return [
                         'GET' => 'list',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'PATCH assign/<id>' => 'assign',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',

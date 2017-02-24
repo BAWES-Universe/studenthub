@@ -114,7 +114,7 @@ class CandidateController extends Controller
     }
 
     /**
-     * Create a Candidate account
+     * Update a Candidate account
      */
     public function actionUpdate($id)
     {
@@ -134,6 +134,43 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
 
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account successfully updated"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Assign Store, Company to Candidate account
+     */
+    public function actionAssign($id)
+    {
+        // Attempt to create new account
+        $model = Candidate::findOne((int) $id);
+
+        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->store_id = Yii::$app->request->getBodyParam("store_id");
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
