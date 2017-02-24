@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use common\models\Candidate;
+use yii\data\ActiveDataProvider;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -62,7 +63,11 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        return Candidate::find()->all();
+        $query = Candidate::find();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
