@@ -82,15 +82,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-
             //check all values
-
             $attr = $this->attributes;
-
             unset($attr['candidate_password_reset_token']);
 
             //if have empty value
-
             if(in_array('', $attr)) {
                 $this->candidate_status = Candidate::STATUS_INCOMPLETE;
             } else {
@@ -98,9 +94,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
 
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public function behaviors() {
