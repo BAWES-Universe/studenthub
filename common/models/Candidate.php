@@ -31,6 +31,7 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property CandidateToken[] $accessTokens
  * @property Company $company
+ * @property Store $store
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -69,7 +70,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function validateAge()
     {
         $years = floor((time() - strtotime($this->candidate_birth_date))/31556926);
- 
+
         if($years < 18 || $years > 21) {
             $this->addError('password', 'Candidate age should be between 18 to 21.');
         }
@@ -82,19 +83,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if (parent::beforeSave($insert)) {
 
-            //check all values 
-            
+            //check all values
+
             $attr = $this->attributes;
-            
+
             unset($attr['candidate_password_reset_token']);
 
-            //if have empty value 
+            //if have empty value
 
             if(in_array('', $attr)) {
                 $this->candidate_status = Candidate::STATUS_INCOMPLETE;
             } else {
                 $this->candidate_status = Candidate::STATUS_READY;
-            } 
+            }
 
             return true;
         } else {
@@ -146,6 +147,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getCompany()
     {
         return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore()
+    {
+        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
     }
 
     /**
