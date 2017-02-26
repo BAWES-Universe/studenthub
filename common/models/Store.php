@@ -15,6 +15,7 @@ use Yii;
  * @property string $store_updated_at
  *
  * @property Company $company
+ * @property Candidate[] $candidates
  */
 class Store extends \yii\db\ActiveRecord
 {
@@ -61,5 +62,13 @@ class Store extends \yii\db\ActiveRecord
     public function getCompany()
     {
         return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates()
+    {
+        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
     }
 }
