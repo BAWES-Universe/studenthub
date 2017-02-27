@@ -154,14 +154,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getStore()
-    {
-        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
-    }
-
-    /**
      * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
      */
