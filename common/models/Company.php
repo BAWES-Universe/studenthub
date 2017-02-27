@@ -21,6 +21,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_created_at
  * @property integer $company_updated_at
  *
+ * @property Company[] $parentCompany
  * @property CompanyToken[] $accessTokens
  * @property Candidate[] $candidates
  */
@@ -79,6 +80,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_created_at' => 'Company Created At',
             'company_updated_at' => 'Company Updated At',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany()
+    {
+        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
     }
 
     /**
