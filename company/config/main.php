@@ -63,6 +63,15 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // TransferController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer',
+                    'patterns' => [
+                        'POST' => 'create',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
