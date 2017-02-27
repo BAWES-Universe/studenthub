@@ -5,8 +5,10 @@ namespace company\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
-use common\models\Candidate;
 use yii\data\ActiveDataProvider;
+use common\models\Store;
+use common\models\Company;
+use common\models\Candidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -64,10 +66,26 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $company = Yii::$app->user->identity;
+        $company_id = Yii::$app->user->identity;
+
+        // list all sub companies 
+        
+        $companies = Company::findAll(['parent_company_id' => $company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company_id;
+
+        // list all stores 
+        
+        $stores = Store::find()
+            ->where(['in', 'company_id', $company_ids])
+            ->all();
+
+        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
 
         $query = Candidate::find()
-            ->where(['company_id' => $company->company_id]);
+            ->where(['in', 'store_id', $store_ids]);
 
         return new ActiveDataProvider([
             'query' => $query
