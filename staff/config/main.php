@@ -61,6 +61,7 @@ return [
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH assign/<id>' => 'assign',
+                        'DELETE unassign/<id>' => 'unassign',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',

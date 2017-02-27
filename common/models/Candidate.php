@@ -11,7 +11,6 @@ use yii\behaviors\TimestampBehavior;
  * This is the model class for table "candidate".
  *
  * @property integer $candidate_id
- * @property integer $company_id
  * @property integer $store_id
  * @property string $candidate_name
  * @property string $candidate_name_ar
@@ -53,7 +52,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             [['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
-            [['company_id', 'store_id', 'candidate_status'], 'integer'],
+            [['store_id', 'candidate_status'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
@@ -62,7 +61,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_civil_id'], 'unique'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_password_reset_token'], 'unique'],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
 
@@ -71,7 +70,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $years = floor((time() - strtotime($this->candidate_birth_date))/31556926);
  
         if($years < 18 || $years > 21) {
-            $this->addError('password', 'Candidate age should be between 18 to 21.');
+            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 21.');
         }
     }
 
@@ -120,7 +119,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             'candidate_id' => 'Candidate ID',
-            'company_id' => 'Company ID',
             'store_id' => 'Store ID',
             'candidate_name' => 'Name [English]',
             'candidate_name_ar' => 'Name [Arabic]',
@@ -143,9 +141,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getStore()
+    {
+        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        if(isset($this->store->company_id)) {
+            return Company::findOne($this->store->company_id);   
+        }
     }
 
     /**

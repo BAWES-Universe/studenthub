@@ -79,7 +79,6 @@ class CandidateController extends Controller
         $model = new Candidate();
         $model->scenario = "newAccount";
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
@@ -126,7 +125,6 @@ class CandidateController extends Controller
         // Attempt to create new account
         $model = Candidate::findOne((int) $id);
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
@@ -166,15 +164,50 @@ class CandidateController extends Controller
     }
 
     /**
-     * Assign Store, Company to Candidate account
+     * Assign Store to Candidate account
      */
     public function actionAssign($id)
     {
         // Attempt to create new account
         $model = Candidate::findOne((int) $id);
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
+        
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account successfully updated"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Remove Store from Candidate account
+     */
+    public function actionUnassign($id)
+    {
+        // Attempt to create new account
+        $model = Candidate::findOne((int) $id);
+
+        $model->store_id = null;
         
         if (!$model->save())
         {
