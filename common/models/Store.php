@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use yii\base\NotSupportedException;
+use yii\db\Expression;
+use yii\behaviors\TimestampBehavior;
 
 /**
  * This is the model class for table "store".
@@ -34,10 +37,21 @@ class Store extends \yii\db\ActiveRecord
     {
         return [
             [['company_id', 'store_status'], 'integer'],
-            [['store_name', 'store_created_at', 'store_updated_at'], 'required'],
+            [['store_name'], 'required'],
             [['store_created_at', 'store_updated_at'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+        ];
+    }
+
+    public function behaviors() {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'store_created_at',
+                'updatedAtAttribute' => 'store_updated_at',
+                'value' => new Expression('NOW()'),
+            ],
         ];
     }
 
