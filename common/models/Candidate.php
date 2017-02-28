@@ -61,9 +61,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
             [['candidate_birth_date'], 'validateAge'],
+            [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
         ];
+    }
+
+    public function validateCivilExpiry()
+    {
+        if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
+        {
+            $this->addError('candidate_civil_expiry_date', 'Civil Expiry Date not valid.');
+        }
     }
 
     public function validateAge()
