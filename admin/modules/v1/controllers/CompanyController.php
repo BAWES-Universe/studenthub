@@ -5,6 +5,7 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
+use yii\data\ActiveDataProvider;
 use common\models\Company;
 
 /**
@@ -62,7 +63,11 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        return Company::find()->all();
+        $query = Company::find();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
