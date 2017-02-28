@@ -58,6 +58,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'POST filter' => 'filter',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
