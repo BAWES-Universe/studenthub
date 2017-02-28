@@ -66,15 +66,15 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $company_id = Yii::$app->user->identity;
+        $company = Yii::$app->user->identity;
 
         // list all sub companies 
         
-        $companies = Company::findAll(['parent_company_id' => $company_id]);
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
-        $company_ids[] = $company_id;
+        $company_ids[] = $company->company_id;
 
         // list all stores 
         
@@ -86,6 +86,47 @@ class CandidateController extends Controller
 
         $query = Candidate::find()
             ->where(['in', 'store_id', $store_ids]);
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate Accounts assigned to
+     * Specific Store.
+     */
+    public function actionFilter()
+    {
+        $company = Yii::$app->user->identity;
+
+        $store_id = Yii::$app->request->getBodyParam("store_id");
+
+        $store = Store::findOne($store_id);
+
+        if(empty($store) || empty($store->company)) {
+            return [
+                    "operation" => "error",
+                    "message" => "Store not valid."
+                ];
+        }
+
+        $arr_store_company_ids = [
+                $store->company->company_id,
+                $store->company->parent_company_id
+            ];
+
+        //check if logined company does not belong to store companies 
+
+        if(!in_array($company->company_id, $arr_store_company_ids)) {
+            return [
+                    "operation" => "error",
+                    "message" => "You are not authorize to list candidates from this store."
+                ];
+        }
+
+        $query = Candidate::find()
+            ->where(['store_id' => $store_id]);
 
         return new ActiveDataProvider([
             'query' => $query
