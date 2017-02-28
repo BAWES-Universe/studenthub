@@ -25,6 +25,25 @@ use common\models\Candidate;
  */
 class Transfer extends \yii\db\ActiveRecord
 {
+    const STATUS_LOCK = 1;
+    const STATUS_PAYMENT_SENT = 2;
+    const STATUS_PAYMENT_RECEIVED = 3;
+    const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 4;
+    const STATUS_TRANSFER_COMPLETE = 5;
+    const STATUS_DRAFT = 10;
+
+    public function statusList()
+    {
+        return [
+            STATUS_LOCK => 'Lock',
+            STATUS_PAYMENT_SENT => 'Payment Sent',
+            STATUS_PAYMENT_RECEIVED => 'Payment Received',
+            STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Salary distribution in progress',
+            STATUS_TRANSFER_COMPLETE => 'Transfer Completed',
+            STATUS_DRAFT => 'Draft'
+        ];
+    }
+
     /**
      * @inheritdoc
      */
