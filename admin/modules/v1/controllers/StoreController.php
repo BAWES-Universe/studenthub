@@ -6,12 +6,13 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Staff;
+use common\models\Store;
+use common\models\candidate;
 
 /**
- * Staff controller - Manage staff accounts as Admin
+ * Store controller - Manage store as Admin
  */
-class StaffController extends Controller
+class StoreController extends Controller
 {
     public function behaviors()
     {
@@ -59,11 +60,11 @@ class StaffController extends Controller
     }
 
     /**
-     * Return a List of Staff Accounts available.
+     * Return a List of Store Accounts available.
      */
     public function actionList()
     {
-        $query = Staff::find();
+        $query = Store::find();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -71,51 +72,15 @@ class StaffController extends Controller
     }
 
     /**
-     * Create a staff account
+     * Create a store account
      */
     public function actionCreate()
     {
-        // Attempt to create new account
-        $model = new Staff();
-        $model->scenario = "newAccount";
-
-        $model->staff_name = Yii::$app->request->getBodyParam("name");
-        $model->staff_email =Yii::$app->request->getBodyParam("email");
-        $model->staff_password_hash = Yii::$app->request->getBodyParam("password");
-
-        if (!$model->signup())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the account, please contact us for assistance."
-                ];
-            }
-        }
-
-        return [
-            "operation" => "success",
-            "message" => "Staff account successfully created"
-        ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
-    }
-
-    /**
-     * Create a staff account
-     */
-    public function actionUpdate($id)
-    {
-        // Attempt to create new account
-        $model = Staff::findOne((int) $id);
-        $model->staff_name = Yii::$app->request->getBodyParam("name");
-        $model->staff_email =Yii::$app->request->getBodyParam("email");
+        // Attempt to create new store
+        $model = new Store();
+        
+        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->store_name = Yii::$app->request->getBodyParam("name");
 
         if (!$model->save())
         {
@@ -127,16 +92,50 @@ class StaffController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                    "message" => "We've faced a problem creating the store, please contact us for assistance."
                 ];
             }
         }
 
-        Yii::info("[Staff Account Updated] ".$model->staff_email, __METHOD__);
+        return [
+            "operation" => "success",
+            "message" => "Store successfully created"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Create a store account
+     */
+    public function actionUpdate($id)
+    {
+        // Attempt to create new account
+        $model = Store::findOne((int) $id);
+        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->store_name = Yii::$app->request->getBodyParam("name");
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the store, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info("[Store Updated] ".$model->store_name, __METHOD__);
 
         return [
             "operation" => "success",
-            "message" => "Staff account successfully updated"
+            "message" => "Store successfully updated"
         ];
 
         // Check SQL Query Count and Duration
@@ -150,20 +149,32 @@ class StaffController extends Controller
      */
     public function actionDelete($id)
     {
-        $staffMember = Staff::findOne((int)$id);
+        $store = Store::findOne((int)$id);
 
-        if($staffMember){
-            Yii::warning("[Staff Account Deleted] ".$staffMember->staff_email, __METHOD__);
+        //Shouldn't be able to delete a store that has candidates assigned to it
 
-            // Delete the account
-            $staffMember->delete();
+        $candidates = candidate::findOne(['store_id' => $store->store_id]);
+
+        if($candidates) {
+            return [
+                "operation" => "error",
+                "message" => "Store have some candidates assigned to it."
+            ];
+        }
+
+        if($store){
+            Yii::warning("[Store Deleted] ".$store->store_name, __METHOD__);
+
+            // Delete store
+            $store->delete();
+
             return [
                 "operation" => "success",
             ];
         }else{
             return [
                 "operation" => "error",
-                "message" => "Account not found or already deleted."
+                "message" => "Store not found or already deleted."
             ];
         }
 
