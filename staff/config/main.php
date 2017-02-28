@@ -59,6 +59,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'POST' => 'create',
+                        'POST filter' => 'filter',
                         'PATCH <id>' => 'update',
                         'PATCH assign/<id>' => 'assign',
                         'DELETE unassign/<id>' => 'unassign',

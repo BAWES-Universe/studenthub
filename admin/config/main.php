@@ -92,6 +92,17 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate',
+                    'patterns' => [
+                        'POST filter' => 'filter',
+                        //'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
