@@ -141,4 +141,32 @@ class TransferController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
+
+    /** 
+     *  Lock transfer to invoice 
+     */ 
+    public function actionLock($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $transfer = Transfer::findOne([
+                'company_id' => $company->company_id,
+                'transfer_id' => $id
+            ]);
+
+        if(!$transfer) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Transfer not found!'
+                ];
+        }
+
+        $transfer->transfer_status = Transfer::STATUS_LOCK;
+        $transfer->save();
+
+        return [
+                "operation" => "success",
+                "message" => "Transfer locked successfully"
+            ];
+    }
 }
