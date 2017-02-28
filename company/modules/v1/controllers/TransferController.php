@@ -6,8 +6,11 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
+use common\models\Candidate;
 use common\models\Transfer;
 use common\models\TransferCandidates;
+use common\models\Invoice;
+use common\models\InvoiceCandidates;
 use yii\db\Query;
 
 /**
@@ -59,6 +62,29 @@ class TransferController extends Controller
             'resourceOptions' => ['POST', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * Return a List of Transfer draft.
+     */
+    public function actionList()
+    {
+        $company = Yii::$app->user->identity;
+
+        // list all sub companies 
+        
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        $query = Transfer::find()
+            ->where(['in', 'company_id', $company_ids]);
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
@@ -161,8 +187,51 @@ class TransferController extends Controller
                 ];
         }
 
-        $transfer->transfer_status = Transfer::STATUS_LOCK;
-        $transfer->save();
+        //move transfer to invoice 
+
+        $invoice = new Invoice;
+        $invoice->attributes = $transfer->attributes;
+        $invoice->save(false);
+
+        $total = 0;
+
+        $candidates = TransferCandidates::findAll([
+                'transfer_id' => $transfer->transfer_id
+            ]);
+
+        foreach ($candidates as $key => $value) 
+        {
+            //get hourly rate 
+            
+            $candidate = Candidate::findOne($value->candidate_id);
+
+            if(!$candidate) 
+                continue;
+
+            $invoice_candidate = new InvoiceCandidates;
+            $invoice_candidate->invoice_id = $invoice->invoice_id;
+            $invoice_candidate->candidate_id = $value->candidate_id;
+            $invoice_candidate->hours = $value->hours;
+            $invoice_candidate->bonus = $value->bonus;
+
+            $invoice_candidate->hourly_rate = $candidate->candidate_hourly_rate;
+            $invoice_candidate->save();
+
+            $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate);
+
+            //delete transfer candidate 
+
+            $value->delete();
+        }
+
+        //save total in invoice 
+
+        $invoice->total = $total;
+        $invoice->save();
+
+        //delete transfer 
+
+        $transfer->delete();
 
         return [
                 "operation" => "success",
