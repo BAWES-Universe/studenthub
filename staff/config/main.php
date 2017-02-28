@@ -81,6 +81,16 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CompanyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
