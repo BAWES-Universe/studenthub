@@ -6,9 +6,9 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Store;
-use common\models\Company;
-use common\models\Candidate;
+use company\models\Store;
+use company\models\Company;
+use company\models\Candidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
