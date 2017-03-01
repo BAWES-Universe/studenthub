@@ -66,7 +66,7 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        return Yii::$app->user->identity->candidates;
+        return Yii::$app->user->identity;
     }
 
     /**
