@@ -68,6 +68,7 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/transfer',
                     'patterns' => [
+                        'GET' => 'list',
                         'POST' => 'create',
                         'PATCH lock/<id>' => 'lock',
                         // OPTIONS VERBS

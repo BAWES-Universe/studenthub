@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
+use common\models\Company;
 use common\models\Candidate;
 use common\models\Transfer;
 use common\models\TransferCandidates;
@@ -80,7 +81,10 @@ class TransferController extends Controller
         $company_ids[] = $company->company_id;
 
         $query = Transfer::find()
-            ->where(['in', 'company_id', $company_ids]);
+            ->select('{{%company}}.company_name, {{%company}}.company_email, {{%transfer}}.*')
+            ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
+            ->where(['in', '{{%transfer}}.company_id', $company_ids])
+            ->asArray();
 
         return new ActiveDataProvider([
             'query' => $query
