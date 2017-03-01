@@ -69,6 +69,7 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH lock/<id>' => 'lock',
                         // OPTIONS VERBS
