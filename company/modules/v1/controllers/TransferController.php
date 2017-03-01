@@ -187,47 +187,67 @@ class TransferController extends Controller
                 ];
         }
 
-        //move transfer to invoice 
+        //select distinct company and create invoice for each company 
 
-        $invoice = new Invoice;
-        $invoice->attributes = $transfer->attributes;
-        $invoice->save(false);
+        $companies = TransferCandidates::find()
+            ->select('{{%store}}.company_id')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+            ->where([
+                '{{%transfer_candidates}}.transfer_id' => $transfer->transfer_id
+            ])
+            ->distinct()
+            ->asArray()
+            ->all();
 
-        $total = 0;
-
-        $candidates = TransferCandidates::findAll([
-                'transfer_id' => $transfer->transfer_id
-            ]);
-
-        foreach ($candidates as $key => $value) 
-        {
-            //get hourly rate 
+        foreach ($companies as $key => $sub_company) {
             
-            $candidate = Candidate::findOne($value->candidate_id);
+            //move transfer to invoice 
 
-            if(!$candidate) 
-                continue;
+            $invoice = new Invoice;
+            $invoice->attributes = $transfer->attributes;
+            $invoice->company_id = $sub_company['company_id'];
+            $invoice->save(false);
 
-            $invoice_candidate = new InvoiceCandidates;
-            $invoice_candidate->invoice_id = $invoice->invoice_id;
-            $invoice_candidate->candidate_id = $value->candidate_id;
-            $invoice_candidate->hours = $value->hours;
-            $invoice_candidate->bonus = $value->bonus;
+            $total = 0;
 
-            $invoice_candidate->hourly_rate = $candidate->candidate_hourly_rate;
-            $invoice_candidate->save();
+            // transfer candidate for current company 
 
-            $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate);
+            $candidates = TransferCandidates::find()
+                ->select('{{%candidate}}.candidate_hourly_rate, {{%transfer_candidates}}.*')
+                ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+                ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+                ->where([
+                    '{{%transfer_candidates}}.transfer_id' => $transfer->transfer_id,
+                    '{{%store}}.company_id' => $sub_company['company_id']
+                ])
+                ->asArray()
+                ->all();
 
-            //delete transfer candidate 
+            foreach ($candidates as $key => $value) 
+            {
+                //get hourly rate 
+                
+                $invoice_candidate = new InvoiceCandidates;
+                $invoice_candidate->invoice_id = $invoice->invoice_id;
+                $invoice_candidate->candidate_id = $value['candidate_id'];
+                $invoice_candidate->hours = $value['hours'];
+                $invoice_candidate->bonus = $value['bonus'];
+                $invoice_candidate->hourly_rate = $value['candidate_hourly_rate'];
+                $invoice_candidate->save();
 
-            $value->delete();
+                $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate);
+
+                //delete transfer candidate 
+
+                TransferCandidates::deleteAll(['tc_id' => $value['tc_id']]);
+            }
+
+            //save total in invoice 
+
+            $invoice->total = $total;
+            $invoice->save();
         }
-
-        //save total in invoice 
-
-        $invoice->total = $total;
-        $invoice->save();
 
         //delete transfer 
 
