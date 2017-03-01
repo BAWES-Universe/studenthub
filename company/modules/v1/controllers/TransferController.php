@@ -92,6 +92,42 @@ class TransferController extends Controller
     }
 
     /**
+     * Return Transfer detail.
+     */
+    public function actionView($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $transfer = Transfer::find()
+            ->where([
+                'company_id' => $company->company_id,
+                'transfer_id' => $id
+            ])
+            ->asArray()
+            ->one();
+            
+        if(!$transfer) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Transfer not found!'
+                ];
+        }
+
+        $transfer['candidates'] = TransferCandidates::find()
+            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_hourly_rate')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
+            ->where([
+                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
+            ])
+            ->asArray()
+            ->all();
+
+        return $transfer;
+    }
+
+    /**
      * Initiate transfer.
      */
     public function actionCreate()
