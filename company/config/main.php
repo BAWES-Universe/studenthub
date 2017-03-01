@@ -82,6 +82,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'PATCH payment-sent/<id>' => 'payment-sent',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options'
                     ]

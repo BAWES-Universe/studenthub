@@ -123,4 +123,32 @@ class InvoiceController extends Controller
 
         return $invoice;
     }
+
+    /** 
+     * Mark Invoice as Payment Sent 
+     */ 
+    public function actionPaymentSent($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $invoice = Invoice::findOne([
+                'company_id' => $company->company_id,
+                'invoice_id' => $id
+            ]);
+            
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        $invoice->invoice_status = Invoice::STATUS_PAYMENT_SENT;
+        $invoice->save();
+
+        return [
+                "operation" => "success",
+                "message" => 'Invoice updated successfully!'
+            ];
+    }
 }
