@@ -81,7 +81,7 @@ class TransferController extends Controller
         $company_ids[] = $company->company_id;
 
         $query = Transfer::find()
-            ->select('{{%company}}.company_name, {{%company}}.company_email, {{%transfer}}.*')
+            ->select('{{%transfer}}.*, {{%company}}.company_name, {{%company}}.company_email')
             ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
             ->where(['in', '{{%transfer}}.company_id', $company_ids])
             ->asArray();
@@ -114,7 +114,7 @@ class TransferController extends Controller
         }
 
         $transfer['candidates'] = TransferCandidates::find()
-            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_hourly_rate')
+            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_hourly_rate, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')

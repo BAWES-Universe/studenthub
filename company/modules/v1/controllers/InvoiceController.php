@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
+use common\models\Company;
 use common\models\Invoice;
 use common\models\InvoiceCandidates;
 use yii\db\Query;
@@ -77,10 +78,49 @@ class InvoiceController extends Controller
         $company_ids[] = $company->company_id;
 
         $query = Invoice::find()
-            ->where(['in', 'company_id', $company_ids]);
+            ->select('{{%invoice}}.*, {{%company}}.company_name, {{%company}}.company_email')
+            ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%invoice}}.company_id')
+            ->where(['in', '{{%invoice}}.company_id', $company_ids])
+            ->asArray();
 
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * Return Invoice detail.
+     */
+    public function actionView($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $invoice = Invoice::find()
+            ->where([
+                'company_id' => $company->company_id,
+                'invoice_id' => $id
+            ])
+            ->asArray()
+            ->one();
+            
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        $invoice['candidates'] = InvoiceCandidates::find()
+            ->select('{{%invoice_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%invoice_candidates}}.candidate_id')
+            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
+            ->where([
+                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+            ])
+            ->asArray()
+            ->all();
+
+        return $invoice;
     }
 }
