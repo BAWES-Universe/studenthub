@@ -76,6 +76,16 @@ return [
                         'OPTIONS' => 'options'
                     ]
                 ],
+                [ // InvoiceController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invoice',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
