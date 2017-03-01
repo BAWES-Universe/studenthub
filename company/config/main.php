@@ -24,7 +24,7 @@ return [
             ]
         ],
         'user' => [
-            'identityClass' => 'common\models\Company',
+            'identityClass' => 'company\models\Company',
             'enableAutoLogin' => false,
             'enableSession' => false,
             'loginUrl' => null
