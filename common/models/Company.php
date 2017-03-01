@@ -21,8 +21,12 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_created_at
  * @property integer $company_updated_at
  *
- * @property Company[] $parentCompany
+ * @property Company $parentCompany
+ * @property Company[] $subCompanies
  * @property CompanyToken[] $accessTokens
+ * @property Invoice[] $invoices
+ * @property Store[] $stores
+ * @property Transfer[] $transfers
  * @property Candidate[] $candidates
  */
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
@@ -87,6 +91,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getParentCompany()
     {
+        return $this->hasMany(Company::className(), ['company_id' => 'parent_company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSubCompanies()
+    {
         return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
     }
 
@@ -95,7 +107,31 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getCandidates()
     {
-        return $this->hasMany(Candidate::className(), ['company_id' => 'company_id']);
+        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])->via('stores');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoices()
+    {
+        return $this->hasMany(Invoice::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStores()
+    {
+        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers()
+    {
+        return $this->hasMany(Transfer::className(), ['company_id' => 'company_id']);
     }
 
     /**
