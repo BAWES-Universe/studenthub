@@ -102,6 +102,17 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
+                ],                
+                [ // InvoiceController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invoice',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'PATCH payment-received/<id>' => 'payment-received',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options'
+                    ]
                 ],
             ],
         ],
