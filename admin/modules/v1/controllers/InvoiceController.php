@@ -110,6 +110,46 @@ class InvoiceController extends Controller
         return $invoice;
     }
 
+    /**
+     * Export Invoice detail.
+     */
+    public function actionExport($id)
+    {
+        $invoice = Invoice::find()
+            ->where([
+                'invoice_id' => $id
+            ])
+            ->asArray()
+            ->one();
+            
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        $candidates = InvoiceCandidates::find()
+            ->where([
+                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+            ])
+            ->all();
+
+        \moonland\phpexcel\Excel::export([
+            'models' => $candidates,
+            'columns' => [
+                'candidate_id',
+                'candidate.candidate_name',
+                'candidate.candidate_email',
+                'candidate.store.company.company_name',
+                'candidate.store.store_name',
+                'hourly_rate',
+                'bonus',
+                'total'
+            ]
+        ]);
+    }
+
     /** 
      * Mark Invoice as Payment Received
      */ 
@@ -127,6 +167,56 @@ class InvoiceController extends Controller
         }
 
         $invoice->invoice_status = Invoice::STATUS_PAYMENT_RECEIVED;
+        $invoice->save();
+
+        return [
+                "operation" => "success",
+                "message" => 'Invoice updated successfully!'
+            ];
+    }
+
+    /** 
+     * Mark Invoice as Payment In Process
+     */ 
+    public function actionPaymentInProcess($id)
+    {
+        $invoice = Invoice::findOne([
+                'invoice_id' => $id
+            ]);
+            
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        $invoice->invoice_status = Invoice::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+        $invoice->save();
+
+        return [
+                "operation" => "success",
+                "message" => 'Invoice updated successfully!'
+            ];
+    }
+
+    /** 
+     * Mark Invoice as Payment In Completed
+     */ 
+    public function actionPaymentCompleted($id)
+    {
+        $invoice = Invoice::findOne([
+                'invoice_id' => $id
+            ]);
+            
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        $invoice->invoice_status = Invoice::STATUS_TRANSFER_COMPLETE;
         $invoice->save();
 
         return [
