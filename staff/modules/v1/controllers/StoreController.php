@@ -168,9 +168,7 @@ class StoreController extends Controller
 
         //Shouldn't be able to delete a store that has candidates assigned to it
 
-        $candidates = candidate::findOne(['store_id' => $store->store_id]);
-
-        if($candidates) {
+        if($store->candidates) {
             return [
                 "operation" => "error",
                 "message" => "Store have some candidates assigned to it."
