@@ -136,6 +136,7 @@ class InvoiceController extends Controller
             ->all();
 
         \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
             'models' => $candidates,
             'columns' => [
                 'candidate_id',
@@ -143,6 +144,7 @@ class InvoiceController extends Controller
                 'candidate.candidate_email',
                 'candidate.store.company.company_name',
                 'candidate.store.store_name',
+                'transfer_cost',
                 'hourly_rate',
                 'bonus',
                 'total'
