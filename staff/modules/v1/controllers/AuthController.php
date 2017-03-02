@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
-use common\models\Staff;
+use staff\models\Staff;
 
 /**
  * Auth controller provides the initial access token that is required for further requests

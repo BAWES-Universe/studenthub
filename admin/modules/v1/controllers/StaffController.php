@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Staff;
+use admin\models\Staff;
 
 /**
  * Staff controller - Manage staff accounts as Admin

@@ -5,8 +5,8 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
-use common\models\Candidate;
 use yii\data\ActiveDataProvider;
+use staff\models\Candidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin

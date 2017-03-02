@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 
-use common\models\Admin;
+use admin\models\Admin;
 
 /**
  * Auth controller provides the initial access token that is required for further requests

@@ -3,13 +3,13 @@
 namespace admin\modules\v1\controllers;
 
 use Yii;
+use yii\db\Query;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Company;
+use admin\models\Company;
 use common\models\Invoice;
 use common\models\InvoiceCandidates;
-use yii\db\Query;
 
 /**
  * Invoice controller - Manage Invoice
