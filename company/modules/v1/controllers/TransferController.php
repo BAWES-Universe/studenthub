@@ -6,8 +6,8 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Company;
-use common\models\Candidate;
+use company\models\Company;
+use company\models\Candidate;
 use common\models\Transfer;
 use common\models\TransferCandidates;
 use common\models\Invoice;
@@ -72,8 +72,8 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        // list all sub companies 
-        
+        // list all sub companies
+
         $companies = Company::findAll(['parent_company_id' => $company->company_id]);
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
@@ -105,7 +105,7 @@ class TransferController extends Controller
             ])
             ->asArray()
             ->one();
-            
+
         if(!$transfer) {
             return [
                     "operation" => "error",
@@ -134,10 +134,10 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        //validate input 
+        //validate input
 
         $errors = Transfer::validate_candidates(
-            $company->company_id, 
+            $company->company_id,
             Yii::$app->request->getBodyParam("candidates")
         );
 
@@ -148,13 +148,13 @@ class TransferController extends Controller
                 ];
         }
 
-        //save transfer 
+        //save transfer
 
         $transaction = Yii::$app->db->beginTransaction();
 
         $transfer = new Transfer;
         $transfer->company_id = $company->company_id;
-        
+
         if(!$transfer->save()){
 
             if(isset($transfer->errors)){
@@ -170,7 +170,7 @@ class TransferController extends Controller
             }
         }
 
-        //save candidates 
+        //save candidates
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
@@ -178,8 +178,8 @@ class TransferController extends Controller
             $tc = new TransferCandidates;
             $tc->attributes = $value;
             $tc->transfer_id = $transfer->transfer_id;
-            
-            if(!$tc->save()) 
+
+            if(!$tc->save())
             {
                 $transaction->rollBack();
 
@@ -208,9 +208,9 @@ class TransferController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
-    /** 
-     *  Lock transfer to invoice 
-     */ 
+    /**
+     *  Lock transfer to invoice
+     */
     public function actionLock($id)
     {
         $company = Yii::$app->user->identity;
@@ -227,7 +227,7 @@ class TransferController extends Controller
                 ];
         }
 
-        //select distinct company and create invoice for each company 
+        //select distinct company and create invoice for each company
 
         $companies = TransferCandidates::find()
             ->select('{{%store}}.company_id')
@@ -241,8 +241,8 @@ class TransferController extends Controller
             ->all();
 
         foreach ($companies as $key => $sub_company) {
-            
-            //move transfer to invoice 
+
+            //move transfer to invoice
 
             $invoice = new Invoice;
             $invoice->attributes = $transfer->attributes;
@@ -251,7 +251,7 @@ class TransferController extends Controller
 
             $total = 0;
 
-            // transfer candidate for current company 
+            // transfer candidate for current company
 
             $candidates = TransferCandidates::find()
                 ->select('{{%candidate}}.candidate_hourly_rate, {{%transfer_candidates}}.*')
@@ -264,10 +264,10 @@ class TransferController extends Controller
                 ->asArray()
                 ->all();
 
-            foreach ($candidates as $key => $value) 
+            foreach ($candidates as $key => $value)
             {
-                //get hourly rate 
-                
+                //get hourly rate
+
                 $invoice_candidate = new InvoiceCandidates;
                 $invoice_candidate->invoice_id = $invoice->invoice_id;
                 $invoice_candidate->candidate_id = $value['candidate_id'];
@@ -278,18 +278,18 @@ class TransferController extends Controller
 
                 $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate);
 
-                //delete transfer candidate 
+                //delete transfer candidate
 
                 TransferCandidates::deleteAll(['tc_id' => $value['tc_id']]);
             }
 
-            //save total in invoice 
+            //save total in invoice
 
             $invoice->total = $total;
             $invoice->save();
         }
 
-        //delete transfer 
+        //delete transfer
 
         $transfer->delete();
 

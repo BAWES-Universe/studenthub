@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Company;
+use company\models\Company;
 use common\models\Invoice;
 use common\models\InvoiceCandidates;
 use yii\db\Query;
@@ -69,8 +69,8 @@ class InvoiceController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        // list all sub companies 
-        
+        // list all sub companies
+
         $companies = Company::findAll(['parent_company_id' => $company->company_id]);
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
@@ -102,7 +102,7 @@ class InvoiceController extends Controller
             ])
             ->asArray()
             ->one();
-            
+
         if(!$invoice) {
             return [
                     "operation" => "error",
@@ -124,9 +124,9 @@ class InvoiceController extends Controller
         return $invoice;
     }
 
-    /** 
-     * Mark Invoice as Payment Sent 
-     */ 
+    /**
+     * Mark Invoice as Payment Sent
+     */
     public function actionPaymentSent($id)
     {
         $company = Yii::$app->user->identity;
@@ -135,7 +135,7 @@ class InvoiceController extends Controller
                 'company_id' => $company->company_id,
                 'invoice_id' => $id
             ]);
-            
+
         if(!$invoice) {
             return [
                     "operation" => "error",
