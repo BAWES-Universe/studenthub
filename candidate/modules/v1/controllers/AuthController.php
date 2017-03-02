@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 
-use common\models\Agent;
+use candidate\models\Candidate;
 
 /**
  * Auth controller provides the initial access token that is required for further requests
@@ -39,7 +39,7 @@ class AuthController extends Controller
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
             'auth' => function ($email, $password) {
-                $agent = Agent::findByEmail($email);
+                $agent = Candidate::findByEmail($email);
                 if ($agent && $agent->validatePassword($password)) {
                     return $agent;
                 }
@@ -93,7 +93,7 @@ class AuthController extends Controller
 
         // Email and password are correct, check if his email has been verified
         // If agent email has been verified, then allow him to log in
-        if($agent->agent_email_verified != Agent::EMAIL_VERIFIED){
+        if($agent->agent_email_verified != Candidate::EMAIL_VERIFIED){
             return [
                 "operation" => "error",
                 "errorType" => "email-not-verified",
@@ -118,7 +118,7 @@ class AuthController extends Controller
      */
     public function actionCreateAccount()
     {
-        $model = new \common\models\Agent();
+        $model = new \common\models\Candidate();
         $model->scenario = "manualSignup";
 
         $model->agent_name = Yii::$app->request->getBodyParam("fullname");
@@ -154,7 +154,7 @@ class AuthController extends Controller
     {
         $emailInput = Yii::$app->request->getBodyParam("email");
 
-        $agent = Agent::findOne([
+        $agent = Candidate::findOne([
             'agent_email' => $emailInput,
         ]);
 
@@ -175,7 +175,7 @@ class AuthController extends Controller
                             'numMinutes' => $minuteDifference,
                             'numSeconds' => $secondDifference,
                 ]);
-            } else if ($agent->agent_email_verified == Agent::EMAIL_NOT_VERIFIED) {
+            } else if ($agent->agent_email_verified == Candidate::EMAIL_NOT_VERIFIED) {
                 $agent->sendVerificationEmail();
             }
         }
@@ -205,12 +205,12 @@ class AuthController extends Controller
         $verify = Yii::$app->request->getBodyParam("verify");
 
         //Code is his auth key, check if code is valid
-        $agent = Agent::findOne(['agent_auth_key' => $code, 'agent_id' => (int) $verify]);
+        $agent = Candidate::findOne(['agent_auth_key' => $code, 'agent_id' => (int) $verify]);
         if ($agent) {
             //If not verified
-            if ($agent->agent_email_verified == Agent::EMAIL_NOT_VERIFIED) {
+            if ($agent->agent_email_verified == Candidate::EMAIL_NOT_VERIFIED) {
                 //Verify this agents  email
-                $agent->agent_email_verified = Agent::EMAIL_VERIFIED;
+                $agent->agent_email_verified = Candidate::EMAIL_VERIFIED;
                 $agent->save(false);
             }
 
@@ -242,7 +242,7 @@ class AuthController extends Controller
 
         if ($model->validate()){
 
-            $agent = Agent::findOne([
+            $agent = Candidate::findOne([
                 'agent_email' => $model->email,
             ]);
 
@@ -294,7 +294,7 @@ class AuthController extends Controller
         $token = Yii::$app->request->getBodyParam("token");
         $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
-        $agent =  Agent::findByPasswordResetToken($token);
+        $agent =  Candidate::findByPasswordResetToken($token);
         if(!$agent || !$newPassword){
             return [
                 'operation' => 'error',
@@ -341,24 +341,24 @@ class AuthController extends Controller
             $displayName = $displayName?$displayName:$email;
             $fullname = isset($payload['name'])?$payload['name']:$displayName;
 
-            $existingAgent = Agent::find()->where(['agent_email' => $email])->one();
-            if ($existingAgent) {
+            $existingCandidate = Candidate::find()->where(['agent_email' => $email])->one();
+            if ($existingCandidate) {
                 //There's already an agent with this email, update his details
-                $existingAgent->agent_name = $fullname;
-                $existingAgent->agent_email_verified = Agent::EMAIL_VERIFIED;
-                $existingAgent->generatePasswordResetToken();
+                $existingCandidate->agent_name = $fullname;
+                $existingCandidate->agent_email_verified = Candidate::EMAIL_VERIFIED;
+                $existingCandidate->generatePasswordResetToken();
 
                 // On Save, Log him in / Send Access Token
-                if ($existingAgent->save()) {
-                    Yii::info("[Agent Login Google Native] ".$existingAgent->agent_email, __METHOD__);
+                if ($existingCandidate->save()) {
+                    Yii::info("[Candidate Login Google Native] ".$existingCandidate->agent_email, __METHOD__);
 
-                    $accessToken = $existingAgent->accessToken->token_value;
+                    $accessToken = $existingCandidate->accessToken->token_value;
                     return [
                         "operation" => 'success',
                         "token" => $accessToken,
-                        "agentId" => $existingAgent->agent_id,
-                        "name" => $existingAgent->agent_name,
-                        "email" => $existingAgent->agent_email
+                        "agentId" => $existingCandidate->agent_id,
+                        "name" => $existingCandidate->agent_name,
+                        "email" => $existingCandidate->agent_email
                     ];
                 }
 
@@ -368,11 +368,11 @@ class AuthController extends Controller
                     'message' => 'Unable to update your account. Please contact us for assistance.'
                 ];
             } else {
-                //Agent Doesn't have an account, create one for him
-                $agent = new Agent([
+                //Candidate Doesn't have an account, create one for him
+                $agent = new Candidate([
                     'agent_name' => $fullname,
                     'agent_email' => $email,
-                    'agent_email_verified' => Agent::EMAIL_VERIFIED,
+                    'agent_email_verified' => Candidate::EMAIL_VERIFIED,
                     'agent_limit_email' => new Expression('NOW()')
                 ]);
                 $agent->setPassword(Yii::$app->security->generateRandomString(6));
@@ -381,7 +381,7 @@ class AuthController extends Controller
 
                 if ($agent->save()) {
                     //Log agent signup
-                    Yii::info("[New Agent Signup Google Native] ".$agent->agent_email, __METHOD__);
+                    Yii::info("[New Candidate Signup Google Native] ".$agent->agent_email, __METHOD__);
                     // Log him in / Send Access Token
                     $accessToken = $agent->accessToken->token_value;
                     return [

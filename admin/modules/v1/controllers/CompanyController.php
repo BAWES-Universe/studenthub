@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Company;
+use admin\models\Company;
 
 /**
  * Company controller - Manage company accounts as Admin
