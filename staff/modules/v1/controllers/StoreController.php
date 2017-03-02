@@ -113,6 +113,14 @@ class StoreController extends Controller
     {
         // Attempt to create new account
         $model = Store::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Store not found."
+            ];
+        }
+
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_name = Yii::$app->request->getBodyParam("name");
 
@@ -151,6 +159,13 @@ class StoreController extends Controller
     {
         $store = Store::findOne((int)$id);
 
+        if(!$store){
+            return [
+                "operation" => "error",
+                "message" => "Store not found or already deleted."
+            ];
+        }
+
         //Shouldn't be able to delete a store that has candidates assigned to it
 
         $candidates = candidate::findOne(['store_id' => $store->store_id]);
@@ -162,28 +177,15 @@ class StoreController extends Controller
             ];
         }
 
-        if($store){
-            Yii::warning("[Store Deleted] ".$store->store_name, __METHOD__);
+        Yii::warning("[Store Deleted] ".$store->store_name, __METHOD__);
 
-            // Delete store
-            $store->delete();
+        // Delete store
+        $store->delete();
 
-            return [
-                "operation" => "success",
-            ];
-        }else{
-            return [
-                "operation" => "error",
-                "message" => "Store not found or already deleted."
-            ];
-        }
-
-        // Error for cases not accounted for
         return [
-            "operation" => "error",
-            "message" => "Unknown error occured, please contact us for assistance."
+            "operation" => "success",
         ];
-
+   
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }

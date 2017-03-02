@@ -115,6 +115,14 @@ class CompanyController extends Controller
     {
         // Attempt to create new account
         $model = Company::findOne((int) $id);
+
+        if(!$model){
+            return [
+                    "operation" => "error",
+                    "message" => "Company not found"
+                ];
+        }
+
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
