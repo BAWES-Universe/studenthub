@@ -144,6 +144,13 @@ class CandidateController extends Controller
         // Attempt to create new account
         $model = Candidate::findOne((int) $id);
 
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found."
+            ];
+        }
+
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
@@ -190,6 +197,13 @@ class CandidateController extends Controller
         // Attempt to create new account
         $model = Candidate::findOne((int) $id);
 
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found."
+            ];
+        }
+
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         
         if (!$model->save())
@@ -226,6 +240,13 @@ class CandidateController extends Controller
         // Attempt to create new account
         $model = Candidate::findOne((int) $id);
 
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found."
+            ];
+        }
+        
         $model->store_id = null;
         
         if (!$model->save())

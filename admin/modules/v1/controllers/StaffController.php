@@ -114,6 +114,14 @@ class StaffController extends Controller
     {
         // Attempt to create new account
         $model = Staff::findOne((int) $id);
+        
+        if(!$model){
+            return [
+                    "operation" => "error",
+                    "message" => "Staff account not found."
+                ];
+        }
+
         $model->staff_name = Yii::$app->request->getBodyParam("name");
         $model->staff_email =Yii::$app->request->getBodyParam("email");
 
