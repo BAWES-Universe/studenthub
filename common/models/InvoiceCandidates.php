@@ -89,4 +89,9 @@ class InvoiceCandidates extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Invoice::className(), ['invoice_id' => 'invoice_id']);
     }
+
+    public function getTotal()
+    {
+        return $this->bonus + ($this->hourly_rate * $this->hours);
+    }
 }

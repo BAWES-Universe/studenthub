@@ -38,7 +38,7 @@ class Invoice extends \yii\db\ActiveRecord
             STATUS_PAYMENT_SENT => 'Payment Sent',
             STATUS_PAYMENT_RECEIVED => 'Payment Received',
             STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Salary distribution in progress',
-            STATUS_TRANSFER_COMPLETE => 'Invoice Completed',
+            STATUS_TRANSFER_COMPLETE => 'Transfer Completed',
             STATUS_LOCK => 'Lock'
         ];
     }

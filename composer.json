@@ -15,7 +15,8 @@
         "yiisoft/yii2-httpclient": "dev-master",
         "yiisoft/yii2-shell": "~2.0.0",
         "understeam/yii2-slack": "v0.3.0",
-        "openbuildings/swiftmailer-css-inliner": "*"
+        "openbuildings/swiftmailer-css-inliner": "*",
+        "moonlandsoft/yii2-phpexcel": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
@@ -28,7 +29,7 @@
         "process-timeout": 1800
     },
     "extra": {
-        "asset-installer-paths": {
+            "asset-installer-paths": {
             "npm-asset-library": "vendor/npm",
             "bower-asset-library": "vendor/bower"
         }
