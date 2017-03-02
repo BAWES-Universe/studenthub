@@ -273,10 +273,11 @@ class TransferController extends Controller
                 $invoice_candidate->candidate_id = $value['candidate_id'];
                 $invoice_candidate->hours = $value['hours'];
                 $invoice_candidate->bonus = $value['bonus'];
+                $invoice_candidate->transfer_cost = Yii::$app->params['transfer_cost'];
                 $invoice_candidate->hourly_rate = $value['candidate_hourly_rate'];
                 $invoice_candidate->save();
 
-                $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate);
+                $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate) + Yii::$app->params['transfer_cost'];
 
                 //delete transfer candidate
 

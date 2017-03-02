@@ -16,6 +16,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $hours
  * @property string $hourly_rate
  * @property string $bonus
+ * @property string $transfer_cost 
  * @property string $ic_created_at
  * @property string $ic_updated_at
  *
@@ -39,7 +40,7 @@ class InvoiceCandidates extends \yii\db\ActiveRecord
     {
         return [
             [['invoice_id', 'candidate_id'], 'integer'],
-            [['hours', 'bonus', 'hourly_rate'], 'number'],
+            [['hours', 'transfer_cost', 'bonus', 'hourly_rate'], 'number'],
             [['ic_created_at', 'ic_updated_at'], 'safe'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['invoice_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invoice::className(), 'targetAttribute' => ['invoice_id' => 'invoice_id']],
@@ -68,6 +69,7 @@ class InvoiceCandidates extends \yii\db\ActiveRecord
             'candidate_id' => 'Candidate ID',
             'hours' => 'Hours',
             'hourly_rate' => 'Hourly Rate',
+            'transfer_cost' => 'Transfer cost',
             'bonus' => 'Bonus',
             'ic_created_at' => 'Tc Created At',
             'ic_updated_at' => 'Tc Updated At',
@@ -92,6 +94,6 @@ class InvoiceCandidates extends \yii\db\ActiveRecord
 
     public function getTotal()
     {
-        return $this->bonus + ($this->hourly_rate * $this->hours);
+        return $this->bonus + ($this->hourly_rate * $this->hours) + Yii::$app->params['transfer_cost'];
     }
 }
