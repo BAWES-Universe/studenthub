@@ -6,8 +6,8 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Store;
-use common\models\Candidate;
+use staff\models\Store;
+use staff\models\Candidate;
 
 /**
  * Store controller - Manage store as Admin
@@ -62,9 +62,11 @@ class StoreController extends Controller
     /**
      * Return a List of Store Accounts available.
      */
-    public function actionList()
+    public function actionList($companyId = null)
     {
         $query = Store::find();
+
+        $query->filterWhere(['company_id' => $companyId]);
 
         return new ActiveDataProvider([
             'query' => $query
@@ -78,7 +80,7 @@ class StoreController extends Controller
     {
         // Attempt to create new store
         $model = new Store();
-        
+
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_name = Yii::$app->request->getBodyParam("name");
 
@@ -184,7 +186,7 @@ class StoreController extends Controller
             "operation" => "success",
             "message" => "Store deleted successfully"
         ];
-   
+
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
