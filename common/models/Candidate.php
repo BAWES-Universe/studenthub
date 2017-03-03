@@ -35,6 +35,7 @@ use yii\behaviors\TimestampBehavior;
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     const STATUS_INCOMPLETE = 10;
+    const STATUS_DIRTY = 2;
     const STATUS_READY = 1;
 
     /**
@@ -53,7 +54,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             [['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
-            [['store_id', 'candidate_status'], 'integer'],
+            [['store_id', 'candidate_status', 'approved'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
