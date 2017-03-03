@@ -119,6 +119,19 @@ return [
                         'OPTIONS' => 'options'
                     ]
                 ],
+                [ // BankController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/bank',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
