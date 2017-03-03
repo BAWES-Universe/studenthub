@@ -20,9 +20,6 @@ class Store extends \common\models\Store {
             'company_id',
             'store_name',
             'store_status',
-            'company' => function($model) {
-                return $model->company;
-            },
             'candidates' => function($model) {
                 return $model->candidates;
             }
