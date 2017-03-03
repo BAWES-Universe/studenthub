@@ -63,7 +63,7 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $query = Company::find();
+        $query = Company::find()->where(['parent_company_id' => null]);
 
         return new ActiveDataProvider([
             'query' => $query
@@ -126,7 +126,7 @@ class CompanyController extends Controller
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){
