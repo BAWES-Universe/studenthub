@@ -6,8 +6,8 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\Store;
-use common\models\Candidate;
+use staff\models\Store;
+use staff\models\Candidate;
 
 /**
  * Store controller - Manage store as Admin
