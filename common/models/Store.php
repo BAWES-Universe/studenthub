@@ -58,6 +58,26 @@ class Store extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            //find if company have subcompanies 
+
+            if($this->company->subCompanies) {
+                $this->addError('company_id', "Store can't be assigned to company having sub companies.");   
+                return false;
+            }
+        
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function attributeLabels()
     {
         return [
