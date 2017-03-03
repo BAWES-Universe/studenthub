@@ -67,9 +67,10 @@ return [
                 [ // AccountController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/account',
+                    'pluralize' => false,
                     'patterns' => [
-                        'GET' => 'list',
-                        'GET stats' => 'stats',
+                        'GET salary' => 'salary',
+                        'GET employer' => 'employer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS stats' => 'options',
