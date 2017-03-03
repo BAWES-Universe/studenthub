@@ -63,7 +63,7 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $query = Company::find();
+        $query = Company::find()->where(['parent_company_id' => null]);
 
         return new ActiveDataProvider([
             'query' => $query
