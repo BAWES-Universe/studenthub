@@ -109,7 +109,7 @@ class TransferController extends Controller
         if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Transfer not found!'
+                    "message" => 'Transfer not found'
                 ];
         }
 

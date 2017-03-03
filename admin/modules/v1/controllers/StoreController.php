@@ -99,7 +99,7 @@ class StoreController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Store successfully created"
+            "message" => "Store created successfully "
         ];
 
         // Check SQL Query Count and Duration
@@ -162,7 +162,7 @@ class StoreController extends Controller
         if(!$store) {
             return [
                 "operation" => "error",
-                "message" => "Store not found or already deleted."
+                "message" => "Store not found or already deleted"
             ];
         }
 
@@ -173,7 +173,7 @@ class StoreController extends Controller
         if($candidates) {
             return [
                 "operation" => "error",
-                "message" => "Store have some candidates assigned to it."
+                "message" => "Store have some candidates assigned to it"
             ];
         }
 
@@ -184,6 +184,7 @@ class StoreController extends Controller
 
         return [
             "operation" => "success",
+            "message" => "Store deleted successfully"
         ];
    
         // Check SQL Query Count and Duration

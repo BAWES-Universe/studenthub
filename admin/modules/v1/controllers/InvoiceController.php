@@ -92,7 +92,7 @@ class InvoiceController extends Controller
         if(!$invoice) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Invoice not found'
                 ];
         }
 
@@ -181,7 +181,7 @@ class InvoiceController extends Controller
 
         return [
                 "operation" => "success",
-                "message" => 'Invoice updated successfully!'
+                "message" => 'Invoice marked as "Payment Received" successfully'
             ];
     }
 
@@ -197,7 +197,7 @@ class InvoiceController extends Controller
         if(!$invoice) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Invoice not found'
                 ];
         }
 
@@ -206,7 +206,7 @@ class InvoiceController extends Controller
 
         return [
                 "operation" => "success",
-                "message" => 'Invoice updated successfully!'
+                "message" => 'Invoice marked as "Salary Distribution in Progress" successfully'
             ];
     }
 
@@ -222,7 +222,7 @@ class InvoiceController extends Controller
         if(!$invoice) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Invoice not found'
                 ];
         }
 
@@ -231,7 +231,7 @@ class InvoiceController extends Controller
 
         return [
                 "operation" => "success",
-                "message" => 'Invoice updated successfully!'
+                "message" => 'Invoice marked as "Payment Complete" successfully'
             ];
     }
 }

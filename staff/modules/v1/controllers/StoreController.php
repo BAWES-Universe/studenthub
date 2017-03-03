@@ -182,6 +182,7 @@ class StoreController extends Controller
 
         return [
             "operation" => "success",
+            "message" => "Store deleted successfully"
         ];
    
         // Check SQL Query Count and Duration

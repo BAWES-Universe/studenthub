@@ -139,7 +139,7 @@ class InvoiceController extends Controller
         if(!$invoice) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Invoice not found'
                 ];
         }
 
@@ -148,7 +148,7 @@ class InvoiceController extends Controller
 
         return [
                 "operation" => "success",
-                "message" => 'Invoice updated successfully!'
+                "message" => 'Invoice marked as "Payment Sent" successfully'
             ];
     }
 }

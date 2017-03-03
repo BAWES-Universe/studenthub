@@ -119,7 +119,7 @@ class CompanyController extends Controller
         if(!$model){
             return [
                     "operation" => "error",
-                    "message" => "Company not found"
+                    "message" => "Company account not found"
                 ];
         }
 
@@ -137,7 +137,7 @@ class CompanyController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
                 ];
             }
         }
@@ -167,20 +167,23 @@ class CompanyController extends Controller
 
             // Delete the account
             $companyAccount->delete();
+            
             return [
                 "operation" => "success",
+                "message" => "Company account successfully deleted"
             ];
+
         }else{
             return [
                 "operation" => "error",
-                "message" => "Account not found or already deleted."
+                "message" => "Company account not found or already deleted"
             ];
         }
 
         // Error for cases not accounted for
         return [
             "operation" => "error",
-            "message" => "Unknown error occured, please contact us for assistance."
+            "message" => "Unknown error occured, please contact us for assistance"
         ];
 
         // Check SQL Query Count and Duration
