@@ -147,7 +147,7 @@ class CandidateController extends Controller
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "Candidate not found."
+                "message" => "Candidate not found"
             ];
         }
 
@@ -182,7 +182,7 @@ class CandidateController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate account successfully updated"
+            "message" => "Candidate account updated successfully"
         ];
 
         // Check SQL Query Count and Duration
@@ -200,7 +200,7 @@ class CandidateController extends Controller
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "Candidate not found."
+                "message" => "Candidate not found"
             ];
         }
 
@@ -225,7 +225,7 @@ class CandidateController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate account successfully updated"
+            "message" => "Candidate assigned to store successfully"
         ];
 
         // Check SQL Query Count and Duration
@@ -243,7 +243,7 @@ class CandidateController extends Controller
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "Candidate not found."
+                "message" => "Candidate not found"
             ];
         }
         
@@ -268,7 +268,7 @@ class CandidateController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate account successfully updated"
+            "message" => "Candidate unassigned from store successfully"
         ];
 
         // Check SQL Query Count and Duration

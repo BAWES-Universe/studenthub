@@ -118,7 +118,7 @@ class StaffController extends Controller
         if(!$model){
             return [
                     "operation" => "error",
-                    "message" => "Staff account not found."
+                    "message" => "Staff account not found"
                 ];
         }
 
@@ -165,13 +165,15 @@ class StaffController extends Controller
 
             // Delete the account
             $staffMember->delete();
+
             return [
                 "operation" => "success",
+                "message" => "Staff account deleted successfully"
             ];
         }else{
             return [
                 "operation" => "error",
-                "message" => "Account not found or already deleted."
+                "message" => "Staff account not found or already deleted"
             ];
         }
 
