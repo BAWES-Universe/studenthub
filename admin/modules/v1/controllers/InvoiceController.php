@@ -96,8 +96,16 @@ class InvoiceController extends Controller
                 ];
         }
 
+        //get total profit
+
+        $invoice['profit'] = InvoiceCandidates::find()
+            ->where([
+                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+            ])
+            ->sum('((2 - {{%invoice_candidates}}.hourly_rate) * hours)');
+
         $invoice['candidates'] = InvoiceCandidates::find()
-            ->select('{{%invoice_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
+            ->select('{{%invoice_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email, ((2 - {{%invoice_candidates}}.hourly_rate) * hours) as profit')
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%invoice_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
