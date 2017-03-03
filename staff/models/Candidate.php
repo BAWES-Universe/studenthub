@@ -26,4 +26,18 @@ class Candidate extends \common\models\Candidate {
         return $fields;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            
+            $this->approved = false; //mark as dirty to send to admin for review
+
+            return true;
+        }
+
+        return false;
+    }
 }

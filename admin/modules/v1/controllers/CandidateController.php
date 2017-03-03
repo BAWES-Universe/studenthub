@@ -76,4 +76,56 @@ class CandidateController extends Controller
             'query' => $query
         ]);
     }
+
+    /**
+     * Review candidate accounts
+     */
+    public function actionReview()
+    {
+        $query = Candidate::find()
+            ->where(['approved' => 0]);
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Approve candidate account
+     */
+    public function actionApprove($id)
+    {
+        $model = Candidate::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
+
+        $model->approved = 1;
+        
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info("[Candidate Account Approved] ".$model->candidate_email, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account approved successfully"
+        ];
+    }
 }
