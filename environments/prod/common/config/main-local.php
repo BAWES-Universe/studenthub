@@ -3,9 +3,9 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=payroll',
-            'username' => 'payrollUser',
-            'password' => 'pay',
+            'dsn' => 'mysql:host=10.131.43.120;dbname=payroll',
+            'username' => 'studenthubpayrollbawes',
+            'password' => 'bawes12student!hub',
             'charset' => 'utf8',
         ],
         'mailer' => [
