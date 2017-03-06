@@ -360,4 +360,47 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         return $token;
     }
+    
+    /**
+     * Send candidate list having birthday today 
+     * to admin 
+     * @return null
+     */
+    public static function birthdayAlert()
+    {
+        $candidates = Candidate::find()
+            ->where('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
+            ->all();
+
+        if(!$candidates)
+            return null;
+        
+        Yii::$app->mailer->compose("candidateBirthday",
+            [
+                "candidates" => $candidates,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Candidate having birthday today!')
+            ->send();
+    }
+
+    public static function ageAlert()
+    {
+        $candidates = Candidate::find()
+            ->where('DATEDIFF(NOW(), candidate_birth_date)/365 >= 22')
+            ->all();
+
+        if(!$candidates)
+            return null;
+
+        Yii::$app->mailer->compose("candidateInvalidAge",
+            [
+                "candidates" => $candidates,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Candidate hits age 22!')
+            ->send();
+    }
 }
