@@ -6,6 +6,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use common\models\Bank;
 
 /**
  * This is the model class for table "candidate".
@@ -54,8 +55,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             [['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
-            [['store_id', 'candidate_status', 'approved'], 'integer'],
+            [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
+            [['candidate_iban'], 'string', 'max' => 100],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
             [['candidate_email'], 'unique'],
@@ -127,6 +129,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             'candidate_id' => 'Candidate ID',
             'store_id' => 'Store ID',
+            'bank_id' => 'Bank ID',
+            'candidate_iban' => 'IBAN',
             'candidate_name' => 'Name [English]',
             'candidate_name_ar' => 'Name [Arabic]',
             'candidate_email' => 'Email',
@@ -143,6 +147,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_created_at' => 'Created At',
             'candidate_updated_at' => 'Updated At',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank()
+    {
+        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
     }
 
     /**

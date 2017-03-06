@@ -36,4 +36,11 @@ class Candidate extends \common\models\Candidate {
         }
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank()
+    {
+        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
+    }
 }

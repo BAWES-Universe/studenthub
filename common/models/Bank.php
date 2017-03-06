@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use common\models\Candidate;
 
 /**
  * This is the model class for table "bank".
@@ -39,5 +40,13 @@ class Bank extends \yii\db\ActiveRecord
             'bank_id' => 'Bank ID',
             'bank_name' => 'Bank Name',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate()
+    {
+        return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
     }
 }
