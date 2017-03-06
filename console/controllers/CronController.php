@@ -33,6 +33,10 @@ class CronController extends \yii\console\Controller {
         //check for invalid age 
 
         Candidate::ageAlert();
+
+        //check civil ID expiry date 
+        
+        Candidate::civilIdExpire();
     }
 
     /**

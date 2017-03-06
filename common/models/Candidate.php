@@ -403,4 +403,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setSubject('Candidate hits age 22!')
             ->send();
     }
+
+    public static function civilIdExpire()
+    {
+        $candidates = Candidate::find()
+            ->where('candidate_civil_expiry_date < DATE(NOW())')
+            ->all();
+
+        if(!$candidates)
+            return null;
+
+        Yii::$app->mailer->compose("candidateIdExpire",
+            [
+                "candidates" => $candidates,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Candidate having invalid civil ID')
+            ->send();
+    }
 }
