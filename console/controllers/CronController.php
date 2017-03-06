@@ -7,7 +7,7 @@ use yii\helpers\Url;
 use yii\helpers\Console;
 use yii\helpers\ArrayHelper;
 use common\models\Candidate;
-
+use common\models\Invoice;
 
 /**
  * All Cron actions related to this project
@@ -37,6 +37,10 @@ class CronController extends \yii\console\Controller {
         //check civil ID expiry date 
         
         Candidate::civilIdExpire();
+
+        //check salary transfer not paid 
+
+        Invoice::unpaidAlert();
     }
 
     /**

@@ -104,4 +104,36 @@ class Invoice extends \yii\db\ActiveRecord
     {
         return $this->hasMany(InvoiceCandidates::className(), ['invoice_id' => 'invoice_id']);
     }
+
+    /* check salary transfer not paid 
+     * @return null
+     */
+    public function unpaidAlert()
+    {
+        //check only after salary day of every month 
+
+        if(date('d') <= Yii::$app->params['salaryDay']) 
+            return null;
+
+        /* list all companies not paid in current month + should not added in current month + don't list if parent 
+         * company have paid for sub companies 
+         */
+
+        $companies = Company::find()
+            ->where('NOT EXISTS (select 1 from invoice where invoice_status="'.self::STATUS_PAYMENT_RECEIVED.'" and company_id IN (company.company_id, company.parent_company_id))')
+            ->andWhere('DATE(company_created_at) < DATE("'.date('Y-m-1').'")')
+            ->all();
+
+        if(!$companies)
+            return null;
+
+        Yii::$app->mailer->compose("companyNotPaid",
+            [
+                "companies" => $companies,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Company not paid in current month')
+            ->send();
+    }
 }
