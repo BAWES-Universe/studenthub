@@ -57,8 +57,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
-            [['candidate_iban'], 'string', 'max' => 100],
+            [['candidate_iban', 'bank_account_name'], 'string', 'max' => 100],
             [['candidate_auth_key'], 'string', 'max' => 32],
+            [['candidate_phone'], 'string', 'max' => 20],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
@@ -96,8 +97,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             //check all values
             $attr = $this->attributes;
             unset($attr['candidate_password_reset_token']);
+            unset($attr['candidate_status']);
+            unset($attr['candidate_id']);
             unset($attr['approved']);
-            
+           
             //if have empty value
             if(in_array('', $attr)) {
                 $this->candidate_status = Candidate::STATUS_INCOMPLETE;
@@ -138,10 +141,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_id' => 'Candidate ID',
             'store_id' => 'Store ID',
             'bank_id' => 'Bank ID',
+            'bank_account_name' => 'Bank account name',
             'candidate_iban' => 'IBAN',
             'candidate_name' => 'Name [English]',
             'candidate_name_ar' => 'Name [Arabic]',
             'candidate_email' => 'Email',
+            'candidate_phone' => 'Phone',
             'candidate_birth_date' => 'Birth Date',
             'candidate_civil_id' => 'Civil ID',
             'candidate_civil_expiry_date' => 'Civil Expiry Date',
@@ -197,16 +202,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return static|null the saved model or null if saving fails
      */
     public function signup() {
-        if($this->validate()){
-            $this->setPassword($this->candidate_password_hash);
-            $this->generateAuthKey();
-            $this->save(false);
-
+    
+        $this->setPassword($this->candidate_password_hash);
+        $this->generateAuthKey();
+        
+        if($this->save()) {
             Yii::info("[New Candidate Account Created] ".$this->candidate_email, __METHOD__);
 
             return $this;
         }
-        return null;
+
+        return false;
     }
 
     /**

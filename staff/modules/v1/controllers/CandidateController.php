@@ -99,16 +99,20 @@ class CandidateController extends Controller
         $model->scenario = "newAccount";
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
+        $model->bank_id = Yii::$app->request->getBodyParam("bank_id");
+        $model->bank_account_name = Yii::$app->request->getBodyParam("bank_account_name");
+        $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
-        $model->candidate_password_hash = Yii::$app->request->getBodyParam("password");
+        $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date");
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        $model->candidate_password_hash = Yii::$app->request->getBodyParam("password");
         
         //candidate_auth_key
         
@@ -152,12 +156,17 @@ class CandidateController extends Controller
         }
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
+        $model->bank_id = Yii::$app->request->getBodyParam("bank_id");
+        $model->bank_account_name = Yii::$app->request->getBodyParam("bank_account_name");
+        $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
+
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
-        $model->candidate_password_hash = Yii::$app->request->getBodyParam("password");
+        $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
+        
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date");
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
