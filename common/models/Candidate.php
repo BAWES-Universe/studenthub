@@ -94,8 +94,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            //check all values
+            
             $attr = $this->attributes;
+
+            //check all values except 
+            
             unset($attr['candidate_password_reset_token']);
             unset($attr['candidate_status']);
             unset($attr['candidate_id']);
