@@ -87,6 +87,16 @@ return [
                         'OPTIONS' => 'options'
                     ]
                 ],
+                [ // StoreController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/store',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <companyId>' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
