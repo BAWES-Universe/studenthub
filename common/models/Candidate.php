@@ -74,7 +74,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
         {
-            $this->addError('candidate_civil_expiry_date', 'Civil Expiry Date not valid.');
+            $this->addError('candidate_civil_expiry_date', 'Candidate have expired civil id.');
         }
     }
 
@@ -96,7 +96,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             //check all values
             $attr = $this->attributes;
             unset($attr['candidate_password_reset_token']);
-
+            unset($attr['approved']);
+            
             //if have empty value
             if(in_array('', $attr)) {
                 $this->candidate_status = Candidate::STATUS_INCOMPLETE;
@@ -104,6 +105,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $this->candidate_status = Candidate::STATUS_READY;
             }
 
+            //if status is incomplete and trying to set store 
+
+            if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
+                $this->addError('store_id', 'Can not assign store to incomplete profile.');   
+                return false; 
+            }
+            
             return true;
         }
 
