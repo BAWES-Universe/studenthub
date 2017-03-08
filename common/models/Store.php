@@ -40,6 +40,7 @@ class Store extends \yii\db\ActiveRecord
             [['store_name'], 'required'],
             [['store_created_at', 'store_updated_at'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
+            [['company_id'], 'validateCompany'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
     }
@@ -55,24 +56,14 @@ class Store extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * @inheritdoc
+    /** 
+     * find if company have subcompanies 
      */
-    public function beforeSave($insert)
+    public function validateCompany()
     {
-        if (parent::beforeSave($insert)) {
-
-            //find if company have subcompanies 
-
-            if($this->company->subCompanies) {
-                $this->addError('company_id', "Store can't be assigned to company having sub companies.");   
-                return false;
-            }
-        
-            return true;
+        if($this->company->subCompanies) {
+            $this->addError('company_id', "Store can't be assigned to company having sub companies.");   
         }
-
-        return false;
     }
 
     /**

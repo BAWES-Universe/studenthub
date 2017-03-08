@@ -113,6 +113,84 @@ class AuthController extends Controller
         ];
     }
 
+
+    /**
+     * Sends password reset email to user
+     * @return array
+     */
+    public function actionRequestResetPassword()
+    {
+        $emailInput = Yii::$app->request->getBodyParam("email");
+
+        $model = new \candidate\models\PasswordResetRequestForm();
+        $model->email = $emailInput;
+
+        $errors = false;
+
+        if ($model->validate()){
+
+            $candidate = Candidate::findOne([
+                'candidate_email' => $model->email,
+            ]);
+
+            if ($candidate && !$model->sendEmail($candidate)) {
+                $errors = 'Sorry, we are unable to reset password for email provided.';
+            }
+            
+        }else if(isset($model->errors['email'])){
+            $errors = $model->errors['email'];
+        }
+
+        // If errors exist show them
+        if($errors){
+            return [
+                'operation' => 'error',
+                'message' => $errors
+            ];
+        }
+
+        // Otherwise return success
+        return [
+            'operation' => 'success',
+            'message' => 'Password reset link sent, please check your email for further instructions.'
+        ];
+    }
+
+    /**
+     * Updates password based on passed token
+     * @return array
+     */
+    public function actionUpdatePassword()
+    {
+        $token = Yii::$app->request->getBodyParam("token");
+        $newPassword = Yii::$app->request->getBodyParam("newPassword");
+
+        $candidate =  Candidate::findByPasswordResetToken($token);
+
+        if(!$candidate){
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid password reset token. Please request another password reset email'
+            ];
+        }
+
+        if(!$newPassword) {
+            return [
+                'operation' => 'error',
+                'message' => 'Password field required'
+            ];
+        }
+
+        $candidate->setPassword($newPassword);
+        $candidate->removePasswordResetToken();
+        $candidate->save(false);
+
+        return [
+            'operation' => 'success',
+            'message' => 'Your password has been reset'
+        ];
+    }
+
     /**
      * Creates new candidate account manually
      * @return array
@@ -227,92 +305,6 @@ class AuthController extends Controller
             'message' => 'Invalid email verification code. Account might already be activated. Please try to login again.'
         ];
     }
-
-    /**
-     * Sends password reset email to user
-     * @return array
-     */
-    public function actionRequestResetPassword()
-    {
-        $emailInput = Yii::$app->request->getBodyParam("email");
-
-        $model = new \api\models\PasswordResetRequestForm();
-        $model->email = $emailInput;
-
-        $errors = false;
-
-        if ($model->validate()){
-
-            $candidate = Candidate::findOne([
-                'candidate_email' => $model->email,
-            ]);
-
-            if ($candidate) {
-                //Check if this user sent an email in past few minutes (to limit email spam)
-                $emailLimitDatetime = new \DateTime($candidate->candidate_limit_email);
-                date_add($emailLimitDatetime, date_interval_create_from_date_string('2 minutes'));
-                $currentDatetime = new \DateTime();
-
-                if ($currentDatetime < $emailLimitDatetime) {
-                    $difference = $currentDatetime->diff($emailLimitDatetime);
-                    $minuteDifference = (int) $difference->i;
-                    $secondDifference = (int) $difference->s;
-
-                    $errors = Yii::t('app', "Email was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds", [
-                                'numMinutes' => $minuteDifference,
-                                'numSeconds' => $secondDifference,
-                    ]);
-
-                } else if (!$model->sendEmail($candidate)) {
-                    $errors = Yii::t('candidate', 'Sorry, we are unable to reset password for email provided.');
-                }
-            }
-        }else if(isset($model->errors['email'])){
-            $errors = $model->errors['email'];
-        }
-
-        // If errors exist show them
-        if($errors){
-            return [
-                'operation' => 'error',
-                'message' => $errors
-            ];
-        }
-
-        // Otherwise return success
-        return [
-            'operation' => 'success',
-            'message' => Yii::t('candidate', 'Password reset link sent, please check your email for further instructions.')
-        ];
-    }
-
-    /**
-     * Updates password based on passed token
-     * @return array
-     */
-    public function actionUpdatePassword()
-    {
-        $token = Yii::$app->request->getBodyParam("token");
-        $newPassword = Yii::$app->request->getBodyParam("newPassword");
-
-        $candidate =  Candidate::findByPasswordResetToken($token);
-        if(!$candidate || !$newPassword){
-            return [
-                'operation' => 'error',
-                'message' => 'Invalid password reset token. Please request another password reset email.'
-            ];
-        }
-
-        $candidate->setPassword($newPassword);
-        $candidate->removePasswordResetToken();
-        $candidate->save(false);
-
-        return [
-            'operation' => 'success',
-            'message' => 'Your password has been reset.'
-        ];
-    }
-
 
     /**
      * Validate Google auth id_token sent from mobile
