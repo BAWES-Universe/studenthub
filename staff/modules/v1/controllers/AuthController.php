@@ -49,7 +49,9 @@ class AuthController extends Controller
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
-            'options',
+            'options',            
+            'request-reset-password',
+            'update-password'
         ];
 
         return $behaviors;
@@ -94,7 +96,6 @@ class AuthController extends Controller
             "email" => $staff->staff_email
         ];
     }
-
 
     /**
      * Sends password reset email to user
