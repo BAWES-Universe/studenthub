@@ -95,4 +95,81 @@ class AuthController extends Controller
         ];
     }
 
+
+    /**
+     * Sends password reset email to user
+     * @return array
+     */
+    public function actionRequestResetPassword()
+    {
+        $emailInput = Yii::$app->request->getBodyParam("email");
+
+        $model = new \staff\models\PasswordResetRequestForm();
+        $model->email = $emailInput;
+
+        $errors = false;
+
+        if ($model->validate()){
+
+            $staff = Staff::findOne([
+                'staff_email' => $model->email,
+            ]);
+
+            if ($staff && !$model->sendEmail($staff)) {
+                $errors = 'Sorry, we are unable to reset password for email provided.';
+            }
+            
+        }else if(isset($model->errors['email'])){
+            $errors = $model->errors['email'];
+        }
+
+        // If errors exist show them
+        if($errors){
+            return [
+                'operation' => 'error',
+                'message' => $errors
+            ];
+        }
+
+        // Otherwise return success
+        return [
+            'operation' => 'success',
+            'message' => 'Password reset link sent, please check your email for further instructions.'
+        ];
+    }
+
+    /**
+     * Updates password based on passed token
+     * @return array
+     */
+    public function actionUpdatePassword()
+    {
+        $token = Yii::$app->request->getBodyParam("token");
+        $newPassword = Yii::$app->request->getBodyParam("newPassword");
+
+        $staff =  Staff::findByPasswordResetToken($token);
+
+        if(!$staff){
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid password reset token. Please request another password reset email'
+            ];
+        }
+
+        if(!$newPassword) {
+            return [
+                'operation' => 'error',
+                'message' => 'Password field required'
+            ];
+        }
+
+        $staff->setPassword($newPassword);
+        $staff->removePasswordResetToken();
+        $staff->save(false);
+
+        return [
+            'operation' => 'success',
+            'message' => 'Your password has been reset'
+        ];
+    }
 }

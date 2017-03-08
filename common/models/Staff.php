@@ -143,6 +143,7 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @return static|null
      */
     public static function findByPasswordResetToken($token) {
+
         if (!static::isPasswordResetTokenValid($token)) {
             return null;
         }
