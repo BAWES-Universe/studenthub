@@ -66,6 +66,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_civil_id'], 'unique'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
+            [['store_id'], 'validateStore'],
             [['candidate_password_reset_token'], 'unique'],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
         ];
@@ -88,40 +89,52 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    public function validateStore()
+    {
+        $this->fixStatus();
+
+        //if status is incomplete and trying to set store 
+
+        if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
+            $this->addError('store_id', 'Can not assign store to incomplete profile.');   
+        }
+    }
+
     /**
      * @inheritdoc
      */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            
-            $attr = $this->attributes;
 
-            //check all values except 
-            
-            unset($attr['candidate_password_reset_token']);
-            unset($attr['candidate_status']);
-            unset($attr['candidate_id']);
-            unset($attr['approved']);
-           
-            //if have empty value
-            if(in_array('', $attr)) {
-                $this->candidate_status = Candidate::STATUS_INCOMPLETE;
-            } else {
-                $this->candidate_status = Candidate::STATUS_READY;
-            }
-
-            //if status is incomplete and trying to set store 
-
-            if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
-                $this->addError('store_id', 'Can not assign store to incomplete profile.');   
-                return false; 
-            }
+            $this->fixStatus();
             
             return true;
         }
 
         return false;
+    }
+
+    /** 
+     * fix status for a candidate 
+     */ 
+    private function fixStatus()
+    {
+        $attr = $this->attributes;
+
+        //check all values except 
+        
+        unset($attr['candidate_password_reset_token']);
+        unset($attr['candidate_status']);
+        unset($attr['candidate_id']);
+        unset($attr['approved']);
+       
+        //if have empty value
+        if(in_array('', $attr)) {
+            $this->candidate_status = Candidate::STATUS_INCOMPLETE;
+        } else {
+            $this->candidate_status = Candidate::STATUS_READY;
+        }
     }
 
     public function behaviors() {
@@ -256,6 +269,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return static|null
      */
     public static function findByPasswordResetToken($token) {
+
         if (!static::isPasswordResetTokenValid($token)) {
             return null;
         }
