@@ -73,6 +73,8 @@ return [
                         'GET employer' => 'employer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS salary' => 'options',
+                        'OPTIONS employer' => 'options',
                         'OPTIONS stats' => 'options',
                     ]
                 ],
