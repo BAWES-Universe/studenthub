@@ -53,6 +53,8 @@ return [
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS request-reset-password' => 'options',
+                        'OPTIONS update-password' => 'options',
                     ]
                 ],
                 [ // CandidateController
@@ -63,6 +65,7 @@ return [
                         'POST filter' => 'filter',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS filter' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -76,6 +79,8 @@ return [
                         'PATCH lock/<id>' => 'lock',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options'
+                        'OPTIONS <id>' => 'options'
+                        'OPTIONS lock/<id>' => 'options'
                     ]
                 ],
                 [ // InvoiceController
@@ -87,6 +92,8 @@ return [
                         'PATCH payment-sent/<id>' => 'payment-sent',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options'
+                        'OPTIONS <id>' => 'options'
+                        'OPTIONS payment-sent/<id>' => 'options'
                     ]
                 ],
                 [ // StoreController
@@ -97,6 +104,7 @@ return [
                         'GET <companyId>' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options'
+                        'OPTIONS <companyId>' => 'options'
                     ]
                 ],
                 [ // CompanyController
