@@ -73,7 +73,7 @@ return [
                         'OPTIONS <id>' => 'options',
                         'OPTIONS filter' => 'options',
                         'OPTIONS assign/<id>' => 'options',
-                        'OPTIONSunassign/<id>' => 'options',
+                        'OPTIONS unassign/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
