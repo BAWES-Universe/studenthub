@@ -119,11 +119,11 @@ return [
                         'PATCH payment-in-process/<id>' => 'payment-in-process',
                         'PATCH payment-completed/<id>' => 'payment-completed',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
-                        'OPTIONS <id>' => 'options'
-                        'OPTIONS export/<id>' => 'options'
-                        'OPTIONS payment-received/<id>' => 'options'
-                        'OPTIONS payment-in-process/<id>' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS export/<id>' => 'options',
+                        'OPTIONS payment-received/<id>' => 'options',
+                        'OPTIONS payment-in-process/<id>' => 'options',
                         'OPTIONS payment-completed/<id>' => 'options'
                     ]
                 ],
