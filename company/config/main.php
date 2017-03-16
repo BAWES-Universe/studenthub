@@ -78,8 +78,8 @@ return [
                         'POST' => 'create',
                         'PATCH lock/<id>' => 'lock',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
-                        'OPTIONS <id>' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                         'OPTIONS lock/<id>' => 'options'
                     ]
                 ],
@@ -91,8 +91,8 @@ return [
                         'GET <id>' => 'view',
                         'PATCH payment-sent/<id>' => 'payment-sent',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
-                        'OPTIONS <id>' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                         'OPTIONS payment-sent/<id>' => 'options'
                     ]
                 ],
@@ -103,7 +103,7 @@ return [
                         'GET' => 'list',
                         'GET <companyId>' => 'list',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
                         'OPTIONS <companyId>' => 'options'
                     ]
                 ],
