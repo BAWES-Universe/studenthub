@@ -25,7 +25,7 @@ class CompanyController extends Controller
             'class' => \yii\filters\Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
-                'Access-Control-Request-Method' => ['GET', 'OPTIONS'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
                 'Access-Control-Allow-Credentials' => null,
                 'Access-Control-Max-Age' => 86400,
@@ -67,12 +67,12 @@ class CompanyController extends Controller
 
         $query = Company::find()
             ->select([
-                'company_id', 
+                'company_id',
                 'parent_company_id',
-                'company_name', 
+                'company_name',
                 'company_email',
                 'company_status',
-                'company_created_at', 
+                'company_created_at',
                 'company_updated_at'
             ])
             ->where(['parent_company_id' => $company->company_id])

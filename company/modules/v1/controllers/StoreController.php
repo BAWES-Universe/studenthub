@@ -60,20 +60,20 @@ class StoreController extends Controller
     }
 
     /**
-     * Return a List of Store by companyId if provided 
+     * Return a List of Store by companyId if provided
      * else by current login company id.
      */
     public function actionList($companyId = null)
     {
         $company = Yii::$app->user->identity;
 
-        if($companyId) 
+        if($companyId)
         {
             $sub_company = Company::findOne([
                 'parent_company_id' => $company->company_id,
                 'company_id' => $companyId
             ]);
-        } 
+        }
 
         if($companyId && empty($sub_company)) {
             return [
