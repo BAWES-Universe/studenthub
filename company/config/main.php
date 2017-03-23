@@ -66,27 +66,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
-                [ // TransferController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/transfer',
-                    'patterns' => [
-                        'GET' => 'list',
-                        'GET <id>' => 'view',
-                        'POST' => 'create',
-                        'PATCH lock/<id>' => 'lock',
-                        // OPTIONS VERBS
-                        'OPTIONS' => 'options'
-                    ]
-                ],
                 [ // InvoiceController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invoice',
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH lock/<id>' => 'lock',
                         'PATCH payment-sent/<id>' => 'payment-sent',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS lock/<id>' => 'options',
+                        'OPTIONS payment-sent/<id>' => 'options'
                     ]
                 ],
                 [ // StoreController

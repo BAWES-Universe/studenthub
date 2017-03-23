@@ -30,7 +30,8 @@ class Invoice extends \yii\db\ActiveRecord
     const STATUS_PAYMENT_RECEIVED = 2;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
     const STATUS_TRANSFER_COMPLETE = 4;
-    const STATUS_LOCK = 10;
+    const STATUS_LOCK = 5;
+    const STATUS_INITIATED = 10;
 
     public function statusList()
     {
@@ -39,7 +40,8 @@ class Invoice extends \yii\db\ActiveRecord
             STATUS_PAYMENT_RECEIVED => 'Payment Received',
             STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Salary distribution in progress',
             STATUS_TRANSFER_COMPLETE => 'Transfer Completed',
-            STATUS_LOCK => 'Lock'
+            STATUS_LOCK => 'Lock',
+            STATUS_INITIATED => 'Initiated'
         ];
     }
 
@@ -135,5 +137,60 @@ class Invoice extends \yii\db\ActiveRecord
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Company not paid in current month')
             ->send();
+    }
+
+    /** 
+     * Validate candidate array to initiate transfer 
+     */ 
+    public function validate_candidates($company_id, $candidates) 
+    {
+        $errors = [];
+
+        if(!is_array($candidates)) {
+            $candidates = [];
+        }
+        
+        // check if empty field 
+
+        foreach ($candidates as $key => $value) 
+        {
+            if(empty($value['candidate_id'])) 
+            {
+                $errors['candidate_id'][] = 'Candidate field require.';
+                return $errors;
+            }
+        }
+
+        //check for missing candidates 
+
+        $candidate_ids = ArrayHelper::map($candidates, 'candidate_id', 'candidate_id');
+
+        // list all sub companies 
+        
+        $companies = Company::findAll(['parent_company_id' => $company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company_id;
+
+        // list all stores 
+        
+        $stores = Store::find()
+            ->where(['in', 'company_id', $company_ids])
+            ->all();
+
+        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
+
+        $missing = Candidate::find()
+            ->where(['in', 'store_id', $store_ids])
+            ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
+            ->count();
+
+        if($missing > 0)
+        {
+            $errors['candidate_id'][] = 'Missing ' . $missing . ' candidate(s).';    
+        }        
+
+        return $errors;
     }
 }
