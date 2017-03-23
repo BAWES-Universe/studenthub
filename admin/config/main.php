@@ -97,13 +97,13 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET review' => 'review',
-                        'POST filter' => 'filter',
+                        'GET filter/<id>' => 'filter',
                         'PATCH approve/<id>' => 'approve',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS review' => 'options',
-                        'OPTIONS filter' => 'options',
+                        'OPTIONS filter/<id>' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
