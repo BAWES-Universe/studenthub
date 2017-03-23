@@ -102,9 +102,12 @@ return [
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS review' => 'options',
+                        'OPTIONS filter' => 'options',
+                        'OPTIONS approve/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
-                ],                
+                ],
                 [ // InvoiceController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invoice',
@@ -116,7 +119,12 @@ return [
                         'PATCH payment-in-process/<id>' => 'payment-in-process',
                         'PATCH payment-completed/<id>' => 'payment-completed',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS export/<id>' => 'options',
+                        'OPTIONS payment-received/<id>' => 'options',
+                        'OPTIONS payment-in-process/<id>' => 'options',
+                        'OPTIONS payment-completed/<id>' => 'options'
                     ]
                 ],
                 [ // BankController

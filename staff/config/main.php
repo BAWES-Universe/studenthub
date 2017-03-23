@@ -53,6 +53,8 @@ return [
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS request-reset-password' => 'options',
+                        'OPTIONS update-password' => 'options',
                     ]
                 ],
                 [ // CandidateController
@@ -69,6 +71,9 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS filter' => 'options',
+                        'OPTIONS assign/<id>' => 'options',
+                        'OPTIONS unassign/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController

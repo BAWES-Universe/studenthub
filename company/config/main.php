@@ -53,6 +53,8 @@ return [
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS request-reset-password' => 'options',
+                        'OPTIONS update-password' => 'options',
                     ]
                 ],
                 [ // CandidateController
@@ -63,6 +65,7 @@ return [
                         'POST filter' => 'filter',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS filter' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -89,7 +92,8 @@ return [
                         'GET' => 'list',
                         'GET <companyId>' => 'list',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <companyId>' => 'options'
                     ]
                 ],
                 [ // CompanyController
