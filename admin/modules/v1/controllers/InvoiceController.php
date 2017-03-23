@@ -242,8 +242,8 @@ class InvoiceController extends Controller
         $invoice->save();
 
         return [
-                "operation" => "success",
-                "message" => 'Invoice marked as "Payment Complete" successfully'
-            ];
+            "operation" => "success",
+            "message" => 'Invoice marked as "Payment Complete" successfully'
+        ];
     }
 }
