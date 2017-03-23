@@ -62,14 +62,12 @@ class CandidateController extends Controller
      * Return a List of Candidate Accounts assigned to
      * Specific Store.
      */
-    public function actionFilter()
+    public function actionFilter($id)
     {
-        $store_id = Yii::$app->request->getBodyParam("store_id");
-
         $query = Candidate::find();
 
-        if($store_id) {
-            $query->where(['store_id' => $store_id]);
+        if($id) {
+            $query->where(['store_id' => $id]);
         }
 
         return new ActiveDataProvider([
