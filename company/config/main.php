@@ -77,6 +77,7 @@ return [
                         'GET <id>' => 'view',
                         'GET pdf/<id>' => 'pdf',
                         'POST' => 'create',
+                        'PATCH <id>' => 'edit',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH payment-sent/<id>' => 'payment-sent',
                         // OPTIONS VERBS
