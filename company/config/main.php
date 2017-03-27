@@ -75,6 +75,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'GET pdf/<id>' => 'pdf',
                         'POST' => 'create',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH payment-sent/<id>' => 'payment-sent',

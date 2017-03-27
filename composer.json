@@ -16,7 +16,8 @@
         "yiisoft/yii2-shell": "~2.0.0",
         "understeam/yii2-slack": "v0.3.0",
         "openbuildings/swiftmailer-css-inliner": "*",
-        "moonlandsoft/yii2-phpexcel": "*"
+        "moonlandsoft/yii2-phpexcel": "*",
+        "kartik-v/yii2-mpdf": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
