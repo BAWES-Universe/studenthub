@@ -198,6 +198,41 @@ class InvoiceController extends Controller
     }
 
     /** 
+     * Mark Invoice as Initiated
+     */ 
+    public function actionUnlock($id)
+    {
+        $invoice = Invoice::findOne([
+                'invoice_id' => $id
+            ]);
+            
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        // to unlock invoice, invoice status should be in lock status 
+
+        if($invoice->invoice_status != Invoice::STATUS_LOCK)
+        {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice status should be "Locked" to unlock it!'
+                ];
+        }
+
+        $invoice->invoice_status = Invoice::STATUS_INITIATED;
+        $invoice->save();
+
+        return [
+                "operation" => "success",
+                "message" => 'Invoice unlocked successfully'
+            ];
+    }
+
+    /** 
      * Mark Invoice as Payment In Process
      */ 
     public function actionPaymentInProcess($id)
