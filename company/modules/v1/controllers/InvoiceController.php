@@ -381,7 +381,7 @@ class InvoiceController extends Controller
             $invoice->invoice_status = Invoice::STATUS_LOCK;
             $invoice->save(false);
 
-            $total = 0;
+            $total = $company_total = 0;
 
             // invoice candidate for current company
 
@@ -411,6 +411,8 @@ class InvoiceController extends Controller
 
                 $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate) + Yii::$app->params['transfer_cost'];
 
+                $company_total += $invoice_candidate->bonus + ($invoice_candidate->hours * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];
+
                 //delete invoice candidate
 
                 InvoiceCandidates::deleteAll(['ic_id' => $value['ic_id']]);
@@ -418,6 +420,7 @@ class InvoiceController extends Controller
 
             //save total in invoice
 
+            $invoice->company_total = $company_total;
             $invoice->total = $total;
             $invoice->save();
         }
