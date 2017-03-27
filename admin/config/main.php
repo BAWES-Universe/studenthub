@@ -115,6 +115,7 @@ return [
                         'GET' => 'list',
                         'GET <id>' => 'view',
                         'GET export/<id>' => 'export',
+                        'PATCH unlock/<id>' => 'unlock',
                         'PATCH payment-received/<id>' => 'payment-received',
                         'PATCH payment-in-process/<id>' => 'payment-in-process',
                         'PATCH payment-completed/<id>' => 'payment-completed',
