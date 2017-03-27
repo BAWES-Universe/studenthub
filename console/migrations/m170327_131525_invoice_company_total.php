@@ -24,7 +24,7 @@ class m170327_131525_invoice_company_total extends Migration
 
             foreach ($candidates as $key => $candidate) 
             {
-                $total += $candidate['bonus'] + ($candidate['hours'] * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];;
+                $total += $candidate['bonus'] + ($candidate['hours'] * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];
             }
 
             //update company total for invoice 
