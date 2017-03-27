@@ -234,6 +234,130 @@ class InvoiceController extends Controller
     }
 
     /**
+     * Edit invoice with "Initiated" status 
+     */
+    public function actionEdit($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        // list all sub companies
+
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        $invoice = Invoice::find()
+            ->where(['invoice_id' => $id])
+            ->andWhere(['in', '{{%invoice}}.company_id', $company_ids])
+            ->one();
+
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        //invoice status should be "Initiated" to edit it
+
+        if($invoice->invoice_status != Invoice::STATUS_INITIATED)
+        {
+             return [
+                    "operation" => "error",
+                    "message" => 'Invoice status should be "Initiated" to edit it!'
+                ];
+        }
+
+        //validate input
+
+        $errors = Invoice::validate_candidates(
+            $company->company_id,
+            Yii::$app->request->getBodyParam("candidates")
+        );
+
+        if($errors) {
+            return [
+                    "operation" => "error",
+                    "message" => $errors
+                ];
+        }
+        
+        $transaction = Yii::$app->db->beginTransaction();
+
+        //remove old candidates 
+
+        InvoiceCandidates::deleteAll(['invoice_id' => $invoice->invoice_id]);
+
+        //save candidates
+
+        $candidates = Yii::$app->request->getBodyParam("candidates");
+
+        $total = $company_total = 0;
+
+        foreach ($candidates as $key => $value) {
+
+            //candiate hourly_rate
+
+            $candidate = Candidate::findOne($value['candidate_id']);
+
+            if(!$candidate)
+            {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => "Candidate not found"
+                ];
+            }
+
+            $hourly_rate = $candidate->candidate_hourly_rate;
+
+            $tc = new InvoiceCandidates;
+            $tc->transfer_cost = Yii::$app->params['transfer_cost'];
+            $tc->hourly_rate = $hourly_rate;
+            $tc->attributes = $value;
+            $tc->invoice_id = $invoice->invoice_id;
+
+            $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
+
+            $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];
+
+            if(!$tc->save())
+            {
+                $transaction->rollBack();
+
+                if(isset($tc->errors)){
+                    return [
+                        "operation" => "error",
+                        "message" => $tc->errors
+                    ];
+                }else{
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem creating the account, please contact us for assistance."
+                    ];
+                }
+            }
+        }
+
+        $invoice->company_total = $company_total;
+        $invoice->total = $total;
+        $invoice->save();
+
+        $transaction->commit();
+
+        return [
+            "operation" => "success",
+            "message" => "Invoice updated successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
      * Download Invoice as PDF 
      */
     public function actionPdf($id)
