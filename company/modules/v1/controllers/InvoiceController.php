@@ -6,11 +6,12 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
+use yii\db\Query;
 use company\models\Company;
 use common\models\Candidate;
 use common\models\Invoice;
 use common\models\InvoiceCandidates;
-use yii\db\Query;
+use kartik\mpdf\Pdf;
 
 /**
  * Invoice controller - Manage Invoice
@@ -123,6 +124,176 @@ class InvoiceController extends Controller
             ->all();
 
         return $invoice;
+    }
+
+    /**
+     * Initiate invoice.
+     */
+    public function actionCreate()
+    {
+        $company = Yii::$app->user->identity;
+
+        //validate input
+
+        $errors = Invoice::validate_candidates(
+            $company->company_id,
+            Yii::$app->request->getBodyParam("candidates")
+        );
+
+        if($errors) {
+            return [
+                    "operation" => "error",
+                    "message" => $errors
+                ];
+        }
+
+        //save invoice
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $invoice = new Invoice;
+        $invoice->company_id = $company->company_id;
+
+        if(!$invoice->save()){
+
+            if(isset($invoice->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $invoice->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        //save candidates
+
+        $candidates = Yii::$app->request->getBodyParam("candidates");
+
+        $total = 0;
+
+        foreach ($candidates as $key => $value) {
+
+            //candiate hourly_rate
+
+            $candidate = Candidate::findOne($value['candidate_id']);
+
+            if(!$candidate)
+            {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => "Candidate not found"
+                ];
+            }
+
+            $hourly_rate = $candidate->candidate_hourly_rate;
+
+            $tc = new InvoiceCandidates;
+            $tc->transfer_cost = Yii::$app->params['transfer_cost'];
+            $tc->hourly_rate = $hourly_rate;
+            $tc->attributes = $value;
+            $tc->invoice_id = $invoice->invoice_id;
+
+            $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
+
+            if(!$tc->save())
+            {
+                $transaction->rollBack();
+
+                if(isset($tc->errors)){
+                    return [
+                        "operation" => "error",
+                        "message" => $tc->errors
+                    ];
+                }else{
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem creating the account, please contact us for assistance."
+                    ];
+                }
+            }
+        }
+
+        $invoice->total = $total;
+        $invoice->save();
+
+        $transaction->commit();
+
+        return [
+            "operation" => "success",
+            "message" => "Invoice initiated successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Download Invoice as PDF 
+     */
+    public function actionPdf($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $invoice = Invoice::find()
+            ->where([
+                'company_id' => $company->company_id,
+                'invoice_id' => $id
+            ])
+            ->asArray()
+            ->one();
+
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        $invoice['candidates'] = InvoiceCandidates::find()
+            ->select('{{%invoice_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%invoice_candidates}}.candidate_id')
+            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
+            ->where([
+                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+            ])
+            ->asArray()
+            ->all();
+
+        
+        $this->layout = 'pdf';
+
+        $content = $this->render('invoice', [
+            'invoice' => $invoice,
+        ]);
+
+        $pdf = new Pdf([
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4, 
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT, 
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER, 
+            // your html content input
+            'content' => $content,  
+            // any css to be embedded if required
+            'cssInline' => '.kv-heading-1{font-size:38px}', 
+             // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+             // call mPDF methods on the fly
+            'methods' => [ 
+                'SetHeader'=>['Invoice #'.$invoice['invoice_id']], 
+                'SetFooter'=>['{PAGENO}'],
+            ]
+        ]);    
+
+        return $pdf->render();     
     }
 
     /**
@@ -259,112 +430,5 @@ class InvoiceController extends Controller
                 "operation" => "success",
                 "message" => "Invoice locked successfully"
             ];
-    }
-
-    /**
-     * Initiate invoice.
-     */
-    public function actionCreate()
-    {
-        $company = Yii::$app->user->identity;
-
-        //validate input
-
-        $errors = Invoice::validate_candidates(
-            $company->company_id,
-            Yii::$app->request->getBodyParam("candidates")
-        );
-
-        if($errors) {
-            return [
-                    "operation" => "error",
-                    "message" => $errors
-                ];
-        }
-
-        //save invoice
-
-        $transaction = Yii::$app->db->beginTransaction();
-
-        $invoice = new Invoice;
-        $invoice->company_id = $company->company_id;
-
-        if(!$invoice->save()){
-
-            if(isset($invoice->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $invoice->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the account, please contact us for assistance."
-                ];
-            }
-        }
-
-        //save candidates
-
-        $candidates = Yii::$app->request->getBodyParam("candidates");
-
-        $total = 0;
-
-        foreach ($candidates as $key => $value) {
-
-            //candiate hourly_rate
-
-            $candidate = Candidate::findOne($value['candidate_id']);
-
-            if(!$candidate)
-            {
-                $transaction->rollBack();
-
-                return [
-                    "operation" => "error",
-                    "message" => "Candidate not found"
-                ];
-            }
-
-            $hourly_rate = $candidate->candidate_hourly_rate;
-
-            $tc = new InvoiceCandidates;
-            $tc->transfer_cost = Yii::$app->params['transfer_cost'];
-            $tc->hourly_rate = $hourly_rate;
-            $tc->attributes = $value;
-            $tc->invoice_id = $invoice->invoice_id;
-
-            $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
-
-            if(!$tc->save())
-            {
-                $transaction->rollBack();
-
-                if(isset($tc->errors)){
-                    return [
-                        "operation" => "error",
-                        "message" => $tc->errors
-                    ];
-                }else{
-                    return [
-                        "operation" => "error",
-                        "message" => "We've faced a problem creating the account, please contact us for assistance."
-                    ];
-                }
-            }
-        }
-
-        $invoice->total = $total;
-        $invoice->save();
-
-        $transaction->commit();
-
-        return [
-            "operation" => "success",
-            "message" => "Invoice initiated successfully"
-        ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 }
