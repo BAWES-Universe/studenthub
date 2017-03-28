@@ -97,11 +97,17 @@ class InvoiceController extends Controller
     {
         $company = Yii::$app->user->identity;
 
+        // list all sub companies
+
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
         $invoice = Invoice::find()
-            ->where([
-                'company_id' => $company->company_id,
-                'invoice_id' => $id
-            ])
+            ->where(['invoice_id' => $id])
+            ->andWhere(['in', '{{%invoice}}.company_id', $company_ids])            
             ->asArray()
             ->one();
 
@@ -364,11 +370,17 @@ class InvoiceController extends Controller
     {
         $company = Yii::$app->user->identity;
 
+        // list all sub companies
+
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
         $invoice = Invoice::find()
-            ->where([
-                'company_id' => $company->company_id,
-                'invoice_id' => $id
-            ])
+            ->where(['invoice_id' => $id])
+            ->andWhere(['in', '{{%invoice}}.company_id', $company_ids])            
             ->asArray()
             ->one();
 
@@ -427,10 +439,18 @@ class InvoiceController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        $invoice = Invoice::findOne([
-                'company_id' => $company->company_id,
-                'invoice_id' => $id
-            ]);
+        // list all sub companies
+
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        $invoice = Invoice::find()
+            ->where(['invoice_id' => $id])
+            ->andWhere(['in', '{{%invoice}}.company_id', $company_ids])            
+            ->one();
 
         if(!$invoice) {
             return [
@@ -455,10 +475,18 @@ class InvoiceController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        $model = Invoice::findOne([
-                'company_id' => $company->company_id,
-                'invoice_id' => $id
-            ]);
+        // list all sub companies
+
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        $model = Invoice::find()
+            ->where(['invoice_id' => $id])
+            ->andWhere(['in', '{{%invoice}}.company_id', $company_ids])            
+            ->one();
 
         if(!$model) {
             return [
