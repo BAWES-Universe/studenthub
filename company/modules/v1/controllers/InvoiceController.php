@@ -495,6 +495,14 @@ class InvoiceController extends Controller
                 ];
         }
 
+        if($model->invoice_status != Invoice::STATUS_INITIATED)
+        {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice status need to be "Initiated" to lock it!'
+                ];
+        }
+
         //select distinct company and create invoice for each company
 
         $companies = InvoiceCandidates::find()
