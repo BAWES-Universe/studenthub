@@ -83,6 +83,7 @@ class InvoiceController extends Controller
             ->select('{{%invoice}}.*, {{%company}}.company_name, {{%company}}.company_email')
             ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%invoice}}.company_id')
             ->where(['in', '{{%invoice}}.company_id', $company_ids])
+            ->orderBy('invoice_id DESC')
             ->asArray();
 
         return new ActiveDataProvider([
