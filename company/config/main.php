@@ -83,6 +83,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS payment-sent/<id>' => 'options'
                     ]
