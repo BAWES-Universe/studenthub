@@ -184,6 +184,12 @@ class InvoiceController extends Controller
 
         foreach ($candidates as $key => $value) {
 
+            if(empty($value['bonus']))
+                $value['bonus'] = 0;
+
+            if(empty($value['hours']))
+                $value['hours'] = 0;
+
             //candiate hourly_rate
 
             $candidate = Candidate::findOne($value['candidate_id']);
@@ -304,6 +310,12 @@ class InvoiceController extends Controller
         $total = $company_total = 0;
 
         foreach ($candidates as $key => $value) {
+
+            if(empty($value['bonus']))
+                $value['bonus'] = 0;
+
+            if(empty($value['hours']))
+                $value['hours'] = 0;
 
             //candiate hourly_rate
 
