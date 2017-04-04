@@ -184,6 +184,12 @@ class InvoiceController extends Controller
 
         foreach ($candidates as $key => $value) {
 
+            if(empty($value['bonus']))
+                $value['bonus'] = 0;
+
+            if(empty($value['hours']))
+                $value['hours'] = 0;
+
             //candiate hourly_rate
 
             $candidate = Candidate::findOne($value['candidate_id']);
@@ -224,6 +230,16 @@ class InvoiceController extends Controller
                     ];
                 }
             }
+        }
+
+        if($total <= 0)
+        {
+            $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => "invoice total can not be zero!"
+            ];
         }
 
         $invoice->total = $total;
@@ -305,6 +321,12 @@ class InvoiceController extends Controller
 
         foreach ($candidates as $key => $value) {
 
+            if(empty($value['bonus']))
+                $value['bonus'] = 0;
+
+            if(empty($value['hours']))
+                $value['hours'] = 0;
+
             //candiate hourly_rate
 
             $candidate = Candidate::findOne($value['candidate_id']);
@@ -351,6 +373,17 @@ class InvoiceController extends Controller
 
         $invoice->company_total = $company_total;
         $invoice->total = $total;
+
+        if($total <= 0)
+        {
+            $transaction->rollBack();
+            
+            return [
+                "operation" => "error",
+                "message" => "invoice total can not be zero!"
+            ];
+        }
+        
         $invoice->save();
 
         $transaction->commit();
