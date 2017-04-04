@@ -232,6 +232,16 @@ class InvoiceController extends Controller
             }
         }
 
+        if($total <= 0)
+        {
+            $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => "invoice total can not be zero!"
+            ];
+        }
+
         $invoice->total = $total;
         $invoice->save();
 
@@ -363,6 +373,17 @@ class InvoiceController extends Controller
 
         $invoice->company_total = $company_total;
         $invoice->total = $total;
+
+        if($total <= 0)
+        {
+            $transaction->rollBack();
+            
+            return [
+                "operation" => "error",
+                "message" => "invoice total can not be zero!"
+            ];
+        }
+        
         $invoice->save();
 
         $transaction->commit();
