@@ -92,7 +92,7 @@ class StoreController extends Controller
         }
 
         $query = Store::find()
-            ->where(['company_id' => $companyId]);
+            ->where(['{{%store}}.company_id' => $companyId]);
 
         return new ActiveDataProvider([
             'query' => $query

@@ -76,6 +76,18 @@ class CompanyController extends Controller
     }
 
     /**
+     * Return a List of Sub Company Accounts by company_id
+     */
+    public function actionSubcompanies($id)
+    {
+        $query = Company::find()->where(['parent_company_id' => $id]);
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Create a company account
      */
     public function actionCreate()
