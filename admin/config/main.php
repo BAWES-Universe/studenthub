@@ -71,12 +71,14 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET subcompanies/<id>' => 'subcompanies',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS subcompanies/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
