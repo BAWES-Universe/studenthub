@@ -71,6 +71,7 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'GET subcompanies/<id>' => 'subcompanies',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',

@@ -95,6 +95,46 @@ class CandidateController extends Controller
     }
 
     /**
+     * Return a List of Candidate not assigned to store
+     */
+    public function actionListNotAssigned()
+    {
+        $query = Candidate::find()
+            ->where('store_id IS NULL or store_id = 0');
+
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        if($candidate_name)
+        {
+            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate assigned to store
+     */
+    public function actionListAssigned()
+    {
+        $query = Candidate::find()
+            ->where('store_id > 0');
+
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        if($candidate_name)
+        {
+            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Create a Candidate account
      */
     public function actionCreate()
