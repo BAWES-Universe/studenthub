@@ -7,6 +7,7 @@ use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
+use common\models\InvoiceCandidates;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -327,5 +328,42 @@ class CandidateController extends Controller
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Delete candidate 
+     */
+    public function actionDelete($id)
+    {
+        // Attempt to create new account
+        $model = Candidate::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
+
+        //check if in invoice 
+
+        $a = InvoiceCandidates::findOne([
+                'candidate_id' => $id
+            ]);
+
+        if($a) 
+        {
+            return [
+                "operation" => "error",
+                "message" => "Can not delete as Candidate mansioned in Invoice"
+            ];   
+        }
+
+        $model->delete();
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate removed successfully"
+        ];
     }
 }
