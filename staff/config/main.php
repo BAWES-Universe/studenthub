@@ -62,6 +62,8 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET assigned' => 'list-assigned',
+                        'GET not-assigned' => 'list-not-assigned',
                         'POST' => 'create',
                         'POST filter' => 'filter',
                         'PATCH <id>' => 'update',

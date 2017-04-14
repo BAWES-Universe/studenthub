@@ -7,6 +7,7 @@ use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
+use admin\models\Store;
 
 /**
  * Company controller - Manage company accounts as Admin
@@ -123,6 +124,38 @@ class CompanyController extends Controller
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * View company detail 
+     */
+    public function actionView($id)
+    {
+        $company = Company::find()
+            ->where(['company_id' => $id])
+            ->asArray()
+            ->one();
+
+        if(!$company){
+            return [
+                    "operation" => "error",
+                    "message" => "Company account not found"
+                ];
+        }
+
+        //sub companies 
+        
+        $company['subcompanies'] = Company::findAll([
+                'parent_company_id' => $company['company_id']
+            ]); 
+
+        //stores 
+
+        $company['stores'] = Store::findAll([
+                'company_id' => $company['company_id']
+            ]);
+
+        return $company;
     }
 
     /**
