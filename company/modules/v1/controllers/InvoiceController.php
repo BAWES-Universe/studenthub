@@ -112,6 +112,8 @@ class InvoiceController extends Controller
         $company_ids[] = $company->company_id;
 
         $invoice = Invoice::find()
+            ->select('{{%company}}.company_email, {{%company}}.company_name, {{%company}}.company_id, {{%invoice}}.*')
+            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%invoice}}.company_id')
             ->where(['invoice_id' => $id])
             ->andWhere(['in', '{{%invoice}}.company_id', $company_ids])            
             ->asArray()
@@ -185,7 +187,7 @@ class InvoiceController extends Controller
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
-        $total = 0;
+        $total = $company_total = 0;
 
         foreach ($candidates as $key => $value) {
 
@@ -219,6 +221,8 @@ class InvoiceController extends Controller
 
             $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
 
+            $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];
+
             if(!$tc->save())
             {
                 $transaction->rollBack();
@@ -247,6 +251,7 @@ class InvoiceController extends Controller
             ];
         }
 
+        $invoice->company_total = $company_total;
         $invoice->total = $total;
         $invoice->save();
 
@@ -468,6 +473,8 @@ class InvoiceController extends Controller
             ]
         ]);    
 
+        header('Access-Control-Allow-Origin: *');
+
         return $pdf->render();     
     }
 
@@ -600,7 +607,7 @@ class InvoiceController extends Controller
                 //get hourly rate
 
                 $invoice_candidate = new InvoiceCandidates;
-                $invoice_candidate->invoice_id = $model->invoice_id;
+                $invoice_candidate->invoice_id = $invoice->invoice_id;
                 $invoice_candidate->candidate_id = $value['candidate_id'];
                 $invoice_candidate->hours = $value['hours'];
                 $invoice_candidate->bonus = $value['bonus'];
