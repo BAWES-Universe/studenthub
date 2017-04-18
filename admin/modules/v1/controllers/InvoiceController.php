@@ -158,6 +158,8 @@ class InvoiceController extends Controller
             ])
             ->all();
 
+        header('Access-Control-Allow-Origin: *');
+
         \moonland\phpexcel\Excel::export([
             'isMultipleSheet' => false,
             'models' => $candidates,
