@@ -169,9 +169,10 @@ class InvoiceController extends Controller
                 'candidate.candidate_email',
                 'candidate.store.company.company_name',
                 'candidate.store.store_name',
-                'transfer_cost',
+                'hours',
                 'hourly_rate',
                 'bonus',
+                'transfer_cost',
                 'total',
                 'candidate.candidate_iban', 
                 'candidate.bank.bank_name'
