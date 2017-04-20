@@ -98,7 +98,6 @@ return [
                         'GET' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // BankController
@@ -108,7 +107,15 @@ return [
                         'GET' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // UniversityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/university',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                     ]
                 ],
             ],
