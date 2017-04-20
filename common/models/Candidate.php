@@ -7,6 +7,7 @@ use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use common\models\Bank;
+use common\models\University;
 
 /**
  * This is the model class for table "candidate".
@@ -53,7 +54,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
+            [['university_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
@@ -67,7 +68,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['store_id'], 'validateStore'],
-            [['candidate_password_reset_token'], 'unique'],
+            [['candidate_password_reset_token'], 'unique'],            
+            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
