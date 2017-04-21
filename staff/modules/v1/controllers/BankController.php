@@ -74,4 +74,14 @@ class BankController extends Controller
             'query' => $query
         ]);
     }
+
+    /**
+     * Return a List of Bank Accounts available
+     * without pagination.
+     */
+    public function actionAll()
+    {
+        return Bank::find()
+            ->all();
+    }
 }

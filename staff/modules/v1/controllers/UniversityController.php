@@ -74,4 +74,14 @@ class UniversityController extends Controller
             'query' => $query
         ]);
     }
+
+    /**
+     * Return a List of University Accounts available
+     * without pagination.
+     */
+    public function actionAll()
+    {
+        return University::find()
+            ->all();
+    }
 }
