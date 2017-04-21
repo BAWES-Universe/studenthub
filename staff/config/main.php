@@ -105,8 +105,10 @@ return [
                     'controller' => 'v1/bank',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET all' => 'all',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS all' => 'options'
                     ]
                 ],
                 [ // UniversityController
@@ -114,8 +116,10 @@ return [
                     'controller' => 'v1/university',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET all' => 'all',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS all' => 'options'
                     ]
                 ],
             ],
