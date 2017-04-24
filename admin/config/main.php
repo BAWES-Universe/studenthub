@@ -117,6 +117,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'GET pdf/<id>' => 'pdf',
                         'GET export/<id>' => 'export',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH payment-received/<id>' => 'payment-received',
@@ -125,6 +126,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS export/<id>' => 'options',
                         'OPTIONS payment-received/<id>' => 'options',
                         'OPTIONS payment-in-process/<id>' => 'options',

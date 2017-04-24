@@ -10,6 +10,7 @@ use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use common\models\Invoice;
 use common\models\InvoiceCandidates;
+use kartik\mpdf\Pdf;
 
 /**
  * Invoice controller - Manage Invoice
@@ -80,6 +81,68 @@ class InvoiceController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * Download Invoice as PDF 
+     */
+    public function actionPdf($id)
+    {
+        $invoice = Invoice::find()
+            ->where(['invoice_id' => $id])
+            ->asArray()
+            ->one();
+
+        if(!$invoice) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Invoice not found!'
+                ];
+        }
+
+        $invoice['company'] = Company::findOne($invoice['company_id']);
+
+        $invoice['candidates'] = InvoiceCandidates::find()
+            ->select('{{%invoice_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%invoice_candidates}}.candidate_id')
+            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
+            ->where([
+                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+            ])
+            ->asArray()
+            ->all();
+
+        
+        $this->layout = 'pdf';
+
+        $content = $this->render('invoice', [
+            'invoice' => $invoice,
+        ]);
+
+        $pdf = new Pdf([
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4, 
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT, 
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER, 
+            // your html content input
+            'content' => $content,  
+            // any css to be embedded if required
+            'cssInline' => '.kv-heading-1{font-size:38px}', 
+             // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+             // call mPDF methods on the fly
+            'methods' => [ 
+                'SetHeader'=>['Invoice #'.$invoice['invoice_id']], 
+                'SetFooter'=>['{PAGENO}'],
+            ]
+        ]);    
+
+        header('Access-Control-Allow-Origin: *');
+
+        return $pdf->render();     
     }
 
     /**
@@ -196,8 +259,23 @@ class InvoiceController extends Controller
                 ];
         }
 
+        //set payment received date 
+
+        $invoice->payment_received_on = date('Y-m-d');    
+
         $invoice->invoice_status = Invoice::STATUS_PAYMENT_RECEIVED;
         $invoice->save();
+
+        //send notification to company invoice available to download 
+
+        Yii::$app->mailer->compose("invoiceAvailable",
+            [
+                "invoice" => $invoice,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo($invoice->company->company_email)
+            ->setSubject('Invoice available to download!')
+            ->send();
 
         return [
                 "operation" => "success",

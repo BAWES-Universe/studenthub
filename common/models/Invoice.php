@@ -61,7 +61,7 @@ class Invoice extends \yii\db\ActiveRecord
         return [
             [['company_id', 'invoice_status'], 'integer'],
             [['total', 'company_total'], 'number'],
-            [['invoice_created_at', 'invoice_updated_at'], 'safe'],
+            [['invoice_created_at', 'invoice_updated_at', 'payment_received_on'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
     }
@@ -90,6 +90,7 @@ class Invoice extends \yii\db\ActiveRecord
             'invoice_status' => 'Invoice Status',
             'invoice_created_at' => 'Invoice Created At',
             'invoice_updated_at' => 'Invoice Updated At',
+            'payment_received_on' => 'Payment Received On'
         ];
     }
 
