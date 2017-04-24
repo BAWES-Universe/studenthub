@@ -127,6 +127,7 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS unlock/<id>' => 'options',
                         'OPTIONS export/<id>' => 'options',
                         'OPTIONS payment-received/<id>' => 'options',
                         'OPTIONS payment-in-process/<id>' => 'options',

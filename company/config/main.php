@@ -66,6 +66,7 @@ return [
                         'POST filter' => 'filter',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS all' => 'all',
                         'OPTIONS filter' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
