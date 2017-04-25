@@ -147,6 +147,7 @@ class CandidateController extends Controller
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->bank_id = Yii::$app->request->getBodyParam("bank_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
+        $model->country_id = Yii::$app->request->getBodyParam("country_id");
         $model->bank_account_name = Yii::$app->request->getBodyParam("bank_account_name");
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
@@ -205,6 +206,7 @@ class CandidateController extends Controller
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->bank_id = Yii::$app->request->getBodyParam("bank_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
+        $model->country_id = Yii::$app->request->getBodyParam("country_id");
         $model->bank_account_name = Yii::$app->request->getBodyParam("bank_account_name");
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
