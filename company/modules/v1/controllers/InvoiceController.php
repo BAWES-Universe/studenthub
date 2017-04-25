@@ -221,7 +221,7 @@ class InvoiceController extends Controller
 
             $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
 
-            $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];
+            $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
 
             if(!$tc->save())
             {
@@ -361,7 +361,7 @@ class InvoiceController extends Controller
 
             $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
 
-            $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];
+            $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
 
             if(!$tc->save())
             {
@@ -617,7 +617,7 @@ class InvoiceController extends Controller
 
                 $total += $invoice_candidate->bonus + ($invoice_candidate->hours * $invoice_candidate->hourly_rate) + Yii::$app->params['transfer_cost'];
 
-                $company_total += $invoice_candidate->bonus + ($invoice_candidate->hours * Yii::$app->params['candidate_max_hourly_rate']) + Yii::$app->params['transfer_cost'];
+                $company_total += $invoice_candidate->bonus + ($invoice_candidate->hours * Yii::$app->params['candidate_max_hourly_rate']);
 
                 //delete invoice candidate
 

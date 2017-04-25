@@ -170,7 +170,8 @@ class InvoiceController extends Controller
             ->where([
                 '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
             ])
-            ->sum('((2 - {{%invoice_candidates}}.hourly_rate) * hours)');
+            ->sum('(('.Yii::$app->params['candidate_max_hourly_rate'].' - {{%invoice_candidates}}.hourly_rate ) * hours) - '.Yii::$app->params['transfer_cost']);
+            // transfer cost will be on admin  
 
         $invoice['candidates'] = InvoiceCandidates::find()
             ->select('{{%invoice_candidates}}.*, 
@@ -181,7 +182,7 @@ class InvoiceController extends Controller
                 {{%candidate}}.candidate_email, 
                 {{%candidate}}.candidate_iban, 
                 {{%bank}}.bank_name, 
-                ((2 - {{%invoice_candidates}}.hourly_rate) * hours) as profit
+                (('.Yii::$app->params['candidate_max_hourly_rate'].' - {{%invoice_candidates}}.hourly_rate) * hours) - ' . Yii::$app->params['transfer_cost'] . ' as profit
             ')
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%invoice_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
