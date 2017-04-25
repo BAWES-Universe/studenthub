@@ -48,12 +48,23 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_name', 'company_email'], 'required'],
             [['company_password_hash'], 'required', 'on'=>'newAccount'],
             [['parent_company_id', 'company_status'], 'integer'],
+            [['parent_company_id'], 'validateCompany'],
             [['company_name', 'company_email', 'company_password_hash', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_email'], 'unique'],
             [['company_email'], 'email'],
             [['company_password_reset_token'], 'unique'],
         ];
+    }
+
+    /** 
+     * find if company have store 
+     */
+    public function validateCompany()
+    {
+        if($this->parentCompany->stores) {
+            $this->addError('company_id', "Company can't be assigned to company having stores.");   
+        }
     }
 
     public function behaviors() {
@@ -91,7 +102,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getParentCompany()
     {
-        return $this->hasMany(Company::className(), ['company_id' => 'parent_company_id']);
+        return $this->hasOne(Company::className(), ['company_id' => 'parent_company_id']);
     }
 
     /**
