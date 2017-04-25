@@ -5,8 +5,7 @@ use yii\db\Migration;
 class m170223_113047_parent_company extends Migration
 {
     public function up()
-    {
-        
+    {        
         $this->addColumn('company', 'parent_company_id', $this->integer(11)->after('company_id'));
 
         $this->createIndex(
