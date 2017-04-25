@@ -122,6 +122,17 @@ return [
                         'OPTIONS all' => 'options'
                     ]
                 ],
+                [ // CountryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/country',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET all' => 'all',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS all' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
