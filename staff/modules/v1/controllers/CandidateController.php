@@ -65,6 +65,25 @@ class CandidateController extends Controller
     }
 
     /**
+     * Return a List of Candidate Accounts by 
+     * search criteria 
+     */
+    public function actionSearch()
+    {
+        $country_id = Yii::$app->request->get('country_id');
+
+        $query = Candidate::find();
+
+        if($country_id) {
+            $query->where(['country_id' => $country_id]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Return a List of Candidate Accounts assigned to
      * Specific Store.
      */

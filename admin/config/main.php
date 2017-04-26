@@ -99,16 +99,17 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',
                     'patterns' => [
+                        'GET search' => 'search',
                         'GET review' => 'review',
                         'GET filter/<id>' => 'filter',
                         'PATCH approve/<id>' => 'approve',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS search' => 'options',
                         'OPTIONS review' => 'options',
                         'OPTIONS filter/<id>' => 'options',
-                        'OPTIONS approve/<id>' => 'options',
-                        'OPTIONS <id>' => 'options',
+                        'OPTIONS approve/<id>' => 'options'
                     ]
                 ],
                 [ // InvoiceController
@@ -127,8 +128,8 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
-                        'OPTIONS unlock/<id>' => 'options',
                         'OPTIONS export/<id>' => 'options',
+                        'OPTIONS unlock/<id>' => 'options',
                         'OPTIONS payment-received/<id>' => 'options',
                         'OPTIONS payment-in-process/<id>' => 'options',
                         'OPTIONS payment-completed/<id>' => 'options'
@@ -158,6 +159,15 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // CountryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/country',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options'
                     ]
                 ],
             ],

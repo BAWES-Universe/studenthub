@@ -1,6 +1,6 @@
 <?php
 
-namespace staff\modules\v1\controllers;
+namespace admin\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 use common\models\Country;
 
 /**
- * Country controller - Manage university as Admin
+ * Country controller - Manage Country as Admin
  */
 class CountryController extends Controller
 {
@@ -78,15 +78,5 @@ class CountryController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
-    }
-
-    /**
-     * Return a List of Country Accounts available
-     * without pagination.
-     */
-    public function actionAll()
-    {
-        return Country::find()
-            ->all();
     }
 }
