@@ -62,6 +62,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET search' => 'search',
                         'GET assigned' => 'list-assigned',
                         'GET not-assigned' => 'list-not-assigned',
                         'POST' => 'create',
@@ -72,8 +73,11 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
+                        'OPTIONS search' => 'options',
+                        'OPTIONS assign/<id>' => 'options',
+                        'OPTIONS not-assigned/<id>' => 'options',
                         'OPTIONS filter' => 'options',
+                        'OPTIONS <id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',
                     ]

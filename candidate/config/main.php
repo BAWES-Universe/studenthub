@@ -56,12 +56,13 @@ return [
                         'POST resend-verification-email' => 'resend-verification-email',
                         'POST validate' => 'validate',
                         // OPTIONS VERBS
-                        'OPTIONS verify' => 'options',
-                        'OPTIONS validate' => 'options',
                         'OPTIONS login' => 'options',
+                        'OPTIONS verify' => 'options',
+                        'OPTIONS update-password' => 'options',
                         'OPTIONS create-account' => 'options',
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS resend-verification-email' => 'options',
+                        'OPTIONS validate' => 'options'                        
                     ]
                 ],
                 [ // AccountController
@@ -74,8 +75,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS salary' => 'options',
-                        'OPTIONS employer' => 'options',
-                        'OPTIONS stats' => 'options',
+                        'OPTIONS employer' => 'options'
                     ]
                 ],
             ],

@@ -67,8 +67,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS all' => 'options',
-                        'OPTIONS filter' => 'options',
-                        'OPTIONS <id>' => 'options',
+                        'OPTIONS filter' => 'options'
                     ]
                 ],
                 [ // InvoiceController
