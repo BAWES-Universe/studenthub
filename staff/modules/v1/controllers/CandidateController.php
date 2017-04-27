@@ -171,6 +171,7 @@ class CandidateController extends Controller
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
+        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");        
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
@@ -229,8 +230,8 @@ class CandidateController extends Controller
         $model->bank_account_name = Yii::$app->request->getBodyParam("bank_account_name");
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
-
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
+        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo"); 
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
