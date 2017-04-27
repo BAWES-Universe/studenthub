@@ -185,6 +185,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getUniversity()
+    {
+        return $this->hasOne(University::className(), ['university_id' => 'university_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['country_id' => 'country_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getBank()
     {
         return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
