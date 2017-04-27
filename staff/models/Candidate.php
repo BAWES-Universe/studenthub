@@ -23,6 +23,14 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_created_at'],
         $fields['candidate_updated_at']);
 
+        $fields['university'] = function($model) {
+                return $model->university;
+            };
+
+        $fields['country'] = function($model) {
+                return $model->country;
+            };
+
         return $fields;
     }
 
