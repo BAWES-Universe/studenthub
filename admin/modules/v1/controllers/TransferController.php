@@ -323,19 +323,6 @@ class TransferController extends Controller
         $transfer->transfer_status = Transfer::STATUS_INITIATED;
         $transfer->save();
 
-        //get all child transfer
-        
-        $child_transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
-
-        foreach ($child_transfers as $key => $value) {
-            Invoice::deleteAll(['transfer_id' => $value->transfer_id]);
-            Transfer::deleteAll(['transfer_id' => $value->transfer_id]);
-        }
-
-        //delete main transfer invoice, will be generated on lock 
-
-        Invoice::deleteAll(['transfer_id' => $model->transfer_id]);
-
         return [
                 "operation" => "success",
                 "message" => 'Transfer unlocked successfully'
