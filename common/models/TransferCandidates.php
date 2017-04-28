@@ -8,29 +8,29 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
 /**
- * This is the model class for table "invoice_candidates".
+ * This is the model class for table "transfer_candidates".
  *
- * @property integer $ic_id
- * @property integer $invoice_id
+ * @property integer $tc_id
+ * @property integer $transfer_id
  * @property integer $candidate_id
  * @property string $hours
- * @property string $hourly_rate
+ * @property string $candidate_hourly_rate
  * @property string $bonus
  * @property string $transfer_cost 
  * @property string $ic_created_at
  * @property string $ic_updated_at
  *
  * @property Candidate $candidate
- * @property Invoice $invoice
+ * @property Transfer $transfer
  */
-class InvoiceCandidates extends \yii\db\ActiveRecord
+class TransferCandidates extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'invoice_candidates';
+        return 'transfer_candidates';
     }
 
     /**
@@ -39,11 +39,11 @@ class InvoiceCandidates extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['invoice_id', 'candidate_id'], 'integer'],
-            [['hours', 'transfer_cost', 'bonus', 'hourly_rate'], 'number'],
+            [['transfer_id', 'candidate_id'], 'integer'],
+            [['hours', 'transfer_cost', 'bonus', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['ic_created_at', 'ic_updated_at'], 'safe'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['invoice_id'], 'exist', 'skipOnError' => true, 'targetClass' => Invoice::className(), 'targetAttribute' => ['invoice_id' => 'invoice_id']],
+            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
         ];
     }
 
@@ -64,11 +64,12 @@ class InvoiceCandidates extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'ic_id' => 'Tc ID',
-            'invoice_id' => 'Invoice ID',
+            'tc_id' => 'TC ID',
+            'transfer_id' => 'Transfer ID',
             'candidate_id' => 'Candidate ID',
             'hours' => 'Hours',
-            'hourly_rate' => 'Hourly Rate',
+            'candidate_hourly_rate' => 'Candidate Hourly Rate',
+            'company_hourly_rate' => 'Company Hourly Rate',
             'transfer_cost' => 'Transfer cost',
             'bonus' => 'Bonus',
             'ic_created_at' => 'Tc Created At',
@@ -87,13 +88,8 @@ class InvoiceCandidates extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getInvoice()
+    public function getTransfer()
     {
-        return $this->hasOne(Invoice::className(), ['invoice_id' => 'invoice_id']);
-    }
-
-    public function getTotal()
-    {
-        return $this->bonus + ($this->hourly_rate * $this->hours) + Yii::$app->params['transfer_cost'];
+        return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
     }
 }
