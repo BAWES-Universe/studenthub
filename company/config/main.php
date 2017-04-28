@@ -70,9 +70,9 @@ return [
                         'OPTIONS filter' => 'options'
                     ]
                 ],
-                [ // InvoiceController
+                [ // TransferController
                     'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/invoice',
+                    'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',

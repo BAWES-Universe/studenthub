@@ -17,8 +17,8 @@ use yii\behaviors\TimestampBehavior;
  * @property string $candidate_hourly_rate
  * @property string $bonus
  * @property string $transfer_cost 
- * @property string $ic_created_at
- * @property string $ic_updated_at
+ * @property string $tc_created_at
+ * @property string $tc_updated_at
  *
  * @property Candidate $candidate
  * @property Transfer $transfer
@@ -41,7 +41,7 @@ class TransferCandidates extends \yii\db\ActiveRecord
         return [
             [['transfer_id', 'candidate_id'], 'integer'],
             [['hours', 'transfer_cost', 'bonus', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
-            [['ic_created_at', 'ic_updated_at'], 'safe'],
+            [['tc_created_at', 'tc_updated_at'], 'safe'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
         ];
@@ -51,8 +51,8 @@ class TransferCandidates extends \yii\db\ActiveRecord
         return [
             [
                 'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'ic_created_at',
-                'updatedAtAttribute' => 'ic_updated_at',
+                'createdAtAttribute' => 'tc_created_at',
+                'updatedAtAttribute' => 'tc_updated_at',
                 'value' => new Expression('NOW()'),
             ],
         ];
@@ -72,8 +72,8 @@ class TransferCandidates extends \yii\db\ActiveRecord
             'company_hourly_rate' => 'Company Hourly Rate',
             'transfer_cost' => 'Transfer cost',
             'bonus' => 'Bonus',
-            'ic_created_at' => 'Tc Created At',
-            'ic_updated_at' => 'Tc Updated At',
+            'tc_created_at' => 'Tc Created At',
+            'tc_updated_at' => 'Tc Updated At',
         ];
     }
 
