@@ -9,13 +9,14 @@ use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use common\models\Invoice;
-use common\models\InvoiceCandidates;
+use common\models\Transfer;
+use common\models\TransferCandidates;
 use kartik\mpdf\Pdf;
 
 /**
- * Invoice controller - Manage Invoice
+ * Transfer controller - Manage Transfer
  */
-class InvoiceController extends Controller
+class TransferController extends Controller
 {
     public function behaviors()
     {
@@ -69,13 +70,13 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Return a List of Invoice.
+     * Return a List of Transfer.
      */
     public function actionList()
     {
-        $query = Invoice::find()
-            ->select('{{%invoice}}.*, {{%company}}.company_name, {{%company}}.company_email')
-            ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%invoice}}.company_id')
+        $query = Transfer::find()
+            ->select('{{%transfer}}.*, {{%company}}.company_name, {{%company}}.company_email')
+            ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
             ->asArray();
 
         return new ActiveDataProvider([
@@ -84,40 +85,39 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Download Invoice as PDF 
+     * Download Transfer as PDF 
      */
     public function actionPdf($id)
     {
-        $invoice = Invoice::find()
-            ->where(['invoice_id' => $id])
+        $transfer = Transfer::find()
+            ->where(['transfer_id' => $id])
             ->asArray()
             ->one();
 
-        if(!$invoice) {
+        if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Transfer not found!'
                 ];
         }
 
-        $invoice['company'] = Company::findOne($invoice['company_id']);
+        $transfer['company'] = Company::findOne($transfer['company_id']);
 
-        $invoice['candidates'] = InvoiceCandidates::find()
-            ->select('{{%invoice_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%invoice_candidates}}.candidate_id')
+        $transfer['candidates'] = TransferCandidates::find()
+            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
             ->where([
-                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
             ])
             ->asArray()
             ->all();
 
-        
         $this->layout = 'pdf';
 
-        $content = $this->render('invoice', [
-            'invoice' => $invoice,
+        $content = $this->render('transfer', [
+            'transfer' => $transfer,
         ]);
 
         $pdf = new Pdf([
@@ -135,7 +135,7 @@ class InvoiceController extends Controller
             'options' => [],//['title' => 'Booking #'.$id],
              // call mPDF methods on the fly
             'methods' => [ 
-                'SetHeader'=>['Invoice #'.$invoice['invoice_id']], 
+                'SetHeader'=>['Transfer #'.$transfer['transfer_id']], 
                 'SetFooter'=>['{PAGENO}'],
             ]
         ]);    
@@ -146,35 +146,35 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Return Invoice detail.
+     * Return Transfer detail.
      */
     public function actionView($id)
     {
-        $invoice = Invoice::find()
+        $transfer = Transfer::find()
             ->where([
-                'invoice_id' => $id
+                'transfer_id' => $id
             ])
             ->asArray()
             ->one();
             
-        if(!$invoice) {
+        if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found'
+                    "message" => 'Transfer not found'
                 ];
         }
 
         //get total profit
 
-        $invoice['profit'] = InvoiceCandidates::find()
+        $transfer['profit'] = TransferCandidates::find()
             ->where([
-                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
             ])
-            ->sum('(('.Yii::$app->params['candidate_max_hourly_rate'].' - {{%invoice_candidates}}.hourly_rate ) * hours) - '.Yii::$app->params['transfer_cost']);
+            ->sum('(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate ) * hours) - {{%transfer_candidates}}.transfer_cost');
             // transfer cost will be on admin  
 
-        $invoice['candidates'] = InvoiceCandidates::find()
-            ->select('{{%invoice_candidates}}.*, 
+        $transfer['candidates'] = TransferCandidates::find()
+            ->select('{{%transfer_candidates}}.*, 
                 {{%store}}.store_name, 
                 {{%company}}.company_name, 
                 {{%company}}.company_email, 
@@ -182,43 +182,43 @@ class InvoiceController extends Controller
                 {{%candidate}}.candidate_email, 
                 {{%candidate}}.candidate_iban, 
                 {{%bank}}.bank_name, 
-                (('.Yii::$app->params['candidate_max_hourly_rate'].' - {{%invoice_candidates}}.hourly_rate) * hours) - ' . Yii::$app->params['transfer_cost'] . ' as profit
+                (({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate) * hours) - transfer_cost as profit
             ')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%invoice_candidates}}.candidate_id')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
             ->leftJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
             ->where([
-                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
             ])
             ->asArray()
             ->all();
 
-        return $invoice;
+        return $transfer;
     }
 
     /**
-     * Export Invoice detail.
+     * Export Transfer detail.
      */
     public function actionExport($id)
     {
-        $invoice = Invoice::find()
+        $transfer = Transfer::find()
             ->where([
-                'invoice_id' => $id
+                'transfer_id' => $id
             ])
             ->asArray()
             ->one();
             
-        if(!$invoice) {
+        if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Transfer not found!'
                 ];
         }
 
-        $candidates = InvoiceCandidates::find()
+        $candidates = TransferCandidates::find()
             ->where([
-                '{{%invoice_candidates}}.invoice_id' => $invoice['invoice_id']
+                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
             ])
             ->all();
 
@@ -234,7 +234,7 @@ class InvoiceController extends Controller
                 'candidate.store.company.company_name',
                 'candidate.store.store_name',
                 'hours',
-                'hourly_rate',
+                'candidate_hourly_rate',
                 'bonus',
                 'transfer_cost',
                 'total',
@@ -245,127 +245,150 @@ class InvoiceController extends Controller
     }
 
     /** 
-     * Mark Invoice as Payment Received
+     * Mark Transfer as Payment Received
      */ 
     public function actionPaymentReceived($id)
     {
-        $invoice = Invoice::findOne([
-                'invoice_id' => $id
+        $transfer = Transfer::findOne([
+                'transfer_id' => $id
             ]);
             
-        if(!$invoice) {
+        if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Transfer not found!'
                 ];
         }
 
         //set payment received date 
 
-        $invoice->payment_received_on = date('Y-m-d');    
+        $transfer->payment_received_on = date('Y-m-d');    
 
-        $invoice->invoice_status = Invoice::STATUS_PAYMENT_RECEIVED;
-        $invoice->save();
+        $transfer->transfer_status = Transfer::STATUS_PAYMENT_RECEIVED;
+        $transfer->save();
 
-        //send notification to company invoice available to download 
+        // mark invoice as paid for all child transfer and main transfer in case of no child company 
 
-        Yii::$app->mailer->compose("invoiceAvailable",
+        Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $transfer->transfer_id]);
+
+        $child_transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
+
+        foreach ($child_transfers as $key => $value) {
+            Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
+        }
+
+        //send notification to company transfer available to download 
+
+        Yii::$app->mailer->compose("transferAvailable",
             [
-                "invoice" => $invoice,
+                "transfer" => $transfer,
             ])
             ->setFrom(Yii::$app->params['supportEmail'])
-            ->setTo($invoice->company->company_email)
-            ->setSubject('Invoice available to download!')
+            ->setTo($transfer->company->company_email)
+            ->setSubject('Transfer available to download!')
             ->send();
 
         return [
                 "operation" => "success",
-                "message" => 'Invoice marked as "Payment Received" successfully'
+                "message" => 'Transfer marked as "Payment Received" successfully'
             ];
     }
 
     /** 
-     * Mark Invoice as Initiated
+     * Mark Transfer as Initiated
      */ 
     public function actionUnlock($id)
     {
-        $invoice = Invoice::findOne([
-                'invoice_id' => $id
+        $transfer = Transfer::findOne([
+                'transfer_id' => $id
             ]);
             
-        if(!$invoice) {
+        if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found!'
+                    "message" => 'Transfer not found!'
                 ];
         }
 
-        // to unlock invoice, invoice status should be in lock status 
+        // to unlock transfer, transfer status should be in lock status 
 
-        if($invoice->invoice_status != Invoice::STATUS_LOCK)
+        if($transfer->transfer_status != Transfer::STATUS_LOCK)
         {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice status should be "Locked" to unlock it!'
+                    "message" => 'Transfer status should be "Locked" to unlock it!'
                 ];
         }
 
-        $invoice->invoice_status = Invoice::STATUS_INITIATED;
-        $invoice->save();
+        $transfer->transfer_status = Transfer::STATUS_INITIATED;
+        $transfer->save();
+
+        //get all child transfer
+        
+        $child_transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
+
+        foreach ($child_transfers as $key => $value) {
+            Invoice::deleteAll(['transfer_id' => $value->transfer_id]);
+            Transfer::deleteAll(['transfer_id' => $value->transfer_id]);
+        }
+
+        //delete main transfer invoice, will be generated on lock 
+
+        Invoice::deleteAll(['transfer_id' => $model->transfer_id]);
 
         return [
                 "operation" => "success",
-                "message" => 'Invoice unlocked successfully'
+                "message" => 'Transfer unlocked successfully'
             ];
     }
 
     /** 
-     * Mark Invoice as Payment In Process
+     * Mark Transfer as Payment In Process
      */ 
     public function actionPaymentInProcess($id)
     {
-        $invoice = Invoice::findOne([
-                'invoice_id' => $id
+        $transfer = Transfer::findOne([
+                'transfer_id' => $id
             ]);
             
-        if(!$invoice) {
+        if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found'
+                    "message" => 'Transfer not found'
                 ];
         }
 
-        $invoice->invoice_status = Invoice::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-        $invoice->save();
+        $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+        $transfer->save();
 
         return [
                 "operation" => "success",
-                "message" => 'Invoice marked as "Salary Distribution in Progress" successfully'
+                "message" => 'Transfer marked as "Salary Distribution in Progress" successfully'
             ];
     }
 
     /** 
-     * Mark Invoice as Payment In Completed
+     * Mark Transfer as Payment In Completed
      */ 
     public function actionPaymentCompleted($id)
     {
-        $invoice = Invoice::findOne([
-                'invoice_id' => $id
+        $transfer = Transfer::findOne([
+                'transfer_id' => $id
             ]);
             
-        if(!$invoice) {
+        if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Invoice not found'
+                    "message" => 'Transfer not found'
                 ];
         }
 
-        $invoice->invoice_status = Invoice::STATUS_TRANSFER_COMPLETE;
-        $invoice->save();
+        $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+        $transfer->save();
 
         return [
             "operation" => "success",
-            "message" => 'Invoice marked as "Payment Complete" successfully'
+            "message" => 'Transfer marked as "Payment Complete" successfully'
         ];
     }
 }
