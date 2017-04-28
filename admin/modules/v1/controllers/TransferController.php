@@ -279,13 +279,13 @@ class TransferController extends Controller
 
         //send notification to company transfer available to download 
 
-        Yii::$app->mailer->compose("transferAvailable",
+        Yii::$app->mailer->compose("invoiceReceiptAvailable",
             [
                 "transfer" => $transfer,
             ])
             ->setFrom(Yii::$app->params['supportEmail'])
             ->setTo($transfer->company->company_email)
-            ->setSubject('Transfer available to download!')
+            ->setSubject('Transfer receipt available to download!')
             ->send();
 
         return [
