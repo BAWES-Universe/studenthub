@@ -55,7 +55,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['country_id', 'university_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate'], 'required'],
+            [['country_id', 'university_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate', 'candidate_civil_photo_front', 'candidate_civil_photo_back'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
@@ -69,7 +69,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['store_id'], 'validateStore'],
-            [['candidate_password_reset_token'], 'unique'],            
+            [['candidate_password_reset_token'], 'unique'],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
@@ -97,10 +97,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $this->fixStatus();
 
-        //if status is incomplete and trying to set store 
+        //if status is incomplete and trying to set store
 
         if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
-            $this->addError('store_id', 'Can not assign store to incomplete profile.');   
+            $this->addError('store_id', 'Can not assign store to incomplete profile.');
         }
     }
 
@@ -110,29 +110,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-
             $this->fixStatus();
-            
             return true;
         }
 
         return false;
     }
 
-    /** 
-     * fix status for a candidate 
-     */ 
+    /**
+     * Fix status for a candidate
+     */
     private function fixStatus()
     {
         $attr = $this->attributes;
 
-        //check all values except 
-        
+        //check all values except
         unset($attr['candidate_password_reset_token']);
         unset($attr['candidate_status']);
         unset($attr['candidate_id']);
         unset($attr['approved']);
-       
+
         //if have empty value
         if(in_array('', $attr)) {
             $this->candidate_status = Candidate::STATUS_INCOMPLETE;
@@ -221,7 +218,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getCompany()
     {
         if(isset($this->store->company_id)) {
-            return Company::findOne($this->store->company_id);   
+            return Company::findOne($this->store->company_id);
         }
     }
 
@@ -239,10 +236,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return static|null the saved model or null if saving fails
      */
     public function signup() {
-    
         $this->setPassword($this->candidate_password_hash);
         $this->generateAuthKey();
-        
+
         if($this->save()) {
             Yii::info("[New Candidate Account Created] ".$this->candidate_email, __METHOD__);
 
@@ -412,10 +408,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         return $token;
     }
-    
+
     /**
-     * Send candidate list having birthday today 
-     * to admin 
+     * Send candidate list having birthday today
+     * to admin
      * @return null
      */
     public static function birthdayAlert()
@@ -426,7 +422,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if(!$candidates)
             return null;
-        
+
         Yii::$app->mailer->compose("candidateBirthday",
             [
                 "candidates" => $candidates,
