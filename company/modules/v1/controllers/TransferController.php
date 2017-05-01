@@ -283,19 +283,19 @@ class TransferController extends Controller
 
         $company_ids[] = $company->company_id;
 
-        $transfer = Transfer::find()
+        $model = Transfer::find()
             ->where(['transfer_id' => $id])
             ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
             ->one();
 
-        if(!$transfer) {
+        if(!$model) {
             return [
                     "operation" => "error",
                     "message" => 'Transfer not found!'
                 ];
         }
 
-        if($transfer->parent_transfer_id > 0) {
+        if($model->parent_transfer_id > 0) {
             return [
                     "operation" => "error",
                     "message" => 'Transfer for sub company can\'t be edited!'
@@ -304,7 +304,7 @@ class TransferController extends Controller
 
         //transfer status should be "Initiated" to edit it
 
-        if($transfer->transfer_status != Transfer::STATUS_INITIATED)
+        if($model->transfer_status != Transfer::STATUS_INITIATED)
         {
              return [
                     "operation" => "error",
@@ -330,7 +330,7 @@ class TransferController extends Controller
 
         //remove old candidates 
 
-        TransferCandidates::deleteAll(['transfer_id' => $transfer->transfer_id]);
+        TransferCandidates::deleteAll(['transfer_id' => $model->transfer_id]);
 
         //save candidates
 
@@ -364,10 +364,10 @@ class TransferController extends Controller
 
             $tc = new TransferCandidates;
             $tc->transfer_cost = Yii::$app->params['transfer_cost'];
-            $tc->candiate_hourly_rate = $hourly_rate;
+            $tc->candidate_hourly_rate = $hourly_rate;
             $tc->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
             $tc->attributes = $value;
-            $tc->transfer_id = $transfer->transfer_id;
+            $tc->transfer_id = $model->transfer_id;
 
             $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
 
@@ -391,8 +391,8 @@ class TransferController extends Controller
             }
         }
 
-        $transfer->company_total = $company_total;
-        $transfer->total = $total;
+        $model->company_total = $company_total;
+        $model->total = $total;
 
         if($total <= 0)
         {
@@ -404,7 +404,7 @@ class TransferController extends Controller
             ];
         }
         
-        $transfer->save();
+        $model->save();
 
         //update child transfers 
 
@@ -415,7 +415,7 @@ class TransferController extends Controller
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer->transfer_id
+                '{{%transfer_candidates}}.transfer_id' => $model->transfer_id
             ])
             ->distinct()
             ->asArray()
