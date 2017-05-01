@@ -81,6 +81,7 @@ class TransferController extends Controller
             ->select('{{%transfer}}.*, {{%company}}.company_name, {{%company}}.company_email')
             ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
             ->where(['{{%transfer}}.company_id' => $company->company_id])
+            ->andWhere('parent_transfer_id IS NULL')
             ->orderBy('transfer_id DESC')
             ->asArray();
 
