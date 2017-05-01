@@ -77,6 +77,7 @@ class TransferController extends Controller
         $query = Transfer::find()
             ->select('{{%transfer}}.*, {{%company}}.company_name, {{%company}}.company_email')
             ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
+            ->where('parent_transfer_id IS NULL')
             ->asArray();
 
         return new ActiveDataProvider([
