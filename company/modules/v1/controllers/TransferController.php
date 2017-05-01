@@ -521,9 +521,10 @@ class TransferController extends Controller
 
         $company_ids[] = $company->company_id;
 
-        $transfer = Transfer::find()
-            ->innerJoin('invoice', 'invoice.transfer_id = transfer.transfer_id')
-            ->where(['transfer_id' => $id])
+        $transfer = Invoice::find()
+            ->select('{{%invoice}}.*, {{%transfer}}.*')
+            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
+            ->where(['{{%invoice}}.invoice_id' => $id])
             ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])            
             ->asArray()
             ->one();
@@ -531,7 +532,7 @@ class TransferController extends Controller
         if(!$transfer) {
             return [
                     "operation" => "error",
-                    "message" => 'Transfer not found!'
+                    "message" => 'Invoice not found!'
                 ];
         }
 
@@ -549,7 +550,12 @@ class TransferController extends Controller
         
         $this->layout = 'pdf';
 
-        $content = $this->render('transfer', [
+        if($transfer['invoice_status'] == 'paid') 
+            $template = 'receipt';
+        else
+            $template = 'invoice';
+       
+        $content = $this->render($template, [
             'transfer' => $transfer,
         ]);
 

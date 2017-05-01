@@ -1,5 +1,5 @@
 
-<h1>Invoice</h1>
+<h1>Receipt</h1>
 
 <hr />
 
@@ -22,7 +22,7 @@ For
 		</tr>
 	</thead>
 	<tbody>
-		<?php foreach ($invoice['candidates'] as $key => $value) { ?>
+		<?php foreach ($transfer['candidates'] as $key => $value) { ?>
 		<tr>	
 			<td><?= $value['candidate_name'] ?></td>
 			<td><?= $value['hours'] ?></td>
@@ -34,4 +34,4 @@ For
 	</tbody>
 </table>
 
-<h4>Invoice Total : <?= $invoice['company_total'] ?></h4>
+<h4>Total Received : <?= $transfer['company_total'] ?></h4>
