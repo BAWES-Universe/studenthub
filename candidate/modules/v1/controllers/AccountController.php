@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\InvoiceCandidates;
+use common\models\TransferCandidates;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -70,22 +70,24 @@ class AccountController extends Controller
     {
         $candidate = Yii::$app->user->identity;
 
-        $query = InvoiceCandidates::find()
+        $query = TransferCandidates::find()
             ->select([
-                '{{%invoice_candidates}}.ic_id', 
-                '{{%invoice_candidates}}.invoice_id', 
+                '{{%transfer_candidates}}.tc_id', 
+                '{{%invoice}}.invoice_id', 
                 '{{%company}}.company_name',
                 '{{%company}}.company_email',
-                '{{%invoice_candidates}}.hourly_rate', 
-                '{{%invoice_candidates}}.hours', 
-                '{{%invoice_candidates}}.bonus', 
-                '({{%invoice_candidates}}.hourly_rate * {{%invoice_candidates}}.hours) + {{%invoice_candidates}}.bonus as total', 
-                '{{%invoice_candidates}}.ic_created_at'
+                '{{%transfer_candidates}}.candidate_hourly_rate', 
+                '{{%transfer_candidates}}.hours', 
+                '{{%transfer_candidates}}.bonus', 
+                '({{%transfer_candidates}}.candidate_hourly_rate * {{%transfer_candidates}}.hours) + {{%transfer_candidates}}.bonus as total', 
+                '{{%transfer_candidates}}.tc_created_at'
             ])
-            ->innerJoin('{{%invoice}}', '{{%invoice}}.invoice_id = {{%invoice_candidates}}.invoice_id')
-            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%invoice}}.company_id')
+            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%transfer_candidates}}.transfer_id')
+            ->innerJoin('{{%invoice}}', '{{%invoice}}.transfer_id = {{%transfer_candidates}}.transfer_id')
+            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
             ->where([
-                'candidate_id' => $candidate->candidate_id
+                'candidate_id' => $candidate->candidate_id,
+                'invoice_status' => 'paid'
             ])
             ->asArray();
 
