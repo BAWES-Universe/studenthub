@@ -90,8 +90,10 @@ class TransferController extends Controller
      */
     public function actionPdf($id)
     {
-        $transfer = Transfer::find()
-            ->where(['transfer_id' => $id])
+        $transfer = Invoice::find()
+            ->select('{{%invoice}}.*, {{%transfer}}.*')
+            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
+            ->where(['{{%invoice}}.invoice_id' => $id])
             ->asArray()
             ->one();
 
@@ -117,7 +119,12 @@ class TransferController extends Controller
 
         $this->layout = 'pdf';
 
-        $content = $this->render('transfer', [
+        if($transfer['invoice_status'] == 'paid') 
+            $template = 'receipt';
+        else
+            $template = 'invoice';
+
+        $content = $this->render($template, [
             'transfer' => $transfer,
         ]);
 
@@ -195,6 +202,14 @@ class TransferController extends Controller
             ->asArray()
             ->all();
 
+        //invoices 
+
+        $transfer['invoices'] = Invoice::find()
+            ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
+            ->where(['transfer.transfer_id' => $id])
+            ->orWhere(['transfer.parent_transfer_id' => $id])
+            ->all();
+
         return $transfer;
     }
 
@@ -238,7 +253,7 @@ class TransferController extends Controller
                 'candidate_hourly_rate',
                 'bonus',
                 'transfer_cost',
-                'total',
+                'candidate_total',
                 'candidate.candidate_iban', 
                 'candidate.bank.bank_name'
             ]

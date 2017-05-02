@@ -17,7 +17,6 @@ For
 			<th>Candidate</th>
 			<th>Hours</th>
 			<th>Bonus</th>
-			<th>Transfer Cost</th>
 			<th>Total</th>
 		</tr>
 	</thead>
@@ -27,8 +26,7 @@ For
 			<td><?= $value['candidate_name'] ?></td>
 			<td><?= $value['hours'] ?></td>
 			<td><?= $value['bonus'] ?></td>
-			<td><?= $value['transfer_cost'] ?></td>
-			<td><?= ($value['hours'] *  Yii::$app->params['candidate_max_hourly_rate']) + $value['bonus'] + $value['transfer_cost'] ?></td>
+			<td><?= ($value['hours'] *  $value['company_hourly_rate']) + $value['bonus'] ?></td>
 		</tr>
 		<?php } ?>
 	</tbody>

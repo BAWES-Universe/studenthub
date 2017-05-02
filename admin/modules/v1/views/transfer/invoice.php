@@ -7,7 +7,7 @@ For
 
 <br />
 
-<h3><?= Yii::$app->user->identity->company_name ?></h3>
+<h3><?= $transfer['company']['company_name'] ?></h3>
 
 <br />
 

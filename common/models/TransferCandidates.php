@@ -92,4 +92,9 @@ class TransferCandidates extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
     }
+
+    public function getCandidate_total()
+    {
+        return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
+    }
 }

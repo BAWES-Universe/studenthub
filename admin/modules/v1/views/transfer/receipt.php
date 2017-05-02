@@ -1,5 +1,5 @@
 
-<h1>Invoice</h1>
+<h1>Receipt</h1>
 
 <hr />
 
@@ -7,7 +7,7 @@ For
 
 <br />
 
-<h3><?= Yii::$app->user->identity->company_name ?></h3>
+<h3><?= $transfer['company']['company_name'] ?></h3>
 
 <br />
 
@@ -32,4 +32,4 @@ For
 	</tbody>
 </table>
 
-<h4>Invoice Total : <?= $transfer['company_total'] ?></h4>
+<h4>Total Received : <?= $transfer['company_total'] ?></h4>
