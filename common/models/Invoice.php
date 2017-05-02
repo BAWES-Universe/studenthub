@@ -57,4 +57,47 @@ class Invoice extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
     }
+
+    /* check salary transfer not paid
+     * @return null
+     */
+    public function unpaidAlert()
+    {
+        //check only after salary day of every month
+
+        if(date('d') <= Yii::$app->params['salaryDay'])
+            return null;
+
+        $companies = Company::find()
+            ->where('DATE(company_created_at) < DATE("'.date('Y-m-1').'")')
+            ->all();
+
+        if(!$companies)
+            return null;
+
+        $result = [];
+
+        foreach ($companies as $key => $value) 
+        {
+            $invoice = Invoice::find()
+                ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
+                ->where(['invoice_status' => 'paid'])
+                ->andWhere(['in', 'transfer.company_id', [$value->company_id, $value->parent_company_id]])
+                ->one();
+
+            if(!$invoice)
+            {
+                $result[] = $value;
+            }
+        }
+
+        Yii::$app->mailer->compose("companyNotPaid",
+            [
+                "companies" => $result,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Company not paid in current month')
+            ->send();
+    }
 }
