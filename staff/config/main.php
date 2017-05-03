@@ -137,6 +137,15 @@ return [
                         'OPTIONS all' => 'options'
                     ]
                 ],
+                [ // CandidateIdCardController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-id-card',
+                    'patterns' => [
+                        'POST generate' => 'generate',
+                        // OPTIONS VERBS
+                        'OPTIONS generate' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
