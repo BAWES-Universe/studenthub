@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
+use staff\models\Candidate;
 use common\models\CandidateIdCard;
 
 /**
@@ -63,6 +64,23 @@ class CandidateIdCardController extends Controller
         return $actions;
     }
 
+    /** 
+     * List candidates to generate ID Cards
+     */ 
+    public function actionListCandidates()
+    {
+        $cards = CandidateIdCard::find()
+            ->all();
+
+        $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
+
+        $candidates = Candidate::find()
+            ->where(['NOT IN', 'candidate_id', $candidate_ids])
+            ->all();
+
+        return $candidates;
+    }
+
     /**
      * Generate ID for candidates 
      */
@@ -90,5 +108,20 @@ class CandidateIdCardController extends Controller
         }
 
         $transaction->commit();
+
+        $file = sys_get_temp_dir() . '/IdCards.zip';
+
+        $zip = new ZipArchive();
+        if ($zip->open($file, ZipArchive::CREATE) !== TRUE) {
+            throw new \Exception('Cannot create a zip file');
+        }
+
+        /*foreach($files as $file){
+            $zip->addFile($file[file_name], $file[local_name]);
+        }*/
+
+        $zip->close();
+
+        Yii::$app->response->xSendFile($file);
     }
 }
