@@ -8,6 +8,7 @@ use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use common\models\CandidateIdCard;
+use common\components\Excel;
 
 /**
  * CandidateIdcard controller - Manage Candidate ID as Staff
@@ -88,9 +89,9 @@ class CandidateIdCardController extends Controller
     {
         $transaction = Yii::$app->db->beginTransaction();
 
-        $candidates = Yii::$app->request->getBodyParam('candidates');
+        $candidate_ids = Yii::$app->request->getBodyParam('candidates');
 
-        foreach ($candidates as $key => $value) 
+        foreach ($candidate_ids as $key => $value) 
         {
             $ID = new CandidateIdCard;
             $ID->candidate_id = $value;
@@ -109,19 +110,62 @@ class CandidateIdCardController extends Controller
 
         $transaction->commit();
 
-        $file = sys_get_temp_dir() . '/IdCards.zip';
+        $path = Yii::getAlias('@runtime/cache');
 
-        $zip = new ZipArchive();
-        if ($zip->open($file, ZipArchive::CREATE) !== TRUE) {
-            throw new \Exception('Cannot create a zip file');
+        $candidates = Candidate::find()
+            ->where(['in', 'candidate_id', $candidate_ids])
+            ->all();
+
+        //create excel file
+
+        Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'savePath' => $path,
+            'fileName' => 'export.xlsx',
+            'asAttachment' => false,
+            'columns' => [
+                'employee_id',
+                'candidate_name_ar',
+                [
+                   'header' => 'University Name',
+                   'format' => 'text',
+                   'value' => function($model) {
+                        if($model->university)    
+                        {
+                            return $model->university->university_name_ar;
+                        }else{
+                            return '';
+                        }
+                   },
+                ],
+                //'university.university_name_ar',
+                'candidate_civil_id'
+            ],
+            'headers' => [
+                'employee_id' => 'Employee ID',
+                'candidate_name_ar' => 'Employee Name', 
+                //'university.university_name_ar' => 'University Name',
+                'candidate_civil_id' => 'Civil ID Number'
+            ]
+        ]); 
+
+        $zipname = 'IdCards.zip';
+
+        $zip = new \ZipArchive();
+
+        if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
+        {
+            return [
+                'operation' => 'error',
+                'message' => 'Cannot create a zip file'
+            ];
         }
 
-        /*foreach($files as $file){
-            $zip->addFile($file[file_name], $file[local_name]);
-        }*/
-
+        $zip->addFile($path.'/export.xlsx', 'export.xlsx');
+        
         $zip->close();
 
-        Yii::$app->response->xSendFile($file);
+        return $zip;
     }
 }

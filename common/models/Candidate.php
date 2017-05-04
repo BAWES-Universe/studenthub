@@ -181,6 +181,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Return Employer ID in C00231 format where 231 is
+     * candidate id 
+     */
+    public function getEmployee_id()
+    {
+        $prefix = 'C';
+
+        $digit_missing = 5 - strlen($this->candidate_id);
+
+        if($digit_missing > 0) {
+            $prefix .= str_repeat("0", $digit_missing);
+        }
+        
+        return $prefix . $this->candidate_id;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getUniversity()
