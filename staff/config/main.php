@@ -141,9 +141,11 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-id-card',
                     'patterns' => [
+                        'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
                         'POST generate' => 'generate',
                         // OPTIONS VERBS
+                        'OPTIONS list-candidate-ids' => 'options',
                         'OPTIONS list-candidates' => 'options',
                         'OPTIONS generate' => 'options'
                     ]
