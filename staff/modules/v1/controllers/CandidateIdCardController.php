@@ -173,9 +173,8 @@ class CandidateIdCardController extends Controller
         FileHelper::createDirectory($path.'/QR');
 
         foreach ($candidates as $key => $value) {
-            ////. '-'.$value->candidate_uid,
             QrCode::jpg(
-                'https://v.studenthub.co/'.$value->candidate_id,
+                'https://v.studenthub.co/'.$value->candidate_uid,
                 $path.'/QR/'.$value->employee_id.'.jpg'
             );
         }

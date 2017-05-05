@@ -61,7 +61,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
             [['candidate_iban', 'bank_account_name'], 'string', 'max' => 100],
             [['candidate_auth_key'], 'string', 'max' => 32],
-            [['candidate_phone'], 'string', 'max' => 20],
+            [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
@@ -111,10 +111,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if (parent::beforeSave($insert)) {
             $this->fixStatus();
+
+            if (!$this->candidate_uid) {
+                $this->candidate_uid = $this->generateUid();
+            }
+
             return true;
         }
 
         return false;
+    }
+
+    public function generateUid()
+    {
+        $randomString = Yii::$app->getSecurity()->generateRandomString(20);
+                
+        if(!$this->findOne(['candidate_uid' => $randomString]))
+            return $randomString;
+        else
+            return $this->generateUniqueRandomString();
     }
 
     /**
