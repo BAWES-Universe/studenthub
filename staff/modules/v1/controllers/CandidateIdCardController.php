@@ -5,10 +5,12 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use common\models\CandidateIdCard;
 use common\components\Excel;
+use dosamigos\qrcode\QrCode;
 
 /**
  * CandidateIdcard controller - Manage Candidate ID as Staff
@@ -110,7 +112,9 @@ class CandidateIdCardController extends Controller
 
         $transaction->commit();
 
-        $path = Yii::getAlias('@runtime/cache');
+        $path = Yii::getAlias('@runtime/cache/').time();
+
+        FileHelper::createDirectory($path);
 
         $candidates = Candidate::find()
             ->where(['in', 'candidate_id', $candidate_ids])
@@ -164,6 +168,26 @@ class CandidateIdCardController extends Controller
 
         $zip->addFile($path.'/export.xlsx', 'export.xlsx');
         
+        //crate QR images 
+
+        FileHelper::createDirectory($path.'/QR');
+
+        foreach ($candidates as $key => $value) {
+            ////. '-'.$value->candidate_uid,
+            QrCode::jpg(
+                'https://v.studenthub.co/'.$value->candidate_id,
+                $path.'/QR/'.$value->employee_id.'.jpg'
+            );
+        }
+        
+        //add QR folder to zip 
+
+        foreach (glob($path.'/QR/*') as $file) {
+            $zip->addFile($file, 'QR/'.basename($file));
+        }
+
+        //add candidate photos to zip  
+
         $zip->close();
 
         return $zip;
