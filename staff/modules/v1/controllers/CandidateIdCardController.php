@@ -68,6 +68,26 @@ class CandidateIdCardController extends Controller
     }
 
     /** 
+     * List candidates having ID Cards
+     */ 
+    public function actionListCandidateIds()
+    {
+        $query = Candidate::find()
+            ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id');
+
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        if($candidate_name)
+        {
+            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /** 
      * List candidates to generate ID Cards
      */ 
     public function actionListCandidates()
@@ -77,11 +97,19 @@ class CandidateIdCardController extends Controller
 
         $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
 
-        $candidates = Candidate::find()
-            ->where(['NOT IN', 'candidate_id', $candidate_ids])
-            ->all();
+        $query = Candidate::find()
+            ->where(['NOT IN', 'candidate_id', $candidate_ids]);
 
-        return $candidates;
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        if($candidate_name)
+        {
+            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
@@ -95,6 +123,15 @@ class CandidateIdCardController extends Controller
 
         foreach ($candidate_ids as $key => $value) 
         {
+            //check if id card already available 
+
+            $ID = CandidateIdcard::find()
+                ->where(['candidate_id' => $value])
+                ->one();
+
+            if($ID)
+                continue;
+
             $ID = new CandidateIdCard;
             $ID->candidate_id = $value;
             $ID->expiry_date = date('Y-m-d', strtotime('+3 months'));
