@@ -143,11 +143,15 @@ return [
                     'patterns' => [
                         'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
+                        'GET list-expired' => 'list-expired',
                         'POST generate' => 'generate',
+                        'POST renew' => 'renew',                        
                         // OPTIONS VERBS
                         'OPTIONS list-candidate-ids' => 'options',
                         'OPTIONS list-candidates' => 'options',
-                        'OPTIONS generate' => 'options'
+                        'OPTIONS list-expired' => 'options',
+                        'OPTIONS generate' => 'options',
+                        'OPTIONS renew' => 'options',                        
                     ]
                 ],
             ],

@@ -228,4 +228,62 @@ class CandidateIdCardController extends Controller
 
         return $zip;
     }
+
+    /**
+     * Renew Candidate IDs
+     */
+    public function actionRenew()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $candidate_ids = Yii::$app->request->getBodyParam('candidates');
+
+        foreach ($candidate_ids as $key => $value) 
+        {
+            $ID = CandidateIdCard::find()
+                ->where(['candidate_id' => $value])
+                ->one();
+            
+            if(!$ID)
+            {
+                $transaction->rollBack();
+
+                return [
+                    'operation' => 'error',
+                    'message' => 'Candidate ID not found'
+                ];
+            }
+
+            $ID->expiry_date = date('Y-m-d', strtotime('+3 months'));
+            $ID->save();
+        }
+
+        $transaction->commit();
+
+        return [
+            'operation' => 'success',
+            'message' => 'Candidate ID Renewed Successfully'
+        ];
+    }
+
+    /** 
+     * List candidates having expired ID Cards
+     */ 
+    public function actionListExpired()
+    {
+        $query = Candidate::find()
+            ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id')
+            ->where('DATE(expiry_date) < DATE(NOW())');
+
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        if($candidate_name)
+        {
+            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
 }
