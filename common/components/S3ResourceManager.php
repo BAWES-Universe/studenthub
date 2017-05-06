@@ -10,7 +10,7 @@ use dosamigos\resourcemanager\AmazonS3ResourceManager;
 /**
  *
  * Adjustments to the resource manager
- * 
+ *
  * @author Khalid Al-Mutawa <khalid@bawes.net>
  * @link http://www.bawes.net
  */
@@ -41,11 +41,14 @@ class S3ResourceManager extends AmazonS3ResourceManager {
      * Creates a copy of a file from old key to new key
      * @param string $oldFile old file name / path that you wish to copy
      * @param string $newFile target destination for file name / path
+     * @param string $sourceBucket the bucket to copy the file from
      * @param array $options
      * @return \Guzzle\Service\Resource\Model
      */
-    public function copy($oldFile, $newFile, $options = []) {
-        
+    public function copy($oldFile, $newFile, $sourceBucket = ""; $options = []) {
+        // Set Source bucket to the components defined bucket if none specified.
+        $sourceBucket = $sourceBucket? $sourceBucket : $this->bucket;
+
         $options = ArrayHelper::merge([
                     'Bucket' => $this->bucket,
                     'Key' => $newFile,
@@ -54,7 +57,7 @@ class S3ResourceManager extends AmazonS3ResourceManager {
                     ], $options);
 
         return $this->getClient()->copyObject($options);
-                        
+
     }
 
 }
