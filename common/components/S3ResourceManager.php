@@ -62,7 +62,6 @@ class S3ResourceManager extends AmazonS3ResourceManager {
                     ], $options);
 
         return $this->getClient()->copyObject($options);
-
     }
 
 }
