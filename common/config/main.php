@@ -4,6 +4,21 @@ return [
     'timeZone' => 'Asia/Kuwait',
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'components' => [
+        'resourceManager' => [
+            'class' => 'common\components\S3ResourceManager',
+            'key' => 'AKIAIKZYNH7OERZMXZ2A',
+            'secret' => '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',
+            'bucket' => 'studenthub',
+            'temporaryBucket' => 'bawes-public'
+            /**
+             * You can access the main bucket with:
+             * https://studenthub.s3.amazonaws.com/
+             * https://studenthub.s3.amazonaws.com/folderName/fileName.jpg
+             *
+             * Temporary Bucket:
+             * https://bawes-public.s3.eu-west-2.amazonaws.com/
+             */
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
