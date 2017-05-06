@@ -14,10 +14,18 @@ use common\models\Country;
  * This is the model class for table "candidate".
  *
  * @property integer $candidate_id
+ * @property string $candidate_uid
  * @property integer $store_id
+ * @property integer $bank_id
+ * @property integer $university_id
+ * @property integer $country_id
+ * @property string $bank_account_name
+ * @property string $candidate_iban
  * @property string $candidate_name
  * @property string $candidate_name_ar
+ * @property string $candidate_personal_photo
  * @property string $candidate_email
+ * @property string $candidate_phone
  * @property string $candidate_birth_date
  * @property string $candidate_civil_id
  * @property string $candidate_civil_expiry_date
@@ -28,12 +36,18 @@ use common\models\Country;
  * @property string $candidate_password_hash
  * @property string $candidate_password_reset_token
  * @property integer $candidate_status
+ * @property integer $approved
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
  *
- * @property CandidateToken[] $accessTokens
- * @property Company $company
+ * @property Bank $bank
+ * @property Country $country
  * @property Store $store
+ * @property Company $company
+ * @property University $university
+ * @property CandidateIdCard[] $candidateIdCards
+ * @property CandidateToken[] $accessTokens
+ * @property TransferCandidates[] $transferCandidates
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -125,7 +139,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function generateUid()
     {
         $randomString = Yii::$app->getSecurity()->generateRandomString(20);
-                
+
         if(!$this->findOne(['candidate_uid' => $randomString]))
             return $randomString;
         else
@@ -197,7 +211,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     /**
      * Return Employer ID in C00231 format where 231 is
-     * candidate id 
+     * candidate id
      */
     public function getEmployee_id()
     {
@@ -208,7 +222,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if($digit_missing > 0) {
             $prefix .= str_repeat("0", $digit_missing);
         }
-        
+
         return $prefix . $this->candidate_id;
     }
 
@@ -252,6 +266,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if(isset($this->store->company_id)) {
             return Company::findOne($this->store->company_id);
         }
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidates()
+    {
+        return $this->hasMany(TransferCandidates::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCards()
+    {
+        return $this->hasMany(CandidateIdCard::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
