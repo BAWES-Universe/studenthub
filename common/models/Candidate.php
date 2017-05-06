@@ -263,9 +263,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCompany()
     {
-        if(isset($this->store->company_id)) {
-            return Company::findOne($this->store->company_id);
-        }
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->via('store');
     }
 
     /**

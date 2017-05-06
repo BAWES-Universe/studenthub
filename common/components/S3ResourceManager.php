@@ -50,7 +50,7 @@ class S3ResourceManager extends AmazonS3ResourceManager {
      * @param array $options
      * @return \Guzzle\Service\Resource\Model
      */
-    public function copy($oldFile, $newFile, $sourceBucket = ""; $options = []) {
+    public function copy($oldFile, $newFile, $sourceBucket = "", $options = []) {
         // Set Source bucket to the components defined bucket if none specified.
         $sourceBucket = $sourceBucket? $sourceBucket : $this->bucket;
 
