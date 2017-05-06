@@ -8,8 +8,8 @@ return [
             'class' => 'common\components\S3ResourceManager',
             'key' => 'AKIAIKZYNH7OERZMXZ2A',
             'secret' => '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',
-            'bucket' => 'sh-payroll',
-            'temporaryBucket' => 'bawes-public'
+            'bucket' => 'bawes-public',
+            'permanentBucket' => 'sh-payroll'
             /**
              * You can access the main bucket with:
              * https://sh-payroll.s3.amazonaws.com/

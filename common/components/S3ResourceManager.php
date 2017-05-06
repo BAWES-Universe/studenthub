@@ -17,9 +17,9 @@ use dosamigos\resourcemanager\AmazonS3ResourceManager;
 class S3ResourceManager extends AmazonS3ResourceManager {
 
     /**
-	 * @var string Amazon bucket for temporary files
+	 * @var string Amazon bucket for permanent files
 	 */
-	public $temporaryBucket;
+	public $permanentBucket;
 
     /**
      * Saves a file
@@ -57,7 +57,7 @@ class S3ResourceManager extends AmazonS3ResourceManager {
         $options = ArrayHelper::merge([
                     'Bucket' => $this->bucket,
                     'Key' => $newFile,
-                    'CopySource' => Html::encode($this->bucket."/".$oldFile),
+                    'CopySource' => Html::encode($sourceBucket."/".$oldFile),
                     'ACL' => CannedAcl::PUBLIC_READ, // default to ACL public read - allows public to open file
                     ], $options);
 
