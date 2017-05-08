@@ -5,7 +5,8 @@
     "keywords": ["payroll", "payment", "transfers"],
     "homepage": "https://studenthub.co/",
     "type": "project",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php": ">=5.4.0",
         "yiisoft/yii2": "~2.0.6",
@@ -14,12 +15,12 @@
         "yiisoft/yii2-imagine": "~2.0.0",
         "yiisoft/yii2-httpclient": "dev-master",
         "yiisoft/yii2-shell": "~2.0.0",
+        "aws/aws-sdk-php": "*",
         "understeam/yii2-slack": "v0.3.0",
         "openbuildings/swiftmailer-css-inliner": "*",
         "moonlandsoft/yii2-phpexcel": "*",
         "kartik-v/yii2-mpdf": "*",
-        "2amigos/yii2-qrcode-helper" : "~1.0",
-        "2amigos/yii2-resource-manager-component": "*"
+        "2amigos/yii2-qrcode-helper" : "~1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

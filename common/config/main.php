@@ -9,6 +9,7 @@ return [
             'key' => 'AKIAIKZYNH7OERZMXZ2A',
             'secret' => '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',
             'bucket' => 'sh-payroll',
+            'region' => 'eu-west-2'
             /**
              * You can access the main bucket with:
              * https://sh-payroll.s3.amazonaws.com/
@@ -20,6 +21,7 @@ return [
             'key' => 'AKIAIKZYNH7OERZMXZ2A',
             'secret' => '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',
             'bucket' => 'bawes-public',
+            'region' => 'eu-west-2'
             /**
              * You can access the Temporary bucket with:
              * https://bawes-public.s3.amazonaws.com/
