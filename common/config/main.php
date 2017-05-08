@@ -8,15 +8,24 @@ return [
             'class' => 'common\components\S3ResourceManager',
             'key' => 'AKIAIKZYNH7OERZMXZ2A',
             'secret' => '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',
-            'bucket' => 'bawes-public',
-            'permanentBucket' => 'sh-payroll'
+            'bucket' => 'sh-payroll',
+            'region' => 'eu-west-2'
             /**
              * You can access the main bucket with:
              * https://sh-payroll.s3.amazonaws.com/
              * https://sh-payroll.s3.amazonaws.com/folderName/fileName.jpg
-             *
-             * Temporary Bucket:
-             * https://bawes-public.s3.eu-west-2.amazonaws.com/
+             */
+        ],
+        'temporaryBucketResourceManager' => [
+            'class' => 'common\components\S3ResourceManager',
+            'key' => 'AKIAIKZYNH7OERZMXZ2A',
+            'secret' => '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',
+            'bucket' => 'bawes-public',
+            'region' => 'eu-west-2'
+            /**
+             * You can access the Temporary bucket with:
+             * https://bawes-public.s3.amazonaws.com/
+             * https://bawes-public.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
         'cache' => [

@@ -55,6 +55,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const STATUS_DIRTY = 2;
     const STATUS_READY = 1;
 
+    // Array of attribute names and folder names to store them in the permanent bucket
+    const FILE_ATTRIBUTES = [
+        'candidate_personal_photo' => 'photos',
+        'candidate_civil_photo_front' => 'civil-id',
+        'candidate_civil_photo_back' => 'civil-id'
+    ];
+
     /**
      * @inheritdoc
      */
@@ -87,6 +94,31 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+
+            /**
+             *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
+             */
+            [['candidate_personal_photo'], '\common\components\S3FileExistValidator', 'filePath' => '',
+                'message' => "Please upload a personal photo for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+            [['candidate_civil_photo_front'], '\common\components\S3FileExistValidator', 'filePath' => '',
+                'message' => "Please upload a civil id photo (front) for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+            [['candidate_civil_photo_back'], '\common\components\S3FileExistValidator', 'filePath' => '',
+                'message' => "Please upload a civil id photo (back) for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ]
         ];
     }
 
@@ -119,6 +151,24 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Moves the newly uploaded files from the temporary bucket to the permanent one
+     * If their values have changed and their files exist in the temporary bucket.
+     */
+    private function _moveTemporaryFilesToPermanentBucket(){
+        // For each file, move its file from temporary to permanent
+        foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
+            if($this->{$attribute} !== $this->getOldAttribute($attribute)){
+                $fileName = $this->{$attribute};
+                $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+                $targetPath = $folderName."/".$fileName;
+
+                // Copy using S3ResourceManager Component
+                Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+            }
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function beforeSave($insert)
@@ -126,13 +176,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (parent::beforeSave($insert)) {
             $this->fixStatus();
 
+            // Move uploaded files to permanent bucket
+            $this->_moveTemporaryFilesToPermanentBucket();
+
             if (!$this->candidate_uid) {
                 $this->candidate_uid = $this->generateUid();
             }
 
             return true;
         }
-
         return false;
     }
 
