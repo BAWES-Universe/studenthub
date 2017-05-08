@@ -8,5 +8,3 @@ Yii::setAlias('@console', dirname(dirname(__DIR__)) . '/console');
 
 //Amazon S3 Alias
 Yii::setAlias('s3','https://sh-payroll.s3.amazonaws.com');
-Yii::setAlias('civil-id','@s3/civil-id');
-Yii::setAlias('photos','@s3/photos');
