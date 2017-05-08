@@ -40,6 +40,8 @@ return [
             'company/web/assets',
             'staff/runtime',
             'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -50,6 +52,7 @@ return [
             'candidate/config/main-local.php',
             'company/config/main-local.php',
             'staff/config/main-local.php',
+            'verification/config/main-local.php',
         ],
     ],
     'Development' => [
@@ -63,6 +66,8 @@ return [
             'company/web/assets',
             'staff/runtime',
             'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -73,6 +78,7 @@ return [
             'candidate/config/main-local.php',
             'company/config/main-local.php',
             'staff/config/main-local.php',
+            'verification/config/main-local.php',
         ],
     ],
     'Dev-Server' => [
@@ -86,6 +92,8 @@ return [
             'company/web/assets',
             'staff/runtime',
             'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -95,6 +103,7 @@ return [
             'candidate/config/main-local.php',
             'company/config/main-local.php',
             'staff/config/main-local.php',
+            'verification/config/main-local.php',
         ],
     ],
     'Production' => [
@@ -108,6 +117,8 @@ return [
             'company/web/assets',
             'staff/runtime',
             'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -117,6 +128,7 @@ return [
             'candidate/config/main-local.php',
             'company/config/main-local.php',
             'staff/config/main-local.php',
+            'verification/config/main-local.php',
         ],
     ],
 ];
