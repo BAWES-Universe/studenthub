@@ -17,11 +17,6 @@ use dosamigos\resourcemanager\AmazonS3ResourceManager;
 class S3ResourceManager extends AmazonS3ResourceManager {
 
     /**
-	 * @var string Amazon bucket for permanent files
-	 */
-	public $permanentBucket;
-
-    /**
      * Saves a file
      * @param \yii\web\UploadedFile $file the file uploaded. The [[UploadedFile::$tempName]] will be used as the source
      * file.

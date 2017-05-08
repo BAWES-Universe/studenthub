@@ -87,6 +87,31 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+
+            /**
+             *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
+             */
+            [['candidate_personal_photo'], '\common\components\S3FileExistValidator', 'filePath' => '/',
+                'message' => "Please upload a personal photo for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+            [['candidate_civil_photo_front'], '\common\components\S3FileExistValidator', 'filePath' => '/',
+                'message' => "Please upload a civil id photo (front) for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+            [['candidate_civil_photo_back'], '\common\components\S3FileExistValidator', 'filePath' => '/',
+                'message' => "Please upload a civil id photo (back) for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ]
         ];
     }
 
