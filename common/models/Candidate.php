@@ -164,6 +164,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 // Copy using S3ResourceManager Component
                 Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+                // Adjust filename in storage to use path within bucket
+                $this->{$attribute} = $targetPath;
             }
         }
     }
