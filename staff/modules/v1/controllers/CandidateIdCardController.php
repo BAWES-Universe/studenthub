@@ -3,9 +3,10 @@
 namespace staff\modules\v1\controllers;
 
 use Yii;
-use yii\rest\Controller;
+use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use yii\helpers\FileHelper;
+use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use common\models\CandidateIdCard;
@@ -149,7 +150,9 @@ class CandidateIdCardController extends Controller
 
         $transaction->commit();
 
-        $path = Yii::getAlias('@runtime/cache/').time();
+        //$path = Yii::getAlias('@runtime/cache/').time();
+
+        $path = sys_get_temp_dir();
 
         FileHelper::createDirectory($path);
 
@@ -224,9 +227,30 @@ class CandidateIdCardController extends Controller
 
         //add candidate photos to zip  
 
+        FileHelper::createDirectory($path.'/photos');
+
+        foreach ($candidates as $key => $value) {
+            
+            if($value->candidate_personal_photo)
+            {
+                $source = Url::to('@s3/'.$value->candidate_personal_photo);
+                $destination = $path.'/photos/'.$value->employee_id.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
+
+                copy($source, $destination);     
+            }
+        }
+
+        //add photo folder to zip 
+
+        foreach (glob($path.'/photos/*') as $file) {
+            $zip->addFile($file, 'photos/'.basename($file));
+        }
+
         $zip->close();
 
-        return $zip;
+        // Download Zip File 
+
+        return Yii::$app->response->sendFile($path.'/'.$zipname);
     }
 
     /**
