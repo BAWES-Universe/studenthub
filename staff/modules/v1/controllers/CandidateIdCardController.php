@@ -152,7 +152,7 @@ class CandidateIdCardController extends Controller
 
         //$path = Yii::getAlias('@runtime/cache/').time();
 
-        $path = sys_get_temp_dir();
+        $path = sys_get_temp_dir().'/'.time();
 
         FileHelper::createDirectory($path);
 
