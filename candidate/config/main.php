@@ -56,23 +56,26 @@ return [
                         'POST resend-verification-email' => 'resend-verification-email',
                         'POST validate' => 'validate',
                         // OPTIONS VERBS
-                        'OPTIONS verify' => 'options',
-                        'OPTIONS validate' => 'options',
                         'OPTIONS login' => 'options',
+                        'OPTIONS verify' => 'options',
+                        'OPTIONS update-password' => 'options',
                         'OPTIONS create-account' => 'options',
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS resend-verification-email' => 'options',
+                        'OPTIONS validate' => 'options'                        
                     ]
                 ],
                 [ // AccountController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/account',
+                    'pluralize' => false,
                     'patterns' => [
-                        'GET' => 'list',
-                        'GET stats' => 'stats',
+                        'GET salary' => 'salary',
+                        'GET employer' => 'employer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS stats' => 'options',
+                        'OPTIONS salary' => 'options',
+                        'OPTIONS employer' => 'options'
                     ]
                 ],
             ],

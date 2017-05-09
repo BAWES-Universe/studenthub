@@ -6,26 +6,62 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use common\models\Bank;
+use common\models\University;
+use common\models\Country;
 
 /**
  * This is the model class for table "candidate".
  *
  * @property integer $candidate_id
- * @property integer $company_id
+ * @property string $candidate_uid
+ * @property integer $store_id
+ * @property integer $bank_id
+ * @property integer $university_id
+ * @property integer $country_id
+ * @property string $bank_account_name
+ * @property string $candidate_iban
  * @property string $candidate_name
+ * @property string $candidate_name_ar
+ * @property string $candidate_personal_photo
  * @property string $candidate_email
+ * @property string $candidate_phone
+ * @property string $candidate_birth_date
  * @property string $candidate_civil_id
+ * @property string $candidate_civil_expiry_date
+ * @property string $candidate_civil_photo_front
+ * @property string $candidate_civil_photo_back
+ * @property float $candidate_hourly_rate
  * @property string $candidate_auth_key
  * @property string $candidate_password_hash
  * @property string $candidate_password_reset_token
  * @property integer $candidate_status
- * @property integer $candidate_created_at
- * @property integer $candidate_updated_at
+ * @property integer $approved
+ * @property string $candidate_created_at
+ * @property string $candidate_updated_at
  *
+ * @property Bank $bank
+ * @property Country $country
+ * @property Store $store
  * @property Company $company
+ * @property University $university
+ * @property CandidateIdCard[] $candidateIdCards
+ * @property CandidateToken[] $accessTokens
+ * @property TransferCandidates[] $transferCandidates
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    const STATUS_INCOMPLETE = 10;
+    const STATUS_DIRTY = 2;
+    const STATUS_READY = 1;
+
+    // Array of attribute names and folder names to store them in the permanent bucket
+    const FILE_ATTRIBUTES = [
+        'candidate_personal_photo' => 'photos',
+        'candidate_civil_photo_front' => 'civil-id',
+        'candidate_civil_photo_back' => 'civil-id'
+    ];
+
     /**
      * @inheritdoc
      */
@@ -40,15 +76,150 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['company_id', 'candidate_status', 'candidate_created_at', 'candidate_updated_at'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_auth_key', 'candidate_password_hash', 'candidate_created_at', 'candidate_updated_at'], 'required'],
-            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token'], 'string', 'max' => 255],
+            [['country_id', 'university_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo'], 'required'],
+            [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
+            [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
+            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
+            [['candidate_iban', 'bank_account_name'], 'string', 'max' => 100],
             [['candidate_auth_key'], 'string', 'max' => 32],
+            [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
+            [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
             [['candidate_email'], 'unique'],
+            [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
+            [['candidate_birth_date'], 'validateAge'],
+            [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
+            [['store_id'], 'validateStore'],
             [['candidate_password_reset_token'], 'unique'],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
+            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+
+            /**
+             *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
+             */
+            [['candidate_personal_photo'], '\common\components\S3FileExistValidator', 'filePath' => '',
+                'message' => "Please upload a personal photo for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+            [['candidate_civil_photo_front'], '\common\components\S3FileExistValidator', 'filePath' => '',
+                'message' => "Please upload a civil id photo (front) for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+            [['candidate_civil_photo_back'], '\common\components\S3FileExistValidator', 'filePath' => '',
+                'message' => "Please upload a civil id photo (back) for the candidate",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ]
         ];
+    }
+
+    public function validateCivilExpiry()
+    {
+        if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
+        {
+            $this->addError('candidate_civil_expiry_date', 'Candidate have expired civil id.');
+        }
+    }
+
+    public function validateAge()
+    {
+        $years = floor((time() - strtotime($this->candidate_birth_date))/31556926);
+
+        if($years < 18 || $years > 21) {
+            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 21.');
+        }
+    }
+
+    public function validateStore()
+    {
+        $this->fixStatus();
+
+        //if status is incomplete and trying to set store
+
+        if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
+            $this->addError('store_id', 'Can not assign store to incomplete profile.');
+        }
+    }
+
+    /**
+     * Moves the newly uploaded files from the temporary bucket to the permanent one
+     * If their values have changed and their files exist in the temporary bucket.
+     */
+    private function _moveTemporaryFilesToPermanentBucket(){
+        // For each file, move its file from temporary to permanent
+        foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
+            if($this->{$attribute} !== $this->getOldAttribute($attribute)){
+                $fileName = $this->{$attribute};
+                $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+                $targetPath = $folderName."/".$fileName;
+
+                // Copy using S3ResourceManager Component
+                Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+                // Adjust filename in storage to use path within bucket
+                $this->{$attribute} = $targetPath;
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            $this->fixStatus();
+
+            // Move uploaded files to permanent bucket
+            $this->_moveTemporaryFilesToPermanentBucket();
+
+            if (!$this->candidate_uid) {
+                $this->candidate_uid = $this->generateUid();
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    public function generateUid()
+    {
+        $randomString = Yii::$app->getSecurity()->generateRandomString(20);
+
+        if(!$this->findOne(['candidate_uid' => $randomString]))
+            return $randomString;
+        else
+            return $this->generateUniqueRandomString();
+    }
+
+    /**
+     * Fix status for a candidate
+     */
+    private function fixStatus()
+    {
+        $attr = $this->attributes;
+
+        //check all values except
+        unset($attr['candidate_password_reset_token']);
+        unset($attr['candidate_status']);
+        unset($attr['candidate_id']);
+        unset($attr['approved']);
+
+        //if have empty value
+        if(in_array('', $attr)) {
+            $this->candidate_status = Candidate::STATUS_INCOMPLETE;
+        } else {
+            $this->candidate_status = Candidate::STATUS_READY;
+        }
     }
 
     public function behaviors() {
@@ -69,17 +240,77 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             'candidate_id' => 'Candidate ID',
-            'company_id' => 'Company ID',
-            'candidate_name' => 'Candidate Name',
-            'candidate_email' => 'Candidate Email',
-            'candidate_civil_id' => 'Candidate Civil ID',
-            'candidate_auth_key' => 'Candidate Auth Key',
-            'candidate_password_hash' => 'Candidate Password Hash',
-            'candidate_password_reset_token' => 'Candidate Password Reset Token',
-            'candidate_status' => 'Candidate Status',
-            'candidate_created_at' => 'Candidate Created At',
-            'candidate_updated_at' => 'Candidate Updated At',
+            'store_id' => 'Store ID',
+            'bank_id' => 'Bank ID',
+            'bank_account_name' => 'Bank account name',
+            'candidate_iban' => 'IBAN',
+            'candidate_name' => 'Name [English]',
+            'candidate_name_ar' => 'Name [Arabic]',
+            'candidate_personal_photo' => 'Personal Photo',
+            'candidate_email' => 'Email',
+            'candidate_phone' => 'Phone',
+            'candidate_birth_date' => 'Birth Date',
+            'candidate_civil_id' => 'Civil ID',
+            'candidate_civil_expiry_date' => 'Civil Expiry Date',
+            'candidate_civil_photo_front' => 'Civil Photo Front',
+            'candidate_civil_photo_back' => 'Civil Photo Back',
+            'candidate_hourly_rate' => 'Hourly Rate',
+            'candidate_auth_key' => 'Auth Key',
+            'candidate_password_hash' => 'Password',
+            'candidate_password_reset_token' => 'Password Reset Token',
+            'candidate_status' => 'Status',
+            'candidate_created_at' => 'Created At',
+            'candidate_updated_at' => 'Updated At',
         ];
+    }
+
+    /**
+     * Return Employer ID in C00231 format where 231 is
+     * candidate id
+     */
+    public function getEmployee_id()
+    {
+        $prefix = 'C';
+
+        $digit_missing = 5 - strlen($this->candidate_id);
+
+        if($digit_missing > 0) {
+            $prefix .= str_repeat("0", $digit_missing);
+        }
+
+        return $prefix . $this->candidate_id;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity()
+    {
+        return $this->hasOne(University::className(), ['university_id' => 'university_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['country_id' => 'country_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank()
+    {
+        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore()
+    {
+        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
     }
 
     /**
@@ -87,7 +318,49 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->via('store');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidates()
+    {
+        return $this->hasMany(TransferCandidates::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCards()
+    {
+        return $this->hasMany(CandidateIdCard::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens()
+    {
+        return $this->hasMany(CandidateToken::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * Signs user up.
+     * @return static|null the saved model or null if saving fails
+     */
+    public function signup() {
+        $this->setPassword($this->candidate_password_hash);
+        $this->generateAuthKey();
+
+        if($this->save()) {
+            Yii::info("[New Candidate Account Created] ".$this->candidate_email, __METHOD__);
+
+            return $this;
+        }
+
+        return false;
     }
 
     /**
@@ -105,14 +378,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AgentToken::find()->where(['token_value' => $token])->with('agent')->one();
+        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
         if($token){
-            return $token->agent;
+            return $token->candidate;
         }
     }
 
     /**
-     * Finds agent by email
+     * Finds candidate by email
      *
      * @param string $email
      * @return static|null
@@ -128,6 +401,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return static|null
      */
     public static function findByPasswordResetToken($token) {
+
         if (!static::isPasswordResetTokenValid($token)) {
             return null;
         }
@@ -226,27 +500,89 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Create an Access Token Record for this Agent
-     * if the agent already has one, it will return it instead
-     * @return \common\models\AgentToken
+     * Create an Access Token Record for this Candidate
+     * if the candidate already has one, it will return it instead
+     * @return \common\models\CandidateToken
      */
     public function getAccessToken(){
         // Return existing inactive token if found
-        // $token = AgentToken::findOne([
-        //     'candidate_id' => $this->candidate_id,
-        //     'token_status' => AgentToken::STATUS_ACTIVE
-        // ]);
-        // if($token){
-        //     return $token;
-        // }
-        //
-        // // Create new inactive token
-        // $token = new AgentToken();
-        // $token->candidate_id = $this->candidate_id;
-        // $token->token_value = AgentToken::generateUniqueTokenString();
-        // $token->token_status = AgentToken::STATUS_ACTIVE;
-        // $token->save(false);
-        //
-        // return $token;
+        $token = CandidateToken::findOne([
+            'candidate_id' => $this->candidate_id,
+            'token_status' => CandidateToken::STATUS_ACTIVE
+        ]);
+        if($token){
+            return $token;
+        }
+
+        // Create new inactive token
+        $token = new CandidateToken();
+        $token->candidate_id = $this->candidate_id;
+        $token->token_value = CandidateToken::generateUniqueTokenString();
+        $token->token_status = CandidateToken::STATUS_ACTIVE;
+        $token->save(false);
+
+        return $token;
+    }
+
+    /**
+     * Send candidate list having birthday today
+     * to admin
+     * @return null
+     */
+    public static function birthdayAlert()
+    {
+        $candidates = Candidate::find()
+            ->where('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
+            ->all();
+
+        if(!$candidates)
+            return null;
+
+        Yii::$app->mailer->compose("candidateBirthday",
+            [
+                "candidates" => $candidates,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Candidate having birthday today!')
+            ->send();
+    }
+
+    public static function ageAlert()
+    {
+        $candidates = Candidate::find()
+            ->where('DATEDIFF(NOW(), candidate_birth_date)/365 >= 22')
+            ->all();
+
+        if(!$candidates)
+            return null;
+
+        Yii::$app->mailer->compose("candidateInvalidAge",
+            [
+                "candidates" => $candidates,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Candidate hits age 22!')
+            ->send();
+    }
+
+    public static function civilIdExpire()
+    {
+        $candidates = Candidate::find()
+            ->where('candidate_civil_expiry_date < DATE(NOW())')
+            ->all();
+
+        if(!$candidates)
+            return null;
+
+        Yii::$app->mailer->compose("candidateIdExpire",
+            [
+                "candidates" => $candidates,
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo(Yii::$app->params['adminEmail'])
+            ->setSubject('Candidate having invalid civil ID')
+            ->send();
     }
 }

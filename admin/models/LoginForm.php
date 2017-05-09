@@ -3,7 +3,7 @@ namespace admin\models;
 
 use Yii;
 use yii\base\Model;
-use common\models\Admin;
+use admin\models\Admin;
 
 /**
  * Login form

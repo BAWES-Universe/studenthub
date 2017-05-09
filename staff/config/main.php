@@ -49,30 +49,109 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
-                        'PATCH verify' => 'verify-email',
-                        'PATCH update-password' => 'update-password',
-                        'POST create-account' => 'create-account',
                         'POST request-reset-password' => 'request-reset-password',
-                        'POST resend-verification-email' => 'resend-verification-email',
-                        'POST validate' => 'validate',
+                        'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
-                        'OPTIONS verify' => 'options',
-                        'OPTIONS validate' => 'options',
                         'OPTIONS login' => 'options',
-                        'OPTIONS create-account' => 'options',
                         'OPTIONS request-reset-password' => 'options',
-                        'OPTIONS resend-verification-email' => 'options',
+                        'OPTIONS update-password' => 'options',
                     ]
                 ],
-                [ // AccountController
+                [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/account',
+                    'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET stats' => 'stats',
+                        'GET search' => 'search',
+                        'GET assigned' => 'list-assigned',
+                        'GET not-assigned' => 'list-not-assigned',
+                        'POST' => 'create',
+                        'POST filter' => 'filter',
+                        'PATCH <id>' => 'update',
+                        'PATCH assign/<id>' => 'assign',
+                        'DELETE unassign/<id>' => 'unassign',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS stats' => 'options',
+                        'OPTIONS search' => 'options',
+                        'OPTIONS assign/<id>' => 'options',
+                        'OPTIONS not-assigned/<id>' => 'options',
+                        'OPTIONS filter' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS assign/<id>' => 'options',
+                        'OPTIONS unassign/<id>' => 'options',
+                    ]
+                ],
+                [ // StoreController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/store',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // CompanyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // BankController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/bank',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET all' => 'all',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS all' => 'options'
+                    ]
+                ],
+                [ // UniversityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/university',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET all' => 'all',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS all' => 'options'
+                    ]
+                ],
+                [ // CountryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/country',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET all' => 'all',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS all' => 'options'
+                    ]
+                ],
+                [ // CandidateIdCardController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-id-card',
+                    'patterns' => [
+                        'GET list-candidate-ids' => 'list-candidate-ids',
+                        'GET list-candidates' => 'list-candidates',
+                        'GET list-expired' => 'list-expired',
+                        'POST generate' => 'generate',
+                        'POST renew' => 'renew',                        
+                        // OPTIONS VERBS
+                        'OPTIONS list-candidate-ids' => 'options',
+                        'OPTIONS list-candidates' => 'options',
+                        'OPTIONS list-expired' => 'options',
+                        'OPTIONS generate' => 'options',
+                        'OPTIONS renew' => 'options',                        
                     ]
                 ],
             ],

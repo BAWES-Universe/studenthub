@@ -24,7 +24,7 @@ return [
             ]
         ],
         'user' => [
-            'identityClass' => 'common\models\Company',
+            'identityClass' => 'company\models\Company',
             'enableAutoLogin' => false,
             'enableSession' => false,
             'loginUrl' => null
@@ -49,30 +49,64 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
-                        'PATCH verify' => 'verify-email',
-                        'PATCH update-password' => 'update-password',
-                        'POST create-account' => 'create-account',
                         'POST request-reset-password' => 'request-reset-password',
-                        'POST resend-verification-email' => 'resend-verification-email',
-                        'POST validate' => 'validate',
+                        'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
-                        'OPTIONS verify' => 'options',
-                        'OPTIONS validate' => 'options',
                         'OPTIONS login' => 'options',
-                        'OPTIONS create-account' => 'options',
                         'OPTIONS request-reset-password' => 'options',
-                        'OPTIONS resend-verification-email' => 'options',
+                        'OPTIONS update-password' => 'options',
                     ]
                 ],
-                [ // AccountController
+                [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/account',
+                    'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET stats' => 'stats',
+                        'GET all' => 'list-all',
+                        'POST filter' => 'filter',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS stats' => 'options',
+                        'OPTIONS all' => 'options',
+                        'OPTIONS filter' => 'options'
+                    ]
+                ],
+                [ // TransferController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'GET pdf/<id>' => 'pdf',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'edit',
+                        'PATCH lock/<id>' => 'lock',
+                        'PATCH payment-sent/<id>' => 'payment-sent',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS lock/<id>' => 'options',
+                        'OPTIONS payment-sent/<id>' => 'options'
+                    ]
+                ],
+                [ // StoreController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/store',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <companyId>' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <companyId>' => 'options'
+                    ]
+                ],
+                [ // CompanyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options'
                     ]
                 ],
             ],

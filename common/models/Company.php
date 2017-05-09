@@ -11,6 +11,7 @@ use yii\behaviors\TimestampBehavior;
  * This is the model class for table "company".
  *
  * @property integer $company_id
+ * @property integer $parent_company_id
  * @property string $company_name
  * @property string $company_email
  * @property string $company_auth_key
@@ -20,6 +21,12 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_created_at
  * @property integer $company_updated_at
  *
+ * @property Company $parentCompany
+ * @property Company[] $subCompanies
+ * @property CompanyToken[] $accessTokens
+ * @property Invoice[] $invoices
+ * @property Store[] $stores
+ * @property Transfer[] $transfers
  * @property Candidate[] $candidates
  */
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
@@ -38,13 +45,37 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name', 'company_email', 'company_auth_key', 'company_password_hash', 'company_created_at', 'company_updated_at'], 'required'],
-            [['company_status', 'company_created_at', 'company_updated_at'], 'integer'],
+            [['company_name'], 'required'],
+            [['company_name'], 'validateEmail'],//because name is require field so will called always 
+            [['company_password_hash'], 'required', 'on'=>'newAccount'],
+            [['parent_company_id', 'company_status'], 'integer'],
+            [['parent_company_id'], 'validateCompany'],
             [['company_name', 'company_email', 'company_password_hash', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
-            [['company_email'], 'unique'],
+            //[['company_email'], 'unique'],
+            [['company_email'], 'email'],
             [['company_password_reset_token'], 'unique'],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function validateEmail()
+    {
+        if(!$this->parent_company_id && empty($this->company_email)) {
+            $this->addError('company_email', "Company email can't be blank.");   
+        }
+    }
+
+    /** 
+     * find if company have store 
+     */
+    public function validateCompany()
+    {
+        if($this->parentCompany->stores) {
+            $this->addError('company_id', "Company can't be assigned to company having stores.");   
+        }
     }
 
     public function behaviors() {
@@ -65,10 +96,11 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             'company_id' => 'Company ID',
+            'parent_company_id' => 'Parent Company',
             'company_name' => 'Company Name',
             'company_email' => 'Company Email',
             'company_auth_key' => 'Company Auth Key',
-            'company_password_hash' => 'Company Password Hash',
+            'company_password_hash' => 'Password',
             'company_password_reset_token' => 'Company Password Reset Token',
             'company_status' => 'Company Status',
             'company_created_at' => 'Company Created At',
@@ -79,9 +111,75 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getParentCompany()
+    {
+        return $this->hasOne(Company::className(), ['company_id' => 'parent_company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSubCompanies()
+    {
+        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidates()
     {
-        return $this->hasMany(Candidate::className(), ['company_id' => 'company_id']);
+        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])->via('stores');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoices()
+    {
+        return $this->hasMany(Invoice::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStores()
+    {
+        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers()
+    {
+        return $this->hasMany(Transfer::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens()
+    {
+        return $this->hasMany(CompanyToken::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * Signs user up.
+     * @return static|null the saved model or null if saving fails
+     */
+    public function signup() {
+        if($this->validate()){
+            $this->setPassword($this->company_password_hash);
+            $this->generateAuthKey();
+            $this->save(false);
+
+            Yii::info("[New Company Account Created] ".$this->company_email, __METHOD__);
+
+            return $this;
+        }
+        return null;
     }
 
     /**
@@ -99,14 +197,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AgentToken::find()->where(['token_value' => $token])->with('agent')->one();
+        $token = CompanyToken::find()->where(['token_value' => $token])->with('company')->one();
         if($token){
-            return $token->agent;
+            return $token->company;
         }
     }
 
     /**
-     * Finds agent by email
+     * Finds company by email
      *
      * @param string $email
      * @return static|null
@@ -220,27 +318,27 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Create an Access Token Record for this Agent
-     * if the agent already has one, it will return it instead
-     * @return \common\models\AgentToken
+     * Create an Access Token Record for this Company
+     * if the company already has one, it will return it instead
+     * @return \common\models\CompanyToken
      */
     public function getAccessToken(){
         // Return existing inactive token if found
-        // $token = AgentToken::findOne([
-        //     'company_id' => $this->company_id,
-        //     'token_status' => AgentToken::STATUS_ACTIVE
-        // ]);
-        // if($token){
-        //     return $token;
-        // }
-        //
-        // // Create new inactive token
-        // $token = new AgentToken();
-        // $token->company_id = $this->company_id;
-        // $token->token_value = AgentToken::generateUniqueTokenString();
-        // $token->token_status = AgentToken::STATUS_ACTIVE;
-        // $token->save(false);
-        //
-        // return $token;
+        $token = CompanyToken::findOne([
+            'company_id' => $this->company_id,
+            'token_status' => CompanyToken::STATUS_ACTIVE
+        ]);
+        if($token){
+            return $token;
+        }
+
+        // Create new inactive token
+        $token = new CompanyToken();
+        $token->company_id = $this->company_id;
+        $token->token_value = CompanyToken::generateUniqueTokenString();
+        $token->token_status = CompanyToken::STATUS_ACTIVE;
+        $token->save(false);
+
+        return $token;
     }
 }

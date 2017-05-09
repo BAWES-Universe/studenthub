@@ -19,6 +19,8 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $staff_status
  * @property integer $staff_created_at
  * @property integer $staff_updated_at
+ *
+ * @property StaffToken[] $accessTokens
  */
 class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -36,11 +38,13 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['staff_name', 'staff_email', 'staff_auth_key', 'staff_password_hash', 'staff_created_at', 'staff_updated_at'], 'required'],
-            [['staff_status', 'staff_created_at', 'staff_updated_at'], 'integer'],
+            [['staff_name', 'staff_email'], 'required'],
+            [['staff_password_hash'], 'required', 'on'=>'newAccount'],
+            [['staff_status'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
+            [['staff_email'], 'email'],
             [['staff_password_reset_token'], 'unique'],
         ];
     }
@@ -66,12 +70,38 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'staff_name' => 'Staff Name',
             'staff_email' => 'Staff Email',
             'staff_auth_key' => 'Staff Auth Key',
-            'staff_password_hash' => 'Staff Password Hash',
+            'staff_password_hash' => 'Password',
             'staff_password_reset_token' => 'Staff Password Reset Token',
             'staff_status' => 'Staff Status',
             'staff_created_at' => 'Staff Created At',
             'staff_updated_at' => 'Staff Updated At',
         ];
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens()
+    {
+        return $this->hasMany(StaffToken::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * Signs user up.
+     * @return static|null the saved model or null if saving fails
+     */
+    public function signup() {
+        if($this->validate()){
+            $this->setPassword($this->staff_password_hash);
+            $this->generateAuthKey();
+            $this->save(false);
+
+            Yii::info("[New Staff Account Created] ".$this->staff_email, __METHOD__);
+
+            return $this;
+        }
+        return null;
     }
 
 
@@ -90,14 +120,14 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AgentToken::find()->where(['token_value' => $token])->with('agent')->one();
+        $token = StaffToken::find()->where(['token_value' => $token])->with('staff')->one();
         if($token){
-            return $token->agent;
+            return $token->staff;
         }
     }
 
     /**
-     * Finds agent by email
+     * Finds staff by email
      *
      * @param string $email
      * @return static|null
@@ -113,6 +143,7 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @return static|null
      */
     public static function findByPasswordResetToken($token) {
+
         if (!static::isPasswordResetTokenValid($token)) {
             return null;
         }
@@ -211,27 +242,27 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Create an Access Token Record for this Agent
-     * if the agent already has one, it will return it instead
-     * @return \common\models\AgentToken
+     * Create an Access Token Record for this Staff
+     * if the staff user already has one, it will return it instead
+     * @return \common\models\StaffToken
      */
     public function getAccessToken(){
         // Return existing inactive token if found
-        // $token = AgentToken::findOne([
-        //     'staff_id' => $this->staff_id,
-        //     'token_status' => AgentToken::STATUS_ACTIVE
-        // ]);
-        // if($token){
-        //     return $token;
-        // }
-        //
-        // // Create new inactive token
-        // $token = new AgentToken();
-        // $token->staff_id = $this->staff_id;
-        // $token->token_value = AgentToken::generateUniqueTokenString();
-        // $token->token_status = AgentToken::STATUS_ACTIVE;
-        // $token->save(false);
-        //
-        // return $token;
+        $token = StaffToken::findOne([
+            'staff_id' => $this->staff_id,
+            'token_status' => StaffToken::STATUS_ACTIVE
+        ]);
+        if($token){
+            return $token;
+        }
+
+        // Create new inactive token
+        $token = new StaffToken();
+        $token->staff_id = $this->staff_id;
+        $token->token_value = StaffToken::generateUniqueTokenString();
+        $token->token_status = StaffToken::STATUS_ACTIVE;
+        $token->save(false);
+
+        return $token;
     }
 }

@@ -1,10 +1,12 @@
 <?php
 
-namespace api\modules\v1\controllers;
+namespace candidate\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
+use yii\data\ActiveDataProvider;
+use common\models\TransferCandidates;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -27,7 +29,12 @@ class AccountController extends Controller
                 'Access-Control-Request-Headers' => ['*'],
                 'Access-Control-Allow-Credentials' => null,
                 'Access-Control-Max-Age' => 86400,
-                'Access-Control-Expose-Headers' => [],
+                'Access-Control-Expose-Headers' => [
+                    'X-Pagination-Current-Page',
+                    'X-Pagination-Page-Count',
+                    'X-Pagination-Per-Page',
+                    'X-Pagination-Total-Count'
+                ],
             ],
         ];
 
@@ -57,28 +64,72 @@ class AccountController extends Controller
     }
 
     /**
-     * Return a List of Accounts Managed by User
+     * Return a List of Salary transfers
      */
-    public function actionList()
+    public function actionSalary()
     {
-        // Get cached managed accounts list from account manager component
-        $managedAccounts = Yii::$app->accountManager->managedAccounts;
+        $candidate = Yii::$app->user->identity;
 
-        return $managedAccounts;
+        $query = TransferCandidates::find()
+            ->select([
+                '{{%transfer_candidates}}.tc_id', 
+                '{{%invoice}}.invoice_id', 
+                '{{%company}}.company_name',
+                '{{%company}}.company_email',
+                '{{%transfer_candidates}}.candidate_hourly_rate', 
+                '{{%transfer_candidates}}.hours', 
+                '{{%transfer_candidates}}.bonus', 
+                '({{%transfer_candidates}}.candidate_hourly_rate * {{%transfer_candidates}}.hours) + {{%transfer_candidates}}.bonus as total', 
+                '{{%transfer_candidates}}.tc_created_at'
+            ])
+            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%transfer_candidates}}.transfer_id')
+            ->innerJoin('{{%invoice}}', '{{%invoice}}.transfer_id = {{%transfer_candidates}}.transfer_id')
+            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
+            ->where([
+                'candidate_id' => $candidate->candidate_id,
+                'invoice_status' => 'paid'
+            ])
+            ->asArray();
+
+        return new ActiveDataProvider([
+            'query' => $query, 
+        ]);
     }
 
     /**
-     * Return stats records for account with $accountId
+     * Return currnet employer detail
      */
-    public function actionStats($accountId)
+    public function actionEmployer()
     {
-        // Get Instagram account from Account Manager component
-        $instagramAccount = Yii::$app->accountManager->getManagedAccount($accountId);
+        $candidate = Yii::$app->user->identity;
 
-        $records = $instagramAccount->records;
-        return $records;
+        //store detail 
 
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
+        if(empty($candidate->store)) {
+            return [
+                "operation" => "error",
+                "message" => "No employer detail found"
+            ];
+        }
+
+        //company details 
+
+        if(empty($candidate->store->company)) {
+            $company_id = '';
+            $company_name = '';
+            $company_email = '';            
+        }else{
+            $company_id = $candidate->store->company->company_id; 
+            $company_name = $candidate->store->company->company_name;
+            $company_email = $candidate->store->company->company_email;            
+        }
+
+        return [
+            'company_id' => $company_id,
+            'store_id' => $candidate->store->store_id,
+            'store_name' => $candidate->store->store_name,
+            'company_name' => $company_name,
+            'company_email'=> $company_email
+        ];
     }
 }
