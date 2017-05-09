@@ -31,14 +31,13 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '<candidate_uid:[A-Za-z0-9\_-]+>' => 'site/index',
             ],
         ],
-        */
     ],
     'params' => $params,
 ];
