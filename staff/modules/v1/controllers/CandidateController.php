@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
+use staff\models\Store;
 use staff\models\Candidate;
 use common\models\InvoiceCandidates;
 
@@ -219,7 +220,8 @@ class CandidateController extends Controller
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "Candidate not found"
+                "message" => "Candidate not found",
+                "code" => 1
             ];
         }
 
@@ -247,12 +249,14 @@ class CandidateController extends Controller
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
-                    "message" => $model->errors
+                    "message" => $model->errors,
+                    "code" => 2
                 ];
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                    "message" => "We've faced a problem updating the account, please contact us for assistance.",
+                    "code" => 3
                 ];
             }
         }
@@ -279,23 +283,36 @@ class CandidateController extends Controller
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "Candidate not found"
+                "message" => "Candidate not found",
+                "code" => 1
             ];
         }
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
-        
+
+        $store = Store::findOne($model->store_id);
+
+        if(!$store) {
+            return [
+                "operation" => "error",
+                "message" => "Store not found",
+                "code" => 1
+            ];   
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
-                    "message" => $model->errors
+                    "message" => $model->errors,
+                    "code" => 2
                 ];
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                    "message" => "We've faced a problem updating the account, please contact us for assistance.",
+                    "code" => 3
                 ];
             }
         }
@@ -304,7 +321,9 @@ class CandidateController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate assigned to store successfully"
+            "message" => "Candidate assigned to store successfully",
+            "store_id" => $store->store_id,
+            "store_name" => $store->store_name
         ];
 
         // Check SQL Query Count and Duration
