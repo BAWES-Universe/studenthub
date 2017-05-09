@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use function Couchbase\defaultDecoder;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Expression;
@@ -584,5 +585,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Candidate having invalid civil ID')
             ->send();
+    }
+
+
+    public function getStatus() {
+        $status = '';
+        switch ($this->candidate_status) {
+            case self::STATUS_INCOMPLETE:
+                $status = 'Incomplete Profile';
+                break;
+            case self::STATUS_DIRTY:
+                $status = 'Incomplete Profile';
+                break;
+            case self::STATUS_READY:
+                $status = 'Completed Profile';
+                break;
+            default :
+                $status = 'Incomplete Profile';
+                break;
+        }
+        return $status;
     }
 }
