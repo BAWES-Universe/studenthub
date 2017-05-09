@@ -2,52 +2,45 @@
 
 /* @var $this yii\web\View */
 
-$this->title = 'My Yii Application';
+$this->title = 'STUDENTHUB';
+
+Yii::$app->formatter->locale = 'ar-KW';
+
 ?>
-<div class="site-index">
 
-    <div class="jumbotron">
-        <h1>Congratulations!</h1>
+<div class="main-container" dir="rtl">
+    <section class="text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-10 col-md-8">
+                    <h1><?= $candidate->candidate_name_ar ?></h1>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
+                    <?php if($candidate) { ?>
+                    <h2>الرقم المدني <?= $candidate->candidate_civil_id ?></h2>
+                    <?php } ?>
 
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
-    </div>
+                    <?php if($university) { ?>
+                    <h2>طالب في <?= $university->university_name_ar ?></h2>
+                    <?php } ?>
 
-    <div class="body-content">
+                    <?php if($company) { ?>
+                    <h2>يعمل لدى <?= $company->company_name ?></h2>
+                    <?php } ?>
 
-        <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+                    <?php if($store) { ?>
+                    <h2>المحل <?= $store->store_name ?></h2>
+                    <?php } ?>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
+                    <?php if($id) { ?>
+                    <h2>من تاريخ <?= Yii::$app->formatter->asDate($id->updated_at); ?></h2>
+                    <h2>إلى <?= Yii::$app->formatter->asDate($id->expiry_date); ?></h2>
+                    <?php } ?>
+                </div>
             </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
-            </div>
+            <!--end of row-->
         </div>
-
-    </div>
+        <!--end of container-->
+    </section>
 </div>
+
+<!--<div class="loader"></div>-->
