@@ -389,9 +389,92 @@ class TransferController extends Controller
         $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
         $transfer->save();
 
+        //get all child transfers
+
+        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
+
+        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+
+        $transfer_ids[] = $id;
+
+        //mark candidates as paid 
+
+        TransferCandidates::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
+
         return [
             "operation" => "success",
             "message" => 'Transfer marked as "Payment Complete" successfully'
+        ];
+    }
+
+    /** 
+     * Return unpaid candidates for given transfer 
+     */ 
+    public function actionUnpaidCandidates($id)
+    {
+        $candidates = TransferCandidates::find()
+            ->select('{{%candidate}}.candidate_id, {{%candidate}}.candidate_name')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->where([
+                '{{%transfer_candidates}}.paid' => 0,
+                'transfer_id' => $id
+            ])
+            ->asArray()
+            ->all();
+
+        return [
+            'candidates' => $candidates
+        ];
+    }
+
+    public function actionMarkPaid($id)
+    {
+        $transfer = Transfer::findOne($id);
+
+        if(!$transfer)
+        {
+            return [
+                'operation' => 'error',
+                'message' => 'Transfer not found!'
+            ];
+        }
+
+        //get all child transfers
+
+        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
+
+        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+
+        $transfer_ids[] = $id;
+
+        //mark as paid 
+
+        $candidate_ids = Yii::$app->request->getBodyParam('candidates');
+
+        foreach ($candidate_ids as $key => $value) 
+        {
+            TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "'.$value.'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
+        }
+
+        //check if all paid, mark transfer as complete 
+
+        $unpaid = TransferCandidates::find()
+            ->where([
+                'paid' => 0, 
+                'candidate_id' => $value
+            ])
+            ->andWhere(['in', 'transfer_id', $transfer_ids])
+            ->count();
+
+        if(!$unpaid)
+        {
+            $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+            $transfer->save();
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => 'Candidate(s) marked as paid successfully'
         ];
     }
 }
