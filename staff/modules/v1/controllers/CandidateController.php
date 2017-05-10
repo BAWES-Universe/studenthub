@@ -161,6 +161,7 @@ class CandidateController extends Controller
     public function actionCreate()
     {
         // Attempt to create new account
+        $password = Yii::$app->security->generateRandomString(10);
         $model = new Candidate();
         $model->scenario = "newAccount";
 
@@ -181,7 +182,7 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
-        $model->candidate_password_hash = Yii::$app->request->getBodyParam("password");
+        $model->candidate_password_hash = $password;
         
         //candidate_auth_key
         
@@ -199,6 +200,20 @@ class CandidateController extends Controller
                 ];
             }
         }
+
+        //Send Email to user
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        Yii::$app->mailer->compose("candidate-register",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => '',
+                'logo_2' => ''
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo($model->candidate_email)
+            ->setSubject('Welcome to '.Yii::$app->name)
+            ->send();
 
         return [
             "operation" => "success",
