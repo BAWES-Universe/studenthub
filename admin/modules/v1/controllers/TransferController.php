@@ -255,7 +255,16 @@ class TransferController extends Controller
                 'transfer_cost',
                 'candidate_total',
                 'candidate.candidate_iban', 
-                'candidate.bank.bank_name'
+                'candidate.bank.bank_name',
+                [
+                    'attribute' => 'paid',
+                    'value' => function($model) {
+                        if($model->paid)
+                            return 'Yes';
+                        else
+                            return 'No';
+                    },
+                ],
             ]
         ]);
     }
