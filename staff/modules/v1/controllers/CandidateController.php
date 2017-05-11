@@ -315,7 +315,7 @@ class CandidateController extends Controller
             ];   
         }
 
-        if (!$model->save())
+        if (!$model->save(false))
         {
             if(isset($model->errors)){
                 return [
@@ -362,7 +362,7 @@ class CandidateController extends Controller
         
         $model->store_id = null;
         
-        if (!$model->save())
+        if (!$model->save(false))
         {
             if(isset($model->errors)){
                 return [
