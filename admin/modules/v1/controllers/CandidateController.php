@@ -69,43 +69,29 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-        $country_id = Yii::$app->request->get('country_id');
-
         $query = Candidate::find();
-
-        if($country_id) {
-            $query->where(['country_id' => $country_id]);
+        $by = Yii::$app->request->get('by');
+        switch ($by) {
+            case 'country_id' :
+                $country_id = Yii::$app->request->get('country_id');
+                $query->where(['country_id' => $country_id]);
+                break;
+            case 'university_id' :
+                $country_id = Yii::$app->request->get('university_id');
+                $query->where(['university_id' => $country_id]);
+                break;
+            case 'review' :
+                $review = Yii::$app->request->get('review');
+                $query->where(['approved' => $review]);
+                break;
+            case 'store_id' :
+                $store_id = Yii::$app->request->get('store_id');
+                $query->where(['store_id' => $store_id]);
+                break;
+            default:
+                $query->where(['approved' => 0]);
+                break;
         }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate Accounts assigned to
-     * Specific Store.
-     */
-    public function actionFilter($id)
-    {
-        $query = Candidate::find();
-
-        if($id) {
-            $query->where(['store_id' => $id]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Review candidate accounts
-     */
-    public function actionReview()
-    {
-        $query = Candidate::find()
-            ->where(['approved' => 0]);
 
         return new ActiveDataProvider([
             'query' => $query
