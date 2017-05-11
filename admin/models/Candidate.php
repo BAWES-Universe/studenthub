@@ -24,7 +24,7 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_updated_at']);
 
         $fields['store_name'] = function($model) {
-            return $model->store->store_name;
+            return (isset($model->store->store_name)) ? $model->store->store_name : [];
         };
 
         $fields['bank_name'] = function($model) {
