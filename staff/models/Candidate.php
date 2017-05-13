@@ -24,20 +24,20 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_updated_at']);
 
         $fields['bank_name'] = function($model) {
-            return \common\models\Bank::findOne($this->bank_id)->bank_name;
-            };
+            return $this->bank->bank_name;
+        };
 
         $fields['candidate_status'] = function($model) {
             return $model->getStatus();
-            };
+        };
 
         $fields['university'] = function($model) {
-                return $model->university;
-            };
+            return $model->university;
+        };
 
         $fields['country'] = function($model) {
-                return $model->country;
-            };
+            return $model->country;
+        };
 
         return $fields;
     }
@@ -48,7 +48,7 @@ class Candidate extends \common\models\Candidate {
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            
+
             $this->approved = false; //mark as dirty to send to admin for review
 
             return true;
@@ -57,11 +57,4 @@ class Candidate extends \common\models\Candidate {
         return false;
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getBank()
-    {
-        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
-    }
 }

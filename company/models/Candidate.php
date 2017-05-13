@@ -28,7 +28,7 @@ class Candidate extends \common\models\Candidate {
         };
 
         $fields['bank_name'] = function($model) {
-            return \common\models\Bank::findOne($this->bank_id)->bank_name;
+            return $this->bank->bank_name;
         };
 
         $fields['candidate_status'] = function($model) {
@@ -46,11 +46,4 @@ class Candidate extends \common\models\Candidate {
         return $fields;
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getBank()
-    {
-        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
-    }
 }
