@@ -11,7 +11,9 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property integer $id
  * @property integer $candidate_id
+ * @property string $expiry_date
  * @property string $created_at
+ * @property string $updated_at
  *
  * @property Candidate $candidate
  */
