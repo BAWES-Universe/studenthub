@@ -133,7 +133,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     public function validateAge()
     {
-        $years = floor((time() - strtotime($this->candidate_birth_date))/31556926);
+        $years = $this->age; //$this->getAge();
 
         if($years < 18 || $years > 21) {
             $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 21.');
@@ -149,6 +149,71 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
             $this->addError('store_id', 'Can not assign store to incomplete profile.');
         }
+    }
+
+    public function behaviors() {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'candidate_created_at',
+                'updatedAtAttribute' => 'candidate_updated_at',
+                'value' => new Expression('NOW()'),
+            ],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'candidate_id' => 'Candidate ID',
+            'store_id' => 'Store ID',
+            'bank_id' => 'Bank ID',
+            'bank_account_name' => 'Bank account name',
+            'candidate_iban' => 'IBAN',
+            'candidate_name' => 'Name [English]',
+            'candidate_name_ar' => 'Name [Arabic]',
+            'candidate_personal_photo' => 'Personal Photo',
+            'candidate_email' => 'Email',
+            'candidate_phone' => 'Phone',
+            'candidate_birth_date' => 'Birth Date',
+            'candidate_civil_id' => 'Civil ID',
+            'candidate_civil_expiry_date' => 'Civil Expiry Date',
+            'candidate_civil_photo_front' => 'Civil Photo Front',
+            'candidate_civil_photo_back' => 'Civil Photo Back',
+            'candidate_hourly_rate' => 'Hourly Rate',
+            'candidate_auth_key' => 'Auth Key',
+            'candidate_password_hash' => 'Password',
+            'candidate_password_reset_token' => 'Password Reset Token',
+            'candidate_status' => 'Status',
+            'candidate_created_at' => 'Created At',
+            'candidate_updated_at' => 'Updated At',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // Return age when fields requested via api
+        $fields['age'] = function($model) {
+            return $this->age;
+        };
+
+        return $fields;
+    }
+
+    /**
+     * Returns age of person
+     * @return integer
+     */
+    public function getAge(){
+        return floor((time() - strtotime($this->candidate_birth_date))/31556926);
     }
 
     /**
@@ -221,48 +286,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         } else {
             $this->candidate_status = Candidate::STATUS_READY;
         }
-    }
-
-    public function behaviors() {
-        return [
-            [
-                'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'candidate_created_at',
-                'updatedAtAttribute' => 'candidate_updated_at',
-                'value' => new Expression('NOW()'),
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'candidate_id' => 'Candidate ID',
-            'store_id' => 'Store ID',
-            'bank_id' => 'Bank ID',
-            'bank_account_name' => 'Bank account name',
-            'candidate_iban' => 'IBAN',
-            'candidate_name' => 'Name [English]',
-            'candidate_name_ar' => 'Name [Arabic]',
-            'candidate_personal_photo' => 'Personal Photo',
-            'candidate_email' => 'Email',
-            'candidate_phone' => 'Phone',
-            'candidate_birth_date' => 'Birth Date',
-            'candidate_civil_id' => 'Civil ID',
-            'candidate_civil_expiry_date' => 'Civil Expiry Date',
-            'candidate_civil_photo_front' => 'Civil Photo Front',
-            'candidate_civil_photo_back' => 'Civil Photo Back',
-            'candidate_hourly_rate' => 'Hourly Rate',
-            'candidate_auth_key' => 'Auth Key',
-            'candidate_password_hash' => 'Password',
-            'candidate_password_reset_token' => 'Password Reset Token',
-            'candidate_status' => 'Status',
-            'candidate_created_at' => 'Created At',
-            'candidate_updated_at' => 'Updated At',
-        ];
     }
 
     /**
