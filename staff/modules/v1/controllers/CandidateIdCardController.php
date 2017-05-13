@@ -68,9 +68,9 @@ class CandidateIdCardController extends Controller
         return $actions;
     }
 
-    /** 
+    /**
      * List candidates having ID Cards
-     */ 
+     */
     public function actionListCandidateIds()
     {
         $query = Candidate::find()
@@ -88,9 +88,9 @@ class CandidateIdCardController extends Controller
         ]);
     }
 
-    /** 
+    /**
      * List candidates to generate ID Cards
-     */ 
+     */
     public function actionListCandidates()
     {
         $cards = CandidateIdCard::find()
@@ -114,7 +114,7 @@ class CandidateIdCardController extends Controller
     }
 
     /**
-     * Generate ID for candidates 
+     * Generate ID for candidates
      */
     public function actionGenerate()
     {
@@ -122,11 +122,11 @@ class CandidateIdCardController extends Controller
 
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
 
-        foreach ($candidate_ids as $key => $value) 
+        foreach ($candidate_ids as $key => $value)
         {
-            //check if id card already available 
+            //check if id card already available
 
-            $ID = CandidateIdcard::find()
+            $ID = CandidateIdCard::find()
                 ->where(['candidate_id' => $value])
                 ->one();
 
@@ -136,7 +136,7 @@ class CandidateIdCardController extends Controller
             $ID = new CandidateIdCard;
             $ID->candidate_id = $value;
             $ID->expiry_date = date('Y-m-d', strtotime('+3 months'));
-            
+
             if(!$ID->save())
             {
                 $transaction->rollBack();
@@ -175,7 +175,7 @@ class CandidateIdCardController extends Controller
                    'header' => 'University Name',
                    'format' => 'text',
                    'value' => function($model) {
-                        if($model->university)    
+                        if($model->university)
                         {
                             return $model->university->university_name_ar;
                         }else{
@@ -188,11 +188,11 @@ class CandidateIdCardController extends Controller
             ],
             'headers' => [
                 'employee_id' => 'Employee ID',
-                'candidate_name_ar' => 'Employee Name', 
+                'candidate_name_ar' => 'Employee Name',
                 //'university.university_name_ar' => 'University Name',
                 'candidate_civil_id' => 'Civil ID Number'
             ]
-        ]); 
+        ]);
 
         $zipname = 'IdCards.zip';
 
@@ -207,8 +207,8 @@ class CandidateIdCardController extends Controller
         }
 
         $zip->addFile($path.'/export.xlsx', 'export.xlsx');
-        
-        //crate QR images 
+
+        //crate QR images
 
         FileHelper::createDirectory($path.'/QR');
 
@@ -218,29 +218,29 @@ class CandidateIdCardController extends Controller
                 $path.'/QR/'.$value->employee_id.'.jpg'
             );
         }
-        
-        //add QR folder to zip 
+
+        //add QR folder to zip
 
         foreach (glob($path.'/QR/*') as $file) {
             $zip->addFile($file, 'QR/'.basename($file));
         }
 
-        //add candidate photos to zip  
+        //add candidate photos to zip
 
         FileHelper::createDirectory($path.'/photos');
 
         foreach ($candidates as $key => $value) {
-            
+
             if($value->candidate_personal_photo)
             {
                 $source = Url::to('@s3/'.$value->candidate_personal_photo);
                 $destination = $path.'/photos/'.$value->employee_id.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
 
-                copy($source, $destination);     
+                copy($source, $destination);
             }
         }
 
-        //add photo folder to zip 
+        //add photo folder to zip
 
         foreach (glob($path.'/photos/*') as $file) {
             $zip->addFile($file, 'photos/'.basename($file));
@@ -248,7 +248,7 @@ class CandidateIdCardController extends Controller
 
         $zip->close();
 
-        // Download Zip File 
+        // Download Zip File
 
         return Yii::$app->response->sendFile($path.'/'.$zipname);
     }
@@ -262,12 +262,12 @@ class CandidateIdCardController extends Controller
 
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
 
-        foreach ($candidate_ids as $key => $value) 
+        foreach ($candidate_ids as $key => $value)
         {
             $ID = CandidateIdCard::find()
                 ->where(['candidate_id' => $value])
                 ->one();
-            
+
             if(!$ID)
             {
                 $transaction->rollBack();
@@ -290,9 +290,9 @@ class CandidateIdCardController extends Controller
         ];
     }
 
-    /** 
+    /**
      * List candidates having expired ID Cards
-     */ 
+     */
     public function actionListExpired()
     {
         $query = Candidate::find()
