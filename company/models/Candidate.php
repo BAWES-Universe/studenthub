@@ -23,26 +23,6 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_created_at'],
         $fields['candidate_updated_at']);
 
-        $fields['store_name'] = function($model) {
-            return (isset($model->store->store_name)) ? $model->store->store_name : [];
-        };
-
-        $fields['bank_name'] = function($model) {
-            return $this->bank->bank_name;
-        };
-
-        $fields['candidate_status'] = function($model) {
-            return $model->getStatus();
-        };
-
-        $fields['university'] = function($model) {
-            return $model->university;
-        };
-
-        $fields['country'] = function($model) {
-            return $model->country;
-        };
-
         return $fields;
     }
 
