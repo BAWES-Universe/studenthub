@@ -217,7 +217,8 @@ class CandidateController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate account successfully created"
+            "message" => "Candidate account successfully created",
+            "candidate" => $model
         ];
 
         // Check SQL Query Count and Duration
@@ -280,7 +281,8 @@ class CandidateController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate account updated successfully"
+            "message" => "Candidate account updated successfully",
+            "candidate" => $model
         ];
 
         // Check SQL Query Count and Duration
