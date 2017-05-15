@@ -20,15 +20,15 @@ return [
                 'encryption' => 'tls',
             ],
         ],
-        'log' => [
-            'targets' => [
-                [
-                    'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => 'https://b4bef13c94834f7b9a422b4fefa6d73f:096f6ba42f1f4edfaa2c8d47c0ec9f80@sentry.io/168205',
-                    'levels' => ['error', 'warning'],
-                    'context' => true // Write the context information. The default is true.
-                ],
-            ],
-        ],
+        // 'log' => [
+        //     'targets' => [
+        //         [
+        //             'class' => 'notamedia\sentry\SentryTarget',
+        //             'dsn' => 'https://b4bef13c94834f7b9a422b4fefa6d73f:096f6ba42f1f4edfaa2c8d47c0ec9f80@sentry.io/168205',
+        //             'levels' => ['error', 'warning'],
+        //             'context' => true // Write the context information. The default is true.
+        //         ],
+        //     ],
+        // ],
     ],
 ];
