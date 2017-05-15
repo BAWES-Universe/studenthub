@@ -172,6 +172,14 @@ class TransferController extends Controller
                 ];
         }
 
+        $transfer['total_paid'] = TransferCandidates::find()
+            ->where(['transfer_id' => $id, 'paid' => 1])
+            ->count();
+        
+        $transfer['total_unpaid'] = TransferCandidates::find()
+            ->where(['transfer_id' => $id, 'paid' => 0])
+            ->count();
+
         //get total profit
 
         $transfer['profit'] = TransferCandidates::find()
