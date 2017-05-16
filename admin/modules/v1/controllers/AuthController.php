@@ -123,5 +123,4 @@ class AuthController extends Controller
             'message' => 'Your password has been reset.'
         ];
     }
-
 }
