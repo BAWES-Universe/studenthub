@@ -535,6 +535,7 @@ class TransferController extends Controller
                     "message" => 'Invoice not found!'
                 ];
         }
+        $transfer['company'] = Company::findOne($transfer['company_id']);
 
         $transfer['candidates'] = TransferCandidates::find()
             ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
@@ -573,10 +574,10 @@ class TransferController extends Controller
              // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
              // call mPDF methods on the fly
-            'methods' => [ 
-                'SetHeader'=>['Transfer #'.$transfer['transfer_id']], 
-                'SetFooter'=>['{PAGENO}'],
-            ]
+//            'methods' => [
+//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
+//                'SetFooter'=>['{PAGENO}'],
+//            ]
         ]);    
 
         header('Access-Control-Allow-Origin: *');
