@@ -142,10 +142,10 @@ class TransferController extends Controller
              // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
              // call mPDF methods on the fly
-            'methods' => [ 
-                'SetHeader'=>['Transfer #'.$transfer['transfer_id']], 
-                'SetFooter'=>['{PAGENO}'],
-            ]
+//            'methods' => [
+//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
+//                'SetFooter'=>['{PAGENO}'],
+//            ]
         ]);    
 
         header('Access-Control-Allow-Origin: *');
