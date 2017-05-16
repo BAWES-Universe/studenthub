@@ -120,8 +120,20 @@ class CandidateIdCardController extends Controller
     {
         $transaction = Yii::$app->db->beginTransaction();
 
-        $candidate_ids = Yii::$app->request->getBodyParam('candidates');
+        $candidate_ids = [];
 
+        //remove null values 
+
+        $a = Yii::$app->request->getBodyParam('candidates');
+
+        foreach ($a as $key => $value) 
+        {
+            if($value)
+                $candidate_ids[] = $value;
+        }
+
+        // create ID Card entry 
+        
         foreach ($candidate_ids as $key => $value)
         {
             //check if id card already available
@@ -140,6 +152,8 @@ class CandidateIdCardController extends Controller
             if(!$ID->save())
             {
                 $transaction->rollBack();
+
+                Yii::$app->response->statusCode = 400;
 
                 return [
                     'operation' => 'error',
@@ -200,6 +214,8 @@ class CandidateIdCardController extends Controller
 
         if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
         {
+            Yii::$app->response->statusCode = 500;
+
             return [
                 'operation' => 'error',
                 'message' => 'Cannot create a zip file'
