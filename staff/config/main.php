@@ -56,6 +56,15 @@ return [
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
+                ],                
+                [ // StatisticController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/statistic',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
                 ],
                 [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
