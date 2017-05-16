@@ -469,8 +469,7 @@ class TransferController extends Controller
 
         $unpaid = TransferCandidates::find()
             ->where([
-                'paid' => 0, 
-                'candidate_id' => $value
+                'paid' => 0
             ])
             ->andWhere(['in', 'transfer_id', $transfer_ids])
             ->count();
