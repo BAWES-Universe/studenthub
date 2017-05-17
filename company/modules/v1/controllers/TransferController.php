@@ -846,6 +846,7 @@ class TransferController extends Controller
         $message->setFrom(Yii::$app->params['invoiceFrom']);
         $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$id.'.pdf', 'contentType' => 'application/pdf']);
         return $message->setTo($transfer['company']['company_email'])
+            ->setCc('mbk@bawes.net')
             ->setSubject('Invoice Attachment #'.$id)
             ->send();
     }
