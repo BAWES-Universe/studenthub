@@ -560,6 +560,8 @@ class TransferController extends Controller
             'transfer' => $transfer,
         ]);
 
+
+
         $pdf = new Pdf([
             // A4 paper format
             'format' => Pdf::FORMAT_A4, 
@@ -578,11 +580,10 @@ class TransferController extends Controller
 //                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
 //                'SetFooter'=>['{PAGENO}'],
 //            ]
-        ]);    
+        ]);
 
         header('Access-Control-Allow-Origin: *');
-
-        return $pdf->render();     
+        return $pdf->render();
     }
 
     /**
@@ -760,12 +761,92 @@ class TransferController extends Controller
                 $invoice->invoice_date = date('Y-m-d');
                 $invoice->invoice_status = 'unpaid';
                 $invoice->save();    
-            }            
+            }
+            $this->invoiceMail($invoice->invoice_id); // send invoice mail
         }
 
         return [
             "operation" => "success",
             "message" => "Transfer locked successfully"
         ];
+    }
+
+
+    public function invoiceMail($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        // list all sub companies
+
+        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        $transfer = Invoice::find()
+            ->select('{{%invoice}}.*, {{%transfer}}.*')
+            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
+            ->where(['{{%invoice}}.invoice_id' => $id])
+            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
+            ->asArray()
+            ->one();
+
+        if(!$transfer) {
+            return [
+                "operation" => "error",
+                "message" => 'Invoice not found!'
+            ];
+        }
+        $transfer['company'] = Company::findOne($transfer['company_id']);
+
+        $transfer['candidates'] = TransferCandidates::find()
+            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
+            ->where([
+                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
+            ])
+            ->asArray()
+            ->all();
+
+        if($transfer['invoice_status'] == 'paid')
+            $template = 'receipt';
+        else
+            $template = 'invoice';
+
+        $this->layout = 'pdf';
+        $content = $this->render($template, [
+            'transfer' => $transfer,
+        ]);
+
+
+        $pdf = new Pdf([
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => '.kv-heading-1{font-size:38px}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+            // call mPDF methods on the fly
+        ]);
+
+        $mpdf = $pdf->api; // fetches mpdf api
+        $mpdf->WriteHtml($content); // call mpdf write html
+        $pdfAttachment = $mpdf->Output($template.'.pdf', 'S'); // call the mpdf api output as needed
+
+        $message = Yii::$app->mailer->compose('invoice-receipt-attachment',['detail'=>$transfer]);
+        $message->setFrom(Yii::$app->params['invoiceFrom']);
+        $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$id.'.pdf', 'contentType' => 'application/pdf']);
+        return $message->setTo($transfer['company']['company_email'])
+            ->setSubject('Invoice Attachment #'.$id)
+            ->send();
     }
 }

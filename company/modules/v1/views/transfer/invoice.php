@@ -79,13 +79,12 @@ foreach ($transfer['candidates'] as $key => $value) {
 </div>
 <br/>
 <br/>
-<!-- end of summary -->
 <div class="col-xs-12" style="">
-    <h3>Bank Info</h3><br>
-    <p>BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY</p>
-    <p>    شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت</p>
-    <p>National Bank of Kuwait</p>
-    <p>IBAN: KW07NBOK0000000000002009288593</p>
-    <p>Account #: 2009288593</p>
-    <p>Swift: NBOKKWKW</p>
+    <h3>Bank Info</h3>
+    BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY
+        شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت
+    <br/>National Bank of Kuwait
+    <br/>IBAN: KW07NBOK0000000000002009288593
+    <br/>Account #: 2009288593
+    <br/>Swift: NBOKKWKW
 </div>
