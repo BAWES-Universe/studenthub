@@ -135,8 +135,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $years = $this->age; //$this->getAge();
 
-        if($years < 18 || $years > 21) {
-            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 21.');
+        if($years < 18 || $years > 24) {
+            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 24.');
         }
     }
 
