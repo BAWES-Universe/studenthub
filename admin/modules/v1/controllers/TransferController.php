@@ -74,11 +74,21 @@ class TransferController extends Controller
      */
     public function actionList()
     {
+        $company_name = Yii::$app->request->get('company_name'); 
+        $transfer_status = Yii::$app->request->get('transfer_status'); 
+
         $query = Transfer::find()
             ->select('{{%transfer}}.*, {{%company}}.company_name, {{%company}}.company_email')
             ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
-            ->where('parent_transfer_id IS NULL')
-            ->asArray();
+            ->where('parent_transfer_id IS NULL');
+
+        if($company_name)
+            $query->andWhere(['like', '{{%company}}.company_name', $company_name]);
+
+        if($transfer_status)
+            $query->andWhere(['{{%transfer}}.transfer_status' => $transfer_status]);
+
+        $query->asArray();
 
         return new ActiveDataProvider([
             'query' => $query
