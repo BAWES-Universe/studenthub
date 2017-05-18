@@ -81,7 +81,7 @@ foreach ($transfer['candidates'] as $key => $value) {
 <br/>
 <div class="col-xs-12" style="">
     <h3>Bank Info</h3>
-    BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY
+    BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY<br/>
         شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت
     <br/>National Bank of Kuwait
     <br/>IBAN: KW07NBOK0000000000002009288593

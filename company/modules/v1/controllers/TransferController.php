@@ -551,7 +551,7 @@ class TransferController extends Controller
         
         $this->layout = 'pdf';
 
-        if($transfer['invoice_status'] == 'paid') 
+        if($transfer['invoice_status'] == 'paid')
             $template = 'receipt';
         else
             $template = 'invoice';
@@ -563,6 +563,7 @@ class TransferController extends Controller
 
 
         $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
             // A4 paper format
             'format' => Pdf::FORMAT_A4, 
             // portrait orientation
@@ -823,7 +824,8 @@ class TransferController extends Controller
 
 
         $pdf = new Pdf([
-            // A4 paper format
+            'mode' => Pdf::MODE_UTF8,
+            //UTF mode for arabic language
             'format' => Pdf::FORMAT_A4,
             // portrait orientation
             'orientation' => Pdf::ORIENT_PORTRAIT,
