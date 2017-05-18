@@ -112,7 +112,7 @@
 
                     <br /><br />
 
-                    <b>Gender</b> : <?= $model->candidate_hourly_rate ?>
+                    <b>Hourly rate</b> : <?= $model->candidate_hourly_rate ?> KWD
 
                     <br /><br />
 
