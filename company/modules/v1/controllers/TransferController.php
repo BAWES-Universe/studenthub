@@ -98,8 +98,7 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
 
         // list all sub companies
-
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -278,7 +277,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -515,7 +514,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -551,7 +550,7 @@ class TransferController extends Controller
         
         $this->layout = 'pdf';
 
-        if($transfer['invoice_status'] == 'paid') 
+        if($transfer['invoice_status'] == 'paid')
             $template = 'receipt';
         else
             $template = 'invoice';
@@ -563,6 +562,7 @@ class TransferController extends Controller
 
 
         $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
             // A4 paper format
             'format' => Pdf::FORMAT_A4, 
             // portrait orientation
@@ -572,7 +572,7 @@ class TransferController extends Controller
             // your html content input
             'content' => $content,  
             // any css to be embedded if required
-            'cssInline' => '.kv-heading-1{font-size:38px}', 
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
              // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
              // call mPDF methods on the fly
@@ -625,7 +625,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -778,7 +778,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -798,7 +798,7 @@ class TransferController extends Controller
                 "message" => 'Invoice not found!'
             ];
         }
-        $transfer['company'] = Company::findOne($transfer['company_id']);
+        $transfer['company'] = Company::findOne($company->company_id);
 
         $transfer['candidates'] = TransferCandidates::find()
             ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
@@ -823,7 +823,8 @@ class TransferController extends Controller
 
 
         $pdf = new Pdf([
-            // A4 paper format
+            'mode' => Pdf::MODE_UTF8,
+            //UTF mode for arabic language
             'format' => Pdf::FORMAT_A4,
             // portrait orientation
             'orientation' => Pdf::ORIENT_PORTRAIT,
@@ -832,7 +833,7 @@ class TransferController extends Controller
             // your html content input
             'content' => $content,
             // any css to be embedded if required
-            'cssInline' => '.kv-heading-1{font-size:38px}',
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
             // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
             // call mPDF methods on the fly
@@ -846,7 +847,7 @@ class TransferController extends Controller
         $message->setFrom(Yii::$app->params['invoiceFrom']);
         $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$id.'.pdf', 'contentType' => 'application/pdf']);
         return $message->setTo($transfer['company']['company_email'])
-            ->setCc('mbk@bawes.net')
+            ->setCc('finance@bawes.net')
             ->setSubject('Invoice Attachment #'.$id)
             ->send();
     }
