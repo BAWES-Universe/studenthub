@@ -798,7 +798,7 @@ class TransferController extends Controller
                 "message" => 'Invoice not found!'
             ];
         }
-        $transfer['company'] = Company::findOne($transfer['company_id']);
+        $transfer['company'] = Company::findOne($company->company_id);
 
         $transfer['candidates'] = TransferCandidates::find()
             ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
@@ -846,7 +846,7 @@ class TransferController extends Controller
         $message->setFrom(Yii::$app->params['invoiceFrom']);
         $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$id.'.pdf', 'contentType' => 'application/pdf']);
         return $message->setTo($transfer['company']['company_email'])
-            ->setCc('mbk@bawes.net')
+            ->setCc('finance@bawes.net')
             ->setSubject('Invoice Attachment #'.$id)
             ->send();
     }
