@@ -75,7 +75,7 @@ class CandidateController extends Controller
 
         // create company_id array from all sub companies and self 
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -109,7 +109,7 @@ class CandidateController extends Controller
 
         // create company_id array from all sub companies and self 
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
