@@ -116,7 +116,8 @@ class Transfer extends \yii\db\ActiveRecord
     public function validate_candidates($company_id, $candidates)
     {
         $errors = [];
-
+        $total = 0;
+        $company_total = 0;
         if(!is_array($candidates)) {
             $candidates = [];
         }
@@ -130,6 +131,13 @@ class Transfer extends \yii\db\ActiveRecord
                 $errors['candidate_id'][] = 'Candidate field require.';
                 return $errors;
             }
+            $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
+            $hours = (isset($value['hours'])) ? $value['hours'] : 0;
+            $company_total += $bonus + ($hours * Yii::$app->params['candidate_max_hourly_rate']);
+        }
+
+        if ($company_total == 0) {
+            return "Error : 0 Amount transfer not allowed to be generated.";
         }
 
         //check for missing candidates
@@ -161,6 +169,8 @@ class Transfer extends \yii\db\ActiveRecord
         {
             $errors['candidate_id'][] = 'Missing ' . $missing . ' candidate(s).';
         }
+
+
 
         return $errors;
     }
