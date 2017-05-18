@@ -98,8 +98,7 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
 
         // list all sub companies
-
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -278,7 +277,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -515,7 +514,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -626,7 +625,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
@@ -779,7 +778,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = Company::findAll(['parent_company_id' => $company->company_id]);
+        $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
 
