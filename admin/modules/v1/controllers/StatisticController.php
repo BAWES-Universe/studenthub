@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use common\models\Transfer;
@@ -67,7 +68,9 @@ class StatisticController extends Controller
     public function actionList()
     {
         $arr_status = Transfer::statusList();
-
+        $totalCandidate = Candidate::find()->count();
+        $totalAssign = Candidate::find()->where('store_id is NOT NULL')->count();
+        $approved = Candidate::find()->where(['approved'=>1])->count();
         $result['transfers'] = [];
 
         foreach ($arr_status as $key => $value) 
@@ -81,7 +84,13 @@ class StatisticController extends Controller
                 'count' => $count
             ];
         }
-        
+
+        $result['candidates']['total_candidate'] = $totalCandidate;
+        $result['candidates']['total_assign'] = $totalAssign;
+        $result['candidates']['total_unassign'] = $totalCandidate - $totalAssign;
+        $result['candidates']['total_approved'] = $approved;
+        $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
+
         return $result;
     }
 }
