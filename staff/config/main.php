@@ -77,6 +77,7 @@ return [
                         'POST' => 'create',
                         'POST filter' => 'filter',
                         'PATCH <id>' => 'update',
+                        'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH assign/<id>' => 'assign',
                         'DELETE unassign/<id>' => 'unassign',
                         'DELETE <id>' => 'delete',
@@ -87,6 +88,7 @@ return [
                         'OPTIONS not-assigned/<id>' => 'options',
                         'OPTIONS filter' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',
                     ]

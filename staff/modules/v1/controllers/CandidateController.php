@@ -230,7 +230,6 @@ class CandidateController extends Controller
      */
     public function actionUpdate($id)
     {
-        // Attempt to create new account
         $model = Candidate::findOne((int) $id);
 
         if(!$model) {
@@ -424,6 +423,46 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate removed successfully"
+        ];
+    }
+
+    /**
+     * Reset candidate password
+     */
+    public function actionResetPassword($id) 
+    {
+        $model = Candidate::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found",
+                "code" => 1
+            ];
+        }
+
+        $password = Yii::$app->security->generateRandomString(10);
+
+        $model->password = $password;
+        $model->save(false);
+
+        //Send Email to user
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        Yii::$app->mailer->compose("candidate-password",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => '',
+                'logo_2' => ''
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo($model->candidate_email)
+            ->setSubject('New Password For '.Yii::$app->name)
+            ->send();
+
+        return [
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
         ];
     }
 }
