@@ -572,7 +572,7 @@ class TransferController extends Controller
             // your html content input
             'content' => $content,  
             // any css to be embedded if required
-            'cssInline' => '.kv-heading-1{font-size:38px}', 
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
              // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
              // call mPDF methods on the fly
@@ -833,7 +833,7 @@ class TransferController extends Controller
             // your html content input
             'content' => $content,
             // any css to be embedded if required
-            'cssInline' => '.kv-heading-1{font-size:38px}',
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
             // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
             // call mPDF methods on the fly
