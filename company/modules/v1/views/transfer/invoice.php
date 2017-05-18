@@ -11,7 +11,7 @@ foreach ($transfer['candidates'] as $key => $value) {
 <div class="row">
     <div class="col-sm-12" style="margin-top:30px; text-align:center;">
         <img src="/images/bawes.jpg" style="width:100px; margin-bottom:0;">
-        <h1>Invoice</h1>
+        <div style="text-align: center"> <span style="margin-top:10px;font-size:25px; color:#252525;">Invoice</span></div>
         <hr>
     </div>
 </div>
@@ -20,17 +20,17 @@ foreach ($transfer['candidates'] as $key => $value) {
         <tr>
             <td style="width: 56%;">
                 <table cellpadding="2">
-                    <tr><td><h3>Bill to<br></h3></td></tr>
-                    <tr><td><?= $transfer['company']['company_name'] ?></td></tr>
-                    <tr><td><?= $transfer['company']['company_email'] ?></td></tr>
+                    <tr><td><h3 style="font-weight: 100;">Bill to<br></h3></td></tr>
+                    <tr><td><p><?= $transfer['company']['company_name'] ?></p></td></tr>
+                    <tr><td><p><?= $transfer['company']['company_email'] ?></p></td></tr>
                 </table>
             </td>
             <td>
                 <table cellpadding="2" class="table">
-                    <tr><td><h3>Details<br></h3></td></tr>
-                    <tr><td>Invoice number: <?=$transfer['transfer_id']?></td></tr>
-                    <tr><td>Issue date: <?=date('F d,Y',strtotime($transfer['invoice_date']))?></td></tr>
-                    <tr><td>Payment terms: Due immediately</td></tr>
+                    <tr><td><h3 style="font-weight: 100;">Details<br></h3></td></tr>
+                    <tr><td><p>Invoice number: <?=$transfer['transfer_id']?></p></td></tr>
+                    <tr><td><p>Issue date: <?=date('F d,Y',strtotime($transfer['invoice_date']))?></p></td></tr>
+                    <tr><td><p>Payment terms: Due immediately</p></td></tr>
                     <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount due in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
                 </table>
             </td>
@@ -80,7 +80,7 @@ foreach ($transfer['candidates'] as $key => $value) {
 <br/>
 <br/>
 <div class="col-xs-12" style="">
-    <h3>Bank Info</h3>
+    <h3 style="font-weight: 100;">Bank Info</h3>
     BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY<br/>
         شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت
     <br/>National Bank of Kuwait
