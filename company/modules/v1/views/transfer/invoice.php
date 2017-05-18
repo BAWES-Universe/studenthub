@@ -31,7 +31,7 @@ foreach ($transfer['candidates'] as $key => $value) {
                     <tr><td>Invoice number: <?=$transfer['transfer_id']?></td></tr>
                     <tr><td>Issue date: <?=date('F d,Y',strtotime($transfer['invoice_date']))?></td></tr>
                     <tr><td>Payment terms: Due immediately</td></tr>
-                    <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
+                    <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount due in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
                 </table>
             </td>
         </tr>
@@ -60,7 +60,7 @@ foreach ($transfer['candidates'] as $key => $value) {
     <table class="table" >
         <tr>
             <td align="left" style="text-align: left">
-                <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?=count($transfer['candidates'])?> interns</span>
+                <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount Due for <?=count($transfer['candidates'])?> interns</span>
             </td>
             <td align="right" style="text-align: right">
                 <span class="h5">KWD <?= $transfer['company_total'] ?></span>

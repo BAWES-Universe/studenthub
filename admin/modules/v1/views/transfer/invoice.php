@@ -31,7 +31,7 @@ foreach ($transfer['candidates'] as $key => $value) {
                     <tr><td>Invoice number: <?=$transfer['transfer_id']?></td></tr>
                     <tr><td>Issue date: <?=date('F d,Y',strtotime($transfer['invoice_date']))?></td></tr>
                     <tr><td>Payment terms: Due immediately</td></tr>
-                    <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
+                    <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount due in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
                 </table>
             </td>
         </tr>
@@ -60,7 +60,7 @@ foreach ($transfer['candidates'] as $key => $value) {
     <table class="table" >
         <tr>
             <td align="left" style="text-align: left">
-                <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?=count($transfer['candidates'])?> interns</span>
+                <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount due for <?=count($transfer['candidates'])?> interns</span>
             </td>
             <td align="right" style="text-align: right">
                 <span class="h5">KWD <?= $transfer['company_total'] ?></span>
@@ -81,11 +81,11 @@ foreach ($transfer['candidates'] as $key => $value) {
 <br/>
 <!-- end of summary -->
 <div class="col-xs-12" style="">
-    <h3>Bank Info</h3><br>
-    <p>BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY</p>
-    <p>    شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت</p>
-    <p>National Bank of Kuwait</p>
-    <p>IBAN: KW07NBOK0000000000002009288593</p>
-    <p>Account #: 2009288593</p>
-    <p>Swift: NBOKKWKW</p>
+    <h3>Bank Info</h3>
+    BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY<br/>
+    شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت
+    <br/>National Bank of Kuwait
+    <br/>IBAN: KW07NBOK0000000000002009288593
+    <br/>Account #: 2009288593
+    <br/>Swift: NBOKKWKW
 </div>
