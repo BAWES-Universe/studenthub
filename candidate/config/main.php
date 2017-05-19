@@ -78,6 +78,15 @@ return [
                         'OPTIONS employer' => 'options'
                     ]
                 ],
+                [ // StatisticController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/statistic',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
