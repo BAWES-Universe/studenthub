@@ -647,4 +647,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
         return $status;
     }
+
+
 }
