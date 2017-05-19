@@ -2,6 +2,7 @@
 
 namespace candidate\modules\v1\controllers;
 
+use common\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
@@ -131,5 +132,55 @@ class AccountController extends Controller
             'company_name' => $company_name,
             'company_email'=> $company_email
         ];
+    }
+
+    public function actionChangePassword()
+    {
+        $model = Yii::$app->user->identity;
+
+        $oldPassword = Yii::$app->request->getBodyParam("old_password");
+        $newPassword = Yii::$app->request->getBodyParam("new_password");
+
+        if (empty($oldPassword)) {
+            return [
+                "operation" => "error",
+                "message" => "Empty old password"
+            ];
+        } else if (empty($newPassword)) {
+            return [
+                "operation" => "error",
+                "message" => "Empty new password"
+            ];
+        }
+
+        if ($oldPassword === $newPassword) {
+            return [
+                "operation" => "error",
+                "message" => "New password should not be same as old password"
+            ];
+        }
+
+        if (!$model->validatePassword($oldPassword)) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid Old Password"
+            ];
+        }
+
+        if (strlen($newPassword) < 5) {
+            return [
+                "operation" => "error",
+                "message" => "New password length should be great then equal to 5"
+            ];
+        }
+
+        $candidate = Candidate::findOne($model->getId());
+        $candidate->setPassword($newPassword);
+        if ($candidate->save(false)) {
+            return [
+                "operation" => "success",
+                "message" => "Password changed successfully!"
+            ];
+        }
     }
 }
