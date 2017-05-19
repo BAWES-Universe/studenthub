@@ -72,10 +72,12 @@ return [
                     'patterns' => [
                         'GET salary' => 'salary',
                         'GET employer' => 'employer',
+                        'POST change-password' => 'change-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS salary' => 'options',
-                        'OPTIONS employer' => 'options'
+                        'OPTIONS employer' => 'options',
+                        'OPTIONS change-password' => 'options'
                     ]
                 ],
                 [ // StatisticController
