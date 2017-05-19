@@ -1,8 +1,9 @@
 <?php
 
-namespace candidate\modules\v1\controllers;
+namespace company\modules\v1\controllers;
 
 use common\models\Candidate;
+use company\models\Company;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
@@ -14,6 +15,9 @@ use common\models\TransferCandidates;
  */
 class AccountController extends Controller
 {
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -64,76 +68,6 @@ class AccountController extends Controller
         return $actions;
     }
 
-    /**
-     * Return a List of Salary transfers
-     */
-    public function actionSalary()
-    {
-        $candidate = Yii::$app->user->identity;
-
-        $query = TransferCandidates::find()
-            ->select([
-                '{{%transfer_candidates}}.tc_id', 
-                '{{%invoice}}.invoice_id', 
-                '{{%company}}.company_name',
-                '{{%company}}.company_email',
-                '{{%transfer_candidates}}.candidate_hourly_rate', 
-                '{{%transfer_candidates}}.hours', 
-                '{{%transfer_candidates}}.bonus', 
-                '({{%transfer_candidates}}.candidate_hourly_rate * {{%transfer_candidates}}.hours) + {{%transfer_candidates}}.bonus as total', 
-                '{{%transfer_candidates}}.tc_created_at'
-            ])
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%transfer_candidates}}.transfer_id')
-            ->innerJoin('{{%invoice}}', '{{%invoice}}.transfer_id = {{%transfer_candidates}}.transfer_id')
-            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
-            ->where([
-                'candidate_id' => $candidate->candidate_id,
-                'invoice_status' => 'paid'
-            ])
-            ->asArray();
-
-        return new ActiveDataProvider([
-            'query' => $query, 
-        ]);
-    }
-
-    /**
-     * Return currnet employer detail
-     */
-    public function actionEmployer()
-    {
-        $candidate = Yii::$app->user->identity;
-
-        //store detail 
-
-        if(empty($candidate->store)) {
-            return [
-                "operation" => "error",
-                "message" => "No employer detail found"
-            ];
-        }
-
-        //company details 
-
-        if(empty($candidate->store->company)) {
-            $company_id = '';
-            $company_name = '';
-            $company_email = '';            
-        }else{
-            $company_id = $candidate->store->company->company_id; 
-            $company_name = $candidate->store->company->company_name;
-            $company_email = $candidate->store->company->company_email;            
-        }
-
-        return [
-            'company_id' => $company_id,
-            'store_id' => $candidate->store->store_id,
-            'store_name' => $candidate->store->store_name,
-            'company_name' => $company_name,
-            'company_email'=> $company_email
-        ];
-    }
-
     public function actionChangePassword()
     {
         $model = Yii::$app->user->identity;
@@ -174,7 +108,7 @@ class AccountController extends Controller
             ];
         }
 
-        $candidate = Candidate::findOne($model->getId());
+        $candidate = Company::findOne($model->getId());
         $candidate->setPassword($newPassword);
         if ($candidate->save(false)) {
             return [

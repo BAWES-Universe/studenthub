@@ -109,6 +109,17 @@ return [
                         'OPTIONS' => 'options'
                     ]
                 ],
+                [ // AccountController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/account',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST change-password' => 'change-password',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS change-password' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
