@@ -1,4 +1,7 @@
 <?php
+
+use yii\helpers\Url;
+
 $totalHours = 0;
 $totalBonus = 0;
 $totalAmount = 0;
@@ -10,7 +13,7 @@ foreach ($transfer['candidates'] as $key => $value) {
 ?>
 <div class="row">
     <div class="col-sm-12" style="margin-top:30px; text-align:center;">
-        <img src="/images/bawes.jpg" style="width:100px; margin-bottom:0;">
+        <img src="<?= Url::to('@web/images/bawes.jpg', true) ?>" style="width:100px; margin-bottom:0;">
         <h1>Receipt</h1>
         <hr>
     </div>
@@ -74,6 +77,6 @@ foreach ($transfer['candidates'] as $key => $value) {
     <p style="margin-bottom:0;">Sincerely yours,</p>
     <p style="margin-bottom:0;">
         Khalid Al-Mutawa<br/>
-        <img src="/images/signature.png" style="width:150px; display:block;">
+        <img src="<?= Url::to('@web/images/signature.png', true) ?>" style="width:150px; display:block;">
     </p>
 </div>

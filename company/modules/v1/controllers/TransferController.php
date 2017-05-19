@@ -567,8 +567,6 @@ class TransferController extends Controller
             'transfer' => $transfer,
         ]);
 
-
-
         $pdf = new Pdf([
             'mode' => Pdf::MODE_UTF8,
             // A4 paper format
@@ -683,7 +681,7 @@ class TransferController extends Controller
         {
             //generate invoice for main transfer if no sub companies else generate invoice for 
             //each sub companies 
-            $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
+            $invoice = Invoice::findOne(['transfer_id' => $model->transfer_id]);
 
             if(!$invoice) {
                 $invoice = new Invoice;
@@ -779,7 +777,6 @@ class TransferController extends Controller
         ];
     }
 
-
     public function invoiceMail($id)
     {
         $company = Yii::$app->user->identity;
@@ -825,10 +822,10 @@ class TransferController extends Controller
             $template = 'invoice';
 
         $this->layout = 'pdf';
+
         $content = $this->render($template, [
             'transfer' => $transfer,
         ]);
-
 
         $pdf = new Pdf([
             'mode' => Pdf::MODE_UTF8,
@@ -847,9 +844,7 @@ class TransferController extends Controller
             // call mPDF methods on the fly
         ]);
 
-        $mpdf = $pdf->api; // fetches mpdf api
-        $mpdf->WriteHtml($content); // call mpdf write html
-        $pdfAttachment = $mpdf->Output($template.'.pdf', 'S'); // call the mpdf api output as needed
+        $pdfAttachment = $pdf->output($content, $template.'.pdf', 'S');
 
         $message = Yii::$app->mailer->compose('invoice-receipt-attachment',['detail'=>$transfer]);
         $message->setFrom(Yii::$app->params['invoiceFrom']);
