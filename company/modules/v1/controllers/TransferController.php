@@ -78,7 +78,15 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
 
         $query = Transfer::find()
-            ->select('{{%transfer}}.*, {{%company}}.company_name, {{%company}}.company_email')
+            ->select('
+                transfer_id, 
+                company_total, 
+                payment_received_on, 
+                transfer_status, 
+                transfer_created_at, 
+                transfer_updated_at,
+                company_name, 
+                company_email')
             ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
             ->where(['{{%transfer}}.company_id' => $company->company_id])
             ->andWhere('parent_transfer_id IS NULL')
