@@ -61,7 +61,7 @@ class Store extends \yii\db\ActiveRecord
      */
     public function validateCompany()
     {
-        if($this->company->subCompanies) {
+        if($this->company && $this->company->subCompanies) {
             $this->addError('company_id', "Store can't be assigned to company having sub companies.");   
         }
     }
