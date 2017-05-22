@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use common\models\Company;
 use Yii;
 use yii\helpers\Url;
 use yii\helpers\Console;
@@ -39,8 +40,11 @@ class CronController extends \yii\console\Controller {
         Candidate::civilIdExpire();
 
         //check salary transfer not paid 
+        //Invoice::unpaidAlert();
 
-//        Invoice::unpaidAlert();
+        // notification to admin regarding
+        // company who didn't created transfer after 35 days
+        Company::adminPendingPaymentNotification();
 
         // remove temp files 
         Candidate::removeTempFiles();

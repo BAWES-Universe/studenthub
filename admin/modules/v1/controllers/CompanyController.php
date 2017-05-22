@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\Transfer;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;

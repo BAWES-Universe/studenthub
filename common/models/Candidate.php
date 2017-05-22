@@ -208,11 +208,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields['company_name'] = function($model) {
             return (isset($model->company->company_name)) ? $model->company->company_name : [];
         };
+        $fields['company_id'] = function($model) {
+            return (isset($model->company->company_id)) ? $model->company->company_name : [];
+        };
         $fields['store_name'] = function($model) {
             return (isset($model->store->store_name)) ? $model->store->store_name : [];
         };
         $fields['bank_name'] = function($model) {
-            return $this->bank->bank_name;
+            return (isset($this->bank->bank_name)) ? $this->bank->bank_name : [];
         };
         $fields['candidate_status'] = function($model) {
             return $model->status;
