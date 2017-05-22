@@ -108,6 +108,8 @@ class CandidateIdCardController extends Controller
             $query->andWhere(['like', 'candidate_name', $candidate_name]);
         }
 
+        $query->andWhere("store_id != 'NULL'"); // only candidate with assigned work
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -321,6 +323,8 @@ class CandidateIdCardController extends Controller
         {
             $query->andWhere(['like', 'candidate_name', $candidate_name]);
         }
+
+        $query->andWhere("store_id != 'NULL'"); // only candidate with assigned work
 
         return new ActiveDataProvider([
             'query' => $query
