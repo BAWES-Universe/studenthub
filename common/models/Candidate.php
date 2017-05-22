@@ -7,6 +7,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\FileHelper;
 use common\models\Bank;
 use common\models\University;
 use common\models\Country;
@@ -238,7 +239,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Moves the newly uploaded files from the temporary bucket to the permanent one
      * If their values have changed and their files exist in the temporary bucket.
      */
-    private function _moveTemporaryFilesToPermanentBucket(){
+    private function _moveTemporaryFilesToPermanentBucket() {
+
+        $tempFolder = Yii::getAlias('@runtime') . '/cache/photos/'; 
+
         // For each file, move its file from temporary to permanent
         foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
             if($this->{$attribute} !== $this->getOldAttribute($attribute)){
@@ -249,12 +253,42 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 // Copy using S3ResourceManager Component
                 Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
+                // Upload thumbnail
+                $tempPath = $tempFolder . $fileName;
+                
+                // Resize to 100 x 100 
+                $thumbnail = new \Imagine\Gd\Imagine();
+                $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
+                $thumbnail->resize($thumbnail->getSize()->widen(100));
+                $thumbnail->save($tempPath); 
+
+                //save thumbnail to s3
+                Yii::$app->resourceManager->save(
+                    null, //file upload object  
+                    $folderName."/photos-thumb/".$fileName, // name
+                    [], //options 
+                    $tempPath, // source file
+                    mime_content_type($tempPath)
+                ); 
+
                 // Adjust filename in storage to use path within bucket
                 $this->{$attribute} = $targetPath;
             }
         }
     }
 
+    /**
+     * Remove temp images 
+     */
+    public function removeTempFiles() 
+    {
+        $tempFolder = Yii::getAlias('@staff') . '/runtime/cache/photos/'; 
+        
+        FileHelper::removeDirectory($tempFolder);    
+
+        mkdir($tempFolder, 777);
+    }
+    
     /**
      * @inheritdoc
      */

@@ -41,6 +41,9 @@ class CronController extends \yii\console\Controller {
         //check salary transfer not paid 
 
 //        Invoice::unpaidAlert();
+
+        // remove temp files 
+        Candidate::removeTempFiles();
     }
 
     /**
