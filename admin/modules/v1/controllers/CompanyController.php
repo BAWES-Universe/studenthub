@@ -70,43 +70,11 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $list = [];
-        $data = \common\models\Candidate::find()
-            ->select('candidate.candidate_id,candidate.store_id,store.store_id,store.company_id')
-            ->leftJoin('store','store.store_id = candidate.store_id ')
-            ->where('candidate.store_id != "NULL"')
-            ->groupBy('store.company_id')
-            ->all();
+        $query = Company::find()->where(['parent_company_id' => null]);
 
-        if ($data) {
-            foreach($data as $key => $company) {
-                $today = date('Y-m-d H:i:s');
-                $interval = date('Y-m-d H:i:s',strtotime(Yii::$app->params['payment_notice_period']));
-                $company_id =  $company->store->company_id;
-                $condition = "transfer_created_at BETWEEN date('$interval') AND date('$today') AND transfer_status='".Transfer::STATUS_TRANSFER_COMPLETE."' AND `company_id`='$company_id'";
-                if (!Transfer::find()->where($condition)->count()) {
-                    $list[] = $company->store->company_id;
-                }
-            }
-            if (count($list)>0) {
-
-                return Yii::$app->mailer->compose("company-unpaid-notification-to-admin",
-                    [
-                        "companies" => \common\models\Company::find()->where(['company_id'=>$list])->all(),
-                    ])
-                    ->setFrom(Yii::$app->params['supportEmail'])
-                    ->setTo(Yii::$app->params['adminEmail'])
-                    ->setSubject('Company not paid after 35 days')
-                    ->send();
-            }
-        } else {
-            return [];
-        }
-//        $query = Company::find()->where(['parent_company_id' => null]);
-//
-//        return new ActiveDataProvider([
-//            'query' => $query
-//        ]);
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
