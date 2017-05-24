@@ -33,7 +33,7 @@ class Transfer extends \yii\db\ActiveRecord
     const STATUS_LOCK = 5;
     const STATUS_INITIATED = 10; // Draft
 
-    public function statusList()
+    public static function statusList()
     {
         return [
             self::STATUS_PAYMENT_SENT => 'Payment Sent',
