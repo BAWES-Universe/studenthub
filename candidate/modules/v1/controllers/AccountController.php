@@ -90,6 +90,7 @@ class AccountController extends Controller
                 'candidate_id' => $candidate->candidate_id,
                 'invoice_status' => 'paid'
             ])
+            ->orderBy('tc_created_at DESC')
             ->asArray();
 
         return new ActiveDataProvider([
