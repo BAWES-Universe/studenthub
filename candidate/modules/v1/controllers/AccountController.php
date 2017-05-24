@@ -69,33 +69,22 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $candidate = Yii::$app->user->identity;
-
-        $query = TransferCandidates::find()
-            ->select([
-                '{{%transfer_candidates}}.tc_id', 
-                '{{%invoice}}.invoice_id', 
-                '{{%company}}.company_name',
-                '{{%company}}.company_email',
-                '{{%transfer_candidates}}.candidate_hourly_rate', 
-                '{{%transfer_candidates}}.hours', 
-                '{{%transfer_candidates}}.bonus', 
-                '({{%transfer_candidates}}.candidate_hourly_rate * {{%transfer_candidates}}.hours) + {{%transfer_candidates}}.bonus as total', 
-                '{{%transfer_candidates}}.tc_created_at'
-            ])
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%transfer_candidates}}.transfer_id')
-            ->innerJoin('{{%invoice}}', '{{%invoice}}.transfer_id = {{%transfer_candidates}}.transfer_id')
-            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
-            ->where([
-                'candidate_id' => $candidate->candidate_id,
-                'invoice_status' => 'paid'
-            ])
-            ->orderBy('tc_created_at DESC')
-            ->asArray();
-
-        return new ActiveDataProvider([
-            'query' => $query, 
-        ]);
+        $list = [];
+        $transfers = Yii::$app->user->identity->transferCandidates;
+        foreach ($transfers as $key => $transfer) {
+            $list[] = [
+                'transfer_id' => $transfer->transfer_id,
+                'candidate_id' => $transfer->candidate_id,
+                'candidate_hourly_rate' => $transfer->candidate_hourly_rate,
+                'hours' => $transfer->hours,
+                'bonus' => $transfer->bonus,
+                'status' => ($transfer->paid) ? 'Paid' : 'Unpaid',
+                'tc_created_at' => $transfer->tc_created_at,
+                'company_name' => $transfer->transfer->company->company_name,
+                'total'=>($transfer->candidate_hourly_rate * $transfer->hours) + $transfer->bonus,
+            ];
+        }
+        return array_reverse($list);
     }
 
     /**
