@@ -244,7 +244,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     private function _moveTemporaryFilesToPermanentBucket() {
 
-        $tempFolder = Yii::getAlias('@runtime') . '/cache/photos/'; 
+        $tempFolder = Yii::getAlias('@runtime') . '/cache/photos/';
 
         // For each file, move its file from temporary to permanent
         foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
@@ -258,21 +258,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 // Upload thumbnail
                 $tempPath = $tempFolder . $fileName;
-                
-                // Resize to 100 x 100 
+
+                // Resize to 100 x 100
                 $thumbnail = new \Imagine\Gd\Imagine();
                 $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
                 $thumbnail->resize($thumbnail->getSize()->widen(100));
-                $thumbnail->save($tempPath); 
+                $thumbnail->save($tempPath);
 
                 //save thumbnail to s3
                 Yii::$app->resourceManager->save(
-                    null, //file upload object  
+                    null, //file upload object
                     $folderName."/photos-thumb/".$fileName, // name
-                    [], //options 
+                    [], //options
                     $tempPath, // source file
                     mime_content_type($tempPath)
-                ); 
+                );
 
                 // Adjust filename in storage to use path within bucket
                 $this->{$attribute} = $targetPath;
@@ -281,17 +281,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Remove temp images 
+     * Deletes the directory containing temporary cached images.
+     * Then re-creates an empty directory for further use.
+     *
+     * This function is called via Cron once a day.
      */
-    public function removeTempFiles() 
+    public static function removeTempFiles()
     {
-        $tempFolder = Yii::getAlias('@staff') . '/runtime/cache/photos/'; 
-        
-        FileHelper::removeDirectory($tempFolder);    
+        $folderPath = Yii::getAlias('@staff') . '/runtime/cache/photos/';
 
-        mkdir($tempFolder, 777);
+        // Remove the cached folder
+        FileHelper::removeDirectory($folderPath);
+
+        // Recreate the folder
+        FileHelper::createDirectory($folderPath, 777);
     }
-    
+
     /**
      * @inheritdoc
      */
