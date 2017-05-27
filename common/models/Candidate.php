@@ -243,9 +243,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * If their values have changed and their files exist in the temporary bucket.
      */
     private function _moveTemporaryFilesToPermanentBucket() {
-
-        $tempFolder = Yii::getAlias('@runtime') . '/cache/photos/';
-
         // For each file, move its file from temporary to permanent
         foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
             if($this->{$attribute} !== $this->getOldAttribute($attribute)){
@@ -256,23 +253,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 // Copy using S3ResourceManager Component
                 Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
-                // Upload thumbnail
-                $tempPath = $tempFolder . $fileName;
-
-                // Resize to 100 x 100
-                $thumbnail = new \Imagine\Gd\Imagine();
-                $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
-                $thumbnail->resize($thumbnail->getSize()->widen(100));
-                $thumbnail->save($tempPath);
-
-                //save thumbnail to s3
-                Yii::$app->resourceManager->save(
-                    null, //file upload object
-                    $folderName."/photos-thumb/".$fileName, // name
-                    [], //options
-                    $tempPath, // source file
-                    mime_content_type($tempPath)
-                );
+                // Generate a thumbnail of uploaded files
+                $this->_generateThumbnail($fileName, $folderName);
 
                 // Adjust filename in storage to use path within bucket
                 $this->{$attribute} = $targetPath;
@@ -281,20 +263,34 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Deletes the directory containing temporary cached images.
-     * Then re-creates an empty directory for further use.
-     *
-     * This function is called via Cron once a day.
+     * Generate thumbnail for provided filename and store in corresponding folder in bucket
+     * @param  string $fileName
+     * @param  string $folderName
      */
-    public static function removeTempFiles()
+    private function _generateThumbnail($fileName, $folderName, $size = 100)
     {
-        $folderPath = Yii::getAlias('@staff') . '/runtime/cache/photos/';
+        // Create temporary file to store image in
+        $tmpFile = tempnam(sys_get_temp_dir(), "TEMP");
+        rename($tmpFile, $fileName);
+        $tmpFile = $fileName;
 
-        // Remove the cached folder
-        FileHelper::removeDirectory($folderPath);
+        // Resize to $size x $size
+        $thumbnail = new \Imagine\Gd\Imagine();
+        $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
+        $thumbnail->resize($thumbnail->getSize()->widen($size));
+        $thumbnail->save($tmpFile);
 
-        // Recreate the folder
-        FileHelper::createDirectory($folderPath, 777);
+        // Save thumbnail to S3
+        Yii::$app->resourceManager->save(
+            null, //file upload object
+            "$folderName/thumb-$size/$fileName", // name
+            [], //options
+            $tmpFile, // source file
+            mime_content_type($tmpFile)
+        );
+
+        // Delete the tmp file
+        unlink($tmpFile);
     }
 
     /**
