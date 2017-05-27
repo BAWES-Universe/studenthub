@@ -2,7 +2,6 @@
 
 namespace common\models;
 
-use function Couchbase\defaultDecoder;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Expression;
