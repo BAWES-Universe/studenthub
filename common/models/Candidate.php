@@ -204,6 +204,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields = parent::fields();
 
         // Additional fields to return via API
+        $fields['candidate_personal_photo_thumb'] = function($model) {
+            return substr_replace($this->candidate_personal_photo, "thumb-100/", 7, 0);
+        };
         $fields['age'] = function($model) {
             return $this->age;
         };
