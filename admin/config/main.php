@@ -126,6 +126,8 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET payable-candidates' => 'payable-candidates',
+                        'GET export-payable-candidates' => 'export-payable-candidates',
                         'GET <id>' => 'view',
                         'GET pdf/<id>' => 'pdf',
                         'GET export/<id>' => 'export',
@@ -137,6 +139,8 @@ return [
                         'PATCH payment-completed/<id>' => 'payment-completed',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS payable-candidates' => 'options',
+                        'OPTIONS export-payable-candidates' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS export/<id>' => 'options',

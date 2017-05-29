@@ -70,6 +70,72 @@ class TransferController extends Controller
     }
 
     /**
+     * Return a Excel Containing Payable Candidates 
+     */
+    public function actionExportPayableCandidates()
+    {
+        // Candidates whose company paid to admin but admin have not paid yet 
+
+        $candidates = TransferCandidates::find()
+            ->innerJoin('{{%invoice}}', '{{%invoice}}.invoice_id = {{%transfer_candidates}}.transfer_id')
+            ->where([
+                '{{%transfer_candidates}}.paid' => 0,
+                '{{%invoice}}.invoice_status' => 'paid'
+            ])
+            ->all();
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'columns' => [
+                'tc_id',
+                'transfer_id',
+                'candidate_id',
+                'candidate.candidate_name',
+                'candidate.candidate_email',
+                'candidate.store.company.company_name',
+                'candidate.store.store_name',
+                'hours',
+                'candidate_hourly_rate',
+                'bonus',
+                'transfer_cost',                
+                'candidate_total',                
+                'candidate.candidate_iban', 
+                'candidate.bank.bank_name'
+            ]
+        ]);
+    }
+
+    /**
+     * Return a List Payable Candidates 
+     */
+    public function actionPayableCandidates()
+    {
+        // Candidates whose company paid to admin but admin have not paid yet 
+
+        $query = TransferCandidates::find()
+            ->select('
+                {{%transfer_candidates}}.*, 
+                {{%candidate}}.candidate_name, 
+                {{%candidate}}.candidate_name_ar,
+                {{%candidate}}.candidate_email,
+                {{%candidate}}.candidate_phone')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->innerJoin('{{%invoice}}', '{{%invoice}}.invoice_id = {{%transfer_candidates}}.transfer_id')
+            ->where([
+                '{{%transfer_candidates}}.paid' => 0,
+                '{{%invoice}}.invoice_status' => 'paid'
+            ])
+            ->asArray();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Return a List of Transfer.
      */
     public function actionList()
