@@ -27,6 +27,7 @@ use common\models\Country;
  * @property string $candidate_personal_photo
  * @property string $candidate_email
  * @property string $candidate_phone
+ * @property string $candidate_address_line1
  * @property string $candidate_birth_date
  * @property string $candidate_civil_id
  * @property string $candidate_civil_expiry_date
@@ -81,7 +82,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
-            [['candidate_iban', 'bank_account_name'], 'string', 'max' => 70],
+            [['candidate_iban', 'bank_account_name','candidate_address_line1'], 'string', 'max' => 70],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
@@ -178,6 +179,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_personal_photo' => 'Personal Photo',
             'candidate_email' => 'Email',
             'candidate_phone' => 'Phone',
+            'candidate_address_line1' => 'Candidate Address',
             'candidate_birth_date' => 'Birth Date',
             'candidate_civil_id' => 'Civil ID',
             'candidate_civil_expiry_date' => 'Civil Expiry Date',
