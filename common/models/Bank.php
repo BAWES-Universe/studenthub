@@ -10,6 +10,8 @@ use common\models\Candidate;
  *
  * @property integer $bank_id
  * @property string $bank_name
+ * @property string $bank_swift_code
+ * @property string $bank_address
  */
 class Bank extends \yii\db\ActiveRecord
 {
@@ -27,7 +29,10 @@ class Bank extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['bank_name','bank_swift_code','bank_address'], 'required'],
             [['bank_name'], 'string', 'max' => 100],
+            [['bank_swift_code'], 'string', 'max' => 12],
+            [['bank_address'], 'string'],
         ];
     }
 
@@ -39,6 +44,8 @@ class Bank extends \yii\db\ActiveRecord
         return [
             'bank_id' => 'Bank ID',
             'bank_name' => 'Bank Name',
+            'bank_swift_code' => 'Bank Swift Code',
+            'bank_address' => 'Bank Address',
         ];
     }
 

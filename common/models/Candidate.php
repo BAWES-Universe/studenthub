@@ -2,7 +2,6 @@
 
 namespace common\models;
 
-use function Couchbase\defaultDecoder;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Expression;
@@ -28,6 +27,7 @@ use common\models\Country;
  * @property string $candidate_personal_photo
  * @property string $candidate_email
  * @property string $candidate_phone
+ * @property string $candidate_address_line1
  * @property string $candidate_birth_date
  * @property string $candidate_civil_id
  * @property string $candidate_civil_expiry_date
@@ -82,7 +82,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
-            [['candidate_iban', 'bank_account_name'], 'string', 'max' => 100],
+            [['candidate_iban', 'bank_account_name','candidate_address_line1'], 'string', 'max' => 70],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
@@ -179,6 +179,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_personal_photo' => 'Personal Photo',
             'candidate_email' => 'Email',
             'candidate_phone' => 'Phone',
+            'candidate_address_line1' => 'Candidate Address',
             'candidate_birth_date' => 'Birth Date',
             'candidate_civil_id' => 'Civil ID',
             'candidate_civil_expiry_date' => 'Civil Expiry Date',
@@ -243,9 +244,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * If their values have changed and their files exist in the temporary bucket.
      */
     private function _moveTemporaryFilesToPermanentBucket() {
-
-        $tempFolder = Yii::getAlias('@runtime') . '/cache/photos/'; 
-
         // For each file, move its file from temporary to permanent
         foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
             if($this->{$attribute} !== $this->getOldAttribute($attribute)){
@@ -256,23 +254,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 // Copy using S3ResourceManager Component
                 Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
-                // Upload thumbnail
-                $tempPath = $tempFolder . $fileName;
-                
-                // Resize to 100 x 100 
-                $thumbnail = new \Imagine\Gd\Imagine();
-                $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
-                $thumbnail->resize($thumbnail->getSize()->widen(100));
-                $thumbnail->save($tempPath); 
-
-                //save thumbnail to s3
-                Yii::$app->resourceManager->save(
-                    null, //file upload object  
-                    $folderName."/photos-thumb/".$fileName, // name
-                    [], //options 
-                    $tempPath, // source file
-                    mime_content_type($tempPath)
-                ); 
+                // Generate a thumbnail of uploaded files
+                $this->_generateThumbnail($fileName, $folderName);
 
                 // Adjust filename in storage to use path within bucket
                 $this->{$attribute} = $targetPath;
@@ -281,17 +264,36 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Remove temp images 
+     * Generate thumbnail for provided filename and store in corresponding folder in bucket
+     * @param  string $fileName
+     * @param  string $folderName
      */
-    public function removeTempFiles() 
+    private function _generateThumbnail($fileName, $folderName, $size = 100)
     {
-        $tempFolder = Yii::getAlias('@staff') . '/runtime/cache/photos/'; 
-        
-        FileHelper::removeDirectory($tempFolder);    
+        // Create temporary file to store image in
+        $tmpFile = tempnam(sys_get_temp_dir(), "TEMP");
+        rename($tmpFile, $fileName);
+        $tmpFile = $fileName;
 
-        mkdir($tempFolder, 777);
+        // Resize to $size x $size
+        $thumbnail = new \Imagine\Gd\Imagine();
+        $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
+        $thumbnail->resize($thumbnail->getSize()->widen($size));
+        $thumbnail->save($tmpFile);
+
+        // Save thumbnail to S3
+        Yii::$app->resourceManager->save(
+            null, //file upload object
+            "$folderName/thumb-$size/$fileName", // name
+            [], //options
+            $tmpFile, // source file
+            mime_content_type($tmpFile)
+        );
+
+        // Delete the tmp file
+        unlink($tmpFile);
     }
-    
+
     /**
      * @inheritdoc
      */
