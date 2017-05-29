@@ -81,7 +81,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
-            [['candidate_iban', 'bank_account_name'], 'string', 'max' => 100],
+            [['candidate_iban', 'bank_account_name'], 'string', 'max' => 70],
             [['candidate_auth_key'], 'string', 'max' => 32],
             [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
