@@ -81,7 +81,8 @@ class StatisticController extends Controller
 
             $result['transfers'][] = [
                 'transfer_status' => $value,
-                'count' => $count
+                'count' => $count,
+                'status_code' => $key
             ];
         }
 
