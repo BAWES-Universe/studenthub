@@ -176,6 +176,7 @@ class CandidateController extends Controller
         $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");        
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
+        $model->candidate_address_line1 = Yii::$app->request->getBodyParam("address1");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date");
@@ -251,6 +252,7 @@ class CandidateController extends Controller
         $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo"); 
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
+        $model->candidate_address_line1 = Yii::$app->request->getBodyParam("address1");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
         
