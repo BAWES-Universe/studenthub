@@ -66,8 +66,8 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a List of Candidate Accounts by 
-     * search criteria 
+     * Return a List of Candidate Accounts by
+     * search criteria
      */
     public function actionSearch()
     {
@@ -173,7 +173,7 @@ class CandidateController extends Controller
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
-        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");        
+        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_address_line1 = Yii::$app->request->getBodyParam("address1");
@@ -184,9 +184,9 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->candidate_password_hash = $password;
-        
+
         //candidate_auth_key
-        
+
         if (!$model->signup())
         {
             if(isset($model->errors)){
@@ -249,13 +249,13 @@ class CandidateController extends Controller
         $model->candidate_iban = Yii::$app->request->getBodyParam("iban");
         $model->candidate_name = Yii::$app->request->getBodyParam("name");
         $model->candidate_name_ar = Yii::$app->request->getBodyParam("name_ar");
-        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo"); 
+        $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
         $model->candidate_address_line1 = Yii::$app->request->getBodyParam("address1");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
-        
+
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date");
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
@@ -315,7 +315,7 @@ class CandidateController extends Controller
                 "operation" => "error",
                 "message" => "Store not found",
                 "code" => 1
-            ];   
+            ];
         }
 
         if (!$model->save(false))
@@ -341,7 +341,8 @@ class CandidateController extends Controller
             "operation" => "success",
             "message" => "Candidate assigned to store successfully",
             "store_id" => $store->store_id,
-            "store_name" => $store->store_name
+            "store_name" => $store->store_name,
+            "company_name" => $store->company->company_name
         ];
 
         // Check SQL Query Count and Duration
@@ -362,9 +363,9 @@ class CandidateController extends Controller
                 "message" => "Candidate not found"
             ];
         }
-        
+
         $model->store_id = null;
-        
+
         if (!$model->save(false))
         {
             if(isset($model->errors)){
@@ -392,7 +393,7 @@ class CandidateController extends Controller
     }
 
     /**
-     * Delete candidate 
+     * Delete candidate
      */
     public function actionDelete($id)
     {
@@ -406,18 +407,18 @@ class CandidateController extends Controller
             ];
         }
 
-        //check if in invoice 
+        //check if in invoice
 
         $a = InvoiceCandidates::findOne([
                 'candidate_id' => $id
             ]);
 
-        if($a) 
+        if($a)
         {
             return [
                 "operation" => "error",
                 "message" => "Can not delete as Candidate mansioned in Invoice"
-            ];   
+            ];
         }
 
         $model->delete();
@@ -431,7 +432,7 @@ class CandidateController extends Controller
     /**
      * Reset candidate password
      */
-    public function actionResetPassword($id) 
+    public function actionResetPassword($id)
     {
         $model = Candidate::findOne((int) $id);
 
