@@ -374,7 +374,10 @@ class TransferController extends Controller
         $transfer->payment_received_on = date('Y-m-d');    
 
         $transfer->transfer_status = Transfer::STATUS_PAYMENT_RECEIVED;
-        $transfer->save();
+
+        if ($transfer->save()) {
+            $this->receiptMail($transfer->company_id); // sending mail to company as receipt
+        }
 
         // mark invoice as paid for all child transfer and main transfer in case of no child company 
 
@@ -385,17 +388,6 @@ class TransferController extends Controller
         foreach ($child_transfers as $key => $value) {
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }
-
-        //send notification to company transfer available to download 
-
-        Yii::$app->mailer->compose("invoiceReceiptAvailable",
-            [
-                "transfer" => $transfer,
-            ])
-            ->setFrom(Yii::$app->params['supportEmail'])
-            ->setTo($transfer->company->company_email)
-            ->setSubject('Transfer receipt available to download!')
-            ->send();
 
         return [
                 "operation" => "success",
@@ -568,5 +560,83 @@ class TransferController extends Controller
             'operation' => 'success',
             'message' => 'Candidate(s) marked as paid successfully'
         ];
+    }
+
+    private function receiptMail($id)
+    {
+        $company = \common\models\Company::findOne($id);
+
+        // list all sub companies
+
+        $companies = $company->subCompanies;
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        $transfer = Invoice::find()
+            ->select('{{%invoice}}.*, {{%transfer}}.*')
+            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
+            ->where(['{{%invoice}}.invoice_id' => $id])
+            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
+            ->asArray()
+            ->one();
+
+        if(!$transfer) {
+            return [
+                "operation" => "error",
+                "message" => 'Invoice not found!'
+            ];
+        }
+        $transfer['company'] = Company::findOne($company->company_id);
+
+        $transfer['candidates'] = TransferCandidates::find()
+            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
+            ->where([
+                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
+            ])
+            ->asArray()
+            ->all();
+
+        if($transfer['invoice_status'] == 'paid')
+            $template = 'receipt';
+        else
+            $template = 'invoice';
+
+        $this->layout = 'pdf';
+
+        $content = $this->render($template, [
+            'transfer' => $transfer,
+        ]);
+
+        $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
+            //UTF mode for arabic language
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+            // call mPDF methods on the fly
+        ]);
+
+        $pdfAttachment = $pdf->output($content, $template.'.pdf', 'S');
+
+        $message = Yii::$app->mailer->compose('invoice-receipt-attachment',['detail'=>$transfer]);
+        $message->setFrom(Yii::$app->params['invoiceFrom']);
+        $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$id.'.pdf', 'contentType' => 'application/pdf']);
+        return $message->setTo($transfer['company']['company_email'])
+            ->setCc('finance@bawes.net')
+            ->setSubject('Receipt Attachment #'.$id)
+            ->send();
     }
 }
