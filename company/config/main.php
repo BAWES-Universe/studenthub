@@ -94,10 +94,12 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET company-store' => 'index',
                         'GET <companyId>' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS <companyId>' => 'options'
+                        'OPTIONS <companyId>' => 'options',
+                        'OPTIONS company-store' => 'options'
                     ]
                 ],
                 [ // CompanyController

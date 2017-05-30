@@ -4,7 +4,6 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use company\models\Store;
 use company\models\Company;
@@ -97,5 +96,25 @@ class StoreController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    public function actionIndex()
+    {
+
+        $company = Yii::$app->user->identity;
+        $list = [];
+
+        if (isset($company->subCompanies) && count($company->subCompanies)>0) {
+
+            $list['type'] = 'Company';
+            $list['results'] = $company->subCompanies;
+
+        } else if (isset($company->stores) && count($company->stores)>0) {
+
+            $list['type'] = 'Stores';
+            $list['results'] = $company->stores;
+        }
+
+        return $list;
     }
 }
