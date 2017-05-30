@@ -373,7 +373,8 @@ class TransferController extends Controller
 
         $transfer->payment_received_on = date('Y-m-d');    
 
-        $transfer->transfer_status = Transfer::STATUS_PAYMENT_RECEIVED;
+        // remove status received and set to in progress to combine both.
+        $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
 
         if ($transfer->save()) {
             $this->receiptMail($transfer->company_id); // sending mail to company as receipt
