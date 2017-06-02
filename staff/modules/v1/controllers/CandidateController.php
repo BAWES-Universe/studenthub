@@ -453,12 +453,12 @@ class CandidateController extends Controller
             [
                 "model" => $model,
                 "password" => $password,
-                'logo_1' => '',
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
                 'logo_2' => ''
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
             ->setTo($model->candidate_email)
-            ->setSubject('New Password For '.Yii::$app->name)
+            ->setSubject('Your internship account password has been reset')
             ->send();
 
         return [
