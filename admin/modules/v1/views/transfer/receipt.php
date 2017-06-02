@@ -29,6 +29,7 @@ foreach ($transfer['candidates'] as $key => $value) {
                     <table cellpadding="2" class="table">
                         <tr><td><h3>Details<br></h3></td></tr>
                         <tr><td>Invoice number: <?=$transfer['invoice_id']?></td></tr>
+                        <tr><td><p>Transfer number: <?=$transfer['transfer_id']?></p></td></tr>
                         <tr><td>Payment date: <?=date('F d,Y',strtotime($transfer['invoice_date']))?></td></tr>
                         <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
                     </table>
