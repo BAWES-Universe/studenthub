@@ -5,6 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use staff\models\Store;
 use staff\models\Candidate;
@@ -207,12 +208,11 @@ class CandidateController extends Controller
             [
                 "model" => $model,
                 "password" => $password,
-                'logo_1' => '',
-                'logo_2' => ''
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
             ->setTo($model->candidate_email)
-            ->setSubject('Welcome to '.Yii::$app->name)
+            ->setSubject('Welcome to the '.Yii::$app->name)
             ->send();
 
         return [
