@@ -633,12 +633,24 @@ class TransferController extends Controller
 
         $pdfAttachment = $pdf->output($content, $template.'.pdf', 'S');
         $to = $transfer['company']['company_email'];
-        $message = Yii::$app->mailer->compose('invoice-receipt-attachment',['detail'=>$transfer]);
-        $message->setFrom(Yii::$app->params['invoiceFrom']);
+        
+        if($transfer['invoice_status'] == 'paid') {
+            $template = 'receipt';
+            $subject = 'StudentHub Receipt for Invoice #'.$invoice_id;
+        } else {
+            $template = 'invoice';
+            $subject = 'StudentHub Invoice #'.$invoice_id;
+        }
+        
+        $message = Yii::$app->mailer->compose($template.'-attachment',['detail'=>$transfer]);
+
+        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
+
         $message->attachContent($pdfAttachment,['fileName' => 'Receipt-for-Invoice-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
+        
         return $message->setTo($to)
             ->setCc('finance@bawes.net')
-            ->setSubject('Receipt for Invoice #'.$invoice_id)
+            ->setSubject($subject_id)
             ->send();
     }
 }
