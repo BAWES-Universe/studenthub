@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use function Couchbase\defaultDecoder;
 use Yii;
 use common\models\Candidate;
 
@@ -36,19 +37,27 @@ class Bank extends \yii\db\ActiveRecord
             [['bank_name','bank_swift_code','bank_address'], 'required'],
             [['bank_name','bank_transfer_type'], 'string', 'max' => 100],
             [['bank_swift_code'], 'string', 'max' => 12],
-            ['bank_transfer_type', 'validateAttributeCode'],
             [['bank_address'], 'string'],
 
         ];
     }
 
-    public function validateAttributeCode($model, $attribute)
-    {
-        if (!in_array($this->bank_transfer_type, [self::LCL, self::SWF, self::TRF])) {
-            $this->addError($model,'Transfer Type must be in `'.self::LCL.'`, `'.self::SWF.', `'.self::TRF.'`');
-        }
-    }
 
+    public function fields()
+    {
+        return [
+            'bank_id',
+            'bank_name',
+            'bank_swift_code',
+            'bank_address',
+            'bank_transfer_type',
+            'transfer_type_value' => function($data) {
+                return $data->getTypeValue();
+            }
+        ];
+
+        return $fields;
+    }
 
     /**
      * @inheritdoc
@@ -70,5 +79,23 @@ class Bank extends \yii\db\ActiveRecord
     public function getCandidate()
     {
         return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
+    }
+
+    public function getTypeValue()
+    {
+        switch ($this->bank_transfer_type) {
+            case 'LCL' :
+                return self::LCL;
+            break;
+            case 'SWF' :
+                return self::SWF;
+                break;
+            case 'TRF' :
+                return self::TRF;
+                break;
+            default:
+                return '';
+                break;
+        }
     }
 }
