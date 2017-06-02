@@ -39,8 +39,9 @@ class Transfer extends \yii\db\ActiveRecord
             self::STATUS_INITIATED => 'Draft',
             self::STATUS_LOCK => 'Locked',
             self::STATUS_PAYMENT_SENT => 'Payment Sent',
-            self::STATUS_PAYMENT_RECEIVED => 'Payment Received',
-            self::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Salary distribution in progress',
+//            self::STATUS_PAYMENT_RECEIVED => 'Payment Received',
+//            self::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Salary distribution in progress',
+            self::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Received & Distributing Salary',
             self::STATUS_TRANSFER_COMPLETE => 'Transfer Completed',
         ];
     }
