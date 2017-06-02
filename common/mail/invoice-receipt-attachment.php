@@ -8,5 +8,5 @@ use yii\helpers\Html;
 <div class="password-reset">
     <p>Hello, <?=$detail['company_name']?></p>
 
-    <p>Please find you Invoice attachment with this mail.</p>
+    <p>Please find you <?=$detail['invoice_status'] == 'paid' ? 'Receipt' : 'Invoice'?> attachment with this mail.</p>
 </div>

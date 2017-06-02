@@ -361,7 +361,7 @@ class TransferController extends Controller
         $transfer = Transfer::findOne([
                 'transfer_id' => $id
             ]);
-            
+
         if(!$transfer) {
             return [
                     "operation" => "error",
@@ -376,9 +376,7 @@ class TransferController extends Controller
         // remove status received and set to in progress to combine both.
         $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
 
-        if ($transfer->save()) {
-            $this->receiptMail($transfer->company_id); // sending mail to company as receipt
-        }
+        $transfer->save();
 
         // mark invoice as paid for all child transfer and main transfer in case of no child company 
 
@@ -389,6 +387,8 @@ class TransferController extends Controller
         foreach ($child_transfers as $key => $value) {
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }
+
+        $this->receiptMail($transfer->transfer_id, $transfer->company_id); // sending mail to company as receipt
 
         return [
                 "operation" => "success",
@@ -563,10 +563,11 @@ class TransferController extends Controller
         ];
     }
 
-    private function receiptMail($id)
+    private function receiptMail($transfer_id,$company_id)
     {
-        $company = \common\models\Company::findOne($id);
-
+        $company = \common\models\Company::findOne($company_id);
+        $transfer = Transfer::findOne($transfer_id);
+        $invoice_id = $transfer->invoice->invoice_id;
         // list all sub companies
 
         $companies = $company->subCompanies;
@@ -578,7 +579,7 @@ class TransferController extends Controller
         $transfer = Invoice::find()
             ->select('{{%invoice}}.*, {{%transfer}}.*')
             ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
-            ->where(['{{%invoice}}.invoice_id' => $id])
+            ->where(['{{%invoice}}.invoice_id' => $invoice_id])
             ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
             ->asArray()
             ->one();
@@ -631,13 +632,13 @@ class TransferController extends Controller
         ]);
 
         $pdfAttachment = $pdf->output($content, $template.'.pdf', 'S');
-
+        $to = $transfer['company']['company_email'];
         $message = Yii::$app->mailer->compose('invoice-receipt-attachment',['detail'=>$transfer]);
         $message->setFrom(Yii::$app->params['invoiceFrom']);
-        $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$id.'.pdf', 'contentType' => 'application/pdf']);
-        return $message->setTo($transfer['company']['company_email'])
+        $message->attachContent($pdfAttachment,['fileName' => 'Receipt-for-Invoice-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
+        return $message->setTo($to)
             ->setCc('finance@bawes.net')
-            ->setSubject('Receipt Attachment #'.$id)
+            ->setSubject('Receipt for Invoice #'.$invoice_id)
             ->send();
     }
 }
