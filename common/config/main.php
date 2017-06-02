@@ -1,6 +1,6 @@
 <?php
 return [
-    'name' => 'Payroll',
+    'name' => 'StudentHub Internship Program',
     'timeZone' => 'Asia/Kuwait',
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'components' => [
