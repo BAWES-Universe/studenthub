@@ -102,6 +102,16 @@ class Transfer extends \yii\db\ActiveRecord
         return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
     }
 
+    public function getMainTransfer()
+    {
+        return $this->hasOne(Transfer::className(),['parent_transfer_id'=>'transfer_id']);
+    }
+
+    public function getInvoice()
+    {
+        return Invoice::findOne(['transfer_id'=>$this->mainTransfer->transfer_id]);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
