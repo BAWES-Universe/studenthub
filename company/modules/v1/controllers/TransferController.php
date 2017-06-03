@@ -77,21 +77,7 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        $query = Transfer::find()
-            ->select('
-                transfer_id, 
-                company_total, 
-                payment_received_on, 
-                transfer_status, 
-                transfer_created_at, 
-                transfer_updated_at,
-                company_name, 
-                company_email')
-            ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
-            ->where(['{{%transfer}}.company_id' => $company->company_id])
-            ->andWhere('parent_transfer_id IS NULL')
-            ->orderBy('transfer_id DESC')
-            ->asArray();
+        $query = $company->getTransfers()->where('parent_transfer_id IS NULL')->orderBy('transfer_id DESC');
 
         return new ActiveDataProvider([
             'query' => $query
@@ -116,7 +102,7 @@ class TransferController extends Controller
             ->select('{{%company}}.company_email, {{%company}}.company_name, {{%company}}.company_id, {{%transfer}}.*')
             ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
             ->where(['transfer_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])            
+            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
             ->asArray()
             ->one();
 
@@ -138,7 +124,7 @@ class TransferController extends Controller
             ->asArray()
             ->all();
 
-        //invoices 
+        //invoices
 
         $transfer['invoices'] = Invoice::find()
             ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
@@ -277,7 +263,7 @@ class TransferController extends Controller
     }
 
     /**
-     * Edit transfer with "Initiated" status 
+     * Edit transfer with "Initiated" status
      */
     public function actionEdit($id)
     {
@@ -333,10 +319,10 @@ class TransferController extends Controller
                     "message" => $errors
                 ];
         }
-        
+
         $transaction = Yii::$app->db->beginTransaction();
 
-        //remove old candidates 
+        //remove old candidates
 
         TransferCandidates::deleteAll(['transfer_id' => $model->transfer_id]);
 
@@ -405,18 +391,18 @@ class TransferController extends Controller
         if($total <= 0)
         {
             $transaction->rollBack();
-            
+
             return [
                 "operation" => "error",
                 "message" => "transfer total can not be zero!"
             ];
         }
-        
+
         $model->save();
 
-        //update child transfers 
+        //update child transfers
 
-        //select distinct company and update transfer for each company if already added else create new 
+        //select distinct company and update transfer for each company if already added else create new
 
         $sub_companies = TransferCandidates::find()
             ->select('{{%store}}.company_id')
@@ -428,7 +414,7 @@ class TransferController extends Controller
             ->distinct()
             ->asArray()
             ->all();
-        
+
         foreach ($sub_companies as $key => $sub_company) {
 
             //move transfer to transfer
@@ -441,14 +427,14 @@ class TransferController extends Controller
                 $transfer = new Transfer;
                 $transfer->attributes = $model->attributes;
                 $transfer->parent_transfer_id = $model->transfer_id;
-                $transfer->company_id = $sub_company['company_id'];                    
+                $transfer->company_id = $sub_company['company_id'];
             }
 
             $transfer->save(false);
 
             $total = $company_total = 0;
 
-            //remove old candidate id exists 
+            //remove old candidate id exists
 
             TransferCandidates::deleteAll(['transfer_id' => $transfer->transfer_id]);
 
@@ -490,7 +476,7 @@ class TransferController extends Controller
             $transfer->total = $total;
             $transfer->save();
 
-            //generate invoice for each transfer 
+            //generate invoice for each transfer
             $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
 
             if(!$invoice) {
@@ -498,8 +484,8 @@ class TransferController extends Controller
                 $invoice->transfer_id = $transfer->transfer_id;
                 $invoice->invoice_date = date('Y-m-d');
                 $invoice->invoice_status = 'unpaid';
-                $invoice->save();    
-            }            
+                $invoice->save();
+            }
         }
 
         $transaction->commit();
@@ -514,7 +500,7 @@ class TransferController extends Controller
     }
 
     /**
-     * Download Transfer as PDF 
+     * Download Transfer as PDF
      */
     public function actionPdf($id)
     {
@@ -532,7 +518,7 @@ class TransferController extends Controller
             ->select('{{%invoice}}.*, {{%transfer}}.*')
             ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
             ->where(['{{%invoice}}.invoice_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])            
+            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
             ->asArray()
             ->one();
 
@@ -555,14 +541,14 @@ class TransferController extends Controller
             ->asArray()
             ->all();
 
-        
+
         $this->layout = 'pdf';
 
         if($transfer['invoice_status'] == 'paid')
             $template = 'receipt';
         else
             $template = 'invoice';
-       
+
         $content = $this->render($template, [
             'transfer' => $transfer,
         ]);
@@ -570,13 +556,13 @@ class TransferController extends Controller
         $pdf = new Pdf([
             'mode' => Pdf::MODE_UTF8,
             // A4 paper format
-            'format' => Pdf::FORMAT_A4, 
+            'format' => Pdf::FORMAT_A4,
             // portrait orientation
-            'orientation' => Pdf::ORIENT_PORTRAIT, 
+            'orientation' => Pdf::ORIENT_PORTRAIT,
             // stream to browser inline
-            'destination' => Pdf::DEST_BROWSER, 
+            'destination' => Pdf::DEST_BROWSER,
             // your html content input
-            'content' => $content,  
+            'content' => $content,
             // any css to be embedded if required
             'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
              // set mPDF properties on the fly
@@ -603,7 +589,7 @@ class TransferController extends Controller
 
         $transfer = Transfer::find()
             ->where(['transfer_id' => $id])
-            ->andWhere(['{{%transfer}}.company_id' => $company->company_id])            
+            ->andWhere(['{{%transfer}}.company_id' => $company->company_id])
             ->one();
 
         if(!$transfer) {
@@ -639,7 +625,7 @@ class TransferController extends Controller
 
         $model = Transfer::find()
             ->where(['transfer_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])            
+            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
             ->one();
 
         if(!$model) {
@@ -674,13 +660,13 @@ class TransferController extends Controller
             ->all();
 
         /**
-         * if transfer initiated by parent company split it for each 
+         * if transfer initiated by parent company split it for each
          * sub companies
          */
-        if(!$sub_companies) 
+        if(!$sub_companies)
         {
-            //generate invoice for main transfer if no sub companies else generate invoice for 
-            //each sub companies 
+            //generate invoice for main transfer if no sub companies else generate invoice for
+            //each sub companies
             $invoice = Invoice::findOne(['transfer_id' => $model->transfer_id]);
 
             if(!$invoice) {
@@ -696,7 +682,7 @@ class TransferController extends Controller
                 "message" => "Transfer locked successfully"
             ];
         }
-        
+
         foreach ($sub_companies as $key => $sub_company) {
 
             //move transfer to transfer
@@ -713,10 +699,10 @@ class TransferController extends Controller
                 $transfer->transfer_status = Transfer::STATUS_LOCK;
                 $transfer->save(false);
             }
-            
+
             $total = $company_total = 0;
 
-            //remove old candidates if exists 
+            //remove old candidates if exists
 
             TransferCandidates::deleteAll(['transfer_id' => $transfer->transfer_id]);
 
@@ -758,7 +744,7 @@ class TransferController extends Controller
             $transfer->total = $total;
             $transfer->save();
 
-            //generate invoice for each transfer 
+            //generate invoice for each transfer
             $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
 
             if(!$invoice) {
@@ -766,7 +752,7 @@ class TransferController extends Controller
                 $invoice->transfer_id = $transfer->transfer_id;
                 $invoice->invoice_date = date('Y-m-d');
                 $invoice->invoice_status = 'unpaid';
-                $invoice->save();    
+                $invoice->save();
             }
             $this->invoiceMail($invoice->invoice_id); // send invoice mail
         }

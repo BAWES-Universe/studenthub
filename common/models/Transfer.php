@@ -96,6 +96,17 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+
+        return $fields;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCompany()

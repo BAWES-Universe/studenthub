@@ -47,6 +47,14 @@ class Company extends \common\models\Company {
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers()
+    {
+        return $this->hasMany(Transfer::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
