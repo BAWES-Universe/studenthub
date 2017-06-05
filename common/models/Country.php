@@ -46,5 +46,14 @@ class Country extends \yii\db\ActiveRecord
             'country_nationality_name_en' => 'Country Nationality Name En',
             'country_nationality_name_ar' => 'Country Nationality Name Ar',
         ];
+    }    
+
+    /**
+     * @inheritdoc
+     * @return query\CountryQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CountryQuery(get_called_class());
     }
 }

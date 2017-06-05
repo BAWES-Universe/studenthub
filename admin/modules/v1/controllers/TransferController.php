@@ -76,12 +76,7 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $candidates = TransferCandidates::find()
-            ->innerJoin('{{%invoice}}', '{{%invoice}}.invoice_id = {{%transfer_candidates}}.transfer_id')
-            ->where([
-                '{{%transfer_candidates}}.paid' => 0,
-                '{{%invoice}}.invoice_status' => 'paid'
-            ])
+        $candidates = TransferCandidates::payable()
             ->all();
 
         header('Access-Control-Allow-Origin: *');
@@ -115,19 +110,7 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $query = TransferCandidates::find()
-            ->select('
-                {{%transfer_candidates}}.*, 
-                {{%candidate}}.candidate_name, 
-                {{%candidate}}.candidate_name_ar,
-                {{%candidate}}.candidate_email,
-                {{%candidate}}.candidate_phone')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%invoice}}', '{{%invoice}}.invoice_id = {{%transfer_candidates}}.transfer_id')
-            ->where([
-                '{{%transfer_candidates}}.paid' => 0,
-                '{{%invoice}}.invoice_status' => 'paid'
-            ])
+        $query = TransferCandidates::payable()
             ->asArray();
 
         return new ActiveDataProvider([
@@ -144,20 +127,18 @@ class TransferController extends Controller
         $transfer_status = Yii::$app->request->get('transfer_status'); 
 
         $query = Transfer::find()
-            ->select('{{%transfer}}.*, {{%company}}.company_name, {{%company}}.company_email')
-            ->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
-            ->where('parent_transfer_id IS NULL');
+            ->selectedFields()
+            ->companyJoin()
+            ->parentTransfers();
 
         if($company_name)
-            $query->andWhere(['like', '{{%company}}.company_name', $company_name]);
+            $query->filterCompany($company_name);
 
         if($transfer_status)
-            $query->andWhere(['{{%transfer}}.transfer_status' => $transfer_status]);
-
-        $query->asArray();
+            $query->filterStatus($transfer_status);
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query->asArray()
         ]);
     }
 
@@ -167,9 +148,7 @@ class TransferController extends Controller
     public function actionPdf($id)
     {
         $transfer = Invoice::find()
-            ->select('{{%invoice}}.*, {{%transfer}}.*')
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
-            ->where(['{{%invoice}}.invoice_id' => $id])
+            ->withTransfer($id)
             ->asArray()
             ->one();
 
@@ -183,13 +162,7 @@ class TransferController extends Controller
         $transfer['company'] = Company::findOne($transfer['company_id']);
 
         $transfer['candidates'] = TransferCandidates::find()
-            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
+            ->candidatesByTransfer($transfer['transfer_id'])
             ->asArray()
             ->all();
 
@@ -217,11 +190,6 @@ class TransferController extends Controller
             'cssInline' => '.kv-heading-1{font-size:38px}', 
              // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
-             // call mPDF methods on the fly
-//            'methods' => [
-//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
-//                'SetFooter'=>['{PAGENO}'],
-//            ]
         ]);    
 
         header('Access-Control-Allow-Origin: *');
@@ -248,49 +216,25 @@ class TransferController extends Controller
         }
 
         $transfer['total_paid'] = TransferCandidates::find()
-            ->where(['transfer_id' => $id, 'paid' => 1])
-            ->count();
+            ->totalPaid($id);
         
         $transfer['total_unpaid'] = TransferCandidates::find()
-            ->where(['transfer_id' => $id, 'paid' => 0])
-            ->count();
+            ->totalUnpaid($id);
 
         //get total profit
 
         $transfer['profit'] = TransferCandidates::find()
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
-            ->sum('(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate ) * hours) - {{%transfer_candidates}}.transfer_cost');
-            // transfer cost will be on admin  
-
+            ->profit();
+            
         $transfer['candidates'] = TransferCandidates::find()
-            ->select('{{%transfer_candidates}}.*, 
-                {{%store}}.store_name, 
-                {{%company}}.company_name, 
-                {{%company}}.company_email, 
-                {{%candidate}}.candidate_name, 
-                {{%candidate}}.candidate_email, 
-                {{%candidate}}.candidate_iban, 
-                {{%bank}}.bank_name, 
-                (({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate) * hours) - transfer_cost as profit
-            ')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
-            ->leftJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
+            ->candidatesByTransfer($transfer['transfer_id'])
             ->asArray()
             ->all();
 
         //invoices 
 
         $transfer['invoices'] = Invoice::find()
-            ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
-            ->where(['transfer.transfer_id' => $id])
-            ->orWhere(['transfer.parent_transfer_id' => $id])
+            ->byTransfer($id)
             ->all();
 
         return $transfer;
@@ -305,7 +249,6 @@ class TransferController extends Controller
             ->where([
                 'transfer_id' => $id
             ])
-            ->asArray()
             ->one();
             
         if(!$transfer) {
@@ -316,9 +259,7 @@ class TransferController extends Controller
         }
 
         $candidates = TransferCandidates::find()
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
+            ->candidatesByTransfer($id)
             ->all();
 
         header('Access-Control-Allow-Origin: *');
@@ -387,12 +328,14 @@ class TransferController extends Controller
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }
 
-        $this->receiptMail($transfer->transfer_id, $transfer->company_id); // sending mail to company as receipt
+        // sending mail to company as receipt
+
+        $this->receiptMail($transfer->transfer_id); 
 
         return [
-                "operation" => "success",
-                "message" => 'Transfer marked as "Payment Received" successfully'
-            ];
+            "operation" => "success",
+            "message" => 'Transfer marked as "Payment Received" successfully'
+        ];
     }
 
     /** 
@@ -498,12 +441,7 @@ class TransferController extends Controller
     public function actionUnpaidCandidates($id)
     {
         $candidates = TransferCandidates::find()
-            ->select('{{%candidate}}.candidate_id, {{%candidate}}.candidate_name')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->where([
-                '{{%transfer_candidates}}.paid' => 0,
-                'transfer_id' => $id
-            ])
+            ->unpaid($id)
             ->asArray()
             ->all();
 
@@ -562,55 +500,38 @@ class TransferController extends Controller
         ];
     }
 
-    private function receiptMail($transfer_id,$company_id)
+    private function receiptMail($transfer_id)
     {
         $company = \common\models\Company::findOne($company_id);
-        $transfer = Transfer::findOne($transfer_id);
-        $invoice_id = $transfer->invoice->invoice_id;
-        // list all sub companies
-
-        $companies = $company->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $company->company_id;
-
-        $transfer = Invoice::find()
-            ->select('{{%invoice}}.*, {{%transfer}}.*')
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
-            ->where(['{{%invoice}}.invoice_id' => $invoice_id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
-            ->asArray()
+        
+        $transfer = Transfer::find()
+            ->where(['transfer_id' => $transfer_id])
             ->one();
 
-        if(!$transfer) {
+        $invoice_id = $transfer->invoice->invoice_id;
+
+        $invoice = Invoice::findOne($invoice_id);
+
+        if(!$invoice) {
             return [
                 "operation" => "error",
                 "message" => 'Invoice not found!'
             ];
         }
-        $transfer['company'] = Company::findOne($company->company_id);
 
-        $transfer['candidates'] = TransferCandidates::find()
-            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
+        $candidates = TransferCandidates::find()
+            ->candidatesByTransfer($transfer_id)
             ->asArray()
             ->all();
 
-        if($transfer['invoice_status'] == 'paid')
-            $template = 'receipt';
-        else
-            $template = 'invoice';
-
+        $template = $invoice->invoice_status == 'paid'?'receipt':'invoice';
+        
         $this->layout = 'pdf';
 
         $content = $this->render($template, [
             'transfer' => $transfer,
+            'invoice' => $invoice,
+            'candidates' => $candidates
         ]);
 
         $pdf = new Pdf([
@@ -631,7 +552,8 @@ class TransferController extends Controller
         ]);
 
         $pdfAttachment = $pdf->output($content, $template.'.pdf', 'S');
-        $to = $transfer['company']['company_email'];
+
+        $to = $transfer->company->company_email;
         
         if($transfer['invoice_status'] == 'paid') {
             $template = 'receipt';
@@ -641,7 +563,10 @@ class TransferController extends Controller
             $subject = 'StudentHub Invoice #'.$invoice_id;
         }
         
-        $message = Yii::$app->mailer->compose($template.'-attachment',['detail'=>$transfer]);
+        $message = Yii::$app->mailer->compose($template.'-attachment',[
+            'transfer' => $transfer,
+            'invoice' => $invoice
+        ]);
 
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
 
@@ -664,11 +589,9 @@ class TransferController extends Controller
         $totalTransaction = 0;
         $totalAmount = 0;
         $finalAmount = 0;
+
         $invoices = Invoice::find()
-            ->select('{{%invoice}}.*, {{%transfer}}.*')
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
-            ->where(['{{%invoice}}.invoice_status' => 'unpaid'])
-            ->asArray()
+            ->unpaid()
             ->all();
 
         if(!$invoices) {
@@ -678,18 +601,13 @@ class TransferController extends Controller
             ];
         }
 
-        foreach ($invoices as $transfer) {
+        foreach ($invoices as $invoice) 
+        {
             $candidates = TransferCandidates::find()
-                ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.*,{{%bank}}.*')
-                ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-                ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-                ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
-                ->innerJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
-                ->where([
-                    '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-                ])
+                ->candidatesByTransfer($invoice->transfer_id)
                 ->asArray()
                 ->all();
+
             foreach ($candidates as $detail) {
                 $totalUserHours += $detail['hours'];
                 $totalUserBonus += $detail['bonus'];
@@ -697,7 +615,7 @@ class TransferController extends Controller
                 $totalAmount += $totalUserAmount;
                 $finalUserAmount = number_format($totalUserAmount,3,'.',',');
                 $description = 'Internship '.$detail['hours'].' Hours';
-                $s2 .= "S2,".$detail['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".$detail['candidate_iban'].",".$transfer['transfer_id'].",".$transfer['invoice_id'].",".$description.",,,,".$detail['bank_account_name'].",".$detail['bank_name'].",,".$detail['bank_name'].",".$detail['bank_address'].",,,".$detail['bank_swift_code'].",,,,,,,B,,,".$detail['candidate_iban'].",".PHP_EOL;
+                $s2 .= "S2,".$detail['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".$detail['candidate_iban'].",".$invoice->transfer_id.",".$invoice->invoice_id.",".$description.",,,,".$detail['bank_account_name'].",".$detail['bank_name'].",,".$detail['bank_name'].",".$detail['bank_address'].",,,".$detail['bank_swift_code'].",,,,,,,B,,,".$detail['candidate_iban'].",".PHP_EOL;
                 $totalTransaction +=1;
             }
         }

@@ -100,4 +100,13 @@ class Invoice extends \yii\db\ActiveRecord
             ->setSubject('Company not paid in current month')
             ->send();
     }
+
+    /**
+     * @inheritdoc
+     * @return query\InvoiceQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\InvoiceQuery(get_called_class());
+    }
 }

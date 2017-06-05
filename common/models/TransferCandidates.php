@@ -97,4 +97,13 @@ class TransferCandidates extends \yii\db\ActiveRecord
     {
         return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
     }
+
+    /**
+     * @inheritdoc
+     * @return query\TransferCandidatesQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\TransferCandidatesQuery(get_called_class());
+    }
 }
