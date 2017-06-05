@@ -114,6 +114,9 @@ class Transfer extends \yii\db\ActiveRecord
         return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getMainTransfer()
     {
         return $this->hasOne(Transfer::className(),['parent_transfer_id'=>'transfer_id']);
@@ -145,7 +148,6 @@ class Transfer extends \yii\db\ActiveRecord
         }
 
         // check if empty field
-
         foreach ($candidates as $key => $value)
         {
             if(empty($value['candidate_id']))
@@ -158,41 +160,33 @@ class Transfer extends \yii\db\ActiveRecord
             $company_total += $bonus + ($hours * Yii::$app->params['candidate_max_hourly_rate']);
         }
 
+        // Case where transfer total is zero/empty
         if ($company_total == 0) {
-            return "Error : 0 Amount transfer not allowed to be generated.";
+            return "Transfer total is zero. Please input the actual hours worked.";
         }
 
-        //check for missing candidates
-
-        $candidate_ids = ArrayHelper::map($candidates, 'candidate_id', 'candidate_id');
-
-        // list all sub companies
-
+        // Get list of all subcompanies belonging to this company.
         $companies = Company::findAll(['parent_company_id' => $company_id]);
-
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
         $company_ids[] = $company_id;
 
-        // list all stores
-
+        // Use subcompany list to Get list of all stores belonging to the parent company
         $stores = Store::find()
             ->where(['in', 'company_id', $company_ids])
             ->all();
-
         $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
 
+        // Find all candidates that work in stores belonging to company but not included in candidate list
+        // that is being validated. Show error if any missing
+        $candidate_ids = ArrayHelper::map($candidates, 'candidate_id', 'candidate_id');
         $missing = Candidate::find()
             ->where(['in', 'store_id', $store_ids])
             ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
             ->count();
-
         if($missing > 0)
         {
             $errors['candidate_id'][] = 'Missing ' . $missing . ' candidate(s).';
         }
-
-
 
         return $errors;
     }
