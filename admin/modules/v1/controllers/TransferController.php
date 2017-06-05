@@ -650,7 +650,7 @@ class TransferController extends Controller
         
         return $message->setTo($to)
             ->setCc('finance@bawes.net')
-            ->setSubject($subject_id)
+            ->setSubject($subject)
             ->send();
     }
 }
