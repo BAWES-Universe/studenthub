@@ -10,7 +10,7 @@ use yii\helpers\Html;
 
     <br />
 
-    <p>Please find attached your receipt for invoice #<?= $detail['invoice_id'] ?>.</p>
+    <p>Please find attached your receipt for invoice #<?= $invoice['invoice_id'] ?>.</p>
 	<p>Thank you for your business. It’s a pleasure working with you.</p>
 
 	<br />

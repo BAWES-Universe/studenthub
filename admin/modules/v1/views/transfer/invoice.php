@@ -2,7 +2,7 @@
 $totalHours = 0;
 $totalBonus = 0;
 $totalAmount = 0;
-foreach ($transfer['candidates'] as $key => $value) {
+foreach ($candidates as $key => $value) {
     $totalHours += $value['hours'];
     $totalBonus += $value['bonus'];
     $totalAmount += ($value['hours'] * $value['company_hourly_rate']);
@@ -21,16 +21,16 @@ foreach ($transfer['candidates'] as $key => $value) {
             <td style="width: 56%;">
                 <table cellpadding="2">
                     <tr><td><h3 style="font-weight: 100;">Bill to<br></h3></td></tr>
-                    <tr><td><p><?= $transfer['company']['company_name'] ?></p></td></tr>
-                    <tr><td><p><?= $transfer['company']['company_email'] ?></p></td></tr>
+                    <tr><td><p><?= $transfer->company->company_name ?></p></td></tr>
+                    <tr><td><p><?= $transfer->company->company_email ?></p></td></tr>
                 </table>
             </td>
             <td>
                 <table cellpadding="2" class="table">
                     <tr><td><h3 style="font-weight: 100;">Details<br></h3></td></tr>
-                    <tr><td><p>Invoice number: <?=$transfer['invoice_id']?></p></td></tr>
-                    <tr><td><p>Transfer number: <?=$transfer['transfer_id']?></p></td></tr>
-                    <tr><td><p>Issue date: <?=date('F d,Y',strtotime($transfer['invoice_date']))?></p></td></tr>
+                    <tr><td><p>Invoice number: <?= $invoice->invoice_id ?></p></td></tr>
+                    <tr><td><p>Transfer number: <?= $transfer['transfer_id'] ?></p></td></tr>
+                    <tr><td><p>Issue date: <?=date('F d,Y',strtotime($invoice['invoice_date']))?></p></td></tr>
                     <tr><td><p>Payment terms: Due immediately</p></td></tr>
                     <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount due in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
                 </table>
@@ -61,7 +61,9 @@ foreach ($transfer['candidates'] as $key => $value) {
     <table class="table" >
         <tr>
             <td align="left" style="text-align: left">
-                <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount Due for <?=count($transfer['candidates'])?> interns</span>
+                <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">
+                    Amount Due for <?= count($candidates) ?> interns
+                </span>
             </td>
             <td align="right" style="text-align: right">
                 <span class="h5">KWD <?= $transfer['company_total'] ?></span>
