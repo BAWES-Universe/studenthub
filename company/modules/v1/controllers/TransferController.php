@@ -144,7 +144,7 @@ class TransferController extends Controller
 
         //validate input
 
-        $errors = Transfer::validate_candidates(
+        $errors = Transfer::validateCandidates(
             $company->company_id,
             Yii::$app->request->getBodyParam("candidates")
         );
@@ -308,7 +308,7 @@ class TransferController extends Controller
 
         //validate input
 
-        $errors = Transfer::validate_candidates(
+        $errors = Transfer::validateCandidates(
             $company->company_id,
             Yii::$app->request->getBodyParam("candidates")
         );
