@@ -722,4 +722,33 @@ class TransferController extends Controller
         readfile($fileName);
         exit;
     }
+
+
+    public function actionLock($id)
+    {
+        $model = Transfer::findOne($id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+
+        if($model->transfer_status != Transfer::STATUS_PAYMENT_SENT)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status need to be "Payment Sent" to lock it!'
+            ];
+        }
+
+        $model->transfer_status = Transfer::STATUS_LOCK;
+        if ($model->save()) {
+            return [
+                "operation" => "success",
+                "message" => "Transfer status changed to locked successfully"
+            ];
+        }
+    }
 }
