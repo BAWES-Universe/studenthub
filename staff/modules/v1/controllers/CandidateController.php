@@ -442,7 +442,7 @@ class CandidateController extends Controller
             ];
         }
 
-        $password = Yii::$app->security->generateRandomString(10);
+        $password = Yii::$app->security->generateRandomString(5);
 
         $model->password = $password;
         $model->save(false);
