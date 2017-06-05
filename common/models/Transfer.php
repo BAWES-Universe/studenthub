@@ -136,9 +136,9 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
     /**
-     * Validate candidate array to initiate transfer
+     * Static function to validate candidate array to initiate transfer
      */
-    public function validateCandidates($company_id, $candidates)
+    public static function validateCandidates($company_id, $candidates)
     {
         $errors = [];
         $total = 0;
