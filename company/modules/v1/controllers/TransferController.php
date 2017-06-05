@@ -832,7 +832,7 @@ class TransferController extends Controller
 
         $pdfAttachment = $pdf->output($content, $template.'.pdf', 'S');
 
-        $message = Yii::$app->mailer->compose('invoice-receipt-attachment',['detail'=>$transfer]);
+        $message = Yii::$app->mailer->compose($template.'-attachment',['detail'=>$transfer]);
         $message->setFrom(Yii::$app->params['invoiceFrom']);
         $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$id.'.pdf', 'contentType' => 'application/pdf']);
         return $message->setTo($transfer['company']['company_email'])
