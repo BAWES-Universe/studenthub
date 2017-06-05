@@ -225,8 +225,7 @@ class TransferController extends Controller
         ]);    
 
         header('Access-Control-Allow-Origin: *');
-
-        return $pdf->render();     
+        return $pdf->render();
     }
 
     /**
@@ -652,5 +651,75 @@ class TransferController extends Controller
             ->setCc('finance@bawes.net')
             ->setSubject($subject)
             ->send();
+    }
+
+    public function actionText() {
+
+        $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
+
+        $s2 = '';
+        $totalUserHours = 0;
+        $totalUserBonus = 0;
+        $totalUserAmount = 0;
+        $totalTransaction = 0;
+        $totalAmount = 0;
+        $finalAmount = 0;
+        $invoices = Invoice::find()
+            ->select('{{%invoice}}.*, {{%transfer}}.*')
+            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
+            ->where(['{{%invoice}}.invoice_status' => 'unpaid'])
+            ->asArray()
+            ->all();
+
+        if(!$invoices) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+
+        foreach ($invoices as $transfer) {
+            $candidates = TransferCandidates::find()
+                ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.*,{{%bank}}.*')
+                ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+                ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
+                ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
+                ->innerJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
+                ->where([
+                    '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
+                ])
+                ->asArray()
+                ->all();
+            foreach ($candidates as $detail) {
+                $totalUserHours += $detail['hours'];
+                $totalUserBonus += $detail['bonus'];
+                $totalUserAmount += ($detail['hours'] * $detail['company_hourly_rate']);
+                $totalAmount += $totalUserAmount;
+                $finalUserAmount = number_format($totalUserAmount,3,'.',',');
+                $description = 'Internship '.$detail['hours'].' Hours';
+                $s2 .= "S2,".$detail['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".$detail['candidate_iban'].",".$transfer['transfer_id'].",".$transfer['invoice_id'].",".$description.",,,,".$detail['bank_account_name'].",".$detail['bank_name'].",,".$detail['bank_name'].",".$detail['bank_address'].",,,".$detail['bank_swift_code'].",,,,,,,B,,,".$detail['candidate_iban'].",".PHP_EOL;
+                $totalTransaction +=1;
+            }
+        }
+        $finalAmount = number_format($totalAmount,3,'.',',');
+        $s3 = 'S3,'.$totalTransaction.','.$finalAmount; // Footer
+        $sAll = $s1.$s2.$s3;
+
+        $fileName = 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $handle = fopen($fileName, "w");
+        fwrite($handle, $sAll);
+        fclose($handle);
+
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename='.basename($fileName));
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($fileName));
+        readfile($fileName);
+        exit;
     }
 }
