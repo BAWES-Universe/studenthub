@@ -9,6 +9,24 @@ use Yii;
  */
 class TransferCandidatesQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @inheritdoc
+     * @return BlockDate[]|array
+     */
+//    public function all($db = null)
+//    {
+//        return parent::all($db);
+//    }
+
+    /**
+     * @inheritdoc
+     * @return BlockDate|array|null
+     */
+//    public function one($db = null)
+//    {
+//        return parent::one($db);
+//    }
+
 	/**
 	 * Return profit for transfer 
 	 */
@@ -25,21 +43,13 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      * Return candiates who not got paid 
      * but his employer have paid to admin  
      */
-    public static function payable() 
+    public function payable()
     {
-        return self::find()
-            ->select('
-                {{%transfer_candidates}}.*, 
-                {{%candidate}}.candidate_name, 
-                {{%candidate}}.candidate_name_ar,
-                {{%candidate}}.candidate_email,
-                {{%candidate}}.candidate_phone')            
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%invoice}}', '{{%invoice}}.invoice_id = {{%transfer_candidates}}.transfer_id')
-            ->where([
-                '{{%transfer_candidates}}.paid' => 0,
-                '{{%invoice}}.invoice_status' => 'paid'
-            ]);
+        return $this->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+            ->joinWith(['candidate'=>function($query){
+                $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+            }])
+            ->where(['{{%transfer_candidates}}.paid' => 0]);
     }
 
     /**
@@ -53,9 +63,8 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
         		'{{%company}}.company_name', 
         		'{{%company}}.company_email', 
         		'{{%candidate}}.*',
-        		'{{%bank}}.*'.
-        		'profit' => '(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate) * hours) - transfer_cost'
-        	)
+        		'{{%bank}}.*profit' => '(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate) * hours) - transfer_cost'
+        	])
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
@@ -105,7 +114,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function totalPaid($transfer_id) 
     {
-        return $this->where(['transfer_id' => $id, 'paid' => 1])
+        return $this->where(['transfer_id' => $transfer_id, 'paid' => 1])
             ->count();
     }
 
@@ -114,7 +123,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function totalUnpaid($transfer_id) 
     {
-        return $this->where(['transfer_id' => $id, 'paid' => 0])
+        return $this->where(['transfer_id' => $transfer_id, 'paid' => 0])
             ->count();
     }
 
@@ -127,7 +136,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
             ->where([
                 '{{%transfer_candidates}}.paid' => 0,
-                'transfer_id' => $id
+                'transfer_id' => $transfer_id
             ]);
     }    	
 }
