@@ -45,5 +45,16 @@ class TransferQuery extends \yii\db\ActiveQuery
         return $this->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id');
     }
 
+
+    public function filterCompany($company_name)
+    {
+        return $this->andWhere(['like', '{{%company}}.company_name', $company_name]);
+    }
+
+    public function filterStatus($transfer_status)
+    {
+        return $this->andWhere(['{{%transfer}}.transfer_status' => $transfer_status]);
+    }
+
 }
 	

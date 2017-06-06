@@ -280,7 +280,12 @@ class TransferController extends Controller
                 'candidate_hourly_rate',
                 'bonus',
                 'transfer_cost',
-                'candidate_total',
+                [
+                    'attribute'=>'candidate_total',
+                    'value'=>function($data) {
+                        return $data->candidateTotal;
+                    }
+                ],
                 'candidate.candidate_iban', 
                 'candidate.bank.bank_name',
                 [
