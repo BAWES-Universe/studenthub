@@ -77,7 +77,7 @@ class CandidateController extends Controller
         $query = Candidate::find();
 
         if($country_id) {
-            $query->where(['country_id' => $country_id]);
+            $query->filterCountry($country_id);
         }
 
         return new ActiveDataProvider([
@@ -96,7 +96,7 @@ class CandidateController extends Controller
         $query = Candidate::find();
 
         if($store_id) {
-            $query->where(['store_id' => $store_id]);
+            $query->filterStore($store_id);
         }
 
         return new ActiveDataProvider([
@@ -121,14 +121,14 @@ class CandidateController extends Controller
      */
     public function actionListNotAssigned()
     {
-        $query = Candidate::find()
-            ->where('store_id IS NULL or store_id = 0');
-
         $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->filterNotAssigned();
 
         if($candidate_name)
         {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+            $query->filterName($candidate_name);
         }
 
         return new ActiveDataProvider([
@@ -141,14 +141,14 @@ class CandidateController extends Controller
      */
     public function actionListAssigned()
     {
-        $query = Candidate::find()
-            ->where('store_id > 0');
-
         $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->filterAssigned();
 
         if($candidate_name)
         {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+            $query->filterName($candidate_name);
         }
 
         return new ActiveDataProvider([

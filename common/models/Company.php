@@ -367,5 +367,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                     ->send();
             }
         }
+    }    
+
+    /**
+     * @inheritdoc
+     * @return query\CompanyQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CompanyQuery(get_called_class());
     }
 }

@@ -9,7 +9,7 @@ use yii\helpers\FileHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
-use common\models\CandidateIdCard;
+use staff\models\CandidateIdCard;
 use common\components\Excel;
 use dosamigos\qrcode\QrCode;
 
@@ -73,14 +73,13 @@ class CandidateIdCardController extends Controller
      */
     public function actionListCandidateIds()
     {
-        $query = Candidate::find()
-            ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id');
-
         $candidate_name = Yii::$app->request->get("candidate_name");
 
-        if($candidate_name)
-        {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+        $query = Candidate::find()
+            ->joinWith('candidateIdCard');
+
+        if($candidate_name) {
+            $query->filterName($candidate_name);
         }
 
         return new ActiveDataProvider([
@@ -93,22 +92,17 @@ class CandidateIdCardController extends Controller
      */
     public function actionListCandidates()
     {
-        $cards = CandidateIdCard::find()
-            ->all();
-
-        $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
+        $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->where(['NOT IN', 'candidate_id', $candidate_ids]);
-
-        $candidate_name = Yii::$app->request->get("candidate_name");
+            ->filterWithoutCard();
 
         if($candidate_name)
         {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+            $query->filterName($candidate_name);
         }
 
-        $query->andWhere("store_id != 'NULL'"); // only candidate with assigned work
+        $query->filterAssigned(); // only candidate with assigned work
 
         return new ActiveDataProvider([
             'query' => $query
@@ -313,18 +307,16 @@ class CandidateIdCardController extends Controller
      */
     public function actionListExpired()
     {
-        $query = Candidate::find()
-            ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id')
-            ->where('DATE(expiry_date) < DATE(NOW())');
-
         $candidate_name = Yii::$app->request->get("candidate_name");
 
-        if($candidate_name)
-        {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+        $query = Candidate::find()
+            ->idExpired();
+
+        if($candidate_name) {
+            $query->filterName($candidate_name);
         }
 
-        $query->andWhere("store_id != 'NULL'"); // only candidate with assigned work
+        $query->filterAssigned(); // only candidate with assigned work
 
         return new ActiveDataProvider([
             'query' => $query

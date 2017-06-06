@@ -73,4 +73,13 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
     }
+
+    /**
+     * @inheritdoc
+     * @return query\CandidateIdCardQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateIdCardQuery(get_called_class());
+    }
 }

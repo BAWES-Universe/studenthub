@@ -417,6 +417,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCandidateIdCard()
+    {
+        return $this->hasOne(CandidateIdCard::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidateIdCards()
     {
         return $this->hasMany(CandidateIdCard::className(), ['candidate_id' => 'candidate_id']);
@@ -691,5 +699,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return $status;
     }
 
-
+    /**
+     * @inheritdoc
+     * @return query\CandidateQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateQuery(get_called_class());
+    }
 }

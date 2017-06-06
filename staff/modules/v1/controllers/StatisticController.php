@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use staff\models\Candidate;
-use common\models\CandidateIdCard;
+use staff\models\CandidateIdCard;
 
 /**
  * Statistic controller
@@ -70,17 +70,12 @@ class StatisticController extends Controller
         // # of candidates requiring ID card to be renewed
 
     	$result['id_expired'] = CandidateIdCard::find()
-            ->select('candidate_id_card.*, candidate.candidate_name')
-            ->innerjoin('candidate', 'candidate.candidate_id = candidate_id_card.candidate_id')
-    		->where('DATE(expiry_date) < DATE(NOW())')
-            ->asArray()
-    		->all();
+            ->idExpired();
 
 		// # of candidates that need id generated
 
 		$result['id_need_generated'] = Candidate::find()
-    		->where('candidate_id NOT IN (select candidate_id from candidate_id_card)')
-    		->all();
+    		->idNeedGenerated();
 
     	// Total Candidates
 
@@ -90,14 +85,12 @@ class StatisticController extends Controller
 		// Total assigned
 
 		$result['total_candidates_assigned'] = Candidate::find()
-			->where('store_id > 0')
-			->count();
+			->totalAssigned();
 
 		// Total unassigned
 
         $result['total_candidates_unassigned'] = Candidate::find()
-			->where('store_id IS NULL OR store_id = 0')
-			->count();
+			->totalUnassigned();
 
 		return $result;
     }

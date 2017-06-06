@@ -17,7 +17,8 @@ class CountryQuery extends \yii\db\ActiveQuery
 			])
             ->leftJoin('candidate', 'candidate.country_id = country.country_id')
             ->groupBy('country.country_id')
-            ->orderBy('total_candidates DESC, country_name_en');
+            ->orderBy('total_candidates DESC, country_name_en')
+            ->asArray();
 	}
 }
 	
