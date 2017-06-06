@@ -2,10 +2,10 @@
 
 namespace candidate\modules\v1\controllers;
 
-use admin\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use common\models\Transfer;
+use candidate\models\Candidate;
 
 /**
  * Statistic controller
@@ -68,23 +68,30 @@ class StatisticController extends Controller
     public function actionList()
     {
         $return = [];
-        $user = Yii::$app->user->identity;
+        
+        $user = Candidate::findOne(Yii::$app->user->getId());
+        
         $totalHours = 0;
         $totalPaid = 0;
         $totalBonus = 0;
-        foreach($user->transferCandidates as $transfer) {
+        
+        foreach($user->transferCandidates as $transfer) 
+        {
             $totalHours += $transfer->hours;
 
-            if ($transfer->paid) {
+            if ($transfer->paid) 
+            {
                 $totalPaid += ($transfer->hours * $transfer->company_hourly_rate);
                 $totalBonus += $transfer->bonus;
             }
         }
+        
         $return['total_hours'] = number_format($totalHours);
         $return['total_paid'] = $totalPaid;
         $return['total_bonus'] = $totalBonus;
-        $return['total_earning'] = ($totalPaid+$totalBonus);
+        $return['total_earning'] = $totalPaid + $totalBonus;
         $return['candidate'] = $user;
+        
         return $return;
     }
 }

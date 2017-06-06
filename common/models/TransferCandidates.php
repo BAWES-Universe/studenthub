@@ -100,10 +100,7 @@ class TransferCandidates extends \yii\db\ActiveRecord
      */
     public function getTransfer()
     {
-        $result = Transfer::findOne(['parent_transfer_id'=>$this->transfer_id]);
-        if ($result) {
-            return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
-        }
+        return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
     }
 
     public function getCandidateTotal()
