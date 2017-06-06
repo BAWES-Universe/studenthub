@@ -66,16 +66,6 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ]);            
     }
 
-    public function filterCompany($company_name)
-    {
-        return $this->andWhere(['like', '{{%company}}.company_name', $company_name]);    
-    }
-
-    public function filterStatus($transfer_status) 
-    {
-        return $this->andWhere(['{{%transfer}}.transfer_status' => $transfer_status]);
-    }    
-
     /**
      * Total paid in transfer 
      */
