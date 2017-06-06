@@ -76,8 +76,7 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $candidates = TransferCandidates::payable()
-            ->all();
+        $candidates = TransferCandidates::find()->payable()->all();
 
         header('Access-Control-Allow-Origin: *');
 
@@ -96,7 +95,12 @@ class TransferController extends Controller
                 'candidate_hourly_rate',
                 'bonus',
                 'transfer_cost',                
-                'candidate_total',                
+                [
+                    'attribute'=>'candidate_total',
+                    'value' => function($data){
+                        return $data->candidateTotal;
+                    }
+                ],
                 'candidate.candidate_iban', 
                 'candidate.bank.bank_name'
             ]
@@ -110,8 +114,7 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $query = TransferCandidates::payable()
-            ->asArray();
+        $query = TransferCandidates::find()->payable()->asArray();
 
         return new ActiveDataProvider([
             'query' => $query

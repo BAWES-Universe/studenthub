@@ -58,6 +58,16 @@ class TransferCandidates extends \yii\db\ActiveRecord
         ];
     }
 
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // remove fields that contain sensitive information
+        $field['payment_amount'] = $this->candidateTotal();
+
+        return $fields;
+    }
+
     /**
      * @inheritdoc
      */
@@ -90,10 +100,13 @@ class TransferCandidates extends \yii\db\ActiveRecord
      */
     public function getTransfer()
     {
-        return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
+        $result = Transfer::findOne(['parent_transfer_id'=>$this->transfer_id]);
+        if ($result) {
+            return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
+        }
     }
 
-    public function getCandidate_total()
+    public function getCandidateTotal()
     {
         return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
     }

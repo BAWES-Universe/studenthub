@@ -124,7 +124,11 @@ class Transfer extends \yii\db\ActiveRecord
 
     public function getInvoice()
     {
-        return Invoice::findOne(['transfer_id'=>$this->mainTransfer->transfer_id]);
+        if ($this->mainTransfer) { // in case child transfer gets parents invoice
+            return Invoice::findOne(['transfer_id'=>$this->mainTransfer->transfer_id]);
+        } else { // in case of transfer is parent one
+            return $this->hasOne(Invoice::className(),['transfer_id'=>'transfer_id']);
+        }
     }
 
     /**
