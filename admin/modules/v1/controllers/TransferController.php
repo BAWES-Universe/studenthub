@@ -227,7 +227,7 @@ class TransferController extends Controller
         //get total profit
 
         $transfer['profit'] = TransferCandidates::find()
-            ->profit();
+            ->profit($id);
             
         $transfer['candidates'] = TransferCandidates::find()
             ->candidatesByTransfer($transfer['transfer_id'])
@@ -672,4 +672,5 @@ class TransferController extends Controller
             ];
         }
     }
+
 }
