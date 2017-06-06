@@ -70,20 +70,30 @@ class AccountController extends Controller
     public function actionSalary()
     {
         $list = [];
-        $transfers = Yii::$app->user->identity->transferCandidates;
-        foreach ($transfers as $key => $transfer) {
+        
+        $transferCandidates = Yii::$app->user->identity->transferCandidates;
+
+        foreach ($transferCandidates as $key => $transferCandidate) {
+
+            if(isset($transferCandidate->transfer->company->company_name)) {
+                $company_name = $transferCandidate->transfer->company->company_name;
+            } else {
+                $company_name = '';
+            }
+
             $list[] = [
-                'transfer_id' => $transfer->transfer_id,
-                'candidate_id' => $transfer->candidate_id,
-                'candidate_hourly_rate' => $transfer->candidate_hourly_rate,
-                'hours' => $transfer->hours,
-                'bonus' => $transfer->bonus,
-                'status' => ($transfer->paid) ? 'Paid' : 'Unpaid',
-                'tc_created_at' => $transfer->tc_created_at,
-                'company_name' => $transfer->transfer->company->company_name,
-                'total'=>($transfer->candidate_hourly_rate * $transfer->hours) + $transfer->bonus,
+                'transfer_id' => $transferCandidate->transfer_id,
+                'candidate_id' => $transferCandidate->candidate_id,
+                'candidate_hourly_rate' => $transferCandidate->candidate_hourly_rate,
+                'hours' => $transferCandidate->hours,
+                'bonus' => $transferCandidate->bonus,
+                'status' => ($transferCandidate->paid) ? 'Paid' : 'Unpaid',
+                'tc_created_at' => $transferCandidate->tc_created_at,
+                'company_name' => $company_name,
+                'total' => ($transferCandidate->candidate_hourly_rate * $transferCandidate->hours) + $transferCandidate->bonus,
             ];
         }
+        
         return array_reverse($list);
     }
 
