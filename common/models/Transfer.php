@@ -194,4 +194,14 @@ class Transfer extends \yii\db\ActiveRecord
 
         return $errors;
     }
+
+
+    /**
+     * @inheritdoc
+     * @return query\TransferQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\TransferQuery(get_called_class());
+    }
 }

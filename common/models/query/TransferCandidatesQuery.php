@@ -9,23 +9,15 @@ use Yii;
  */
 class TransferCandidatesQuery extends \yii\db\ActiveQuery
 {
-    /**
-     * @inheritdoc
-     * @return BlockDate[]|array
-     */
-//    public function all($db = null)
-//    {
-//        return parent::all($db);
-//    }
+    public function all($db = null)
+    {
+        return parent::all($db);
+    }
 
-    /**
-     * @inheritdoc
-     * @return BlockDate|array|null
-     */
-//    public function one($db = null)
-//    {
-//        return parent::one($db);
-//    }
+    public function one($db = null)
+    {
+        return parent::one($db);
+    }
 
 	/**
 	 * Return profit for transfer 
@@ -34,8 +26,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
 	{
 		return $this->where([
                 '{{%transfer_candidates}}.transfer_id' => $transfer_id
-            ])
-            ->sum('(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate ) * hours) - {{%transfer_candidates}}.transfer_cost');
+            ])->sum('(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate ) * {{%transfer_candidates}}.hours) - {{%transfer_candidates}}.transfer_cost');
             // transfer cost will be on admin  
 	}
 		
@@ -63,7 +54,8 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
         		'{{%company}}.company_name', 
         		'{{%company}}.company_email', 
         		'{{%candidate}}.*',
-        		'{{%bank}}.*profit' => '(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate) * hours) - transfer_cost'
+        		'{{%bank}}.*',
+        		'profit as' => '(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate) * hours) - transfer_cost'
         	])
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
@@ -72,31 +64,6 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ->where([
                 '{{%transfer_candidates}}.transfer_id' => $transfer_id
             ]);            
-    }
-
-    /**
-     * Filter parent transfer 
-     */
-    public function parentTransfers() 
-    {
-        return $this->andWhere('parent_transfer_id IS NULL');
-    }
-
-    /**
-     * Field require on listing 
-     */
-    public function selectedFields() 
-    {
-        return $this->select([
-            '{{%transfer}}.*', 
-            '{{%company}}.company_name', 
-            '{{%company}}.company_email'
-        ]);  
-    } 
-
-    public function companyJoin() 
-    {
-        return $this->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id');    
     }
 
     public function filterCompany($company_name)
