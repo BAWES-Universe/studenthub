@@ -553,17 +553,14 @@ class TransferController extends Controller
 
             //get all child transfers
 
-            foreach ($candidate_ids as $key => $value) {
-                TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "' . $list['candidate_id'] . '" AND transfer_id = "' . $list['child_transfer_id'] . '"');
-            }
-
-            //check if all paid, mark transfer as complete
-
             $transfers = Transfer::findAll(['parent_transfer_id' => $list['transfer_id']]);
 
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
 
             $transfer_ids[] = $list['transfer_id'];
+
+            TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "'.$list['candidate_id'].'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
+            //check if all paid, mark transfer as complete
 
             $unpaid = TransferCandidates::find()
                 ->where([
