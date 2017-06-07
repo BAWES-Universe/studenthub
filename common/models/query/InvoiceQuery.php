@@ -1,7 +1,9 @@
 <?php
 
 namespace common\models\query;
+
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the ActiveQuery class for [[Invoice]].
@@ -9,6 +11,37 @@ use Yii;
  */
 class InvoiceQuery extends \yii\db\ActiveQuery
 {
+    public function filterCompanies($company_ids)
+    {
+        return $this->andWhere([
+            'in', 
+            '{{%transfer}}.company_id', 
+            $company_ids
+        ]);
+    }    
+
+    /**
+     * Invoice for login company /his childs
+     */
+    public function filterCurrentCompany($company) 
+    {
+        $companies = $company->subCompanies;
+
+        $company_ids = ArrayHelper::map(
+            $companies, 
+            'company_id', 
+            'company_id'
+        );
+
+        $company_ids[] = $company->company_id;
+
+        return $this->andWhere([
+            'in', 
+            '{{%transfer}}.company_id', 
+            $company_ids
+        ]);
+    }
+
     /**
      * Unpaid candidates 
      */
