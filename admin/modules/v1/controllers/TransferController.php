@@ -160,6 +160,7 @@ class TransferController extends Controller
         $query = Transfer::find()
             ->selectedFields()
             ->companyJoin()
+            ->transferCandidateJoin()
             ->parentTransfers();
 
         if($company_name)
@@ -168,8 +169,11 @@ class TransferController extends Controller
         if($transfer_status)
             $query->filterStatus($transfer_status);
 
+        $query->groupBy('{{%transfer}}.transfer_id')
+            ->asArray();
+
         return new ActiveDataProvider([
-            'query' => $query->asArray()
+            'query' => $query
         ]);
     }
 

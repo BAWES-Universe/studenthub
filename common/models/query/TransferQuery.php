@@ -85,13 +85,21 @@ class TransferQuery extends \yii\db\ActiveQuery
             '{{%transfer}}.*',
             '{{%company}}.company_name',
             '{{%company}}.company_email',
-            '{{%company}}.company_id'
+            'SUM(transfer_cost) AS total_transfer_cost'
         ]);
     }
 
     public function companyJoin()
     {
         return $this->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id');
+    }
+
+    public function transferCandidateJoin()
+    {
+        return $this->leftJoin(
+            '{{%transfer_candidates}}', 
+            '{{%transfer_candidates}}.transfer_id = {{%transfer}}.transfer_id'
+        );
     }
 }
 	
