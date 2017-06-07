@@ -96,4 +96,13 @@ class Store extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
     }
+
+    /**
+     * @inheritdoc
+     * @return query\StoreQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\StoreQuery(get_called_class());
+    }
 }

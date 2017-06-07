@@ -73,26 +73,8 @@ class CandidateController extends Controller
     {        
         $company = Yii::$app->user->identity;
 
-        // create company_id array from all sub companies and self 
-
-        $companies = $company->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $company->company_id;
-
-        // create store_id array 
-
-        $stores = Store::find()
-            ->where(['in', 'company_id', $company_ids])
-            ->all();
-
-        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
-
-        // return candidate list 
-
         $query = Candidate::find()
-            ->where(['in', 'store_id', $store_ids]);
+            ->filterCompany($company);
 
         return new ActiveDataProvider([
             'query' => $query
@@ -107,26 +89,8 @@ class CandidateController extends Controller
     {        
         $company = Yii::$app->user->identity;
 
-        // create company_id array from all sub companies and self 
-
-        $companies = $company->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $company->company_id;
-
-        // create store_id array 
-
-        $stores = Store::find()
-            ->where(['in', 'company_id', $company_ids])
-            ->all();
-
-        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
-
-        // return candidate list 
-
         return Candidate::find()
-            ->where(['in', 'store_id', $store_ids])
+            ->filterCompany($company)
             ->all();
     }
 
@@ -164,7 +128,7 @@ class CandidateController extends Controller
         }
 
         $query = Candidate::find()
-            ->where(['store_id' => $store_id]);
+            ->filterStore($store_id);
 
         return new ActiveDataProvider([
             'query' => $query

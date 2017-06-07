@@ -77,7 +77,9 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        $query = $company->getTransfers()->where('parent_transfer_id IS NULL')->orderBy('transfer_id DESC');
+        $query = $company->getTransfers()
+            ->where('parent_transfer_id IS NULL')
+            ->orderBy('transfer_id DESC');
 
         return new ActiveDataProvider([
             'query' => $query
@@ -91,18 +93,11 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        // list all sub companies
-        $companies = $company->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $company->company_id;
-
         $transfer = Transfer::find()
-            ->select('{{%company}}.company_email, {{%company}}.company_name, {{%company}}.company_id, {{%transfer}}.*')
-            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
-            ->where(['transfer_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
+            ->selectedFields()
+            ->companyJoin()
+            ->filterCurrentCompany($company)
+            ->filterTransfer($id)
             ->asArray()
             ->one();
 
@@ -114,22 +109,14 @@ class TransferController extends Controller
         }
 
         $transfer['candidates'] = TransferCandidates::find()
-            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
+            ->candidatesByTransfer($transfer['transfer_id'])
             ->asArray()
             ->all();
 
         //invoices
 
         $transfer['invoices'] = Invoice::find()
-            ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
-            ->where(['transfer.transfer_id' => $id])
-            ->orWhere(['transfer.parent_transfer_id' => $id])
+            ->byTransfer($id)
             ->all();
 
         return $transfer;
@@ -271,15 +258,9 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $companies = $company->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $company->company_id;
-
         $model = Transfer::find()
-            ->where(['transfer_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
+            ->filterTransfer($id)
+            ->filterCurrentCompany($company)
             ->one();
 
         if(!$model) {
@@ -405,12 +386,7 @@ class TransferController extends Controller
         //select distinct company and update transfer for each company if already added else create new
 
         $sub_companies = TransferCandidates::find()
-            ->select('{{%store}}.company_id')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $model->transfer_id
-            ])
+            ->candidatesByTransfer($model->transfer_id)
             ->distinct()
             ->asArray()
             ->all();
@@ -418,10 +394,10 @@ class TransferController extends Controller
         foreach ($sub_companies as $key => $sub_company) {
 
             //move transfer to transfer
-            $transfer = Transfer::findOne([
-                    'parent_transfer_id' => $model->transfer_id,
-                    'company_id' => $sub_company['company_id']
-                ]);
+            $transfer = Transfer::find()
+                ->filterCompanyId($sub_company['company_id'])
+                ->filterParent($model->transfer_id)
+                ->one();
 
             if(!$transfer) {
                 $transfer = new Transfer;
@@ -441,13 +417,8 @@ class TransferController extends Controller
             // transfer candidate for current company
 
             $candidates = TransferCandidates::find()
-                ->select('{{%candidate}}.candidate_hourly_rate, {{%transfer_candidates}}.*')
-                ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-                ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-                ->where([
-                    '{{%transfer_candidates}}.transfer_id' => $model->transfer_id,
-                    '{{%store}}.company_id' => $sub_company['company_id']
-                ])
+                ->candidatesByTransfer($model->transfer_id)
+                ->filterCompanyId($sub_company['company_id'])
                 ->asArray()
                 ->all();
 
@@ -506,19 +477,9 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        // list all sub companies
-
-        $companies = $company->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $company->company_id;
-
         $transfer = Invoice::find()
-            ->select('{{%invoice}}.*, {{%transfer}}.*')
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
-            ->where(['{{%invoice}}.invoice_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
+            ->withTransfer($id)
+            ->filterCurrentCompany($company)
             ->asArray()
             ->one();
 
@@ -528,19 +489,13 @@ class TransferController extends Controller
                     "message" => 'Invoice not found!'
                 ];
         }
+
         $transfer['company'] = Company::findOne($transfer['company_id']);
 
         $transfer['candidates'] = TransferCandidates::find()
-            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
+            ->candidatesByTransfer($transfer['transfer_id'])
             ->asArray()
             ->all();
-
 
         $this->layout = 'pdf';
 
@@ -588,8 +543,9 @@ class TransferController extends Controller
         // list all sub companies
 
         $transfer = Transfer::find()
-            ->where(['transfer_id' => $id])
-            ->andWhere(['{{%transfer}}.company_id' => $company->company_id])
+            ->filterTransfer($id)
+            ->companyJoin()
+            ->filterCompanyId($company->company_id)
             ->one();
 
         if(!$transfer) {
@@ -615,17 +571,9 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        // list all sub companies
-
-        $companies = $company->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $company->company_id;
-
         $model = Transfer::find()
-            ->where(['transfer_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
+            ->filterTransfer($id)
+            ->filterCurrentCompany($company) 
             ->one();
 
         if(!$model) {
@@ -649,12 +597,7 @@ class TransferController extends Controller
         //select distinct company and create transfer for each company
 
         $sub_companies = TransferCandidates::find()
-            ->select('{{%store}}.company_id')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $model->transfer_id
-            ])
+            ->candidatesByTransfer($model->transfer_id)
             ->distinct()
             ->asArray()
             ->all();
@@ -709,13 +652,8 @@ class TransferController extends Controller
             // transfer candidate for current company
 
             $candidates = TransferCandidates::find()
-                ->select('{{%candidate}}.candidate_hourly_rate, {{%transfer_candidates}}.*')
-                ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-                ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-                ->where([
-                    '{{%transfer_candidates}}.transfer_id' => $model->transfer_id,
-                    '{{%store}}.company_id' => $sub_company['company_id']
-                ])
+                ->candidatesByTransfer($model->transfer_id)
+                ->filterCompanyId($sub_company['company_id'])
                 ->asArray()
                 ->all();
 
@@ -776,10 +714,8 @@ class TransferController extends Controller
         $company_ids[] = $company->company_id;
 
         $transfer = Invoice::find()
-            ->select('{{%invoice}}.*, {{%transfer}}.*')
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
-            ->where(['{{%invoice}}.invoice_id' => $id])
-            ->andWhere(['in', '{{%transfer}}.company_id', $company_ids])
+            ->withTransfer($id)
+            ->filterCompanies($company_ids)
             ->asArray()
             ->one();
 
@@ -792,13 +728,7 @@ class TransferController extends Controller
         $transfer['company'] = Company::findOne($company->company_id);
 
         $transfer['candidates'] = TransferCandidates::find()
-            ->select('{{%transfer_candidates}}.*, {{%store}}.store_name, {{%company}}.company_name, {{%company}}.company_email, {{%candidate}}.candidate_name, {{%candidate}}.candidate_email')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
-            ->where([
-                '{{%transfer_candidates}}.transfer_id' => $transfer['transfer_id']
-            ])
+            ->candidatesByTransfer($transfer['transfer_id'])
             ->asArray()
             ->all();
 

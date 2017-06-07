@@ -5,6 +5,7 @@ namespace common\models\query;
 use Yii;
 use yii\helpers\ArrayHelper;
 use common\models\CandidateIdCard;
+use common\models\Store;
 
 /**
  * This is the ActiveQuery class for [[Candidate]].
@@ -12,6 +13,29 @@ use common\models\CandidateIdCard;
  */
 class CandidateQuery extends \yii\db\ActiveQuery 
 {
+    public function filterCompany($company)
+    {
+        // create company_id array from all sub companies and self 
+
+        $companies = $company->subCompanies;
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        // create store_id array 
+
+        $stores = Store::find()
+            ->where(['in', 'company_id', $company_ids])
+            ->all();
+
+        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
+
+        // return candidate list for given company 
+        
+        return $this->andWhere(['in', 'store_id', $store_ids]);
+    }
+
     public function filterWithoutCard()
     {
         $cards = CandidateIdCard::find()
