@@ -508,10 +508,61 @@ class TransferController extends Controller
         ];
     }
 
+
+    /*
+     * Method linked with payable candidate section
+     * option to mark all candidate at one time
+     */
+    public function actionMarkPaidAll()
+    {
+        $candidate_ids = Yii::$app->request->getBodyParam('candidates');
+        $main_transfer_id = 0;
+
+        foreach ($candidate_ids as $list) {
+            $main_transfer_id = $list['transfer_id'];
+            // to check if transfer is child if yes then fine parent else will use same as parent
+            $exist = Transfer::findOne(['parent_transfer_id' => $list['transfer_id']]);
+            if ($exist) {
+                $main_transfer_id = $exist->transfer_id;
+            }
+
+            // find actual transfer
+            $transfer = Transfer::findOne($main_transfer_id);
+
+            //get all child transfers
+
+            foreach ($candidate_ids as $key => $value) {
+                TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "' . $list['candidate_id'] . '" AND transfer_id = "' . $list['transfer_id'] . '"');
+            }
+
+            //check if all paid, mark transfer as complete
+
+            $transfers = Transfer::findAll(['parent_transfer_id' => $main_transfer_id]);
+
+            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+
+            $transfer_ids[] = $main_transfer_id;
+
+            $unpaid = TransferCandidates::find()
+                ->where([
+                    'paid' => 0
+                ])
+                ->andWhere(['in', 'transfer_id', $transfer_ids])
+                ->count();
+
+            if (!$unpaid) {
+                $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+                $transfer->save();
+            }
+        }
+            return [
+                'operation' => 'success',
+                'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully'
+            ];
+    }
+
     private function receiptMail($transfer_id)
     {
-        $company = \common\models\Company::findOne($company_id);
-        
         $transfer = Transfer::find()
             ->where(['transfer_id' => $transfer_id])
             ->one();
