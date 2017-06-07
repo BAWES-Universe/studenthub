@@ -127,6 +127,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET payable-candidates' => 'payable-candidates',
+                        'GET all-payable-candidates' => 'all-payable-candidates',
                         'GET export-payable-candidates' => 'export-payable-candidates',
                         'GET text' => 'text',
                         'GET <id>' => 'view',

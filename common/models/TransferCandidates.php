@@ -63,7 +63,7 @@ class TransferCandidates extends \yii\db\ActiveRecord
         $fields = parent::fields();
 
         // remove fields that contain sensitive information
-        $field['payment_amount'] = $this->candidateTotal();
+        $field['payment_amount'] = $this->candidateTotal;
 
         return $fields;
     }

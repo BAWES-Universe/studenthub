@@ -121,6 +121,34 @@ class TransferController extends Controller
         ]);
     }
 
+    public function actionAllPayableCandidates()
+    {
+        // Candidates whose company paid to admin but admin have not paid yet
+        $result = [];
+        $transfers = Transfer::findAll(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS]);
+
+        foreach ($transfers as $transfer) {
+
+            // find all parents and child transfers
+            $transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
+            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+            $transfer_ids[] = $transfer->transfer_id;
+
+            $candidates = TransferCandidates::find()->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')->joinWith(['candidate'=>function($query){
+                $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+            }])->where("paid='0' AND transfer_id IN ('".implode(',',$transfer_ids)."')")->asArray()->all();
+            if($candidates) {
+                $result[] = [
+                    'transfer_id'=>$transfer->transfer_id,
+                    'candidates' => $candidates
+                ];
+            } else { // remove transfer if no candidate available
+                unset($result[$transfer->transfer_id]);
+            }
+        }
+        return $result;
+    }
+
     /**
      * Return a List of Transfer.
      */
@@ -519,29 +547,23 @@ class TransferController extends Controller
         $main_transfer_id = 0;
 
         foreach ($candidate_ids as $list) {
-            $main_transfer_id = $list['transfer_id'];
-            // to check if transfer is child if yes then fine parent else will use same as parent
-            $exist = Transfer::findOne(['parent_transfer_id' => $list['transfer_id']]);
-            if ($exist) {
-                $main_transfer_id = $exist->transfer_id;
-            }
 
-            // find actual transfer
-            $transfer = Transfer::findOne($main_transfer_id);
+            // find transfer
+            $transfer = Transfer::findOne($list['transfer_id']);
 
             //get all child transfers
 
             foreach ($candidate_ids as $key => $value) {
-                TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "' . $list['candidate_id'] . '" AND transfer_id = "' . $list['transfer_id'] . '"');
+                TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "' . $list['candidate_id'] . '" AND transfer_id = "' . $list['child_transfer_id'] . '"');
             }
 
             //check if all paid, mark transfer as complete
 
-            $transfers = Transfer::findAll(['parent_transfer_id' => $main_transfer_id]);
+            $transfers = Transfer::findAll(['parent_transfer_id' => $list['transfer_id']]);
 
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
 
-            $transfer_ids[] = $main_transfer_id;
+            $transfer_ids[] = $list['transfer_id'];
 
             $unpaid = TransferCandidates::find()
                 ->where([
@@ -614,7 +636,7 @@ class TransferController extends Controller
 
         $to = $transfer->company->company_email;
         
-        if($transfer['invoice_status'] == 'paid') {
+        if($invoice->invoice_status == 'paid') {
             $template = 'receipt';
             $subject = 'StudentHub Receipt for Invoice #'.$invoice_id;
         } else {
