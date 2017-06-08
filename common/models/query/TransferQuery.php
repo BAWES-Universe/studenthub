@@ -28,7 +28,7 @@ class TransferQuery extends \yii\db\ActiveQuery
 
     public function filterTransfer($id)
     {
-        return $this->where(['transfer_id' => $id]);  
+        return $this->where(['{{%transfer}}.transfer_id' => $id]);
     } 
 
     public function filterCompanyId($company_id) 
@@ -82,10 +82,9 @@ class TransferQuery extends \yii\db\ActiveQuery
     public function selectedFields()
     {
         return $this->select([
-            '{{%transfer}}.*',
-            '{{%company}}.company_name',
-            '{{%company}}.company_email',
-            'SUM(transfer_cost) AS total_transfer_cost'
+            '{{%transfer}}.*,
+            {{%company}}.company_name,
+            {{%company}}.company_email',
         ]);
     }
 
@@ -96,10 +95,7 @@ class TransferQuery extends \yii\db\ActiveQuery
 
     public function transferCandidateJoin()
     {
-        return $this->leftJoin(
-            '{{%transfer_candidates}}', 
-            '{{%transfer_candidates}}.transfer_id = {{%transfer}}.transfer_id'
-        );
+        return $this->with('transferCandidates');
     }
 }
 	
