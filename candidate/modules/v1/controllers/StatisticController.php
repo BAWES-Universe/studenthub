@@ -69,7 +69,7 @@ class StatisticController extends Controller
     {
         $return = [];
         
-        $user = Candidate::findOne(Yii::$app->user->getId());
+        $user = Yii::$app->user->identity;
         
         $totalHours = 0;
         $totalPaid = 0;
