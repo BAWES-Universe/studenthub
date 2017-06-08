@@ -96,6 +96,7 @@ class TransferController extends Controller
         $transfer = Transfer::find()
             ->selectedFields()
             ->companyJoin()
+            ->transferCandidateJoin()
             ->filterCurrentCompany($company)
             ->filterTransfer($id)
             ->asArray()

@@ -101,8 +101,6 @@ class Transfer extends \yii\db\ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
-
-
         return $fields;
     }
 
