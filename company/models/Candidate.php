@@ -21,7 +21,8 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_password_hash'],
         $fields['candidate_password_reset_token'],
         $fields['candidate_created_at'],
-        $fields['candidate_updated_at']);
+        $fields['candidate_updated_at'],
+        $fields['candidate_hourly_rate']);
 
         return $fields;
     }
