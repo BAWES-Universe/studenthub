@@ -13,11 +13,13 @@ class TransferQuery extends \yii\db\ActiveQuery
 {
     public function all($db = null)
     {
+        $this->andWhere(['{{%transfer}}.deleted' => 0]);
         return parent::all($db);
     }
 
     public function one($db = null)
     {
+        $this->andWhere(['{{%transfer}}.deleted' => 0]);
         return parent::one($db);
     }
 

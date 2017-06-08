@@ -11,6 +11,18 @@ use yii\helpers\ArrayHelper;
  */
 class InvoiceQuery extends \yii\db\ActiveQuery
 {
+    public function all($db = null)
+    {
+        $this->andWhere(['{{%invoice}}.deleted' => 0]);
+        return parent::all($db);
+    }
+
+    public function one($db = null)
+    {
+        $this->andWhere(['{{%invoice}}.deleted' => 0]);
+        return parent::one($db);
+    }
+
     public function filterCompanies($company_ids)
     {
         return $this->andWhere([
