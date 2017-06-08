@@ -770,4 +770,67 @@ class TransferController extends Controller
             ->setSubject('Invoice Attachment #'.$id)
             ->send();
     }
+
+    /**
+     * Delete transfer with "Initiated" or "Locked" status
+     */
+    public function actionDelete($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $model = Transfer::find()
+            ->filterTransfer($id)
+            ->filterCurrentCompany($company)
+            ->one();
+
+        if(!$model) {
+            return [
+                    "operation" => "error",
+                    "message" => 'Transfer not found!'
+                ];
+        }
+
+        //transfer status should be "Initiated" or "Locked" to delete it
+
+        $allowedStatus = [
+            Transfer::STATUS_INITIATED,
+            Transfer::STATUS_LOCK
+        ];
+
+        if(!in_array($model->transfer_status, $allowedStatus))
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status should be "Initiated" or "Locked" to delete it!'
+            ];
+        }
+
+        $childs = Transfer::find()
+            ->filterParent($model->transfer_id)
+            ->all();
+
+        //delete data for each child 
+        
+        foreach ($childs as $key => $value) 
+        {
+            Invoice::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+
+            TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+        
+            Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);    
+        }        
+
+        //delete data for main transfer 
+
+        Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+
+        TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);        
+
+        Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);    
+
+        return [
+            "operation" => "success",
+            "message" => 'Transfer deleted successfully!'
+        ];    
+    }
 }

@@ -81,6 +81,7 @@ return [
                         'PATCH <id>' => 'edit',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH payment-sent/<id>' => 'payment-sent',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
