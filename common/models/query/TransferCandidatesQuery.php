@@ -122,5 +122,10 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
                 '{{%transfer_candidates}}.paid' => 0,
                 'transfer_id' => $transfer_id
             ]);
-    }    	
+    }
+
+    public function filterCompanyId($company_id)
+    {
+        return $this->andWhere(['{{%company}}.company_id' => $company_id]);
+    }
 }
