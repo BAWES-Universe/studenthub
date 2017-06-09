@@ -10,7 +10,7 @@ use yii\helpers\Html;
 
     <br />
 
-    <p>Please find the attached invoice for your payment in order to proceed with the transfers.</p>
+    <p>Please find the attached invoice(s) for your payment in order to proceed with the transfers.</p>
 
 	<br />
 
