@@ -56,7 +56,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     *  Return candiates for transfer 
+     *  Return candidates for transfer
      */
     public function candidatesByTransfer($transfer_id) 
     {
@@ -92,7 +92,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ->leftJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
             ->where([
                 '{{%transfer_candidates}}.transfer_id' => $transfer_id
-            ]);            
+            ]);
     }
 
     /**
