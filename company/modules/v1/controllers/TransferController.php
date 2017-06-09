@@ -719,7 +719,7 @@ class TransferController extends Controller
         $subject = [];
         $template = 'invoice';
         $message = Yii::$app->mailer->compose('invoice-attachment');
-        $message->setFrom(Yii::$app->params['invoiceFrom']);
+        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
         $i=1;
         $invoice_id = 0;
         foreach ($invoices as $invoice) {
@@ -747,7 +747,7 @@ class TransferController extends Controller
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
             $i++;
-            $subject[] = 'Invoice Attachment #'.$invoice_id;
+            $subject[] = 'StudentHub Invoice #'.$invoice_id;
             $invoice_id = 0;
         }
 

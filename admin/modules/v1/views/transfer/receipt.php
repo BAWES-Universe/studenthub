@@ -2,10 +2,10 @@
 $totalHours = 0;
 $totalBonus = 0;
 $totalAmount = 0;
-foreach ($candidates as $key => $value) {
-    $totalHours += $value['hours'];
-    $totalBonus += $value['bonus'];
-    $totalAmount += ($value['hours'] * $value['company_hourly_rate']);
+foreach ($invoice->transfer->transferCandidates as $key => $value) {
+    $totalHours += $value->hours;
+    $totalBonus += $value->bonus;
+    $totalAmount += ($value->hours * $value->company_hourly_rate);
 }
 ?>
     <div class="row">
@@ -21,17 +21,17 @@ foreach ($candidates as $key => $value) {
                 <td style="width: 56%;">
                     <table cellpadding="2">
                         <tr><td><h3>Bill to<br></h3></td></tr>
-                        <tr><td><p><?= $transfer->company->company_name ?></p></td></tr>
-                        <tr><td><p><?= $transfer->company->company_email ?></p></td></tr>
+                        <tr><td><p><?= $invoice->transfer->company->company_name ?></p></td></tr>
+                        <tr><td><p><?= (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email ?></p></td></tr>
                     </table>
                 </td>
                 <td>
                     <table cellpadding="2" class="table">
                         <tr><td><h3>Details<br></h3></td></tr>
-                        <tr><td>Invoice number: <?= $invoice['invoice_id'] ?></td></tr>
-                        <tr><td><p>Transfer number: <?= $transfer['transfer_id'] ?></p></td></tr>
-                        <tr><td>Payment date: <?=date('F d,Y',strtotime($invoice['invoice_date']))?></td></tr>
-                        <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in KWD: <?= $transfer['company_total'] ?></h5></td></tr>
+                        <tr><td>Invoice number: <?=$invoice->invoice_id?></td></tr>
+                        <tr><td><p>Transfer number: <?=$invoice->transfer_id?></p></td></tr>
+                        <tr><td><p>Payment date: <?=date('F d,Y',strtotime($invoice->invoice_date))?></p></td></tr>
+                        <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in KWD: <?= $invoice->transfer->company_total ?></h5></td></tr>
                     </table>
                 </td>
             </tr>
@@ -60,10 +60,10 @@ foreach ($candidates as $key => $value) {
         <table class="table" >
             <tr>
                 <td align="left" style="text-align: left">
-                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?=count($candidates)?> interns</span>
+                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?=count($invoice->transfer->transferCandidates)?> interns</span>
                 </td>
                 <td align="right" style="text-align: right">
-                    <span class="h5">KWD <?= $transfer['company_total'] ?></span>
+                    <span class="h5">KWD <?= $invoice->transfer->company_total ?></span>
                 </td>
             </tr>
         </table>
