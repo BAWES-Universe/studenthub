@@ -338,9 +338,7 @@ class TransferController extends Controller
      */ 
     public function actionPaymentReceived($id)
     {
-        $transfer = Transfer::findOne([
-                'transfer_id' => $id
-            ]);
+        $transfer = Transfer::findOne($id);
 
         if(!$transfer) {
             return [
@@ -586,77 +584,56 @@ class TransferController extends Controller
 
     private function receiptMail($transfer_id)
     {
-        $transfer = Transfer::find()
-            ->where(['transfer_id' => $transfer_id])
-            ->one();
+        $invoices = Invoice::find()
+            ->byTransfer($transfer_id)
+            ->all();
 
-        $invoice_id = $transfer->invoice->invoice_id;
 
-        $invoice = Invoice::findOne($invoice_id);
-
-        if(!$invoice) {
+        if(!$invoices) {
             return [
                 "operation" => "error",
                 "message" => 'Invoice not found!'
             ];
         }
-
-        $candidates = TransferCandidates::find()
-            ->candidatesByTransfer($transfer_id)
-            ->asArray()
-            ->all();
-
-        $template = $invoice->invoice_status == 'paid'?'receipt':'invoice';
-        
         $this->layout = 'pdf';
-
-        $content = $this->render($template, [
-            'transfer' => $transfer,
-            'invoice' => $invoice,
-            'candidates' => $candidates
-        ]);
-
-        $pdf = new Pdf([
-            'mode' => Pdf::MODE_UTF8,
-            //UTF mode for arabic language
-            'format' => Pdf::FORMAT_A4,
-            // portrait orientation
-            'orientation' => Pdf::ORIENT_PORTRAIT,
-            // stream to browser inline
-            'destination' => Pdf::DEST_BROWSER,
-            // your html content input
-            'content' => $content,
-            // any css to be embedded if required
-            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
-            // set mPDF properties on the fly
-            'options' => [],//['title' => 'Booking #'.$id],
-            // call mPDF methods on the fly
-        ]);
-
-        $pdfAttachment = $pdf->output($content, $template.'.pdf', 'S');
-
-        $to = $transfer->company->company_email;
-        
-        if($invoice->invoice_status == 'paid') {
-            $template = 'receipt';
-            $subject = 'StudentHub Receipt for Invoice #'.$invoice_id;
-        } else {
-            $template = 'invoice';
-            $subject = 'StudentHub Invoice #'.$invoice_id;
-        }
-        
-        $message = Yii::$app->mailer->compose($template.'-attachment',[
-            'transfer' => $transfer,
-            'invoice' => $invoice
-        ]);
-
+        $subject = [];
+        $template = 'receipt';
+        $message = Yii::$app->mailer->compose('receipt-attachment');
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
+        $i=1;
+        $invoice_id = 0;
+        foreach ($invoices as $invoice) {
+            $invoice_id = $invoice->invoice_id;
+            $content = $this->render($template, [
+                'invoice' => $invoice,
+            ]);
+            $pdf = new Pdf([
+                'mode' => Pdf::MODE_UTF8,
+                //UTF mode for arabic language
+                'format' => Pdf::FORMAT_A4,
+                // portrait orientation
+                'orientation' => Pdf::ORIENT_PORTRAIT,
+                // stream to browser inline
+                'destination' => Pdf::DEST_BROWSER,
+                // your html content input
+                'content' => $content,
+                // any css to be embedded if required
+                'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+                // set mPDF properties on the fly
+                'options' => [],//['title' => 'Booking #'.$id],
+                // call mPDF methods on the fly
+            ]);
+            $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
+            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
+            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
+            $i++;
+            $subject[] = 'StudentHub Receipt #'.$invoice_id;
+            $invoice_id = 0;
+        }
 
-        $message->attachContent($pdfAttachment,['fileName' => 'Receipt-for-Invoice-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
-        
-        return $message->setTo($to)
+        return $message->setTo('anilkumar.dhiman1@gmail.com')
             ->setCc('finance@bawes.net')
-            ->setSubject($subject)
+            ->setSubject(implode(',',$subject))
             ->send();
     }
 
