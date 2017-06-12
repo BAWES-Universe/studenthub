@@ -1,19 +1,11 @@
 <?php
-use yii\helpers\Html;
-
-/* @var $this yii\web\View */
-/* @var $user common\models\User */
-
+$content = (count($invoices)>1) ? 'invoices' : 'invoice';
 ?>
 <div class="password-reset">
-    <p>Hello,</p>
-
-    <br />
-
-    <p>Please find the attached invoice(s) for your payment in order to proceed with the transfers.</p>
-
-	<br />
-
-	<p>Sincerely yours,<br />
-	Khalid Al-Mutawa</p>
+    <p>
+        <?=Yii::t('app','Hello,'); ?><br/><br/>
+        <?=Yii::t('app','Please find the attached '.$content.' for your payment in order to proceed with the transfers.'); ?><br/><br/>
+        <?=Yii::t('app','Sincerely yours,'); ?><br />
+        <?=Yii::t('app','Khalid Al-Mutawa'); ?>
+    </p>
 </div>

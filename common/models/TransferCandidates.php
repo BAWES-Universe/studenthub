@@ -15,6 +15,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $candidate_id
  * @property string $hours
  * @property string $candidate_hourly_rate
+ * @property string $company_hourly_rate
  * @property string $bonus
  * @property string $transfer_cost 
  * @property string $tc_created_at

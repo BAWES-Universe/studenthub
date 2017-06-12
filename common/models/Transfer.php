@@ -16,6 +16,7 @@ use common\models\Candidate;
  *
  * @property integer $transfer_id
  * @property integer $company_id
+ * @property integer $company_total
  * @property integer $transfer_status
  * @property integer $parent_transfer_id
  * @property number $total

@@ -4,9 +4,7 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use yii\db\Query;
 use company\models\Company;
 use common\models\Candidate;
 use common\models\Invoice;
@@ -72,6 +70,7 @@ class TransferController extends Controller
 
     /**
      * Return a List of Transfer.
+     * @return ActiveDataProvider
      */
     public function actionList()
     {
@@ -88,6 +87,8 @@ class TransferController extends Controller
 
     /**
      * Return Transfer detail.
+     * @param $id
+     * @return array
      */
     public function actionView($id)
     {
@@ -125,6 +126,7 @@ class TransferController extends Controller
 
     /**
      * Initiate transfer.
+     * @return array
      */
     public function actionCreate()
     {
@@ -252,6 +254,8 @@ class TransferController extends Controller
 
     /**
      * Edit transfer with "Initiated" status
+     * @param $id
+     * @return array
      */
     public function actionEdit($id)
     {
@@ -472,70 +476,9 @@ class TransferController extends Controller
     }
 
     /**
-     * Download Transfer as PDF
-     */
-    public function actionPdf($id)
-    {
-        $company = Yii::$app->user->identity;
-
-        $transfer = Invoice::find()
-            ->withTransfer($id)
-            ->filterCurrentCompany($company)
-            ->asArray()
-            ->one();
-
-        if(!$transfer) {
-            return [
-                    "operation" => "error",
-                    "message" => 'Invoice not found!'
-                ];
-        }
-
-        $transfer['company'] = Company::findOne($transfer['company_id']);
-
-        $transfer['candidates'] = TransferCandidates::find()
-            ->candidatesByTransfer($transfer['transfer_id'])
-            ->asArray()
-            ->all();
-
-        $this->layout = 'pdf';
-
-        if($transfer['invoice_status'] == 'paid')
-            $template = 'receipt';
-        else
-            $template = 'invoice';
-
-        $content = $this->render($template, [
-            'transfer' => $transfer,
-        ]);
-
-        $pdf = new Pdf([
-            'mode' => Pdf::MODE_UTF8,
-            // A4 paper format
-            'format' => Pdf::FORMAT_A4,
-            // portrait orientation
-            'orientation' => Pdf::ORIENT_PORTRAIT,
-            // stream to browser inline
-            'destination' => Pdf::DEST_BROWSER,
-            // your html content input
-            'content' => $content,
-            // any css to be embedded if required
-            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
-             // set mPDF properties on the fly
-            'options' => [],//['title' => 'Booking #'.$id],
-             // call mPDF methods on the fly
-//            'methods' => [
-//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
-//                'SetFooter'=>['{PAGENO}'],
-//            ]
-        ]);
-
-        header('Access-Control-Allow-Origin: *');
-        return $pdf->render();
-    }
-
-    /**
      * Mark Transfer as Payment Sent
+     * @param $id
+     * @return array
      */
     public function actionPaymentSent($id)
     {
@@ -566,10 +509,13 @@ class TransferController extends Controller
     }
 
     /**
-     *  Lock transfer
+     * Lock transfer
+     * @param $id
+     * @return array
      */
     public function actionLock($id)
     {
+
         $company = Yii::$app->user->identity;
 
         $model = Transfer::find()
@@ -695,19 +641,89 @@ class TransferController extends Controller
             }
 
         }
-            $this->invoiceMail($id); // send invoice mail
+        $this->invoiceMail($id); // send invoice mail
+
         return [
             "operation" => "success",
             "message" => "Transfer locked successfully"
         ];
     }
 
+    /**
+     * Delete transfer with "Initiated" or "Locked" status
+     * @param $id
+     * @return array
+     */
+    public function actionDelete($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $model = Transfer::find()
+            ->filterTransfer($id)
+            ->filterCurrentCompany($company)
+            ->one();
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+
+        //transfer status should be "Initiated" or "Locked" to delete it
+
+        $allowedStatus = [
+            Transfer::STATUS_INITIATED,
+            Transfer::STATUS_LOCK
+        ];
+
+        if(!in_array($model->transfer_status, $allowedStatus))
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status should be "Initiated" or "Locked" to delete it!'
+            ];
+        }
+
+        $childs = Transfer::find()
+            ->filterParent($model->transfer_id)
+            ->all();
+
+        //delete data for each child
+
+        foreach ($childs as $key => $value)
+        {
+            Invoice::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+
+            TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+
+            Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+        }
+
+        //delete data for main transfer
+
+        Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+
+        TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+
+        Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+
+        return [
+            "operation" => "success",
+            "message" => 'Transfer deleted successfully!'
+        ];
+    }
+
+    /**
+     * send invoice mail to recipient and cc to company email
+     * @param $id
+     * @return array|bool
+     */
     public function invoiceMail($id)
     {
         $invoices = Invoice::find()
             ->byTransfer($id)
             ->all();
-
 
         if(!$invoices) {
             return [
@@ -718,7 +734,7 @@ class TransferController extends Controller
         $this->layout = 'pdf';
         $subject = [];
         $template = 'invoice';
-        $message = Yii::$app->mailer->compose('invoice-attachment');
+        $message = Yii::$app->mailer->compose('invoice-attachment',['invoices'=>$invoices]);
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
         $i=1;
         $invoice_id = 0;
@@ -747,76 +763,81 @@ class TransferController extends Controller
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
             $i++;
-            $subject[] = 'StudentHub Invoice #'.$invoice_id;
+            $subject[] = $invoice_id;
             $invoice_id = 0;
         }
 
+        $subjectLine = (count($subject)>1) ? Yii::t('app','StudentHub Invoices # ').implode(',',$subject) : Yii::t('app','StudentHub Invoice # ').implode(',',$subject);
+
         return $message->setTo($email)
-            ->setCc('finance@bawes.net')
-            ->setSubject(implode(',',$subject))
+            ->setCc(Yii::$app->params['invoiceCC'])
+            ->setSubject($subjectLine)
             ->send();
     }
 
     /**
-     * Delete transfer with "Initiated" or "Locked" status
+     * Download Transfer as PDF
+     * @param $id
+     * @return array|mixed
      */
-    public function actionDelete($id)
+    public function actionPdf($id)
     {
         $company = Yii::$app->user->identity;
 
-        $model = Transfer::find()
-            ->filterTransfer($id)
+        $transfer = Invoice::find()
+            ->withTransfer($id)
             ->filterCurrentCompany($company)
+            ->asArray()
             ->one();
 
-        if(!$model) {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
-        }
-
-        //transfer status should be "Initiated" or "Locked" to delete it
-
-        $allowedStatus = [
-            Transfer::STATUS_INITIATED,
-            Transfer::STATUS_LOCK
-        ];
-
-        if(!in_array($model->transfer_status, $allowedStatus))
-        {
+        if(!$transfer) {
             return [
                 "operation" => "error",
-                "message" => 'Transfer status should be "Initiated" or "Locked" to delete it!'
+                "message" => 'Invoice not found!'
             ];
         }
 
-        $childs = Transfer::find()
-            ->filterParent($model->transfer_id)
+        $transfer['company'] = Company::findOne($transfer['company_id']);
+
+        $transfer['candidates'] = TransferCandidates::find()
+            ->candidatesByTransfer($transfer['transfer_id'])
+            ->asArray()
             ->all();
 
-        //delete data for each child 
-        
-        foreach ($childs as $key => $value) 
-        {
-            Invoice::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+        $this->layout = 'pdf';
 
-            TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
-        
-            Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);    
-        }        
+        if($transfer['invoice_status'] == 'paid')
+            $template = 'receipt';
+        else
+            $template = 'invoice';
 
-        //delete data for main transfer 
+        $content = $this->render($template, [
+            'transfer' => $transfer,
+        ]);
 
-        Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+        $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+            // call mPDF methods on the fly
+//            'methods' => [
+//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
+//                'SetFooter'=>['{PAGENO}'],
+//            ]
+        ]);
 
-        TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);        
-
-        Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);    
-
-        return [
-            "operation" => "success",
-            "message" => 'Transfer deleted successfully!'
-        ];    
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
     }
+
 }
