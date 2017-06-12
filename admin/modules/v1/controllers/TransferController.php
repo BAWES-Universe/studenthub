@@ -76,7 +76,9 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $candidates = TransferCandidates::find()->payable()->all();
+        $candidates = TransferCandidates::find()
+            ->payable()
+            ->all();
 
         header('Access-Control-Allow-Origin: *');
 
@@ -114,7 +116,9 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $query = TransferCandidates::find()->payable()->asArray();
+        $query = TransferCandidates::find()
+            ->payable()
+            ->asArray();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -155,6 +159,7 @@ class TransferController extends Controller
                 unset($result[$transfer->transfer_id]);
             }
         }
+
         return $result;
     }
 
@@ -540,13 +545,13 @@ class TransferController extends Controller
             ->byTransfer($transfer_id)
             ->all();
 
-
         if(!$invoices) {
             return [
                 "operation" => "error",
                 "message" => 'Invoice not found!'
             ];
         }
+
         $this->layout = 'pdf';
         $subject = [];
         $template = 'receipt';
@@ -606,35 +611,43 @@ class TransferController extends Controller
         $totalAmount = 0;
         $finalAmount = 0;
 
-        $invoices = Invoice::find()
-            ->unpaid()
+        $candidates = TransferCandidates::find()
+            ->payable()
             ->all();
 
-        if(!$invoices) {
+        if(!$candidates) {
             return [
                 "operation" => "error",
-                "message" => 'Transfer not found!'
+                "message" => 'No Payable Candidates!'
             ];
         }
 
-        foreach ($invoices as $invoice) 
-        {
-            $candidates = TransferCandidates::find()
-                ->candidatesByTransfer($invoice->transfer_id)
-                ->asArray()
-                ->all();
-
-            foreach ($candidates as $detail) {
-                $totalUserHours += $detail['hours'];
-                $totalUserBonus += $detail['bonus'];
-                $totalUserAmount += ($detail['hours'] * $detail['company_hourly_rate']);
-                $totalAmount += $totalUserAmount;
-                $finalUserAmount = number_format($totalUserAmount,3,'.',',');
-                $description = 'Internship '.$detail['hours'].' Hours';
-                $s2 .= "S2,".$detail['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".$detail['candidate_iban'].",".$invoice->transfer_id.",".$invoice->invoice_id.",".$description.",,,,".$detail['bank_account_name'].",".$detail['bank_name'].",,".$detail['bank_name'].",".$detail['bank_address'].",,,".$detail['bank_swift_code'].",,,,,,,B,,,".$detail['candidate_iban'].",".PHP_EOL;
-                $totalTransaction +=1;
+        foreach ($candidates as $detail) {
+            $totalUserHours += $detail['hours'];
+            $totalUserBonus += $detail['bonus'];
+            $totalUserAmount += ($detail['hours'] * $detail['company_hourly_rate']);
+            $totalAmount += $totalUserAmount;
+            $finalUserAmount = number_format($totalUserAmount,3,'.',',');
+            $description = 'Internship '.$detail['hours'].' Hours';
+            
+            if(empty($detail->candidate->bank)) {
+                continue;
             }
+
+            $s2 .= "S2,".$detail->candidate->bank['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".
+                $detail->candidate['candidate_iban'].",".
+                $detail['transfer_id'].",".
+                $detail->invoice->invoice_id.",".
+                $description.",,,,".
+                $detail->candidate['bank_account_name'].",".
+                $detail->candidate->bank['bank_name'].",,".
+                $detail->candidate->bank['bank_name'].",".
+                $detail->candidate->bank['bank_address'].",,,".
+                $detail->candidate->bank['bank_swift_code'].",,,,,,,B,,,".
+                $detail->candidate['candidate_iban'].",".PHP_EOL;
+            $totalTransaction +=1;
         }
+
         $finalAmount = number_format($totalAmount,3,'.',',');
         $s3 = 'S3,'.$totalTransaction.','.$finalAmount; // Footer
         $sAll = $s1.$s2.$s3;

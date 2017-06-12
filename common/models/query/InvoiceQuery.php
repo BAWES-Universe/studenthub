@@ -55,11 +55,19 @@ class InvoiceQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Unpaid candidates 
+     * Paid Invoice 
+     */
+    public function paid() 
+    {
+        return $this->where(['{{%invoice}}.invoice_status' => 'paid']);
+    }
+
+    /**
+     * Unpaid Invoice 
      */
     public function unpaid() 
     {
-        return $this->where(['{{%invoice}}.invoice_status' => 'unpaid']);            
+        return $this->where(['{{%invoice}}.invoice_status' => 'unpaid']);
     }
 
     /**

@@ -22,11 +22,38 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
         return parent::one($db);
     }
 
+    public function filterPaid()
+    {
+        return $this->andWhere([
+                '{{%transfer_candidates}}.paid' => 1
+            ]);
+    }
+
+    public function filterUnpaid()
+    {
+        return $this->andWhere([
+                '{{%transfer_candidates}}.paid' => 0
+            ]);
+    }
+
     public function filterCompany($company_id)
     {
-        return $this->where([
+        return $this->andWhere([
                 '{{%store}}.company_id' => $company_id
             ]);
+    }
+
+    public function filterCompanyId($company_id)
+    {
+        return $this->andWhere(['{{%company}}.company_id' => $company_id]);
+    }
+
+    public function filterPaidInvoie()
+    {
+        return $this->andWhere([
+            '{{%invoice}}.invoice_status' => 'paid',
+            '{{%invoice}}.deleted' => 0
+        ]);
     }
 
 	/**
@@ -49,9 +76,21 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
         return  $this->select('{{%transfer_candidates}}.*')
                     ->addSelect('(({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
                     ->joinWith(['candidate'=>function($query){
-                        $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+                        $query->select([
+                            'candidate_id',
+                            'candidate_name',
+                            'candidate_name_ar',
+                            'candidate_personal_photo',
+                            'candidate_email',
+                            'candidate_phone',
+                            'bank_account_name',
+                            'candidate_iban',
+                            'bank_id'
+                        ]);
                     }])
-                    ->where(['{{%transfer_candidates}}.paid' => 0]);
+                    ->joinWith('invoice')
+                    ->filterUnpaid()//unpaid candidate
+                    ->filterPaidInvoie();//paid invoice
     }
 
     /**
@@ -123,10 +162,5 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
                 '{{%transfer_candidates}}.paid' => 0,
                 'transfer_id' => $transfer_id
             ]);
-    }
-
-    public function filterCompanyId($company_id)
-    {
-        return $this->andWhere(['{{%company}}.company_id' => $company_id]);
     }
 }
