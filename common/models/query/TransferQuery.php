@@ -62,10 +62,9 @@ class TransferQuery extends \yii\db\ActiveQuery
         );
 
         $company_ids[] = $company->company_id;
-
         return $this->andWhere([
-            'in', 
-            '{{%transfer}}.company_id', 
+            'in',
+            '{{%transfer}}.company_id',
             $company_ids
         ]);
     }

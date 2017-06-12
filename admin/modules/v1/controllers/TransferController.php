@@ -49,7 +49,7 @@ class TransferController extends Controller
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options','text'];
 
         return $behaviors;
     }
@@ -579,11 +579,10 @@ class TransferController extends Controller
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
             $i++;
-            $subject[] = $invoice_id;
+            $subject[] = '#'.$invoice_id;
             $invoice_id = 0; // reinitialize to 0 to store new with new loop
         }
-
-        $subjectLine = (count($subject)>1) ? Yii::t('app','StudentHub Receipts # ').implode(',',$subject) : Yii::t('app','StudentHub Receipt # ').implode(',',$subject);
+        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{receipt} other{receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
 
         return $message->setTo($email)
             ->setCc(Yii::$app->params['invoiceCC'])
