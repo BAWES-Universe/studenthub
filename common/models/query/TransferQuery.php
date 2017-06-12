@@ -84,9 +84,10 @@ class TransferQuery extends \yii\db\ActiveQuery
     public function selectedFields()
     {
         return $this->select([
-            '{{%transfer}}.*,
-            {{%company}}.company_name,
-            {{%company}}.company_email',
+            '{{%transfer}}.*',
+            'SUM(transfer_cost) AS total_transfer_cost',
+            '{{%company}}.company_name',
+            '{{%company}}.company_email',
         ]);
     }
 
@@ -97,7 +98,7 @@ class TransferQuery extends \yii\db\ActiveQuery
 
     public function transferCandidateJoin()
     {
-        return $this->with('transferCandidates');
+        return $this->joinWith('transferCandidates');
     }
 }
 	
