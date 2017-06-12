@@ -550,7 +550,7 @@ class TransferController extends Controller
         $this->layout = 'pdf';
         $subject = [];
         $template = 'receipt';
-        $message = Yii::$app->mailer->compose('receipt-attachment');
+        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
         $i=1;
         $invoice_id = 0;
@@ -579,13 +579,15 @@ class TransferController extends Controller
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
             $i++;
-            $subject[] = 'StudentHub Receipt #'.$invoice_id;
+            $subject[] = $invoice_id;
             $invoice_id = 0; // reinitialize to 0 to store new with new loop
         }
 
+        $subjectLine = (count($subject)>1) ? Yii::t('app','StudentHub Receipts # ').implode(',',$subject) : Yii::t('app','StudentHub Receipt # ').implode(',',$subject);
+
         return $message->setTo($email)
             ->setCc(Yii::$app->params['invoiceCC'])
-            ->setSubject(implode(',',$subject))
+            ->setSubject($subjectLine)
             ->send();
     }
 
