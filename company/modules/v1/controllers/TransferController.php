@@ -517,11 +517,11 @@ class TransferController extends Controller
     {
 
         $company = Yii::$app->user->identity;
-
         $model = Transfer::find()
             ->filterTransfer($id)
-            ->filterCurrentCompany($company) 
+            ->filterCurrentCompany($company)
             ->one();
+
 
         if(!$model) {
             return [
@@ -549,6 +549,10 @@ class TransferController extends Controller
             ->asArray()
             ->all();
 
+
+        // condition to check if current company has existing sub companies.
+        $sub_companies = ($sub_companies && (isset($company->subCompanies)) && count($company->subCompanies)>0) ? $sub_companies : false;
+
         /**
          * if transfer initiated by parent company split it for each
          * sub companies
@@ -566,80 +570,76 @@ class TransferController extends Controller
                 $invoice->invoice_status = 'unpaid';
                 $invoice->save();
             }
-
-            return [
-                "operation" => "success",
-                "message" => "Transfer locked successfully"
-            ];
         }
 
-        foreach ($sub_companies as $key => $sub_company) {
+        if ($sub_companies) {
+            foreach ($sub_companies as $key => $sub_company) {
 
-            //move transfer to transfer
-            $transfer = Transfer::findOne([
+                //move transfer to transfer
+                $transfer = Transfer::findOne([
                     'parent_transfer_id' => $model->transfer_id,
                     'company_id' => $sub_company['company_id']
                 ]);
 
-            if(!$transfer) {
-                $transfer = new Transfer;
-                $transfer->attributes = $model->attributes;
-                $transfer->parent_transfer_id = $model->transfer_id;
-                $transfer->company_id = $sub_company['company_id'];
-                $transfer->transfer_status = Transfer::STATUS_LOCK;
-                $transfer->save(false);
+                if (!$transfer) {
+                    $transfer = new Transfer;
+                    $transfer->attributes = $model->attributes;
+                    $transfer->parent_transfer_id = $model->transfer_id;
+                    $transfer->company_id = $sub_company['company_id'];
+                    $transfer->transfer_status = Transfer::STATUS_LOCK;
+                    $transfer->save(false);
+                }
+
+                $total = $company_total = 0;
+
+                //remove old candidates if exists
+
+                TransferCandidates::deleteAll(['transfer_id' => $transfer->transfer_id]);
+
+                // transfer candidate for current company
+
+                $candidates = TransferCandidates::find()
+                    ->candidatesByTransfer($model->transfer_id)
+                    ->filterCompanyId($sub_company['company_id'])
+                    ->asArray()
+                    ->all();
+
+                foreach ($candidates as $key => $value) {
+                    //get hourly rate
+
+                    $transfer_candidate = new TransferCandidates;
+                    $transfer_candidate->transfer_id = $transfer->transfer_id;
+                    $transfer_candidate->candidate_id = $value['candidate_id'];
+                    $transfer_candidate->hours = $value['hours'];
+                    $transfer_candidate->bonus = $value['bonus'];
+                    $transfer_candidate->transfer_cost = Yii::$app->params['transfer_cost'];
+                    $transfer_candidate->candidate_hourly_rate = $value['candidate_hourly_rate'];
+                    $transfer_candidate->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
+                    $transfer_candidate->save();
+
+                    $total += $transfer_candidate->bonus + ($transfer_candidate->hours * $transfer_candidate->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+
+                    $company_total += $transfer_candidate->bonus + ($transfer_candidate->hours * Yii::$app->params['candidate_max_hourly_rate']);
+                }
+
+                //save total in transfer
+
+                $transfer->company_total = $company_total;
+                $transfer->total = $total;
+                $transfer->save();
+
+                //generate invoice for each transfer
+                $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
+
+                if (!$invoice) {
+                    $invoice = new Invoice;
+                    $invoice->transfer_id = $transfer->transfer_id;
+                    $invoice->invoice_date = date('Y-m-d');
+                    $invoice->invoice_status = 'unpaid';
+                    $invoice->save();
+                }
+
             }
-
-            $total = $company_total = 0;
-
-            //remove old candidates if exists
-
-            TransferCandidates::deleteAll(['transfer_id' => $transfer->transfer_id]);
-
-            // transfer candidate for current company
-
-            $candidates = TransferCandidates::find()
-                ->candidatesByTransfer($model->transfer_id)
-                ->filterCompanyId($sub_company['company_id'])
-                ->asArray()
-                ->all();
-
-            foreach ($candidates as $key => $value)
-            {
-                //get hourly rate
-
-                $transfer_candidate = new TransferCandidates;
-                $transfer_candidate->transfer_id = $transfer->transfer_id;
-                $transfer_candidate->candidate_id = $value['candidate_id'];
-                $transfer_candidate->hours = $value['hours'];
-                $transfer_candidate->bonus = $value['bonus'];
-                $transfer_candidate->transfer_cost = Yii::$app->params['transfer_cost'];
-                $transfer_candidate->candidate_hourly_rate = $value['candidate_hourly_rate'];
-                $transfer_candidate->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
-                $transfer_candidate->save();
-
-                $total += $transfer_candidate->bonus + ($transfer_candidate->hours * $transfer_candidate->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-
-                $company_total += $transfer_candidate->bonus + ($transfer_candidate->hours * Yii::$app->params['candidate_max_hourly_rate']);
-            }
-
-            //save total in transfer
-
-            $transfer->company_total = $company_total;
-            $transfer->total = $total;
-            $transfer->save();
-
-            //generate invoice for each transfer
-            $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
-
-            if(!$invoice) {
-                $invoice = new Invoice;
-                $invoice->transfer_id = $transfer->transfer_id;
-                $invoice->invoice_date = date('Y-m-d');
-                $invoice->invoice_status = 'unpaid';
-                $invoice->save();
-            }
-
         }
         $this->invoiceMail($id); // send invoice mail
 
@@ -763,11 +763,10 @@ class TransferController extends Controller
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
             $i++;
-            $subject[] = $invoice_id;
+            $subject[] = '#'.$invoice_id;
             $invoice_id = 0;
         }
-
-        $subjectLine = (count($subject)>1) ? Yii::t('app','StudentHub Invoices # ').implode(',',$subject) : Yii::t('app','StudentHub Invoice # ').implode(',',$subject);
+        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{invoice} other{Invoices}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
 
         return $message->setTo($email)
             ->setCc(Yii::$app->params['invoiceCC'])
