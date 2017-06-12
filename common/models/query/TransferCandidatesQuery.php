@@ -41,18 +41,17 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
 	}
 		
     /**
-     * Return candiates who not got paid 
+     * Return candidates who not got paid
      * but his employer have paid to admin  
      */
     public function payable()
     {
-        return $this->select(
-                '{{%transfer_candidates}}.*', 
-                '(({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
-            ->joinWith(['candidate'=>function($query){
-                $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
-            }])
-            ->where(['{{%transfer_candidates}}.paid' => 0]);
+        return  $this->select('{{%transfer_candidates}}.*')
+                    ->addSelect('(({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+                    ->joinWith(['candidate'=>function($query){
+                        $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+                    }])
+                    ->where(['{{%transfer_candidates}}.paid' => 0]);
     }
 
     /**

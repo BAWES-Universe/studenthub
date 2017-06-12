@@ -1,6 +1,7 @@
 <?php
 return [
     'invoiceFrom' => 'khalid@bawes.net',
+    'invoiceCC' => 'finance@bawes.net',
     'adminEmail' => 'khalid@studenthub.co',
     'supportEmail' => 'contact@studenthub.co',
     'user.passwordResetTokenExpire' => 3600,
