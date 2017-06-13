@@ -48,7 +48,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['{{%company}}.company_id' => $company_id]);
     }
 
-    public function filterPaidInvoie()
+    public function filterPaidInvoice()
     {
         return $this->andWhere([
             '{{%invoice}}.invoice_status' => 'paid',
@@ -90,7 +90,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
                     }])
                     ->joinWith('invoice')
                     ->filterUnpaid()//unpaid candidate
-                    ->filterPaidInvoie();//paid invoice
+                    ->filterPaidInvoice();//paid invoice
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 use Yii;
+use yii\data\ArrayDataProvider;
 use yii\db\Query;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
@@ -114,14 +115,40 @@ class TransferController extends Controller
      */
     public function actionPayableCandidates()
     {
-        // Candidates whose company paid to admin but admin have not paid yet 
+        $result = [];
+        $transfers = Transfer::findAll(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS]);
 
-        $query = TransferCandidates::find()
-            ->payable()
-            ->asArray();
+        foreach ($transfers as $transfer) {
 
-        return new ActiveDataProvider([
-            'query' => $query
+            // find all parents and child transfers
+            $transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
+            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+            $transfer_ids[] = $transfer->transfer_id;
+
+            $candidates = TransferCandidates::find()
+                ->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+                ->joinWith(['candidate'=>function($query){
+                    $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+                }])
+                ->where("transfer_id IN (".implode(',',$transfer_ids).")")
+                ->groupBy("candidate_id")
+                ->asArray()
+                ->all();
+
+            if($candidates) {
+                $result[] = [
+                    'transfer_id'=>$transfer->transfer_id,
+                    'candidates' => $candidates,
+                    'total' => $transfer->total
+                ];
+            } else { // remove transfer if no candidate available
+                unset($result[$transfer->transfer_id]);
+            }
+        }
+
+
+        return new ArrayDataProvider([
+            'allModels' => $result
         ]);
     }
 
