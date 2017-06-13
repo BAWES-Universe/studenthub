@@ -6,6 +6,7 @@ use Yii;
 use yii\db\Query;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use common\models\Invoice;
@@ -35,6 +36,7 @@ class TransferController extends Controller
                 'Access-Control-Allow-Credentials' => null,
                 'Access-Control-Max-Age' => 86400,
                 'Access-Control-Expose-Headers' => [
+                    'filename',
                     'X-Pagination-Current-Page',
                     'X-Pagination-Page-Count',
                     'X-Pagination-Per-Page',
@@ -654,20 +656,15 @@ class TransferController extends Controller
 
         $fileName = 'BAWS-PAY-'.date('dmY').'-01.txt';
 
-        $handle = fopen($fileName, "w");
+        $path = sys_get_temp_dir() . $fileName;
+
+        $handle = fopen($path, "w");
         fwrite($handle, $sAll);
         fclose($handle);
 
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename='.basename($fileName));
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($fileName));
-        readfile($fileName);
-        exit;
+        Yii::$app->response->headers->add('filename', $fileName);
+
+        return Yii::$app->response->sendFile($path);
     }
 
     /**
