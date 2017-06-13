@@ -146,7 +146,8 @@ class TransferController extends Controller
                 ->joinWith(['candidate'=>function($query){
                     $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
                 }])
-                ->where("paid='0' AND transfer_id IN ('".implode(',',$transfer_ids)."')")
+                ->where("paid='0' AND transfer_id IN (".implode(',',$transfer_ids).")")
+                ->groupBy("candidate_id")
                 ->asArray()
                 ->all();
 
