@@ -499,6 +499,14 @@ class TransferController extends Controller
                 ];
         }
 
+        if($transfer->transfer_status != Transfer::STATUS_LOCK)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status should be "Locked" to send it!'
+            ];
+        }
+
         $transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
         $transfer->save();
 
@@ -525,17 +533,17 @@ class TransferController extends Controller
 
         if(!$model) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
         }
 
         if($model->transfer_status != Transfer::STATUS_INITIATED)
         {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer status need to be "Initiated" to lock it!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer status need to be "Initiated" to lock it!'
+            ];
         }
 
         $model->transfer_status = Transfer::STATUS_LOCK;
