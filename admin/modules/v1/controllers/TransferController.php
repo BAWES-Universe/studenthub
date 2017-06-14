@@ -702,34 +702,26 @@ class TransferController extends Controller
      */
     public function actionPdf($id)
     {
-        $transfer = Invoice::find()
+        $invoice = Invoice::find()
             ->withTransfer($id)
-            ->asArray()
             ->one();
 
-        if(!$transfer) {
+        if(!$invoice) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
             ];
         }
 
-        $transfer['company'] = Company::findOne($transfer['company_id']);
-
-        $transfer['candidates'] = TransferCandidates::find()
-            ->candidatesByTransfer($transfer['transfer_id'])
-            ->asArray()
-            ->all();
-
         $this->layout = 'pdf';
 
-        if($transfer['invoice_status'] == 'paid')
+        if($invoice['invoice_status'] == 'paid')
             $template = 'receipt';
         else
             $template = 'invoice';
 
         $content = $this->render($template, [
-            'transfer' => $transfer,
+            'invoice' => $invoice,
         ]);
 
         $pdf = new Pdf([
