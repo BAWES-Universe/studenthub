@@ -93,6 +93,14 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
                     ->filterPaidInvoice();//paid invoice
     }
 
+    public function groupByCompany($company_id) 
+    {
+        return $this->groupBy('{{%company}}.company_id')
+            ->where(['!=', '{{%company}}.company_id', $company_id])
+            ->distinct();
+    }        
+            
+
     /**
      *  Return candidates for transfer
      */

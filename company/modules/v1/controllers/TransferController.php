@@ -392,10 +392,27 @@ class TransferController extends Controller
 
         $sub_companies = TransferCandidates::find()
             ->candidatesByTransfer($model->transfer_id)
-            ->distinct()
+            ->groupByCompany($model->company_id)
             ->asArray()
             ->all();
 
+        /**
+         * generate invoice for main transfer if no sub companies else generate 
+         * invoice for each sub companies
+         */
+        if(!$sub_companies)
+        {
+            $invoice = Invoice::findOne(['transfer_id' => $model->transfer_id]);
+
+            if(!$invoice) {
+                $invoice = new Invoice;
+                $invoice->transfer_id = $model->transfer_id;
+                $invoice->invoice_date = date('Y-m-d');
+                $invoice->invoice_status = 'unpaid';
+                $invoice->save();
+            }
+        }
+            
         foreach ($sub_companies as $key => $sub_company) {
 
             //move transfer to transfer
@@ -553,22 +570,20 @@ class TransferController extends Controller
 
         $sub_companies = TransferCandidates::find()
             ->candidatesByTransfer($model->transfer_id)
+            ->groupByCompany($model->company_id)
             ->distinct()
             ->asArray()
             ->all();
-
 
         // condition to check if current company has existing sub companies.
         $sub_companies = ($sub_companies && (isset($company->subCompanies)) && count($company->subCompanies)>0) ? $sub_companies : false;
 
         /**
-         * if transfer initiated by parent company split it for each
-         * sub companies
+         * generate invoice for main transfer if no sub companies else generate 
+         * invoice for sub companies 
          */
         if(!$sub_companies)
         {
-            //generate invoice for main transfer if no sub companies else generate invoice for
-            //each sub companies
             $invoice = Invoice::findOne(['transfer_id' => $model->transfer_id]);
 
             if(!$invoice) {
@@ -580,6 +595,10 @@ class TransferController extends Controller
             }
         }
 
+        /** 
+         * if transfer initiated by parent company split it for each 
+         * sub companies
+         */ 
         if ($sub_companies) {
             foreach ($sub_companies as $key => $sub_company) {
 
@@ -649,6 +668,7 @@ class TransferController extends Controller
 
             }
         }
+        
         $this->invoiceMail($id); // send invoice mail
 
         return [
@@ -791,35 +811,27 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        $transfer = Invoice::find()
+        $invoice = Invoice::find()
             ->withTransfer($id)
             ->filterCurrentCompany($company)
-            ->asArray()
             ->one();
 
-        if(!$transfer) {
+        if(!$invoice) {
             return [
                 "operation" => "error",
                 "message" => 'Invoice not found!'
             ];
         }
 
-        $transfer['company'] = Company::findOne($transfer['company_id']);
-
-        $transfer['candidates'] = TransferCandidates::find()
-            ->candidatesByTransfer($transfer['transfer_id'])
-            ->asArray()
-            ->all();
-
         $this->layout = 'pdf';
 
-        if($transfer['invoice_status'] == 'paid')
+        if($invoice['invoice_status'] == 'paid')
             $template = 'receipt';
         else
             $template = 'invoice';
 
         $content = $this->render($template, [
-            'transfer' => $transfer,
+            'invoice' => $invoice,
         ]);
 
         $pdf = new Pdf([
