@@ -1,8 +1,10 @@
 # global codeception file to run tests from all apps
 include:
     - common
-    - frontend
     - admin
+    - candidate
+    - company
+    - staff
 paths:
     log: console/runtime/logs
 settings:
