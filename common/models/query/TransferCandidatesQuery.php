@@ -48,9 +48,22 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     {
         return $this->select(
                 '{{%transfer_candidates}}.*', 
-                '(({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
-            ->joinWith(['candidate'=>function($query){
-                $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+                '(
+                   (
+                    {{%transfer_candidates}}.candidate_hourly_rate * {{%transfer_candidates}}.hours
+                   ) 
+                   +
+                   {{%transfer_candidates}}.bonus
+                 ) as total_amount')
+            ->joinWith(['candidate' => function($query){
+                $query->select([
+                    'candidate_id',
+                    'candidate_name',
+                    'candidate_name_ar',
+                    'candidate_personal_photo',
+                    'candidate_email',
+                    'candidate_phone'
+                ]);
             }])
             ->where(['{{%transfer_candidates}}.paid' => 0]);
     }
