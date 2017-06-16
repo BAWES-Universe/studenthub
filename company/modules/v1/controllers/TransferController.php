@@ -306,11 +306,21 @@ class TransferController extends Controller
                 ];
         }
 
+        $new_transfer_id = $new_invoice_id = [];
+
+        //Old Child Transfers 
+        $old_child_transfers = Transfer::findAll(['parent_transfer_id' => $model->transfer_id]);
+
+        //Old Invoices 
+        $old_invoices = Invoice::find()
+            ->byTransfer($model->transfer_id)
+            ->all();
+
         $transaction = Yii::$app->db->beginTransaction();
 
         //remove old candidates
 
-        TransferCandidates::deleteAll(['transfer_id' => $model->transfer_id]);
+        TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
         //save candidates
 
@@ -386,6 +396,8 @@ class TransferController extends Controller
 
         $model->save();
 
+        $new_transfer_id[] = $model->transfer_id;
+
         //update child transfers
 
         //select distinct company and update transfer for each company if already added else create new
@@ -411,30 +423,41 @@ class TransferController extends Controller
                 $invoice->invoice_status = 'unpaid';
                 $invoice->save();
             }
+
+            $new_invoice_id[] = $invoice->invoice_id;
         }
-            
+
         foreach ($sub_companies as $key => $sub_company) {
 
             //move transfer to transfer
             $transfer = Transfer::find()
+                ->companyJoin()            
                 ->filterCompanyId($sub_company['company_id'])
                 ->filterParent($model->transfer_id)
                 ->one();
 
-            if(!$transfer) {
+            if(empty($transfer)) {
                 $transfer = new Transfer;
                 $transfer->attributes = $model->attributes;
                 $transfer->parent_transfer_id = $model->transfer_id;
                 $transfer->company_id = $sub_company['company_id'];
             }
 
-            $transfer->save(false);
+            if(!$transfer->save(false))
+            {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "success",
+                    "message" => $transfer->getErrors()
+                ];
+            }
 
             $total = $company_total = 0;
 
             //remove old candidate id exists
 
-            TransferCandidates::deleteAll(['transfer_id' => $transfer->transfer_id]);
+            TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
 
             // transfer candidate for current company
 
@@ -466,8 +489,16 @@ class TransferController extends Controller
             //save total in transfer
 
             $transfer->company_total = $company_total;
-            $transfer->total = $total;
-            $transfer->save();
+            $transfer->total = $total;            
+            if(!$transfer->save())
+            {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "success",
+                    "message" => $transfer->getErrors()
+                ];
+            }
 
             //generate invoice for each transfer
             $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
@@ -478,6 +509,31 @@ class TransferController extends Controller
                 $invoice->invoice_date = date('Y-m-d');
                 $invoice->invoice_status = 'unpaid';
                 $invoice->save();
+            }
+
+            $new_transfer_id[] = $transfer->transfer_id;
+            $new_invoice_id[] = $invoice->invoice_id;
+        }
+
+        //remove extra transfers 
+        foreach ($old_child_transfers as $key => $value) 
+        {
+            if(!in_array($value->transfer_id, $new_transfer_id))
+            {
+                //remove transfer data 
+                //Keep hard delete here as on recover of actual transfer we got required data 
+                TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+                Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+            }
+        }
+
+        //remove extra invoices  
+        foreach ($old_invoices as $key => $value) 
+        {
+            if(!in_array($value->invoice_id, $new_invoice_id))
+            {
+                //remove invoice
+                Invoice::updateAll(['deleted' => 1], ['invoice_id' => $value->invoice_id]);
             }
         }
 
@@ -621,7 +677,7 @@ class TransferController extends Controller
 
                 //remove old candidates if exists
 
-                TransferCandidates::deleteAll(['transfer_id' => $transfer->transfer_id]);
+                TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
 
                 // transfer candidate for current company
 

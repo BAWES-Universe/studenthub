@@ -25,12 +25,12 @@ class TransferQuery extends \yii\db\ActiveQuery
 
     public function filterParent($transfer_id) 
     {
-        return $this->where(['parent_transfer_id' => $transfer_id]);
+        return $this->andWhere(['parent_transfer_id' => $transfer_id]);
     }    
 
     public function filterTransfer($id)
     {
-        return $this->where(['{{%transfer}}.transfer_id' => $id]);
+        return $this->andWhere(['{{%transfer}}.transfer_id' => $id]);
     } 
 
     public function filterCompanyId($company_id) 

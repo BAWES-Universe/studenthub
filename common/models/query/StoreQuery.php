@@ -11,6 +11,6 @@ class StoreQuery extends \yii\db\ActiveQuery
 {
 	public function filterCompany($companyId) 
 	{
-		return $this->where(['{{%store}}.company_id' => $companyId]);
+		return $this->andWhere(['{{%store}}.company_id' => $companyId]);
 	}
 }
