@@ -76,7 +76,7 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->joinWith('candidateIdCard');
+            ->joinWith('candidateIdCard',true,'INNER JOIN');
 
         if($candidate_name) {
             $query->filterName($candidate_name);
