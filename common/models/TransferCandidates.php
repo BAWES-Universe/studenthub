@@ -6,6 +6,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use common\models\Invoice;
 
 /**
  * This is the model class for table "transfer_candidates".
@@ -15,6 +16,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $candidate_id
  * @property string $hours
  * @property string $candidate_hourly_rate
+ * @property string $company_hourly_rate
  * @property string $bonus
  * @property string $transfer_cost 
  * @property string $tc_created_at
@@ -101,6 +103,14 @@ class TransferCandidates extends \yii\db\ActiveRecord
     public function getTransfer()
     {
         return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoice()
+    {
+        return $this->hasOne(Invoice::className(), ['transfer_id' => 'transfer_id']);
     }
 
     public function getCandidateTotal()

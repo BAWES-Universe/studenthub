@@ -3,9 +3,11 @@
 namespace admin\modules\v1\controllers;
 
 use Yii;
+use yii\data\ArrayDataProvider;
 use yii\db\Query;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use common\models\Invoice;
@@ -35,6 +37,7 @@ class TransferController extends Controller
                 'Access-Control-Allow-Credentials' => null,
                 'Access-Control-Max-Age' => 86400,
                 'Access-Control-Expose-Headers' => [
+                    'filename',
                     'X-Pagination-Current-Page',
                     'X-Pagination-Page-Count',
                     'X-Pagination-Per-Page',
@@ -49,7 +52,7 @@ class TransferController extends Controller
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options','text'];
 
         return $behaviors;
     }
@@ -76,7 +79,9 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $candidates = TransferCandidates::find()->payable()->all();
+        $candidates = TransferCandidates::find()
+            ->payable()
+            ->all();
 
         header('Access-Control-Allow-Origin: *');
 
@@ -112,15 +117,46 @@ class TransferController extends Controller
      */
     public function actionPayableCandidates()
     {
-        // Candidates whose company paid to admin but admin have not paid yet 
+        $result = [];
+        $transfers = Transfer::findAll(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS]);
 
-        $query = TransferCandidates::find()->payable()->asArray();
+        foreach ($transfers as $transfer) {
 
-        return new ActiveDataProvider([
-            'query' => $query
+            // find all parents and child transfers
+            $transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
+            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+            $transfer_ids[] = $transfer->transfer_id;
+
+            $candidates = TransferCandidates::find()
+                ->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+                ->joinWith(['candidate'=>function($query){
+                    $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+                }])
+                ->where("transfer_id IN (".implode(',',$transfer_ids).")")
+                ->groupBy("candidate_id")
+                ->asArray()
+                ->all();
+
+            if($candidates) {
+                $result[] = [
+                    'transfer_id'=>$transfer->transfer_id,
+                    'candidates' => $candidates,
+                    'total' => $transfer->total
+                ];
+            } else { // remove transfer if no candidate available
+                unset($result[$transfer->transfer_id]);
+            }
+        }
+
+
+        return new ArrayDataProvider([
+            'allModels' => $result
         ]);
     }
 
+    /**
+     * Return a List of all Payable Candidates with invoice status paid
+     */
     public function actionAllPayableCandidates()
     {
         // Candidates whose company paid to admin but admin have not paid yet
@@ -134,9 +170,16 @@ class TransferController extends Controller
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
             $transfer_ids[] = $transfer->transfer_id;
 
-            $candidates = TransferCandidates::find()->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')->joinWith(['candidate'=>function($query){
-                $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
-            }])->where("paid='0' AND transfer_id IN ('".implode(',',$transfer_ids)."')")->asArray()->all();
+            $candidates = TransferCandidates::find()
+                ->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+                ->joinWith(['candidate'=>function($query){
+                    $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
+                }])
+                ->where("paid='0' AND transfer_id IN (".implode(',',$transfer_ids).")")
+                ->groupBy("candidate_id")
+                ->asArray()
+                ->all();
+
             if($candidates) {
                 $result[] = [
                     'transfer_id'=>$transfer->transfer_id,
@@ -146,6 +189,7 @@ class TransferController extends Controller
                 unset($result[$transfer->transfer_id]);
             }
         }
+
         return $result;
     }
 
@@ -178,61 +222,9 @@ class TransferController extends Controller
     }
 
     /**
-     * Download Transfer as PDF 
-     */
-    public function actionPdf($id)
-    {
-        $transfer = Invoice::find()
-            ->withTransfer($id)
-            ->asArray()
-            ->one();
-
-        if(!$transfer) {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
-        }
-
-        $transfer['company'] = Company::findOne($transfer['company_id']);
-
-        $transfer['candidates'] = TransferCandidates::find()
-            ->candidatesByTransfer($transfer['transfer_id'])
-            ->asArray()
-            ->all();
-
-        $this->layout = 'pdf';
-
-        if($transfer['invoice_status'] == 'paid') 
-            $template = 'receipt';
-        else
-            $template = 'invoice';
-
-        $content = $this->render($template, [
-            'transfer' => $transfer,
-        ]);
-
-        $pdf = new Pdf([
-            // A4 paper format
-            'format' => Pdf::FORMAT_A4, 
-            // portrait orientation
-            'orientation' => Pdf::ORIENT_PORTRAIT, 
-            // stream to browser inline
-            'destination' => Pdf::DEST_BROWSER, 
-            // your html content input
-            'content' => $content,  
-            // any css to be embedded if required
-            'cssInline' => '.kv-heading-1{font-size:38px}', 
-             // set mPDF properties on the fly
-            'options' => [],//['title' => 'Booking #'.$id],
-        ]);    
-
-        header('Access-Control-Allow-Origin: *');
-        return $pdf->render();
-    }
-
-    /**
      * Return Transfer detail.
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
      */
     public function actionView($id)
     {
@@ -276,66 +268,10 @@ class TransferController extends Controller
     }
 
     /**
-     * Export Transfer detail.
-     */
-    public function actionExport($id)
-    {
-        $transfer = Transfer::find()
-            ->where([
-                'transfer_id' => $id
-            ])
-            ->one();
-            
-        if(!$transfer) {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
-        }
-
-        $candidates = TransferCandidates::find()
-            ->candidatesByTransfer($id)
-            ->all();
-
-        header('Access-Control-Allow-Origin: *');
-
-        \moonland\phpexcel\Excel::export([
-            'isMultipleSheet' => false,
-            'models' => $candidates,
-            'columns' => [
-                'candidate_id',
-                'candidate.candidate_name',
-                'candidate.candidate_email',
-                'candidate.store.company.company_name',
-                'candidate.store.store_name',
-                'hours',
-                'candidate_hourly_rate',
-                'bonus',
-                'transfer_cost',
-                [
-                    'attribute'=>'candidate_total',
-                    'value'=>function($data) {
-                        return $data->candidateTotal;
-                    }
-                ],
-                'candidate.candidate_iban', 
-                'candidate.bank.bank_name',
-                [
-                    'attribute' => 'paid',
-                    'value' => function($model) {
-                        if($model->paid)
-                            return 'Yes';
-                        else
-                            return 'No';
-                    },
-                ],
-            ]
-        ]);
-    }
-
-    /** 
      * Mark Transfer as Payment Received
-     */ 
+     * @param $id
+     * @return array
+     */
     public function actionPaymentReceived($id)
     {
         $transfer = Transfer::findOne($id);
@@ -376,9 +312,11 @@ class TransferController extends Controller
         ];
     }
 
-    /** 
-     * Mark Transfer as Initiated
-     */ 
+    /**
+     * Return Transfer by mark as Initiated from Lock
+     * @param $id
+     * @return array
+     */
     public function actionUnlock($id)
     {
         $transfer = Transfer::findOne([
@@ -411,9 +349,44 @@ class TransferController extends Controller
             ];
     }
 
-    /** 
+    /**
+     * Return Transfer by mark as Lock from Payment Sent
+     * @param $id
+     * @return array
+     */
+    public function actionLock($id)
+    {
+        $model = Transfer::findOne($id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+
+        if($model->transfer_status != Transfer::STATUS_PAYMENT_SENT)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status need to be "Payment Sent" to lock it!'
+            ];
+        }
+
+        $model->transfer_status = Transfer::STATUS_LOCK;
+        if ($model->save()) {
+            return [
+                "operation" => "success",
+                "message" => "Transfer status changed to locked successfully"
+            ];
+        }
+    }
+
+    /**
      * Mark Transfer as Payment In Process
-     */ 
+     * @param $id
+     * @return array
+     */
     public function actionPaymentInProcess($id)
     {
         $transfer = Transfer::findOne([
@@ -436,9 +409,11 @@ class TransferController extends Controller
             ];
     }
 
-    /** 
+    /**
      * Mark Transfer as Payment In Completed
-     */ 
+     * @param $id
+     * @return array
+     */
     public function actionPaymentCompleted($id)
     {
         $transfer = Transfer::findOne([
@@ -473,9 +448,11 @@ class TransferController extends Controller
         ];
     }
 
-    /** 
-     * Return unpaid candidates for given transfer 
-     */ 
+    /**
+     * Return unpaid candidates for given transfer
+     * @param $id
+     * @return array
+     */
     public function actionUnpaidCandidates($id)
     {
         $candidates = TransferCandidates::find()
@@ -488,6 +465,11 @@ class TransferController extends Controller
         ];
     }
 
+    /**
+     * Method to mark payment as paid
+     * @param $id
+     * @return array
+     */
     public function actionMarkPaid($id)
     {
         $transfer = Transfer::findOne($id);
@@ -538,10 +520,9 @@ class TransferController extends Controller
         ];
     }
 
-
-    /*
-     * Method linked with payable candidate section
-     * option to mark all candidate at one time
+    /**
+     * Method linked with payable candidate
+     * section option to mark all candidate at one time
      */
     public function actionMarkPaidAll()
     {
@@ -582,12 +563,17 @@ class TransferController extends Controller
             ];
     }
 
+    /**
+     * Receipt Mail by transfer id to recipient
+     * and also forward to finance@bawes.net
+     * @param $transfer_id
+     * @return array|bool
+     */
     private function receiptMail($transfer_id)
     {
         $invoices = Invoice::find()
             ->byTransfer($transfer_id)
             ->all();
-
 
         if(!$invoices) {
             return [
@@ -595,10 +581,11 @@ class TransferController extends Controller
                 "message" => 'Invoice not found!'
             ];
         }
+
         $this->layout = 'pdf';
         $subject = [];
         $template = 'receipt';
-        $message = Yii::$app->mailer->compose('receipt-attachment');
+        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
         $i=1;
         $invoice_id = 0;
@@ -627,16 +614,21 @@ class TransferController extends Controller
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
             $i++;
-            $subject[] = 'StudentHub Receipt #'.$invoice_id;
-            $invoice_id = 0;
+            $subject[] = '#'.$invoice_id;
+            $invoice_id = 0; // reinitialize to 0 to store new with new loop
         }
+        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{receipt} other{receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
 
-        return $message->setTo('anilkumar.dhiman1@gmail.com')
-            ->setCc('finance@bawes.net')
-            ->setSubject(implode(',',$subject))
+        return $message->setTo($email)
+            ->setCc(Yii::$app->params['invoiceCC'])
+            ->setSubject($subjectLine)
             ->send();
     }
 
+    /**
+     * method to generate text file for all unpaid candidates
+     * @return array
+     */
     public function actionText() {
 
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
@@ -649,84 +641,166 @@ class TransferController extends Controller
         $totalAmount = 0;
         $finalAmount = 0;
 
-        $invoices = Invoice::find()
-            ->unpaid()
+        $candidates = TransferCandidates::find()
+            ->payable()
             ->all();
 
-        if(!$invoices) {
+        if(!$candidates) {
             return [
                 "operation" => "error",
-                "message" => 'Transfer not found!'
+                "message" => 'No Payable Candidates!'
             ];
         }
 
-        foreach ($invoices as $invoice) 
-        {
-            $candidates = TransferCandidates::find()
-                ->candidatesByTransfer($invoice->transfer_id)
-                ->asArray()
-                ->all();
-
-            foreach ($candidates as $detail) {
-                $totalUserHours += $detail['hours'];
-                $totalUserBonus += $detail['bonus'];
-                $totalUserAmount += ($detail['hours'] * $detail['company_hourly_rate']);
-                $totalAmount += $totalUserAmount;
-                $finalUserAmount = number_format($totalUserAmount,3,'.',',');
-                $description = 'Internship '.$detail['hours'].' Hours';
-                $s2 .= "S2,".$detail['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".$detail['candidate_iban'].",".$invoice->transfer_id.",".$invoice->invoice_id.",".$description.",,,,".$detail['bank_account_name'].",".$detail['bank_name'].",,".$detail['bank_name'].",".$detail['bank_address'].",,,".$detail['bank_swift_code'].",,,,,,,B,,,".$detail['candidate_iban'].",".PHP_EOL;
-                $totalTransaction +=1;
+        foreach ($candidates as $detail) {
+            $totalUserHours += $detail['hours'];
+            $totalUserBonus += $detail['bonus'];
+            $totalUserAmount += ($detail['hours'] * $detail['company_hourly_rate']);
+            $totalAmount += $totalUserAmount;
+            $finalUserAmount = number_format($totalUserAmount,3,'.',',');
+            $description = 'Internship '.$detail['hours'].' Hours';
+            
+            if(empty($detail->candidate->bank)) {
+                continue;
             }
+
+            $s2 .= "S2,".$detail->candidate->bank['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".
+                $detail->candidate['candidate_iban'].",".
+                $detail['transfer_id'].",".
+                $detail->invoice->invoice_id.",".
+                $description.",,,,".
+                $detail->candidate['bank_account_name'].",".
+                $detail->candidate->bank['bank_name'].",,".
+                $detail->candidate->bank['bank_name'].",".
+                $detail->candidate->bank['bank_address'].",,,".
+                $detail->candidate->bank['bank_swift_code'].",,,,,,,B,,,".
+                $detail->candidate['candidate_iban'].",".PHP_EOL;
+            $totalTransaction +=1;
         }
+
         $finalAmount = number_format($totalAmount,3,'.',',');
         $s3 = 'S3,'.$totalTransaction.','.$finalAmount; // Footer
         $sAll = $s1.$s2.$s3;
 
         $fileName = 'BAWS-PAY-'.date('dmY').'-01.txt';
 
-        $handle = fopen($fileName, "w");
+        $path = sys_get_temp_dir() . $fileName;
+
+        $handle = fopen($path, "w");
         fwrite($handle, $sAll);
         fclose($handle);
 
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename='.basename($fileName));
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($fileName));
-        readfile($fileName);
-        exit;
+        Yii::$app->response->headers->add('filename', $fileName);
+
+        return Yii::$app->response->sendFile($path);
     }
 
-
-    public function actionLock($id)
+    /**
+     * Download Transfer as PDF
+     * @param $id
+     * @return array|mixed
+     */
+    public function actionPdf($id)
     {
-        $model = Transfer::findOne($id);
+        $invoice = Invoice::find()
+            ->withTransfer($id)
+            ->one();
 
-        if(!$model) {
+        if(!$invoice) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
             ];
         }
 
-        if($model->transfer_status != Transfer::STATUS_PAYMENT_SENT)
-        {
+        $this->layout = 'pdf';
+
+        if($invoice['invoice_status'] == 'paid')
+            $template = 'receipt';
+        else
+            $template = 'invoice';
+
+        $content = $this->render($template, [
+            'invoice' => $invoice,
+        ]);
+
+        $pdf = new Pdf([
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => '.kv-heading-1{font-size:38px}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+        ]);
+
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
+    }
+
+    /**
+     * Export Transfer detail
+     * @param $id
+     * @return array
+     */
+    public function actionExport($id)
+    {
+        $transfer = Transfer::find()
+            ->where([
+                'transfer_id' => $id
+            ])
+            ->one();
+
+        if(!$transfer) {
             return [
                 "operation" => "error",
-                "message" => 'Transfer status need to be "Payment Sent" to lock it!'
+                "message" => 'Transfer not found!'
             ];
         }
 
-        $model->transfer_status = Transfer::STATUS_LOCK;
-        if ($model->save()) {
-            return [
-                "operation" => "success",
-                "message" => "Transfer status changed to locked successfully"
-            ];
-        }
+        $candidates = TransferCandidates::find()
+            ->candidatesByTransfer($id)
+            ->all();
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'columns' => [
+                'candidate_id',
+                'candidate.candidate_name',
+                'candidate.candidate_email',
+                'candidate.store.company.company_name',
+                'candidate.store.store_name',
+                'hours',
+                'candidate_hourly_rate',
+                'bonus',
+                'transfer_cost',
+                [
+                    'attribute'=>'candidate_total',
+                    'value'=>function($data) {
+                        return $data->candidateTotal;
+                    }
+                ],
+                'candidate.candidate_iban',
+                'candidate.bank.bank_name',
+                [
+                    'attribute' => 'paid',
+                    'value' => function($model) {
+                        if($model->paid)
+                            return 'Yes';
+                        else
+                            return 'No';
+                    },
+                ],
+            ]
+        ]);
     }
 
 }

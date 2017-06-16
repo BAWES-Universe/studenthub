@@ -217,13 +217,35 @@ class CompanyController extends Controller
      */
     public function actionDelete($id)
     {
-        $companyAccount = Company::findOne((int)$id);
+        $company = Company::findOne((int)$id);
 
-        if($companyAccount){
-            Yii::warning("[Company Account Deleted] ".$companyAccount->company_email, __METHOD__);
+        if ($company) {
+
+            if (count($company->stores)>0) {
+                return [
+                    "operation" => "error",
+                    "message" => "Company has multiple store."
+                ];
+            }
+
+            if (count($company->transfers)>0) {
+                return [
+                    "operation" => "error",
+                    "message" => "Company has multiple transfers."
+                ];
+            }
+
+            if (count($company->subCompanies) > 0) {
+                return [
+                    "operation" => "error",
+                    "message" => "Company has multiple Sub Company."
+                ];
+            }
+
+            Yii::warning("[Company Account Deleted] ".$company->company_email, __METHOD__);
 
             // Delete the account
-            $companyAccount->delete();
+            $company->delete();
             
             return [
                 "operation" => "success",
@@ -240,7 +262,7 @@ class CompanyController extends Controller
         // Error for cases not accounted for
         return [
             "operation" => "error",
-            "message" => "Unknown error occured, please contact us for assistance"
+            "message" => "Unknown error occurred, please contact us for assistance"
         ];
 
         // Check SQL Query Count and Duration

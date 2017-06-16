@@ -75,6 +75,13 @@ class AccountController extends Controller
 
         foreach ($transferCandidates as $key => $transferCandidate) {
 
+            if (
+                empty($transferCandidate->invoice) ||
+                $transferCandidate->invoice->invoice_status != 'paid'
+            ) {
+                continue;
+            }
+
             if(isset($transferCandidate->transfer->company->company_name)) {
                 $company_name = $transferCandidate->transfer->company->company_name;
             } else {
@@ -122,7 +129,7 @@ class AccountController extends Controller
         }else{
             $company_id = $candidate->store->company->company_id; 
             $company_name = $candidate->store->company->company_name;
-            $company_email = $candidate->store->company->company_email;            
+            $company_email = $candidate->store->company->company_email;           
         }
 
         return [

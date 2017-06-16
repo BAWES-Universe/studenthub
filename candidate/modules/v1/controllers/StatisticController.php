@@ -79,8 +79,10 @@ class StatisticController extends Controller
         {
             $totalHours += $transfer->hours;
 
-            if ($transfer->paid) 
-            {
+            if (
+                $transfer->invoice && 
+                $transfer->invoice->invoice_status == 'paid'
+            ) {
                 $totalPaid += ($transfer->hours * $transfer->company_hourly_rate);
                 $totalBonus += $transfer->bonus;
             }
