@@ -248,7 +248,7 @@ class CandidateIdCardController extends Controller
                 $source = Url::to('@s3/'.$value->candidate_personal_photo);
                 $destination = $path.'/photos/'.$value->employee_id.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
 
-                copy($source, $destination);
+                @copy($source, $destination);
             }
         }
 
