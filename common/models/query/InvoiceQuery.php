@@ -59,7 +59,7 @@ class InvoiceQuery extends \yii\db\ActiveQuery
      */
     public function paid() 
     {
-        return $this->where(['{{%invoice}}.invoice_status' => 'paid']);
+        return $this->andWhere(['{{%invoice}}.invoice_status' => 'paid']);
     }
 
     /**
@@ -67,7 +67,7 @@ class InvoiceQuery extends \yii\db\ActiveQuery
      */
     public function unpaid() 
     {
-        return $this->where(['{{%invoice}}.invoice_status' => 'unpaid']);
+        return $this->andWhere(['{{%invoice}}.invoice_status' => 'unpaid']);
     }
 
     /**
@@ -81,7 +81,7 @@ class InvoiceQuery extends \yii\db\ActiveQuery
                 '{{%transfer}}.*'
             ])
             ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
-            ->where(['{{%invoice}}.invoice_id' => $invoice_id]);
+            ->andWhere(['{{%invoice}}.invoice_id' => $invoice_id]);
     }        
 
     /**
@@ -90,7 +90,7 @@ class InvoiceQuery extends \yii\db\ActiveQuery
     public function byTransfer($transfer_id)
     {
         return $this->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
-            ->where(['transfer.transfer_id' => $transfer_id])
+            ->andWhere(['transfer.transfer_id' => $transfer_id])
             ->orWhere(['transfer.parent_transfer_id' => $transfer_id]);
     }
 }

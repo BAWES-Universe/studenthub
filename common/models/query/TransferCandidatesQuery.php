@@ -61,7 +61,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
 	 */
 	public function profit($transfer_id)
 	{
-		return $this->where([
+		return $this->andWhere([
                 '{{%transfer_candidates}}.transfer_id' => $transfer_id
             ])->sum('(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate ) * {{%transfer_candidates}}.hours) - {{%transfer_candidates}}.transfer_cost');
             // transfer cost will be on admin  
@@ -96,7 +96,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     public function groupByCompany($company_id) 
     {
         return $this->groupBy('{{%company}}.company_id')
-            ->where(['!=', '{{%company}}.company_id', $company_id])
+            ->andWhere(['!=', '{{%company}}.company_id', $company_id])
             ->distinct();
     }        
             
@@ -136,7 +136,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
             ->leftJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
-            ->where([
+            ->andWhere([
                 '{{%transfer_candidates}}.transfer_id' => $transfer_id
             ]);
     }
@@ -146,7 +146,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function totalPaid($transfer_id) 
     {
-        return $this->where(['transfer_id' => $transfer_id, 'paid' => 1])
+        return $this->andWhere(['transfer_id' => $transfer_id, 'paid' => 1])
             ->count();
     }
 
@@ -155,7 +155,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function totalUnpaid($transfer_id) 
     {
-        return $this->where(['transfer_id' => $transfer_id, 'paid' => 0])
+        return $this->andWhere(['transfer_id' => $transfer_id, 'paid' => 0])
             ->count();
     }
 
@@ -166,7 +166,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     {
     	return $this->select('{{%candidate}}.candidate_id, {{%candidate}}.candidate_name')
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->where([
+            ->andWhere([
                 '{{%transfer_candidates}}.paid' => 0,
                 'transfer_id' => $transfer_id
             ]);

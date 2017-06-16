@@ -26,7 +26,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
         // create store_id array 
 
         $stores = Store::find()
-            ->where(['in', 'company_id', $company_ids])
+            ->andWhere(['in', 'company_id', $company_ids])
             ->all();
 
         $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
@@ -43,7 +43,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
         $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
 
-        return $this->where(['NOT IN', 'candidate_id', $candidate_ids]);
+        return $this->andWhere(['NOT IN', 'candidate_id', $candidate_ids]);
     }        
 
     public function filterName($candidate_name) 
@@ -63,42 +63,42 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
     public function filterStore($store_id) 
     {
-        return $this->where(['store_id' => $store_id]);
+        return $this->andWhere(['store_id' => $store_id]);
     }
 
     public function filterCountry($country_id) 
     {
-        return $this->where(['country_id' => $country_id]);
+        return $this->andWhere(['country_id' => $country_id]);
     }
 
     public function idExpired()
     {
         return $this
             ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id')
-            ->where('DATE(expiry_date) < DATE(NOW())');
+            ->andWhere('DATE(expiry_date) < DATE(NOW())');
     }
 
     public function idNeedGenerated()
     {
-        return $this->where('candidate_id NOT IN (select candidate_id from candidate_id_card)')
+        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)')
             ->all();   
     }
 
     public function totalIdNeedGenerated() 
     {
-    	return $this->where('candidate_id NOT IN (select candidate_id from candidate_id_card)')
+    	return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)')
     		->count();
     }
 
     public function totalAssigned()
     {
-    	return $this->where('store_id > 0')
+    	return $this->andWhere('store_id > 0')
 			->count();
 	}
 
     public function totalUnassigned()
     {
-        return $this->where('store_id IS NULL OR store_id = 0')
+        return $this->andWhere('store_id IS NULL OR store_id = 0')
             ->count();
     }            
 }

@@ -12,7 +12,7 @@ class CompanyQuery extends \yii\db\ActiveQuery
 {
 	public function filterParent()
 	{
-		return $this->where(['parent_company_id' => null]);		
+		return $this->andWhere(['parent_company_id' => null]);		
 	}
 }
  
