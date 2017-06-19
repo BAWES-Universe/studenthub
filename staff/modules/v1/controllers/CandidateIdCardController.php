@@ -278,6 +278,9 @@ class CandidateIdCardController extends Controller
 
         foreach ($candidate_ids as $key => $value)
         {
+            if(!$value)
+                continue;
+            
             $ID = CandidateIdCard::find()
                 ->where(['candidate_id' => $value])
                 ->one();
@@ -301,6 +304,21 @@ class CandidateIdCardController extends Controller
         return [
             'operation' => 'success',
             'message' => 'Candidate ID Renewed Successfully'
+        ];
+    }
+
+    /**
+     * Return no. of expired ID Cards
+     */
+    public function actionTotalExpired()
+    {
+        $query = Candidate::find()
+            ->idExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
+
+        return [
+            'total' => $query->count()
         ];
     }
 

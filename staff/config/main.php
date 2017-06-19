@@ -155,12 +155,14 @@ return [
                         'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
                         'GET list-expired' => 'list-expired',
+                        'GET total-expired' => 'total-expired',
                         'POST generate' => 'generate',
                         'POST renew' => 'renew',                        
                         // OPTIONS VERBS
                         'OPTIONS list-candidate-ids' => 'options',
                         'OPTIONS list-candidates' => 'options',
                         'OPTIONS list-expired' => 'options',
+                        'OPTIONS total-expired' => 'options',
                         'OPTIONS generate' => 'options',
                         'OPTIONS renew' => 'options',                        
                     ]
