@@ -7,7 +7,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\TransferCandidates;
+use common\models\TransferCandidate;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -71,9 +71,9 @@ class AccountController extends Controller
     {
         $list = [];
         
-        $transferCandidates = Yii::$app->user->identity->transferCandidates;
+        $TransferCandidate = Yii::$app->user->identity->transferCandidate;
 
-        foreach ($transferCandidates as $key => $transferCandidate) {
+        foreach ($TransferCandidate as $key => $transferCandidate) {
 
             if (
                 empty($transferCandidate->invoice) ||

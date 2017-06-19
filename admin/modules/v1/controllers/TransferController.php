@@ -12,7 +12,7 @@ use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use common\models\Invoice;
 use common\models\Transfer;
-use common\models\TransferCandidates;
+use common\models\TransferCandidate;
 use kartik\mpdf\Pdf;
 
 /**
@@ -79,7 +79,7 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet 
 
-        $candidates = TransferCandidates::find()
+        $candidates = TransferCandidate::find()
             ->payable()
             ->all();
 
@@ -134,8 +134,8 @@ class TransferController extends Controller
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
             $transfer_ids[] = $transfer->transfer_id;
 
-            $candidates = TransferCandidates::find()
-                ->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+            $candidates = TransferCandidate::find()
+                ->select('{{%transfer_candidate}}.*, (({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus) as total_amount')
                 ->joinWith(['candidate'=>function($query){
                     $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
                 }])
@@ -177,8 +177,8 @@ class TransferController extends Controller
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
             $transfer_ids[] = $transfer->transfer_id;
 
-            $candidates = TransferCandidates::find()
-                ->select('{{%transfer_candidates}}.*, (({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+            $candidates = TransferCandidate::find()
+                ->select('{{%transfer_candidate}}.*, (({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus) as total_amount')
                 ->joinWith(['candidate'=>function($query){
                     $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
                 }])
@@ -249,18 +249,18 @@ class TransferController extends Controller
                 ];
         }
 
-        $transfer['total_paid'] = TransferCandidates::find()
+        $transfer['total_paid'] = TransferCandidate::find()
             ->totalPaid($id);
         
-        $transfer['total_unpaid'] = TransferCandidates::find()
+        $transfer['total_unpaid'] = TransferCandidate::find()
             ->totalUnpaid($id);
 
         //get total profit
 
-        $transfer['profit'] = TransferCandidates::find()
+        $transfer['profit'] = TransferCandidate::find()
             ->profit($id);
             
-        $transfer['candidates'] = TransferCandidates::find()
+        $transfer['candidates'] = TransferCandidate::find()
             ->candidatesByTransfer($transfer['transfer_id'])
             ->asArray()
             ->all();
@@ -447,7 +447,7 @@ class TransferController extends Controller
 
         //mark candidates as paid 
 
-        TransferCandidates::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
+        TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
 
         return [
             "operation" => "success",
@@ -462,7 +462,7 @@ class TransferController extends Controller
      */
     public function actionUnpaidCandidates($id)
     {
-        $candidates = TransferCandidates::find()
+        $candidates = TransferCandidate::find()
             ->unpaid($id)
             ->asArray()
             ->all();
@@ -503,12 +503,12 @@ class TransferController extends Controller
 
         foreach ($candidate_ids as $key => $value) 
         {
-            TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "'.$value.'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
+            TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$value.'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
         }
 
         //check if all paid, mark transfer as complete 
 
-        $unpaid = TransferCandidates::find()
+        $unpaid = TransferCandidate::find()
             ->where([
                 'paid' => 0
             ])
@@ -549,10 +549,10 @@ class TransferController extends Controller
 
             $transfer_ids[] = $list['transfer_id'];
 
-            TransferCandidates::updateAll(['paid' => 1], 'candidate_id = "'.$list['candidate_id'].'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
+            TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$list['candidate_id'].'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
             //check if all paid, mark transfer as complete
 
-            $unpaid = TransferCandidates::find()
+            $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
                 ])
@@ -648,7 +648,7 @@ class TransferController extends Controller
         $totalAmount = 0;
         $finalAmount = 0;
 
-        $candidates = TransferCandidates::find()
+        $candidates = TransferCandidate::find()
             ->payable()
             ->all();
 
@@ -770,7 +770,7 @@ class TransferController extends Controller
             ];
         }
 
-        $candidates = TransferCandidates::find()
+        $candidates = TransferCandidate::find()
             ->candidatesByTransfer($id)
             ->all();
 

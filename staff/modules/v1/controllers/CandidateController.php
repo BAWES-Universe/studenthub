@@ -8,7 +8,7 @@ use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use staff\models\Store;
 use staff\models\Candidate;
-use common\models\TransferCandidates;
+use common\models\TransferCandidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -422,7 +422,7 @@ class CandidateController extends Controller
 
         //check if in invoice
 
-        $a = TransferCandidates::findOne([
+        $a = TransferCandidate::findOne([
                 'candidate_id' => $id
             ]);
 

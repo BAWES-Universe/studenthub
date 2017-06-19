@@ -5,10 +5,10 @@ use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
- * This is the ActiveQuery class for [[TransferCandidates]].
+ * This is the ActiveQuery class for [[TransferCandidate]].
  *
  */
-class TransferCandidatesQuery extends \yii\db\ActiveQuery
+class TransferCandidateQuery extends \yii\db\ActiveQuery
 {
     /**
      * @param null $db
@@ -16,7 +16,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%transfer_candidates}}.deleted' => 0]);
+        $this->andWhere(['{{%transfer_candidate}}.deleted' => 0]);
         return parent::all($db);
     }
 
@@ -26,7 +26,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%transfer_candidates}}.deleted' => 0]);
+        $this->andWhere(['{{%transfer_candidate}}.deleted' => 0]);
         return parent::one($db);
     }
 
@@ -36,7 +36,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     public function filterPaid()
     {
         return $this->andWhere([
-                '{{%transfer_candidates}}.paid' => 1
+                '{{%transfer_candidate}}.paid' => 1
             ]);
     }
 
@@ -46,7 +46,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     public function filterUnpaid()
     {
         return $this->andWhere([
-                '{{%transfer_candidates}}.paid' => 0
+                '{{%transfer_candidate}}.paid' => 0
             ]);
     }
 
@@ -87,8 +87,8 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
 	public function profit($transfer_id)
 	{
 		return $this->andWhere([
-                '{{%transfer_candidates}}.transfer_id' => $transfer_id
-            ])->sum('(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate ) * {{%transfer_candidates}}.hours) - {{%transfer_candidates}}.transfer_cost');
+                '{{%transfer_candidate}}.transfer_id' => $transfer_id
+            ])->sum('(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate ) * {{%transfer_candidate}}.hours) - {{%transfer_candidate}}.transfer_cost');
             // transfer cost will be on admin  
 	}
 		
@@ -98,8 +98,8 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function payable()
     {
-        return  $this->select('{{%transfer_candidates}}.*')
-                    ->addSelect('(({{%transfer_candidates}}.candidate_hourly_rate*{{%transfer_candidates}}.hours)+{{%transfer_candidates}}.bonus) as total_amount')
+        return  $this->select('{{%transfer_candidate}}.*')
+                    ->addSelect('(({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus) as total_amount')
                     ->joinWith(['candidate'=>function($query){
                         $query->select([
                             'candidate_id',
@@ -136,7 +136,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     public function candidatesByTransfer($transfer_id) 
     {
         return $this->select([
-                '{{%transfer_candidates}}.*', 
+                '{{%transfer_candidate}}.*', 
         		'{{%store}}.company_id',
                 '{{%store}}.store_name', 
         		'{{%company}}.company_name', 
@@ -159,14 +159,14 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
                 '{{%candidate}}.candidate_created_at',
                 '{{%candidate}}.candidate_updated_at',
                 '{{%bank}}.*',
-        		'profit as' => '(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate) * hours) - transfer_cost'
+        		'profit as' => '(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate) * hours) - transfer_cost'
         	])
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidate}}.candidate_id')
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
             ->leftJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
             ->andWhere([
-                '{{%transfer_candidates}}.transfer_id' => $transfer_id
+                '{{%transfer_candidate}}.transfer_id' => $transfer_id
             ]);
     }
 
@@ -194,9 +194,9 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     public function unpaid($transfer_id) 
     {
     	return $this->select('{{%candidate}}.candidate_id, {{%candidate}}.candidate_name')
-            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
+            ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidate}}.candidate_id')
             ->andWhere([
-                '{{%transfer_candidates}}.paid' => 0,
+                '{{%transfer_candidate}}.paid' => 0,
                 'transfer_id' => $transfer_id
             ]);
     }
