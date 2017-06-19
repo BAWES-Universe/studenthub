@@ -51,6 +51,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 <span>KWD <?=number_format($totalAmount)?></span>
             </td>
         </tr>
+        <?php if($totalBonus > 0) { ?>
         <tr>
             <td align="left" style="text-align: left">
                 <span><b>Bonus to be sent to interns</b></span>
@@ -59,6 +60,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 <span>KWD <?=number_format($totalBonus)?></span>
             </td>
         </tr>
+        <?php } ?>
     </table>
     <hr/>
     <table class="table" >
