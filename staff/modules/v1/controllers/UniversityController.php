@@ -68,7 +68,8 @@ class UniversityController extends Controller
      */
     public function actionList()
     {
-        $query = University::find();
+        $query = University::find()
+            ->listWithCandidateCount();
 
         return new ActiveDataProvider([
             'query' => $query
