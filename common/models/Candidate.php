@@ -3,13 +3,8 @@
 namespace common\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-use yii\helpers\FileHelper;
-use common\models\Bank;
-use common\models\University;
-use common\models\Country;
 
 /**
  * This is the model class for table "candidate".
@@ -54,7 +49,13 @@ use common\models\Country;
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    /**
+     *
+     */
     const STATUS_INCOMPLETE = 10;
+    /**
+     *
+     */
     const STATUS_DIRTY = 2;
     const STATUS_READY = 1;
 
@@ -154,6 +155,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [
@@ -240,7 +244,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Returns age of person
      * @return integer
      */
-    public function getAge(){
+    public function getAge()
+    {
         return floor((time() - strtotime($this->candidate_birth_date))/31556926);
     }
 
@@ -248,7 +253,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Moves the newly uploaded files from the temporary bucket to the permanent one
      * If their values have changed and their files exist in the temporary bucket.
      */
-    private function _moveTemporaryFilesToPermanentBucket() {
+    private function _moveTemporaryFilesToPermanentBucket()
+    {
         // For each file, move its file from temporary to permanent
         foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
             if($this->{$attribute} !== $this->getOldAttribute($attribute)){
@@ -319,6 +325,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return false;
     }
 
+    /**
+     * @return string
+     */
     public function generateUid()
     {
         $randomString = Yii::$app->getSecurity()->generateRandomString(20);
@@ -444,7 +453,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Signs user up.
      * @return static|null the saved model or null if saving fails
      */
-    public function signup() {
+    public function signup()
+    {
         $this->setPassword($this->candidate_password_hash);
         $this->generateAuthKey();
 
@@ -464,14 +474,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @inheritdoc
      */
-    public static function findIdentity($id) {
+    public static function findIdentity($id)
+    {
         return static::findOne(['candidate_id' => $id]);
     }
 
     /**
      * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
         $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
         if($token){
             return $token->candidate;
@@ -484,7 +496,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $email
      * @return static|null
      */
-    public static function findByEmail($email) {
+    public static function findByEmail($email)
+    {
         return static::findOne(['candidate_email' => $email]);
     }
 
@@ -494,7 +507,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $token password reset token
      * @return static|null
      */
-    public static function findByPasswordResetToken($token) {
+    public static function findByPasswordResetToken($token)
+    {
 
         if (!static::isPasswordResetTokenValid($token)) {
             return null;
@@ -511,7 +525,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $token password reset token
      * @return boolean
      */
-    public static function isPasswordResetTokenValid($token) {
+    public static function isPasswordResetTokenValid($token)
+    {
         if (empty($token)) {
             return false;
         }
@@ -524,21 +539,24 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @inheritdoc
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->getPrimaryKey();
     }
 
     /**
      * @inheritdoc
      */
-    public function getAuthKey() {
+    public function getAuthKey()
+    {
         return $this->candidate_auth_key;
     }
 
     /**
      * @inheritdoc
      */
-    public function validateAuthKey($authKey) {
+    public function validateAuthKey($authKey)
+    {
         return $this->getAuthKey() === $authKey;
     }
 
@@ -548,7 +566,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $password password to validate
      * @return boolean if password provided is valid for current user
      */
-    public function validatePassword($password) {
+    public function validatePassword($password)
+    {
         return Yii::$app->security->validatePassword($password, $this->candidate_password_hash);
     }
 
@@ -557,14 +576,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      *
      * @param string $password
      */
-    public function setPassword($password) {
+    public function setPassword($password)
+    {
         $this->candidate_password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**
      * Generates auth key [1 time use token]
      */
-    public function generateAuthKey() {
+    public function generateAuthKey()
+    {
         $this->candidate_auth_key = Yii::$app->security->generateRandomString();
     }
 
@@ -642,6 +663,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->send();
     }
 
+    /**
+     * @return null
+     */
     public static function ageAlert()
     {
         $candidates = Candidate::find()
@@ -661,6 +685,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->send();
     }
 
+    /**
+     * @return null
+     */
     public static function civilIdExpire()
     {
         $candidates = Candidate::find()
@@ -680,7 +707,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->send();
     }
 
-
+    /**
+     * @return string
+     */
     public function getStatus() {
         $status = '';
         switch ($this->candidate_status) {
@@ -700,6 +729,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return $status;
     }
 
+    /**
+     * @return bool
+     */
     public function softDelete()
     {
         $this->deleted = 1;
