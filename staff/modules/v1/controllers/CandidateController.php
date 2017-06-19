@@ -4,7 +4,6 @@ namespace staff\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use staff\models\Store;
@@ -228,6 +227,8 @@ class CandidateController extends Controller
 
     /**
      * Update a Candidate account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
@@ -291,6 +292,8 @@ class CandidateController extends Controller
 
     /**
      * Assign Store to Candidate account
+     * @param $id
+     * @return array
      */
     public function actionAssign($id)
     {
@@ -350,6 +353,8 @@ class CandidateController extends Controller
 
     /**
      * Remove Store from Candidate account
+     * @param $id
+     * @return array
      */
     public function actionUnassign($id)
     {
@@ -393,6 +398,8 @@ class CandidateController extends Controller
 
     /**
      * Delete candidate
+     * @param $id
+     * @return array
      */
     public function actionDelete($id)
     {
@@ -439,6 +446,8 @@ class CandidateController extends Controller
 
     /**
      * Reset candidate password
+     * @param $id
+     * @return array
      */
     public function actionResetPassword($id)
     {
