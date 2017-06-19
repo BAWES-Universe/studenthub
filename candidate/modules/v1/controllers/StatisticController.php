@@ -75,7 +75,7 @@ class StatisticController extends Controller
         $totalPaid = 0;
         $totalBonus = 0;
         
-        foreach($user->transferCandidates as $transfer) 
+        foreach($user->transferCandidate as $transfer) 
         {
             $totalHours += $transfer->hours;
 

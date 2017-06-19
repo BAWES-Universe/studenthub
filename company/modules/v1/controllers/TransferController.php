@@ -9,7 +9,7 @@ use company\models\Company;
 use common\models\Candidate;
 use common\models\Invoice;
 use common\models\Transfer;
-use common\models\TransferCandidates;
+use common\models\TransferCandidate;
 use kartik\mpdf\Pdf;
 
 /**
@@ -110,7 +110,7 @@ class TransferController extends Controller
                 ];
         }
 
-        $transfer['candidates'] = TransferCandidates::find()
+        $transfer['candidates'] = TransferCandidate::find()
             ->candidatesByTransfer($transfer['transfer_id'])
             ->asArray()
             ->all();
@@ -198,7 +198,7 @@ class TransferController extends Controller
 
             $hourly_rate = $candidate->candidate_hourly_rate;
 
-            $tc = new TransferCandidates;
+            $tc = new TransferCandidate;
             $tc->transfer_cost = Yii::$app->params['transfer_cost'];
             $tc->candidate_hourly_rate = $hourly_rate;
             $tc->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
@@ -320,7 +320,7 @@ class TransferController extends Controller
 
         //remove old candidates
 
-        TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+        TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
         //save candidates
 
@@ -352,7 +352,7 @@ class TransferController extends Controller
 
             $hourly_rate = $candidate->candidate_hourly_rate;
 
-            $tc = new TransferCandidates;
+            $tc = new TransferCandidate;
             $tc->transfer_cost = Yii::$app->params['transfer_cost'];
             $tc->candidate_hourly_rate = $hourly_rate;
             $tc->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
@@ -402,7 +402,7 @@ class TransferController extends Controller
 
         //select distinct company and update transfer for each company if already added else create new
 
-        $sub_companies = TransferCandidates::find()
+        $sub_companies = TransferCandidate::find()
             ->candidatesByTransfer($model->transfer_id)
             ->groupByCompany($model->company_id)
             ->asArray()
@@ -457,11 +457,11 @@ class TransferController extends Controller
 
             //remove old candidate id exists
 
-            TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
+            TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
 
             // transfer candidate for current company
 
-            $candidates = TransferCandidates::find()
+            $candidates = TransferCandidate::find()
                 ->candidatesByTransfer($model->transfer_id)
                 ->filterCompanyId($sub_company['company_id'])
                 ->asArray()
@@ -471,7 +471,7 @@ class TransferController extends Controller
             {
                 //get hourly rate
 
-                $transfer_candidate = new TransferCandidates;
+                $transfer_candidate = new TransferCandidate;
                 $transfer_candidate->transfer_id = $transfer->transfer_id;
                 $transfer_candidate->candidate_id = $value['candidate_id'];
                 $transfer_candidate->hours = $value['hours'];
@@ -522,7 +522,7 @@ class TransferController extends Controller
             {
                 //remove transfer data 
                 //Keep hard delete here as on recover of actual transfer we got required data 
-                TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+                TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
                 Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
             }
         }
@@ -624,7 +624,7 @@ class TransferController extends Controller
 
         //select distinct company and create transfer for each company
 
-        $sub_companies = TransferCandidates::find()
+        $sub_companies = TransferCandidate::find()
             ->candidatesByTransfer($model->transfer_id)
             ->groupByCompany($model->company_id)
             ->distinct()
@@ -677,11 +677,11 @@ class TransferController extends Controller
 
                 //remove old candidates if exists
 
-                TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
+                TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
 
                 // transfer candidate for current company
 
-                $candidates = TransferCandidates::find()
+                $candidates = TransferCandidate::find()
                     ->candidatesByTransfer($model->transfer_id)
                     ->filterCompanyId($sub_company['company_id'])
                     ->asArray()
@@ -690,7 +690,7 @@ class TransferController extends Controller
                 foreach ($candidates as $key => $value) {
                     //get hourly rate
 
-                    $transfer_candidate = new TransferCandidates;
+                    $transfer_candidate = new TransferCandidate;
                     $transfer_candidate->transfer_id = $transfer->transfer_id;
                     $transfer_candidate->candidate_id = $value['candidate_id'];
                     $transfer_candidate->hours = $value['hours'];
@@ -779,7 +779,7 @@ class TransferController extends Controller
         {
             Invoice::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
 
-            TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+            TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
 
             Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
         }
@@ -788,7 +788,7 @@ class TransferController extends Controller
 
         Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
-        TransferCandidates::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+        TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
         Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
