@@ -41,6 +41,7 @@ use common\models\Country;
  * @property integer $approved
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
+ * @property integer $deleted
  *
  * @property Bank $bank
  * @property Country $country
@@ -697,6 +698,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 break;
         }
         return $status;
+    }
+
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
     }
 
     /**

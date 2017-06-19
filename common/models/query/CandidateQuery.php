@@ -100,5 +100,10 @@ class CandidateQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere('store_id IS NULL OR store_id = 0')
             ->count();
-    }            
+    }
+
+    public function notDeleted()
+    {
+        return $this->andWhere(['deleted'=>'0']);
+    }
 }

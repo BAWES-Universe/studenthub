@@ -9,7 +9,7 @@ use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use staff\models\Store;
 use staff\models\Candidate;
-use common\models\InvoiceCandidates;
+use common\models\TransferCandidates;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -79,6 +79,7 @@ class CandidateController extends Controller
         if($country_id) {
             $query->filterCountry($country_id);
         }
+            $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -98,7 +99,7 @@ class CandidateController extends Controller
         if($store_id) {
             $query->filterStore($store_id);
         }
-
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -110,7 +111,7 @@ class CandidateController extends Controller
     public function actionList()
     {
         $query = Candidate::find();
-
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -124,8 +125,8 @@ class CandidateController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->filterNotAssigned();
-
+            ->filterNotAssigned()
+            ->notDeleted();
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -144,8 +145,8 @@ class CandidateController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->filterAssigned();
-
+            ->filterAssigned()
+            ->notDeleted();
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -405,9 +406,16 @@ class CandidateController extends Controller
             ];
         }
 
+        if ($model->store_id) {
+            return [
+                "operation" => "error",
+                "message" => "Can not delete as assigned to store."
+            ];
+        }
+
         //check if in invoice
 
-        $a = InvoiceCandidates::findOne([
+        $a = TransferCandidates::findOne([
                 'candidate_id' => $id
             ]);
 
@@ -419,7 +427,9 @@ class CandidateController extends Controller
             ];
         }
 
-        $model->delete();
+        Yii::warning("[Candidate Soft Deleted] ".$model->candidate_name, __METHOD__);
+
+        $model->softDelete();
 
         return [
             "operation" => "success",
