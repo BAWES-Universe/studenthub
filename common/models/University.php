@@ -10,6 +10,7 @@ use Yii;
  * @property integer $university_id
  * @property string $university_name_en
  * @property string $university_name_ar
+ * @property integer $deleted
  */
 class University extends \yii\db\ActiveRecord
 {
@@ -41,5 +42,29 @@ class University extends \yii\db\ActiveRecord
             'university_name_en' => 'University Name En',
             'university_name_ar' => 'University Name Ar',
         ];
+    }
+
+    /**
+     * soft delete university
+     * @return bool
+     */
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
+
+    public function getCandidates()
+    {
+        return $this->hasMany(Candidate::className(),['university_id'=>'university_id']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\UniversityQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\UniversityQuery(get_called_class());
     }
 }

@@ -65,10 +65,12 @@ class BankController extends Controller
 
     /**
      * Return a List of Bank Accounts available.
+     * @return ActiveDataProvider
      */
     public function actionList()
     {
         $query = Bank::find();
+        $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -77,6 +79,7 @@ class BankController extends Controller
 
     /**
      * Create a bank account
+     * @return array
      */
     public function actionCreate()
     {
@@ -113,6 +116,8 @@ class BankController extends Controller
 
     /**
      * Create a bank account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
@@ -173,10 +178,17 @@ class BankController extends Controller
             ];
         }
 
-        Yii::warning("[Bank Deleted] ".$bank->bank_name, __METHOD__);
+        if(count($bank->candidate)>0) {
+            return [
+                "operation" => "error",
+                "message" => "Bank already assigned to ".count($bank->candidate)." candidate(s)"
+            ];
+        }
+
+        Yii::warning("[Bank Soft Deleted] ".$bank->bank_name, __METHOD__);
 
         // Delete bank
-        $bank->delete();
+        $bank->softDelete();
 
         return [
             "operation" => "success",

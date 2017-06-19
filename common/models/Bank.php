@@ -14,6 +14,7 @@ use common\models\Candidate;
  * @property string $bank_swift_code
  * @property string $bank_address
  * @property string $bank_transfer_type
+ * @property integer $deleted
  */
 class Bank extends \yii\db\ActiveRecord
 {
@@ -97,5 +98,20 @@ class Bank extends \yii\db\ActiveRecord
                 return '';
                 break;
         }
+    }
+
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\BankQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\BankQuery(get_called_class());
     }
 }
