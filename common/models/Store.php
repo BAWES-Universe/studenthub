@@ -16,6 +16,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $store_status
  * @property string $store_created_at
  * @property string $store_updated_at
+ * @property integer $deleted
  *
  * @property Company $company
  * @property Candidate[] $candidates
@@ -38,7 +39,7 @@ class Store extends \yii\db\ActiveRecord
         return [
             [['company_id', 'store_status'], 'integer'],
             [['store_name'], 'required'],
-            [['store_created_at', 'store_updated_at'], 'safe'],
+            [['store_created_at', 'store_updated_at','deleted'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
             [['company_id'], 'validateCompany'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
@@ -78,6 +79,7 @@ class Store extends \yii\db\ActiveRecord
             'store_status' => 'Store Status',
             'store_created_at' => 'Store Created At',
             'store_updated_at' => 'Store Updated At',
+            'deleted' => 'deleted',
         ];
     }
 
@@ -97,6 +99,11 @@ class Store extends \yii\db\ActiveRecord
         return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
     }
 
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
     /**
      * @inheritdoc
      * @return query\StoreQuery the active query used by this AR class.

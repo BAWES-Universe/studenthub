@@ -70,8 +70,8 @@ class StoreController extends Controller
     public function actionList($companyId = null)
     {
         $query = Store::find();
-
-        $query->filterWhere(['company_id' => $companyId]);
+        $query->filterCompany($companyId);
+        $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -182,10 +182,10 @@ class StoreController extends Controller
             ];
         }
 
-        Yii::warning("[Store Deleted] ".$store->store_name, __METHOD__);
+        Yii::warning("[Store Soft Deleted] ".$store->store_name, __METHOD__);
 
-        // Delete store
-        $store->delete();
+        // soft Delete store
+        $store->softDelete();
 
         return [
             "operation" => "success",
