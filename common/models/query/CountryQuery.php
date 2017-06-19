@@ -9,7 +9,10 @@ use Yii;
  */
 class CountryQuery extends \yii\db\ActiveQuery
 {
-	public function listWithCandidateCount()
+    /**
+     * @return $this
+     */
+    public function listWithCandidateCount()
 	{
 		return $this->select([
 				'country.*', 

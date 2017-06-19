@@ -11,18 +11,30 @@ use yii\helpers\ArrayHelper;
  */
 class InvoiceQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @param null $db
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function all($db = null)
     {
         $this->andWhere(['{{%invoice}}.deleted' => 0]);
         return parent::all($db);
     }
 
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
     public function one($db = null)
     {
         $this->andWhere(['{{%invoice}}.deleted' => 0]);
         return parent::one($db);
     }
 
+    /**
+     * @param $company_ids
+     * @return $this
+     */
     public function filterCompanies($company_ids)
     {
         return $this->andWhere([

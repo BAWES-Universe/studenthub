@@ -10,18 +10,29 @@ use yii\helpers\ArrayHelper;
  */
 class TransferCandidatesQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @param null $db
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function all($db = null)
     {
         $this->andWhere(['{{%transfer_candidates}}.deleted' => 0]);
         return parent::all($db);
     }
 
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
     public function one($db = null)
     {
         $this->andWhere(['{{%transfer_candidates}}.deleted' => 0]);
         return parent::one($db);
     }
 
+    /**
+     * @return $this
+     */
     public function filterPaid()
     {
         return $this->andWhere([
@@ -29,6 +40,9 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ]);
     }
 
+    /**
+     * @return $this
+     */
     public function filterUnpaid()
     {
         return $this->andWhere([
@@ -36,6 +50,10 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ]);
     }
 
+    /**
+     * @param $company_id
+     * @return $this
+     */
     public function filterCompany($company_id)
     {
         return $this->andWhere([
@@ -43,11 +61,18 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ]);
     }
 
+    /**
+     * @param $company_id
+     * @return $this
+     */
     public function filterCompanyId($company_id)
     {
         return $this->andWhere(['{{%company}}.company_id' => $company_id]);
     }
 
+    /**
+     * @return $this
+     */
     public function filterPaidInvoice()
     {
         return $this->andWhere([
@@ -93,7 +118,11 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
                     ->filterPaidInvoice();//paid invoice
     }
 
-    public function groupByCompany($company_id) 
+    /**
+     * @param $company_id
+     * @return $this
+     */
+    public function groupByCompany($company_id)
     {
         return $this->groupBy('{{%company}}.company_id')
             ->andWhere(['!=', '{{%company}}.company_id', $company_id])
