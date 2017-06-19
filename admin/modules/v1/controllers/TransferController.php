@@ -684,7 +684,7 @@ class TransferController extends Controller
 
         $fileName = 'BAWS-PAY-'.date('dmY').'-01.txt';
 
-        $path = sys_get_temp_dir() . $fileName;
+        $path = sys_get_temp_dir() .DIRECTORY_SEPARATOR. $fileName;
 
         $handle = fopen($path, "w");
         fwrite($handle, $sAll);
