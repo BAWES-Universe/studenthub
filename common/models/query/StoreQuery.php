@@ -13,4 +13,9 @@ class StoreQuery extends \yii\db\ActiveQuery
 	{
 		return $this->andWhere(['{{%store}}.company_id' => $companyId]);
 	}
+
+	public function notDeleted()
+    {
+        return $this->andWhere(['deleted'=>'0']);
+    }
 }
