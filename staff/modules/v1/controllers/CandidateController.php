@@ -163,7 +163,7 @@ class CandidateController extends Controller
     public function actionCreate()
     {
         // Attempt to create new account
-        $password = Yii::$app->security->generateRandomString(10);
+        $password = Yii::$app->security->generateRandomString(5);
         $model = new Candidate();
         $model->scenario = "newAccount";
 
