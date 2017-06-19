@@ -169,7 +169,7 @@ class StaffController extends Controller
             Yii::warning("[Staff Soft Account Deleted] ".$staffMember->staff_email, __METHOD__);
 
             // Delete the account
-            $staffMember->softDelete();
+            $staffMember->delete();
 
             return [
                 "operation" => "success",
