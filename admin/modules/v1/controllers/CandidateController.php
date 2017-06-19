@@ -100,7 +100,10 @@ class CandidateController extends Controller
 
     /**
      * Approve candidate account
+     * @param $id
+     * @return array
      */
+
     public function actionApprove($id)
     {
         $model = Candidate::findOne((int) $id);

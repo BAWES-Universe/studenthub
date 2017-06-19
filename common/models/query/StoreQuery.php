@@ -9,8 +9,20 @@ use Yii;
  */
 class StoreQuery extends \yii\db\ActiveQuery
 {
-	public function filterCompany($companyId) 
+    /**
+     * @param $companyId
+     * @return $this
+     */
+    public function filterCompany($companyId)
 	{
-		return $this->where(['{{%store}}.company_id' => $companyId]);
+		return $this->andWhere(['{{%store}}.company_id' => $companyId]);
 	}
+
+    /**
+     * @return $this
+     */
+    public function notDeleted()
+    {
+        return $this->andWhere(['deleted'=>'0']);
+    }
 }

@@ -10,18 +10,29 @@ use yii\helpers\ArrayHelper;
  */
 class TransferCandidatesQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @param null $db
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function all($db = null)
     {
         $this->andWhere(['{{%transfer_candidates}}.deleted' => 0]);
         return parent::all($db);
     }
 
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
     public function one($db = null)
     {
         $this->andWhere(['{{%transfer_candidates}}.deleted' => 0]);
         return parent::one($db);
     }
 
+    /**
+     * @return $this
+     */
     public function filterPaid()
     {
         return $this->andWhere([
@@ -29,6 +40,9 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ]);
     }
 
+    /**
+     * @return $this
+     */
     public function filterUnpaid()
     {
         return $this->andWhere([
@@ -36,6 +50,10 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ]);
     }
 
+    /**
+     * @param $company_id
+     * @return $this
+     */
     public function filterCompany($company_id)
     {
         return $this->andWhere([
@@ -43,11 +61,18 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ]);
     }
 
+    /**
+     * @param $company_id
+     * @return $this
+     */
     public function filterCompanyId($company_id)
     {
         return $this->andWhere(['{{%company}}.company_id' => $company_id]);
     }
 
+    /**
+     * @return $this
+     */
     public function filterPaidInvoice()
     {
         return $this->andWhere([
@@ -61,7 +86,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
 	 */
 	public function profit($transfer_id)
 	{
-		return $this->where([
+		return $this->andWhere([
                 '{{%transfer_candidates}}.transfer_id' => $transfer_id
             ])->sum('(({{%transfer_candidates}}.company_hourly_rate - {{%transfer_candidates}}.candidate_hourly_rate ) * {{%transfer_candidates}}.hours) - {{%transfer_candidates}}.transfer_cost');
             // transfer cost will be on admin  
@@ -93,10 +118,14 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
                     ->filterPaidInvoice();//paid invoice
     }
 
-    public function groupByCompany($company_id) 
+    /**
+     * @param $company_id
+     * @return $this
+     */
+    public function groupByCompany($company_id)
     {
         return $this->groupBy('{{%company}}.company_id')
-            ->where(['!=', '{{%company}}.company_id', $company_id])
+            ->andWhere(['!=', '{{%company}}.company_id', $company_id])
             ->distinct();
     }        
             
@@ -136,7 +165,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
             ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
             ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
             ->leftJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
-            ->where([
+            ->andWhere([
                 '{{%transfer_candidates}}.transfer_id' => $transfer_id
             ]);
     }
@@ -146,7 +175,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function totalPaid($transfer_id) 
     {
-        return $this->where(['transfer_id' => $transfer_id, 'paid' => 1])
+        return $this->andWhere(['transfer_id' => $transfer_id, 'paid' => 1])
             ->count();
     }
 
@@ -155,7 +184,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
      */
     public function totalUnpaid($transfer_id) 
     {
-        return $this->where(['transfer_id' => $transfer_id, 'paid' => 0])
+        return $this->andWhere(['transfer_id' => $transfer_id, 'paid' => 0])
             ->count();
     }
 
@@ -166,7 +195,7 @@ class TransferCandidatesQuery extends \yii\db\ActiveQuery
     {
     	return $this->select('{{%candidate}}.candidate_id, {{%candidate}}.candidate_name')
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidates}}.candidate_id')
-            ->where([
+            ->andWhere([
                 '{{%transfer_candidates}}.paid' => 0,
                 'transfer_id' => $transfer_id
             ]);

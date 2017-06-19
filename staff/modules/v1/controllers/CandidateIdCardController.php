@@ -76,8 +76,8 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->joinWith('candidateIdCard');
-
+            ->joinWith('candidateIdCard',true,'INNER JOIN')
+            ->notDeleted();
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
@@ -95,8 +95,8 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->filterWithoutCard();
-
+            ->filterWithoutCard()
+            ->notDeleted();
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -250,7 +250,7 @@ class CandidateIdCardController extends Controller
                 $source = Url::to('@s3/'.$value->candidate_personal_photo);
                 $destination = $path.'/photos/'.$value->employee_id.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
 
-                copy($source, $destination);
+                @copy($source, $destination);
             }
         }
 
@@ -312,8 +312,8 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->idExpired();
-
+            ->idExpired()
+            ->notDeleted();
         if($candidate_name) {
             $query->filterName($candidate_name);
         }

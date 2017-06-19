@@ -13,6 +13,10 @@ use common\models\Store;
  */
 class CandidateQuery extends \yii\db\ActiveQuery 
 {
+    /**
+     * @param $company
+     * @return $this
+     */
     public function filterCompany($company)
     {
         // create company_id array from all sub companies and self 
@@ -26,7 +30,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
         // create store_id array 
 
         $stores = Store::find()
-            ->where(['in', 'company_id', $company_ids])
+            ->andWhere(['in', 'company_id', $company_ids])
             ->all();
 
         $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
@@ -36,6 +40,9 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['in', 'store_id', $store_ids]);
     }
 
+    /**
+     * @return $this
+     */
     public function filterWithoutCard()
     {
         $cards = CandidateIdCard::find()
@@ -43,62 +50,103 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
         $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
 
-        return $this->where(['NOT IN', 'candidate_id', $candidate_ids]);
-    }        
+        return $this->andWhere(['NOT IN', 'candidate_id', $candidate_ids]);
+    }
 
-    public function filterName($candidate_name) 
+    /**
+     * @param $candidate_name
+     * @return $this
+     */
+    public function filterName($candidate_name)
     {
         return $this->andWhere(['like', 'candidate_name', $candidate_name]);
     }
-    
+
+    /**
+     * @return $this
+     */
     public function filterAssigned()
     {
         return $this->andWhere('store_id > 0');    
     }
 
+    /**
+     * @return $this
+     */
     public function filterNotAssigned()
     {
         return $this->andWhere('store_id IS NULL or store_id = 0');    
     }
 
-    public function filterStore($store_id) 
+    /**
+     * @param $store_id
+     * @return $this
+     */
+    public function filterStore($store_id)
     {
-        return $this->where(['store_id' => $store_id]);
+        return $this->andWhere(['store_id' => $store_id]);
     }
 
-    public function filterCountry($country_id) 
+    /**
+     * @param $country_id
+     * @return $this
+     */
+    public function filterCountry($country_id)
     {
-        return $this->where(['country_id' => $country_id]);
+        return $this->andWhere(['country_id' => $country_id]);
     }
 
+    /**
+     * @return $this
+     */
     public function idExpired()
     {
         return $this
             ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id')
-            ->where('DATE(expiry_date) < DATE(NOW())');
+            ->andWhere('DATE(expiry_date) < DATE(NOW())');
     }
 
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function idNeedGenerated()
     {
-        return $this->where('candidate_id NOT IN (select candidate_id from candidate_id_card)')
+        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)')
             ->all();   
     }
 
-    public function totalIdNeedGenerated() 
+    /**
+     * @return int|string
+     */
+    public function totalIdNeedGenerated()
     {
-    	return $this->where('candidate_id NOT IN (select candidate_id from candidate_id_card)')
+    	return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)')
     		->count();
     }
 
+    /**
+     * @return int|string
+     */
     public function totalAssigned()
     {
-    	return $this->where('store_id > 0')
+    	return $this->andWhere('store_id > 0')
 			->count();
 	}
 
+    /**
+     * @return int|string
+     */
     public function totalUnassigned()
     {
-        return $this->where('store_id IS NULL OR store_id = 0')
+        return $this->andWhere('store_id IS NULL OR store_id = 0')
             ->count();
-    }            
+    }
+
+    /**
+     * @return $this
+     */
+    public function notDeleted()
+    {
+        return $this->andWhere(['deleted'=>'0']);
+    }
 }

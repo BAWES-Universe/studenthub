@@ -35,7 +35,7 @@ class Company extends \common\models\Company {
      */
     public function getSubCompanies()
     {
-        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
+        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id'])->andWhere(['deleted'=>0]);
     }
 
     /**
@@ -43,6 +43,6 @@ class Company extends \common\models\Company {
      */
     public function getStores()
     {
-        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+        return $this->hasMany(Store::className(), ['company_id' => 'company_id'])->andWhere(['deleted'=>0]);
     }
 }

@@ -9,15 +9,21 @@ use Yii;
  */
 class CandidateIdCardQuery extends \yii\db\ActiveQuery
 {
-	public function idExpired()
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function idExpired()
 	{
-		return $this->where('DATE(expiry_date) < DATE(NOW())')
+		return $this->andWhere('DATE(expiry_date) < DATE(NOW())')
 			->all();
 	}
 
-	public function totalIdExpired()
+    /**
+     * @return int|string
+     */
+    public function totalIdExpired()
 	{
-		return $this->where('DATE(expiry_date) < DATE(NOW())')
+		return $this->andWhere('DATE(expiry_date) < DATE(NOW())')
             ->count();
 	}
 }

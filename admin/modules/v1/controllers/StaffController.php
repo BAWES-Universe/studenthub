@@ -4,7 +4,6 @@ namespace admin\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Staff;
 
@@ -69,6 +68,7 @@ class StaffController extends Controller
     public function actionList()
     {
         $query = Staff::find();
+        $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -166,7 +166,7 @@ class StaffController extends Controller
         $staffMember = Staff::findOne((int)$id);
 
         if($staffMember){
-            Yii::warning("[Staff Account Deleted] ".$staffMember->staff_email, __METHOD__);
+            Yii::warning("[Staff Soft Account Deleted] ".$staffMember->staff_email, __METHOD__);
 
             // Delete the account
             $staffMember->delete();

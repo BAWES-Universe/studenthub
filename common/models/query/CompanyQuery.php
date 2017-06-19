@@ -10,9 +10,25 @@ use Yii;
  */
 class CompanyQuery extends \yii\db\ActiveQuery
 {
-	public function filterParent()
+    /**
+     * @return $this
+     */
+    public function filterParent()
 	{
-		return $this->where(['parent_company_id' => null]);		
+		return $this->andWhere(['parent_company_id' => null]);		
 	}
+
+    /**
+     * @return $this
+     */
+    public function notDeleted()
+    {
+        return $this->andWhere(['deleted'=>0]);
+    }
+
+    public function childCompany($id)
+    {
+        return $this->andWhere(['parent_company_id' => $id]);
+    }
 }
  

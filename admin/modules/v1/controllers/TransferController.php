@@ -93,6 +93,13 @@ class TransferController extends Controller
                 'transfer_id',
                 'candidate_id',
                 'candidate.candidate_name',
+                [
+                    'attribute'=>'Beneficiary name',
+                    'label'=>'Beneficiary name',
+                    'value'=>function($data) {
+                        return $data->candidate->bank_account_name;
+                    }
+                ],
                 'candidate.candidate_email',
                 'candidate.store.company.company_name',
                 'candidate.store.store_name',
@@ -684,7 +691,7 @@ class TransferController extends Controller
 
         $fileName = 'BAWS-PAY-'.date('dmY').'-01.txt';
 
-        $path = sys_get_temp_dir() . $fileName;
+        $path = sys_get_temp_dir() .DIRECTORY_SEPARATOR. $fileName;
 
         $handle = fopen($path, "w");
         fwrite($handle, $sAll);
@@ -775,6 +782,12 @@ class TransferController extends Controller
             'columns' => [
                 'candidate_id',
                 'candidate.candidate_name',
+                [
+                    'label'=>'Beneficiary name',
+                    'value'=>function($data) {
+                        return $data->candidate->bank_account_name;
+                    }
+                ],
                 'candidate.candidate_email',
                 'candidate.store.company.company_name',
                 'candidate.store.store_name',

@@ -20,6 +20,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
+ * @property integer $deleted
  *
  * @property Company $parentCompany
  * @property Company[] $subCompanies
@@ -367,7 +368,13 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                     ->send();
             }
         }
-    }    
+    }
+
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
 
     /**
      * @inheritdoc

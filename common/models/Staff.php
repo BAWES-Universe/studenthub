@@ -3,10 +3,10 @@
 namespace common\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 /**
  * This is the model class for table "staff".
  *
@@ -19,10 +19,11 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $staff_status
  * @property integer $staff_created_at
  * @property integer $staff_updated_at
+ * @property integer $deleted
  *
  * @property StaffToken[] $accessTokens
  */
-class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class Staff extends ActiveRecord implements IdentityInterface
 {
     /**
      * @inheritdoc
@@ -264,5 +265,19 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $token->save(false);
 
         return $token;
+    }
+
+    public function softDelete() {
+        $this->deleted = 1;
+        $this->save(false);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\StaffQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\StaffQuery(get_called_class());
     }
 }

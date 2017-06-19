@@ -69,12 +69,10 @@ class UniversityController extends Controller
     public function actionList()
     {
         $query = University::find()
-            ->select([
-                'university.*', 
-                'COUNT(candidate.candidate_id) as total_candidates'
-            ])
-            ->leftJoin('candidate', 'candidate.university_id = university.university_id')
+            ->fields()
+            ->joinCandidate()
             ->groupBy('university.university_id')
+            ->notDeleted()
             ->asArray();
 
         return new ActiveDataProvider([
@@ -119,6 +117,8 @@ class UniversityController extends Controller
 
     /**
      * Create a university account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
@@ -175,17 +175,31 @@ class UniversityController extends Controller
                 "operation" => "error",
                 "message" => "University not found or already deleted"
             ];
+
         }
 
-        Yii::warning("[University Deleted] ".$university->university_name_en, __METHOD__);
+        if (count($university->candidates)>0) {
+            return [
+                "operation" => "error",
+                "message" => "University cannot be delete as ".count($university->candidates)." candidate(s) belongs to this university"
+            ];
+        }
+
+        Yii::warning("[University Soft Deleted] ".$university->university_name_en, __METHOD__);
 
         // Delete university
-        $university->delete();
+        if ($university->softDelete()) {
 
-        return [
-            "operation" => "success",
-            "message" => "University deleted successfully"
-        ];
+            return [
+                "operation" => "success",
+                "message" => "University deleted successfully"
+            ];
+        } else {
+            return [
+                "operation" => "error",
+                "message" => "University deleted failed. Please try again."
+            ];
+        }
    
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();

@@ -11,38 +11,66 @@ use yii\helpers\ArrayHelper;
  */
 class TransferQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @param null $db
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function all($db = null)
     {
         $this->andWhere(['{{%transfer}}.deleted' => 0]);
         return parent::all($db);
     }
 
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
     public function one($db = null)
     {
         $this->andWhere(['{{%transfer}}.deleted' => 0]);
         return parent::one($db);
     }
 
-    public function filterParent($transfer_id) 
+    /**
+     * @param $transfer_id
+     * @return $this
+     */
+    public function filterParent($transfer_id)
     {
-        return $this->where(['parent_transfer_id' => $transfer_id]);
-    }    
+        return $this->andWhere(['parent_transfer_id' => $transfer_id]);
+    }
 
+    /**
+     * @param $id
+     * @return $this
+     */
     public function filterTransfer($id)
     {
-        return $this->where(['{{%transfer}}.transfer_id' => $id]);
-    } 
+        return $this->andWhere(['{{%transfer}}.transfer_id' => $id]);
+    }
 
-    public function filterCompanyId($company_id) 
+    /**
+     * @param $company_id
+     * @return $this
+     */
+    public function filterCompanyId($company_id)
     {
         return $this->andWhere(['{{%company}}.company_id' => $company_id]);
     }
 
+    /**
+     * @param $company_name
+     * @return $this
+     */
     public function filterCompany($company_name)
     {
         return $this->andWhere(['like', '{{%company}}.company_name', $company_name]);
     }
 
+    /**
+     * @param $transfer_status
+     * @return $this
+     */
     public function filterStatus($transfer_status)
     {
         return $this->andWhere(['{{%transfer}}.transfer_status' => $transfer_status]);
@@ -90,11 +118,17 @@ class TransferQuery extends \yii\db\ActiveQuery
         ]);
     }
 
+    /**
+     * @return $this
+     */
     public function companyJoin()
     {
         return $this->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id');
     }
 
+    /**
+     * @return $this
+     */
     public function transferCandidateJoin()
     {
         return $this->joinWith('transferCandidates');

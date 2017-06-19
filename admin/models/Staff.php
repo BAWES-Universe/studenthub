@@ -20,7 +20,6 @@ class Staff extends \common\models\Staff {
         unset($fields['staff_auth_key'],
         $fields['staff_password_hash'],
         $fields['staff_password_reset_token']);
-
         return $fields;
     }
 }
