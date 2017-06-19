@@ -227,7 +227,9 @@ class CandidateIdCardController extends Controller
         foreach ($candidates as $key => $value) {
             QrCode::jpg(
                 'https://v.studenthub.co/'.$value->candidate_uid,
-                $path.'/QR/'.$value->employee_id.'.jpg'
+                $path.'/QR/'.$value->employee_id.'.jpg',
+                0,
+                14
             );
         }
 
