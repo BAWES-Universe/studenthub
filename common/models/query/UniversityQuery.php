@@ -54,5 +54,20 @@ class UniversityQuery extends \yii\db\ActiveQuery
     {
         return $this->leftJoin('candidate', 'candidate.university_id = university.university_id');
     }
+
+    /**
+     * @return $this
+     */
+    public function listWithCandidateCount()
+    {
+        return $this->select([
+                'university.*', 
+                'COUNT(candidate.candidate_id) as total_candidates'
+            ])
+            ->leftJoin('candidate', 'candidate.university_id = university.university_id')
+            ->groupBy('university.university_id')
+            ->orderBy('total_candidates DESC, university_name_en')
+            ->asArray();
+    }
 }
 	
