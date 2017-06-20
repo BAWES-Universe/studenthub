@@ -95,9 +95,9 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
 
         $transfer = Transfer::find()
-            ->selectedFields()
+            ->selectedFieldsForCompany()
             ->companyJoin()
-            ->transferCandidateJoin()
+            ->transferCandidateJoinForCompany()
             ->filterCurrentCompany($company)
             ->filterTransfer($id)
             ->asArray()
@@ -109,11 +109,6 @@ class TransferController extends Controller
                     "message" => 'Transfer not found!'
                 ];
         }
-
-        $transfer['candidates'] = TransferCandidate::find()
-            ->candidatesByTransfer($transfer['transfer_id'])
-            ->asArray()
-            ->all();
 
         //invoices
 
