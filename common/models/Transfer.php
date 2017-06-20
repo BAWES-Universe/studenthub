@@ -25,6 +25,7 @@ use common\models\Candidate;
  *
  * @property Company $company
  * @property TransferCandidate[] $TransferCandidate
+ * @property Invoice $invoice
  */
 class Transfer extends \yii\db\ActiveRecord
 {
@@ -121,11 +122,21 @@ class Transfer extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getChildTransfers()
+    {
+        return $this->hasMany(self::className(),['parent_transfer_id'=>'transfer_id']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getMainTransfer()
     {
         return $this->hasOne(Transfer::className(),['parent_transfer_id'=>'transfer_id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery|static
+     */
     public function getInvoice()
     {
         if ($this->mainTransfer) { // in case child transfer gets parents invoice
@@ -198,7 +209,6 @@ class Transfer extends \yii\db\ActiveRecord
 
         return $errors;
     }
-
 
     /**
      * @inheritdoc
