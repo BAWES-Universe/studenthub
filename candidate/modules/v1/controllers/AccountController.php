@@ -5,9 +5,7 @@ namespace candidate\modules\v1\controllers;
 use common\models\Candidate;
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
-use yii\data\ActiveDataProvider;
-use common\models\TransferCandidate;
+use yii\data\ArrayDataProvider;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -100,8 +98,13 @@ class AccountController extends Controller
                 'total' => ($transferCandidate->candidate_hourly_rate * $transferCandidate->hours) + $transferCandidate->bonus,
             ];
         }
-        
-        return array_reverse($list);
+
+        return new ArrayDataProvider([
+            'allModels' => array_reverse($list),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
     }
 
     /**
