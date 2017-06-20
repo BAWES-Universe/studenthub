@@ -129,6 +129,7 @@ return [
                         'GET payable-candidates' => 'payable-candidates',
                         'GET all-payable-candidates' => 'all-payable-candidates',
                         'GET export-payable-candidates' => 'export-payable-candidates',
+                        'GET child-transfers/<id>' => 'child-transfers',
                         'GET text' => 'text',
                         'GET <id>' => 'view',
                         'GET pdf/<id>' => 'pdf',
@@ -156,7 +157,8 @@ return [
                         'OPTIONS unpaid-candidates/<id>' => 'options',
                         'OPTIONS payment-received/<id>' => 'options',
                         'OPTIONS payment-in-process/<id>' => 'options',
-                        'OPTIONS payment-completed/<id>' => 'options'
+                        'OPTIONS payment-completed/<id>' => 'options',
+                        'OPTIONS all-child-transfer/<id>' => 'options'
                     ]
                 ],
                 [ // BankController
