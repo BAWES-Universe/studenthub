@@ -109,15 +109,12 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET search' => 'search',
-                        'GET review' => 'review',
-                        'GET filter/<id>' => 'filter',
+                        'GET total-to-review' => 'total-to-review',
                         'PATCH approve/<id>' => 'approve',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options',
                         'OPTIONS search' => 'options',
-                        'OPTIONS review' => 'options',
-                        'OPTIONS filter/<id>' => 'options',
+                        'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options'
                     ]
                 ],
