@@ -73,8 +73,9 @@ class CandidateController extends Controller
     {        
         $company = Yii::$app->user->identity;
 
-        $query = Candidate::find()
-            ->filterCompany($company);
+        $query = Candidate::find();
+        $query->selectField()
+              ->filterCompany($company);
 
         return new ActiveDataProvider([
             'query' => $query
