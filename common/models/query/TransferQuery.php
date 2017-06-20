@@ -77,7 +77,9 @@ class TransferQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Transfer for login company /his childs
+     * Transfer for login company / his child
+     * @param $company
+     * @return $this
      */
     public function filterCurrentCompany($company) 
     {
@@ -118,6 +120,20 @@ class TransferQuery extends \yii\db\ActiveQuery
         ]);
     }
 
+    public function selectedFieldsForCompany()
+    {
+        return $this->select([
+            '{{%transfer}}.transfer_id,
+             {{%transfer}}.company_id,
+             {{%transfer}}.company_total,
+             {{%transfer}}.parent_transfer_id,
+             {{%transfer}}.transfer_created_at,
+             {{%transfer}}.transfer_updated_at,
+             {{%transfer}}.transfer_status',
+            '{{%company}}.company_name',
+            '{{%company}}.company_email',
+        ]);
+    }
     /**
      * @return $this
      */
@@ -132,6 +148,24 @@ class TransferQuery extends \yii\db\ActiveQuery
     public function transferCandidateJoin()
     {
         return $this->joinWith('transferCandidate');
+    }
+
+    /**
+     * @return $this
+     */
+    public function transferCandidateJoinForCompany()
+    {
+
+        return $this->joinWith( [
+            'transferCandidate' => function (\yii\db\ActiveQuery $query) {
+                $query->select('{{%transfer_candidate}}.bonus,{{%transfer_candidate}}.candidate_id,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.paid,{{%transfer_candidate}}.tc_id');
+                $query->addSelect('{{%transfer_candidate}}.transfer_id,{{%transfer_candidate}}.company_hourly_rate,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.bonus');
+                $query->addSelect('{{%candidate}}.candidate_name,{{%candidate}}.candidate_email,{{%candidate}}.store_id');
+                $query->addSelect('{{%store}}.store_name');
+                $query->innerJoin('candidate','{{%transfer_candidate}}.candidate_id={{%candidate}}.candidate_id');
+                $query->innerJoin('store','{{%store}}.store_id={{%candidate}}.store_id');
+            }
+        ]);
     }
 }
 	

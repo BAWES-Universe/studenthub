@@ -24,6 +24,7 @@ use common\models\Invoice;
  *
  * @property Candidate $candidate
  * @property Transfer $transfer
+ * @property Invoice $Invoice
  */
 class TransferCandidate extends \yii\db\ActiveRecord
 {

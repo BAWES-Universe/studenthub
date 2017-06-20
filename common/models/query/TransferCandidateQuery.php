@@ -127,11 +127,13 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
         return $this->groupBy('{{%company}}.company_id')
             ->andWhere(['!=', '{{%company}}.company_id', $company_id])
             ->distinct();
-    }        
-            
+    }
+
 
     /**
-     *  Return candidates for transfer
+     * Return candidates for transfer
+     * @param $transfer_id
+     * @return $this
      */
     public function candidatesByTransfer($transfer_id) 
     {
@@ -148,8 +150,8 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
                 '{{%candidate}}.candidate_iban',
                 '{{%candidate}}.candidate_personal_photo',
                 '{{%candidate}}.candidate_phone',
-                '{{%candidate}}.candidate_address_line1',
                 '{{%candidate}}.candidate_birth_date',
+                '{{%candidate}}.candidate_address_line1',
                 '{{%candidate}}.candidate_civil_id',
                 '{{%candidate}}.candidate_civil_expiry_date',
                 '{{%candidate}}.candidate_civil_photo_front',
