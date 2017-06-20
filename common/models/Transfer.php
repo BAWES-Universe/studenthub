@@ -35,14 +35,15 @@ class Transfer extends \yii\db\ActiveRecord
     const STATUS_LOCK = 5;
     const STATUS_INITIATED = 10; // Draft
 
+    /**
+     * @return array
+     */
     public static function statusList()
     {
         return [
             self::STATUS_INITIATED => 'Draft',
             self::STATUS_LOCK => 'Locked',
             self::STATUS_PAYMENT_SENT => 'Payment Sent',
-//            self::STATUS_PAYMENT_RECEIVED => 'Payment Received',
-//            self::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Salary distribution in progress',
             self::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Received & Distributing Salary',
             self::STATUS_TRANSFER_COMPLETE => 'Transfer Completed',
         ];
@@ -69,6 +70,9 @@ class Transfer extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [

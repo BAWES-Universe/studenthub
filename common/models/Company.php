@@ -336,6 +336,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $token;
     }
 
+    /**
+     * @return bool
+     */
     public static function adminPendingPaymentNotification()
     {
         $list = [];
@@ -358,7 +361,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             }
             if (count($list)>0) {
 
-                Yii::$app->mailer->compose("company-unpaid-notification-to-admin",
+                return Yii::$app->mailer->compose("company-unpaid-notification-to-admin",
                     [
                         "companies" => \common\models\Company::find()->where(['company_id'=>$list])->all(),
                     ])
@@ -370,6 +373,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
     }
 
+    /**
+     * @return bool
+     */
     public function softDelete()
     {
         $this->deleted = 1;

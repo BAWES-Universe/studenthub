@@ -10,7 +10,7 @@ use Yii;
 class Candidate extends \common\models\Candidate {
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function fields()
     {
@@ -27,7 +27,9 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $token
+     * @param null $type
+     * @return mixed
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();

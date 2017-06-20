@@ -29,7 +29,8 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @inheritdoc
+     * @param bool $insert
+     * @return bool
      */
     public function beforeSave($insert)
     {

@@ -10,7 +10,7 @@ use Yii;
 class Company extends \common\models\Company {
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function fields()
     {
@@ -55,7 +55,9 @@ class Company extends \common\models\Company {
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $token
+     * @param null $type
+     * @return mixed
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = CompanyToken::find()->where(['token_value' => $token])->with('company')->one();

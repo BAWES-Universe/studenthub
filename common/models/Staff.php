@@ -50,6 +50,9 @@ class Staff extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [
@@ -171,21 +174,22 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @inheritdoc
+     * @return mixed
      */
     public function getId() {
         return $this->getPrimaryKey();
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public function getAuthKey() {
         return $this->staff_auth_key;
     }
 
     /**
-     * @inheritdoc
+     * @param string $authKey
+     * @return bool
      */
     public function validateAuthKey($authKey) {
         return $this->getAuthKey() === $authKey;
@@ -267,9 +271,12 @@ class Staff extends ActiveRecord implements IdentityInterface
         return $token;
     }
 
+    /**
+     * @return bool
+     */
     public function softDelete() {
         $this->deleted = 1;
-        $this->save(false);
+        return $this->save(false);
     }
 
     /**
