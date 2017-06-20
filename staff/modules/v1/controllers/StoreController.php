@@ -4,10 +4,8 @@ namespace staff\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use staff\models\Store;
-use staff\models\Candidate;
 
 /**
  * Store controller - Manage store as Admin
@@ -66,11 +64,13 @@ class StoreController extends Controller
 
     /**
      * Return a List of Store Accounts available.
+     * @param null $companyId
+     * @return ActiveDataProvider
      */
     public function actionList($companyId = null)
     {
         $query = Store::find();
-        $query->filterCompany($companyId);
+        $query->filterWhere(['company_id' => $companyId]);
         $query->notDeleted();
 
         return new ActiveDataProvider([
@@ -80,6 +80,7 @@ class StoreController extends Controller
 
     /**
      * Create a store account
+     * @return array
      */
     public function actionCreate()
     {
@@ -115,6 +116,8 @@ class StoreController extends Controller
 
     /**
      * Create a store account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
