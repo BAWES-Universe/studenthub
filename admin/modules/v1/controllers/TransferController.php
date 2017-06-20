@@ -73,53 +73,6 @@ class TransferController extends Controller
     }
 
     /**
-     * Return a Excel Containing Payable Candidates 
-     */
-    public function actionExportPayableCandidates()
-    {
-        // Candidates whose company paid to admin but admin have not paid yet 
-
-        $candidates = TransferCandidate::find()
-            ->payable()
-            ->all();
-
-        header('Access-Control-Allow-Origin: *');
-
-        \moonland\phpexcel\Excel::export([
-            'isMultipleSheet' => false,
-            'models' => $candidates,
-            'columns' => [
-                'tc_id',
-                'transfer_id',
-                'candidate_id',
-                'candidate.candidate_name',
-                [
-                    'attribute'=>'Beneficiary name',
-                    'label'=>'Beneficiary name',
-                    'value'=>function($data) {
-                        return $data->candidate->bank_account_name;
-                    }
-                ],
-                'candidate.candidate_email',
-                'candidate.store.company.company_name',
-                'candidate.store.store_name',
-                'hours',
-                'candidate_hourly_rate',
-                'bonus',
-                'transfer_cost',                
-                [
-                    'attribute'=>'candidate_total',
-                    'value' => function($data){
-                        return $data->candidateTotal;
-                    }
-                ],
-                'candidate.candidate_iban', 
-                'candidate.bank.bank_name'
-            ]
-        ]);
-    }
-
-    /**
      * Return a List Payable Candidates 
      */
     public function actionPayableCandidates()
@@ -641,12 +594,8 @@ class TransferController extends Controller
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
 
         $s2 = '';
-        $totalUserHours = 0;
-        $totalUserBonus = 0;
-        $totalUserAmount = 0;
         $totalTransaction = 0;
         $totalAmount = 0;
-        $finalAmount = 0;
 
         $candidates = TransferCandidate::find()
             ->payable()
@@ -660,28 +609,25 @@ class TransferController extends Controller
         }
 
         foreach ($candidates as $detail) {
-            $totalUserHours += $detail['hours'];
-            $totalUserBonus += $detail['bonus'];
-            $totalUserAmount += ($detail['hours'] * $detail['company_hourly_rate']);
-            $totalAmount += $totalUserAmount;
-            $finalUserAmount = number_format($totalUserAmount,3,'.',',');
-            $description = 'Internship '.$detail['hours'].' Hours';
+
+            $totalAmount += $detail->candidateTotal;
+            $description = 'Internship '.$detail->hours.' Hours';
             
             if(empty($detail->candidate->bank)) {
                 continue;
             }
 
-            $s2 .= "S2,".$detail->candidate->bank['bank_transfer_type'].",".$finalUserAmount.",KWD,,,,11622216,".
-                $detail->candidate['candidate_iban'].",".
-                $detail['transfer_id'].",".
-                $detail->invoice->invoice_id.",".
-                $description.",,,,".
-                $detail->candidate['bank_account_name'].",".
-                $detail->candidate->bank['bank_name'].",,".
-                $detail->candidate->bank['bank_name'].",".
-                $detail->candidate->bank['bank_address'].",,,".
-                $detail->candidate->bank['bank_swift_code'].",,,,,,,B,,,".
-                $detail->candidate['candidate_iban'].",".PHP_EOL;
+            $s2 .=  "S2,".$detail->candidate->bank->bank_transfer_type.",".$detail->candidateTotal.",KWD,,,,11622216,".
+                    $detail->candidate->candidate_iban.",".
+                    $detail->transfer_id.",".
+                    $detail->invoice->invoice_id.",".
+                    $description.",,,,".
+                    $detail->candidate->bank_account_name.",".
+                    $detail->candidate->bank->bank_name.",,".
+                    $detail->candidate->bank->bank_name.",".
+                    $detail->candidate->bank->bank_address.",,,".
+                    $detail->candidate->bank->bank_swift_code.",,,,,,,B,,,".
+                    $detail->candidate->candidate_iban.",".PHP_EOL;
             $totalTransaction +=1;
         }
 
@@ -701,6 +647,54 @@ class TransferController extends Controller
 
         return Yii::$app->response->sendFile($path);
     }
+
+    /**
+     * Return a Excel Containing Payable Candidates
+     */
+    public function actionExportPayableCandidates()
+    {
+        // Candidates whose company paid to admin but admin have not paid yet
+
+        $candidates = TransferCandidate::find()
+            ->payable()
+            ->all();
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'columns' => [
+                'tc_id',
+                'transfer_id',
+                'candidate_id',
+                'candidate.candidate_name',
+                [
+                    'attribute'=>'Beneficiary name',
+                    'label'=>'Beneficiary name',
+                    'value'=>function($data) {
+                        return $data->candidate->bank_account_name;
+                    }
+                ],
+                'candidate.candidate_email',
+                'candidate.store.company.company_name',
+                'candidate.store.store_name',
+                'hours',
+                'candidate_hourly_rate',
+                'bonus',
+                'transfer_cost',
+                [
+                    'attribute'=>'candidate_total',
+                    'value' => function($data){
+                        return $data->candidateTotal;
+                    }
+                ],
+                'candidate.candidate_iban',
+                'candidate.bank.bank_name'
+            ]
+        ]);
+    }
+
 
     /**
      * Download Transfer as PDF
