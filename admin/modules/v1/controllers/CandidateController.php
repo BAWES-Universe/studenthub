@@ -99,6 +99,19 @@ class CandidateController extends Controller
     }
 
     /**
+     * Return a No of Candidate to review 
+     */
+    public function actionTotalToReview()
+    {
+        $query = Candidate::find()
+            ->where(['approved' => 0]);
+
+        return [
+            'total' => $query->count()
+        ];
+    }
+
+    /**
      * Approve candidate account
      * @param $id
      * @return array
