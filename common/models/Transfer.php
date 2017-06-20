@@ -24,7 +24,7 @@ use common\models\Candidate;
  * @property string $transfer_updated_at
  *
  * @property Company $company
- * @property TransferCandidate[] $TransferCandidate
+ * @property TransferCandidate[] $transferCandidate
  * @property Invoice $invoice
  */
 class Transfer extends \yii\db\ActiveRecord
