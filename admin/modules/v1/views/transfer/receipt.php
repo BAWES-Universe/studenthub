@@ -5,7 +5,7 @@ use yii\helpers\Url;
 $totalHours = 0;
 $totalBonus = 0;
 $totalAmount = 0;
-foreach ($invoice->transfer->transferCandidates as $key => $value) {
+foreach ($invoice->transfer->transferCandidate as $key => $value) {
     $totalHours += $value->hours;
     $totalBonus += $value->bonus;
     $totalAmount += ($value->hours * $value->company_hourly_rate);
@@ -50,6 +50,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                     <span>KWD <?=number_format($totalAmount)?></span>
                 </td>
             </tr>
+            <?php if($totalBonus > 0) { ?>
             <tr>
                 <td align="left" style="text-align: left">
                     <span><b>Bonus to be sent to interns</b></span>
@@ -58,12 +59,13 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                     <span>KWD <?=number_format($totalBonus)?></span>
                 </td>
             </tr>
+            <?php } ?>
         </table>
         <hr/>
         <table class="table" >
             <tr>
                 <td align="left" style="text-align: left">
-                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?=count($invoice->transfer->transferCandidates)?> interns</span>
+                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?=count($invoice->transfer->transferCandidate)?> interns</span>
                 </td>
                 <td align="right" style="text-align: right">
                     <span class="h5">KWD <?= $invoice->transfer->company_total ?></span>

@@ -45,7 +45,7 @@ use yii\behaviors\TimestampBehavior;
  * @property University $university
  * @property CandidateIdCard[] $candidateIdCards
  * @property CandidateToken[] $accessTokens
- * @property TransferCandidates[] $transferCandidates
+ * @property TransferCandidate[] $TransferCandidate
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -419,9 +419,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTransferCandidates()
+    public function getTransferCandidate()
     {
-        return $this->hasMany(TransferCandidates::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**

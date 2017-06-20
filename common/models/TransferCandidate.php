@@ -9,7 +9,7 @@ use yii\behaviors\TimestampBehavior;
 use common\models\Invoice;
 
 /**
- * This is the model class for table "transfer_candidates".
+ * This is the model class for table "transfer_candidate".
  *
  * @property integer $tc_id
  * @property integer $transfer_id
@@ -25,14 +25,14 @@ use common\models\Invoice;
  * @property Candidate $candidate
  * @property Transfer $transfer
  */
-class TransferCandidates extends \yii\db\ActiveRecord
+class TransferCandidate extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'transfer_candidates';
+        return 'transfer_candidate';
     }
 
     /**
@@ -126,10 +126,10 @@ class TransferCandidates extends \yii\db\ActiveRecord
 
     /**
      * @inheritdoc
-     * @return query\TransferCandidatesQuery the active query used by this AR class.
+     * @return query\TransferCandidateQuery the active query used by this AR class.
      */
     public static function find()
     {
-        return new query\TransferCandidatesQuery(get_called_class());
+        return new query\TransferCandidateQuery(get_called_class());
     }
 }

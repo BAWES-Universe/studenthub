@@ -131,7 +131,7 @@ class TransferQuery extends \yii\db\ActiveQuery
      */
     public function transferCandidateJoin()
     {
-        return $this->joinWith('transferCandidates');
+        return $this->joinWith('transferCandidate');
     }
 }
 	

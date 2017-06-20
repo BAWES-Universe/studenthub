@@ -24,7 +24,7 @@ use common\models\Candidate;
  * @property string $transfer_updated_at
  *
  * @property Company $company
- * @property TransferCandidates[] $transferCandidates
+ * @property TransferCandidate[] $TransferCandidate
  */
 class Transfer extends \yii\db\ActiveRecord
 {
@@ -138,9 +138,9 @@ class Transfer extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTransferCandidates()
+    public function getTransferCandidate()
     {
-        return $this->hasMany(TransferCandidates::className(), ['transfer_id' => 'transfer_id']);
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);
     }
 
     /**
