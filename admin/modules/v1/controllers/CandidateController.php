@@ -2,12 +2,12 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Candidate;
-
+use common\models\Transfer;
 /**
  * Candidate controller - Manage Candidate accounts as Admin
  */
@@ -100,14 +100,17 @@ class CandidateController extends Controller
 
     /**
      * Return a No of Candidate to review 
+     * Return a No of Payable candidate also
      */
     public function actionTotalToReview()
     {
         $query = Candidate::find()
             ->where(['approved' => 0]);
-
+        $transfers = TransferCandidate::find()
+            ->payable();
         return [
-            'total' => $query->count()
+            'total' => $query->count(),
+            'payable' => $transfers->count()
         ];
     }
 
