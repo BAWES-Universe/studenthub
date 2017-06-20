@@ -43,10 +43,12 @@ class StaffToken extends \yii\db\ActiveRecord
         return [
             [['staff_id', 'token_value', 'token_status'], 'required'],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
-            //[['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [

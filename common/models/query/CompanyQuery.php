@@ -26,6 +26,10 @@ class CompanyQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['deleted'=>0]);
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
     public function childCompany($id)
     {
         return $this->andWhere(['parent_company_id' => $id]);

@@ -10,7 +10,7 @@ use Yii;
 class Transfer extends \common\models\Transfer {
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function fields()
     {

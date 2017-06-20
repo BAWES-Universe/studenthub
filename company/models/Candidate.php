@@ -10,7 +10,7 @@ use Yii;
 class Candidate extends \common\models\Candidate {
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function fields()
     {

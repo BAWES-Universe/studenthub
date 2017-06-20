@@ -32,7 +32,7 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function rules()
     {
@@ -46,6 +46,9 @@ class Store extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [
@@ -57,8 +60,8 @@ class Store extends \yii\db\ActiveRecord
         ];
     }
 
-    /** 
-     * find if company have subcompanies 
+    /**
+     * find if company have subcompanies
      */
     public function validateCompany()
     {
@@ -99,6 +102,9 @@ class Store extends \yii\db\ActiveRecord
         return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
     }
 
+    /**
+     * @return bool
+     */
     public function softDelete()
     {
         $this->deleted = 1;

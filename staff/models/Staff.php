@@ -25,9 +25,11 @@ class Staff extends \common\models\Staff {
 
         return $fields;
     }
-    
+
     /**
-     * @inheritdoc
+     * @param mixed $token
+     * @param null $type
+     * @return mixed
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = StaffToken::find()->where(['token_value' => $token])->with('staff')->one();

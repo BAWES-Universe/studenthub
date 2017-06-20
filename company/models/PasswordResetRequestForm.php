@@ -24,9 +24,8 @@ class PasswordResetRequestForm extends Model
     }
 
     /**
-     * Send password reset token to company email
-     *
-     * @param company\models\company $company
+     * @param $company
+     * @return bool
      */
     public function sendEmail($company)
     {

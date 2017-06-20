@@ -60,6 +60,9 @@ class TransferCandidates extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function fields()
     {
         $fields = parent::fields();
@@ -113,6 +116,9 @@ class TransferCandidates extends \yii\db\ActiveRecord
         return $this->hasOne(Invoice::className(), ['transfer_id' => 'transfer_id']);
     }
 
+    /**
+     * @return string
+     */
     public function getCandidateTotal()
     {
         return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
