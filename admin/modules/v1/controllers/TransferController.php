@@ -519,7 +519,8 @@ class TransferController extends Controller
         }
             return [
                 'operation' => 'success',
-                'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully'
+                'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully',
+                'totalPayableCandidate'=>$transfers = TransferCandidate::find()->payable()->count()
             ];
     }
 
