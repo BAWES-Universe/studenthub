@@ -88,7 +88,7 @@ class TransferController extends Controller
             $transfer_ids[] = $transfer->transfer_id;
 
             $candidates = TransferCandidate::find()
-                ->select('{{%transfer_candidate}}.*, (({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus) as total_amount')
+                ->select('{{%transfer_candidate}}.*, FORMAT((({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus),3) as `total_amount`')
                 ->joinWith(['candidate'=>function($query){
                     $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
                 }])
@@ -132,7 +132,7 @@ class TransferController extends Controller
             $transfer_ids[] = $transfer->transfer_id;
 
             $candidates = TransferCandidate::find()
-                ->select('{{%transfer_candidate}}.*, (({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus) as total_amount')
+                ->select('{{%transfer_candidate}}.*, FORMAT((({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus),3) as `total_amount`')
                 ->joinWith(['candidate'=>function($query){
                     $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
                 }])
