@@ -810,23 +810,4 @@ class TransferController extends Controller
             ]
         ]);
     }
-
-    /**
-     * return all child transfer of parent
-     * transfer
-     * @param $id
-     * @return array
-     */
-    public function actionChildTransfers($id)
-    {
-        $records = [];
-        $transfer = Transfer::findOne($id);
-        if ($transfer) {
-            foreach ($transfer->childTransfers as $transfer) {
-                $records[] = [ 'transfer' => $transfer,'invoice'=> $transfer->invoice ];
-            }
-        }
-
-        return $records;
-    }
 }
