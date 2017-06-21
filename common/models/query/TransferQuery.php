@@ -158,12 +158,12 @@ class TransferQuery extends \yii\db\ActiveQuery
 
         return $this->joinWith( [
             'transferCandidate' => function (\yii\db\ActiveQuery $query) {
-                $query->select('{{%transfer_candidate}}.bonus,{{%transfer_candidate}}.candidate_id,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.paid,{{%transfer_candidate}}.tc_id');
-                $query->addSelect('{{%transfer_candidate}}.transfer_id,{{%transfer_candidate}}.company_hourly_rate,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.bonus');
-                $query->addSelect('{{%candidate}}.candidate_name,{{%candidate}}.candidate_email,{{%candidate}}.store_id');
-                $query->addSelect('{{%store}}.store_name');
-                $query->innerJoin('candidate','{{%transfer_candidate}}.candidate_id={{%candidate}}.candidate_id');
-                $query->innerJoin('store','{{%store}}.store_id={{%candidate}}.store_id');
+                $query->select('{{%transfer_candidate}}.bonus,{{%transfer_candidate}}.candidate_id,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.paid,{{%transfer_candidate}}.tc_id')
+                    ->addSelect('{{%transfer_candidate}}.transfer_id,{{%transfer_candidate}}.company_hourly_rate,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.bonus')
+                    ->addSelect('{{%candidate}}.candidate_name,{{%candidate}}.candidate_email,{{%candidate}}.store_id')
+                    ->addSelect('{{%store}}.store_name')
+                    ->innerJoin('candidate','{{%transfer_candidate}}.candidate_id={{%candidate}}.candidate_id')->andWhere(['{{%candidate}}.deleted'=>0])
+                    ->innerJoin('store','{{%store}}.store_id={{%candidate}}.store_id')->andWhere(['{{%store}}.deleted'=>0]);
             }
         ]);
     }
