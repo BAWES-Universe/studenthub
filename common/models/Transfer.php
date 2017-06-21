@@ -25,6 +25,7 @@ use common\models\Candidate;
  *
  * @property Company $company
  * @property TransferCandidate[] $transferCandidate
+ * @property ChildTransfers[] $childTransfers
  * @property Invoice $invoice
  */
 class Transfer extends \yii\db\ActiveRecord
@@ -126,24 +127,13 @@ class Transfer extends \yii\db\ActiveRecord
     {
         return $this->hasMany(self::className(),['parent_transfer_id'=>'transfer_id']);
     }
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getMainTransfer()
-    {
-        return $this->hasOne(Transfer::className(),['parent_transfer_id'=>'transfer_id']);
-    }
 
     /**
      * @return \yii\db\ActiveQuery|static
      */
     public function getInvoice()
     {
-        if ($this->mainTransfer) { // in case child transfer gets parents invoice
-            return Invoice::findOne(['transfer_id'=>$this->mainTransfer->transfer_id]);
-        } else { // in case of transfer is parent one
-            return $this->hasOne(Invoice::className(),['transfer_id'=>'transfer_id']);
-        }
+        return $this->hasOne(Invoice::className(), ['transfer_id'=>'transfer_id']);
     }
 
     /**

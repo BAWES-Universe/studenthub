@@ -3,7 +3,7 @@
 namespace common\models;
 
 use Yii;
-
+use yii\db\ActiveRecord;
 /**
  * This is the model class for table "invoice".
  *
@@ -14,7 +14,7 @@ use Yii;
  *
  * @property Transfer $transfer
  */
-class Invoice extends \yii\db\ActiveRecord
+class Invoice extends ActiveRecord
 {
     /**
      * @inheritdoc
