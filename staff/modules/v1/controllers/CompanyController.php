@@ -69,6 +69,7 @@ class CompanyController extends Controller
     public function actionList()
     {
         $query = Company::find()
+            ->notDeleted()
             ->filterParent();
 
         return new ActiveDataProvider([

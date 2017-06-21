@@ -78,7 +78,7 @@ class CandidateController extends Controller
         if($country_id) {
             $query->filterCountry($country_id);
         }
-            $query->notDeleted();
+        $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
