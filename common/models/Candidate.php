@@ -421,7 +421,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getTransferCandidate()
     {
-        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id'])
+                ->where(['deleted'=>0]);
+
     }
 
     /**
@@ -498,7 +500,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function findByEmail($email)
     {
-        return static::findOne(['candidate_email' => $email]);
+        return static::findOne(['candidate_email' => $email,'deleted'=>0]);
     }
 
     /**
