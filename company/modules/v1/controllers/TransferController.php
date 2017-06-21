@@ -576,7 +576,7 @@ class TransferController extends Controller
             ];
         }
 
-        //$transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
+        $transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
         $transfer->save();
 
         return [
