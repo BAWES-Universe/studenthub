@@ -147,6 +147,7 @@ class CompanyController extends Controller
         $company = Company::find()
             ->where(['company_id' => $id])
             ->asArray()
+            ->notDeleted()
             ->one();
 
         if(!$company){
@@ -158,15 +159,15 @@ class CompanyController extends Controller
 
         //sub companies 
         
-        $company['subcompanies'] = Company::findAll([
+        $company['subcompanies'] = Company::find()->where([
                 'parent_company_id' => $company['company_id']
-            ]); 
+            ])->all();
 
         //stores 
 
-        $company['stores'] = Store::findAll([
+        $company['stores'] = Store::find()->where([
                 'company_id' => $company['company_id']
-            ]);
+            ])->notDeleted()->all();
 
         return $company;
     }
