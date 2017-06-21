@@ -117,7 +117,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->andWhere(['{{%company}}.deleted'=>0]);
     }
 
     /**
@@ -125,7 +125,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getChildTransfers()
     {
-        return $this->hasMany(self::className(),['parent_transfer_id'=>'transfer_id']);
+        return $this->hasMany(self::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
     }
 
     /**
@@ -141,7 +141,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getTransferCandidate()
     {
-        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
     }
 
     /**

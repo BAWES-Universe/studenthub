@@ -32,6 +32,14 @@ class TransferQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @return $this
+     */
+    public function notDeleted()
+    {
+        return $this->andWhere(['{{%transfer}}.deleted' => 0]);
+    }
+
+    /**
      * @param $transfer_id
      * @return $this
      */

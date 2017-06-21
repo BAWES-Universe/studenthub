@@ -147,7 +147,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function notDeleted()
     {
-        return $this->andWhere(['deleted'=>'0']);
+        return $this->andWhere(['deleted'=>0]);
     }
 
     public function selectField() {

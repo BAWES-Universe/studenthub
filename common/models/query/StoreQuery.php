@@ -23,6 +23,6 @@ class StoreQuery extends ActiveQuery
      */
     public function notDeleted()
     {
-        return $this->andWhere(['deleted'=>0]);
+        return $this->andWhere(['{{%store}}.deleted'=>0]);
     }
 }

@@ -70,29 +70,31 @@ class CandidateController extends Controller
     public function actionSearch()
     {
         $query = Candidate::find();
+
         $by = Yii::$app->request->get('by');
         switch ($by) {
             case 'country_id' :
                 $country_id = Yii::$app->request->get('country_id');
-                $query->where(['country_id' => $country_id]);
+                $query->andWhere(['country_id' => $country_id]);
                 break;
             case 'university_id' :
                 $country_id = Yii::$app->request->get('university_id');
-                $query->where(['university_id' => $country_id]);
+                $query->andWhere(['university_id' => $country_id]);
                 break;
             case 'review' :
                 $review = Yii::$app->request->get('review');
-                $query->where(['approved' => $review]);
+                $query->andWhere(['approved' => $review]);
                 break;
             case 'store_id' :
                 $store_id = Yii::$app->request->get('store_id');
-                $query->where(['store_id' => $store_id]);
+                $query->andWhere(['store_id' => $store_id]);
                 break;
             default:
-                $query->where(['approved' => 0]);
+                $query->andWhere(['approved' => 0]);
                 break;
         }
 
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -105,8 +107,10 @@ class CandidateController extends Controller
     public function actionTotalToReview()
     {
         $query = Candidate::find()
-            ->where(['approved' => 0]);
+            ->notDeleted()
+            ->andWhere(['approved' => 0]);
         $transfers = TransferCandidate::find()
+            ->notDeleted()
             ->payable();
         return [
             'total' => $query->count(),

@@ -43,6 +43,16 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     /**
      * @return $this
      */
+    public function notDeleted()
+    {
+        return $this->andWhere([
+                '{{%transfer_candidate}}.deleted' => 0
+            ]);
+    }
+
+    /**
+     * @return $this
+     */
     public function filterUnpaid()
     {
         return $this->andWhere([
@@ -173,7 +183,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Total paid in transfer 
+     * Total paid in transfer
+     * @param $transfer_id
+     * @return int|string
      */
     public function totalPaid($transfer_id) 
     {
@@ -182,7 +194,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Total unpaid in transfer 
+     * Total unpaid in transfer
+     * @param $transfer_id
+     * @return int|string
      */
     public function totalUnpaid($transfer_id) 
     {
@@ -192,6 +206,8 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
 
     /**
      * Return unpaid candidate list for a given transfer
+     * @param $transfer_id
+     * @return $this
      */
     public function unpaid($transfer_id) 
     {

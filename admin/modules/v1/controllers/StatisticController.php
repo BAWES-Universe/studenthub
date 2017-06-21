@@ -68,15 +68,16 @@ class StatisticController extends Controller
     public function actionList()
     {
         $arr_status = Transfer::statusList();
-        $totalCandidate = Candidate::find()->count();
-        $totalAssign = Candidate::find()->where('store_id is NOT NULL')->count();
-        $approved = Candidate::find()->where(['approved'=>1])->count();
+        $totalCandidate = Candidate::find()->notDeleted()->count();
+        $totalAssign = Candidate::find()->where('store_id is NOT NULL')->notDeleted()->count();
+        $approved = Candidate::find()->where(['approved'=>1])->notDeleted()->count();
         $result['transfers'] = [];
 
         foreach ($arr_status as $key => $value) 
         {
             $count = Transfer::find()
                 ->where(['transfer_status' => $key])
+                ->notDeleted()
                 ->count();
 
             $result['transfers'][] = [
