@@ -41,7 +41,7 @@ class Store extends \common\models\Store {
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->andWhere(['deleted'=>0]);
     }
 
     /**
@@ -49,6 +49,6 @@ class Store extends \common\models\Store {
      */
     public function getCandidates()
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
+        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])->andWhere(['deleted'=>0]);
     }
 }

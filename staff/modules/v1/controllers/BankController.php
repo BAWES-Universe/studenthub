@@ -69,7 +69,7 @@ class BankController extends Controller
     public function actionList()
     {
         $query = Bank::find();
-
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -82,6 +82,7 @@ class BankController extends Controller
     public function actionAll()
     {
         return Bank::find()
+            ->notDeleted()
             ->all();
     }
 }
