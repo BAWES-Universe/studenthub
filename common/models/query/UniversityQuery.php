@@ -34,7 +34,7 @@ class UniversityQuery extends \yii\db\ActiveQuery
      */
     public function notDeleted()
     {
-        return $this->andWhere(['university.deleted'=>0]);
+        return $this->andWhere(['{{%university}}.deleted'=>0]);
     }
 
     /**
@@ -52,7 +52,7 @@ class UniversityQuery extends \yii\db\ActiveQuery
      */
     public function joinCandidate()
     {
-        return $this->leftJoin('candidate', 'candidate.university_id = university.university_id');
+        return $this->leftJoin('candidate', 'candidate.university_id = university.university_id')->andwhere(['{{%candidate}}.deleted'=>0]);
     }
 
     /**

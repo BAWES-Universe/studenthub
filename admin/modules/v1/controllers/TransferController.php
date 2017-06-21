@@ -78,22 +78,23 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $result = [];
-        $transfers = Transfer::findAll(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS]);
+        $transfers = Transfer::find()->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])->all();
 
         foreach ($transfers as $transfer) {
 
             // find all parents and child transfers
-            $transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
+            $transfers = Transfer::find()->where(['parent_transfer_id' => $transfer->transfer_id])->all();
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
             $transfer_ids[] = $transfer->transfer_id;
 
             $candidates = TransferCandidate::find()
-                ->select('{{%transfer_candidate}}.*, (({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus) as total_amount')
+                ->select('{{%transfer_candidate}}.*, FORMAT((({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus),3) as `total_amount`')
                 ->joinWith(['candidate'=>function($query){
                     $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
                 }])
                 ->where("transfer_id IN (".implode(',',$transfer_ids).")")
                 ->groupBy("candidate_id")
+                ->notDeleted()
                 ->asArray()
                 ->all();
 
@@ -121,22 +122,23 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet
         $result = [];
-        $transfers = Transfer::findAll(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS]);
+        $transfers = Transfer::find()->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])->all();
 
         foreach ($transfers as $transfer) {
 
             // find all parents and child transfers
-            $transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
+            $transfers = Transfer::find()->where(['parent_transfer_id' => $transfer->transfer_id])->all();
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
             $transfer_ids[] = $transfer->transfer_id;
 
             $candidates = TransferCandidate::find()
-                ->select('{{%transfer_candidate}}.*, (({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus) as total_amount')
+                ->select('{{%transfer_candidate}}.*, FORMAT((({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus),3) as `total_amount`')
                 ->joinWith(['candidate'=>function($query){
                     $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
                 }])
                 ->where("paid='0' AND transfer_id IN (".implode(',',$transfer_ids).")")
                 ->groupBy("candidate_id")
+                ->notDeleted()
                 ->asArray()
                 ->all();
 
@@ -163,6 +165,7 @@ class TransferController extends Controller
 
         $query = Transfer::find()
             ->selectedFields()
+            ->notDeleted()
             ->companyJoin()
             ->transferCandidateJoin()
             ->parentTransfers();
@@ -203,14 +206,17 @@ class TransferController extends Controller
         }
 
         $transfer['total_paid'] = TransferCandidate::find()
+            ->notDeleted()
             ->totalPaid($id);
         
         $transfer['total_unpaid'] = TransferCandidate::find()
+            ->notDeleted()
             ->totalUnpaid($id);
 
         //get total profit
 
         $transfer['profit'] = TransferCandidate::find()
+            ->notDeleted()
             ->profit($id);
             
         $transfer['candidates'] = TransferCandidate::find()
@@ -462,7 +468,7 @@ class TransferController extends Controller
         //check if all paid, mark transfer as complete 
 
         $unpaid = TransferCandidate::find()
-            ->where([
+            ->andwhere([
                 'paid' => 0
             ])
             ->andWhere(['in', 'transfer_id', $transfer_ids])
@@ -519,7 +525,8 @@ class TransferController extends Controller
         }
             return [
                 'operation' => 'success',
-                'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully'
+                'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully',
+                'totalPayableCandidate'=>$transfers = TransferCandidate::find()->payable()->count()
             ];
     }
 
@@ -808,24 +815,5 @@ class TransferController extends Controller
                 ],
             ]
         ]);
-    }
-
-    /**
-     * return all child transfer of parent
-     * transfer
-     * @param $id
-     * @return array
-     */
-    public function actionChildTransfers($id)
-    {
-        $records = [];
-        $transfer = Transfer::findOne($id);
-        if ($transfer) {
-            foreach ($transfer->childTransfers as $transfer) {
-                $records[] = [ 'transfer' => $transfer,'invoice'=> $transfer->invoice ];
-            }
-        }
-
-        return $records;
     }
 }

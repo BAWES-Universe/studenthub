@@ -381,7 +381,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getUniversity()
     {
-        return $this->hasOne(University::className(), ['university_id' => 'university_id']);
+        return $this->hasOne(University::className(), ['university_id' => 'university_id'])->andWhere(['{{%university}}.deleted'=>0]);
+
     }
 
     /**
@@ -397,7 +398,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getBank()
     {
-        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
+        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id'])->andWhere(['{{%bank}}.deleted'=>0]);
     }
 
     /**
@@ -405,7 +406,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getStore()
     {
-        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+        return $this->hasOne(Store::className(), ['store_id' => 'store_id'])->andWhere(['{{%store}}.deleted'=>0]);
     }
 
     /**
@@ -413,7 +414,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->via('store');
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->via('store')->andWhere(['{{%company}}.deleted'=>0]);
     }
 
     /**
@@ -421,7 +422,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getTransferCandidate()
     {
-        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id'])
+                ->where(['{{%transfer_candidate}}.deleted'=>0]);
+
     }
 
     /**
@@ -498,7 +501,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function findByEmail($email)
     {
-        return static::findOne(['candidate_email' => $email]);
+        return static::findOne(['candidate_email' => $email,'deleted'=>0]);
     }
 
     /**

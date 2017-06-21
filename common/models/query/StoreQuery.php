@@ -2,12 +2,12 @@
 
 namespace common\models\query;
 use Yii;
-
+use yii\db\ActiveQuery;
 /**
  * This is the ActiveQuery class for [[Store]].
  *
  */
-class StoreQuery extends \yii\db\ActiveQuery
+class StoreQuery extends ActiveQuery
 {
     /**
      * @param $companyId
@@ -23,6 +23,6 @@ class StoreQuery extends \yii\db\ActiveQuery
      */
     public function notDeleted()
     {
-        return $this->andWhere(['deleted'=>0]);
+        return $this->andWhere(['{{%store}}.deleted'=>0]);
     }
 }

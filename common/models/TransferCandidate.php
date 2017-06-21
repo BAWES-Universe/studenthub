@@ -18,7 +18,7 @@ use common\models\Invoice;
  * @property string $candidate_hourly_rate
  * @property string $company_hourly_rate
  * @property string $bonus
- * @property string $transfer_cost 
+ * @property string $transfer_cost
  * @property string $tc_created_at
  * @property string $tc_updated_at
  *
@@ -50,6 +50,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [

@@ -24,7 +24,8 @@ use common\models\Candidate;
  * @property string $transfer_updated_at
  *
  * @property Company $company
- * @property TransferCandidate[] $TransferCandidate
+ * @property TransferCandidate[] $transferCandidate
+ * @property ChildTransfers[] $childTransfers
  * @property Invoice $invoice
  */
 class Transfer extends \yii\db\ActiveRecord
@@ -116,7 +117,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->andWhere(['{{%company}}.deleted'=>0]);
     }
 
     /**
@@ -124,14 +125,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getChildTransfers()
     {
-        return $this->hasMany(self::className(),['parent_transfer_id'=>'transfer_id']);
-    }
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getMainTransfer()
-    {
-        return $this->hasOne(Transfer::className(),['parent_transfer_id'=>'transfer_id']);
+        return $this->hasMany(self::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
     }
 
     /**
@@ -139,11 +133,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getInvoice()
     {
-        if ($this->mainTransfer) { // in case child transfer gets parents invoice
-            return Invoice::findOne(['transfer_id'=>$this->mainTransfer->transfer_id]);
-        } else { // in case of transfer is parent one
-            return $this->hasOne(Invoice::className(),['transfer_id'=>'transfer_id']);
-        }
+        return $this->hasOne(Invoice::className(), ['transfer_id'=>'transfer_id']);
     }
 
     /**
@@ -151,7 +141,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getTransferCandidate()
     {
-        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
     }
 
     /**

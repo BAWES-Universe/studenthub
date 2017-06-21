@@ -45,6 +45,14 @@ class University extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates()
+    {
+        return $this->hasMany(Candidate::className(),['university_id'=>'university_id']);
+    }
+
+    /**
      * soft delete university
      * @return bool
      */
@@ -52,11 +60,6 @@ class University extends \yii\db\ActiveRecord
     {
         $this->deleted = 1;
         return $this->save(false);
-    }
-
-    public function getCandidates()
-    {
-        return $this->hasMany(Candidate::className(),['university_id'=>'university_id']);
     }
 
     /**
