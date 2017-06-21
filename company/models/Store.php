@@ -21,17 +21,10 @@ class Store extends \common\models\Store {
             'store_name',
             'store_status',
             'candidates' => function($model) {
-                return $model->candidates;
+                return $model->getCandidates()
+                    ->selectField()
+                    ->all();
             }
         ];
     }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCandidates()
-    {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
-    }
-
 }

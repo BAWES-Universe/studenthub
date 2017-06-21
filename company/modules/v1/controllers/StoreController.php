@@ -66,6 +66,8 @@ class StoreController extends Controller
     /**
      * Return a List of Store by companyId if provided
      * else by current login company id.
+     * @param null $companyId
+     * @return array|ActiveDataProvider
      */
     public function actionList($companyId = null)
     {
@@ -98,9 +100,11 @@ class StoreController extends Controller
         ]);
     }
 
+    /**
+     * @return array
+     */
     public function actionIndex()
     {
-
         $company = Yii::$app->user->identity;
         $list = [];
 

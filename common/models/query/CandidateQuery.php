@@ -19,7 +19,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterCompany($company)
     {
-        // create company_id array from all sub companies and self 
+        // create c bompany_id array from all sub companies and self
 
         $companies = $company->subCompanies;
 
@@ -151,7 +151,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     public function selectField() {
-        return $this->select('candidate_id,store_id,bank_id,university_id,country_id,candidate_name,candidate_name_ar')
+        return $this->select('candidate_id,store_id,university_id,country_id,candidate_name,candidate_name_ar')
             ->addSelect('candidate_personal_photo,candidate_email,candidate_phone,candidate_address_line1')
             ->addSelect('candidate_birth_date,candidate_civil_id,candidate_civil_expiry_date,candidate_civil_photo_front')
             ->addSelect('candidate_civil_photo_back,candidate_created_at');
