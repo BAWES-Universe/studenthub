@@ -25,4 +25,8 @@ class StoreQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere(['deleted'=>0]);
     }
+
+    public function getCandidates() {
+        return [];
+    }
 }
