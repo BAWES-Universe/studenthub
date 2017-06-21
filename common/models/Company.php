@@ -203,7 +203,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @return static|null
      */
     public static function findByEmail($email) {
-        return static::findOne(['company_email' => $email]);
+        return static::findOne(['company_email' => $email,'deleted'=>0]);
     }
 
     /**

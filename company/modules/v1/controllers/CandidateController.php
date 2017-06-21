@@ -75,7 +75,8 @@ class CandidateController extends Controller
 
         $query = Candidate::find();
         $query->selectField()
-              ->filterCompany($company);
+                ->filterCompany($company)
+                ->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -92,6 +93,7 @@ class CandidateController extends Controller
 
         return Candidate::find()
             ->filterCompany($company)
+            ->notDeleted()
             ->all();
     }
 
@@ -129,7 +131,8 @@ class CandidateController extends Controller
         }
 
         $query = Candidate::find()
-            ->filterStore($store_id);
+            ->filterStore($store_id)
+            ->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query

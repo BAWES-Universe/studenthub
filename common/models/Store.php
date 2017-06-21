@@ -91,7 +91,7 @@ class Store extends \yii\db\ActiveRecord
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->where(['deleted'=>0]);
     }
 
     /**
@@ -99,7 +99,7 @@ class Store extends \yii\db\ActiveRecord
      */
     public function getCandidates()
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
+        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])->where(['deleted'=>0]);
     }
 
     /**
