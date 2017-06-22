@@ -42,9 +42,13 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['transfer_id', 'candidate_id'], 'integer'],
+            [['transfer_id', 'candidate_id', 'store_id', 'company_id'], 'integer'],
+            [['store_name', 'company_name'], 'string', 'max' => 100],
+            [['company_email'], 'email'],
             [['hours', 'transfer_cost', 'bonus', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['tc_created_at', 'tc_updated_at'], 'safe'],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
         ];
@@ -86,6 +90,11 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'tc_id' => 'TC ID',
             'transfer_id' => 'Transfer ID',
             'candidate_id' => 'Candidate ID',
+            'store_id' => 'Store ID',
+            'store_name' => 'Store Name',
+            'company_id' => 'Company ID',
+            'company_name' => 'Company Name',
+            'company_email' => 'Company Email',
             'hours' => 'Hours',
             'candidate_hourly_rate' => 'Candidate Hourly Rate',
             'company_hourly_rate' => 'Company Hourly Rate',
@@ -94,6 +103,22 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'tc_created_at' => 'Tc Created At',
             'tc_updated_at' => 'Tc Updated At',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore()
+    {
+        return $this->hasOne(Store::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany()
+    {
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
     }
 
     /**
