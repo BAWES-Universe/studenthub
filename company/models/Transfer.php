@@ -39,10 +39,10 @@ class Transfer extends \common\models\Transfer {
             'invoice',
             'transferCandidates',
             'childTransferInvoices',
-            'childTransferCandidates',
-            'storeWithCompany' => function($model) {
-                return $model->store_name." @ ".$model->company->company_name;
-            }
+            'childTransferCandidates'
+            // 'storeWithCompany' => function($model) {
+            //     return $model->store_name." @ ".$model->company->company_name;
+            // }
         ];
     }
 
