@@ -201,7 +201,7 @@ class TransferController extends Controller
             $tc->attributes = $value;
             $tc->store_id = $candidate->store_id;
             $tc->store_name = $candidate->store->store_name;
-            $tc->company_id = $candidate->company_id;
+            $tc->company_id = $candidate->store->company_id;
             $tc->company_name = $candidate->store->company->company_name;
             $tc->company_email = $candidate->store->company->company_email;
 
@@ -362,7 +362,7 @@ class TransferController extends Controller
             $tc->transfer_id = $model->transfer_id;
             $tc->store_id = $candidate->store_id;
             $tc->store_name = $candidate->store->store_name;
-            $tc->company_id = $candidate->company_id;
+            $tc->company_id = $candidate->store->company_id;
             $tc->company_name = $candidate->store->company->company_name;
             $tc->company_email = $candidate->store->company->company_email;
 
@@ -438,7 +438,6 @@ class TransferController extends Controller
 
             //move transfer to transfer
             $transfer = Transfer::find()
-                ->companyJoin()            
                 ->filterCompanyId($sub_company['company_id'])
                 ->filterParent($model->transfer_id)
                 ->one();
@@ -573,7 +572,6 @@ class TransferController extends Controller
 
         $transfer = Transfer::find()
             ->filterTransfer($id)
-            ->companyJoin()
             ->filterCompanyId($company->company_id)
             ->one();
 

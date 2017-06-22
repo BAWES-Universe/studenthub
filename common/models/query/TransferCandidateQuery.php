@@ -64,20 +64,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      * @param $company_id
      * @return $this
      */
-    public function filterCompany($company_id)
-    {
-        return $this->andWhere([
-                '{{%store}}.company_id' => $company_id
-            ]);
-    }
-
-    /**
-     * @param $company_id
-     * @return $this
-     */
     public function filterCompanyId($company_id)
     {
-        return $this->andWhere(['{{%company}}.company_id' => $company_id]);
+        return $this->andWhere(['{{%transfer_candidate}}.company_id' => $company_id]);
     }
 
     /**
@@ -134,8 +123,8 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      */
     public function groupByCompany($company_id)
     {
-        return $this->groupBy('{{%company}}.company_id')
-            ->andWhere(['!=', '{{%company}}.company_id', $company_id])
+        return $this->groupBy('{{%transfer_candidate}}.company_id')
+            ->andWhere(['!=', '{{%transfer_candidate}}.company_id', $company_id])
             ->distinct();
     }
 
@@ -149,10 +138,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     {
         return $this->select([
                 '{{%transfer_candidate}}.*', 
-        		'{{%store}}.company_id',
-                '{{%store}}.store_name', 
-        		'{{%company}}.company_name', 
-        		'{{%company}}.company_email', 
         		'{{%candidate}}.candidate_name',
         		'{{%candidate}}.candidate_name_ar',
                 '{{%candidate}}.candidate_email',
@@ -174,8 +159,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
         		'profit as' => '(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate) * hours) - transfer_cost'
         	])
             ->innerJoin('{{%candidate}}', '{{%candidate}}.candidate_id = {{%transfer_candidate}}.candidate_id')
-            ->innerJoin('{{%store}}', '{{%store}}.store_id = {{%candidate}}.store_id')
-            ->innerJoin('{{%company}}', '{{%store}}.company_id = {{%company}}.company_id')
             ->leftJoin('{{%bank}}', '{{%bank}}.bank_id = {{%candidate}}.bank_id')
             ->andWhere([
                 '{{%transfer_candidate}}.transfer_id' => $transfer_id

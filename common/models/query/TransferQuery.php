@@ -63,7 +63,7 @@ class TransferQuery extends \yii\db\ActiveQuery
      */
     public function filterCompanyId($company_id)
     {
-        return $this->andWhere(['{{%company}}.company_id' => $company_id]);
+        return $this->andWhere(['{{%transfer}}.company_id' => $company_id]);
     }
 
     /**
