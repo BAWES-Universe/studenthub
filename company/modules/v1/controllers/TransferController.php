@@ -201,7 +201,7 @@ class TransferController extends Controller
             $tc->attributes = $value;
             $tc->store_id = $candidate->store_id;
             $tc->store_name = $candidate->store->store_name;
-            $tc->company_id = $candidate->company_id;
+            $tc->company_id = $candidate->store->company_id;
             $tc->company_name = $candidate->store->company->company_name;
             $tc->company_email = $candidate->store->company->company_email;
 
