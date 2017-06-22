@@ -89,13 +89,13 @@ class TransferQuery extends \yii\db\ActiveQuery
      * @param $company
      * @return $this
      */
-    public function filterCurrentCompany($company) 
+    public function filterCurrentCompany($company)
     {
         $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map(
-            $companies, 
-            'company_id', 
+            $companies,
+            'company_id',
             'company_id'
         );
 
@@ -155,7 +155,7 @@ class TransferQuery extends \yii\db\ActiveQuery
      */
     public function transferCandidateJoin()
     {
-        return $this->joinWith('transferCandidate');
+        return $this->joinWith('transferCandidates');
     }
 
     /**
@@ -165,7 +165,7 @@ class TransferQuery extends \yii\db\ActiveQuery
     {
 
         return $this->joinWith( [
-            'transferCandidate' => function (\yii\db\ActiveQuery $query) {
+            'transferCandidates' => function (\yii\db\ActiveQuery $query) {
                 $query->select('{{%transfer_candidate}}.bonus,{{%transfer_candidate}}.candidate_id,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.paid,{{%transfer_candidate}}.tc_id')
                     ->addSelect('{{%transfer_candidate}}.transfer_id,{{%transfer_candidate}}.company_hourly_rate,{{%transfer_candidate}}.hours,{{%transfer_candidate}}.bonus')
                     ->addSelect('{{%candidate}}.candidate_name,{{%candidate}}.candidate_email,{{%candidate}}.store_id')
@@ -176,4 +176,3 @@ class TransferQuery extends \yii\db\ActiveQuery
         ]);
     }
 }
-	

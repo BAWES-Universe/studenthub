@@ -24,9 +24,11 @@ use common\models\Candidate;
  * @property string $transfer_updated_at
  *
  * @property Company $company
- * @property TransferCandidate[] $transferCandidate
- * @property ChildTransfers[] $childTransfers
+ * @property TransferCandidate[] $transferCandidates
  * @property Invoice $invoice
+ * @property Transfer[] $childTransfers
+ * @property TransferCandidate[] $childTransferCandidates
+ * @property Invoice $childTransferInvoices
  */
 class Transfer extends \yii\db\ActiveRecord
 {
@@ -117,18 +119,16 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->andWhere(['{{%company}}.deleted'=>0]);
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getChildTransfers()
-    {
-        return $this->hasMany(self::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
-    }
-
-    /**
+     * Get the invoice belonging to this transfer
+     * Each transfer can have max a single invoice, unless it has sub-transfers
+     * then each subtransfer can have an invoice each.
+     *
+     * If this is a parent transfer that has subtransfers, it should show up empty
+     * will need to use Transfer::getChildTransferInvoices()
      * @return \yii\db\ActiveQuery|static
      */
     public function getInvoice()
@@ -137,11 +137,42 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
     /**
+     * Get all TransferCandidate links under this transfer
+     * which include hours worked, hourly rate, etc
+     *
+     * If this is a parent transfer that has subtransfers, it should show up empty
+     * will need to use Transfer::getChildTransferCandidates()
      * @return \yii\db\ActiveQuery
      */
-    public function getTransferCandidate()
+    public function getTransferCandidates()
     {
         return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getChildTransfers()
+    {
+        return $this->hasMany(Transfer::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
+    }
+
+    /**
+     * Get all invoices belonging to child transfers (if available)
+     * @return \yii\db\ActiveQuery|static
+     */
+    public function getChildTransferInvoices()
+    {
+        return $this->hasMany(Invoice::className(), ['transfer_id'=>'transfer_id'])->via('childTransfers');
+    }
+
+    /**
+     * Get all invoices belonging to child transfers (if available)
+     * @return \yii\db\ActiveQuery|static
+     */
+    public function getChildTransferCandidates()
+    {
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id'=>'transfer_id'])->via('childTransfers');
     }
 
     /**
