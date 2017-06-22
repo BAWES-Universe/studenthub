@@ -7,9 +7,9 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 use company\models\Company;
-use common\models\Candidate;
+use company\models\Candidate;
+use company\models\Transfer;
 use common\models\Invoice;
-use common\models\Transfer;
 use common\models\TransferCandidate;
 use kartik\mpdf\Pdf;
 
@@ -310,10 +310,10 @@ class TransferController extends Controller
 
         $new_transfer_id = $new_invoice_id = [];
 
-        //Old Child Transfers 
+        //Old Child Transfers
         $old_child_transfers = Transfer::findAll(['parent_transfer_id' => $model->transfer_id]);
 
-        //Old Invoices 
+        //Old Invoices
         $old_invoices = Invoice::find()
             ->byTransfer($model->transfer_id)
             ->all();
@@ -416,7 +416,7 @@ class TransferController extends Controller
             ->all();
 
         /**
-         * generate invoice for main transfer if no sub companies else generate 
+         * generate invoice for main transfer if no sub companies else generate
          * invoice for each sub companies
          */
         if(!$sub_companies)
@@ -500,7 +500,7 @@ class TransferController extends Controller
             //save total in transfer
 
             $transfer->company_total = $company_total;
-            $transfer->total = $total;            
+            $transfer->total = $total;
             if(!$transfer->save())
             {
                 $transaction->rollBack();
@@ -526,20 +526,20 @@ class TransferController extends Controller
             $new_invoice_id[] = $invoice->invoice_id;
         }
 
-        //remove extra transfers 
-        foreach ($old_child_transfers as $key => $value) 
+        //remove extra transfers
+        foreach ($old_child_transfers as $key => $value)
         {
             if(!in_array($value->transfer_id, $new_transfer_id))
             {
-                //remove transfer data 
-                //Keep hard delete here as on recover of actual transfer we got required data 
+                //remove transfer data
+                //Keep hard delete here as on recover of actual transfer we got required data
                 TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
                 Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
             }
         }
 
-        //remove extra invoices  
-        foreach ($old_invoices as $key => $value) 
+        //remove extra invoices
+        foreach ($old_invoices as $key => $value)
         {
             if(!in_array($value->invoice_id, $new_invoice_id))
             {
@@ -645,8 +645,8 @@ class TransferController extends Controller
         $sub_companies = ($sub_companies && (isset($company->subCompanies)) && count($company->subCompanies)>0) ? $sub_companies : false;
 
         /**
-         * generate invoice for main transfer if no sub companies else generate 
-         * invoice for sub companies 
+         * generate invoice for main transfer if no sub companies else generate
+         * invoice for sub companies
          */
         if(!$sub_companies)
         {
@@ -661,10 +661,10 @@ class TransferController extends Controller
             }
         }
 
-        /** 
-         * if transfer initiated by parent company split it for each 
+        /**
+         * if transfer initiated by parent company split it for each
          * sub companies
-         */ 
+         */
         if ($sub_companies) {
             foreach ($sub_companies as $key => $sub_company) {
 
@@ -739,7 +739,7 @@ class TransferController extends Controller
 
             }
         }
-        
+
         $this->invoiceMail($id); // send invoice mail
 
         return [
@@ -843,7 +843,7 @@ class TransferController extends Controller
             $content = $this->render($template, [
                 'invoice' => $invoice,
             ]);
-            
+
             $pdf = new Pdf([
                 'mode' => Pdf::MODE_UTF8,
                 //UTF mode for arabic language
