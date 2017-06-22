@@ -49,11 +49,11 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
-                        'POST request-reset-password' => 'request-reset-password',
+//                        'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
-                        'OPTIONS request-reset-password' => 'options',
+//                        'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
                 ],                
@@ -75,7 +75,7 @@ return [
                         'GET assigned' => 'list-assigned',
                         'GET not-assigned' => 'list-not-assigned',
                         'POST' => 'create',
-                        'POST filter' => 'filter',
+//                        'POST filter' => 'filter',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH assign/<id>' => 'assign',
@@ -86,7 +86,7 @@ return [
                         'OPTIONS search' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS not-assigned/<id>' => 'options',
-                        'OPTIONS filter' => 'options',
+//                        'OPTIONS filter' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
