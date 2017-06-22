@@ -199,6 +199,12 @@ class TransferController extends Controller
             $tc->candidate_hourly_rate = $hourly_rate;
             $tc->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
             $tc->attributes = $value;
+            $tc->store_id = $candidate->store_id;
+            $tc->store_name = $candidate->store->store_name;
+            $tc->company_id = $candidate->company_id;
+            $tc->company_name = $candidate->store->company->company_name;
+            $tc->company_email = $candidate->store->company->company_email;
+
             $tc->transfer_id = $transfer->transfer_id;
 
             $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
@@ -354,6 +360,11 @@ class TransferController extends Controller
             $tc->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
             $tc->attributes = $value;
             $tc->transfer_id = $model->transfer_id;
+            $tc->store_id = $candidate->store_id;
+            $tc->store_name = $candidate->store->store_name;
+            $tc->company_id = $candidate->company_id;
+            $tc->company_name = $candidate->store->company->company_name;
+            $tc->company_email = $candidate->store->company->company_email;
 
             $total += $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
 
@@ -470,6 +481,11 @@ class TransferController extends Controller
                 $transfer_candidate = new TransferCandidate;
                 $transfer_candidate->transfer_id = $transfer->transfer_id;
                 $transfer_candidate->candidate_id = $value['candidate_id'];
+                $transfer_candidate->store_id = $value['store_id'];
+                $transfer_candidate->store_name = $value['store_name'];
+                $transfer_candidate->company_id = $value['company_id'];
+                $transfer_candidate->company_name = $value['company_name'];
+                $transfer_candidate->company_email = $value['company_email'];
                 $transfer_candidate->hours = $value['hours'];
                 $transfer_candidate->bonus = $value['bonus'];
                 $transfer_candidate->transfer_cost = Yii::$app->params['transfer_cost'];
@@ -689,6 +705,11 @@ class TransferController extends Controller
                     $transfer_candidate = new TransferCandidate;
                     $transfer_candidate->transfer_id = $transfer->transfer_id;
                     $transfer_candidate->candidate_id = $value['candidate_id'];
+                    $transfer_candidate->store_id = $value['store_id'];
+                    $transfer_candidate->store_name = $value['store_name'];
+                    $transfer_candidate->company_id = $value['company_id'];
+                    $transfer_candidate->company_name = $value['company_name'];
+                    $transfer_candidate->company_email = $value['company_email'];
                     $transfer_candidate->hours = $value['hours'];
                     $transfer_candidate->bonus = $value['bonus'];
                     $transfer_candidate->transfer_cost = Yii::$app->params['transfer_cost'];

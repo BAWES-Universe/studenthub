@@ -7,6 +7,10 @@ use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use common\models\Invoice;
+use common\models\Store;
+use common\models\Company;
+use common\models\Candidate;
+use common\models\Transfer;
 
 /**
  * This is the model class for table "transfer_candidate".
