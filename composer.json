@@ -1,10 +1,12 @@
 {
     "name": "BAWES/payroll",
     "description": "Payroll Application for Studenthub Training Program",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "keywords": ["payroll", "payment", "transfers"],
     "homepage": "https://studenthub.co/",
     "type": "project",
+    "minimum-stability": "dev",
+    "prefer-stable" : true,
     "require": {
         "php": ">=5.4.0",
         "yiisoft/yii2": "~2.0.6",
@@ -30,12 +32,12 @@
         "codeception/verify": "~0.3.1"
     },
     "config": {
-        "process-timeout": 1800
-    },
-    "extra": {
-            "asset-installer-paths": {
-            "npm-asset-library": "vendor/npm",
-            "bower-asset-library": "vendor/bower"
+        "process-timeout": 1800,
+        "fxp-asset":{
+            "installer-paths": {
+                "npm-asset-library": "vendor/npm",
+                "bower-asset-library": "vendor/bower"
+            }
         }
     }
 }
