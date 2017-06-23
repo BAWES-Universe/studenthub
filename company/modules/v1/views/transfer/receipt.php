@@ -13,7 +13,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
 ?>
 <div class="row">
     <div class="col-sm-12" style="margin-top:30px; text-align:center;">
-        <img src="<?= Url::to('@web/images/bawes.jpg', true) ?>" style="width:100px; margin-bottom:0;">
+        <?=\yii\helpers\Html::img('images/bawes.jpg',['style'=>'width:100px; margin-bottom:0;'])?>
         <h1>Receipt</h1>
         <hr>
     </div>
@@ -80,6 +80,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     <p style="margin-bottom:0;">Sincerely yours,</p>
     <p style="margin-bottom:0;">
         Khalid Al-Mutawa<br/>
-        <img src="<?=Url::to('@web/images/signature.png', true) ?>" style="width:150px;">
+
+        <?=\yii\helpers\Html::img('images/signature.png',['style'=>'width:150px;'])?>
     </p>
 </div>
