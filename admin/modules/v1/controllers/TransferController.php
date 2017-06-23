@@ -12,7 +12,7 @@ use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use common\models\Invoice;
 use common\models\Transfer;
-use common\models\TransferCandidate;
+use admin\models\TransferCandidate;
 use kartik\mpdf\Pdf;
 
 /**
@@ -88,14 +88,9 @@ class TransferController extends Controller
             $transfer_ids[] = $transfer->transfer_id;
 
             $candidates = TransferCandidate::find()
-                ->select('{{%transfer_candidate}}.*, FORMAT((({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus),3) as `total_amount`')
-                ->joinWith(['candidate'=>function($query){
-                    $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
-                }])
                 ->where("transfer_id IN (".implode(',',$transfer_ids).")")
                 ->groupBy("candidate_id")
                 ->notDeleted()
-                ->asArray()
                 ->all();
 
             if($candidates) {
@@ -108,7 +103,6 @@ class TransferController extends Controller
                 unset($result[$transfer->transfer_id]);
             }
         }
-
 
         return new ArrayDataProvider([
             'allModels' => $result
@@ -132,14 +126,9 @@ class TransferController extends Controller
             $transfer_ids[] = $transfer->transfer_id;
 
             $candidates = TransferCandidate::find()
-                ->select('{{%transfer_candidate}}.*, FORMAT((({{%transfer_candidate}}.candidate_hourly_rate*{{%transfer_candidate}}.hours)+{{%transfer_candidate}}.bonus),3) as `total_amount`')
-                ->joinWith(['candidate'=>function($query){
-                    $query->select(['candidate_id','candidate_name','candidate_name_ar','candidate_personal_photo','candidate_email','candidate_phone']);
-                }])
                 ->where("paid='0' AND transfer_id IN (".implode(',',$transfer_ids).")")
                 ->groupBy("candidate_id")
                 ->notDeleted()
-                ->asArray()
                 ->all();
 
             if($candidates) {
@@ -221,7 +210,6 @@ class TransferController extends Controller
             
         $transfer['candidates'] = TransferCandidate::find()
             ->candidatesByTransfer($transfer['transfer_id'])
-            ->asArray()
             ->all();
 
         //invoices 
@@ -423,7 +411,6 @@ class TransferController extends Controller
     {
         $candidates = TransferCandidate::find()
             ->unpaid($id)
-            ->asArray()
             ->all();
 
         return [
@@ -752,7 +739,7 @@ class TransferController extends Controller
     }
 
     /**
-     * Export Transfer detail
+     * Export Transfer detail as Excel
      * @param $id
      * @return array
      */
