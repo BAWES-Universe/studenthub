@@ -80,6 +80,6 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <p style="margin-bottom:0;">Sincerely yours,</p>
         <p style="margin-bottom:0;">
             Khalid Al-Mutawa<br/>
-            <?=\yii\helpers\Html::img('images/signature.png',['style'=>'width:150px;'])?>
+            <?=\yii\helpers\Html::img('images/signature.jpg',['style'=>'width:150px;'])?>
         </p>
     </div>
