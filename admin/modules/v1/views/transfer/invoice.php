@@ -80,7 +80,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     <p style="margin-bottom:0;">Sincerely yours,</p>
     <p style="margin-bottom:0;">
         Khalid Al-Mutawa<br/>
-        <img src="<?= Url::to('@web/images/signature.png', true) ?>" style="width:150px; display:block;">
+        <img src="<?= Url::to('@web/images/signature.png', true) ?>" style="width:150px;">
     </p>
 </div>
 <br/>
