@@ -890,7 +890,6 @@ class TransferController extends Controller
             ->withTransfer($id)
             ->filterCurrentCompany($company)
             ->one();
-
         if(!$invoice) {
             return [
                 "operation" => "error",
