@@ -1,12 +1,5 @@
 <?php
-
 namespace company\models;
-
-use company\models\Store;
-use company\models\Company;
-use company\models\Candidate;
-use company\models\Transfer;
-use common\models\Invoice;
 
 class TransferCandidate extends \common\models\TransferCandidate
 {
@@ -21,7 +14,9 @@ class TransferCandidate extends \common\models\TransferCandidate
     		return $model->candidate;
     	};
 
-    	unset($fields['deleted']);
+    	unset($fields['total_amount'], $fields['transfer_cost'],
+            $fields['candidate_hourly_rate'], $fields['deleted'], $fields['profit'],
+            $fields['tc_created_at'], $fields['tc_updated_at']);
 
     	return $fields;
     }
@@ -56,13 +51,5 @@ class TransferCandidate extends \common\models\TransferCandidate
     public function getTransfer()
     {
         return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getInvoice()
-    {
-        return $this->hasOne(Invoice::className(), ['transfer_id' => 'transfer_id']);
     }
 }
