@@ -2,6 +2,7 @@
 namespace company\models;
 
 use Yii;
+use company\models\TransferCandidate;
 
 /**
  * This is the model class for table "Transfer".
@@ -43,4 +44,16 @@ class Transfer extends \common\models\Transfer {
         ];
     }
 
+    /**
+     * Get all TransferCandidate links under this transfer
+     * which include hours worked, hourly rate, etc
+     *
+     * If this is a parent transfer that has subtransfers, it should show up empty
+     * will need to use Transfer::getChildTransferCandidates()
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidates()
+    {
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
+    }
 }

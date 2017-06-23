@@ -96,12 +96,9 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
 
         $transfer = Transfer::find()
-            ->selectedFieldsForCompany()
-            ->companyJoin()
-            ->transferCandidateJoinForCompany()
+            ->joinWith('company')
             ->filterCurrentCompany($company)
             ->filterTransfer($id)
-            ->asArray()
             ->one();
 
         if(!$transfer) {
@@ -110,12 +107,6 @@ class TransferController extends Controller
                     "message" => 'Transfer not found!'
                 ];
         }
-
-        //invoices
-
-        $transfer['invoices'] = Invoice::find()
-            ->byTransfer($id)
-            ->all();
 
         return $transfer;
     }
@@ -470,7 +461,6 @@ class TransferController extends Controller
             $candidates = TransferCandidate::find()
                 ->candidatesByTransfer($model->transfer_id)
                 ->filterCompanyId($sub_company['company_id'])
-                ->asArray()
                 ->all();
 
             foreach ($candidates as $key => $value)
@@ -606,13 +596,12 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-
         $company = Yii::$app->user->identity;
+     
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
             ->one();
-
 
         if(!$model) {
             return [
@@ -637,8 +626,6 @@ class TransferController extends Controller
         $sub_companies = TransferCandidate::find()
             ->candidatesByTransfer($model->transfer_id)
             ->groupByCompany($model->company_id)
-            ->distinct()
-            ->asArray()
             ->all();
 
         // condition to check if current company has existing sub companies.
@@ -890,6 +877,7 @@ class TransferController extends Controller
             ->withTransfer($id)
             ->filterCurrentCompany($company)
             ->one();
+
         if(!$invoice) {
             return [
                 "operation" => "error",

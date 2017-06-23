@@ -79,6 +79,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         $fields = parent::fields();
 
+        //total amount need to pay to candidate 
+        $fields['total_amount'] =  function($model) {
+            return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
+        };
+        $fields['profit'] = function($model) {
+            return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
+        };
+        
         // remove fields that contain sensitive information
         $field['payment_amount'] = $this->candidateTotal;
 
