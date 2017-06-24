@@ -49,14 +49,7 @@ use yii\behaviors\TimestampBehavior;
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-    /**
-     *
-     */
-    const STATUS_INCOMPLETE = 10;
-    /**
-     *
-     */
-    const STATUS_DIRTY = 2;
+    // Candidate Status
     const STATUS_READY = 1;
 
     // Array of attribute names and folder names to store them in the permanent bucket
@@ -95,6 +88,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
+            ['candidate_status', 'default', 'value' => self::STATUS_READY],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
@@ -126,6 +120,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ];
     }
 
+    /**
+     * Validate Civil ID Expiry Date
+     * @return [type] [description]
+     */
     public function validateCivilExpiry()
     {
         if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
@@ -134,11 +132,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * Validate candidate age if exceeds limit
+     */
     public function validateAge()
     {
-        $years = $this->age; //$this->getAge();
-
-        if($years < 18 || $years > 24) {
+        if($this->age < 18 || $this->age > 24) {
             $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 24.');
         }
     }
@@ -227,15 +226,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            'store',
+            'company',
             'university',
             'country',
-            'company',
             'bank'
         ];
     }
 
     /**
-     * Returns age of person
+     * Returns age of candidate
      * @return integer
      */
     public function getAge()
