@@ -73,6 +73,30 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'tc_id' => 'TC ID',
+            'transfer_id' => 'Transfer ID',
+            'candidate_id' => 'Candidate ID',
+            'store_id' => 'Store ID',
+            'store_name' => 'Store Name',
+            'company_id' => 'Company ID',
+            'company_name' => 'Company Name',
+            'company_email' => 'Company Email',
+            'hours' => 'Hours',
+            'candidate_hourly_rate' => 'Candidate Hourly Rate',
+            'company_hourly_rate' => 'Company Hourly Rate',
+            'transfer_cost' => 'Transfer cost',
+            'bonus' => 'Bonus',
+            'tc_created_at' => 'Tc Created At',
+            'tc_updated_at' => 'Tc Updated At',
+        ];
+    }
+
+    /**
      * @return array
      */
     public function fields()
@@ -98,24 +122,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function extraFields()
     {
         return [
-            'tc_id' => 'TC ID',
-            'transfer_id' => 'Transfer ID',
-            'candidate_id' => 'Candidate ID',
-            'store_id' => 'Store ID',
-            'store_name' => 'Store Name',
-            'company_id' => 'Company ID',
-            'company_name' => 'Company Name',
-            'company_email' => 'Company Email',
-            'hours' => 'Hours',
-            'candidate_hourly_rate' => 'Candidate Hourly Rate',
-            'company_hourly_rate' => 'Company Hourly Rate',
-            'transfer_cost' => 'Transfer cost',
-            'bonus' => 'Bonus',
-            'tc_created_at' => 'Tc Created At',
-            'tc_updated_at' => 'Tc Updated At',
+            'store',
+            'company',
+            'candidate',
+            'transfer',
+            'invoice'
         ];
     }
 

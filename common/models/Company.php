@@ -108,9 +108,21 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         $fields = parent::fields();
 
-        unset($fields['deleted'], $fields['company_password_hash'], $fields['company_password_reset_token'], $fields['company_auth_key']);
+        unset($fields['deleted'], $fields['company_password_hash'],
+            $fields['company_password_reset_token'], $fields['company_auth_key']);
 
         return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'company',
+            'candidates'
+        ];
     }
 
     /**

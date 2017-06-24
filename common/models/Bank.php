@@ -21,6 +21,7 @@ class Bank extends \yii\db\ActiveRecord
     const LCL = 'Local Bank Transfer';
     const SWF = 'International Transfer';
     const TRF = 'Within Bank Transfer';
+
     /**
      * @inheritdoc
      */
@@ -38,12 +39,27 @@ class Bank extends \yii\db\ActiveRecord
             [['bank_name','bank_swift_code','bank_address'], 'required'],
             [['bank_name','bank_transfer_type'], 'string', 'max' => 100],
             [['bank_swift_code'], 'string', 'max' => 12],
-            [['bank_address'], 'string'],
-
+            [['bank_address'], 'string']
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'bank_id' => 'ID',
+            'bank_name' => 'Name',
+            'bank_swift_code' => 'Swift Code',
+            'bank_address' => 'Address',
+            'bank_transfer_type' => 'Transfer Type',
+        ];
+    }
 
+    /**
+     * @inheritdoc
+     */
     public function fields()
     {
         return [
@@ -63,31 +79,22 @@ class Bank extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function extraFields()
     {
         return [
-            'bank_id' => 'ID',
-            'bank_name' => 'Name',
-            'bank_swift_code' => 'Swift Code',
-            'bank_address' => 'Address',
-            'bank_transfer_type' => 'Transfer Type',
+            'candidate'
         ];
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * Get the Bank transfer type
      */
-    public function getCandidate()
-    {
-        return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
-    }
-
     public function getTypeValue()
     {
         switch ($this->bank_transfer_type) {
             case 'LCL' :
                 return self::LCL;
-            break;
+                break;
             case 'SWF' :
                 return self::SWF;
                 break;
@@ -98,6 +105,14 @@ class Bank extends \yii\db\ActiveRecord
                 return '';
                 break;
         }
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate()
+    {
+        return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
     }
 
     public function softDelete()

@@ -100,6 +100,17 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'company',
+            'candidates'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCompany()

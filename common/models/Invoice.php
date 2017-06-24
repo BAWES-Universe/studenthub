@@ -51,6 +51,16 @@ class Invoice extends ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'transfer'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getTransfer()
@@ -77,7 +87,7 @@ class Invoice extends ActiveRecord
 
         $result = [];
 
-        foreach ($companies as $key => $value) 
+        foreach ($companies as $key => $value)
         {
             $invoice = Invoice::find()
                 ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')

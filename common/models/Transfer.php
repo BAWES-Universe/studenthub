@@ -115,6 +115,21 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'company',
+            'invoice',
+            'transferCandidates',
+            'childTransfers',
+            'childTransferInvoices',
+            'childTransferCandidates'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCompany()

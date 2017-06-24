@@ -199,7 +199,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields['age'] = function($model) {
             return $this->age;
         };
-
         // Url to thumb of profile photo
         $fields['candidate_personal_photo_thumb'] = function($model) {
             return substr_replace($this->candidate_personal_photo, "thumb-100/", 7, 0);
