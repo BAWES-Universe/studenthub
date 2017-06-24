@@ -195,21 +195,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $fields = parent::fields();
 
-        // Additional fields to return via API
+        // Candidate Age
         $fields['age'] = function($model) {
             return $this->age;
-        };
-        $fields['company_name'] = function($model) {
-            return (isset($model->company->company_name)) ? $model->company->company_name : [];
-        };
-        $fields['company_id'] = function($model) {
-            return (isset($model->company->company_id)) ? $model->company->company_name : [];
-        };
-        $fields['store_name'] = function($model) {
-            return (isset($model->store->store_name)) ? $model->store->store_name : [];
-        };
-        $fields['bank_name'] = function($model) {
-            return (isset($this->bank->bank_name)) ? $this->bank->bank_name : [];
         };
 
         // Url to thumb of profile photo
