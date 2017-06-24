@@ -94,7 +94,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_civil_id'], 'unique'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
-            [['store_id'], 'validateStore'],
             [['candidate_password_reset_token'], 'unique'],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
@@ -141,17 +140,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if($years < 18 || $years > 24) {
             $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 24.');
-        }
-    }
-
-    public function validateStore()
-    {
-        $this->fixStatus();
-
-        //if status is incomplete and trying to set store
-
-        if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
-            $this->addError('store_id', 'Can not assign store to incomplete profile.');
         }
     }
 
@@ -209,9 +197,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields = parent::fields();
 
         // Additional fields to return via API
-        $fields['candidate_personal_photo_thumb'] = function($model) {
-            return substr_replace($this->candidate_personal_photo, "thumb-100/", 7, 0);
-        };
         $fields['age'] = function($model) {
             return $this->age;
         };
@@ -227,17 +212,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields['bank_name'] = function($model) {
             return (isset($this->bank->bank_name)) ? $this->bank->bank_name : [];
         };
-        $fields['candidate_status'] = function($model) {
-            return $model->status;
-        };
-        $fields['university'] = function($model) {
-            return $model->university;
-        };
-        $fields['country'] = function($model) {
-            return $model->country;
+
+        // Url to thumb of profile photo
+        $fields['candidate_personal_photo_thumb'] = function($model) {
+            return substr_replace($this->candidate_personal_photo, "thumb-100/", 7, 0);
         };
 
         return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'university',
+            'country',
+            'company',
+            'bank'
+        ];
     }
 
     /**
@@ -311,8 +305,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            $this->fixStatus();
-
             // Move uploaded files to permanent bucket
             $this->_moveTemporaryFilesToPermanentBucket();
 
@@ -336,27 +328,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $randomString;
         else
             return $this->generateUniqueRandomString();
-    }
-
-    /**
-     * Fix status for a candidate
-     */
-    private function fixStatus()
-    {
-        $attr = $this->attributes;
-
-        //check all values except
-        unset($attr['candidate_password_reset_token']);
-        unset($attr['candidate_status']);
-        unset($attr['candidate_id']);
-        unset($attr['approved']);
-
-        //if have empty value
-        if(in_array('', $attr)) {
-            $this->candidate_status = Candidate::STATUS_INCOMPLETE;
-        } else {
-            $this->candidate_status = Candidate::STATUS_READY;
-        }
     }
 
     /**
@@ -708,28 +679,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Candidate having invalid civil ID')
             ->send();
-    }
-
-    /**
-     * @return string
-     */
-    public function getStatus() {
-        $status = '';
-        switch ($this->candidate_status) {
-            case self::STATUS_INCOMPLETE:
-                $status = 'Incomplete Profile';
-                break;
-            case self::STATUS_DIRTY:
-                $status = 'Incomplete Profile';
-                break;
-            case self::STATUS_READY:
-                $status = 'Completed Profile';
-                break;
-            default :
-                $status = 'Incomplete Profile';
-                break;
-        }
-        return $status;
     }
 
     /**
