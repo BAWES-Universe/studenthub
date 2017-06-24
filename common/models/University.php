@@ -45,6 +45,18 @@ class University extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['deleted']);
+
+        return $fields;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidates()

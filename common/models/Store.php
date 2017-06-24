@@ -41,9 +41,20 @@ class Store extends \yii\db\ActiveRecord
             [['store_name'], 'required'],
             [['store_created_at', 'store_updated_at','deleted'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
-            [['company_id'], 'validateCompany'],
+            [['company_id'], 'validateCompanyHasSubcompanies'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
+    }
+
+    /**
+     * Find if company linked to store has subcompanies.
+     * Parent Company that has subcompanies isn't allowed to have stores.
+     */
+    public function validateCompanyHasSubcompanies()
+    {
+        if($this->company && $this->company->subCompanies) {
+            $this->addError('company_id', "Store can't be assigned to company having sub companies.");
+        }
     }
 
     /**
@@ -61,16 +72,6 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
-     * find if company have subcompanies
-     */
-    public function validateCompany()
-    {
-        if($this->company && $this->company->subCompanies) {
-            $this->addError('company_id', "Store can't be assigned to company having sub companies.");   
-        }
-    }
-
-    /**
      * @inheritdoc
      */
     public function attributeLabels()
@@ -84,6 +85,18 @@ class Store extends \yii\db\ActiveRecord
             'store_updated_at' => 'Store Updated At',
             'deleted' => 'deleted',
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['deleted']);
+
+        return $fields;
     }
 
     /**
