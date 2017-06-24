@@ -11,6 +11,8 @@ use Yii;
  * @property string $university_name_en
  * @property string $university_name_ar
  * @property integer $deleted
+ *
+ * @property Candidate[] $candidates
  */
 class University extends \yii\db\ActiveRecord
 {
@@ -28,7 +30,7 @@ class University extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['university_name_en', 'university_name_ar'], 'string', 'max' => 100],
+            [['university_name_en', 'university_name_ar'], 'string', 'max' => 100]
         ];
     }
 
@@ -41,6 +43,7 @@ class University extends \yii\db\ActiveRecord
             'university_id' => 'University ID',
             'university_name_en' => 'University Name En',
             'university_name_ar' => 'University Name Ar',
+            'deleted' => 'Deleted'
         ];
     }
 
@@ -54,6 +57,16 @@ class University extends \yii\db\ActiveRecord
         unset($fields['deleted']);
 
         return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'candidates'
+        ];
     }
 
     /**
