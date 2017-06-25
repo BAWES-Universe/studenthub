@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "candidate".
@@ -197,12 +198,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         // Candidate Age
         $fields['age'] = function($model) {
-            return $this->age;
+            return $model->age;
         };
         // Url to thumb of profile photo
         $fields['candidate_personal_photo_thumb'] = function($model) {
-            return substr_replace($this->candidate_personal_photo, "thumb-100/", 7, 0);
+            return substr_replace($model->candidate_personal_photo, "thumb-100/", 7, 0);
         };
+
+        /**
+         * Always Display Related Fields for Candidate model in this app
+         * A Candidate is defined by all his relation to enable quick-loading
+         * of candidate profiles on-click from the apps (without pinging server).
+         */
+        $fields = ArrayHelper::merge($fields, [
+            'store',
+            'company',
+            'university',
+            'country',
+            'bank'
+        ]);
 
         return $fields;
     }
@@ -213,11 +227,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
-            'store',
-            'company',
-            'university',
-            'country',
-            'bank'
         ];
     }
 

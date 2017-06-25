@@ -10,13 +10,15 @@ class TransferCandidate extends \common\models\TransferCandidate
     {
     	$fields = parent::fields();
 
-    	$fields['candidate'] = function($model) {
-    		return $model->candidate;
-    	};
-
+        // Hide Sensitive Data
     	unset($fields['total_amount'], $fields['transfer_cost'],
             $fields['candidate_hourly_rate'], $fields['deleted'], $fields['profit'],
             $fields['tc_created_at'], $fields['tc_updated_at']);
+
+        // Display related Candidate
+        $fields['candidate'] = function($model) {
+    		return $model->candidate;
+    	};
 
     	return $fields;
     }
