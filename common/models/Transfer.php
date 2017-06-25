@@ -33,7 +33,6 @@ use common\models\Candidate;
 class Transfer extends \yii\db\ActiveRecord
 {
     const STATUS_PAYMENT_SENT = 1;
-    const STATUS_PAYMENT_RECEIVED = 2;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
     const STATUS_TRANSFER_COMPLETE = 4;
     const STATUS_LOCK = 5;
