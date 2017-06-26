@@ -9,10 +9,7 @@ use Yii;
  */
 class CountryQuery extends \yii\db\ActiveQuery
 {
-    /**
-     * @return $this
-     */
-    public function listWithCandidateCount()
+	public function listWithCandidateCount()
 	{
 		return $this->select([
 				'country.*', 
@@ -23,5 +20,13 @@ class CountryQuery extends \yii\db\ActiveQuery
             ->orderBy('total_candidates DESC, country_name_en')
             ->asArray();
 	}
+
+    /**
+     * @return $this
+     */
+    public function joinCandidate()
+    {
+        return $this->leftJoin('candidate', 'candidate.country_id = country.country_id')->andwhere(['{{%candidate}}.deleted'=>0]);
+    }
 }
 	

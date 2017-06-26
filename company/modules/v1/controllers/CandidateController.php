@@ -73,14 +73,63 @@ class CandidateController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        $query = Candidate::find();
-        $query->selectField()
-                ->filterCompany($company)
-                ->notDeleted();
+        $query = $company->getCandidates();
 
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
-    
+
+    /**
+     * Return a List of Candidate Accounts assigned to work without pagination 
+     * for current company.
+     */
+    public function actionListAll()
+    {        
+        $company = Yii::$app->user->identity;
+
+        return $company->candidates;
+    }
+
+    /**
+     * Return a List of Candidate Accounts assigned to
+     * Specific Store.
+     */
+    public function actionFilter()
+    {
+        $company = Yii::$app->user->identity;
+
+        $store_id = Yii::$app->request->getBodyParam("store_id");
+
+        $store = Store::findOne($store_id);
+
+        if(empty($store) || empty($store->company)) {
+            return [
+                    "operation" => "error",
+                    "message" => "Store not valid."
+                ];
+        }
+
+        $arr_store_company_ids = [
+                $store->company->company_id,
+                $store->company->parent_company_id
+            ];
+
+        //check if logined company does not belong to store companies
+
+        if(!in_array($company->company_id, $arr_store_company_ids)) {
+            return [
+                    "operation" => "error",
+                    "message" => "You are not authorize to list candidates from this store."
+                ];
+        }
+
+        $query = Candidate::find()
+            ->filterStore($store_id)
+            ->notDeleted();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
 }

@@ -116,24 +116,11 @@ class TransferQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Field require on listing
-     */
-    public function selectedFields()
-    {
-        return $this->select([
-            '{{%transfer}}.*',
-            'SUM(transfer_cost) AS total_transfer_cost',
-            '{{%company}}.company_name',
-            '{{%company}}.company_email',
-        ]);
-    }
-
-    /**
      * @return $this
      */
     public function companyJoin()
     {
-        return $this->leftJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id');
+        return $this->joinWith('company');
     }
 
     /**
