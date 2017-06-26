@@ -179,7 +179,7 @@ class CandidateIdCardController extends Controller
             'fileName' => 'export.xlsx',
             'asAttachment' => false,
             'columns' => [
-                'employee_id',
+                'employeeId',
                 'candidate_name_ar',
                 [
                    'header' => 'University Name',
@@ -197,7 +197,7 @@ class CandidateIdCardController extends Controller
                 'candidate_civil_id'
             ],
             'headers' => [
-                'employee_id' => 'Employee ID',
+                'employeeId' => 'Employee ID',
                 'candidate_name_ar' => 'Employee Name',
                 //'university.university_name_ar' => 'University Name',
                 'candidate_civil_id' => 'Civil ID Number'
@@ -227,7 +227,7 @@ class CandidateIdCardController extends Controller
         foreach ($candidates as $key => $value) {
             QrCode::jpg(
                 'https://v.studenthub.co/'.$value->candidate_uid,
-                $path.'/QR/'.$value->employee_id.'.jpg',
+                $path.'/QR/'.$value->employeeId.'.jpg',
                 0,
                 14
             );
@@ -248,7 +248,7 @@ class CandidateIdCardController extends Controller
             if($value->candidate_personal_photo)
             {
                 $source = Url::to('@s3/'.$value->candidate_personal_photo);
-                $destination = $path.'/photos/'.$value->employee_id.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
+                $destination = $path.'/photos/'.$value->employeeId.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
 
                 @copy($source, $destination);
             }
