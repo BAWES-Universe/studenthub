@@ -465,26 +465,9 @@ class TransferController extends Controller
 
             foreach ($candidates as $key => $value)
             {
-                //get hourly rate
+                $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
 
-                $transfer_candidate = new TransferCandidate;
-                $transfer_candidate->transfer_id = $transfer->transfer_id;
-                $transfer_candidate->candidate_id = $value['candidate_id'];
-                $transfer_candidate->store_id = $value['store_id'];
-                $transfer_candidate->store_name = $value['store_name'];
-                $transfer_candidate->company_id = $value['company_id'];
-                $transfer_candidate->company_name = $value['company_name'];
-                $transfer_candidate->company_email = $value['company_email'];
-                $transfer_candidate->hours = $value['hours'];
-                $transfer_candidate->bonus = $value['bonus'];
-                $transfer_candidate->transfer_cost = Yii::$app->params['transfer_cost'];
-                $transfer_candidate->candidate_hourly_rate = $value['candidate_hourly_rate'];
-                $transfer_candidate->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
-                $transfer_candidate->save();
-
-                $total += $transfer_candidate->bonus + ($transfer_candidate->hours * $transfer_candidate->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-
-                $company_total += $transfer_candidate->bonus + ($transfer_candidate->hours * Yii::$app->params['candidate_max_hourly_rate']);
+                $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
             }
 
             //save total in transfer
@@ -684,27 +667,11 @@ class TransferController extends Controller
                     ->asArray()
                     ->all();
 
-                foreach ($candidates as $key => $value) {
-                    //get hourly rate
+                foreach ($candidates as $key => $value) 
+                {                    
+                    $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
 
-                    $transfer_candidate = new TransferCandidate;
-                    $transfer_candidate->transfer_id = $transfer->transfer_id;
-                    $transfer_candidate->candidate_id = $value['candidate_id'];
-                    $transfer_candidate->store_id = $value['store_id'];
-                    $transfer_candidate->store_name = $value['store_name'];
-                    $transfer_candidate->company_id = $value['company_id'];
-                    $transfer_candidate->company_name = $value['company_name'];
-                    $transfer_candidate->company_email = $value['company_email'];
-                    $transfer_candidate->hours = $value['hours'];
-                    $transfer_candidate->bonus = $value['bonus'];
-                    $transfer_candidate->transfer_cost = Yii::$app->params['transfer_cost'];
-                    $transfer_candidate->candidate_hourly_rate = $value['candidate_hourly_rate'];
-                    $transfer_candidate->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
-                    $transfer_candidate->save();
-
-                    $total += $transfer_candidate->bonus + ($transfer_candidate->hours * $transfer_candidate->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-
-                    $company_total += $transfer_candidate->bonus + ($transfer_candidate->hours * Yii::$app->params['candidate_max_hourly_rate']);
+                    $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
                 }
 
                 //save total in transfer
