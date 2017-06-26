@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use common\models\Candidate;
 
 /**
  * This is the model class for table "country".
@@ -47,6 +48,26 @@ class Country extends \yii\db\ActiveRecord
             'country_nationality_name_ar' => 'Country Nationality Name Ar',
         ];
     }    
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['total_candidates'] = function($model) {
+            return sizeof($model->candidates);
+        };
+        return $fields;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates()
+    {
+        return $this->hasMany(Candidate::className(), ['country_id' => 'country_id']);
+    }
 
     /**
      * @inheritdoc

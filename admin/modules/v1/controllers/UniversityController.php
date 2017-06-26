@@ -69,11 +69,8 @@ class UniversityController extends Controller
     public function actionList()
     {
         $query = University::find()
-            ->fields()
-            ->joinCandidate()
-            ->groupBy('university.university_id')
             ->notDeleted()
-            ->asArray();
+            ->listWithCandidateCount();
 
         return new ActiveDataProvider([
             'query' => $query

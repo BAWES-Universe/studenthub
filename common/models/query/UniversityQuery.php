@@ -40,31 +40,18 @@ class UniversityQuery extends \yii\db\ActiveQuery
     /**
      * @return $this
      */
-    public function fields(){
-        return $this->select([
-            'university.*',
-            'COUNT(candidate.candidate_id) as total_candidates'
-        ]);
-    }
-
-    /**
-     * @return $this
-     */
     public function joinCandidate()
     {
         return $this->leftJoin('candidate', 'candidate.university_id = university.university_id')->andwhere(['{{%candidate}}.deleted'=>0]);
     }
 
-    /**
-     * @return $this
-     */
     public function listWithCandidateCount()
     {
         return $this->select([
                 'university.*', 
                 'COUNT(candidate.candidate_id) as total_candidates'
             ])
-            ->leftJoin('candidate', 'candidate.university_id = university.university_id')
+            ->joinCandidate()
             ->groupBy('university.university_id')
             ->orderBy('total_candidates DESC, university_name_en')
             ->asArray();

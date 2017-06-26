@@ -2,6 +2,8 @@
 namespace company\models;
 
 use Yii;
+use company\models\Candidate;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "Company".
@@ -29,6 +31,33 @@ class Company extends \common\models\Company {
             }
         ];
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates()
+    {
+        if($this->parent_company_id)
+        {
+            //for child company
+            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
+                ->via('stores');
+        }
+        else
+        {   
+            //for parent company
+            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
+                ->via('subCompanyStores')
+                ->where(['{{%candidate}}.deleted' => 0]);    
+        }        
+    }
+
+    public function getSubCompanyStores() 
+    {
+        return $this->hasMany(Store::className(), ['company_id' => 'company_id'])
+            ->via('subCompanies')
+            ->where(['deleted'=>0]);
+    }            
 
     /**
      * @return \yii\db\ActiveQuery

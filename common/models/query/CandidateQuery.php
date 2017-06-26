@@ -102,7 +102,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function idExpired()
     {
         return $this
-            ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id')
+            ->joinWith('candidate_id_card')
             ->andWhere('DATE(expiry_date) < DATE(NOW())');
     }
 

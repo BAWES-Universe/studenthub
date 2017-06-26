@@ -45,6 +45,18 @@ class University extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['total_candidates'] = function($model) {
+            return sizeof($model->candidates);
+        };
+        return $fields;
+    }    
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidates()
