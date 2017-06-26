@@ -160,7 +160,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getTransferCandidates()
     {
-        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);
     }
 
     /**
