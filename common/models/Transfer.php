@@ -160,7 +160,31 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getTransferCandidates()
     {
-        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);
+        if($this->parent_transfer_id)
+        {
+            //child transfer 
+            return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])
+                ->via('parentTransfer')    
+                ->andWhere([
+                    '{{%transfer_candidate}}.deleted' => 0,
+                    '{{%transfer_candidate}}.company_id' => $this->company_id
+                ]);       
+        }
+        else
+        {
+            //parent transfer 
+            return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])
+                ->andWhere(['{{%transfer_candidate}}.deleted' => 0]);    
+        }        
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentTransfer()
+    {
+        return $this->hasOne(Transfer::className(), ['transfer_id'=>'parent_transfer_id'])
+            ->andWhere(['{{%transfer}}.deleted'=>0]);
     }
 
     /**

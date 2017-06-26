@@ -78,28 +78,24 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $result = [];
-        $transfers = Transfer::find()->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])->all();
 
-        foreach ($transfers as $transfer) {
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->parentTransfers()
+            ->all();
 
-            // find all parents and child transfers
-            $transfers = Transfer::find()->where(['parent_transfer_id' => $transfer->transfer_id])->all();
-            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-            $transfer_ids[] = $transfer->transfer_id;
-
-            $candidates = TransferCandidate::find()
-                ->where("transfer_id IN (".implode(',',$transfer_ids).")")
-                ->groupBy("candidate_id")
-                ->notDeleted()
-                ->all();
-
-            if($candidates) {
+        foreach ($transfers as $transfer) 
+        {
+            if($transfer->transferCandidates) 
+            {
                 $result[] = [
-                    'transfer_id'=>$transfer->transfer_id,
-                    'candidates' => $candidates,
+                    'transfer_id' => $transfer->transfer_id,
+                    'candidates' => $transfer->transferCandidates,
                     'total' => $transfer->total
                 ];
-            } else { // remove transfer if no candidate available
+            } 
+            else 
+            { // remove transfer if no candidate available
                 unset($result[$transfer->transfer_id]);
             }
         }
@@ -116,29 +112,25 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet
         $result = [];
-        $transfers = Transfer::find()->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])->all();
+        
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->parentTransfers()
+            ->all();
 
-        foreach ($transfers as $transfer) {
-
-            // find all parents and child transfers
-            $transfers = Transfer::find()->where(['parent_transfer_id' => $transfer->transfer_id])->all();
-            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-            $transfer_ids[] = $transfer->transfer_id;
-
-            $candidates = TransferCandidate::find()
-                ->where("paid='0' AND transfer_id IN (".implode(',',$transfer_ids).")")
-                ->groupBy("candidate_id")
-                ->notDeleted()
+        foreach ($transfers as $transfer) 
+        {
+            $candidates = $transfer->getTransferCandidates()
+                ->where(['paid' => '0'])
                 ->all();
 
-            if($candidates) {
+            if($candidates) 
+            {
                 $result[] = [
-                    'transfer_id'=>$transfer->transfer_id,
+                    'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates
                 ];
-            } else { // remove transfer if no candidate available
-                unset($result[$transfer->transfer_id]);
-            }
+            } 
         }
 
         return $result;
@@ -193,22 +185,18 @@ class TransferController extends Controller
                 ];
         }
 
-        $transfer['total_paid'] = TransferCandidate::find()
-            ->notDeleted()
+        $transfer['total_paid'] = $transfer->getTransferCandidates()
             ->totalPaid($id);
 
-        $transfer['total_unpaid'] = TransferCandidate::find()
-            ->notDeleted()
+        $transfer['total_unpaid'] = $transfer->getTransferCandidates()
             ->totalUnpaid($id);
 
         //get total profit
 
-        $transfer['profit'] = TransferCandidate::find()
-            ->notDeleted()
+        $transfer['profit'] = $transfer->getTransferCandidates()
             ->profit($id);
 
-        $transfer['candidates'] = TransferCandidate::find()
-            ->candidatesByTransfer($transfer['transfer_id'])
+        $transfer['candidates'] = $transfer->getTransferCandidates()
             ->all();
 
         //invoices
