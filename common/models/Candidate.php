@@ -186,6 +186,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_status' => 'Status',
             'candidate_created_at' => 'Created At',
             'candidate_updated_at' => 'Updated At',
+            'employee_id' => 'Employee ID',
         ];
     }
 
@@ -200,6 +201,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields['age'] = function($model) {
             return $model->age;
         };
+
+        $fields['employee_id'] = function($data) {
+            $prefix = 'C';
+
+            $digit_missing = 5 - strlen($this->candidate_id);
+
+            if($digit_missing > 0) {
+                $prefix .= str_repeat("0", $digit_missing);
+            }
+
+            return $prefix . $this->candidate_id;
+        };
+
         // Url to thumb of profile photo
         $fields['candidate_personal_photo_thumb'] = function($model) {
             return substr_replace($model->candidate_personal_photo, "thumb-100/", 7, 0);
@@ -227,6 +241,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+
         ];
     }
 
@@ -330,7 +345,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Return Employer ID in C00231 format where 231 is
      * candidate id
      */
-    public function getEmployee_id()
+    public function getEmployeeId()
     {
         $prefix = 'C';
 
