@@ -2,7 +2,6 @@
 
 namespace common\models;
 
-use function Couchbase\defaultDecoder;
 use Yii;
 use common\models\Candidate;
 
@@ -39,6 +38,7 @@ class Bank extends \yii\db\ActiveRecord
             [['bank_name','bank_swift_code','bank_address'], 'required'],
             [['bank_name','bank_transfer_type'], 'string', 'max' => 100],
             [['bank_swift_code'], 'string', 'max' => 12],
+            [['bank_swift_code'], 'validateCode'],
             [['bank_address'], 'string']
         ];
     }
@@ -57,6 +57,15 @@ class Bank extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * custom validation method for transfer type code
+     */
+    public function validateCode() {
+
+        if (!in_array($this->bank_transfer_type,self::getBankCodeList())) {
+            $this->addError('bank_transfer_type', 'Invalid Transfer Type Code');
+        }
+    }
     /**
      * @inheritdoc
      */
@@ -115,6 +124,9 @@ class Bank extends \yii\db\ActiveRecord
         return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
     }
 
+    /**
+     * @return bool
+     */
     public function softDelete()
     {
         $this->deleted = 1;
@@ -128,5 +140,12 @@ class Bank extends \yii\db\ActiveRecord
     public static function find()
     {
         return new query\BankQuery(get_called_class());
+    }
+
+    /**
+     * @return array
+     */
+    private static function getBankCodeList() {
+        return ['LCL','SWF','TRF'];
     }
 }
