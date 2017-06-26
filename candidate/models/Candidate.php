@@ -2,7 +2,7 @@
 namespace candidate\models;
 
 use Yii;
-
+use common\models\CandidateToken;
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -38,4 +38,14 @@ class Candidate extends \common\models\Candidate {
         }
     }
 
+    public function getTransferCandidate()
+    {
+        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    public function getPaidTransferCandidate()
+    {
+        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id'])
+            ->where(['{{%transfer_candidate}}.paid'=>1]);
+    }
 }

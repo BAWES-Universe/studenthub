@@ -3,7 +3,6 @@ namespace candidate\models;
 
 use Yii;
 use yii\base\Model;
-use common\models\Candidate;
 
 /**
  * Login form
