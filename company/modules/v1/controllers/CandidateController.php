@@ -70,7 +70,7 @@ class CandidateController extends Controller
      * for current company.
      */
     public function actionList()
-    {        
+    {
         $company = Yii::$app->user->identity;
 
         $query = $company->getCandidates();

@@ -13,6 +13,8 @@ use common\models\Candidate;
  * @property string $country_name_ar
  * @property string $country_nationality_name_en
  * @property string $country_nationality_name_ar
+ *
+ * @property Candidate[] $candidates
  */
 class Country extends \yii\db\ActiveRecord
 {
@@ -44,10 +46,38 @@ class Country extends \yii\db\ActiveRecord
             'country_id' => 'Country ID',
             'country_name_en' => 'Country Name En',
             'country_name_ar' => 'Country Name Ar',
-            'country_nationality_name_en' => 'Country Nationality Name En',
-            'country_nationality_name_ar' => 'Country Nationality Name Ar',
+            'country_nationality_name_en' => 'Nationality Name En',
+            'country_nationality_name_ar' => 'Nationality Name Ar',
         ];
-    }    
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'candidates'
+        ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates()
+    {
+        return $this->hasMany(Candidate::className(), ['country_id' => 'country_id']);
+    }
 
     /**
      * @inheritdoc

@@ -83,6 +83,25 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+        ];
+    }
+
+    /**
      * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
      */

@@ -24,6 +24,11 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_updated_at'],
         $fields['candidate_hourly_rate']);
 
+        // Clear bank info from array
+        $fields['bank'] = function($model) {
+            return [];
+        };
+
         return $fields;
     }
 

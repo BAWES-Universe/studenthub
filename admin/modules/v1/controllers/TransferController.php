@@ -73,7 +73,7 @@ class TransferController extends Controller
     }
 
     /**
-     * Return a List Payable Candidates 
+     * Return a List Payable Candidates
      */
     public function actionPayableCandidates()
     {
@@ -149,8 +149,8 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $company_name = Yii::$app->request->get('company_name'); 
-        $transfer_status = Yii::$app->request->get('transfer_status'); 
+        $company_name = Yii::$app->request->get('company_name');
+        $transfer_status = Yii::$app->request->get('transfer_status');
 
         $query = Transfer::find()
             ->notDeleted()
@@ -185,7 +185,7 @@ class TransferController extends Controller
             ])
             ->asArray()
             ->one();
-            
+
         if(!$transfer) {
             return [
                     "operation" => "error",
@@ -196,7 +196,7 @@ class TransferController extends Controller
         $transfer['total_paid'] = TransferCandidate::find()
             ->notDeleted()
             ->totalPaid($id);
-        
+
         $transfer['total_unpaid'] = TransferCandidate::find()
             ->notDeleted()
             ->totalUnpaid($id);
@@ -206,12 +206,12 @@ class TransferController extends Controller
         $transfer['profit'] = TransferCandidate::find()
             ->notDeleted()
             ->profit($id);
-            
+
         $transfer['candidates'] = TransferCandidate::find()
             ->candidatesByTransfer($transfer['transfer_id'])
             ->all();
 
-        //invoices 
+        //invoices
 
         $transfer['invoices'] = Invoice::find()
             ->byTransfer($id)
@@ -236,16 +236,16 @@ class TransferController extends Controller
                 ];
         }
 
-        //set payment received date 
+        //set payment received date
 
-        $transfer->payment_received_on = date('Y-m-d');    
+        $transfer->payment_received_on = date('Y-m-d');
 
         // remove status received and set to in progress to combine both.
         $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
 
         $transfer->save();
 
-        // mark invoice as paid for all child transfer and main transfer in case of no child company 
+        // mark invoice as paid for all child transfer and main transfer in case of no child company
 
         Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $transfer->transfer_id]);
 
@@ -257,11 +257,12 @@ class TransferController extends Controller
 
         // sending mail to company as receipt
 
-        $this->receiptMail($transfer->transfer_id); 
+        $this->receiptMail($transfer->transfer_id);
 
         return [
             "operation" => "success",
-            "message" => 'Transfer marked as "Payment Received" successfully'
+            "message" => 'Transfer marked as "Payment Received" successfully',
+            'totalPayableCandidate'=> TransferCandidate::find()->payable()->count()
         ];
     }
 
@@ -275,7 +276,7 @@ class TransferController extends Controller
         $transfer = Transfer::findOne([
                 'transfer_id' => $id
             ]);
-            
+
         if(!$transfer) {
             return [
                     "operation" => "error",
@@ -283,7 +284,7 @@ class TransferController extends Controller
                 ];
         }
 
-        // to unlock transfer, transfer status should be in lock status 
+        // to unlock transfer, transfer status should be in lock status
 
         if($transfer->transfer_status != Transfer::STATUS_LOCK)
         {
@@ -345,7 +346,7 @@ class TransferController extends Controller
         $transfer = Transfer::findOne([
                 'transfer_id' => $id
             ]);
-            
+
         if(!$transfer) {
             return [
                     "operation" => "error",
@@ -372,7 +373,7 @@ class TransferController extends Controller
         $transfer = Transfer::findOne([
                 'transfer_id' => $id
             ]);
-            
+
         if(!$transfer) {
             return [
                     "operation" => "error",
@@ -391,7 +392,7 @@ class TransferController extends Controller
 
         $transfer_ids[] = $id;
 
-        //mark candidates as paid 
+        //mark candidates as paid
 
         TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
 
@@ -442,16 +443,16 @@ class TransferController extends Controller
 
         $transfer_ids[] = $id;
 
-        //mark as paid 
+        //mark as paid
 
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
 
-        foreach ($candidate_ids as $key => $value) 
+        foreach ($candidate_ids as $key => $value)
         {
             TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$value.'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
         }
 
-        //check if all paid, mark transfer as complete 
+        //check if all paid, mark transfer as complete
 
         $unpaid = TransferCandidate::find()
             ->andwhere([
@@ -512,7 +513,7 @@ class TransferController extends Controller
             return [
                 'operation' => 'success',
                 'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully',
-                'totalPayableCandidate'=>$transfers = TransferCandidate::find()->payable()->count()
+                'totalPayableCandidate'=> TransferCandidate::find()->payable()->count()
             ];
     }
 
@@ -603,14 +604,14 @@ class TransferController extends Controller
 
         foreach ($candidates as $detail) {
 
-            $totalAmount += $detail->candidateTotal;
+            $totalAmount += $detail->totalPaidToCandidate;
             $description = 'Internship '.$detail->hours.' Hours';
-            
+
             if(empty($detail->candidate->bank)) {
                 continue;
             }
 
-            $s2 .=  "S2,".$detail->candidate->bank->bank_transfer_type.",".$detail->candidateTotal.",KWD,,,,11622216,".
+            $s2 .=  "S2,".$detail->candidate->bank->bank_transfer_type.",".$detail->totalPaidToCandidate.",KWD,,,,11622216,".
                     $detail->candidate->candidate_iban.",".
                     $detail->transfer_id.",".
                     $detail->invoice->invoice_id.",".
@@ -679,7 +680,7 @@ class TransferController extends Controller
                 [
                     'attribute'=>'candidate_total',
                     'value' => function($data){
-                        return $data->candidateTotal;
+                        return $data->totalPaidToCandidate;
                     }
                 ],
                 'candidate.candidate_iban',
@@ -785,7 +786,7 @@ class TransferController extends Controller
                 [
                     'attribute'=>'candidate_total',
                     'value'=>function($data) {
-                        return $data->candidateTotal;
+                        return $data->totalPaidToCandidate;
                     }
                 ],
                 'candidate.candidate_iban',

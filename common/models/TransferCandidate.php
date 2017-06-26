@@ -73,27 +73,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return array
-     */
-    public function fields()
-    {
-        $fields = parent::fields();
-
-        //total amount need to pay to candidate 
-        $fields['total_amount'] =  function($model) {
-            return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
-        };
-        $fields['profit'] = function($model) {
-            return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
-        };
-        
-        // remove fields that contain sensitive information
-        $field['payment_amount'] = $this->candidateTotal;
-
-        return $fields;
-    }
-
-    /**
      * @inheritdoc
      */
     public function attributeLabels()
@@ -116,6 +95,74 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'tc_updated_at' => 'Tc Updated At',
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // Total amount paid by company
+        $fields['total_paid'] =  function($model) {
+            return $this->totalPaidByCompany;
+        };
+        // Total amount we need to pay to candidate
+        $fields['total_amount'] =  function($model) {
+            return $this->totalPaidToCandidate;
+        };
+        // Our Profile
+        $fields['profit'] = function($model) {
+            return $this->profit;
+        };
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'store',
+            'company',
+            'candidate',
+            'transfer',
+            'invoice'
+        ];
+    }
+
+    /**
+     * Total amount that will be sent to the candidate
+     * @return string
+     */
+    public function getTotalPaidToCandidate()
+    {
+        return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
+    }
+
+    /**
+     * Total amount that will be sent to the candidate
+     * @return string
+     */
+    public function getTotalPaidByCompany()
+    {
+        return ($this->company_hourly_rate * $this->hours) + $this->bonus;
+    }
+
+    /**
+     * Total amount that will be sent to the candidate
+     * @return string
+     */
+    public function getProfit()
+    {
+        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
+    }
+
+    /**
+     * Relations below
+     */
 
     /**
      * @return \yii\db\ActiveQuery
@@ -155,14 +202,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function getInvoice()
     {
         return $this->hasOne(Invoice::className(), ['transfer_id' => 'transfer_id']);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCandidateTotal()
-    {
-        return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
     }
 
     /**

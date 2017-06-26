@@ -33,7 +33,6 @@ use common\models\Candidate;
 class Transfer extends \yii\db\ActiveRecord
 {
     const STATUS_PAYMENT_SENT = 1;
-    const STATUS_PAYMENT_RECEIVED = 2;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
     const STATUS_TRANSFER_COMPLETE = 4;
     const STATUS_LOCK = 5;
@@ -115,6 +114,21 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'company',
+            'invoice',
+            'transferCandidates',
+            'childTransfers',
+            'childTransferInvoices',
+            'childTransferCandidates'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCompany()
@@ -146,7 +160,7 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getTransferCandidates()
     {
-        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);
     }
 
     /**

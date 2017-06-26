@@ -18,7 +18,7 @@ class Transfer extends \common\models\Transfer {
         $fields = parent::fields();
 
         // remove fields that contain sensitive information
-        unset($fields['company_id'],$fields['total'],$fields['parent_transfer_id']);
+        unset($fields['company_id'],$fields['total'],$fields['parent_transfer_id'], $fields['deleted']);
 
         // Update Datetime output
         $fields['transfer_created_at'] = function($model) {
@@ -54,6 +54,6 @@ class Transfer extends \common\models\Transfer {
      */
     public function getTransferCandidates()
     {
-        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
+        return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);
     }
 }

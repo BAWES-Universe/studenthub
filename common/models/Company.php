@@ -62,13 +62,13 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
     }
 
-    /** 
-     * find if company have store 
+    /**
+     * find if company have store
      */
     public function validateCompany()
     {
         if($this->parentCompany->stores) {
-            $this->addError('company_id', "Company can't be assigned to company having stores.");   
+            $this->addError('company_id', "Company can't be assigned to company having stores.");
         }
     }
 
@@ -102,6 +102,30 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
     }
     
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['deleted'], $fields['company_password_hash'],
+            $fields['company_password_reset_token'], $fields['company_auth_key']);
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'company',
+            'candidates'
+        ];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

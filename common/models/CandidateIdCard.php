@@ -67,6 +67,25 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'candidate'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidate()
