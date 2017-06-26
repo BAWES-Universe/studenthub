@@ -11,7 +11,7 @@ use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use common\models\Invoice;
-use common\models\Transfer;
+use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use kartik\mpdf\Pdf;
 
@@ -153,20 +153,19 @@ class TransferController extends Controller
         $transfer_status = Yii::$app->request->get('transfer_status'); 
 
         $query = Transfer::find()
-            ->selectedFields()
             ->notDeleted()
-            ->companyJoin()
-            ->transferCandidateJoin()
             ->parentTransfers();
 
-        if($company_name)
-            $query->filterCompany($company_name);
+        if($company_name) 
+        {
+            $query->companyJoin()
+                ->filterCompany($company_name);
+        }
 
         if($transfer_status)
             $query->filterStatus($transfer_status);
 
-        $query->groupBy('{{%transfer}}.transfer_id')
-            ->asArray();
+        $query->groupBy('{{%transfer}}.transfer_id');
 
         return new ActiveDataProvider([
             'query' => $query

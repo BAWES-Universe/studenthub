@@ -73,10 +73,7 @@ class CandidateController extends Controller
     {        
         $company = Yii::$app->user->identity;
 
-        $query = Candidate::find();
-        $query->selectField()
-                ->filterCompany($company)
-                ->notDeleted();
+        $query = $company->getCandidates();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -91,10 +88,7 @@ class CandidateController extends Controller
     {        
         $company = Yii::$app->user->identity;
 
-        return Candidate::find()
-            ->filterCompany($company)
-            ->notDeleted()
-            ->all();
+        return $company->candidates;
     }
 
     /**
