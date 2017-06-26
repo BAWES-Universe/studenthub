@@ -2,7 +2,7 @@
 
 namespace candidate\modules\v1\controllers;
 
-use common\models\Candidate;
+use candidate\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ArrayDataProvider;
@@ -67,40 +67,10 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $list = [];
-        
-        $TransferCandidate = Yii::$app->user->identity->transferCandidate;
-
-        foreach ($TransferCandidate as $key => $transferCandidate) {
-
-            if (
-                empty($transferCandidate->invoice) ||
-                $transferCandidate->invoice->invoice_status != 'paid'
-            ) {
-                continue;
-            }
-
-            if(isset($transferCandidate->transfer->company->company_name)) {
-                $company_name = $transferCandidate->transfer->company->company_name;
-            } else {
-                $company_name = '';
-            }
-
-            $list[] = [
-                'transfer_id' => $transferCandidate->transfer_id,
-                'candidate_id' => $transferCandidate->candidate_id,
-                'candidate_hourly_rate' => $transferCandidate->candidate_hourly_rate,
-                'hours' => $transferCandidate->hours,
-                'bonus' => $transferCandidate->bonus,
-                'status' => ($transferCandidate->paid) ? 'Paid' : 'Unpaid',
-                'tc_created_at' => $transferCandidate->tc_created_at,
-                'company_name' => $company_name,
-                'total' => ($transferCandidate->candidate_hourly_rate * $transferCandidate->hours) + $transferCandidate->bonus,
-            ];
-        }
+        $currentUser = Candidate::findOne(Yii::$app->user->getId());
 
         return new ArrayDataProvider([
-            'allModels' => array_reverse($list),
+            'allModels' => array_reverse($currentUser->paidTransferCandidate),
             'pagination' => [
                 'pageSize' => 10,
             ],
