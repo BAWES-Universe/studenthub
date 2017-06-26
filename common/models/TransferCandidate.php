@@ -23,6 +23,7 @@ use common\models\Transfer;
  * @property string $company_hourly_rate
  * @property string $bonus
  * @property string $transfer_cost
+ * @property integer $paid
  * @property string $tc_created_at
  * @property string $tc_updated_at
  *
