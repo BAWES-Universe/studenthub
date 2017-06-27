@@ -121,7 +121,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function extraFields()
     {
         return [
-            'company',
+//            'company',
             'candidates'
         ];
     }

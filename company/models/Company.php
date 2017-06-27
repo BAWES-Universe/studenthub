@@ -37,18 +37,19 @@ class Company extends \common\models\Company {
      */
     public function getCandidates()
     {
+
         if($this->parent_company_id)
         {
-            //for child company
-            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
-                ->via('stores');
-        }
-        else
-        {   
-            //for parent company
             return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
                 ->via('subCompanyStores')
-                ->where(['{{%candidate}}.deleted' => 0]);    
+                ->where(['{{%candidate}}.deleted' => 0]);
+            //for child company
+        }
+        else
+        {
+            //for parent company
+            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
+                ->via('stores');
         }        
     }
 

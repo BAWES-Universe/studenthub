@@ -54,16 +54,6 @@ class Country extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function fields()
-    {
-        $fields = parent::fields();
-
-        return $fields;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function extraFields()
     {
         return [
@@ -89,14 +79,6 @@ class Country extends \yii\db\ActiveRecord
             return sizeof($model->candidates);
         };
         return $fields;
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCandidates()
-    {
-        return $this->hasMany(Candidate::className(), ['country_id' => 'country_id']);
     }
 
     /**

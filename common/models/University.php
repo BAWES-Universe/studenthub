@@ -50,18 +50,6 @@ class University extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function fields()
-    {
-        $fields = parent::fields();
-
-        unset($fields['deleted']);
-
-        return $fields;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function extraFields()
     {
         return [
@@ -75,9 +63,11 @@ class University extends \yii\db\ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
+        unset($fields['deleted']);
         $fields['total_candidates'] = function($model) {
             return sizeof($model->candidates);
         };
+
         return $fields;
     }    
 
