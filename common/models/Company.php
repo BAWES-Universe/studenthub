@@ -147,26 +147,19 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getCandidates()
     {
-        // create company_id array from all sub companies and self
-
-        $companies = $this->subCompanies;
-
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
-
-        $company_ids[] = $this->company_id;
-
-        // create store_id array 
-
-        $stores = Store::find()
-            ->andWhere(['in', 'company_id', $company_ids])
-            ->all();
-
-        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
-
-        return Candidate::find()
-            ->joinWith('store')
-            ->where(['{{%candidate}}.deleted' => 0])
-            ->andWhere(['in', 'store.store_id',  $store_ids]);
+        if($this->parent_company_id)
+        {
+            //for child company
+            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
+                ->via('stores');
+        }
+        else
+        {
+            //for parent company
+            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
+                ->via('subCompanyStores')
+                ->where(['{{%candidate}}.deleted' => 0]);            
+        }        
     }
 
     /**
