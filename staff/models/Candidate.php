@@ -43,7 +43,4 @@ class Candidate extends \common\models\Candidate {
 
         return false;
     }
-
-
-
 }
