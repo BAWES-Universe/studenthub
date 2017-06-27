@@ -38,7 +38,7 @@ class Bank extends \yii\db\ActiveRecord
             [['bank_name','bank_swift_code','bank_address'], 'required'],
             [['bank_name','bank_transfer_type'], 'string', 'max' => 100],
             [['bank_swift_code'], 'string', 'max' => 12],
-            [['bank_swift_code'], 'validateCode'],
+            ['bank_transfer_type', 'in', 'range' => self::getBankCodeList()],
             [['bank_address'], 'string']
         ];
     }
@@ -57,15 +57,6 @@ class Bank extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * custom validation method for transfer type code
-     */
-    public function validateCode() {
-
-        if (!in_array($this->bank_transfer_type,self::getBankCodeList())) {
-            $this->addError('bank_transfer_type', 'Invalid Transfer Type Code');
-        }
-    }
     /**
      * @inheritdoc
      */
