@@ -76,6 +76,7 @@ class StatisticController extends Controller
 
 		$result['id_need_generated'] = Candidate::find()
             ->notDeleted()
+            ->filterAssigned()
     		->idNeedGenerated();
 
     	// Total Candidates
