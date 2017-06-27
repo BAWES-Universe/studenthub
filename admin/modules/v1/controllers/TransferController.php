@@ -175,7 +175,6 @@ class TransferController extends Controller
             ->where([
                 'transfer_id' => $id
             ])
-            ->asArray()
             ->one();
 
         if(!$transfer) {
@@ -185,27 +184,29 @@ class TransferController extends Controller
                 ];
         }
 
-        $transfer['total_paid'] = $transfer->getTransferCandidates()
+        $response = $transfer->attributes;
+
+        $response['total_paid'] = $transfer->getTransferCandidates()
             ->totalPaid($id);
 
-        $transfer['total_unpaid'] = $transfer->getTransferCandidates()
+        $response['total_unpaid'] = $transfer->getTransferCandidates()
             ->totalUnpaid($id);
 
         //get total profit
 
-        $transfer['profit'] = $transfer->getTransferCandidates()
+        $response['profit'] = $transfer->getTransferCandidates()
             ->profit($id);
 
-        $transfer['candidates'] = $transfer->getTransferCandidates()
+        $response['candidates'] = $transfer->getTransferCandidates()
             ->all();
 
         //invoices
 
-        $transfer['invoices'] = Invoice::find()
+        $response['invoices'] = Invoice::find()
             ->byTransfer($id)
             ->all();
 
-        return $transfer;
+        return $response;
     }
 
     /**
