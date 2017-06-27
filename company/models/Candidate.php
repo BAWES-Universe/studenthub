@@ -22,7 +22,16 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_password_reset_token'],
         $fields['candidate_created_at'],
         $fields['candidate_updated_at'],
-        $fields['candidate_hourly_rate']);
+        $fields['candidate_hourly_rate'],
+        $fields['bank_id'],
+        $fields['candidate_iban'],
+        $fields['candidate_uid'],
+        $fields['bank_account_name'],
+        $fields['approved'],
+        $fields['deleted'],
+        $fields['candidate_status'],
+        $fields['employee_id']
+        );
 
         // Clear bank info from array
         $fields['bank'] = function($model) {

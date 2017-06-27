@@ -68,7 +68,7 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $company = Yii::$app->user->identity;
+        return $company = Yii::$app->user->identity;
 
         $query = Company::find()
             ->select([
