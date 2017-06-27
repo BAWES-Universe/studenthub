@@ -404,8 +404,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getTransferCandidate()
     {
-        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id'])
-                ->where(['{{%transfer_candidate}}.deleted'=>0]);
+        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id']);
 
     }
 

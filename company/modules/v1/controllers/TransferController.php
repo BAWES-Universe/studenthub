@@ -313,7 +313,7 @@ class TransferController extends Controller
 
         //remove old candidates
 
-        TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+        TransferCandidate::deleteAll(['transfer_id' => $model->transfer_id]);
 
         //save candidates
 
@@ -454,7 +454,7 @@ class TransferController extends Controller
 
             //remove old candidate id exists
 
-            TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
+            TransferCandidate::deleteAll(['transfer_id' => $transfer->transfer_id]);
 
             // transfer candidate for current company
 
@@ -506,7 +506,7 @@ class TransferController extends Controller
             {
                 //remove transfer data
                 //Keep hard delete here as on recover of actual transfer we got required data
-                TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+                TransferCandidate::deleteAll(['transfer_id' => $value->transfer_id]);
                 Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
             }
         }
@@ -657,7 +657,7 @@ class TransferController extends Controller
 
                 //remove old candidates if exists
 
-                TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $transfer->transfer_id]);
+                TransferCandidate::deleteAll(['transfer_id' => $transfer->transfer_id]);
 
                 // transfer candidate for current company
 
@@ -748,7 +748,7 @@ class TransferController extends Controller
         {
             Invoice::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
 
-            TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
+            //TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
 
             Transfer::updateAll(['deleted' => 1], ['transfer_id' => $value->transfer_id]);
         }
@@ -757,7 +757,7 @@ class TransferController extends Controller
 
         Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
-        TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+        //TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
         Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
@@ -793,7 +793,9 @@ class TransferController extends Controller
         $invoice_id = 0;
 
         foreach ($invoices as $invoice) {
+            
             $invoice_id = $invoice->invoice_id;
+
             $content = $this->render($template, [
                 'invoice' => $invoice,
             ]);

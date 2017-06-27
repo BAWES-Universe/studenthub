@@ -109,9 +109,10 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->notDeleted()
             ->andWhere(['approved' => 0]);
+
         $transfers = TransferCandidate::find()
-            ->notDeleted()
             ->payable();
+
         return [
             'total' => $query->count(),
             'payable' => $transfers->count()

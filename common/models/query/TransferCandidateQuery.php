@@ -16,7 +16,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%transfer_candidate}}.deleted' => 0]);
         return parent::all($db);
     }
 
@@ -26,7 +25,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%transfer_candidate}}.deleted' => 0]);
         return parent::one($db);
     }
 
@@ -37,16 +35,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere([
                 '{{%transfer_candidate}}.paid' => 1
-            ]);
-    }
-
-    /**
-     * @return $this
-     */
-    public function notDeleted()
-    {
-        return $this->andWhere([
-                '{{%transfer_candidate}}.deleted' => 0
             ]);
     }
 
