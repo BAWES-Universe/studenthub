@@ -190,11 +190,21 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getChildTransfers()
     {
-        if($this->parent_transfer_id) {
-            return $this->hasMany(Transfer::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
-        } else {
-            //parent transfer
-            return $this->hasMany(Transfer::className(),['transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
+        return $this->hasMany(Transfer::className(), ['parent_transfer_id'=>'transfer_id']);
+    }
+
+    public function getInvoices()
+    {
+        if($this->parent_transfer_id) 
+        {
+            //child transfer 
+            return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id']);
+        }
+        else
+        {
+            //parent transfer 
+            return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id'])
+                ->via('childTransfers');
         }
     }
 
@@ -204,7 +214,8 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getChildTransferInvoices()
     {
-        return $this->hasMany(Invoice::className(), ['transfer_id'=>'transfer_id'])->via('childTransfers');
+        return $this->hasMany(Invoice::className(), ['transfer_id'=>'transfer_id'])
+            ->via('childTransfers');
     }
 
     /**
