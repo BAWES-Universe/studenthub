@@ -1,5 +1,5 @@
 <?php
-namespace admin\models;
+namespace company\models;
 
 use Yii;
 
