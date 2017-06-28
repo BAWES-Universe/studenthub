@@ -10,7 +10,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
-use common\models\Invoice;
+use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use kartik\mpdf\Pdf;

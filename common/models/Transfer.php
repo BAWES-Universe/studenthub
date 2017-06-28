@@ -190,7 +190,12 @@ class Transfer extends \yii\db\ActiveRecord
      */
     public function getChildTransfers()
     {
-        return $this->hasMany(Transfer::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
+        if($this->parent_transfer_id) {
+            return $this->hasMany(Transfer::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
+        } else {
+            //parent transfer
+            return $this->hasMany(Transfer::className(),['transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
+        }
     }
 
     /**
