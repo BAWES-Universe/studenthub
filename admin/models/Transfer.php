@@ -48,7 +48,7 @@ class Transfer extends \common\models\Transfer
     {
         return [
         	'company',
-            'invoice',
+            'invoices',
             'transferCandidates',
             'childTransferInvoices',
             'childTransferCandidates'
@@ -61,20 +61,6 @@ class Transfer extends \common\models\Transfer
     public function getCompany()
     {
         return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
-    }
-
-    /**
-     * Get the invoice belonging to this transfer
-     * Each transfer can have max a single invoice, unless it has sub-transfers
-     * then each subtransfer can have an invoice each.
-     *
-     * If this is a parent transfer that has subtransfers, it should show up empty
-     * will need to use Transfer::getChildTransferInvoices()
-     * @return \yii\db\ActiveQuery|static
-     */
-    public function getInvoice()
-    {
-        return $this->hasOne(Invoice::className(), ['transfer_id'=>'transfer_id']);
     }
 
     /**
