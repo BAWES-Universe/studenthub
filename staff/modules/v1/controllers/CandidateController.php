@@ -342,6 +342,7 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate assigned to store successfully",
+            "candidate_detail" => $model,
             "store_id" => $store->store_id,
             "store_name" => $store->store_name,
             "company_name" => $store->company->company_name
@@ -389,7 +390,8 @@ class CandidateController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate unassigned from store successfully"
+            "message" => "Candidate unassigned from store successfully",
+            "candidate_detail" => $model,
         ];
 
         // Check SQL Query Count and Duration
