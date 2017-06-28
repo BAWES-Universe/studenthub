@@ -53,10 +53,19 @@ class Invoice extends ActiveRecord
     /**
      * @inheritdoc
      */
+    public function Fields()
+    {
+        $fields = parent::fields();
+        $fields['company_total'] = function($model) {
+            return $model->transfer->company_total;
+        };
+        return $fields;
+    }
+
     public function extraFields()
     {
         return [
-            'transfer'
+            'transfer',
         ];
     }
 

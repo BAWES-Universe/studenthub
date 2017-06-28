@@ -38,6 +38,7 @@ class Transfer extends \common\models\Transfer {
     {
         return [
             'invoice',
+            'childTransfers',
             'transferCandidates',
             'childTransferInvoices',
             'childTransferCandidates'
