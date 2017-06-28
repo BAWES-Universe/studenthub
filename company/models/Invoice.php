@@ -8,16 +8,13 @@ use Yii;
  * It extends from \common\models\Invoice but with custom functionality for this application module
  */
 class Invoice extends \common\models\Invoice {
+    
     /**
      * @inheritdoc
      */
     public function fields()
     {
         $fields = parent::fields();
-
-        $fields['total_amount'] = function($model) {
-            return $model->transfer->total;
-        };
         return $fields;
     }
 }
