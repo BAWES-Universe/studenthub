@@ -47,8 +47,8 @@ class Store extends \common\models\Store {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\staff\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])->andWhere(['deleted'=>0]);
+        return parent::getCandidates($modelClass);
     }
 }
