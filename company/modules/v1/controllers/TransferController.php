@@ -75,8 +75,7 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $company = Yii::$app->user->identity;
-
+        $company = Company::findOne(Yii::$app->user->id);
         $query = $company->getTransfers()
             ->where('parent_transfer_id IS NULL')
             ->orderBy('transfer_id DESC');
@@ -93,7 +92,7 @@ class TransferController extends Controller
      */
     public function actionView($id)
     {
-        $company = Yii::$app->user->identity;
+        $company = Company::findOne(Yii::$app->user->id);
 
         $transfer = Transfer::find()
             ->joinWith('company')
@@ -252,7 +251,7 @@ class TransferController extends Controller
      */
     public function actionEdit($id)
     {
-        $company = Yii::$app->user->identity;
+        $company = Company::findOne(Yii::$app->user->id);
 
         // list all sub companies
 
@@ -539,8 +538,7 @@ class TransferController extends Controller
      */
     public function actionPaymentSent($id)
     {
-        $company = Yii::$app->user->identity;
-
+        $company = Company::findOne(Yii::$app->user->id);
         // list all sub companies
 
         $transfer = Transfer::find()
@@ -587,8 +585,8 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $company = Yii::$app->user->identity;
-     
+        $company = Company::findOne(Yii::$app->user->id);
+
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
@@ -725,8 +723,7 @@ class TransferController extends Controller
      */
     public function actionDelete($id)
     {
-        $company = Yii::$app->user->identity;
-
+        $company = Company::findOne(Yii::$app->user->id);
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
@@ -856,7 +853,7 @@ class TransferController extends Controller
      */
     public function actionPdf($id)
     {
-        $company = Yii::$app->user->identity;
+        $company = Company::findOne(Yii::$app->user->id);
 
         $invoice = Invoice::find()
             ->withTransfer($id)

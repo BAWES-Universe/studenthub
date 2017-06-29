@@ -51,23 +51,27 @@ class Transfer extends \common\models\Transfer {
      *
      * If this is a parent transfer that has subtransfers, it should show up empty
      * will need to use Transfer::getChildTransferCandidates()
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
      */
-    public function getTransferCandidates()
+    public function getTransferCandidates($modelClass = "\company\models\TransferCandidate")
     {
-        if($this->parent_transfer_id)
-        {
-            //child transfer 
-            return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])
-                ->via('parentTransfer')    
-                ->andWhere([
-                    '{{%transfer_candidate}}.company_id' => $this->company_id
-                ]);       
-        }
-        else
-        {
-            //parent transfer 
-            return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);    
-        }        
+        return parent::getTransferCandidates($modelClass);
+    }
+
+    public function getChildTransferInvoices($modelClass = "\company\models\Invoice")
+    {
+        return parent::getChildTransferInvoices($modelClass);
+    }
+
+    public function getParentTransfer($modelClass = "\company\models\Transfer")
+    {
+        return parent::getParentTransfer($modelClass);
+    }
+
+    public function getChildTransfers($modelClass = "\company\models\Transfer")
+    {
+        return parent::getChildTransfers($modelClass);
     }
 }
+

@@ -111,19 +111,21 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->where(['deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->where(['deleted'=>0]);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])->where(['deleted'=>0]);
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])->where(['deleted'=>0]);
     }
 
     /**

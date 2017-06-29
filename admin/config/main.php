@@ -136,7 +136,6 @@ return [
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH payment-received/<id>' => 'payment-received',
-                        'PATCH payment-in-process/<id>' => 'payment-in-process',
                         'PATCH payment-completed/<id>' => 'payment-completed',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
@@ -152,7 +151,6 @@ return [
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS unpaid-candidates/<id>' => 'options',
                         'OPTIONS payment-received/<id>' => 'options',
-                        'OPTIONS payment-in-process/<id>' => 'options',
                         'OPTIONS payment-completed/<id>' => 'options',
                     ]
                 ],

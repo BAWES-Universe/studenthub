@@ -1,7 +1,6 @@
 <?php
 namespace candidate\models;
 
-use Yii;
 use common\models\CandidateToken;
 /**
  * This is the model class for table "Candidate".
@@ -38,9 +37,9 @@ class Candidate extends \common\models\Candidate {
         }
     }
 
-    public function getTransferCandidate()
+    public function getTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
     {
-        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id']);
+        return parent::getTransferCandidate($modelClass);
     }
 
     public function getPaidTransferCandidate()

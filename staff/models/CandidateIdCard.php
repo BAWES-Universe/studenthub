@@ -1,9 +1,6 @@
 <?php
 
 namespace staff\models;
-
-use staff\models\Candidate;
-
 /**
  * This is the model class for table "candidate_id_card".
  *
@@ -32,10 +29,11 @@ class CandidateIdCard extends \common\models\CandidateIdCard
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass = "\common\models\Candidate")
     {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+        return parent::getCandidate($modelClass);
     }
 }

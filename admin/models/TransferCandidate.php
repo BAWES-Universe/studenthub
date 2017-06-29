@@ -2,12 +2,10 @@
 
 namespace admin\models;
 
-use admin\models\Store;
-use admin\models\Company;
-use admin\models\Candidate;
-use admin\models\Transfer;
-use admin\models\Invoice;
-
+/**
+ * Class TransferCandidate
+ * @package admin\models
+ */
 class TransferCandidate extends \common\models\TransferCandidate
 {
     /**
@@ -27,42 +25,47 @@ class TransferCandidate extends \common\models\TransferCandidate
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStore()
+    public function getStore($modelClass = "\admin\models\Store")
     {
-        return $this->hasOne(Store::className(), ['candidate_id' => 'candidate_id']);
+        return parent::getStore($modelClass);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\admin\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return parent::getCompany($modelClass);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass = "\admin\models\Candidate")
     {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+        return parent::getCandidate($modelClass);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getTransfer()
+    public function getTransfer($modelClass = "\admin\models\Transfer")
     {
-        return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
+        return parent::getTransfer($modelClass);;
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getInvoice()
+    public function getInvoice($modelClass = "\admin\models\Invoice")
     {
-        return $this->hasOne(Invoice::className(), ['transfer_id' => 'transfer_id']);
+        return parent::getInvoice($modelClass);
     }
 }

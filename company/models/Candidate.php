@@ -1,8 +1,5 @@
 <?php
 namespace company\models;
-
-use Yii;
-
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -32,13 +29,8 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_status'],
         $fields['employee_id']
         );
-
         // Clear bank info from array
-        $fields['bank'] = function($model) {
-            return [];
-        };
-
+        $fields['bank'] = function() {return [];};
         return $fields;
     }
-
 }

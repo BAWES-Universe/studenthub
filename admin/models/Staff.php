@@ -1,8 +1,6 @@
 <?php
 namespace admin\models;
 
-use Yii;
-
 /**
  * This is the model class for table "Staff".
  * It extends from \common\models\Staff but with custom functionality for this application module

@@ -78,7 +78,7 @@ class AccountController extends Controller
     }
 
     /**
-     * Return currnet employer detail
+     * Return current employer detail
      */
     public function actionEmployer()
     {
