@@ -166,43 +166,48 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStore()
+    public function getStore($modelClass= "\common\models\Store")
     {
-        return $this->hasOne(Store::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass = "\common\models\Candidate")
     {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getTransfer()
+    public function getTransfer($modelClass = "\common\models\Transfer")
     {
-        return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
+        return $this->hasOne($modelClass::className(), ['transfer_id' => 'transfer_id']);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getInvoice()
+    public function getInvoice($modelClass = "\common\models\Invoice")
     {
-        return $this->hasOne(Invoice::className(), ['transfer_id' => 'transfer_id']);
+        return $this->hasOne($modelClass::className(), ['transfer_id' => 'transfer_id']);
     }
 
     /**

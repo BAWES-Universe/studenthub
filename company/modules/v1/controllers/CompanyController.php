@@ -4,7 +4,6 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
 
@@ -68,8 +67,6 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        return $company = Yii::$app->user->identity;
-
         $query = Company::find()
             ->select([
                 'company_id',
@@ -80,7 +77,7 @@ class CompanyController extends Controller
                 'company_created_at',
                 'company_updated_at'
             ])
-            ->where(['parent_company_id' => $company->company_id]);
+            ->where(['parent_company_id' => Yii::$app->user->identity->company_id]);
 
         return new ActiveDataProvider([
             'query' => $query

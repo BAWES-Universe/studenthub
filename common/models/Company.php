@@ -135,30 +135,32 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getSubCompanies()
+    public function getSubCompanies($modelClass = "\common\models\Company")
     {
-        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['parent_company_id' => 'company_id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\common\models\Candidate")
     {
         if($this->parent_company_id)
         {
             //for child company
-            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
+            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
                 ->via('stores');
         }
         else
         {
             //for parent company
-            return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
+            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
                 ->via('subCompanyStores')
-                ->where(['{{%candidate}}.deleted' => 0]);            
+                ->where(['{{%candidate}}.deleted' => 0]);
         }        
     }
 
@@ -171,19 +173,21 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStores()
+    public function getStores($modelClass = "\common\models\Store")
     {
-        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getTransfers()
+    public function getTransfers($modelClass = "\common\models\Transfer")
     {
-        return $this->hasMany(Transfer::className(), ['company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
@@ -426,5 +430,16 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function find()
     {
         return new query\CompanyQuery(get_called_class());
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getSubCompanyStores($modelClass = "\common\models\Store")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('subCompanies')
+            ->where(['deleted'=>0]);
     }
 }

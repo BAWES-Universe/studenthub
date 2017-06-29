@@ -119,7 +119,8 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
