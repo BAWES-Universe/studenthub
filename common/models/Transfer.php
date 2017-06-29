@@ -121,6 +121,7 @@ class Transfer extends \yii\db\ActiveRecord
         return [
             'company',
             'invoice',
+            'invoices',
             'transferCandidates',
             'childTransfers',
             'childTransferInvoices',
@@ -199,16 +200,16 @@ class Transfer extends \yii\db\ActiveRecord
 
     public function getInvoices()
     {
-        if($this->parent_transfer_id) 
-        {
-            //child transfer 
-            return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id']);
-        }
-        else
+        if($this->childTransfers) 
         {
             //parent transfer 
             return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id'])
                 ->via('childTransfers');
+        }
+        else
+        {
+            //child transfer 
+            return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id']);
         }
     }
 

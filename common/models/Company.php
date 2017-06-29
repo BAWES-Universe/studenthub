@@ -149,18 +149,18 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        if($this->parent_company_id)
-        {
-            //for child company
-            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
-                ->via('stores');
-        }
-        else
+        if($this->subCompanyStores)
         {
             //for parent company
             return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
                 ->via('subCompanyStores')
                 ->where(['{{%candidate}}.deleted' => 0]);
+        }
+        else
+        {
+            //for child company
+            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+                ->via('stores');
         }        
     }
 
