@@ -324,34 +324,6 @@ class TransferController extends Controller
             ];
         }
     }
-
-    /**
-     * Mark Transfer as Payment In Process
-     * @param $id
-     * @return array
-     */
-    public function actionPaymentInProcess($id)
-    {
-        $transfer = Transfer::findOne([
-                'transfer_id' => $id
-            ]);
-
-        if(!$transfer) {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found'
-                ];
-        }
-
-        $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-        $transfer->save();
-
-        return [
-                "operation" => "success",
-                "message" => 'Transfer marked as "Salary Distribution in Progress" successfully'
-            ];
-    }
-
     /**
      * Mark Transfer as Payment In Completed
      * @param $id
