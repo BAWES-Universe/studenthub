@@ -42,7 +42,9 @@ class Company extends \common\models\Company {
             //for child company
             return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
                 ->via('stores');
-        } else {
+        } 
+        else 
+        {
             //for parent company
             return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])
                 ->via('subCompanyStores')
