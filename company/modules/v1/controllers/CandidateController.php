@@ -69,7 +69,9 @@ class CandidateController extends Controller
     public function actionList()
     {
         $company = Company::findOne(Yii::$app->user->id);
+        
         $query = $company->getCandidates();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
