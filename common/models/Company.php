@@ -3,10 +3,8 @@
 namespace common\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "company".
@@ -109,8 +107,10 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         $fields = parent::fields();
 
-        unset($fields['deleted'], $fields['company_password_hash'],
-            $fields['company_password_reset_token'], $fields['company_auth_key']);
+        unset($fields['deleted'],
+            $fields['company_password_hash'],
+            $fields['company_password_reset_token'],
+            $fields['company_auth_key']);
 
         return $fields;
     }

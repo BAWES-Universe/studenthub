@@ -1,8 +1,5 @@
 <?php
 namespace admin\models;
-
-use Yii;
-
 /**
  * This is the model class for table "Store".
  * It extends from \common\models\Store but with custom functionality for this application module
@@ -27,18 +24,20 @@ class Store extends \common\models\Store {
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\admin\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return parent::getCompany($modelClass);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\admin\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
+        return parent::getCandidates($modelClass);
     }
 }
