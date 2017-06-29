@@ -2,7 +2,6 @@
 
 namespace common\models;
 
-use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
@@ -86,11 +85,12 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass = "\common\models\Candidate")
     {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
