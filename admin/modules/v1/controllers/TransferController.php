@@ -225,6 +225,22 @@ class TransferController extends Controller
                 ];
         }
 
+        if($transfer->transfer_status != Transfer::STATUS_PAYMENT_SENT)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status need to be "Payment Sent" to mark as "Payment Received"',
+            ];    
+        }
+
+        if($transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer already marked as "Payment Received"',
+            ];    
+        }            
+
         //set payment received date
 
         $transfer->payment_received_on = date('Y-m-d');
@@ -268,9 +284,17 @@ class TransferController extends Controller
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+
+        if($transfer->transfer_status == Transfer::STATUS_INITIATED)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer already unlocked!'
+            ];
         }
 
         // to unlock transfer, transfer status should be in lock status
@@ -308,6 +332,14 @@ class TransferController extends Controller
             ];
         }
 
+        if($model->transfer_status == Transfer::STATUS_LOCK)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer already locked!'
+            ];
+        }
+
         if($model->transfer_status != Transfer::STATUS_PAYMENT_SENT)
         {
             return [
@@ -317,39 +349,13 @@ class TransferController extends Controller
         }
 
         $model->transfer_status = Transfer::STATUS_LOCK;
+
         if ($model->save()) {
             return [
                 "operation" => "success",
                 "message" => "Transfer status changed to locked successfully"
             ];
         }
-    }
-
-    /**
-     * Mark Transfer as Payment In Process
-     * @param $id
-     * @return array
-     */
-    public function actionPaymentInProcess($id)
-    {
-        $transfer = Transfer::findOne([
-                'transfer_id' => $id
-            ]);
-
-        if(!$transfer) {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found'
-                ];
-        }
-
-        $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-        $transfer->save();
-
-        return [
-                "operation" => "success",
-                "message" => 'Transfer marked as "Salary Distribution in Progress" successfully'
-            ];
     }
 
     /**
@@ -368,6 +374,22 @@ class TransferController extends Controller
                     "operation" => "error",
                     "message" => 'Transfer not found'
                 ];
+        }
+
+        if($transfer->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) 
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"'
+            ];
+        }
+
+        if($transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) 
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer already marked as "Payment Complete"'
+            ];
         }
 
         $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;

@@ -555,6 +555,14 @@ class TransferController extends Controller
                 ];
         }
 
+        if($transfer->transfer_status == Transfer::STATUS_PAYMENT_SENT)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer already marked as "Payment Sent"'
+            ];
+        }
+
         if($transfer->transfer_status != Transfer::STATUS_LOCK)
         {
             return [
@@ -590,6 +598,14 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
+            ];
+        }
+
+        if($model->transfer_status == Transfer::STATUS_LOCK)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer already locked'
             ];
         }
 
