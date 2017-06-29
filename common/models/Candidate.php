@@ -400,11 +400,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getTransferCandidate()
+    public function getTransferCandidate($modelClass = "\common\models\TransferCandidate")
     {
-        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
 
     }
 
