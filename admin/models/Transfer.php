@@ -56,11 +56,12 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\admin\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return parent::getCompany($modelClass);
     }
 
     /**
@@ -69,50 +70,40 @@ class Transfer extends \common\models\Transfer
      *
      * If this is a parent transfer that has subtransfers, it should show up empty
      * will need to use Transfer::getChildTransferCandidates()
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
      */
-    public function getTransferCandidates()
+    public function getTransferCandidates($modelClass = "\admin\models\TransferCandidate")
     {
-        if($this->parent_transfer_id)
-        {
-            //child transfer 
-            return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id'])
-                ->via('parentTransfer')    
-                ->andWhere([
-                    '{{%transfer_candidate}}.company_id' => $this->company_id
-                ]);       
-        }
-        else
-        {
-            //parent transfer 
-            return $this->hasMany(TransferCandidate::className(), ['transfer_id' => 'transfer_id']);    
-        }        
+        return parent::getTransferCandidates($modelClass);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getChildTransfers()
+    public function getChildTransfers($modelClass = "\admin\models\Transfer")
     {
-        return $this->hasMany(Transfer::className(),['parent_transfer_id'=>'transfer_id'])->andWhere(['{{%transfer}}.deleted'=>0]);
+        return parent::getChildTransfers($modelClass)->andWhere(['{{%transfer}}.deleted'=>0]);
     }
 
     /**
      * Get all invoices belonging to child transfers (if available)
-     * @return \yii\db\ActiveQuery|static
+     * @param string $modelClass
+     * @return $this
      */
-    public function getChildTransferInvoices()
+    public function getChildTransferInvoices($modelClass = "\admin\models\Invoice")
     {
-        return $this->hasMany(Invoice::className(), ['transfer_id'=>'transfer_id'])
-            ->via('childTransfers');
+        return parent::getChildTransferInvoices($modelClass);
     }
 
     /**
      * Get all invoices belonging to child transfers (if available)
-     * @return \yii\db\ActiveQuery|static
+     * @param string $modelClass
+     * @return $this
      */
-    public function getChildTransferCandidates()
+    public function getChildTransferCandidates($modelClass = "\admin\models\TransferCandidate")
     {
-        return $this->hasMany(TransferCandidate::className(), ['transfer_id'=>'transfer_id'])->via('childTransfers');
+        return parent::getChildTransferCandidates($modelClass);
     }
 }
