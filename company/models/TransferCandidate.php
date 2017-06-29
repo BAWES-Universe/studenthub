@@ -24,34 +24,38 @@ class TransferCandidate extends \common\models\TransferCandidate
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStore()
+    public function getStore($modelClass= "\company\models\Store")
     {
-        return $this->hasOne(Store::className(), ['candidate_id' => 'candidate_id']);
+        return parent::getStore($modelClass);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getCompany($modelClass= "\company\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return parent::getCompany($modelClass);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass= "\company\models\Candidate")
     {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+        return parent::getCandidate($modelClass);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getTransfer()
+    public function getTransfer($modelClass= "\company\models\Transfer")
     {
-        return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
+        return parent::getTransfer($modelClass);
     }
 }

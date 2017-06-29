@@ -105,7 +105,7 @@ class StoreController extends Controller
      */
     public function actionIndex()
     {
-        $company = Yii::$app->user->identity;
+        $company = Company::findOne(Yii::$app->user->id);
         $list = [];
 
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {

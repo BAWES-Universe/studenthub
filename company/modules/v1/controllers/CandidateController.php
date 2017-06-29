@@ -4,11 +4,8 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use company\models\Store;
 use company\models\Company;
-use company\models\Candidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -71,10 +68,8 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $company = Yii::$app->user->identity;
-
+        $company = Company::findOne(Yii::$app->user->id);
         $query = $company->getCandidates();
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
