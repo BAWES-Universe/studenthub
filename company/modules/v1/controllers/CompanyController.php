@@ -80,8 +80,7 @@ class CompanyController extends Controller
                 'company_created_at',
                 'company_updated_at'
             ])
-            ->where(['parent_company_id' => $company->company_id])
-            ->asArray();
+            ->where(['parent_company_id' => $company->company_id]);
 
         return new ActiveDataProvider([
             'query' => $query
