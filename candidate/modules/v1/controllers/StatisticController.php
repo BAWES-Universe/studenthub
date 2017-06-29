@@ -4,9 +4,6 @@ namespace candidate\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use common\models\Transfer;
-use candidate\models\Candidate;
-
 /**
  * Statistic controller
  */
