@@ -53,10 +53,12 @@ class Invoice extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function Fields()
+    public function fields()
     {
         $fields = parent::fields();
-        $fields['company_total'] = function($model) {
+
+        // Total Invoice Amount
+        $fields['invoice_total'] = function($model) {
             return $model->transfer->company_total;
         };
         return $fields;

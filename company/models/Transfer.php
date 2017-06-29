@@ -37,7 +37,7 @@ class Transfer extends \common\models\Transfer {
     public function extraFields()
     {
         return [
-            'invoice',
+            'invoices',
             'childTransfers',
             'transferCandidates',
             'childTransferInvoices',
