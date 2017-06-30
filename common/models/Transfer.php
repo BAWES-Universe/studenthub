@@ -120,7 +120,6 @@ class Transfer extends \yii\db\ActiveRecord
     {
         return [
             'company',
-            'invoice',
             'invoices',
             'transferCandidates',
             'childTransfers',
@@ -136,20 +135,6 @@ class Transfer extends \yii\db\ActiveRecord
     public function getCompany($modelClass = "\common\models\Company")
     {
         return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
-    }
-
-    /**
-     * Get the invoice belonging to this transfer
-     * Each transfer can have max a single invoice, unless it has sub-transfers
-     * then each subtransfer can have an invoice each.
-     *
-     * If this is a parent transfer that has subtransfers, it should show up empty
-     * will need to use Transfer::getChildTransferInvoices()
-     * @return \yii\db\ActiveQuery|static
-     */
-    public function getInvoice()
-    {
-        return $this->hasOne(Invoice::className(), ['transfer_id'=>'transfer_id']);
     }
 
     /**
@@ -200,16 +185,16 @@ class Transfer extends \yii\db\ActiveRecord
 
     public function getInvoices()
     {
-        if($this->childTransfers) 
+        if($this->parent_transfer_id) 
+        {
+            //child transfer 
+            return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id']);            
+        }
+        else
         {
             //parent transfer 
             return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id'])
                 ->via('childTransfers');
-        }
-        else
-        {
-            //child transfer 
-            return $this->hasMany(Invoice::className(), ['transfer_id' => 'transfer_id']);
         }
     }
 
