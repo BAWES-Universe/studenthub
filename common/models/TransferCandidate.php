@@ -117,6 +117,25 @@ class TransferCandidate extends \yii\db\ActiveRecord
             return $this->profit;
         };
 
+        /**
+         * Format as numbers/double so API doesnt output as a string
+         */
+        $fields['hours'] = function($model) {
+            return (double) $this->hours;
+        };
+        $fields['bonus'] = function($model) {
+            return (double) $this->bonus;
+        };
+        $fields['transfer_cost'] = function($model) {
+            return (double) $this->transfer_cost;
+        };
+        $fields['candidate_hourly_rate'] = function($model) {
+            return (double) $this->candidate_hourly_rate;
+        };
+        $fields['company_hourly_rate'] = function($model) {
+            return (double) $this->company_hourly_rate;
+        };
+
         return $fields;
     }
 
