@@ -145,7 +145,7 @@ class Transfer extends \yii\db\ActiveRecord
         // If this is a child transfer return all TransferCandidate records
         // belonging to its parent transfer
         if($this->parent_transfer_id)
-            return $this->getParentTransferCandidates();
+            return $this->getParentTransferCandidates($modelClass);
 
         // Otherwise return all TransferCandidate records belonging to this transfer
         return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id']);
