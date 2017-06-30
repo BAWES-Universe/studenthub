@@ -278,10 +278,10 @@ class TransferController extends Controller
 
         if($model->transfer_status != Transfer::STATUS_INITIATED)
         {
-             return [
-                    "operation" => "error",
-                    "message" => 'Transfer status should be "Initiated" to edit it!'
-                ];
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status should be "Initiated" to edit it!'
+            ];
         }
 
         //validate input
@@ -293,20 +293,18 @@ class TransferController extends Controller
 
         if($errors) {
             return [
-                    "operation" => "error",
-                    "message" => $errors
-                ];
+                "operation" => "error",
+                "message" => $errors
+            ];
         }
 
         $new_transfer_id = $new_invoice_id = [];
 
         //Old Child Transfers
-        $old_child_transfers = Transfer::findAll(['parent_transfer_id' => $model->transfer_id]);
+        $old_child_transfers = $model->childTransfers;
 
         //Old Invoices
-        $old_invoices = Invoice::find()
-            ->byTransfer($model->transfer_id)
-            ->all();
+        $old_invoices = $model->invoices;
 
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -409,19 +407,9 @@ class TransferController extends Controller
          * generate invoice for main transfer if no sub companies else generate
          * invoice for each sub companies
          */
-        if(!$sub_companies)
+        if(!$sub_companies && $model->transfer_status != Transfer::STATUS_INITIATED)
         {
-            $invoice = Invoice::findOne(['transfer_id' => $model->transfer_id]);
-
-            if(!$invoice) {
-                $invoice = new Invoice;
-                $invoice->transfer_id = $model->transfer_id;
-                $invoice->invoice_date = date('Y-m-d');
-                $invoice->invoice_status = 'unpaid';
-                $invoice->save();
-            }
-
-            $new_invoice_id[] = $invoice->invoice_id;
+            $new_invoice_id[] = $model->generateInvoice();
         }
 
         foreach ($sub_companies as $key => $sub_company) {
@@ -444,7 +432,7 @@ class TransferController extends Controller
                 $transaction->rollBack();
 
                 return [
-                    "operation" => "success",
+                    "operation" => "error",
                     "message" => $transfer->getErrors()
                 ];
             }
@@ -478,24 +466,18 @@ class TransferController extends Controller
                 $transaction->rollBack();
 
                 return [
-                    "operation" => "success",
+                    "operation" => "error",
                     "message" => $transfer->getErrors()
                 ];
             }
 
             //generate invoice for each transfer
-            $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
-
-            if(!$invoice) {
-                $invoice = new Invoice;
-                $invoice->transfer_id = $transfer->transfer_id;
-                $invoice->invoice_date = date('Y-m-d');
-                $invoice->invoice_status = 'unpaid';
-                $invoice->save();
+            if($model->transfer_status != Transfer::STATUS_INITIATED)
+            {
+                $new_invoice_id[] = $transfer->generateInvoice();
             }
 
             $new_transfer_id[] = $transfer->transfer_id;
-            $new_invoice_id[] = $invoice->invoice_id;
         }
 
         //remove extra transfers

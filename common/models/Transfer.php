@@ -294,6 +294,25 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
     /**
+     * Generate Invoice for Tranfer 
+     * @return integer invoice_id
+     */
+    public function generateInvoice() 
+    {
+        $invoice = Invoice::findOne(['transfer_id' => $this->transfer_id]);
+
+        if(!$invoice) {
+            $invoice = new Invoice;
+            $invoice->transfer_id = $this->transfer_id;
+            $invoice->invoice_date = date('Y-m-d');
+            $invoice->invoice_status = 'unpaid';
+            $invoice->save();
+        }
+
+        return $invoice->invoice_id;
+    }
+
+    /**
      * @inheritdoc
      * @return query\TransferQuery the active query used by this AR class.
      */
