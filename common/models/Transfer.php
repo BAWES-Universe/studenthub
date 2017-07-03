@@ -239,13 +239,25 @@ class Transfer extends \yii\db\ActiveRecord
         // check if empty field
         foreach ($candidates as $key => $value)
         {
+            $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
+            $hours = (isset($value['hours'])) ? $value['hours'] : 0;
+            
+            if($hours < 0)
+            {
+                return 'Hours can not be negative';
+            }
+
+            if($bonus < 0)
+            {
+                return 'Bonus can not be negative';
+            }
+
             if(empty($value['candidate_id']))
             {
                 $errors['candidate_id'][] = 'Candidate field require.';
                 return $errors;
             }
-            $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
-            $hours = (isset($value['hours'])) ? $value['hours'] : 0;
+
             $company_total += $bonus + ($hours * Yii::$app->params['candidate_max_hourly_rate']);
         }
 
@@ -272,6 +284,7 @@ class Transfer extends \yii\db\ActiveRecord
             ->where(['in', 'store_id', $store_ids])
             ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
             ->count();
+
         if($missing > 0)
         {
             $errors['candidate_id'][] = 'Missing ' . $missing . ' candidate(s).';
