@@ -71,11 +71,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
 	/**
 	 * Return profit for transfer 
 	 */
-	public function profit($transfer_id)
+	public function profit()
 	{
-		return $this->andWhere([
-                '{{%transfer_candidate}}.transfer_id' => $transfer_id
-            ])->sum('(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate ) * {{%transfer_candidate}}.hours) - {{%transfer_candidate}}.transfer_cost');
+		return $this->sum('(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate ) * {{%transfer_candidate}}.hours) - {{%transfer_candidate}}.transfer_cost');
             // transfer cost will be on admin  
 	}
 		
@@ -117,9 +115,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      * @param $transfer_id
      * @return int|string
      */
-    public function totalPaid($transfer_id) 
+    public function totalPaid() 
     {
-        return $this->andWhere(['transfer_id' => $transfer_id, 'paid' => 1])
+        return $this->andWhere(['paid' => 1])
             ->count();
     }
 
@@ -128,9 +126,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      * @param $transfer_id
      * @return int|string
      */
-    public function totalUnpaid($transfer_id) 
+    public function totalUnpaid() 
     {
-        return $this->andWhere(['transfer_id' => $transfer_id, 'paid' => 0])
+        return $this->andWhere(['paid' => 0])
             ->count();
     }
 

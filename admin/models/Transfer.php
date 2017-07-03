@@ -51,10 +51,31 @@ class Transfer extends \common\models\Transfer
             'invoices',
             'transferCandidates',
             'childTransferInvoices',
-            'childTransferCandidates'
+            'childTransferCandidates',
+            'totalPaid',
+            'totalUnpaid',
+            'profit'
         ];
     }
 
+    public function getTotalPaid() 
+    {
+        return $this->getTransferCandidates()
+            ->totalPaid();
+    }
+
+    public function getTotalUnpaid() 
+    {
+        return $this->getTransferCandidates()
+            ->totalUnpaid();
+    }
+
+    public function getProfit() 
+    {
+        return $this->getTransferCandidates()
+            ->profit();
+    }
+   
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
