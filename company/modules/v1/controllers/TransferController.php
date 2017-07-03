@@ -118,8 +118,7 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        //validate input
-
+        // Validate input
         $errors = Transfer::validateCandidates(
             $company->company_id,
             Yii::$app->request->getBodyParam("candidates")
@@ -127,35 +126,32 @@ class TransferController extends Controller
 
         if($errors) {
             return [
-                    "operation" => "error",
-                    "message" => $errors
-                ];
+                "operation" => "error",
+                "message" => $errors
+            ];
         }
 
         //save transfer
-
         $transaction = Yii::$app->db->beginTransaction();
 
         $transfer = new Transfer;
         $transfer->company_id = $company->company_id;
 
-        if(!$transfer->save()){
-
-            if(isset($transfer->errors)){
+        if(!$transfer->save()) {
+            if(isset($transfer->errors)) {
                 return [
                     "operation" => "error",
                     "message" => $transfer->errors
                 ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the account, please contact us for assistance."
-                ];
             }
+
+            return [
+                "operation" => "error",
+                "message" => "We've faced a problem creating the account, please contact us for assistance."
+            ];
         }
 
-        //save candidates
-
+        // Save candidate data
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
         $total = $company_total = 0;
@@ -168,17 +164,14 @@ class TransferController extends Controller
             if(empty($value['hours']))
                 $value['hours'] = 0;
 
-            //candiate hourly_rate
-
             $candidate = Candidate::findOne($value['candidate_id']);
-
             if(!$candidate)
             {
                 $transaction->rollBack();
 
                 return [
                     "operation" => "error",
-                    "message" => "Candidate not found"
+                    "message" => "Candidate not found, please contact us for assistance"
                 ];
             }
 
@@ -210,22 +203,21 @@ class TransferController extends Controller
                         "operation" => "error",
                         "message" => $tc->errors
                     ];
-                }else{
-                    return [
-                        "operation" => "error",
-                        "message" => "We've faced a problem creating the account, please contact us for assistance."
-                    ];
                 }
+
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced an issue saving your request, please contact us for assistance."
+                ];
             }
         }
 
-        if($total <= 0)
-        {
+        if($total <= 0) {
             $transaction->rollBack();
 
             return [
                 "operation" => "error",
-                "message" => "transfer total can not be zero!"
+                "message" => "Transfer total is zero. Please input hours worked."
             ];
         }
 
@@ -237,7 +229,7 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Transfer initiated successfully"
+            "message" => "Transfer created."
         ];
 
         // Check SQL Query Count and Duration
@@ -302,7 +294,6 @@ class TransferController extends Controller
 
         //Old Child Transfers
         $old_child_transfers = $model->childTransfers;
-
         //Old Invoices
         $old_invoices = $model->invoices;
 
@@ -318,8 +309,8 @@ class TransferController extends Controller
 
         $total = $company_total = 0;
 
-        foreach ($candidates as $key => $value) {
-
+        foreach($candidates as $key => $value)
+        {
             if(empty($value['bonus']))
                 $value['bonus'] = 0;
 
@@ -439,12 +430,10 @@ class TransferController extends Controller
 
             $total = $company_total = 0;
 
-            //remove old candidate id exists
-
+            // Remove old candidate id exists
             TransferCandidate::deleteAll(['transfer_id' => $transfer->transfer_id]);
 
-            // transfer candidate for current company
-
+            // Transfer candidate for current company
             $candidates = TransferCandidate::find()
                 ->candidatesByTransfer($model->transfer_id)
                 ->filterCompanyId($sub_company['company_id'])
@@ -453,12 +442,10 @@ class TransferController extends Controller
             foreach ($candidates as $key => $value)
             {
                 $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
-
                 $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
             }
 
-            //save total in transfer
-
+            // Save total in transfer
             $transfer->company_total = $company_total;
             $transfer->total = $total;
             if(!$transfer->save())
@@ -471,9 +458,8 @@ class TransferController extends Controller
                 ];
             }
 
-            //generate invoice for each transfer
-            if($model->transfer_status != Transfer::STATUS_INITIATED)
-            {
+            // Generate invoice for each transfer
+            if($model->transfer_status != Transfer::STATUS_INITIATED) {
                 $new_invoice_id[] = $transfer->generateInvoice();
             }
 
@@ -506,7 +492,7 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Transfer updated successfully"
+            "message" => "Your transfer has been updated."
         ];
 
         // Check SQL Query Count and Duration
@@ -555,9 +541,9 @@ class TransferController extends Controller
         $transfer->save();
 
         return [
-                "operation" => "success",
-                "message" => 'Transfer marked as "Payment Sent" successfully'
-            ];
+            "operation" => "success",
+            "message" => 'Transfer has been marked as "Payment Sent"'
+        ];
     }
 
     /**
@@ -663,20 +649,19 @@ class TransferController extends Controller
                     ->asArray()
                     ->all();
 
-                foreach ($candidates as $key => $value) 
-                {                    
+                foreach ($candidates as $key => $value)
+                {
                     $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
 
                     $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
                 }
 
-                //save total in transfer
-
+                // Save total in transfer
                 $transfer->company_total = $company_total;
                 $transfer->total = $total;
                 $transfer->save();
 
-                //generate invoice for each transfer
+                // Generate invoice for each transfer
                 $invoice = Invoice::findOne(['transfer_id' => $transfer->transfer_id]);
 
                 if (!$invoice) {
@@ -694,7 +679,7 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Transfer locked successfully"
+            "message" => "Transfer has been locked. Invoices will be sent to your email."
         ];
     }
 
@@ -758,7 +743,7 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => 'Transfer deleted successfully!'
+            "message" => 'Transfer deleted as requested.'
         ];
     }
 
@@ -788,7 +773,7 @@ class TransferController extends Controller
         $invoice_id = 0;
 
         foreach ($invoices as $invoice) {
-            
+
             $invoice_id = $invoice->invoice_id;
 
             $content = $this->render($template, [
