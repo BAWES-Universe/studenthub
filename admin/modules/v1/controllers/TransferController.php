@@ -183,30 +183,8 @@ class TransferController extends Controller
                     "message" => 'Transfer not found'
                 ];
         }
-
-        $response = $transfer->attributes;
-
-        $response['total_paid'] = $transfer->getTransferCandidates()
-            ->totalPaid($id);
-
-        $response['total_unpaid'] = $transfer->getTransferCandidates()
-            ->totalUnpaid($id);
-
-        //get total profit
-
-        $response['profit'] = $transfer->getTransferCandidates()
-            ->profit($id);
-
-        $response['candidates'] = $transfer->getTransferCandidates()
-            ->all();
-
-        //invoices
-
-        $response['invoices'] = Invoice::find()
-            ->byTransfer($id)
-            ->all();
-
-        return $response;
+        
+        return $transfer;
     }
 
     /**
