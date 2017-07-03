@@ -229,7 +229,8 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Transfer created."
+            "message" => "Transfer created.",
+            "transfer_id" => $transfer->transfer_id
         ];
 
         // Check SQL Query Count and Duration
