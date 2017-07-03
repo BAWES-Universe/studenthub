@@ -145,7 +145,10 @@ class Transfer extends \yii\db\ActiveRecord
         // If this is a child transfer return all TransferCandidate records
         // belonging to its parent transfer
         if($this->parent_transfer_id)
-            return $this->getParentTransferCandidates($modelClass);
+        {
+            return $this->getParentTransferCandidates($modelClass)
+                ->andWhere(['company_id' => $this->company_id]);
+        }
 
         // Otherwise return all TransferCandidate records belonging to this transfer
         return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id']);
@@ -159,7 +162,7 @@ class Transfer extends \yii\db\ActiveRecord
     public function getInvoices($modelClass = "\common\models\Invoice")
     {
         // If this is a parent transfer, return all invoices belonging to its children transfers
-        if(!$this->parent_transfer_id)
+        if($this->childTransfers)
             return $this->getChildTransferInvoices($modelClass);
 
         // Otherwise return all invoices belonging to it
