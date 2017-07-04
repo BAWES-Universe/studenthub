@@ -70,6 +70,7 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',
                     'patterns' => [
+                        'GET detail/<id>' => 'view',
                         'GET' => 'list',
                         'GET search' => 'search',
                         'GET assigned' => 'list-assigned',
@@ -88,6 +89,7 @@ return [
                         'OPTIONS not-assigned/<id>' => 'options',
 //                        'OPTIONS filter' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS detail/<id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',
