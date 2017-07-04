@@ -35,8 +35,6 @@ class Transfer extends \common\models\Transfer
                 ->sum('transfer_cost');
     	};
 
-    	unset($fields['deleted']);
-
     	return $fields;
     }
 

@@ -232,6 +232,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'bank'
         ]);
 
+        unset($fields['deleted']);
+
         return $fields;
     }
 

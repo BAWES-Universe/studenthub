@@ -110,6 +110,9 @@ class Transfer extends \yii\db\ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
+
+        unset($fields['deleted']);
+
         return $fields;
     }
 

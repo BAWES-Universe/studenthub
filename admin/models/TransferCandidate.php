@@ -19,8 +19,6 @@ class TransferCandidate extends \common\models\TransferCandidate
     		return $model->candidate;
     	};
 
-    	unset($fields['deleted']);
-
     	return $fields;
     }
 

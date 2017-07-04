@@ -88,7 +88,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function fields()
     {
         $fields = parent::fields();
-
+        unset($fields['deleted']);
         return $fields;
     }
 
