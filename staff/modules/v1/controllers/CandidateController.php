@@ -337,15 +337,17 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+        Yii::info("[Candidate Store Assigned] ".$model->candidate_email, __METHOD__);
 
         return [
             "operation" => "success",
             "message" => "Candidate assigned to store successfully",
-            "candidate_detail" => $model,
+            "store" => $model->store,
+            "company" => $model->company,
             "store_id" => $store->store_id,
             "store_name" => $store->store_name,
-            "company_name" => $store->company->company_name
+            "company_name" => $store->company->company_name,
+            "candidate_detail" => $model
         ];
 
         // Check SQL Query Count and Duration
@@ -386,7 +388,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+        Yii::info("[Candidate Store UnAssigned] ".$model->candidate_email, __METHOD__);
 
         return [
             "operation" => "success",
@@ -487,4 +489,5 @@ class CandidateController extends Controller
             "message" => "New password sent to registered email successfully"
         ];
     }
+
 }
