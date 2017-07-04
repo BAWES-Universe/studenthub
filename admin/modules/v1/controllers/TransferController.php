@@ -73,70 +73,6 @@ class TransferController extends Controller
     }
 
     /**
-     * Return a List Payable Candidates
-     */
-    public function actionPayableCandidates()
-    {
-        $result = [];
-
-        $transfers = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->parentTransfers()
-            ->all();
-
-        foreach ($transfers as $transfer) 
-        {
-            if($transfer->transferCandidates) 
-            {
-                $result[] = [
-                    'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $transfer->transferCandidates,
-                    'total' => $transfer->total
-                ];
-            } 
-            else 
-            { // remove transfer if no candidate available
-                unset($result[$transfer->transfer_id]);
-            }
-        }
-
-        return new ArrayDataProvider([
-            'allModels' => $result
-        ]);
-    }
-
-    /**
-     * Return a List of all Payable Candidates with invoice status paid
-     */
-    public function actionAllPayableCandidates()
-    {
-        // Candidates whose company paid to admin but admin have not paid yet
-        $result = [];
-        
-        $transfers = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->parentTransfers()
-            ->all();
-
-        foreach ($transfers as $transfer) 
-        {
-            $candidates = $transfer->getTransferCandidates()
-                ->where(['paid' => '0'])
-                ->all();
-
-            if($candidates) 
-            {
-                $result[] = [
-                    'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $candidates
-                ];
-            } 
-        }
-
-        return $result;
-    }
-
-    /**
      * Return a List of Transfer.
      */
     public function actionList()
@@ -507,65 +443,114 @@ class TransferController extends Controller
     }
 
     /**
-     * Receipt Mail by transfer id to recipient
-     * and also forward to finance@bawes.net
-     * @param $transfer_id
-     * @return array|bool
+     * Return a Excel Containing Payable Candidates
      */
-    private function receiptMail($transfer_id)
+    public function actionExportPayableCandidates()
     {
-        $invoices = Invoice::find()
-            ->byTransfer($transfer_id)
+        // Candidates whose company paid to admin but admin have not paid yet
+
+        $candidates = TransferCandidate::find()
+            ->payable()
             ->all();
 
-        if(!$invoices) {
-            return [
-                "operation" => "error",
-                "message" => 'Invoice not found!'
-            ];
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'columns' => [
+                'tc_id',
+                'transfer_id',
+                'candidate_id',
+                'candidate.candidate_name',
+                [
+                    'attribute'=>'Beneficiary name',
+                    'label'=>'Beneficiary name',
+                    'value'=>function($data) {
+                        return $data->candidate->bank_account_name;
+                    }
+                ],
+                'candidate.candidate_email',
+                'candidate.store.company.company_name',
+                'candidate.store.store_name',
+                'hours',
+                'candidate_hourly_rate',
+                'bonus',
+                'transfer_cost',
+                [
+                    'attribute'=>'candidate_total',
+                    'value' => function($data){
+                        return $data->totalPaidToCandidate;
+                    }
+                ],
+                'candidate.candidate_iban',
+                'candidate.bank.bank_name'
+            ]
+        ]);
+    }
+
+    /**
+     * Return a List Payable Candidates
+     */
+    public function actionPayableCandidates()
+    {
+        $result = [];
+
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->parentTransfers()
+            ->all();
+
+        foreach ($transfers as $transfer) 
+        {
+            if($transfer->transferCandidates) 
+            {
+                $result[] = [
+                    'transfer_id' => $transfer->transfer_id,
+                    'candidates' => $transfer->transferCandidates,
+                    'total' => $transfer->total
+                ];
+            } 
+            else 
+            { // remove transfer if no candidate available
+                unset($result[$transfer->transfer_id]);
+            }
         }
 
-        $this->layout = 'pdf';
-        $subject = [];
-        $template = 'receipt';
-        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
-        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
-        $i=1;
-        $invoice_id = 0;
-        foreach ($invoices as $invoice) {
-            $invoice_id = $invoice->invoice_id;
-            $content = $this->render($template, [
-                'invoice' => $invoice,
-            ]);
-            $pdf = new Pdf([
-                'mode' => Pdf::MODE_UTF8,
-                //UTF mode for arabic language
-                'format' => Pdf::FORMAT_A4,
-                // portrait orientation
-                'orientation' => Pdf::ORIENT_PORTRAIT,
-                // stream to browser inline
-                'destination' => Pdf::DEST_BROWSER,
-                // your html content input
-                'content' => $content,
-                // any css to be embedded if required
-                'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
-                // set mPDF properties on the fly
-                'options' => [],//['title' => 'Booking #'.$id],
-                // call mPDF methods on the fly
-            ]);
-            $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
-            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
-            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
-            $i++;
-            $subject[] = '#'.$invoice_id;
-            $invoice_id = 0; // reinitialize to 0 to store new with new loop
-        }
-        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{receipt} other{receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
+        return new ArrayDataProvider([
+            'allModels' => $result
+        ]);
+    }
 
-        return $message->setTo($email)
-            ->setCc(Yii::$app->params['invoiceCC'])
-            ->setSubject($subjectLine)
-            ->send();
+    /**
+     * Return a List of all Payable Candidates with invoice status paid
+     */
+    public function actionAllPayableCandidates()
+    {
+        // Candidates whose company paid to admin but admin have not paid yet
+        $result = [];
+        
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->parentTransfers()
+            ->all();
+
+        foreach ($transfers as $transfer) 
+        {
+            $candidates = $transfer->getTransferCandidates()
+                ->where(['paid' => '0'])
+                ->all();
+
+            if($candidates) 
+            {
+                $result[] = [
+                    'transfer_id' => $transfer->transfer_id,
+                    'candidates' => $candidates
+                ];
+            } 
+        }
+
+        return $result;
     }
 
     /**
@@ -632,102 +617,6 @@ class TransferController extends Controller
     }
 
     /**
-     * Return a Excel Containing Payable Candidates
-     */
-    public function actionExportPayableCandidates()
-    {
-        // Candidates whose company paid to admin but admin have not paid yet
-
-        $candidates = TransferCandidate::find()
-            ->payable()
-            ->all();
-
-        header('Access-Control-Allow-Origin: *');
-
-        \moonland\phpexcel\Excel::export([
-            'isMultipleSheet' => false,
-            'models' => $candidates,
-            'columns' => [
-                'tc_id',
-                'transfer_id',
-                'candidate_id',
-                'candidate.candidate_name',
-                [
-                    'attribute'=>'Beneficiary name',
-                    'label'=>'Beneficiary name',
-                    'value'=>function($data) {
-                        return $data->candidate->bank_account_name;
-                    }
-                ],
-                'candidate.candidate_email',
-                'candidate.store.company.company_name',
-                'candidate.store.store_name',
-                'hours',
-                'candidate_hourly_rate',
-                'bonus',
-                'transfer_cost',
-                [
-                    'attribute'=>'candidate_total',
-                    'value' => function($data){
-                        return $data->totalPaidToCandidate;
-                    }
-                ],
-                'candidate.candidate_iban',
-                'candidate.bank.bank_name'
-            ]
-        ]);
-    }
-
-
-    /**
-     * Download Transfer as PDF
-     * @param $id
-     * @return array|mixed
-     */
-    public function actionPdf($id)
-    {
-        $invoice = Invoice::find()
-            ->withTransfer($id)
-            ->one();
-
-        if(!$invoice) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
-
-        $this->layout = 'pdf';
-
-        if($invoice['invoice_status'] == 'paid')
-            $template = 'receipt';
-        else
-            $template = 'invoice';
-
-        $content = $this->render($template, [
-            'invoice' => $invoice,
-        ]);
-
-        $pdf = new Pdf([
-            // A4 paper format
-            'format' => Pdf::FORMAT_A4,
-            // portrait orientation
-            'orientation' => Pdf::ORIENT_PORTRAIT,
-            // stream to browser inline
-            'destination' => Pdf::DEST_BROWSER,
-            // your html content input
-            'content' => $content,
-            // any css to be embedded if required
-            'cssInline' => '.kv-heading-1{font-size:38px}',
-            // set mPDF properties on the fly
-            'options' => [],//['title' => 'Booking #'.$id],
-        ]);
-
-        header('Access-Control-Allow-Origin: *');
-        return $pdf->render();
-    }
-
-    /**
      * Export Transfer detail as Excel
      * @param $id
      * @return array
@@ -791,5 +680,115 @@ class TransferController extends Controller
                 ],
             ]
         ]);
+    }
+
+    /**
+     * Download Transfer as PDF
+     * @param $id
+     * @return array|mixed
+     */
+    public function actionPdf($id)
+    {
+        $invoice = Invoice::find()
+            ->withTransfer($id)
+            ->one();
+
+        if(!$invoice) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+
+        $this->layout = 'pdf';
+
+        if($invoice['invoice_status'] == 'paid')
+            $template = 'receipt';
+        else
+            $template = 'invoice';
+
+        $content = $this->render($template, [
+            'invoice' => $invoice,
+        ]);
+
+        $pdf = new Pdf([
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => '.kv-heading-1{font-size:38px}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+        ]);
+
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
+    }
+    
+    /**
+     * Receipt Mail by transfer id to recipient
+     * and also forward to finance@bawes.net
+     * @param $transfer_id
+     * @return array|bool
+     */
+    private function receiptMail($transfer_id)
+    {
+        $invoices = Invoice::find()
+            ->byTransfer($transfer_id)
+            ->all();
+
+        if(!$invoices) {
+            return [
+                "operation" => "error",
+                "message" => 'Invoice not found!'
+            ];
+        }
+
+        $this->layout = 'pdf';
+        $subject = [];
+        $template = 'receipt';
+        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
+        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
+        $i=1;
+        $invoice_id = 0;
+        foreach ($invoices as $invoice) {
+            $invoice_id = $invoice->invoice_id;
+            $content = $this->render($template, [
+                'invoice' => $invoice,
+            ]);
+            $pdf = new Pdf([
+                'mode' => Pdf::MODE_UTF8,
+                //UTF mode for arabic language
+                'format' => Pdf::FORMAT_A4,
+                // portrait orientation
+                'orientation' => Pdf::ORIENT_PORTRAIT,
+                // stream to browser inline
+                'destination' => Pdf::DEST_BROWSER,
+                // your html content input
+                'content' => $content,
+                // any css to be embedded if required
+                'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+                // set mPDF properties on the fly
+                'options' => [],//['title' => 'Booking #'.$id],
+                // call mPDF methods on the fly
+            ]);
+            $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
+            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
+            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
+            $i++;
+            $subject[] = '#'.$invoice_id;
+            $invoice_id = 0; // reinitialize to 0 to store new with new loop
+        }
+        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{receipt} other{receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
+
+        return $message->setTo($email)
+            ->setCc(Yii::$app->params['invoiceCC'])
+            ->setSubject($subjectLine)
+            ->send();
     }
 }
