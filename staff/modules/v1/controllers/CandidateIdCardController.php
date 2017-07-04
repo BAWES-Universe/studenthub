@@ -268,6 +268,27 @@ class CandidateIdCardController extends Controller
     }
 
     /**
+     * List candidates having expired ID Cards
+     */
+    public function actionListExpired()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->idExpired()
+            ->notDeleted();
+        if($candidate_name) {
+            $query->filterName($candidate_name);
+        }
+
+        $query->filterAssigned(); // only candidate with assigned work
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+    
+    /**
      * Renew Candidate IDs
      */
     public function actionRenew()
@@ -320,26 +341,5 @@ class CandidateIdCardController extends Controller
         return [
             'total' => $query->count()
         ];
-    }
-
-    /**
-     * List candidates having expired ID Cards
-     */
-    public function actionListExpired()
-    {
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        $query = Candidate::find()
-            ->idExpired()
-            ->notDeleted();
-        if($candidate_name) {
-            $query->filterName($candidate_name);
-        }
-
-        $query->filterAssigned(); // only candidate with assigned work
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
     }
 }

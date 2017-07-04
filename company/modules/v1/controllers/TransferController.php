@@ -749,6 +749,65 @@ class TransferController extends Controller
     }
 
     /**
+     * Download Transfer as PDF
+     * @param $id
+     * @return array|mixed
+     */
+    public function actionPdf($id)
+    {
+        $company = Company::findOne(Yii::$app->user->id);
+
+        $invoice = Invoice::find()
+            ->withTransfer($id)
+            ->filterCurrentCompany($company)
+            ->one();
+
+        if(!$invoice) {
+            return [
+                "operation" => "error",
+                "message" => 'Invoice not found!'
+            ];
+        }
+
+        $this->layout = 'pdf';
+
+        if($invoice['invoice_status'] == 'paid')
+            $template = 'receipt';
+        else
+            $template = 'invoice';
+
+        $content = $this->render($template, [
+            'invoice' => $invoice,
+        ]);
+
+        $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+            // call mPDF methods on the fly
+//            'methods' => [
+//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
+//                'SetFooter'=>['{PAGENO}'],
+//            ]
+        ]);
+
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
+    }
+
+    
+
+    /**
      * send invoice mail to recipient and cc to company email
      * @param $id
      * @return array|bool
@@ -813,62 +872,4 @@ class TransferController extends Controller
             ->setSubject($subjectLine)
             ->send();
     }
-
-    /**
-     * Download Transfer as PDF
-     * @param $id
-     * @return array|mixed
-     */
-    public function actionPdf($id)
-    {
-        $company = Company::findOne(Yii::$app->user->id);
-
-        $invoice = Invoice::find()
-            ->withTransfer($id)
-            ->filterCurrentCompany($company)
-            ->one();
-
-        if(!$invoice) {
-            return [
-                "operation" => "error",
-                "message" => 'Invoice not found!'
-            ];
-        }
-
-        $this->layout = 'pdf';
-
-        if($invoice['invoice_status'] == 'paid')
-            $template = 'receipt';
-        else
-            $template = 'invoice';
-
-        $content = $this->render($template, [
-            'invoice' => $invoice,
-        ]);
-
-        $pdf = new Pdf([
-            'mode' => Pdf::MODE_UTF8,
-            // A4 paper format
-            'format' => Pdf::FORMAT_A4,
-            // portrait orientation
-            'orientation' => Pdf::ORIENT_PORTRAIT,
-            // stream to browser inline
-            'destination' => Pdf::DEST_BROWSER,
-            // your html content input
-            'content' => $content,
-            // any css to be embedded if required
-            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
-            // set mPDF properties on the fly
-            'options' => [],//['title' => 'Booking #'.$id],
-            // call mPDF methods on the fly
-//            'methods' => [
-//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
-//                'SetFooter'=>['{PAGENO}'],
-//            ]
-        ]);
-
-        header('Access-Control-Allow-Origin: *');
-        return $pdf->render();
-    }
-
 }

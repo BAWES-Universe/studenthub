@@ -66,20 +66,12 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a List of Candidate Accounts by
-     * search criteria
+     * Return a List of Candidate Accounts available.
      */
-    public function actionSearch()
+    public function actionList()
     {
-        $country_id = Yii::$app->request->get('country_id');
-
         $query = Candidate::find();
-
-        if($country_id) {
-            $query->filterCountry($country_id);
-        }
         $query->notDeleted();
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -99,58 +91,6 @@ class CandidateController extends Controller
             $query->filterStore($store_id);
         }
         $query->notDeleted();
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate Accounts available.
-     */
-    public function actionList()
-    {
-        $query = Candidate::find();
-        $query->notDeleted();
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate not assigned to store
-     */
-    public function actionListNotAssigned()
-    {
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        $query = Candidate::find()
-            ->filterNotAssigned()
-            ->notDeleted();
-        if($candidate_name)
-        {
-            $query->filterName($candidate_name);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate assigned to store
-     */
-    public function actionListAssigned()
-    {
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        $query = Candidate::find()
-            ->filterAssigned()
-            ->notDeleted();
-        if($candidate_name)
-        {
-            $query->filterName($candidate_name);
-        }
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -401,6 +341,108 @@ class CandidateController extends Controller
     }
 
     /**
+     * Return a List of Candidate not assigned to store
+     */
+    public function actionListNotAssigned()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->filterNotAssigned()
+            ->notDeleted();
+        if($candidate_name)
+        {
+            $query->filterName($candidate_name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate assigned to store
+     */
+    public function actionListAssigned()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->filterAssigned()
+            ->notDeleted();
+        if($candidate_name)
+        {
+            $query->filterName($candidate_name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate Accounts by
+     * search criteria
+     */
+    public function actionSearch()
+    {
+        $country_id = Yii::$app->request->get('country_id');
+
+        $query = Candidate::find();
+
+        if($country_id) {
+            $query->filterCountry($country_id);
+        }
+        $query->notDeleted();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Reset candidate password
+     * @param $id
+     * @return array
+     */
+    public function actionResetPassword($id)
+    {
+        $model = Candidate::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found",
+                "code" => 1
+            ];
+        }
+
+        $password = Yii::$app->security->generateRandomString(5);
+
+        $model->password = $password;
+        $model->save(false);
+
+        //Send Email to user
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        Yii::$app->mailer->compose("candidate-password",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setTo($model->candidate_email)
+            ->setSubject('Your internship account password has been reset')
+            ->send();
+
+        return [
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
+        ];
+    }
+
+    /**
      * Delete candidate
      * @param $id
      * @return array
@@ -447,47 +489,4 @@ class CandidateController extends Controller
             "message" => "Candidate removed successfully"
         ];
     }
-
-    /**
-     * Reset candidate password
-     * @param $id
-     * @return array
-     */
-    public function actionResetPassword($id)
-    {
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Candidate not found",
-                "code" => 1
-            ];
-        }
-
-        $password = Yii::$app->security->generateRandomString(5);
-
-        $model->password = $password;
-        $model->save(false);
-
-        //Send Email to user
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        Yii::$app->mailer->compose("candidate-password",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
-                'logo_2' => ''
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
-            ->setTo($model->candidate_email)
-            ->setSubject('Your internship account password has been reset')
-            ->send();
-
-        return [
-            "operation" => "success",
-            "message" => "New password sent to registered email successfully"
-        ];
-    }
-
 }
