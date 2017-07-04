@@ -61,6 +61,9 @@ class Invoice extends ActiveRecord
         $fields['invoice_total'] = function($model) {
             return $model->transfer->company_total;
         };
+        
+        unset($fields['deleted']);
+
         return $fields;
     }
 
