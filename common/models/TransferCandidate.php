@@ -18,6 +18,11 @@ use common\models\Transfer;
  * @property integer $tc_id
  * @property integer $transfer_id
  * @property integer $candidate_id
+ * @property integer $store_id
+ * @property string $store_name
+ * @property integer $company_id
+ * @property string $company_name
+ * @property string $company_email
  * @property string $hours
  * @property string $candidate_hourly_rate
  * @property string $company_hourly_rate
