@@ -1,6 +1,7 @@
 <?php
 namespace company\models;
 
+use Yii;
 class TransferCandidate extends \common\models\TransferCandidate
 {
     /**
@@ -57,5 +58,45 @@ class TransferCandidate extends \common\models\TransferCandidate
     public function getTransfer($modelClass= "\company\models\Transfer")
     {
         return parent::getTransfer($modelClass);
+    }
+
+    public static function saveCandidateTransfer($candidate, $model, $value) {
+
+        $hourly_rate = $candidate->candidate_hourly_rate;
+
+        $TCModel = new TransferCandidate;
+        $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
+        $TCModel->candidate_hourly_rate = $hourly_rate;
+        $TCModel->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
+        $TCModel->attributes = $value;
+        $TCModel->transfer_id = $model->transfer_id;
+        $TCModel->store_id = $candidate->store_id;
+        $TCModel->store_name = $candidate->store->store_name;
+        $TCModel->company_id = $candidate->store->company_id;
+        $TCModel->company_name = $candidate->store->company->company_name;
+        $TCModel->company_email = $candidate->store->company->company_email;
+
+        $total = $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
+        $company_total = $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+
+        if (!$TCModel->save()) {
+
+            if(isset($TCModel->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $TCModel->errors
+                ];
+            }
+
+            return [
+                "operation" => "error",
+                "message" => "We've faced an issue saving your request, please contact us for assistance."
+            ];
+        }
+        return [
+            "operation" => "success",
+            "total" => $total,
+            "company_total" => $company_total
+        ];
     }
 }
