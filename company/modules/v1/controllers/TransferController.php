@@ -10,6 +10,7 @@ use common\models\Candidate;
 use common\models\Invoice;
 use common\models\Transfer;
 use common\models\TransferCandidates;
+use company\models\TransferForm;
 use kartik\mpdf\Pdf;
 
 /**
@@ -132,25 +133,12 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        //validate input
-
-        $errors = Transfer::validateCandidates(
-            $company->company_id,
-            Yii::$app->request->getBodyParam("candidates")
-        );
-
-        if($errors) {
-            return [
-                    "operation" => "error",
-                    "message" => $errors
-                ];
-        }
-
         //save transfer
 
         $transaction = Yii::$app->db->beginTransaction();
 
-        $transfer = new Transfer;
+        $transfer = new TransferForm;
+        $transfer->candidates = Yii::$app->request->getBodyParam("candidates");
         $transfer->company_id = $company->company_id;
 
         if(!$transfer->save()){
@@ -245,7 +233,8 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Transfer initiated successfully"
+            "message" => "Transfer initiated successfully",
+            "transfer_id" => $transfer->transfer_id
         ];
 
         // Check SQL Query Count and Duration
@@ -263,7 +252,7 @@ class TransferController extends Controller
 
         // list all sub companies
 
-        $model = Transfer::find()
+        $model = TransferForm::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
             ->one();
@@ -289,20 +278,6 @@ class TransferController extends Controller
              return [
                     "operation" => "error",
                     "message" => 'Transfer status should be "Initiated" to edit it!'
-                ];
-        }
-
-        //validate input
-
-        $errors = Transfer::validateCandidates(
-            $company->company_id,
-            Yii::$app->request->getBodyParam("candidates")
-        );
-
-        if($errors) {
-            return [
-                    "operation" => "error",
-                    "message" => $errors
                 ];
         }
 
