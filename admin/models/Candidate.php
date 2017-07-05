@@ -1,8 +1,6 @@
 <?php
 namespace admin\models;
 
-use Yii;
-
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -22,7 +20,6 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_password_reset_token'],
         $fields['candidate_created_at'],
         $fields['candidate_updated_at']);
-        
         return $fields;
     }
 

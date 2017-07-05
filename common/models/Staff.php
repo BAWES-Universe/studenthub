@@ -3,10 +3,10 @@
 namespace common\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 /**
  * This is the model class for table "staff".
  *
@@ -19,10 +19,11 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $staff_status
  * @property integer $staff_created_at
  * @property integer $staff_updated_at
+ * @property integer $deleted
  *
  * @property StaffToken[] $accessTokens
  */
-class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class Staff extends ActiveRecord implements IdentityInterface
 {
     /**
      * @inheritdoc
@@ -49,6 +50,9 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [
@@ -75,6 +79,25 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'staff_status' => 'Staff Status',
             'staff_created_at' => 'Staff Created At',
             'staff_updated_at' => 'Staff Updated At',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        unset($fields['deleted']);
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
         ];
     }
 
@@ -170,21 +193,22 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * @inheritdoc
+     * @return mixed
      */
     public function getId() {
         return $this->getPrimaryKey();
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public function getAuthKey() {
         return $this->staff_auth_key;
     }
 
     /**
-     * @inheritdoc
+     * @param string $authKey
+     * @return bool
      */
     public function validateAuthKey($authKey) {
         return $this->getAuthKey() === $authKey;
@@ -264,5 +288,22 @@ class Staff extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $token->save(false);
 
         return $token;
+    }
+
+    /**
+     * @return bool
+     */
+    public function softDelete() {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\StaffQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\StaffQuery(get_called_class());
     }
 }

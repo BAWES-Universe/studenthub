@@ -2,12 +2,10 @@
 
 namespace candidate\modules\v1\controllers;
 
-use common\models\Candidate;
+use candidate\models\Candidate;
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
-use yii\data\ActiveDataProvider;
-use common\models\TransferCandidates;
+use yii\data\ArrayDataProvider;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -69,43 +67,18 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $list = [];
-        
-        $transferCandidates = Yii::$app->user->identity->transferCandidates;
+        $currentUser = Candidate::findOne(Yii::$app->user->getId());
 
-        foreach ($transferCandidates as $key => $transferCandidate) {
-
-            if (
-                empty($transferCandidate->invoice) ||
-                $transferCandidate->invoice->invoice_status != 'paid'
-            ) {
-                continue;
-            }
-
-            if(isset($transferCandidate->transfer->company->company_name)) {
-                $company_name = $transferCandidate->transfer->company->company_name;
-            } else {
-                $company_name = '';
-            }
-
-            $list[] = [
-                'transfer_id' => $transferCandidate->transfer_id,
-                'candidate_id' => $transferCandidate->candidate_id,
-                'candidate_hourly_rate' => $transferCandidate->candidate_hourly_rate,
-                'hours' => $transferCandidate->hours,
-                'bonus' => $transferCandidate->bonus,
-                'status' => ($transferCandidate->paid) ? 'Paid' : 'Unpaid',
-                'tc_created_at' => $transferCandidate->tc_created_at,
-                'company_name' => $company_name,
-                'total' => ($transferCandidate->candidate_hourly_rate * $transferCandidate->hours) + $transferCandidate->bonus,
-            ];
-        }
-        
-        return array_reverse($list);
+        return new ArrayDataProvider([
+            'allModels' => array_reverse($currentUser->paidTransferCandidate),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
     }
 
     /**
-     * Return currnet employer detail
+     * Return current employer detail
      */
     public function actionEmployer()
     {

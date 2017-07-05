@@ -1,8 +1,5 @@
 <?php
 namespace company\models;
-
-use Yii;
-
 /**
  * This is the model class for table "Company".
  * It extends from \common\models\Company but with custom functionality for this application module
@@ -10,7 +7,7 @@ use Yii;
 class Company extends \common\models\Company {
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function fields()
     {
@@ -31,37 +28,56 @@ class Company extends \common\models\Company {
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getSubCompanies()
+    public function getCandidates($modelClass = "\company\models\Candidate")
     {
-        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
+        return parent::getCandidates($modelClass);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getStores()
+    public function getSubCompanyStores($modelClass = "\company\models\Store")
     {
-        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+        return parent::getSubCompanyStores($modelClass);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getTransfers()
+    public function getSubCompanies($modelClass = "\company\models\Company")
     {
-        return $this->hasMany(Transfer::className(), ['company_id' => 'company_id']);
+        return parent::getSubCompanies($modelClass)->andWhere(['deleted'=>0]);
     }
 
     /**
-     * @inheritdoc
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getStores($modelClass = "\company\models\Store")
+    {
+        return parent::getStores($modelClass)->andWhere(['deleted'=>0]);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getTransfers($modelClass = "\company\models\Transfer")
+    {
+        return parent::getTransfers($modelClass)->andWhere(['deleted'=>0]);
+    }
+
+    /**
+     * @param mixed $token
+     * @param null $type
+     * @return mixed
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = CompanyToken::find()->where(['token_value' => $token])->with('company')->one();
-        if($token){
-            return $token->company;
-        }
+        return parent::findIdentityByAccessToken($token, $type);
     }
-
 }

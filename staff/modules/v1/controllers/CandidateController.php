@@ -4,12 +4,11 @@ namespace staff\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
 use staff\models\Store;
 use staff\models\Candidate;
-use common\models\InvoiceCandidates;
+use common\models\TransferCandidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -67,19 +66,12 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a List of Candidate Accounts by
-     * search criteria
+     * Return a List of Candidate Accounts available.
      */
-    public function actionSearch()
+    public function actionList()
     {
-        $country_id = Yii::$app->request->get('country_id');
-
         $query = Candidate::find();
-
-        if($country_id) {
-            $query->filterCountry($country_id);
-        }
-
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -98,59 +90,7 @@ class CandidateController extends Controller
         if($store_id) {
             $query->filterStore($store_id);
         }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate Accounts available.
-     */
-    public function actionList()
-    {
-        $query = Candidate::find();
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate not assigned to store
-     */
-    public function actionListNotAssigned()
-    {
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        $query = Candidate::find()
-            ->filterNotAssigned();
-
-        if($candidate_name)
-        {
-            $query->filterName($candidate_name);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate assigned to store
-     */
-    public function actionListAssigned()
-    {
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        $query = Candidate::find()
-            ->filterAssigned();
-
-        if($candidate_name)
-        {
-            $query->filterName($candidate_name);
-        }
-
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -162,7 +102,7 @@ class CandidateController extends Controller
     public function actionCreate()
     {
         // Attempt to create new account
-        $password = Yii::$app->security->generateRandomString(10);
+        $password = Yii::$app->security->generateRandomString(5);
         $model = new Candidate();
         $model->scenario = "newAccount";
 
@@ -227,6 +167,8 @@ class CandidateController extends Controller
 
     /**
      * Update a Candidate account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
@@ -290,6 +232,8 @@ class CandidateController extends Controller
 
     /**
      * Assign Store to Candidate account
+     * @param $id
+     * @return array
      */
     public function actionAssign($id)
     {
@@ -333,14 +277,17 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+        Yii::info("[Candidate Store Assigned] ".$model->candidate_email, __METHOD__);
 
         return [
             "operation" => "success",
             "message" => "Candidate assigned to store successfully",
+            "store" => $model->store,
+            "company" => $model->company,
             "store_id" => $store->store_id,
             "store_name" => $store->store_name,
-            "company_name" => $store->company->company_name
+            "company_name" => $store->company->company_name,
+            "candidate_detail" => $model
         ];
 
         // Check SQL Query Count and Duration
@@ -349,6 +296,8 @@ class CandidateController extends Controller
 
     /**
      * Remove Store from Candidate account
+     * @param $id
+     * @return array
      */
     public function actionUnassign($id)
     {
@@ -379,11 +328,12 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+        Yii::info("[Candidate Store UnAssigned] ".$model->candidate_email, __METHOD__);
 
         return [
             "operation" => "success",
-            "message" => "Candidate unassigned from store successfully"
+            "message" => "Candidate unassigned from store successfully",
+            "candidate_detail" => $model,
         ];
 
         // Check SQL Query Count and Duration
@@ -391,44 +341,69 @@ class CandidateController extends Controller
     }
 
     /**
-     * Delete candidate
+     * Return a List of Candidate not assigned to store
      */
-    public function actionDelete($id)
+    public function actionListNotAssigned()
     {
-        // Attempt to create new account
-        $model = Candidate::findOne((int) $id);
+        $candidate_name = Yii::$app->request->get("candidate_name");
 
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Candidate not found"
-            ];
-        }
-
-        //check if in invoice
-
-        $a = InvoiceCandidates::findOne([
-                'candidate_id' => $id
-            ]);
-
-        if($a)
+        $query = Candidate::find()
+            ->filterNotAssigned()
+            ->notDeleted();
+        if($candidate_name)
         {
-            return [
-                "operation" => "error",
-                "message" => "Can not delete as Candidate mansioned in Invoice"
-            ];
+            $query->filterName($candidate_name);
         }
 
-        $model->delete();
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
 
-        return [
-            "operation" => "success",
-            "message" => "Candidate removed successfully"
-        ];
+    /**
+     * Return a List of Candidate assigned to store
+     */
+    public function actionListAssigned()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->filterAssigned()
+            ->notDeleted();
+        if($candidate_name)
+        {
+            $query->filterName($candidate_name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate Accounts by
+     * search criteria
+     */
+    public function actionSearch()
+    {
+        $country_id = Yii::$app->request->get('country_id');
+
+        $query = Candidate::find();
+
+        if($country_id) {
+            $query->filterCountry($country_id);
+        }
+        $query->notDeleted();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
      * Reset candidate password
+     * @param $id
+     * @return array
      */
     public function actionResetPassword($id)
     {
@@ -464,6 +439,54 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "New password sent to registered email successfully"
+        ];
+    }
+
+    /**
+     * Delete candidate
+     * @param $id
+     * @return array
+     */
+    public function actionDelete($id)
+    {
+        // Attempt to create new account
+        $model = Candidate::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
+
+        if ($model->store_id) {
+            return [
+                "operation" => "error",
+                "message" => "Can not delete as assigned to store."
+            ];
+        }
+
+        //check if in invoice
+
+        $a = TransferCandidate::findOne([
+                'candidate_id' => $id
+            ]);
+
+        if($a)
+        {
+            return [
+                "operation" => "error",
+                "message" => "Can not delete as Candidate mansioned in Invoice"
+            ];
+        }
+
+        Yii::warning("[Candidate Soft Deleted] ".$model->candidate_name, __METHOD__);
+
+        $model->softDelete();
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate removed successfully"
         ];
     }
 }

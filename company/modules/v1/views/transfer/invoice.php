@@ -13,7 +13,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
 ?>
 <div class="row">
     <div class="col-sm-12" style="margin-top:30px; text-align:center;">
-        <img src="<?= Url::to('@web/images/bawes.jpg', true) ?>" style="width:100px; margin-bottom:0;">
+        <?=\yii\helpers\Html::img('images/bawes.jpg',['style'=>'width:100px; margin-bottom:0;'])?>
         <div style="text-align: center"> <span style="margin-top:10px;font-size:25px; color:#252525;">Invoice</span></div>
         <hr>
     </div>
@@ -51,6 +51,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 <span>KWD <?=number_format($totalAmount)?></span>
             </td>
         </tr>
+        <?php if($totalBonus > 0) { ?>
         <tr>
             <td align="left" style="text-align: left">
                 <span><b>Bonus to be sent to interns</b></span>
@@ -59,6 +60,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 <span>KWD <?=number_format($totalBonus)?></span>
             </td>
         </tr>
+        <?php } ?>
     </table>
     <hr/>
     <table class="table" >
@@ -78,7 +80,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     <p style="margin-bottom:0;">Sincerely yours,</p>
     <p style="margin-bottom:0;">
         Khalid Al-Mutawa<br/>
-        <img src="<?= Url::to('@web/images/signature.png', true) ?>" style="width:150px; display:block;">
+        <?=\yii\helpers\Html::img('images/signature.jpg',['style'=>'width:150px;'])?>
     </p>
 </div>
 <br/>

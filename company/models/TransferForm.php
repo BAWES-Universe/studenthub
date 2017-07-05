@@ -25,7 +25,11 @@ class TransferForm extends \company\models\Transfer {
     }
 
     /**
-     * Validate candidate array to initiate transfer
+     * Static function to validate candidate array to initiate transfer
+     * @param $attribute
+     * @param $attribute
+     * @param $validator
+     * @return null
      */
     public function validateCandidates($attribute, $params, $validator)
     {
@@ -39,13 +43,24 @@ class TransferForm extends \company\models\Transfer {
         // check if empty field
         foreach ($this->candidates as $key => $value)
         {
+            $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
+            $hours = (isset($value['hours'])) ? $value['hours'] : 0;
+            
+            if($hours < 0)
+            {
+                $this->addError($attribute, 'Hours can not be negative');
+            }
+
+            if($bonus < 0)
+            {
+                $this->addError($attribute, 'Bonus can not be negative');
+            }
+
             if(empty($value['candidate_id']))
             {
                 $this->addError($attribute, 'Candidate field require.');
             }
 
-            $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
-            $hours = (isset($value['hours'])) ? $value['hours'] : 0;
             $company_total += $bonus + ($hours * Yii::$app->params['candidate_max_hourly_rate']);
         }
 
@@ -63,17 +78,17 @@ class TransferForm extends \company\models\Transfer {
         $stores = Store::find()
             ->where(['in', 'company_id', $company_ids])
             ->all();
+
         $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
 
         // Find all candidates that work in stores belonging to company but not included in candidate list
         // that is being validated. Show error if any missing
         $candidate_ids = ArrayHelper::map($this->candidates, 'candidate_id', 'candidate_id');
-        
         $missing = Candidate::find()
             ->where(['in', 'store_id', $store_ids])
             ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
             ->count();
-        
+
         if($missing > 0)
         {
             $this->addError($attribute, 'Missing ' . $missing . ' candidate(s).');

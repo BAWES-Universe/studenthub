@@ -4,11 +4,8 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use company\models\Store;
 use company\models\Company;
-use company\models\Candidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -70,68 +67,14 @@ class CandidateController extends Controller
      * for current company.
      */
     public function actionList()
-    {        
-        $company = Yii::$app->user->identity;
-
-        $query = Candidate::find()
-            ->filterCompany($company);
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate Accounts assigned to work without pagination 
-     * for current company.
-     */
-    public function actionListAll()
-    {        
-        $company = Yii::$app->user->identity;
-
-        return Candidate::find()
-            ->filterCompany($company)
-            ->all();
-    }
-
-    /**
-     * Return a List of Candidate Accounts assigned to
-     * Specific Store.
-     */
-    public function actionFilter()
     {
-        $company = Yii::$app->user->identity;
-
-        $store_id = Yii::$app->request->getBodyParam("store_id");
-
-        $store = Store::findOne($store_id);
-
-        if(empty($store) || empty($store->company)) {
-            return [
-                    "operation" => "error",
-                    "message" => "Store not valid."
-                ];
-        }
-
-        $arr_store_company_ids = [
-                $store->company->company_id,
-                $store->company->parent_company_id
-            ];
-
-        //check if logined company does not belong to store companies
-
-        if(!in_array($company->company_id, $arr_store_company_ids)) {
-            return [
-                    "operation" => "error",
-                    "message" => "You are not authorize to list candidates from this store."
-                ];
-        }
-
-        $query = Candidate::find()
-            ->filterStore($store_id);
+        $company = Company::findOne(Yii::$app->user->id);
+        
+        $query = $company->getCandidates();
 
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
+
 }

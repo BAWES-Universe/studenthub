@@ -109,15 +109,12 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET search' => 'search',
-                        'GET review' => 'review',
-                        'GET filter/<id>' => 'filter',
+                        'GET total-to-review' => 'total-to-review',
                         'PATCH approve/<id>' => 'approve',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options',
                         'OPTIONS search' => 'options',
-                        'OPTIONS review' => 'options',
-                        'OPTIONS filter/<id>' => 'options',
+                        'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options'
                     ]
                 ],
@@ -139,7 +136,6 @@ return [
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH payment-received/<id>' => 'payment-received',
-                        'PATCH payment-in-process/<id>' => 'payment-in-process',
                         'PATCH payment-completed/<id>' => 'payment-completed',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
@@ -155,8 +151,7 @@ return [
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS unpaid-candidates/<id>' => 'options',
                         'OPTIONS payment-received/<id>' => 'options',
-                        'OPTIONS payment-in-process/<id>' => 'options',
-                        'OPTIONS payment-completed/<id>' => 'options'
+                        'OPTIONS payment-completed/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

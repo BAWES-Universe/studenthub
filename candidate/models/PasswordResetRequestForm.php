@@ -24,9 +24,8 @@ class PasswordResetRequestForm extends Model
     }
 
     /**
-     * Send password reset token to candidate email
-     *
-     * @param candidate\models\candidate $candidate
+     * @param $candidate
+     * @return bool
      */
     public function sendEmail($candidate)
     {

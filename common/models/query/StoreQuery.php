@@ -2,15 +2,27 @@
 
 namespace common\models\query;
 use Yii;
-
+use yii\db\ActiveQuery;
 /**
  * This is the ActiveQuery class for [[Store]].
  *
  */
-class StoreQuery extends \yii\db\ActiveQuery
+class StoreQuery extends ActiveQuery
 {
-	public function filterCompany($companyId) 
+    /**
+     * @param $companyId
+     * @return $this
+     */
+    public function filterCompany($companyId)
 	{
 		return $this->andWhere(['{{%store}}.company_id' => $companyId]);
 	}
+
+    /**
+     * @return $this
+     */
+    public function notDeleted()
+    {
+        return $this->andWhere(['{{%store}}.deleted'=>0]);
+    }
 }

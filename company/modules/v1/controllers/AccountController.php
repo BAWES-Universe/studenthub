@@ -8,7 +8,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\TransferCandidates;
+use common\models\TransferCandidate;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated

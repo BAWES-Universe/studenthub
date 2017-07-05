@@ -37,18 +37,20 @@ class Store extends \common\models\Store {
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\staff\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return parent::getCompany($modelClass);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\staff\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
+        return parent::getCandidates($modelClass);
     }
 }

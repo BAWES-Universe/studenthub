@@ -1,8 +1,5 @@
 <?php
 namespace company\models;
-
-use Yii;
-
 /**
  * This is the model class for table "Store".
  * It extends from \common\models\Store but with custom functionality for this application module
@@ -27,11 +24,11 @@ class Store extends \common\models\Store {
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\company\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
+        return parent::getCandidates($modelClass);
     }
-
 }

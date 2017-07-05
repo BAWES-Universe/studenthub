@@ -4,9 +4,6 @@ namespace candidate\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use common\models\Transfer;
-use candidate\models\Candidate;
-
 /**
  * Statistic controller
  */
@@ -75,7 +72,7 @@ class StatisticController extends Controller
         $totalPaid = 0;
         $totalBonus = 0;
         
-        foreach($user->transferCandidates as $transfer) 
+        foreach($user->transferCandidate as $transfer) 
         {
             $totalHours += $transfer->hours;
 

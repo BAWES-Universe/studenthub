@@ -67,10 +67,11 @@ class CompanyController extends Controller
 
     /**
      * Return a List of Company Accounts available.
+     * @return ActiveDataProvider
      */
     public function actionList()
     {
-        $query = Company::find()->where(['parent_company_id' => null]);
+        $query = Company::find()->filterParent()->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -79,10 +80,12 @@ class CompanyController extends Controller
 
     /**
      * Return a List of Sub Company Accounts by company_id
+     * @param $id
+     * @return ActiveDataProvider
      */
     public function actionSubcompanies($id)
     {
-        $query = Company::find()->where(['parent_company_id' => $id]);
+        $query = Company::find()->childCompany($id)->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -91,6 +94,7 @@ class CompanyController extends Controller
 
     /**
      * Create a company account
+     * @return array
      */
     public function actionCreate()
     {
@@ -134,13 +138,16 @@ class CompanyController extends Controller
     }
 
     /**
-     * View company detail 
+     * View company detail
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
      */
     public function actionView($id)
     {
         $company = Company::find()
             ->where(['company_id' => $id])
             ->asArray()
+            ->notDeleted()
             ->one();
 
         if(!$company){
@@ -152,28 +159,30 @@ class CompanyController extends Controller
 
         //sub companies 
         
-        $company['subcompanies'] = Company::findAll([
+        $company['subcompanies'] = Company::find()->where([
                 'parent_company_id' => $company['company_id']
-            ]); 
+            ])->all();
 
         //stores 
 
-        $company['stores'] = Store::findAll([
+        $company['stores'] = Store::find()->where([
                 'company_id' => $company['company_id']
-            ]);
+            ])->notDeleted()->all();
 
         return $company;
     }
 
     /**
      * Create a company account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
         // Attempt to create new account
         $model = Company::findOne((int) $id);
 
-        if(!$model){
+        if (!$model) {
             return [
                     "operation" => "error",
                     "message" => "Company account not found"
@@ -184,9 +193,8 @@ class CompanyController extends Controller
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
 
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
+        if (!$model->save()) {
+            if (isset($model->errors)) {
                 return [
                     "operation" => "error",
                     "message" => $model->errors
@@ -242,10 +250,10 @@ class CompanyController extends Controller
                 ];
             }
 
-            Yii::warning("[Company Account Deleted] ".$company->company_email, __METHOD__);
+            Yii::warning("[Company Account Soft Deleted] ".$company->company_email, __METHOD__);
 
             // Delete the account
-            $company->delete();
+            $company->softDelete();
             
             return [
                 "operation" => "success",

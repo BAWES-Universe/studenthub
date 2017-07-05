@@ -1,8 +1,7 @@
 <?php
 namespace candidate\models;
 
-use Yii;
-
+use common\models\CandidateToken;
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -10,7 +9,7 @@ use Yii;
 class Candidate extends \common\models\Candidate {
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function fields()
     {
@@ -27,7 +26,9 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $token
+     * @param null $type
+     * @return mixed
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
@@ -36,4 +37,14 @@ class Candidate extends \common\models\Candidate {
         }
     }
 
+    public function getTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
+    {
+        return parent::getTransferCandidate($modelClass);
+    }
+
+    public function getPaidTransferCandidate()
+    {
+        return $this->hasMany(TransferCandidate::className(), ['candidate_id' => 'candidate_id'])
+            ->where(['{{%transfer_candidate}}.paid'=>1]);
+    }
 }

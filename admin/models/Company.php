@@ -1,10 +1,7 @@
 <?php
 namespace admin\models;
 
-use Yii;
 use yii\helpers\ArrayHelper;
-use admin\models\Store;
-use admin\models\Candidate;
 
 /**
  * This is the model class for table "Company".
@@ -56,18 +53,20 @@ class Company extends \common\models\Company {
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getSubCompanies()
+    public function getSubCompanies($modelClass = "\admin\models\Company")
     {
-        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
+        return parent::getSubCompanies($modelClass);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStores()
+    public function getStores($modelClass = "\admin\models\Store")
     {
-        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+        return parent::getStores($modelClass);
     }
 }

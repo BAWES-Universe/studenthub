@@ -11,18 +11,30 @@ use yii\helpers\ArrayHelper;
  */
 class InvoiceQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @param null $db
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function all($db = null)
     {
         $this->andWhere(['{{%invoice}}.deleted' => 0]);
         return parent::all($db);
     }
 
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
     public function one($db = null)
     {
         $this->andWhere(['{{%invoice}}.deleted' => 0]);
         return parent::one($db);
     }
 
+    /**
+     * @param $company_ids
+     * @return $this
+     */
     public function filterCompanies($company_ids)
     {
         return $this->andWhere([
@@ -30,10 +42,12 @@ class InvoiceQuery extends \yii\db\ActiveQuery
             '{{%transfer}}.company_id', 
             $company_ids
         ]);
-    }    
+    }
 
     /**
      * Invoice for login company /his childs
+     * @param $company
+     * @return $this
      */
     public function filterCurrentCompany($company) 
     {
@@ -55,7 +69,8 @@ class InvoiceQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Paid Invoice 
+     * Paid Invoice
+     * @return $this
      */
     public function paid() 
     {
@@ -63,7 +78,8 @@ class InvoiceQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Unpaid Invoice 
+     * Unpaid Invoice
+     * @return $this
      */
     public function unpaid() 
     {
@@ -71,8 +87,9 @@ class InvoiceQuery extends \yii\db\ActiveQuery
     }
 
     /**
-     * Return invoice with transfer 
-     * @param $invoice_id 
+     * Return invoice with transfer
+     * @param $invoice_id
+     * @return $this
      */
     public function withTransfer($invoice_id)
     {
@@ -82,10 +99,12 @@ class InvoiceQuery extends \yii\db\ActiveQuery
             ])
             ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%invoice}}.transfer_id')
             ->andWhere(['{{%invoice}}.invoice_id' => $invoice_id]);
-    }        
+    }
 
     /**
-     * Return Invoice by transfer id 
+     * Return Invoice by transfer id
+     * @param $transfer_id
+     * @return $this
      */
     public function byTransfer($transfer_id)
     {

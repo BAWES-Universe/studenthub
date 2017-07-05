@@ -2,7 +2,6 @@
 
 namespace common\models;
 
-use function Couchbase\defaultDecoder;
 use Yii;
 use common\models\Candidate;
 
@@ -14,12 +13,14 @@ use common\models\Candidate;
  * @property string $bank_swift_code
  * @property string $bank_address
  * @property string $bank_transfer_type
+ * @property integer $deleted
  */
 class Bank extends \yii\db\ActiveRecord
 {
     const LCL = 'Local Bank Transfer';
     const SWF = 'International Transfer';
     const TRF = 'Within Bank Transfer';
+
     /**
      * @inheritdoc
      */
@@ -37,12 +38,28 @@ class Bank extends \yii\db\ActiveRecord
             [['bank_name','bank_swift_code','bank_address'], 'required'],
             [['bank_name','bank_transfer_type'], 'string', 'max' => 100],
             [['bank_swift_code'], 'string', 'max' => 12],
-            [['bank_address'], 'string'],
-
+            ['bank_transfer_type', 'in', 'range' => self::getBankCodeList()],
+            [['bank_address'], 'string']
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'bank_id' => 'ID',
+            'bank_name' => 'Name',
+            'bank_swift_code' => 'Swift Code',
+            'bank_address' => 'Address',
+            'bank_transfer_type' => 'Transfer Type',
+        ];
+    }
 
+    /**
+     * @inheritdoc
+     */
     public function fields()
     {
         return [
@@ -62,31 +79,22 @@ class Bank extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function extraFields()
     {
         return [
-            'bank_id' => 'ID',
-            'bank_name' => 'Name',
-            'bank_swift_code' => 'Swift Code',
-            'bank_address' => 'Address',
-            'bank_transfer_type' => 'Transfer Type',
+            'candidate'
         ];
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * Get the Bank transfer type
      */
-    public function getCandidate()
-    {
-        return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
-    }
-
     public function getTypeValue()
     {
         switch ($this->bank_transfer_type) {
             case 'LCL' :
                 return self::LCL;
-            break;
+                break;
             case 'SWF' :
                 return self::SWF;
                 break;
@@ -97,5 +105,38 @@ class Bank extends \yii\db\ActiveRecord
                 return '';
                 break;
         }
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate()
+    {
+        return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\BankQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\BankQuery(get_called_class());
+    }
+
+    /**
+     * @return array
+     */
+    private static function getBankCodeList() {
+        return ['LCL','SWF','TRF'];
     }
 }

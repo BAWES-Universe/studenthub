@@ -16,6 +16,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $store_status
  * @property string $store_created_at
  * @property string $store_updated_at
+ * @property integer $deleted
  *
  * @property Company $company
  * @property Candidate[] $candidates
@@ -31,20 +32,34 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function rules()
     {
         return [
             [['company_id', 'store_status'], 'integer'],
             [['store_name'], 'required'],
-            [['store_created_at', 'store_updated_at'], 'safe'],
+            [['store_created_at', 'store_updated_at','deleted'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
-            [['company_id'], 'validateCompany'],
+            [['company_id'], 'validateCompanyHasSubcompanies'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
     }
 
+    /**
+     * Find if company linked to store has subcompanies.
+     * Parent Company that has subcompanies isn't allowed to have stores.
+     */
+    public function validateCompanyHasSubcompanies()
+    {
+        if($this->company && $this->company->subCompanies) {
+            $this->addError('company_id', "Store can't be assigned to company having sub companies.");
+        }
+    }
+
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [
@@ -54,16 +69,6 @@ class Store extends \yii\db\ActiveRecord
                 'value' => new Expression('NOW()'),
             ],
         ];
-    }
-
-    /** 
-     * find if company have subcompanies 
-     */
-    public function validateCompany()
-    {
-        if($this->company && $this->company->subCompanies) {
-            $this->addError('company_id', "Store can't be assigned to company having sub companies.");   
-        }
     }
 
     /**
@@ -78,25 +83,59 @@ class Store extends \yii\db\ActiveRecord
             'store_status' => 'Store Status',
             'store_created_at' => 'Store Created At',
             'store_updated_at' => 'Store Updated At',
+            'deleted' => 'deleted',
         ];
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @inheritdoc
      */
-    public function getCompany()
+    public function fields()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        $fields = parent::fields();
+
+        unset($fields['deleted']);
+
+        return $fields;
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @inheritdoc
      */
-    public function getCandidates()
+    public function extraFields()
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id']);
+        return [
+            'company',
+            'candidates'
+        ];
     }
 
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getCompany($modelClass = "\common\models\Company")
+    {
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->where(['deleted'=>0]);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getCandidates($modelClass = "\common\models\Candidate")
+    {
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])->where(['deleted'=>0]);
+    }
+
+    /**
+     * @return bool
+     */
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
     /**
      * @inheritdoc
      * @return query\StoreQuery the active query used by this AR class.

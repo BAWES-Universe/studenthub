@@ -49,19 +49,11 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
-                        'PATCH verify' => 'verify-email',
                         'PATCH update-password' => 'update-password',
-                        'POST create-account' => 'create-account',
-                        'POST request-reset-password' => 'request-reset-password',
-                        'POST resend-verification-email' => 'resend-verification-email',
                         'POST validate' => 'validate',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
-                        'OPTIONS verify' => 'options',
                         'OPTIONS update-password' => 'options',
-                        'OPTIONS create-account' => 'options',
-                        'OPTIONS request-reset-password' => 'options',
-                        'OPTIONS resend-verification-email' => 'options',
                         'OPTIONS validate' => 'options'                        
                     ]
                 ],

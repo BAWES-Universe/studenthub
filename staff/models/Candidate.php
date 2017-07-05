@@ -22,14 +22,12 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_password_reset_token'],
         $fields['candidate_created_at'],
         $fields['candidate_updated_at']);
-        $fields['c_id'] = function($model) {
-            return str_pad($this->candidate_id, 5, '0', STR_PAD_LEFT);
-        };
         return $fields;
     }
 
     /**
-     * @inheritdoc
+     * @param bool $insert
+     * @return bool
      */
     public function beforeSave($insert)
     {
@@ -42,5 +40,4 @@ class Candidate extends \common\models\Candidate {
 
         return false;
     }
-
 }

@@ -76,8 +76,8 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->joinWith('candidateIdCard',true,'INNER JOIN');
-
+            ->joinWith('candidateIdCard',true,'INNER JOIN')
+            ->notDeleted();
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
@@ -95,8 +95,8 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->filterWithoutCard();
-
+            ->filterWithoutCard()
+            ->notDeleted();
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -179,7 +179,7 @@ class CandidateIdCardController extends Controller
             'fileName' => 'export.xlsx',
             'asAttachment' => false,
             'columns' => [
-                'employee_id',
+                'employeeId',
                 'candidate_name_ar',
                 [
                    'header' => 'University Name',
@@ -197,7 +197,7 @@ class CandidateIdCardController extends Controller
                 'candidate_civil_id'
             ],
             'headers' => [
-                'employee_id' => 'Employee ID',
+                'employeeId' => 'Employee ID',
                 'candidate_name_ar' => 'Employee Name',
                 //'university.university_name_ar' => 'University Name',
                 'candidate_civil_id' => 'Civil ID Number'
@@ -227,7 +227,9 @@ class CandidateIdCardController extends Controller
         foreach ($candidates as $key => $value) {
             QrCode::jpg(
                 'https://v.studenthub.co/'.$value->candidate_uid,
-                $path.'/QR/'.$value->employee_id.'.jpg'
+                $path.'/QR/'.$value->employeeId.'.jpg',
+                0,
+                14
             );
         }
 
@@ -246,7 +248,7 @@ class CandidateIdCardController extends Controller
             if($value->candidate_personal_photo)
             {
                 $source = Url::to('@s3/'.$value->candidate_personal_photo);
-                $destination = $path.'/photos/'.$value->employee_id.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
+                $destination = $path.'/photos/'.$value->employeeId.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
 
                 @copy($source, $destination);
             }
@@ -266,6 +268,27 @@ class CandidateIdCardController extends Controller
     }
 
     /**
+     * List candidates having expired ID Cards
+     */
+    public function actionListExpired()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->idExpired()
+            ->notDeleted();
+        if($candidate_name) {
+            $query->filterName($candidate_name);
+        }
+
+        $query->filterAssigned(); // only candidate with assigned work
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+    
+    /**
      * Renew Candidate IDs
      */
     public function actionRenew()
@@ -276,6 +299,9 @@ class CandidateIdCardController extends Controller
 
         foreach ($candidate_ids as $key => $value)
         {
+            if(!$value)
+                continue;
+            
             $ID = CandidateIdCard::find()
                 ->where(['candidate_id' => $value])
                 ->one();
@@ -303,23 +329,17 @@ class CandidateIdCardController extends Controller
     }
 
     /**
-     * List candidates having expired ID Cards
+     * Return no. of expired ID Cards
      */
-    public function actionListExpired()
+    public function actionTotalExpired()
     {
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
         $query = Candidate::find()
-            ->idExpired();
+            ->idExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
 
-        if($candidate_name) {
-            $query->filterName($candidate_name);
-        }
-
-        $query->filterAssigned(); // only candidate with assigned work
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
+        return [
+            'total' => $query->count()
+        ];
     }
 }
