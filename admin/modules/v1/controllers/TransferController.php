@@ -499,12 +499,13 @@ class TransferController extends Controller
 
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->with("transferCandidates")
             ->isParentTransfer()
             ->all();
 
         foreach ($transfers as $transfer)
         {
-            if($transfer->transferCandidates) 
+            if($transfer->transferCandidates)
             {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
