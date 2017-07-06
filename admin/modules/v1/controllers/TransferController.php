@@ -83,9 +83,9 @@ class TransferController extends Controller
 
         $query = Transfer::find()
             ->notDeleted()
-            ->parentTransfers();
+            ->isParentTransfer();
 
-        if($company_name) 
+        if($company_name)
         {
             $query->companyJoin()
                 ->filterCompany($company_name);
@@ -120,7 +120,7 @@ class TransferController extends Controller
                     "message" => 'Transfer not found'
                 ];
         }
-        
+
         return $transfer;
     }
 
@@ -145,7 +145,7 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "message" => 'Transfer status need to be "Payment Sent" to mark as "Payment Received"',
-            ];    
+            ];
         }
 
         if($transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS)
@@ -153,8 +153,8 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "message" => 'Transfer already marked as "Payment Received"',
-            ];    
-        }            
+            ];
+        }
 
         //set payment received date
 
@@ -291,7 +291,7 @@ class TransferController extends Controller
                 ];
         }
 
-        if($transfer->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) 
+        if($transfer->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS)
         {
             return [
                 "operation" => "error",
@@ -299,7 +299,7 @@ class TransferController extends Controller
             ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) 
+        if($transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE)
         {
             return [
                 "operation" => "error",
@@ -499,10 +499,10 @@ class TransferController extends Controller
 
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->parentTransfers()
+            ->isParentTransfer()
             ->all();
 
-        foreach ($transfers as $transfer) 
+        foreach ($transfers as $transfer)
         {
             if($transfer->transferCandidates) 
             {
@@ -511,8 +511,8 @@ class TransferController extends Controller
                     'candidates' => $transfer->transferCandidates,
                     'total' => $transfer->total
                 ];
-            } 
-            else 
+            }
+            else
             { // remove transfer if no candidate available
                 unset($result[$transfer->transfer_id]);
             }
@@ -530,25 +530,25 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet
         $result = [];
-        
+
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->parentTransfers()
+            ->isParentTransfer()
             ->all();
 
-        foreach ($transfers as $transfer) 
+        foreach ($transfers as $transfer)
         {
             $candidates = $transfer->getTransferCandidates()
                 ->where(['paid' => '0'])
                 ->all();
 
-            if($candidates) 
+            if($candidates)
             {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates
                 ];
-            } 
+            }
         }
 
         return $result;
@@ -730,7 +730,7 @@ class TransferController extends Controller
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
-    
+
     /**
      * Receipt Mail by transfer id to recipient
      * and also forward to finance@bawes.net

@@ -110,7 +110,7 @@ class TransferQuery extends \yii\db\ActiveQuery
     /**
      * Filter parent transfer
      */
-    public function parentTransfers()
+    public function isParentTransfer()
     {
         return $this->andWhere('parent_transfer_id IS NULL');
     }

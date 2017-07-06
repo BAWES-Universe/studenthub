@@ -32,7 +32,7 @@ class Candidate extends \common\models\Candidate {
         $candidates = 0;
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->parentTransfers()
+            ->isParentTransfer()
             ->all();
 
         foreach ($transfers as $transfer) {
