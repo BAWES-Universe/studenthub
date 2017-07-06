@@ -36,8 +36,8 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     public function filterPaid()
     {
         return $this->andWhere([
-                '{{%transfer_candidate}}.paid' => 1
-            ]);
+            '{{%transfer_candidate}}.paid' => 1
+        ]);
     }
 
     /**
@@ -46,8 +46,8 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     public function filterUnpaid()
     {
         return $this->andWhere([
-                '{{%transfer_candidate}}.paid' => 0
-            ]);
+            '{{%transfer_candidate}}.paid' => 0
+        ]);
     }
 
     /**
@@ -76,17 +76,17 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     }
 
 	/**
-	 * Return profit for transfer 
+	 * Return profit for transfer
 	 */
 	public function profit()
 	{
 		return $this->sum('(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate ) * {{%transfer_candidate}}.hours) - {{%transfer_candidate}}.transfer_cost');
-            // transfer cost will be on admin  
+            // transfer cost will be on admin
 	}
-		
+
     /**
      * Return candidates who not got paid
-     * but his employer have paid to admin  
+     * but his employer have paid to admin
      */
     public function payable()
     {
@@ -110,18 +110,18 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      * @param $transfer_id
      * @return $this
      */
-    public function candidatesByTransfer($transfer_id) 
+    public function candidatesByTransfer($transfer_id)
     {
         return $this->andWhere([
-                '{{%transfer_candidate}}.transfer_id' => $transfer_id
-            ]);
+            '{{%transfer_candidate}}.transfer_id' => $transfer_id
+        ]);
     }
 
     /**
      * Total paid in transfer
      * @return int|string
      */
-    public function totalPaid() 
+    public function totalPaid()
     {
         return $this->andWhere(['paid' => 1])
             ->count();
@@ -131,7 +131,7 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      * Total unpaid in transfer
      * @return int|string
      */
-    public function totalUnpaid() 
+    public function totalUnpaid()
     {
         return $this->andWhere(['paid' => 0])
             ->count();
@@ -142,11 +142,11 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      * @param $transfer_id
      * @return $this
      */
-    public function unpaid($transfer_id) 
+    public function unpaid($transfer_id)
     {
     	return $this->andWhere([
-                '{{%transfer_candidate}}.paid' => 0,
-                'transfer_id' => $transfer_id
-            ]);
+            '{{%transfer_candidate}}.paid' => 0,
+            'transfer_id' => $transfer_id
+        ]);
     }
 }

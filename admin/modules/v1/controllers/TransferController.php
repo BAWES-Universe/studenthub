@@ -2,8 +2,8 @@
 
 namespace admin\modules\v1\controllers;
 
-use admin\models\Candidate;
 use Yii;
+use yii\base\Exception;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
 use yii\rest\Controller;
@@ -14,6 +14,7 @@ use admin\models\Company;
 use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
+use admin\models\Candidate;
 use kartik\mpdf\Pdf;
 
 /**
@@ -140,43 +141,18 @@ class TransferController extends Controller
                 ];
         }
 
-        if($transfer->transfer_status != Transfer::STATUS_PAYMENT_SENT)
-        {
+        // Update transfer to reflect that payment received
+        try{
+            $transfer->paymentReceived();
+        }
+        catch(Exception $e){
             return [
                 "operation" => "error",
-                "message" => 'Transfer status need to be "Payment Sent" to mark as "Payment Received"',
+                "message" => $e->getMessage()
             ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer already marked as "Payment Received"',
-            ];
-        }
-
-        //set payment received date
-
-        $transfer->payment_received_on = date('Y-m-d');
-
-        // remove status received and set to in progress to combine both.
-        $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-
-        $transfer->save();
-
-        // mark invoice as paid for all child transfer and main transfer in case of no child company
-
-        Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $transfer->transfer_id]);
-
-        $child_transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
-
-        foreach ($child_transfers as $key => $value) {
-            Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
-        }
-
-        // sending mail to company as receipt
-
+        // Sending receipt to company via email
         $this->receiptMail($transfer->transfer_id);
 
         return [
@@ -194,8 +170,8 @@ class TransferController extends Controller
     public function actionUnlock($id)
     {
         $transfer = Transfer::findOne([
-                'transfer_id' => $id
-            ]);
+            'transfer_id' => $id
+        ]);
 
         if(!$transfer) {
             return [
@@ -204,31 +180,19 @@ class TransferController extends Controller
             ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_INITIATED)
-        {
+        try{
+            $transfer->unlock();
+        } catch(Exception $e){
             return [
                 "operation" => "error",
-                "message" => 'Transfer already unlocked!'
+                "message" => $e->getMessage()
             ];
         }
-
-        // to unlock transfer, transfer status should be in lock status
-
-        if($transfer->transfer_status != Transfer::STATUS_LOCK)
-        {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer status should be "Locked" to unlock it!'
-                ];
-        }
-
-        $transfer->transfer_status = Transfer::STATUS_INITIATED;
-        $transfer->save();
 
         return [
-                "operation" => "success",
-                "message" => 'Transfer unlocked successfully'
-            ];
+            "operation" => "success",
+            "message" => 'Transfer unlocked successfully'
+        ];
     }
 
     /**

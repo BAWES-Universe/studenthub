@@ -2,6 +2,7 @@
 namespace admin\models;
 
 use Yii;
+use yii\base\Exception;
 use admin\models\TransferCandidate;
 use admin\models\Company;
 use admin\models\Invoice;
@@ -10,7 +11,7 @@ use admin\models\Invoice;
  * This is the model class for table "Transfer".
  * It extends from \common\models\Transfer but with custom functionality for this application module
  */
-class Transfer extends \common\models\Transfer 
+class Transfer extends \common\models\Transfer
 {
     /**
      * @inheritdoc
@@ -38,7 +39,7 @@ class Transfer extends \common\models\Transfer
     	return $fields;
     }
 
-	
+
     /**
      * @inheritdoc
      */
@@ -56,24 +57,80 @@ class Transfer extends \common\models\Transfer
         ];
     }
 
-    public function getTotalPaid() 
+    /**
+     * Mark transfer and its invoices as payment received
+     */
+    public function paymentReceived()
+    {
+        if($this->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
+            throw new Exception('Transfer already marked as payment received and distribution in progress.');
+        }
+
+        if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
+            throw new Exception('Transfer status need to be "Payment Sent" first before marking as "Payment Received"');
+        }
+
+        // Set payment received date and update transfer status
+        $this->payment_received_on = date('Y-m-d');
+        $this->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+        $this->save(false);
+
+        // Mark invoice as paid for all child transfer and main transfer in case of no child company
+        Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $this->transfer_id]);
+
+        // Mark all invoices belonging to child transfers belonging to this transfer as paid
+        $child_transfers = Transfer::findAll(['parent_transfer_id' => $this->transfer_id]);
+        foreach ($child_transfers as $key => $value) {
+            Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
+        }
+    }
+
+    /**
+     * Unlock a locked transfer
+     * To unlock a transfer, transfer status should be already locked
+     */
+    public function unlock()
+    {
+        if($this->transfer_status == Transfer::STATUS_INITIATED) {
+            throw new Exception('Transfer already unlocked.');
+        }
+        if($this->transfer_status != Transfer::STATUS_LOCK) {
+            throw new Exception('Transfer status should be "Locked" to unlock it!');
+        }
+        $this->transfer_status = Transfer::STATUS_INITIATED;
+        $this->save(false);
+    }
+
+    /**
+     * Get Total Paid
+     * @return double
+     */
+    public function getTotalPaid()
     {
         return $this->getTransferCandidates()
             ->totalPaid();
     }
 
-    public function getTotalUnpaid() 
+    /**
+     * Get Total Unpaid
+     * @return double
+     */
+    public function getTotalUnpaid()
     {
         return $this->getTransferCandidates()
             ->totalUnpaid();
     }
 
-    public function getProfit() 
+    /**
+     * Get the profit calculation
+     * @return double
+     */
+    public function getProfit()
     {
         return $this->getTransferCandidates()
             ->profit();
     }
-   
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
