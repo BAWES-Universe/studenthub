@@ -156,27 +156,21 @@ class TransferController extends Controller
             ];
         }
 
-        //set payment received date
-
+        // Set payment received date and update transfer status
         $transfer->payment_received_on = date('Y-m-d');
-
-        // remove status received and set to in progress to combine both.
         $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-
         $transfer->save();
 
-        // mark invoice as paid for all child transfer and main transfer in case of no child company
-
+        // Mark invoice as paid for all child transfer and main transfer in case of no child company
         Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $transfer->transfer_id]);
 
+        // Mark all invoices belonging to child transfers belonging to this transfer as paid
         $child_transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
-
         foreach ($child_transfers as $key => $value) {
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }
 
-        // sending mail to company as receipt
-
+        // Sending mail to company as receipt
         $this->receiptMail($transfer->transfer_id);
 
         return [

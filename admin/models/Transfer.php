@@ -10,7 +10,7 @@ use admin\models\Invoice;
  * This is the model class for table "Transfer".
  * It extends from \common\models\Transfer but with custom functionality for this application module
  */
-class Transfer extends \common\models\Transfer 
+class Transfer extends \common\models\Transfer
 {
     /**
      * @inheritdoc
@@ -38,7 +38,7 @@ class Transfer extends \common\models\Transfer
     	return $fields;
     }
 
-	
+
     /**
      * @inheritdoc
      */
@@ -56,24 +56,28 @@ class Transfer extends \common\models\Transfer
         ];
     }
 
-    public function getTotalPaid() 
+    public function getTotalPaid()
     {
         return $this->getTransferCandidates()
             ->totalPaid();
     }
 
-    public function getTotalUnpaid() 
+    public function getTotalUnpaid()
     {
         return $this->getTransferCandidates()
             ->totalUnpaid();
     }
 
-    public function getProfit() 
+    /**
+     * Calculate profit
+     * @return [type] [description]
+     */
+    public function getProfit()
     {
         return $this->getTransferCandidates()
             ->profit();
     }
-   
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
