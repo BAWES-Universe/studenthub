@@ -480,7 +480,7 @@ class CandidateController extends Controller
             ];
         }
 
-        Yii::warning("[Candidate Soft Deleted] ".$model->candidate_name, __METHOD__);
+        Yii::info("[Candidate Soft Deleted] ".$model->candidate_name, __METHOD__);
 
         $model->softDelete();
 

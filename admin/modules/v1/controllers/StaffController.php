@@ -119,7 +119,7 @@ class StaffController extends Controller
     {
         // Attempt to create new account
         $model = Staff::findOne((int) $id);
-        
+
         if(!$model){
             return [
                     "operation" => "error",
@@ -166,7 +166,7 @@ class StaffController extends Controller
         $staffMember = Staff::findOne((int)$id);
 
         if($staffMember){
-            Yii::warning("[Staff Soft Account Deleted] ".$staffMember->staff_email, __METHOD__);
+            Yii::info("[Staff Soft Account Deleted] ".$staffMember->staff_email, __METHOD__);
 
             // Delete the account
             $staffMember->delete();

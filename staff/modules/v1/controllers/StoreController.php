@@ -185,7 +185,7 @@ class StoreController extends Controller
             ];
         }
 
-        Yii::warning("[Store Soft Deleted] ".$store->store_name, __METHOD__);
+        Yii::info("[Store Soft Deleted] ".$store->store_name, __METHOD__);
 
         // soft Delete store
         $store->softDelete();

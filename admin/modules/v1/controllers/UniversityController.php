@@ -84,7 +84,7 @@ class UniversityController extends Controller
     {
         // Attempt to create new university
         $model = new University();
-        
+
         $model->university_name_en = Yii::$app->request->getBodyParam("name_en");
         $model->university_name_ar = Yii::$app->request->getBodyParam("name_ar");
 
@@ -182,7 +182,7 @@ class UniversityController extends Controller
             ];
         }
 
-        Yii::warning("[University Soft Deleted] ".$university->university_name_en, __METHOD__);
+        Yii::info("[University Soft Deleted] ".$university->university_name_en, __METHOD__);
 
         // Delete university
         if ($university->softDelete()) {
@@ -197,7 +197,7 @@ class UniversityController extends Controller
                 "message" => "University deleted failed. Please try again."
             ];
         }
-   
+
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }

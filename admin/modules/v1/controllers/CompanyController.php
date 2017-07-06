@@ -157,13 +157,13 @@ class CompanyController extends Controller
                 ];
         }
 
-        //sub companies 
-        
+        //sub companies
+
         $company['subcompanies'] = Company::find()->where([
                 'parent_company_id' => $company['company_id']
             ])->all();
 
-        //stores 
+        //stores
 
         $company['stores'] = Store::find()->where([
                 'company_id' => $company['company_id']
@@ -250,11 +250,11 @@ class CompanyController extends Controller
                 ];
             }
 
-            Yii::warning("[Company Account Soft Deleted] ".$company->company_email, __METHOD__);
+            Yii::info("[Company Account Soft Deleted] ".$company->company_email, __METHOD__);
 
             // Delete the account
             $company->softDelete();
-            
+
             return [
                 "operation" => "success",
                 "message" => "Company account successfully deleted"
