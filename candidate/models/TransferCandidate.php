@@ -51,4 +51,9 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         return $fields;
     }
+
+    public function getTransfer($modelClass = "\candidate\models\Transfer")
+    {
+        return $this->hasOne($modelClass::className(), ['transfer_id' => 'transfer_id']);
+    }
 }
