@@ -8,7 +8,6 @@ use yii\data\ActiveDataProvider;
 use company\models\Company;
 use company\models\Candidate;
 use company\models\Transfer;
-use company\models\TransferForm;
 use common\models\Invoice;
 use company\models\TransferCandidate;
 use kartik\mpdf\Pdf;
@@ -120,6 +119,7 @@ class TransferController extends Controller
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
         Yii::warning("[Company Initiated Transfer] ".$company->company_name, __METHOD__);
+
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
 
@@ -166,8 +166,11 @@ class TransferController extends Controller
                 "message" => 'Transfer status should be "Initiated" to edit it!'
             ];
         }
+        
         Yii::warning("[Company Update Transfer] ".$company->company_name, __METHOD__);
+
         $candidates = Yii::$app->request->getBodyParam("candidates");
+        
         return Transfer::updateTransfer($company,$id,$candidates);
 
         // Check SQL Query Count and Duration
