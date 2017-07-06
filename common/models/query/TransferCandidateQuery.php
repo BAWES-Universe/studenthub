@@ -1,6 +1,8 @@
 <?php
 
 namespace common\models\query;
+use common\models\Transfer;
+use company\models\TransferCandidate;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -55,6 +57,11 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     public function filterCompanyId($company_id)
     {
         return $this->andWhere(['{{%transfer_candidate}}.company_id' => $company_id]);
+    }
+
+    public function filterCandidate($candidate_id)
+    {
+        return $this->andWhere(['{{%transfer_candidate}}.candidate_id' => $candidate_id]);
     }
 
     /**
@@ -112,7 +119,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
 
     /**
      * Total paid in transfer
-     * @param $transfer_id
      * @return int|string
      */
     public function totalPaid() 
@@ -123,7 +129,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
 
     /**
      * Total unpaid in transfer
-     * @param $transfer_id
      * @return int|string
      */
     public function totalUnpaid() 

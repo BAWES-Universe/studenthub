@@ -4,6 +4,7 @@ namespace candidate\modules\v1\controllers;
 
 use candidate\models\Candidate;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\data\ArrayDataProvider;
 
@@ -68,7 +69,6 @@ class AccountController extends Controller
     public function actionSalary()
     {
         $currentUser = Candidate::findOne(Yii::$app->user->getId());
-
         return new ArrayDataProvider([
             'allModels' => array_reverse($currentUser->paidTransferCandidate),
             'pagination' => [
