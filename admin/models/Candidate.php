@@ -23,4 +23,21 @@ class Candidate extends \common\models\Candidate {
         return $fields;
     }
 
+    /**
+     * return total number of payable candidate
+     * @return int
+     */
+    public static function getTotalPayableCandidate(){
+
+        $candidates = 0;
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->parentTransfers()
+            ->all();
+
+        foreach ($transfers as $transfer) {
+            $candidates += $transfer->getTransferCandidates()->where(['paid' => '0'])->count();
+        }
+        return $candidates;
+    }
 }

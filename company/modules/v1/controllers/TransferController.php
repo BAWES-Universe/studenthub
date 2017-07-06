@@ -119,6 +119,7 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
+        Yii::warning("[Company Initiated Transfer] ".$company->company_name, __METHOD__);
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
 
@@ -165,7 +166,7 @@ class TransferController extends Controller
                 "message" => 'Transfer status should be "Initiated" to edit it!'
             ];
         }
-
+        Yii::warning("[Company Update Transfer] ".$company->company_name, __METHOD__);
         $candidates = Yii::$app->request->getBodyParam("candidates");
         return Transfer::updateTransfer($company,$id,$candidates);
 
@@ -214,6 +215,8 @@ class TransferController extends Controller
         $transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
         $transfer->save();
 
+        Yii::warning("[Company Sent Transfer] ".$company->company_name, __METHOD__);
+
         return [
             "operation" => "success",
             "message" => 'Transfer has been marked as "Payment Sent"'
@@ -260,7 +263,7 @@ class TransferController extends Controller
         $model->transfer_status = Transfer::STATUS_LOCK;
         $model->save();
 
-
+        Yii::warning("[Company Lock Transfer] ".$company->company_name, __METHOD__);
         //select distinct company and create transfer for each company
         Transfer::generateEachCompanyTransfer($model, $company);
 
@@ -309,6 +312,8 @@ class TransferController extends Controller
 
         //delete data child transfer
         Transfer::deleteChildTransfer($model);
+
+        Yii::warning("[Company Deleted Transfer] ".$company->company_name, __METHOD__);
 
         return [
             "operation" => "success",
