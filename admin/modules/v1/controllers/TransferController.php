@@ -140,37 +140,10 @@ class TransferController extends Controller
                 ];
         }
 
-        if($transfer->transfer_status != Transfer::STATUS_PAYMENT_SENT)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status need to be "Payment Sent" to mark as "Payment Received"',
-            ];
-        }
+        // Update transfer to reflect that payment received
+        $transfer->paymentReceived();
 
-        if($transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer already marked as "Payment Received"',
-            ];
-        }
-
-        // Set payment received date and update transfer status
-        $transfer->payment_received_on = date('Y-m-d');
-        $transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-        $transfer->save();
-
-        // Mark invoice as paid for all child transfer and main transfer in case of no child company
-        Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $transfer->transfer_id]);
-
-        // Mark all invoices belonging to child transfers belonging to this transfer as paid
-        $child_transfers = Transfer::findAll(['parent_transfer_id' => $transfer->transfer_id]);
-        foreach ($child_transfers as $key => $value) {
-            Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
-        }
-
-        // Sending mail to company as receipt
+        // Sending receipt to company via email
         $this->receiptMail($transfer->transfer_id);
 
         return [

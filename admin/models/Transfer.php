@@ -57,6 +57,32 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
+     * Mark transfer and its invoices as payment received
+     */
+    public function paymentReceived(){
+        if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status need to be "Payment Sent" first before marking as "Payment Received"',
+            ];
+        }
+
+        // Set payment received date and update transfer status
+        $this->payment_received_on = date('Y-m-d');
+        $this->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+        $this->save(false);
+
+        // Mark invoice as paid for all child transfer and main transfer in case of no child company
+        Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $this->transfer_id]);
+
+        // Mark all invoices belonging to child transfers belonging to this transfer as paid
+        $child_transfers = Transfer::findAll(['parent_transfer_id' => $this->transfer_id]);
+        foreach ($child_transfers as $key => $value) {
+            Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
+        }
+    }
+
+    /**
      * Get Total Paid
      * @return double
      */
