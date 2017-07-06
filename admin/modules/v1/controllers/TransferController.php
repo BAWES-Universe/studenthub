@@ -2,8 +2,8 @@
 
 namespace admin\modules\v1\controllers;
 
-use admin\models\Candidate;
 use Yii;
+use yii\base\Exception;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
 use yii\rest\Controller;
@@ -14,6 +14,7 @@ use admin\models\Company;
 use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
+use admin\models\Candidate;
 use kartik\mpdf\Pdf;
 
 /**

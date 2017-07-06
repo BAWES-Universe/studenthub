@@ -2,6 +2,7 @@
 namespace admin\models;
 
 use Yii;
+use yii\base\Exception;
 use admin\models\TransferCandidate;
 use admin\models\Company;
 use admin\models\Invoice;
@@ -61,6 +62,10 @@ class Transfer extends \common\models\Transfer
      */
     public function paymentReceived()
     {
+        if($this->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
+            throw new Exception('Transfer already marked as payment received and distribution in progress.');
+        }
+
         if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
             throw new Exception('Transfer status need to be "Payment Sent" first before marking as "Payment Received"');
         }
@@ -86,11 +91,14 @@ class Transfer extends \common\models\Transfer
      */
     public function unlock()
     {
-        if($transfer->transfer_status != Transfer::STATUS_LOCK) {
+        if($this->transfer_status == Transfer::STATUS_INITIATED) {
+            throw new Exception('Transfer already unlocked.');
+        }
+        if($this->transfer_status != Transfer::STATUS_LOCK) {
             throw new Exception('Transfer status should be "Locked" to unlock it!');
         }
-        $transfer->transfer_status = Transfer::STATUS_INITIATED;
-        $transfer->save(false);
+        $this->transfer_status = Transfer::STATUS_INITIATED;
+        $this->save(false);
     }
 
     /**
