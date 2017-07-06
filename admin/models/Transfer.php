@@ -56,12 +56,20 @@ class Transfer extends \common\models\Transfer
         ];
     }
 
+    /**
+     * Get Total Paid
+     * @return double
+     */
     public function getTotalPaid()
     {
         return $this->getTransferCandidates()
             ->totalPaid();
     }
 
+    /**
+     * Get Total Unpaid
+     * @return double
+     */
     public function getTotalUnpaid()
     {
         return $this->getTransferCandidates()
@@ -69,8 +77,8 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
-     * Calculate profit
-     * @return [type] [description]
+     * Get the profit calculation
+     * @return double
      */
     public function getProfit()
     {
