@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Candidate;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
@@ -181,7 +182,7 @@ class TransferController extends Controller
         return [
             "operation" => "success",
             "message" => 'Transfer marked as "Payment Received" successfully',
-            'totalPayableCandidate'=> TransferCandidate::find()->payable()->count()
+            'totalPayableCandidate'=> Candidate::getTotalPayableCandidate()
         ];
     }
 
@@ -438,7 +439,7 @@ class TransferController extends Controller
             return [
                 'operation' => 'success',
                 'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully',
-                'totalPayableCandidate'=> TransferCandidate::find()->payable()->count()
+                'totalPayableCandidate'=> Candidate::getTotalPayableCandidate()
             ];
     }
 
