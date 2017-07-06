@@ -59,12 +59,10 @@ class Transfer extends \common\models\Transfer
     /**
      * Mark transfer and its invoices as payment received
      */
-    public function paymentReceived(){
+    public function paymentReceived()
+    {
         if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status need to be "Payment Sent" first before marking as "Payment Received"',
-            ];
+            throw new Exception('Transfer status need to be "Payment Sent" first before marking as "Payment Received"');
         }
 
         // Set payment received date and update transfer status
@@ -80,6 +78,19 @@ class Transfer extends \common\models\Transfer
         foreach ($child_transfers as $key => $value) {
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }
+    }
+
+    /**
+     * Unlock a locked transfer
+     * To unlock a transfer, transfer status should be already locked
+     */
+    public function unlock()
+    {
+        if($transfer->transfer_status != Transfer::STATUS_LOCK) {
+            throw new Exception('Transfer status should be "Locked" to unlock it!');
+        }
+        $transfer->transfer_status = Transfer::STATUS_INITIATED;
+        $transfer->save(false);
     }
 
     /**

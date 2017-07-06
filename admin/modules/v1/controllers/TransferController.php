@@ -141,7 +141,15 @@ class TransferController extends Controller
         }
 
         // Update transfer to reflect that payment received
-        $transfer->paymentReceived();
+        try{
+            $transfer->paymentReceived();
+        }
+        catch(Exception $e){
+            return [
+                "operation" => "error",
+                "message" => $e->getMessage()
+            ];
+        }
 
         // Sending receipt to company via email
         $this->receiptMail($transfer->transfer_id);
@@ -161,8 +169,8 @@ class TransferController extends Controller
     public function actionUnlock($id)
     {
         $transfer = Transfer::findOne([
-                'transfer_id' => $id
-            ]);
+            'transfer_id' => $id
+        ]);
 
         if(!$transfer) {
             return [
@@ -171,31 +179,19 @@ class TransferController extends Controller
             ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_INITIATED)
-        {
+        try{
+            $transfer->unlock();
+        } catch(Exception $e){
             return [
                 "operation" => "error",
-                "message" => 'Transfer already unlocked!'
+                "message" => $e->getMessage()
             ];
         }
-
-        // to unlock transfer, transfer status should be in lock status
-
-        if($transfer->transfer_status != Transfer::STATUS_LOCK)
-        {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer status should be "Locked" to unlock it!'
-                ];
-        }
-
-        $transfer->transfer_status = Transfer::STATUS_INITIATED;
-        $transfer->save();
 
         return [
-                "operation" => "success",
-                "message" => 'Transfer unlocked successfully'
-            ];
+            "operation" => "success",
+            "message" => 'Transfer unlocked successfully'
+        ];
     }
 
     /**
