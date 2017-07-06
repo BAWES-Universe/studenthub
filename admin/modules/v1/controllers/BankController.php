@@ -85,7 +85,7 @@ class BankController extends Controller
     {
         // Attempt to create new bank
         $model = new Bank();
-        
+
         $model->bank_name = Yii::$app->request->getBodyParam("name");
         $model->bank_swift_code = Yii::$app->request->getBodyParam("swift_code");
         $model->bank_address = Yii::$app->request->getBodyParam("address");
@@ -185,7 +185,7 @@ class BankController extends Controller
             ];
         }
 
-        Yii::warning("[Bank Soft Deleted] ".$bank->bank_name, __METHOD__);
+        Yii::info("[Bank Soft Deleted] ".$bank->bank_name, __METHOD__);
 
         // Delete bank
         $bank->softDelete();
@@ -194,7 +194,7 @@ class BankController extends Controller
             "operation" => "success",
             "message" => "Bank deleted successfully"
         ];
-   
+
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
