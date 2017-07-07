@@ -154,8 +154,7 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => 'Transfer marked as "Payment Received" successfully',
-            'totalPayableCandidate'=> Candidate::getTotalPayableCandidate()
+            "message" => 'Transfer marked as "Payment Received" successfully'
         ];
     }
 
@@ -400,7 +399,6 @@ class TransferController extends Controller
             return [
                 'operation' => 'success',
                 'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully',
-                'totalPayableCandidate'=> Candidate::getTotalPayableCandidate()
             ];
     }
 
