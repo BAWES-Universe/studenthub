@@ -158,9 +158,9 @@ class TransferController extends Controller
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found'
+            ];
         }
 
         return $transfer;
@@ -177,9 +177,9 @@ class TransferController extends Controller
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
         }
 
         try{
@@ -391,7 +391,6 @@ class TransferController extends Controller
     public function actionExportPayableCandidates()
     {
         // Candidates whose company paid to admin but admin have not paid yet
-
         $candidates = TransferCandidate::find()
             ->payable()
             ->all();
@@ -436,8 +435,8 @@ class TransferController extends Controller
      * method to generate text file for all unpaid candidates
      * @return array
      */
-    public function actionText() {
-
+    public function actionText()
+    {
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
 
         $s2 = '';
@@ -456,7 +455,6 @@ class TransferController extends Controller
         }
 
         foreach ($candidates as $detail) {
-
             $totalAmount += $detail->totalPaidToCandidate;
             $description = 'Internship '.$detail->hours.' Hours';
 
@@ -675,7 +673,7 @@ class TransferController extends Controller
             $subject[] = '#'.$invoice_id;
             $invoice_id = 0; // reinitialize to 0 to store new with new loop
         }
-        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{receipt} other{receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
+        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
 
         return $message->setTo($email)
             ->setCc(Yii::$app->params['invoiceCC'])
