@@ -613,8 +613,14 @@ class TransferController extends Controller
             'models' => $candidates,
             'columns' => [
                 'candidate_id',
-                'candidate.candidate_name',
                 [
+                    'attribute'=>'Candidate Name',
+                    'value'=>function($data) {
+                        return $data->candidate->candidate_name;
+                    }
+                ],
+                [
+                    'attribute'=>'Beneficiary name',
                     'label'=>'Beneficiary name',
                     'value'=>function($data) {
                         return $data->candidate->bank_account_name;
@@ -634,7 +640,13 @@ class TransferController extends Controller
                     }
                 ],
                 'candidate.candidate_iban',
-                'candidate.bank.bank_name',
+                [
+                    'attribute'=>'Bank Name',
+                    'label'=>'Bank Name',
+                    'value'=>function($data) {
+                        return $data->candidate->bank->bank_name;
+                    }
+                ],
                 [
                     'attribute' => 'paid',
                     'value' => function($model) {
