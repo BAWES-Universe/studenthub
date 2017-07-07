@@ -155,6 +155,8 @@ class CandidateController extends Controller
             ->setSubject('Welcome to the '.Yii::$app->name)
             ->send();
 
+        Yii::info('[Candidate Account Created] Candidate "'.$model->candidate_name.'" account created by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+            
         return [
             "operation" => "success",
             "message" => "Candidate account successfully created",
@@ -218,7 +220,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Account Updated] Candidate "'.$model->candidate_name.'" account updated by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -277,7 +279,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Store Assigned] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Assigned] Candidate "'.$model->candidate_name.'" assigned to store "'.$store->store_name.'" by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -328,7 +330,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Store UnAssigned] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Unassigned] Candidate "'.$model->candidate_name.'" unassigned from store by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -435,7 +437,7 @@ class CandidateController extends Controller
             ->setTo($model->candidate_email)
             ->setSubject('Your internship account password has been reset')
             ->send();
-
+                   
         return [
             "operation" => "success",
             "message" => "New password sent to registered email successfully"
@@ -480,7 +482,7 @@ class CandidateController extends Controller
             ];
         }
 
-        Yii::info("[Candidate Soft Deleted] ".$model->candidate_name, __METHOD__);
+        Yii::info('[Candidate Deleted] Candidate "'.$model->candidate_name.'" soft deleted by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         $model->softDelete();
 
