@@ -198,39 +198,28 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $model = Transfer::findOne($id);
+        $transfer = Transfer::findOne($id);
 
-        if(!$model) {
+        if(!$transfer) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
             ];
         }
 
-        if($model->transfer_status == Transfer::STATUS_LOCK)
-        {
+        try{
+            $transfer->lock();
+        } catch(Exception $e){
             return [
                 "operation" => "error",
-                "message" => 'Transfer already locked!'
+                "message" => $e->getMessage()
             ];
         }
 
-        if($model->transfer_status != Transfer::STATUS_PAYMENT_SENT)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status need to be "Payment Sent" to lock it!'
-            ];
-        }
-
-        $model->transfer_status = Transfer::STATUS_LOCK;
-
-        if ($model->save()) {
-            return [
-                "operation" => "success",
-                "message" => "Transfer status changed to locked successfully"
-            ];
-        }
+        return [
+            "operation" => "success",
+            "message" => "Transfer status reverted to locked as requested."
+        ];
     }
 
     /**
@@ -241,8 +230,8 @@ class TransferController extends Controller
     public function actionPaymentCompleted($id)
     {
         $transfer = Transfer::findOne([
-                'transfer_id' => $id
-            ]);
+            'transfer_id' => $id
+        ]);
 
         if(!$transfer) {
             return [
@@ -251,16 +240,14 @@ class TransferController extends Controller
                 ];
         }
 
-        if($transfer->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS)
-        {
+        if($transfer->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"'
             ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE)
-        {
+        if($transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer already marked as "Payment Complete"'
@@ -271,15 +258,11 @@ class TransferController extends Controller
         $transfer->save();
 
         //get all child transfers
-
         $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
-
         $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-
         $transfer_ids[] = $id;
 
         //mark candidates as paid
-
         TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
 
         return [
@@ -321,25 +304,19 @@ class TransferController extends Controller
             ];
         }
 
-        //get all child transfers
-
+        // Get all child transfers
         $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
-
         $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-
         $transfer_ids[] = $id;
 
-        //mark as paid
-
+        // Mark as paid
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
-
         foreach ($candidate_ids as $key => $value)
         {
             TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$value.'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
         }
 
-        //check if all paid, mark transfer as complete
-
+        // Check if all paid, mark transfer as complete
         $unpaid = TransferCandidate::find()
             ->andwhere([
                 'paid' => 0
@@ -347,8 +324,7 @@ class TransferController extends Controller
             ->andWhere(['in', 'transfer_id', $transfer_ids])
             ->count();
 
-        if(!$unpaid)
-        {
+        if(!$unpaid) {
             $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
             $transfer->save();
         }
@@ -369,21 +345,17 @@ class TransferController extends Controller
         $main_transfer_id = 0;
 
         foreach ($candidate_ids as $list) {
-
-            // find transfer
+            // Find transfer
             $transfer = Transfer::findOne($list['transfer_id']);
 
-            //get all child transfers
-
+            // Get all child transfers
             $transfers = Transfer::findAll(['parent_transfer_id' => $list['transfer_id']]);
-
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-
             $transfer_ids[] = $list['transfer_id'];
 
             TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$list['candidate_id'].'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
-            //check if all paid, mark transfer as complete
 
+            // Check if all paid, mark transfer as complete
             $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
@@ -396,10 +368,11 @@ class TransferController extends Controller
                 $transfer->save();
             }
         }
-            return [
-                'operation' => 'success',
-                'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully',
-            ];
+
+        return [
+            'operation' => 'success',
+            'message' => count($candidate_ids). ' candidate(s) have been marked as paid',
+        ];
     }
 
     /**
@@ -454,20 +427,18 @@ class TransferController extends Controller
      */
     public function actionPayableCandidates()
     {
-        // Candidates whose company paid to admin but admin have not paid yet
         $result = [];
 
+        // Candidates whose company paid to admin but admin have not paid yet
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             ->isParentTransfer()
             ->all();
 
-        foreach ($transfers as $transfer)
-        {
+        foreach ($transfers as $transfer) {
             $candidates = $transfer->transferCandidates;
 
-            if($candidates)
-            {
+            if($candidates) {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates,
@@ -475,7 +446,7 @@ class TransferController extends Controller
                 ];
             }
         }
-
+        
         return $result;
     }
 
