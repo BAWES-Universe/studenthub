@@ -3,6 +3,7 @@ namespace admin\models;
 
 use Yii;
 use yii\base\Exception;
+use yii\helpers\ArrayHelper;
 use admin\models\TransferCandidate;
 use admin\models\Company;
 use admin\models\Invoice;
@@ -58,6 +59,39 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
+     * Return the transfer status to be marked as locked
+     * This is only possible after the status has been marked as `Payment Sent` by mistake
+     * @return [type] [description]
+     */
+    public function lock()
+    {
+        if($this->transfer_status == Transfer::STATUS_LOCK) {
+            throw new Exception('Transfer already locked.');
+        }
+        if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
+            throw new Exception('Transfer needs to be marked as "Payment Sent" to revert to "Locked" status.');
+        }
+        $this->transfer_status = Transfer::STATUS_LOCK;
+        $this->save(false);
+    }
+
+    /**
+     * Unlock a locked transfer
+     * To unlock a transfer, transfer status should be already locked
+     */
+    public function unlock()
+    {
+        if($this->transfer_status == Transfer::STATUS_INITIATED) {
+            throw new Exception('Transfer already unlocked.');
+        }
+        if($this->transfer_status != Transfer::STATUS_LOCK) {
+            throw new Exception('Transfer status should be "Locked" to unlock it!');
+        }
+        $this->transfer_status = Transfer::STATUS_INITIATED;
+        $this->save(false);
+    }
+
+    /**
      * Mark transfer and its invoices as payment received
      */
     public function paymentReceived()
@@ -65,7 +99,6 @@ class Transfer extends \common\models\Transfer
         if($this->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
             throw new Exception('Transfer already marked as payment received and distribution in progress.');
         }
-
         if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
             throw new Exception('Transfer status need to be "Payment Sent" first before marking as "Payment Received"');
         }
@@ -86,19 +119,27 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
-     * Unlock a locked transfer
-     * To unlock a transfer, transfer status should be already locked
+     * Process that payment distribution has been completed
      */
-    public function unlock()
+    public function paymentDistributionCompleted()
     {
-        if($this->transfer_status == Transfer::STATUS_INITIATED) {
-            throw new Exception('Transfer already unlocked.');
+        if($this->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
+            throw new Exception('Transfer already marked as "Payment Complete"');
         }
-        if($this->transfer_status != Transfer::STATUS_LOCK) {
-            throw new Exception('Transfer status should be "Locked" to unlock it!');
+        if($this->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
+            throw new Exception('Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"');
         }
-        $this->transfer_status = Transfer::STATUS_INITIATED;
+
+        $this->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
         $this->save(false);
+
+        // Get all child transfers
+        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
+        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+        $transfer_ids[] = $id;
+
+        // Mark candidates as paid
+        TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
     }
 
     /**
