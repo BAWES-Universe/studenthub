@@ -5,12 +5,9 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\base\Exception;
 use yii\data\ArrayDataProvider;
-use yii\db\Query;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
-use admin\models\Company;
 use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
@@ -455,43 +452,9 @@ class TransferController extends Controller
     }
 
     /**
-     * Return a List Payable Candidates
-     */
-    public function actionPayableCandidates()
-    {
-        $result = [];
-
-        $transfers = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->with("transferCandidates")
-            ->isParentTransfer()
-            ->all();
-
-        foreach ($transfers as $transfer)
-        {
-            if($transfer->transferCandidates)
-            {
-                $result[] = [
-                    'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $transfer->transferCandidates,
-                    'total' => $transfer->total
-                ];
-            }
-            else
-            { // remove transfer if no candidate available
-                unset($result[$transfer->transfer_id]);
-            }
-        }
-
-        return new ArrayDataProvider([
-            'allModels' => $result
-        ]);
-    }
-
-    /**
      * Return a List of all Payable Candidates with invoice status paid
      */
-    public function actionAllPayableCandidates()
+    public function actionPayableCandidates()
     {
         // Candidates whose company paid to admin but admin have not paid yet
         $result = [];
@@ -503,15 +466,14 @@ class TransferController extends Controller
 
         foreach ($transfers as $transfer)
         {
-            $candidates = $transfer->getTransferCandidates()
-                ->where(['paid' => '0'])
-                ->all();
+            $candidates = $transfer->transferCandidates;
 
             if($candidates)
             {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $candidates
+                    'candidates' => $candidates,
+                    'total' => $transfer->total
                 ];
             }
         }
