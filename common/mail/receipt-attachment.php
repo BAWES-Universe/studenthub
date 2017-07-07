@@ -1,4 +1,4 @@
-<div class="password-reset">
+<div class="receipts">
     <p><?=Yii::t('app','Hello,'); ?>
     <br /><br/>
     <?=Yii::t('app','Please find your {numReceipts, plural, =1{receipt} other{receipts}} attached with this mail.', ['numReceipts' => count($invoices)]); ?><br/>

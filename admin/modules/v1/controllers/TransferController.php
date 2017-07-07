@@ -100,6 +100,50 @@ class TransferController extends Controller
     }
 
     /**
+     * Return unpaid candidates for given transfer
+     * @param $id
+     * @return array
+     */
+    public function actionUnpaidCandidates($id)
+    {
+        $candidates = TransferCandidate::find()
+            ->unpaid($id)
+            ->all();
+
+        return [
+            'candidates' => $candidates
+        ];
+    }
+
+    /**
+     * Return a List of all Payable Candidates with invoice status paid
+     */
+    public function actionPayableCandidates()
+    {
+        $result = [];
+
+        // Candidates whose company paid to admin but admin have not paid yet
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->isParentTransfer()
+            ->all();
+
+        foreach ($transfers as $transfer) {
+            $candidates = $transfer->transferCandidates;
+
+            if($candidates) {
+                $result[] = [
+                    'transfer_id' => $transfer->transfer_id,
+                    'candidates' => $candidates,
+                    'total' => $transfer->total
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Return Transfer detail.
      * @param $id
      * @return array|null|\yii\db\ActiveRecord
@@ -114,9 +158,9 @@ class TransferController extends Controller
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found'
+            ];
         }
 
         return $transfer;
@@ -133,12 +177,11 @@ class TransferController extends Controller
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
         }
 
-        // Update transfer to reflect that payment received
         try{
             $transfer->paymentReceived();
         }
@@ -198,39 +241,28 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $model = Transfer::findOne($id);
+        $transfer = Transfer::findOne($id);
 
-        if(!$model) {
+        if(!$transfer) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
             ];
         }
 
-        if($model->transfer_status == Transfer::STATUS_LOCK)
-        {
+        try{
+            $transfer->lock();
+        } catch(Exception $e){
             return [
                 "operation" => "error",
-                "message" => 'Transfer already locked!'
+                "message" => $e->getMessage()
             ];
         }
 
-        if($model->transfer_status != Transfer::STATUS_PAYMENT_SENT)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status need to be "Payment Sent" to lock it!'
-            ];
-        }
-
-        $model->transfer_status = Transfer::STATUS_LOCK;
-
-        if ($model->save()) {
-            return [
-                "operation" => "success",
-                "message" => "Transfer status changed to locked successfully"
-            ];
-        }
+        return [
+            "operation" => "success",
+            "message" => "Transfer status reverted to locked as requested."
+        ];
     }
 
     /**
@@ -241,46 +273,24 @@ class TransferController extends Controller
     public function actionPaymentCompleted($id)
     {
         $transfer = Transfer::findOne([
-                'transfer_id' => $id
-            ]);
+            'transfer_id' => $id
+        ]);
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found'
-                ];
-        }
-
-        if($transfer->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS)
-        {
-            return [
                 "operation" => "error",
-                "message" => 'Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"'
+                "message" => 'Transfer not found'
             ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE)
-        {
+        try{
+            $transfer->paymentDistributionCompleted();
+        } catch(Exception $e){
             return [
                 "operation" => "error",
-                "message" => 'Transfer already marked as "Payment Complete"'
+                "message" => $e->getMessage()
             ];
         }
-
-        $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-        $transfer->save();
-
-        //get all child transfers
-
-        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
-
-        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-
-        $transfer_ids[] = $id;
-
-        //mark candidates as paid
-
-        TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
 
         return [
             "operation" => "success",
@@ -298,21 +308,17 @@ class TransferController extends Controller
         $main_transfer_id = 0;
 
         foreach ($candidate_ids as $list) {
-
-            // find transfer
+            // Find transfer
             $transfer = Transfer::findOne($list['transfer_id']);
 
-            //get all child transfers
-
+            // Get all child transfers
             $transfers = Transfer::findAll(['parent_transfer_id' => $list['transfer_id']]);
-
             $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-
             $transfer_ids[] = $list['transfer_id'];
 
             TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$list['candidate_id'].'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
-            //check if all paid, mark transfer as complete
 
+            // Check if all paid, mark transfer as complete
             $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
@@ -325,10 +331,11 @@ class TransferController extends Controller
                 $transfer->save();
             }
         }
-            return [
-                'operation' => 'success',
-                'message' => count($candidate_ids). ' Candidate(s) marked as paid successfully',
-            ];
+
+        return [
+            'operation' => 'success',
+            'message' => count($candidate_ids). ' candidate(s) have been marked as paid',
+        ];
     }
 
     /**
@@ -337,7 +344,6 @@ class TransferController extends Controller
     public function actionExportPayableCandidates()
     {
         // Candidates whose company paid to admin but admin have not paid yet
-
         $candidates = TransferCandidate::find()
             ->payable()
             ->all();
@@ -379,41 +385,11 @@ class TransferController extends Controller
     }
 
     /**
-     * Return a List of all Payable Candidates with invoice status paid
-     */
-    public function actionPayableCandidates()
-    {
-        // Candidates whose company paid to admin but admin have not paid yet
-        $result = [];
-
-        $transfers = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->isParentTransfer()
-            ->all();
-
-        foreach ($transfers as $transfer)
-        {
-            $candidates = $transfer->transferCandidates;
-
-            if($candidates)
-            {
-                $result[] = [
-                    'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $candidates,
-                    'total' => $transfer->total
-                ];
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * method to generate text file for all unpaid candidates
      * @return array
      */
-    public function actionText() {
-
+    public function actionText()
+    {
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
 
         $s2 = '';
@@ -432,7 +408,6 @@ class TransferController extends Controller
         }
 
         foreach ($candidates as $detail) {
-
             $totalAmount += $detail->totalPaidToCandidate;
             $description = 'Internship '.$detail->hours.' Hours';
 
@@ -651,7 +626,7 @@ class TransferController extends Controller
             $subject[] = '#'.$invoice_id;
             $invoice_id = 0; // reinitialize to 0 to store new with new loop
         }
-        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{receipt} other{receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
+        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
 
         return $message->setTo($email)
             ->setCc(Yii::$app->params['invoiceCC'])
