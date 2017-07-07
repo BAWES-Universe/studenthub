@@ -100,6 +100,22 @@ class TransferController extends Controller
     }
 
     /**
+     * Return unpaid candidates for given transfer
+     * @param $id
+     * @return array
+     */
+    public function actionUnpaidCandidates($id)
+    {
+        $candidates = TransferCandidate::find()
+            ->unpaid($id)
+            ->all();
+
+        return [
+            'candidates' => $candidates
+        ];
+    }
+
+    /**
      * Return Transfer detail.
      * @param $id
      * @return array|null|\yii\db\ActiveRecord
@@ -255,22 +271,6 @@ class TransferController extends Controller
     }
 
     /**
-     * Return unpaid candidates for given transfer
-     * @param $id
-     * @return array
-     */
-    public function actionUnpaidCandidates($id)
-    {
-        $candidates = TransferCandidate::find()
-            ->unpaid($id)
-            ->all();
-
-        return [
-            'candidates' => $candidates
-        ];
-    }
-
-    /**
      * Method to mark payment as paid
      * @param $id
      * @return array
@@ -279,8 +279,7 @@ class TransferController extends Controller
     {
         $transfer = Transfer::findOne($id);
 
-        if(!$transfer)
-        {
+        if(!$transfer) {
             return [
                 'operation' => 'error',
                 'message' => 'Transfer not found!'
