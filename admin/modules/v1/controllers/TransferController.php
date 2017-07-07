@@ -100,22 +100,6 @@ class TransferController extends Controller
     }
 
     /**
-     * Return unpaid candidates for given transfer
-     * @param $id
-     * @return array
-     */
-    public function actionUnpaidCandidates($id)
-    {
-        $candidates = TransferCandidate::find()
-            ->unpaid($id)
-            ->all();
-
-        return [
-            'candidates' => $candidates
-        ];
-    }
-
-    /**
      * Return a List of all Payable Candidates with invoice status paid
      */
     public function actionPayableCandidates()
