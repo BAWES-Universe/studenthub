@@ -61,7 +61,7 @@ class Transfer extends \common\models\Transfer
     /**
      * Return the transfer status to be marked as locked
      * This is only possible after the status has been marked as `Payment Sent` by mistake
-     * @return [type] [description]
+     * @throws yii\base\Exception
      */
     public function lock()
     {
@@ -78,6 +78,7 @@ class Transfer extends \common\models\Transfer
     /**
      * Unlock a locked transfer
      * To unlock a transfer, transfer status should be already locked
+     * @throws yii\base\Exception
      */
     public function unlock()
     {
@@ -93,6 +94,7 @@ class Transfer extends \common\models\Transfer
 
     /**
      * Mark transfer and its invoices as payment received
+     * @throws yii\base\Exception
      */
     public function paymentReceived()
     {
@@ -120,6 +122,7 @@ class Transfer extends \common\models\Transfer
 
     /**
      * Process that payment distribution has been completed
+     * @throws yii\base\Exception
      */
     public function paymentDistributionCompleted()
     {
