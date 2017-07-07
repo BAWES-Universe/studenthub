@@ -116,6 +116,34 @@ class TransferController extends Controller
     }
 
     /**
+     * Return a List of all Payable Candidates with invoice status paid
+     */
+    public function actionPayableCandidates()
+    {
+        $result = [];
+
+        // Candidates whose company paid to admin but admin have not paid yet
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->isParentTransfer()
+            ->all();
+
+        foreach ($transfers as $transfer) {
+            $candidates = $transfer->transferCandidates;
+
+            if($candidates) {
+                $result[] = [
+                    'transfer_id' => $transfer->transfer_id,
+                    'candidates' => $candidates,
+                    'total' => $transfer->total
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Return Transfer detail.
      * @param $id
      * @return array|null|\yii\db\ActiveRecord
@@ -402,34 +430,6 @@ class TransferController extends Controller
                 'candidate.bank.bank_name'
             ]
         ]);
-    }
-
-    /**
-     * Return a List of all Payable Candidates with invoice status paid
-     */
-    public function actionPayableCandidates()
-    {
-        $result = [];
-
-        // Candidates whose company paid to admin but admin have not paid yet
-        $transfers = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->isParentTransfer()
-            ->all();
-
-        foreach ($transfers as $transfer) {
-            $candidates = $transfer->transferCandidates;
-
-            if($candidates) {
-                $result[] = [
-                    'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $candidates,
-                    'total' => $transfer->total
-                ];
-            }
-        }
-
-        return $result;
     }
 
     /**
