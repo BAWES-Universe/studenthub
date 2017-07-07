@@ -3,6 +3,7 @@ namespace admin\models;
 
 use Yii;
 use yii\base\Exception;
+use yii\helpers\ArrayHelper;
 use admin\models\TransferCandidate;
 use admin\models\Company;
 use admin\models\Invoice;
@@ -98,7 +99,6 @@ class Transfer extends \common\models\Transfer
         if($this->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
             throw new Exception('Transfer already marked as payment received and distribution in progress.');
         }
-
         if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
             throw new Exception('Transfer status need to be "Payment Sent" first before marking as "Payment Received"');
         }
@@ -116,6 +116,30 @@ class Transfer extends \common\models\Transfer
         foreach ($child_transfers as $key => $value) {
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }
+    }
+
+    /**
+     * Process that payment distribution has been completed
+     */
+    public function paymentDistributionCompleted()
+    {
+        if($this->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
+            throw new Exception('Transfer already marked as "Payment Complete"');
+        }
+        if($this->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
+            throw new Exception('Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"');
+        }
+
+        $this->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+        $this->save(false);
+
+        // Get all child transfers
+        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
+        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
+        $transfer_ids[] = $id;
+
+        // Mark candidates as paid
+        TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
     }
 
     /**

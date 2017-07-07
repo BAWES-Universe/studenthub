@@ -138,7 +138,6 @@ class TransferController extends Controller
                 ];
         }
 
-        // Update transfer to reflect that payment received
         try{
             $transfer->paymentReceived();
         }
@@ -235,39 +234,23 @@ class TransferController extends Controller
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found'
-                ];
-        }
-
-        if($transfer->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
-            return [
                 "operation" => "error",
-                "message" => 'Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"'
+                "message" => 'Transfer not found'
             ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
+        try{
+            $transfer->paymentDistributionCompleted();
+        } catch(Exception $e){
             return [
                 "operation" => "error",
-                "message" => 'Transfer already marked as "Payment Complete"'
+                "message" => $e->getMessage()
             ];
         }
-
-        $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-        $transfer->save();
-
-        //get all child transfers
-        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
-        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-        $transfer_ids[] = $id;
-
-        //mark candidates as paid
-        TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
 
         return [
             "operation" => "success",
-            "message" => 'Transfer marked as "Payment Complete" successfully'
+            "message" => 'Transfer has been marked as "Payment Complete"'
         ];
     }
 
@@ -446,7 +429,7 @@ class TransferController extends Controller
                 ];
             }
         }
-        
+
         return $result;
     }
 
