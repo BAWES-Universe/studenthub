@@ -49,19 +49,11 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
-                        'PATCH verify' => 'verify-email',
                         'PATCH update-password' => 'update-password',
-                        'POST create-account' => 'create-account',
-                        'POST request-reset-password' => 'request-reset-password',
-                        'POST resend-verification-email' => 'resend-verification-email',
                         'POST validate' => 'validate',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
-                        'OPTIONS verify' => 'options',
                         'OPTIONS update-password' => 'options',
-                        'OPTIONS create-account' => 'options',
-                        'OPTIONS request-reset-password' => 'options',
-                        'OPTIONS resend-verification-email' => 'options',
                         'OPTIONS validate' => 'options'                        
                     ]
                 ],
@@ -72,10 +64,21 @@ return [
                     'patterns' => [
                         'GET salary' => 'salary',
                         'GET employer' => 'employer',
+                        'POST change-password' => 'change-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS salary' => 'options',
-                        'OPTIONS employer' => 'options'
+                        'OPTIONS employer' => 'options',
+                        'OPTIONS change-password' => 'options'
+                    ]
+                ],
+                [ // StatisticController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/statistic',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                     ]
                 ],
             ],

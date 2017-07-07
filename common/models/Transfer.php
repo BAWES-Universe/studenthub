@@ -16,32 +16,39 @@ use common\models\Candidate;
  *
  * @property integer $transfer_id
  * @property integer $company_id
+ * @property integer $company_total
  * @property integer $transfer_status
+ * @property integer $parent_transfer_id
  * @property number $total
  * @property string $transfer_created_at
  * @property string $transfer_updated_at
  *
  * @property Company $company
- * @property TransferCandidates[] $transferCandidates
+ * @property TransferCandidate[] $transferCandidates
+ * @property Invoice $invoice
+ * @property Transfer[] $childTransfers
+ * @property TransferCandidate[] $childTransferCandidates
+ * @property Invoice $childTransferInvoices
  */
 class Transfer extends \yii\db\ActiveRecord
 {
     const STATUS_PAYMENT_SENT = 1;
-    const STATUS_PAYMENT_RECEIVED = 2;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
     const STATUS_TRANSFER_COMPLETE = 4;
     const STATUS_LOCK = 5;
     const STATUS_INITIATED = 10; // Draft
 
-    public function statusList()
+    /**
+     * @return array
+     */
+    public static function statusList()
     {
         return [
-            STATUS_PAYMENT_SENT => 'Payment Sent',
-            STATUS_PAYMENT_RECEIVED => 'Payment Received',
-            STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Salary distribution in progress',
-            STATUS_TRANSFER_COMPLETE => 'Transfer Completed',
-            STATUS_LOCK => 'Locked',
-            STATUS_INITIATED => 'Draft'
+            self::STATUS_INITIATED => 'Draft',
+            self::STATUS_LOCK => 'Locked',
+            self::STATUS_PAYMENT_SENT => 'Payment Sent',
+            self::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS => 'Received & Distributing Salary',
+            self::STATUS_TRANSFER_COMPLETE => 'Transfer Completed',
         ];
     }
 
@@ -66,6 +73,9 @@ class Transfer extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors() {
         return [
             [
@@ -95,73 +105,150 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @inheritdoc
      */
-    public function getCompany()
+    public function fields()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        $fields = parent::fields();
+
+        unset($fields['deleted']);
+
+        return $fields;
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @inheritdoc
      */
-    public function getTransferCandidates()
+    public function extraFields()
     {
-        return $this->hasMany(TransferCandidates::className(), ['transfer_id' => 'transfer_id']);
+        return [
+            'company',
+            'invoices',
+            'transferCandidates'
+        ];
     }
 
     /**
-     * Validate candidate array to initiate transfer
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
      */
-    public function validate_candidates($company_id, $candidates)
+    public function getCompany($modelClass = "\common\models\Company")
     {
-        $errors = [];
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
+    }
 
-        if(!is_array($candidates)) {
-            $candidates = [];
-        }
-
-        // check if empty field
-
-        foreach ($candidates as $key => $value)
+    /**
+     * Get all TransferCandidate related to this transfer or its parent transfer
+     * which include each employees hours worked, hourly rate, etc
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        // If this is a child transfer return all TransferCandidate records
+        // belonging to its parent transfer
+        if($this->parent_transfer_id)
         {
-            if(empty($value['candidate_id']))
-            {
-                $errors['candidate_id'][] = 'Candidate field require.';
-                return $errors;
-            }
+            return $this->getParentTransferCandidates($modelClass)
+                ->andWhere(['company_id' => $this->company_id]);
         }
 
-        //check for missing candidates
+        // Otherwise return all TransferCandidate records belonging to this transfer
+        return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id']);
+    }
 
-        $candidate_ids = ArrayHelper::map($candidates, 'candidate_id', 'candidate_id');
+    /**
+     * Get all invoices belonging to this transfer and its children transfers
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\common\models\Invoice")
+    {
+        // If this is a parent transfer, return all invoices belonging to its children transfers
+        if($this->childTransfers)
+            return $this->getChildTransferInvoices($modelClass);
 
-        // list all sub companies
+        // Otherwise return all invoices belonging to it
+        return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id']);
+    }
 
-        $companies = Company::findAll(['parent_company_id' => $company_id]);
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getParentTransfer($modelClass = "\common\models\Transfer")
+    {
+        return $this->hasOne($modelClass::className(), ['transfer_id'=>'parent_transfer_id'])
+            ->andWhere(['{{%transfer}}.deleted'=>0]);
+    }
 
-        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+    /**
+     * Get all TransferCandidates belonging to child transfers (if available)
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getParentTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['transfer_id'=>'transfer_id'])
+            ->via('parentTransfer');
+    }
 
-        $company_ids[] = $company_id;
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getChildTransfers($modelClass = "\common\models\Transfer")
+    {
+        return $this->hasMany($modelClass::className(), ['parent_transfer_id'=>'transfer_id']);
+    }
 
-        // list all stores
+    /**
+     * Get all invoices belonging to child transfers (if available)
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getChildTransferInvoices($modelClass = "\common\models\Invoice")
+    {
+        return $this->hasMany($modelClass::className(), ['transfer_id'=>'transfer_id'])
+            ->via('childTransfers');
+    }
 
-        $stores = Store::find()
-            ->where(['in', 'company_id', $company_ids])
-            ->all();
+    /**
+     * Get all TransferCandidates belonging to child transfers (if available)
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getChildTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['transfer_id'=>'transfer_id'])
+            ->via('childTransfers');
+    }
 
-        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
+    /**
+     * Generate Invoice for Tranfer
+     * @return integer invoice_id
+     */
+    public function generateInvoice()
+    {
+        $invoice = Invoice::findOne(['transfer_id' => $this->transfer_id]);
 
-        $missing = Candidate::find()
-            ->where(['in', 'store_id', $store_ids])
-            ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
-            ->count();
-
-        if($missing > 0)
-        {
-            $errors['candidate_id'][] = 'Missing ' . $missing . ' candidate(s).';
+        if(!$invoice) {
+            $invoice = new Invoice;
+            $invoice->transfer_id = $this->transfer_id;
+            $invoice->invoice_date = date('Y-m-d');
+            $invoice->invoice_status = 'unpaid';
+            $invoice->save();
         }
 
-        return $errors;
+        return $invoice->invoice_id;
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\TransferQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\TransferQuery(get_called_class());
     }
 }

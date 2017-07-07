@@ -2,7 +2,6 @@
 
 namespace common\models;
 
-use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
@@ -11,7 +10,9 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property integer $id
  * @property integer $candidate_id
+ * @property string $expiry_date
  * @property string $created_at
+ * @property string $updated_at
  *
  * @property Candidate $candidate
  */
@@ -65,10 +66,39 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'candidate'
+        ];
+    }
+
+    /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass = "\common\models\Candidate")
     {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\CandidateIdCardQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateIdCardQuery(get_called_class());
     }
 }

@@ -65,10 +65,12 @@ class BankController extends Controller
 
     /**
      * Return a List of Bank Accounts available.
+     * @return ActiveDataProvider
      */
     public function actionList()
     {
         $query = Bank::find();
+        $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -77,14 +79,17 @@ class BankController extends Controller
 
     /**
      * Create a bank account
+     * @return array
      */
     public function actionCreate()
     {
         // Attempt to create new bank
         $model = new Bank();
-        
-        $model->bank_name = Yii::$app->request->getBodyParam("name");
 
+        $model->bank_name = Yii::$app->request->getBodyParam("name");
+        $model->bank_swift_code = Yii::$app->request->getBodyParam("swift_code");
+        $model->bank_address = Yii::$app->request->getBodyParam("address");
+        $model->bank_transfer_type = Yii::$app->request->getBodyParam("type");
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -111,6 +116,8 @@ class BankController extends Controller
 
     /**
      * Create a bank account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
@@ -125,6 +132,9 @@ class BankController extends Controller
         }
 
         $model->bank_name = Yii::$app->request->getBodyParam("name");
+        $model->bank_swift_code = Yii::$app->request->getBodyParam("swift_code");
+        $model->bank_address = Yii::$app->request->getBodyParam("address");
+        $model->bank_transfer_type = Yii::$app->request->getBodyParam("type");
 
         if (!$model->save())
         {
@@ -168,16 +178,23 @@ class BankController extends Controller
             ];
         }
 
-        Yii::warning("[Bank Deleted] ".$bank->bank_name, __METHOD__);
+        if(count($bank->candidate)>0) {
+            return [
+                "operation" => "error",
+                "message" => "Bank already assigned to ".count($bank->candidate)." candidate(s)"
+            ];
+        }
+
+        Yii::info("[Bank Soft Deleted] ".$bank->bank_name, __METHOD__);
 
         // Delete bank
-        $bank->delete();
+        $bank->softDelete();
 
         return [
             "operation" => "success",
             "message" => "Bank deleted successfully"
         ];
-   
+
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }

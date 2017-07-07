@@ -22,38 +22,22 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_password_reset_token'],
         $fields['candidate_created_at'],
         $fields['candidate_updated_at']);
-
-        $fields['university'] = function($model) {
-                return $model->university;
-            };
-
-        $fields['country'] = function($model) {
-                return $model->country;
-            };
-
         return $fields;
     }
 
     /**
-     * @inheritdoc
+     * @param bool $insert
+     * @return bool
      */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            
+
             $this->approved = false; //mark as dirty to send to admin for review
 
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getBank()
-    {
-        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
     }
 }

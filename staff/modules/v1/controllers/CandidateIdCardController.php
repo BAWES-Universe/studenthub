@@ -9,7 +9,7 @@ use yii\helpers\FileHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
-use common\models\CandidateIdCard;
+use staff\models\CandidateIdCard;
 use common\components\Excel;
 use dosamigos\qrcode\QrCode;
 
@@ -68,44 +68,18 @@ class CandidateIdCardController extends Controller
         return $actions;
     }
 
-    /** 
+    /**
      * List candidates having ID Cards
-     */ 
+     */
     public function actionListCandidateIds()
     {
-        $query = Candidate::find()
-            ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id');
-
         $candidate_name = Yii::$app->request->get("candidate_name");
 
-        if($candidate_name)
-        {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /** 
-     * List candidates to generate ID Cards
-     */ 
-    public function actionListCandidates()
-    {
-        $cards = CandidateIdCard::find()
-            ->all();
-
-        $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
-
         $query = Candidate::find()
-            ->where(['NOT IN', 'candidate_id', $candidate_ids]);
-
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        if($candidate_name)
-        {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
+            ->joinWith('candidateIdCard',true,'INNER JOIN')
+            ->notDeleted();
+        if($candidate_name) {
+            $query->filterName($candidate_name);
         }
 
         return new ActiveDataProvider([
@@ -114,19 +88,53 @@ class CandidateIdCardController extends Controller
     }
 
     /**
-     * Generate ID for candidates 
+     * List candidates to generate ID Cards
+     */
+    public function actionListCandidates()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->filterWithoutCard()
+            ->notDeleted();
+        if($candidate_name)
+        {
+            $query->filterName($candidate_name);
+        }
+
+        $query->filterAssigned(); // only candidate with assigned work
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Generate ID for candidates
      */
     public function actionGenerate()
     {
         $transaction = Yii::$app->db->beginTransaction();
 
-        $candidate_ids = Yii::$app->request->getBodyParam('candidates');
+        $candidate_ids = [];
 
-        foreach ($candidate_ids as $key => $value) 
+        //remove null values 
+
+        $a = Yii::$app->request->getBodyParam('candidates');
+
+        foreach ($a as $key => $value) 
         {
-            //check if id card already available 
+            if($value)
+                $candidate_ids[] = $value;
+        }
 
-            $ID = CandidateIdcard::find()
+        // create ID Card entry 
+        
+        foreach ($candidate_ids as $key => $value)
+        {
+            //check if id card already available
+
+            $ID = CandidateIdCard::find()
                 ->where(['candidate_id' => $value])
                 ->one();
 
@@ -136,10 +144,12 @@ class CandidateIdCardController extends Controller
             $ID = new CandidateIdCard;
             $ID->candidate_id = $value;
             $ID->expiry_date = date('Y-m-d', strtotime('+3 months'));
-            
+
             if(!$ID->save())
             {
                 $transaction->rollBack();
+
+                Yii::$app->response->statusCode = 400;
 
                 return [
                     'operation' => 'error',
@@ -169,13 +179,13 @@ class CandidateIdCardController extends Controller
             'fileName' => 'export.xlsx',
             'asAttachment' => false,
             'columns' => [
-                'employee_id',
+                'employeeId',
                 'candidate_name_ar',
                 [
                    'header' => 'University Name',
                    'format' => 'text',
                    'value' => function($model) {
-                        if($model->university)    
+                        if($model->university)
                         {
                             return $model->university->university_name_ar;
                         }else{
@@ -187,12 +197,12 @@ class CandidateIdCardController extends Controller
                 'candidate_civil_id'
             ],
             'headers' => [
-                'employee_id' => 'Employee ID',
-                'candidate_name_ar' => 'Employee Name', 
+                'employeeId' => 'Employee ID',
+                'candidate_name_ar' => 'Employee Name',
                 //'university.university_name_ar' => 'University Name',
                 'candidate_civil_id' => 'Civil ID Number'
             ]
-        ]); 
+        ]);
 
         $zipname = 'IdCards.zip';
 
@@ -200,6 +210,8 @@ class CandidateIdCardController extends Controller
 
         if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
         {
+            Yii::$app->response->statusCode = 500;
+
             return [
                 'operation' => 'error',
                 'message' => 'Cannot create a zip file'
@@ -207,40 +219,42 @@ class CandidateIdCardController extends Controller
         }
 
         $zip->addFile($path.'/export.xlsx', 'export.xlsx');
-        
-        //crate QR images 
+
+        //crate QR images
 
         FileHelper::createDirectory($path.'/QR');
 
         foreach ($candidates as $key => $value) {
             QrCode::jpg(
                 'https://v.studenthub.co/'.$value->candidate_uid,
-                $path.'/QR/'.$value->employee_id.'.jpg'
+                $path.'/QR/'.$value->employeeId.'.jpg',
+                0,
+                14
             );
         }
-        
-        //add QR folder to zip 
+
+        //add QR folder to zip
 
         foreach (glob($path.'/QR/*') as $file) {
             $zip->addFile($file, 'QR/'.basename($file));
         }
 
-        //add candidate photos to zip  
+        //add candidate photos to zip
 
         FileHelper::createDirectory($path.'/photos');
 
         foreach ($candidates as $key => $value) {
-            
+
             if($value->candidate_personal_photo)
             {
                 $source = Url::to('@s3/'.$value->candidate_personal_photo);
-                $destination = $path.'/photos/'.$value->employee_id.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
+                $destination = $path.'/photos/'.$value->employeeId.'.'.pathinfo($value->candidate_personal_photo, PATHINFO_EXTENSION);
 
-                copy($source, $destination);     
+                @copy($source, $destination);
             }
         }
 
-        //add photo folder to zip 
+        //add photo folder to zip
 
         foreach (glob($path.'/photos/*') as $file) {
             $zip->addFile($file, 'photos/'.basename($file));
@@ -248,11 +262,32 @@ class CandidateIdCardController extends Controller
 
         $zip->close();
 
-        // Download Zip File 
+        // Download Zip File
 
         return Yii::$app->response->sendFile($path.'/'.$zipname);
     }
 
+    /**
+     * List candidates having expired ID Cards
+     */
+    public function actionListExpired()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->idExpired()
+            ->notDeleted();
+        if($candidate_name) {
+            $query->filterName($candidate_name);
+        }
+
+        $query->filterAssigned(); // only candidate with assigned work
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+    
     /**
      * Renew Candidate IDs
      */
@@ -262,12 +297,15 @@ class CandidateIdCardController extends Controller
 
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
 
-        foreach ($candidate_ids as $key => $value) 
+        foreach ($candidate_ids as $key => $value)
         {
+            if(!$value)
+                continue;
+            
             $ID = CandidateIdCard::find()
                 ->where(['candidate_id' => $value])
                 ->one();
-            
+
             if(!$ID)
             {
                 $transaction->rollBack();
@@ -290,24 +328,18 @@ class CandidateIdCardController extends Controller
         ];
     }
 
-    /** 
-     * List candidates having expired ID Cards
-     */ 
-    public function actionListExpired()
+    /**
+     * Return no. of expired ID Cards
+     */
+    public function actionTotalExpired()
     {
         $query = Candidate::find()
-            ->innerJoin('candidate_id_card', 'candidate_id_card.candidate_id = candidate.candidate_id')
-            ->where('DATE(expiry_date) < DATE(NOW())');
+            ->idExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
 
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        if($candidate_name)
-        {
-            $query->andWhere(['like', 'candidate_name', $candidate_name]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
+        return [
+            'total' => $query->count()
+        ];
     }
 }

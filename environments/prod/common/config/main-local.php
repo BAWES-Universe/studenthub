@@ -20,5 +20,15 @@ return [
                 'encryption' => 'tls',
             ],
         ],
+        'log' => [
+            'targets' => [
+                [
+                    'class' => 'notamedia\sentry\SentryTarget',
+                    'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
+                    'levels' => ['error', 'warning'],
+                    'context' => true // Write the context information. The default is true.
+                ],
+            ],
+        ],
     ],
 ];

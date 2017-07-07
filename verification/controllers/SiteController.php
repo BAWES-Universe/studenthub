@@ -5,13 +5,17 @@ use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use common\models\Candidate;
+use common\models\University;
+use common\models\Store;
+use common\models\company;
+use common\models\CandidateIdCard;
 
 /**
  * Site controller
  */
 class SiteController extends Controller
 {
-
     /**
      * @inheritdoc
      */
@@ -29,9 +33,57 @@ class SiteController extends Controller
      *
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($candidate_uid)
     {
-        return $this->render('index');
-    }
+        $candidate = Candidate::find()
+            ->where([
+                'candidate_uid' => $candidate_uid
+            ])
+            ->one();
 
+        if(!$candidate)
+        {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $id = CandidateIdCard::find()
+            ->where(['candidate_id' => $candidate->candidate_id])
+            ->one();
+
+        if(!$id)
+        {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $store = Store::findOne($candidate->store_id);
+
+        // show 404 if unassigned from store
+
+        if(!$store)
+        {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
+
+        // show 404 if candidate ID is expired
+
+        if(time() > strtotime($id->expiry_date))
+        {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $university = University::findOne($candidate->university_id);
+
+        $company = null;   
+
+        if($store)
+            $company = Company::findOne($store->company_id);    
+             
+        return $this->render('index', [
+                'candidate' => $candidate,
+                'university' => $university,
+                'store' => $store,
+                'company' => $company,
+                'id' => $id
+            ]);
+    }
 }

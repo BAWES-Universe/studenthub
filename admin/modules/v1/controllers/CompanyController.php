@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\Transfer;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
@@ -66,10 +67,11 @@ class CompanyController extends Controller
 
     /**
      * Return a List of Company Accounts available.
+     * @return ActiveDataProvider
      */
     public function actionList()
     {
-        $query = Company::find()->where(['parent_company_id' => null]);
+        $query = Company::find()->filterParent()->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -78,10 +80,12 @@ class CompanyController extends Controller
 
     /**
      * Return a List of Sub Company Accounts by company_id
+     * @param $id
+     * @return ActiveDataProvider
      */
     public function actionSubcompanies($id)
     {
-        $query = Company::find()->where(['parent_company_id' => $id]);
+        $query = Company::find()->childCompany($id)->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -90,17 +94,24 @@ class CompanyController extends Controller
 
     /**
      * Create a company account
+     * @return array
      */
     public function actionCreate()
     {
         // Attempt to create new account
         $model = new Company();
-        $model->scenario = "newAccount";
 
-        $model->company_name = Yii::$app->request->getBodyParam("name");
-        $model->company_email =Yii::$app->request->getBodyParam("email");
-        $model->company_password_hash = Yii::$app->request->getBodyParam("password");
-        $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
+        if (Yii::$app->request->getBodyParam('parent')) {
+            $model->scenario = "newSubAccount";
+            $model->company_name = Yii::$app->request->getBodyParam("name");
+            $model->parent_company_id =Yii::$app->request->getBodyParam("parent");
+            $model->company_password_hash = rand(11111,99999);
+        } else {
+            $model->scenario = "newAccount";
+            $model->company_name = Yii::$app->request->getBodyParam("name");
+            $model->company_email =Yii::$app->request->getBodyParam("email");
+            $model->company_password_hash = Yii::$app->request->getBodyParam("password");
+        }
 
         if (!$model->signup())
         {
@@ -127,13 +138,16 @@ class CompanyController extends Controller
     }
 
     /**
-     * View company detail 
+     * View company detail
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
      */
     public function actionView($id)
     {
         $company = Company::find()
             ->where(['company_id' => $id])
             ->asArray()
+            ->notDeleted()
             ->one();
 
         if(!$company){
@@ -143,30 +157,32 @@ class CompanyController extends Controller
                 ];
         }
 
-        //sub companies 
-        
-        $company['subcompanies'] = Company::findAll([
+        //sub companies
+
+        $company['subcompanies'] = Company::find()->where([
                 'parent_company_id' => $company['company_id']
-            ]); 
+            ])->all();
 
-        //stores 
+        //stores
 
-        $company['stores'] = Store::findAll([
+        $company['stores'] = Store::find()->where([
                 'company_id' => $company['company_id']
-            ]);
+            ])->notDeleted()->all();
 
         return $company;
     }
 
     /**
      * Create a company account
+     * @param $id
+     * @return array
      */
     public function actionUpdate($id)
     {
         // Attempt to create new account
         $model = Company::findOne((int) $id);
 
-        if(!$model){
+        if (!$model) {
             return [
                     "operation" => "error",
                     "message" => "Company account not found"
@@ -177,14 +193,13 @@ class CompanyController extends Controller
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
 
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
+        if (!$model->save()) {
+            if (isset($model->errors)) {
                 return [
                     "operation" => "error",
                     "message" => $model->errors
                 ];
-            }else{
+            } else {
                 return [
                     "operation" => "error",
                     "message" => "We've faced a problem updating the account, please contact us for assistance"
@@ -210,14 +225,36 @@ class CompanyController extends Controller
      */
     public function actionDelete($id)
     {
-        $companyAccount = Company::findOne((int)$id);
+        $company = Company::findOne((int)$id);
 
-        if($companyAccount){
-            Yii::warning("[Company Account Deleted] ".$companyAccount->company_email, __METHOD__);
+        if ($company) {
+
+            if (count($company->stores)>0) {
+                return [
+                    "operation" => "error",
+                    "message" => "Company has multiple store."
+                ];
+            }
+
+            if (count($company->transfers)>0) {
+                return [
+                    "operation" => "error",
+                    "message" => "Company has multiple transfers."
+                ];
+            }
+
+            if (count($company->subCompanies) > 0) {
+                return [
+                    "operation" => "error",
+                    "message" => "Company has multiple Sub Company."
+                ];
+            }
+
+            Yii::info("[Company Account Soft Deleted] ".$company->company_email, __METHOD__);
 
             // Delete the account
-            $companyAccount->delete();
-            
+            $company->softDelete();
+
             return [
                 "operation" => "success",
                 "message" => "Company account successfully deleted"
@@ -233,7 +270,7 @@ class CompanyController extends Controller
         // Error for cases not accounted for
         return [
             "operation" => "error",
-            "message" => "Unknown error occured, please contact us for assistance"
+            "message" => "Unknown error occurred, please contact us for assistance"
         ];
 
         // Check SQL Query Count and Duration

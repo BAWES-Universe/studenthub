@@ -2,12 +2,12 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Candidate;
-
+use common\models\Transfer;
 /**
  * Candidate controller - Manage Candidate accounts as Admin
  */
@@ -69,52 +69,59 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-        $country_id = Yii::$app->request->get('country_id');
-
         $query = Candidate::find();
 
-        if($country_id) {
-            $query->where(['country_id' => $country_id]);
+        $by = Yii::$app->request->get('by');
+        switch ($by) {
+            case 'country_id' :
+                $country_id = Yii::$app->request->get('country_id');
+                $query->andWhere(['country_id' => $country_id]);
+                break;
+            case 'university_id' :
+                $country_id = Yii::$app->request->get('university_id');
+                $query->andWhere(['university_id' => $country_id]);
+                break;
+            case 'review' :
+                $review = Yii::$app->request->get('review');
+                $query->andWhere(['approved' => $review]);
+                break;
+            case 'store_id' :
+                $store_id = Yii::$app->request->get('store_id');
+                $query->andWhere(['store_id' => $store_id]);
+                break;
+            default:
+                $query->andWhere(['approved' => 0]);
+                break;
         }
 
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
 
     /**
-     * Return a List of Candidate Accounts assigned to
-     * Specific Store.
+     * Return a No of Candidate to review 
+     * Return a No of Payable candidate also
      */
-    public function actionFilter($id)
-    {
-        $query = Candidate::find();
-
-        if($id) {
-            $query->where(['store_id' => $id]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Review candidate accounts
-     */
-    public function actionReview()
+    public function actionTotalToReview()
     {
         $query = Candidate::find()
-            ->where(['approved' => 0]);
+            ->notDeleted()
+            ->andWhere(['approved' => 0]);
 
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
+        return [
+            'total' => $query->count(),
+            'payable' => Candidate::getTotalPayableCandidate()
+        ];
     }
 
     /**
      * Approve candidate account
+     * @param $id
+     * @return array
      */
+
     public function actionApprove($id)
     {
         $model = Candidate::findOne((int) $id);

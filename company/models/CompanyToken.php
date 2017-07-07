@@ -1,8 +1,6 @@
 <?php
 namespace company\models;
 
-use Yii;
-
 /**
  * This is the model class for table "CompanyToken".
  * It extends from \common\models\CompanyToken but with custom functionality for this application module
@@ -11,11 +9,11 @@ use Yii;
 class CompanyToken extends \common\models\CompanyToken {
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\company\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return parent::getCompany($modelClass);
     }
-
 }

@@ -3,7 +3,6 @@
 namespace common\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
@@ -20,6 +19,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
+ * @property integer $deleted
  *
  * @property Company $parentCompany
  * @property Company[] $subCompanies
@@ -31,6 +31,8 @@ use yii\behaviors\TimestampBehavior;
  */
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+
+    const STATUS_ACTIVE = 10;
     /**
      * @inheritdoc
      */
@@ -46,35 +48,25 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['company_name'], 'required'],
-            [['company_name'], 'validateEmail'],//because name is require field so will called always 
             [['company_password_hash'], 'required', 'on'=>'newAccount'],
+            [['company_email'], 'unique', 'on'=>'newAccount'],
+            [['company_email'], 'email' , 'on'=>'newAccount'],
+            [['company_password_hash'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_status'], 'integer'],
             [['parent_company_id'], 'validateCompany'],
-            [['company_name', 'company_email', 'company_password_hash', 'company_password_reset_token'], 'string', 'max' => 255],
+            [['company_name', 'company_email', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
-            //[['company_email'], 'unique'],
-            [['company_email'], 'email'],
             [['company_password_reset_token'], 'unique'],
         ];
     }
 
     /**
-     * @inheritdoc
-     */
-    public function validateEmail()
-    {
-        if(!$this->parent_company_id && empty($this->company_email)) {
-            $this->addError('company_email', "Company email can't be blank.");   
-        }
-    }
-
-    /** 
-     * find if company have store 
+     * find if company have store
      */
     public function validateCompany()
     {
         if($this->parentCompany->stores) {
-            $this->addError('company_id', "Company can't be assigned to company having stores.");   
+            $this->addError('company_id', "Company can't be assigned to company having stores.");
         }
     }
 
@@ -107,6 +99,32 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_updated_at' => 'Company Updated At',
         ];
     }
+    
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['deleted'],
+            $fields['company_password_hash'],
+            $fields['company_password_reset_token'],
+            $fields['company_auth_key']);
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+//            'company',
+            'candidates'
+        ];
+    }
 
     /**
      * @return \yii\db\ActiveQuery
@@ -117,19 +135,33 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getSubCompanies()
+    public function getSubCompanies($modelClass = "\common\models\Company")
     {
-        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['parent_company_id' => 'company_id']);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['store_id' => 'store_id'])->via('stores');
+        if($this->subCompanyStores)
+        {
+            //for parent company
+            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+                ->via('subCompanyStores')
+                ->where(['{{%candidate}}.deleted' => 0]);
+        }
+        else
+        {
+            //for child company
+            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+                ->via('stores');
+        }        
     }
 
     /**
@@ -141,19 +173,21 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStores()
+    public function getStores($modelClass = "\common\models\Store")
     {
-        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getTransfers()
+    public function getTransfers($modelClass = "\common\models\Transfer")
     {
-        return $this->hasMany(Transfer::className(), ['company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
@@ -210,7 +244,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @return static|null
      */
     public static function findByEmail($email) {
-        return static::findOne(['company_email' => $email]);
+        return static::findOne(['company_email' => $email,'deleted'=>0]);
     }
 
     /**
@@ -328,7 +362,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_id' => $this->company_id,
             'token_status' => CompanyToken::STATUS_ACTIVE
         ]);
-        if($token){
+
+        if($token) {
             return $token;
         }
 
@@ -340,5 +375,71 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $token->save(false);
 
         return $token;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function adminPendingPaymentNotification()
+    {
+        $list = [];
+        $data = \common\models\Candidate::find()
+            ->select('candidate.candidate_id,candidate.store_id,store.store_id,store.company_id')
+            ->leftJoin('store','store.store_id = candidate.store_id ')
+            ->where('candidate.store_id != "NULL"')
+            ->groupBy('store.company_id')
+            ->all();
+
+        if ($data) {
+            foreach($data as $key => $company) {
+                $today = date('Y-m-d H:i:s');
+                $interval = date('Y-m-d H:i:s',strtotime(Yii::$app->params['payment_notice_period']));
+                $company_id =  $company->store->company_id;
+                $condition = "transfer_created_at BETWEEN date('$interval') AND date('$today') AND transfer_status='".Transfer::STATUS_TRANSFER_COMPLETE."' AND `company_id`='$company_id'";
+                if (!Transfer::find()->where($condition)->count()) {
+                    $list[] = $company->store->company_id;
+                }
+            }
+            if (count($list)>0) {
+
+                return Yii::$app->mailer->compose("company-unpaid-notification-to-admin",
+                    [
+                        "companies" => \common\models\Company::find()->where(['company_id'=>$list])->all(),
+                    ])
+                    ->setFrom(Yii::$app->params['supportEmail'])
+                    ->setTo(Yii::$app->params['adminEmail'])
+                    ->setSubject('Company not paid after 35 days')
+                    ->send();
+            }
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\CompanyQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CompanyQuery(get_called_class());
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getSubCompanyStores($modelClass = "\common\models\Store")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('subCompanies')
+            ->where(['deleted'=>0]);
     }
 }

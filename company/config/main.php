@@ -49,7 +49,6 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
-                        'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
@@ -62,12 +61,8 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET all' => 'list-all',
-                        'POST filter' => 'filter',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS all' => 'options',
-                        'OPTIONS filter' => 'options'
                     ]
                 ],
                 [ // TransferController
@@ -81,6 +76,7 @@ return [
                         'PATCH <id>' => 'edit',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH payment-sent/<id>' => 'payment-sent',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -94,10 +90,12 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET company-store' => 'index',
                         'GET <companyId>' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS <companyId>' => 'options'
+                        'OPTIONS <companyId>' => 'options',
+                        'OPTIONS company-store' => 'options'
                     ]
                 ],
                 [ // CompanyController
@@ -107,6 +105,17 @@ return [
                         'GET' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options'
+                    ]
+                ],
+                [ // AccountController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/account',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST change-password' => 'change-password',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS change-password' => 'options'
                     ]
                 ],
             ],

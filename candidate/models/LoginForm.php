@@ -3,7 +3,6 @@ namespace candidate\models;
 
 use Yii;
 use yii\base\Model;
-use common\models\Candidate;
 
 /**
  * Login form
@@ -13,7 +12,6 @@ class LoginForm extends Model
     public $email;
     public $password;
     public $rememberMe = true;
-
     private $_candidate = false;
 
 

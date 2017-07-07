@@ -2,11 +2,11 @@
 
 namespace candidate\modules\v1\controllers;
 
+use candidate\models\Candidate;
 use Yii;
-use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\TransferCandidates;
+use yii\rest\Controller;
+use yii\data\ArrayDataProvider;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -68,36 +68,17 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $candidate = Yii::$app->user->identity;
-
-        $query = TransferCandidates::find()
-            ->select([
-                '{{%transfer_candidates}}.tc_id', 
-                '{{%invoice}}.invoice_id', 
-                '{{%company}}.company_name',
-                '{{%company}}.company_email',
-                '{{%transfer_candidates}}.candidate_hourly_rate', 
-                '{{%transfer_candidates}}.hours', 
-                '{{%transfer_candidates}}.bonus', 
-                '({{%transfer_candidates}}.candidate_hourly_rate * {{%transfer_candidates}}.hours) + {{%transfer_candidates}}.bonus as total', 
-                '{{%transfer_candidates}}.tc_created_at'
-            ])
-            ->innerJoin('{{%transfer}}', '{{%transfer}}.transfer_id = {{%transfer_candidates}}.transfer_id')
-            ->innerJoin('{{%invoice}}', '{{%invoice}}.transfer_id = {{%transfer_candidates}}.transfer_id')
-            ->innerJoin('{{%company}}', '{{%company}}.company_id = {{%transfer}}.company_id')
-            ->where([
-                'candidate_id' => $candidate->candidate_id,
-                'invoice_status' => 'paid'
-            ])
-            ->asArray();
-
-        return new ActiveDataProvider([
-            'query' => $query, 
+        $currentUser = Candidate::findOne(Yii::$app->user->getId());
+        return new ArrayDataProvider([
+            'allModels' => array_reverse($currentUser->paidTransferCandidate),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
         ]);
     }
 
     /**
-     * Return currnet employer detail
+     * Return current employer detail
      */
     public function actionEmployer()
     {
@@ -121,7 +102,7 @@ class AccountController extends Controller
         }else{
             $company_id = $candidate->store->company->company_id; 
             $company_name = $candidate->store->company->company_name;
-            $company_email = $candidate->store->company->company_email;            
+            $company_email = $candidate->store->company->company_email;           
         }
 
         return [
@@ -131,5 +112,55 @@ class AccountController extends Controller
             'company_name' => $company_name,
             'company_email'=> $company_email
         ];
+    }
+
+    public function actionChangePassword()
+    {
+        $model = Yii::$app->user->identity;
+
+        $oldPassword = Yii::$app->request->getBodyParam("old_password");
+        $newPassword = Yii::$app->request->getBodyParam("new_password");
+
+        if (empty($oldPassword)) {
+            return [
+                "operation" => "error",
+                "message" => "Empty old password"
+            ];
+        } else if (empty($newPassword)) {
+            return [
+                "operation" => "error",
+                "message" => "Empty new password"
+            ];
+        }
+
+        if ($oldPassword === $newPassword) {
+            return [
+                "operation" => "error",
+                "message" => "New password should not be same as old password"
+            ];
+        }
+
+        if (!$model->validatePassword($oldPassword)) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid Old Password"
+            ];
+        }
+
+        if (strlen($newPassword) < 5) {
+            return [
+                "operation" => "error",
+                "message" => "New password length should be great then equal to 5"
+            ];
+        }
+
+        $candidate = Candidate::findOne($model->getId());
+        $candidate->setPassword($newPassword);
+        if ($candidate->save(false)) {
+            return [
+                "operation" => "success",
+                "message" => "Password changed successfully!"
+            ];
+        }
     }
 }

@@ -1,8 +1,8 @@
 <?php
 namespace candidate\models;
 
+use common\models\CandidateToken;
 use Yii;
-
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -10,7 +10,7 @@ use Yii;
 class Candidate extends \common\models\Candidate {
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function fields()
     {
@@ -27,7 +27,9 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @inheritdoc
+     * @param mixed $token
+     * @param null $type
+     * @return mixed
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
@@ -36,11 +38,18 @@ class Candidate extends \common\models\Candidate {
         }
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getBank()
+    public function getTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
     {
-        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
+        return parent::getTransferCandidate($modelClass);
+    }
+
+    public function getPaidTransferCandidate()
+    {
+        $status =[Transfer::STATUS_TRANSFER_COMPLETE,Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS];
+        return TransferCandidate::find()
+            ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
+            ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
+            ->filterCandidate(Yii::$app->user->getId())
+            ->all();
     }
 }

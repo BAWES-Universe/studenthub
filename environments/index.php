@@ -29,8 +29,8 @@
  * ```
  */
 return [
-    'Krushn' => [
-        'path' => 'krushn',
+    'Development' => [
+        'path' => 'dev',
         'setWritable' => [
             'admin/runtime',
             'admin/web/assets',
@@ -55,8 +55,8 @@ return [
             'verification/config/main-local.php',
         ],
     ],
-    'Development' => [
-        'path' => 'dev',
+    'dev-saoud' => [
+        'path' => 'dev-saoud',
         'setWritable' => [
             'admin/runtime',
             'admin/web/assets',

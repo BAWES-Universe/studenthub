@@ -1,8 +1,6 @@
 <?php
 namespace admin\models;
 
-use Yii;
-
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -22,15 +20,23 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_password_reset_token'],
         $fields['candidate_created_at'],
         $fields['candidate_updated_at']);
-
         return $fields;
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * return total number of payable candidate
+     * @return int
      */
-    public function getBank()
-    {
-        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
+    public static function getTotalPayableCandidate(){
+        $candidates = 0;
+        $transfers = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->isParentTransfer()
+            ->all();
+
+        foreach ($transfers as $transfer) {
+            $candidates += $transfer->getTransferCandidates()->where(['paid' => '0'])->count();
+        }
+        return $candidates;
     }
 }

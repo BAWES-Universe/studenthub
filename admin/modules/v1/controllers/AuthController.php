@@ -95,33 +95,4 @@ class AuthController extends Controller
             "email" => $admin->admin_email
         ];
     }
-
-
-    /**
-     * Updates password based on passed token
-     * @return array
-     */
-    public function actionUpdatePassword()
-    {
-        $token = Yii::$app->request->getBodyParam("token");
-        $newPassword = Yii::$app->request->getBodyParam("newPassword");
-
-        $agent =  Admin::findByPasswordResetToken($token);
-        if(!$agent || !$newPassword){
-            return [
-                'operation' => 'error',
-                'message' => 'Invalid password reset token. Please request another password reset email.'
-            ];
-        }
-
-        $agent->setPassword($newPassword);
-        $agent->removePasswordResetToken();
-        $agent->save(false);
-
-        return [
-            'operation' => 'success',
-            'message' => 'Your password has been reset.'
-        ];
-    }
-
 }

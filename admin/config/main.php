@@ -53,6 +53,15 @@ return [
                         'OPTIONS login' => 'options',
                     ]
                 ],
+                [ // StatisticController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/statistic',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // StaffController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/staff',
@@ -100,15 +109,12 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET search' => 'search',
-                        'GET review' => 'review',
-                        'GET filter/<id>' => 'filter',
+                        'GET total-to-review' => 'total-to-review',
                         'PATCH approve/<id>' => 'approve',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options',
                         'OPTIONS search' => 'options',
-                        'OPTIONS review' => 'options',
-                        'OPTIONS filter/<id>' => 'options',
+                        'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options'
                     ]
                 ],
@@ -117,22 +123,34 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET payable-candidates' => 'payable-candidates',
+                        'GET export-payable-candidates' => 'export-payable-candidates',
+                        'GET text' => 'text',
                         'GET <id>' => 'view',
                         'GET pdf/<id>' => 'pdf',
                         'GET export/<id>' => 'export',
+                        'GET unpaid-candidates/<id>' => 'unpaid-candidates',
+                        'PATCH mark-paid-all' => 'mark-paid-all',
+                        'PATCH mark-paid/<id>' => 'mark-paid',
                         'PATCH unlock/<id>' => 'unlock',
+                        'PATCH lock/<id>' => 'lock',
                         'PATCH payment-received/<id>' => 'payment-received',
-                        'PATCH payment-in-process/<id>' => 'payment-in-process',
                         'PATCH payment-completed/<id>' => 'payment-completed',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS payable-candidates' => 'options',
+                        'OPTIONS export-payable-candidates' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS text-export' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS export/<id>' => 'options',
+                        'OPTIONS mark-paid/<id>' => 'options',
+                        'OPTIONS mark-paid-all' => 'options',
                         'OPTIONS unlock/<id>' => 'options',
+                        'OPTIONS lock/<id>' => 'options',
+                        'OPTIONS unpaid-candidates/<id>' => 'options',
                         'OPTIONS payment-received/<id>' => 'options',
-                        'OPTIONS payment-in-process/<id>' => 'options',
-                        'OPTIONS payment-completed/<id>' => 'options'
+                        'OPTIONS payment-completed/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

@@ -3,12 +3,9 @@
 namespace common\models;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-use common\models\Bank;
-use common\models\University;
-use common\models\Country;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "candidate".
@@ -26,6 +23,7 @@ use common\models\Country;
  * @property string $candidate_personal_photo
  * @property string $candidate_email
  * @property string $candidate_phone
+ * @property string $candidate_address_line1
  * @property string $candidate_birth_date
  * @property string $candidate_civil_id
  * @property string $candidate_civil_expiry_date
@@ -39,6 +37,7 @@ use common\models\Country;
  * @property integer $approved
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
+ * @property integer $deleted
  *
  * @property Bank $bank
  * @property Country $country
@@ -47,12 +46,11 @@ use common\models\Country;
  * @property University $university
  * @property CandidateIdCard[] $candidateIdCards
  * @property CandidateToken[] $accessTokens
- * @property TransferCandidates[] $transferCandidates
+ * @property TransferCandidate[] $TransferCandidate
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-    const STATUS_INCOMPLETE = 10;
-    const STATUS_DIRTY = 2;
+    // Candidate Status
     const STATUS_READY = 1;
 
     // Array of attribute names and folder names to store them in the permanent bucket
@@ -76,12 +74,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['country_id', 'university_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_hourly_rate', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo'], 'required'],
+            [['bank_id', 'university_id', 'country_id', 'bank_account_name', 'candidate_iban', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
-            [['candidate_iban', 'bank_account_name'], 'string', 'max' => 100],
+            [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
+            [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
+            ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
             [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
             [['candidate_email'], 'unique'],
@@ -89,8 +89,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_civil_id'], 'unique'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
-            [['store_id'], 'validateStore'],
             [['candidate_password_reset_token'], 'unique'],
+            ['candidate_status', 'default', 'value' => self::STATUS_READY],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
@@ -122,6 +122,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ];
     }
 
+    /**
+     * Validate Civil ID Expiry Date
+     * @return [type] [description]
+     */
     public function validateCivilExpiry()
     {
         if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
@@ -130,98 +134,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * Validate candidate age if exceeds limit
+     */
     public function validateAge()
     {
-        $years = floor((time() - strtotime($this->candidate_birth_date))/31556926);
-
-        if($years < 18 || $years > 21) {
-            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 21.');
-        }
-    }
-
-    public function validateStore()
-    {
-        $this->fixStatus();
-
-        //if status is incomplete and trying to set store
-
-        if($this->store_id && $this->candidate_status == Candidate::STATUS_INCOMPLETE) {
-            $this->addError('store_id', 'Can not assign store to incomplete profile.');
+        if($this->age < 18 || $this->age > 24) {
+            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 24.');
         }
     }
 
     /**
-     * Moves the newly uploaded files from the temporary bucket to the permanent one
-     * If their values have changed and their files exist in the temporary bucket.
+     * @return array
      */
-    private function _moveTemporaryFilesToPermanentBucket(){
-        // For each file, move its file from temporary to permanent
-        foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
-            if($this->{$attribute} !== $this->getOldAttribute($attribute)){
-                $fileName = $this->{$attribute};
-                $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
-                $targetPath = $folderName."/".$fileName;
-
-                // Copy using S3ResourceManager Component
-                Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
-
-                // Adjust filename in storage to use path within bucket
-                $this->{$attribute} = $targetPath;
-            }
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeSave($insert)
-    {
-        if (parent::beforeSave($insert)) {
-            $this->fixStatus();
-
-            // Move uploaded files to permanent bucket
-            $this->_moveTemporaryFilesToPermanentBucket();
-
-            if (!$this->candidate_uid) {
-                $this->candidate_uid = $this->generateUid();
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    public function generateUid()
-    {
-        $randomString = Yii::$app->getSecurity()->generateRandomString(20);
-
-        if(!$this->findOne(['candidate_uid' => $randomString]))
-            return $randomString;
-        else
-            return $this->generateUniqueRandomString();
-    }
-
-    /**
-     * Fix status for a candidate
-     */
-    private function fixStatus()
-    {
-        $attr = $this->attributes;
-
-        //check all values except
-        unset($attr['candidate_password_reset_token']);
-        unset($attr['candidate_status']);
-        unset($attr['candidate_id']);
-        unset($attr['approved']);
-
-        //if have empty value
-        if(in_array('', $attr)) {
-            $this->candidate_status = Candidate::STATUS_INCOMPLETE;
-        } else {
-            $this->candidate_status = Candidate::STATUS_READY;
-        }
-    }
-
     public function behaviors() {
         return [
             [
@@ -249,6 +174,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_personal_photo' => 'Personal Photo',
             'candidate_email' => 'Email',
             'candidate_phone' => 'Phone',
+            'candidate_address_line1' => 'Candidate Address',
             'candidate_birth_date' => 'Birth Date',
             'candidate_civil_id' => 'Civil ID',
             'candidate_civil_expiry_date' => 'Civil Expiry Date',
@@ -261,14 +187,168 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_status' => 'Status',
             'candidate_created_at' => 'Created At',
             'candidate_updated_at' => 'Updated At',
+            'employee_id' => 'Employee ID',
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // Candidate Age
+        $fields['age'] = function($model) {
+            return $model->age;
+        };
+
+        $fields['employee_id'] = function($data) {
+            $prefix = 'C';
+
+            $digit_missing = 5 - strlen($this->candidate_id);
+
+            if($digit_missing > 0) {
+                $prefix .= str_repeat("0", $digit_missing);
+            }
+
+            return $prefix . $this->candidate_id;
+        };
+
+        // Url to thumb of profile photo
+        $fields['candidate_personal_photo_thumb'] = function($model) {
+            return substr_replace($model->candidate_personal_photo, "thumb-100/", 7, 0);
+        };
+
+        /**
+         * Always Display Related Fields for Candidate model in this app
+         * A Candidate is defined by all his relation to enable quick-loading
+         * of candidate profiles on-click from the apps (without pinging server).
+         */
+        $fields = ArrayHelper::merge($fields, [
+            'store',
+            'company',
+            'university',
+            'country',
+            'bank'
+        ]);
+
+        unset($fields['deleted']);
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+
+        ];
+    }
+
+    /**
+     * Returns age of candidate
+     * @return integer
+     */
+    public function getAge()
+    {
+        return floor((time() - strtotime($this->candidate_birth_date))/31556926);
+    }
+
+    /**
+     * Moves the newly uploaded files from the temporary bucket to the permanent one
+     * If their values have changed and their files exist in the temporary bucket.
+     */
+    private function _moveTemporaryFilesToPermanentBucket()
+    {
+        // For each file, move its file from temporary to permanent
+        foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
+            if($this->{$attribute} !== $this->getOldAttribute($attribute)){
+                $fileName = $this->{$attribute};
+                $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+                $targetPath = $folderName."/".$fileName;
+
+                // Copy using S3ResourceManager Component
+                Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+                // Generate a thumbnail of uploaded files
+                $this->_generateThumbnail($fileName, $folderName);
+
+                // Adjust filename in storage to use path within bucket
+                $this->{$attribute} = $targetPath;
+            }
+        }
+    }
+
+    /**
+     * Generate thumbnail for provided filename and store in corresponding folder in bucket
+     * @param  string $fileName
+     * @param  string $folderName
+     */
+    private function _generateThumbnail($fileName, $folderName, $size = 100)
+    {
+        // Create temporary file to store image in
+        $tmpFile = tempnam(sys_get_temp_dir(), "TEMP");
+        rename($tmpFile, $fileName);
+        $tmpFile = $fileName;
+
+        // Resize to $size x $size
+        $thumbnail = new \Imagine\Gd\Imagine();
+        $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
+        $thumbnail->resize($thumbnail->getSize()->widen($size));
+        $thumbnail->save($tmpFile);
+
+        // Save thumbnail to S3
+        Yii::$app->resourceManager->save(
+            null, //file upload object
+            "$folderName/thumb-$size/$fileName", // name
+            [], //options
+            $tmpFile, // source file
+            mime_content_type($tmpFile)
+        );
+
+        // Delete the tmp file
+        unlink($tmpFile);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            // Move uploaded files to permanent bucket
+            $this->_moveTemporaryFilesToPermanentBucket();
+
+            if (!$this->candidate_uid) {
+                $this->candidate_uid = $this->generateUid();
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function generateUid()
+    {
+        $randomString = Yii::$app->getSecurity()->generateRandomString(20);
+
+        if(!$this->findOne(['candidate_uid' => $randomString]))
+            return $randomString;
+        else
+            return $this->generateUniqueRandomString();
     }
 
     /**
      * Return Employer ID in C00231 format where 231 is
      * candidate id
      */
-    public function getEmployee_id()
+    public function getEmployeeId()
     {
         $prefix = 'C';
 
@@ -286,7 +366,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getUniversity()
     {
-        return $this->hasOne(University::className(), ['university_id' => 'university_id']);
+        return $this->hasOne(University::className(), ['university_id' => 'university_id'])->andWhere(['{{%university}}.deleted'=>0]);
+
     }
 
     /**
@@ -302,7 +383,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getBank()
     {
-        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id']);
+        return $this->hasOne(Bank::className(), ['bank_id' => 'bank_id'])->andWhere(['{{%bank}}.deleted'=>0]);
     }
 
     /**
@@ -310,7 +391,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getStore()
     {
-        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+        return $this->hasOne(Store::className(), ['store_id' => 'store_id'])->andWhere(['{{%store}}.deleted'=>0]);
     }
 
     /**
@@ -318,15 +399,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCompany()
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->via('store');
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id'])->via('store')->andWhere(['{{%company}}.deleted'=>0]);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidate($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTransferCandidates()
+    public function getCandidateIdCard()
     {
-        return $this->hasMany(TransferCandidates::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne(CandidateIdCard::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
@@ -350,7 +441,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Signs user up.
      * @return static|null the saved model or null if saving fails
      */
-    public function signup() {
+    public function signup()
+    {
         $this->setPassword($this->candidate_password_hash);
         $this->generateAuthKey();
 
@@ -370,14 +462,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @inheritdoc
      */
-    public static function findIdentity($id) {
+    public static function findIdentity($id)
+    {
         return static::findOne(['candidate_id' => $id]);
     }
 
     /**
      * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
         $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
         if($token){
             return $token->candidate;
@@ -390,8 +484,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $email
      * @return static|null
      */
-    public static function findByEmail($email) {
-        return static::findOne(['candidate_email' => $email]);
+    public static function findByEmail($email)
+    {
+        return static::findOne(['candidate_email' => $email,'deleted'=>0]);
     }
 
     /**
@@ -400,7 +495,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $token password reset token
      * @return static|null
      */
-    public static function findByPasswordResetToken($token) {
+    public static function findByPasswordResetToken($token)
+    {
 
         if (!static::isPasswordResetTokenValid($token)) {
             return null;
@@ -417,7 +513,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $token password reset token
      * @return boolean
      */
-    public static function isPasswordResetTokenValid($token) {
+    public static function isPasswordResetTokenValid($token)
+    {
         if (empty($token)) {
             return false;
         }
@@ -430,21 +527,24 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @inheritdoc
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->getPrimaryKey();
     }
 
     /**
      * @inheritdoc
      */
-    public function getAuthKey() {
+    public function getAuthKey()
+    {
         return $this->candidate_auth_key;
     }
 
     /**
      * @inheritdoc
      */
-    public function validateAuthKey($authKey) {
+    public function validateAuthKey($authKey)
+    {
         return $this->getAuthKey() === $authKey;
     }
 
@@ -454,7 +554,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $password password to validate
      * @return boolean if password provided is valid for current user
      */
-    public function validatePassword($password) {
+    public function validatePassword($password)
+    {
         return Yii::$app->security->validatePassword($password, $this->candidate_password_hash);
     }
 
@@ -463,14 +564,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      *
      * @param string $password
      */
-    public function setPassword($password) {
+    public function setPassword($password)
+    {
         $this->candidate_password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**
      * Generates auth key [1 time use token]
      */
-    public function generateAuthKey() {
+    public function generateAuthKey()
+    {
         $this->candidate_auth_key = Yii::$app->security->generateRandomString();
     }
 
@@ -548,6 +651,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->send();
     }
 
+    /**
+     * @return null
+     */
     public static function ageAlert()
     {
         $candidates = Candidate::find()
@@ -567,6 +673,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->send();
     }
 
+    /**
+     * @return null
+     */
     public static function civilIdExpire()
     {
         $candidates = Candidate::find()
@@ -584,5 +693,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Candidate having invalid civil ID')
             ->send();
+    }
+
+    /**
+     * @return bool
+     */
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\CandidateQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateQuery(get_called_class());
     }
 }

@@ -67,13 +67,19 @@ class S3ResourceManager extends Component {
      * [[http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_putObject]]
      * @return \Guzzle\Service\Resource\Model
      */
-    public function save($file, $name, $options = []) {
+    public function save($file, $name, $options = [], $source_file = null, $content_type = null) {
+
+        if($file) {
+            $source_file = $file->tempName;
+            $content_type = $file->type;
+        }
+
         $options = ArrayHelper::merge([
                     'Bucket' => $this->bucket,
                     'Key' => $name,
-                    'SourceFile' => $file->tempName,
+                    'SourceFile' => $source_file,
                     'ACL' => 'public-read', // default to ACL public read
-                    'ContentType' => $file->type,
+                    'ContentType' => $content_type,
                 ], $options);
 
         return $this->getClient()->putObject($options);

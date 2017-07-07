@@ -3,7 +3,7 @@
 namespace common\models;
 
 use Yii;
-
+use yii\db\ActiveRecord;
 /**
  * This is the model class for table "invoice".
  *
@@ -14,7 +14,7 @@ use Yii;
  *
  * @property Transfer $transfer
  */
-class Invoice extends \yii\db\ActiveRecord
+class Invoice extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -51,6 +51,30 @@ class Invoice extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // Total Invoice Amount
+        $fields['invoice_total'] = function($model) {
+            return $model->transfer->company_total;
+        };
+        
+        unset($fields['deleted']);
+
+        return $fields;
+    }
+
+    public function extraFields()
+    {
+        return [
+            'transfer',
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getTransfer()
@@ -77,7 +101,7 @@ class Invoice extends \yii\db\ActiveRecord
 
         $result = [];
 
-        foreach ($companies as $key => $value) 
+        foreach ($companies as $key => $value)
         {
             $invoice = Invoice::find()
                 ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
@@ -99,5 +123,14 @@ class Invoice extends \yii\db\ActiveRecord
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Company not paid in current month')
             ->send();
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\InvoiceQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\InvoiceQuery(get_called_class());
     }
 }

@@ -49,25 +49,36 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
-                        'POST request-reset-password' => 'request-reset-password',
+//                        'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
-                        'OPTIONS request-reset-password' => 'options',
+//                        'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
+                    ]
+                ],                
+                [ // StatisticController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/statistic',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                     ]
                 ],
                 [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',
                     'patterns' => [
+                        'GET detail/<id>' => 'view',
                         'GET' => 'list',
                         'GET search' => 'search',
                         'GET assigned' => 'list-assigned',
                         'GET not-assigned' => 'list-not-assigned',
                         'POST' => 'create',
-                        'POST filter' => 'filter',
+//                        'POST filter' => 'filter',
                         'PATCH <id>' => 'update',
+                        'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH assign/<id>' => 'assign',
                         'DELETE unassign/<id>' => 'unassign',
                         'DELETE <id>' => 'delete',
@@ -76,8 +87,10 @@ return [
                         'OPTIONS search' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS not-assigned/<id>' => 'options',
-                        'OPTIONS filter' => 'options',
+//                        'OPTIONS filter' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS detail/<id>' => 'options',
+                        'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',
                     ]
@@ -144,12 +157,14 @@ return [
                         'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
                         'GET list-expired' => 'list-expired',
+                        'GET total-expired' => 'total-expired',
                         'POST generate' => 'generate',
                         'POST renew' => 'renew',                        
                         // OPTIONS VERBS
                         'OPTIONS list-candidate-ids' => 'options',
                         'OPTIONS list-candidates' => 'options',
                         'OPTIONS list-expired' => 'options',
+                        'OPTIONS total-expired' => 'options',
                         'OPTIONS generate' => 'options',
                         'OPTIONS renew' => 'options',                        
                     ]

@@ -31,18 +31,20 @@ class Company extends \common\models\Company {
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getSubCompanies()
+    public function getSubCompanies($modelClass = "\staff\models\Company")
     {
-        return $this->hasMany(Company::className(), ['parent_company_id' => 'company_id']);
+        return parent::getSubCompanies($modelClass);
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @param string $modelClass
+     * @return $this
      */
-    public function getStores()
+    public function getStores($modelClass = "\staff\models\Store")
     {
-        return $this->hasMany(Store::className(), ['company_id' => 'company_id']);
+        return parent::getStores($modelClass)->andWhere(['deleted'=>0]);
     }
 }

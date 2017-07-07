@@ -4,7 +4,6 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use company\models\Store;
 use company\models\Company;
@@ -67,6 +66,8 @@ class StoreController extends Controller
     /**
      * Return a List of Store by companyId if provided
      * else by current login company id.
+     * @param null $companyId
+     * @return array|ActiveDataProvider
      */
     public function actionList($companyId = null)
     {
@@ -92,10 +93,32 @@ class StoreController extends Controller
         }
 
         $query = Store::find()
-            ->where(['{{%store}}.company_id' => $companyId]);
+            ->filterCompany($companyId);
 
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function actionIndex()
+    {
+        $company = Company::findOne(Yii::$app->user->id);
+        $list = [];
+
+        if (isset($company->subCompanies) && count($company->subCompanies)>0) {
+
+            $list['type'] = 'Company';
+            $list['results'] = $company->subCompanies;
+
+        } else if (isset($company->stores) && count($company->stores)>0) {
+
+            $list['type'] = 'Stores';
+            $list['results'] = $company->stores;
+        }
+
+        return $list;
     }
 }

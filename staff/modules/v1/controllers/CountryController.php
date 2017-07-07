@@ -69,11 +69,7 @@ class CountryController extends Controller
     public function actionList()
     {
         $query = Country::find()
-            ->select('country.*, COUNT(candidate.candidate_id) as total_candidates')
-            ->leftJoin('candidate', 'candidate.country_id = country.country_id')
-            ->groupBy('country.country_id')
-            ->orderBy('total_candidates DESC, country_name_en')
-            ->asArray();
+            ->listWithCandidateCount();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -87,6 +83,7 @@ class CountryController extends Controller
     public function actionAll()
     {
         return Country::find()
+            ->listWithCandidateCount()
             ->all();
     }
 }
