@@ -4,7 +4,6 @@ namespace admin\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use common\models\University;
 
