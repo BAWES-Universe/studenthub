@@ -225,7 +225,9 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate account updated successfully",
-            "candidate" => $model
+            "candidate" => $model,
+            "store" => $model->store,
+            "company" => $model->company
         ];
 
         // Check SQL Query Count and Duration

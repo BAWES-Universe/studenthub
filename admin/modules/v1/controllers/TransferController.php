@@ -252,39 +252,6 @@ class TransferController extends Controller
     }
 
     /**
-     * Mark Transfer as Payment In Completed
-     * @param $id
-     * @return array
-     */
-    public function actionPaymentCompleted($id)
-    {
-        $transfer = Transfer::findOne([
-            'transfer_id' => $id
-        ]);
-
-        if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found'
-            ];
-        }
-
-        try{
-            $transfer->paymentDistributionCompleted();
-        } catch(Exception $e){
-            return [
-                "operation" => "error",
-                "message" => $e->getMessage()
-            ];
-        }
-
-        return [
-            "operation" => "success",
-            "message" => 'Transfer marked as "Payment Complete" successfully'
-        ];
-    }
-
-    /**
      * Method linked with payable candidate
      * section option to mark all candidate at one time
      */
