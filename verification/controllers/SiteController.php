@@ -1,37 +1,36 @@
 <?php
 namespace verification\controllers;
 
-use Yii;
-use yii\base\InvalidParamException;
-use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use common\models\Candidate;
 use common\models\University;
 use common\models\Store;
 use common\models\company;
 use common\models\CandidateIdCard;
-
+use yii\web\NotFoundHttpException;
 /**
  * Site controller
  */
 class SiteController extends Controller
 {
     /**
-     * @inheritdoc
+     * @return \yii\web\Response
+     * 400 code for missing variable
+     * redirect to home page
      */
-    public function actions()
+    public function actionError()
     {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ]
-        ];
+        $exception = \Yii::$app->errorHandler->exception;
+
+        if ($exception->statusCode == 400) {
+            return $this->redirect('https://studenthub.co');
+        }
     }
 
     /**
-     * Displays homepage.
-     *
-     * @return mixed
+     * @param $candidate_uid
+     * @return string
+     * @throws \yii\web\NotFoundHttpException
      */
     public function actionIndex($candidate_uid)
     {
@@ -43,7 +42,7 @@ class SiteController extends Controller
 
         if(!$candidate)
         {
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         $id = CandidateIdCard::find()
@@ -52,7 +51,7 @@ class SiteController extends Controller
 
         if(!$id)
         {
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         $store = Store::findOne($candidate->store_id);
@@ -61,14 +60,14 @@ class SiteController extends Controller
 
         if(!$store)
         {
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         // show 404 if candidate ID is expired
 
         if(time() > strtotime($id->expiry_date))
         {
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         $university = University::findOne($candidate->university_id);
