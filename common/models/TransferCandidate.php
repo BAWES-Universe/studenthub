@@ -38,6 +38,8 @@ use common\models\Transfer;
  */
 class TransferCandidate extends \yii\db\ActiveRecord
 {
+    const PAID = 1;
+    const UNPAID = 0;
     /**
      * @inheritdoc
      */
