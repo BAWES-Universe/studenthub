@@ -79,6 +79,11 @@ class TransferCandidate extends \common\models\TransferCandidate
         $total = $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
         $company_total = $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
 
+        // in case if amount is less then 0 so that it should not show in payable candidate area
+        if ($total < 1) {
+            $TCModel->paid = TransferCandidate::PAID;
+        }
+
         if (!$TCModel->save()) {
 
             if(isset($TCModel->errors)){
