@@ -2,9 +2,6 @@
 
 namespace common\models\query;
 
-use Yii;
-use yii\helpers\ArrayHelper;
-
 /**
  * This is the ActiveQuery class for [[University]].
  *
@@ -42,7 +39,7 @@ class UniversityQuery extends \yii\db\ActiveQuery
      */
     public function joinCandidate()
     {
-        return $this->leftJoin('candidate', 'candidate.university_id = university.university_id')->andwhere(['{{%candidate}}.deleted'=>0]);
+        return $this->leftJoin('candidate', 'candidate.university_id = university.university_id');
     }
 
     public function listWithCandidateCount()
