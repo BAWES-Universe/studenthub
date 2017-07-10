@@ -66,4 +66,22 @@ class TransferCandidate extends \common\models\TransferCandidate
     {
         return parent::getInvoice($modelClass);
     }
+
+    public function getInvoiceNumber() {
+
+        $parentTransfer = Transfer::findOne(
+            [
+                'parent_transfer_id'=>$this->transfer_id,
+                'company_id'=>$this->candidate->company->company_id
+            ]
+        );
+        if ($parentTransfer) {
+            return $parentTransfer->invoices[0]->invoice_id;
+        } else {
+            $childTransfer = Transfer::findOne($this->transfer_id);
+            if ($childTransfer) {
+                return $childTransfer->invoices[0]->invoice_id;
+            }
+        }
+    }
 }
