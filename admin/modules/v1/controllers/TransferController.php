@@ -402,7 +402,7 @@ class TransferController extends Controller
             $s2 .=  "S2,".$detail->candidate->bank->bank_transfer_type.",".$detail->totalPaidToCandidate.",KWD,,,,11622216,".
                     $detail->candidate->candidate_iban.",".
                     $detail->transfer_id.",".
-                    $detail->invoice->invoice_id.",".
+                    $detail->invoiceNumber.",".
                     $description.",,,,".
                     $detail->candidate->bank_account_name.",".
                     $detail->candidate->bank->bank_name.",,".
