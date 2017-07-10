@@ -77,4 +77,15 @@ class CandidateController extends Controller
         ]);
     }
 
+    /**
+     * Return no of Candidates assigned to work
+     * for current company.
+     */
+    public function actionTotal()
+    {
+        $company = Company::findOne(Yii::$app->user->id);
+        
+        return $company->getCandidates()
+            ->count();
+    }
 }
