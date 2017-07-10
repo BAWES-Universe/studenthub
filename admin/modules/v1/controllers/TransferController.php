@@ -113,7 +113,9 @@ class TransferController extends Controller
             ->all();
 
         foreach ($transfers as $transfer) {
-            $candidates = $transfer->transferCandidates;
+            $candidates = $transfer->getTransferCandidates()
+                ->where(['paid' => '0'])
+                ->all();
 
             if($candidates) {
                 $result[] = [
