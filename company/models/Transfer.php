@@ -3,7 +3,6 @@ namespace company\models;
 
 use Yii;
 use yii\helpers\ArrayHelper;
-use company\models\TransferCandidate;
 
 /**
  * This is the model class for table "Transfer".
@@ -58,6 +57,16 @@ class Transfer extends \common\models\Transfer {
             'childTransferInvoices',
             'childTransferCandidates'
         ];
+    }
+
+    /**
+     * Get all invoices belonging to this transfer and its children transfers
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\company\models\Invoice")
+    {
+        return parent::getInvoices($modelClass);
     }
 
     /**
