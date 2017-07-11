@@ -128,6 +128,8 @@ class CompanyController extends Controller
             }
         }
 
+        Yii::info('[Company Account Created] Company "'.$model->company_name.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Company account successfully created"
@@ -207,7 +209,7 @@ class CompanyController extends Controller
             }
         }
 
-        Yii::info("[Company Account Updated] ".$model->company_email, __METHOD__);
+        Yii::info('[Company Account Updated] Company "'.$model->company_name.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -250,7 +252,7 @@ class CompanyController extends Controller
                 ];
             }
 
-            Yii::info("[Company Account Soft Deleted] ".$company->company_email, __METHOD__);
+            Yii::info('[Company Account Soft Deleted] Company "'.$company->company_name.'" soft deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
             // Delete the account
             $company->softDelete();

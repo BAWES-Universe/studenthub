@@ -102,6 +102,8 @@ class UniversityController extends Controller
             }
         }
 
+        Yii::info('[University Account Created] University "'.$model->university_name_en.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "University created successfully "
@@ -146,7 +148,7 @@ class UniversityController extends Controller
             }
         }
 
-        Yii::info("[University Updated] ".$model->university_name_en, __METHOD__);
+        Yii::info('[University Account Updated] University "'.$model->university_name_en.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -181,7 +183,7 @@ class UniversityController extends Controller
             ];
         }
 
-        Yii::info("[University Soft Deleted] ".$university->university_name_en, __METHOD__);
+        Yii::info('[University Soft Deleted] University "'.$university->university_name_en.'" account deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         // Delete university
         if ($university->softDelete()) {

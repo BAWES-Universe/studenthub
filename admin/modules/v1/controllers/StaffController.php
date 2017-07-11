@@ -103,6 +103,8 @@ class StaffController extends Controller
             }
         }
 
+        Yii::info('[Staff Account Created] Staff "'.$model->staff_email.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Staff account successfully created"
@@ -145,7 +147,7 @@ class StaffController extends Controller
             }
         }
 
-        Yii::info("[Staff Account Updated] ".$model->staff_email, __METHOD__);
+        Yii::info('[Staff Account Updated] Staff "'.$model->staff_email.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -165,8 +167,9 @@ class StaffController extends Controller
     {
         $staffMember = Staff::findOne((int)$id);
 
-        if($staffMember){
-            Yii::info("[Staff Soft Account Deleted] ".$staffMember->staff_email, __METHOD__);
+        if($staffMember) 
+        {
+            Yii::info('[Staff Account Soft Deleted] Staff "'.$staffMember->staff_email.'" soft deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
             // Delete the account
             $staffMember->delete();

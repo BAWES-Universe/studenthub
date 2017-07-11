@@ -208,9 +208,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             $this->setPassword($this->company_password_hash);
             $this->generateAuthKey();
             $this->save(false);
-
-            Yii::info("[New Company Account Created] ".$this->company_email, __METHOD__);
-
             return $this;
         }
         return null;
