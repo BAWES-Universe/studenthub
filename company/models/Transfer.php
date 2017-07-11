@@ -275,10 +275,10 @@ class Transfer extends \common\models\Transfer {
 
         foreach ($candidates as $key => $value) {
 
-            if(empty($value['bonus']))
+            if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
 
-            if(empty($value['hours']))
+            if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
             $candidate = Candidate::findOne($value['candidate_id']);
@@ -353,10 +353,10 @@ class Transfer extends \common\models\Transfer {
 
         foreach($candidates as $key => $value)
         {
-            if(empty($value['bonus']))
+            if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
 
-            if(empty($value['hours']))
+            if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
             //candiate hourly_rate
