@@ -121,31 +121,6 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
-     * Process that payment distribution has been completed
-     * @throws yii\base\Exception
-     */
-    public function paymentDistributionCompleted()
-    {
-        if($this->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
-            throw new Exception('Transfer already marked as "Payment Complete"');
-        }
-        if($this->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
-            throw new Exception('Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"');
-        }
-
-        $this->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-        $this->save(false);
-
-        // Get all child transfers
-        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
-        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-        $transfer_ids[] = $id;
-
-        // Mark candidates as paid
-        TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
-    }
-
-    /**
      * Get Total Paid
      * @return double
      */
