@@ -150,7 +150,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Approved] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Account Approved] Candidate "'.$model->candidate_email.'" approved by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",

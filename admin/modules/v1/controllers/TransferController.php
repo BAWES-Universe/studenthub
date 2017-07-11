@@ -178,6 +178,8 @@ class TransferController extends Controller
             ];
         }
 
+        Yii::info('[Transfer marked as "Payment Received"] Transfer "'.$id.'" marked as "Payment Received" by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         // Sending receipt to company via email
         $this->receiptMail($transfer->transfer_id);
 
@@ -214,6 +216,8 @@ class TransferController extends Controller
             ];
         }
 
+        Yii::info('[Transfer unlocked] Transfer "'.$id.'" unlocked by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => 'Transfer unlocked successfully'
@@ -244,6 +248,8 @@ class TransferController extends Controller
                 "message" => $e->getMessage()
             ];
         }
+
+        Yii::info('[Transfer reverted to locked] Transfer "'.$id.'" reverted to locked by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -284,6 +290,8 @@ class TransferController extends Controller
                 $transfer->save();
             }
         }
+
+        Yii::info('[Candidate(s) have been marked as paid] ' . count($candidate_ids) . ' candidate(s) have been marked as paid by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             'operation' => 'success',
