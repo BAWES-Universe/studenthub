@@ -317,6 +317,8 @@ class Transfer extends \common\models\Transfer {
 
         $transaction->commit();
 
+        Yii::info('[Company Initiated Transfer] Transfer "'.$transfer->transfer_id.'" initiated by Company: "'.$company->company_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Transfer created.",
@@ -514,6 +516,8 @@ class Transfer extends \common\models\Transfer {
         }
 
         $transaction->commit();
+
+        Yii::info('[Company Update Transfer] Transfer "'.$model->transfer_id.'" updated by Company: "'.$company->company_name.'"', __METHOD__);
 
         return [
             "operation" => "success",

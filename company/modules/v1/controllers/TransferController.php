@@ -118,8 +118,6 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
-        Yii::info("[Company Initiated Transfer] ".$company->company_name, __METHOD__);
-
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
 
@@ -166,8 +164,6 @@ class TransferController extends Controller
                 "message" => 'Transfer status should be "Initiated" to edit it!'
             ];
         }
-
-        Yii::info("[Company Update Transfer] ".$company->company_name, __METHOD__);
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
@@ -218,7 +214,7 @@ class TransferController extends Controller
         $transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
         $transfer->save();
 
-        Yii::info("[Company Sent Transfer] ".$company->company_name, __METHOD__);
+        Yii::info('[Company Sent Transfer] Transfer "'.$transfer->transfer_id.'" marked as "Payment Sent" by Company: "'.$company->company_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -266,7 +262,8 @@ class TransferController extends Controller
         $model->transfer_status = Transfer::STATUS_LOCK;
         $model->save();
 
-        Yii::info("[Company Lock Transfer] ".$company->company_name, __METHOD__);
+        Yii::info('[Company Lock Transfer] Transfer "'.$model->transfer_id.'" has been locked by Company: "'.$company->company_name.'"', __METHOD__);
+        
         //select distinct company and create transfer for each company
         Transfer::generateEachCompanyTransfer($model, $company);
 
@@ -316,7 +313,7 @@ class TransferController extends Controller
         //delete data child transfer
         Transfer::deleteChildTransfer($model);
 
-        Yii::info("[Company Deleted Transfer] ".$company->company_name, __METHOD__);
+        Yii::info('[Company Deleted Transfer] Transfer "'.$id.'" deleted by Company: "'.$company->company_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
