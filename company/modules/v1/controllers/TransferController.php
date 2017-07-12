@@ -283,6 +283,7 @@ class TransferController extends Controller
     public function actionDelete($id)
     {
         $company = Company::findOne(Yii::$app->user->id);
+        
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)

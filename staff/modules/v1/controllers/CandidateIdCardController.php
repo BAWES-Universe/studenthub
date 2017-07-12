@@ -76,8 +76,9 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->joinWith('candidateIdCard',true,'INNER JOIN')
+            ->joinWith('candidateIdCard', true, 'INNER JOIN')
             ->notDeleted();
+
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
@@ -97,6 +98,7 @@ class CandidateIdCardController extends Controller
         $query = Candidate::find()
             ->filterWithoutCard()
             ->notDeleted();
+            
         if($candidate_name)
         {
             $query->filterName($candidate_name);
