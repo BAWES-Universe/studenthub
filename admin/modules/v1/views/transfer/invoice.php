@@ -76,7 +76,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
 </div>
 <!-- end of summary -->
 <div class="col-xs-12" style="">
-    <p style="margin-bottom:0;">Thank you for your business. It’s a pleasure to working with you.</p>
+    <p style="margin-bottom:0;">Thank you for your business. It’s a pleasure working with you.</p>
     <p style="margin-bottom:0;">Sincerely yours,</p>
     <p style="margin-bottom:0;">
         Khalid Al-Mutawa<br/>
