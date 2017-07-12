@@ -67,6 +67,9 @@ class TransferCandidate extends \common\models\TransferCandidate
         return parent::getInvoice($modelClass);
     }
 
+    /**
+     * @return mixed
+     */
     public function getInvoiceNumber() {
 
         $parentTransfer = Transfer::findOne(
