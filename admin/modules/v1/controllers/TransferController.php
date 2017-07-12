@@ -112,12 +112,14 @@ class TransferController extends Controller
             ->isParentTransfer()
             ->all();
 
-        foreach ($transfers as $transfer) {
+        foreach ($transfers as $transfer) 
+        {
             $candidates = $transfer->getTransferCandidates()
                 ->where(['paid' => '0'])
                 ->all();
 
-            if($candidates) {
+            if($candidates) 
+            {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates,
@@ -266,26 +268,23 @@ class TransferController extends Controller
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
         $main_transfer_id = 0;
 
-        foreach ($candidate_ids as $list) {
-            // Find transfer
-            $transfer = Transfer::findOne($list['transfer_id']);
-
-            // Get all child transfers
-            $transfers = Transfer::findAll(['parent_transfer_id' => $list['transfer_id']]);
-            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-            $transfer_ids[] = $list['transfer_id'];
-
-            TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$list['candidate_id'].'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
+        foreach ($candidate_ids as $value) 
+        {
+            TransferCandidate::updateAll(
+                ['paid' => 1], 
+                ['candidate_id' => $value['candidate_id'], 'transfer_id' => $value['transfer_id']]
+            );
 
             // Check if all paid, mark transfer as complete
             $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
                 ])
-                ->andWhere(['in', 'transfer_id', $transfer_ids])
+                ->andWhere(['transfer_id' => $value['transfer_id']])
                 ->count();
 
             if (!$unpaid) {
+                $transfer = Transfer::findOne($value['transfer_id']);
                 $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
                 $transfer->save();
             }
