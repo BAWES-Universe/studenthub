@@ -87,7 +87,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
-            [['candidate_hourly_rate'], 'validateHoursRate'],
+            ['candidate_hourly_rate', 'compare', 'compareValue' => 0, 'operator' => '>', 'type' => 'number'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
@@ -142,16 +142,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if($this->age < 18 || $this->age > 24) {
             $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 24.');
-        }
-    }
-
-    /**
-     * Validate hours rate
-     */
-    public function validateHoursRate()
-    {
-        if($this->candidate_hourly_rate < 0) {
-            $this->addError('candidate_hourly_rate', 'Please enter valid candidate hours rate.');
         }
     }
 
