@@ -73,24 +73,25 @@ class StoreController extends Controller
     {
         $company = Yii::$app->user->identity;
 
+        //validate company id belong to sub company of current company 
         if($companyId)
         {
             $sub_company = Company::findOne([
                 'parent_company_id' => $company->company_id,
                 'company_id' => $companyId
             ]);
-        }
 
-        if($companyId && empty($sub_company)) {
-            return [
+            if(empty($sub_company)) 
+                return [
                     "operation" => "error",
                     "message" => 'Company not found'
                 ];
         }
-
-        if(!$companyId) {
-            $companyId = $company->company_id;
-        }
+        else 
+        {
+            //show store for current login company by default 
+            $companyId = $company->company_id;    
+        }       
 
         $query = Store::find()
             ->filterCompany($companyId);

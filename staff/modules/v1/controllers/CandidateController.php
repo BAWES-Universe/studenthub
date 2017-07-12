@@ -70,8 +70,9 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $query = Candidate::find();
-        $query->notDeleted();
+        $query = Candidate::find()
+            ->notDeleted();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -85,12 +86,13 @@ class CandidateController extends Controller
     {
         $store_id = Yii::$app->request->getBodyParam("store_id");
 
-        $query = Candidate::find();
+        $query = Candidate::find()
+            ->notDeleted();
 
         if($store_id) {
             $query->filterStore($store_id);
         }
-        $query->notDeleted();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -354,6 +356,7 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->filterNotAssigned()
             ->notDeleted();
+
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -374,6 +377,7 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->filterAssigned()
             ->notDeleted();
+
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -392,12 +396,12 @@ class CandidateController extends Controller
     {
         $country_id = Yii::$app->request->get('country_id');
 
-        $query = Candidate::find();
+        $query = Candidate::find()
+            ->notDeleted();
 
         if($country_id) {
             $query->filterCountry($country_id);
         }
-        $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
