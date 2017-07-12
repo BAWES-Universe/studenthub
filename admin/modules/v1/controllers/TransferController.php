@@ -181,7 +181,7 @@ class TransferController extends Controller
         Yii::info('[Transfer marked as "Payment Received"] Transfer "'.$id.'" marked as "Payment Received" by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         // Sending receipt to company via email
-        $this->receiptMail($transfer->transfer_id);
+        $transfer->notify('receipt');
 
         return [
             "operation" => "success",
@@ -531,67 +531,5 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
-    }
-
-    /**
-     * Receipt Mail by transfer id to recipient
-     * and also forward to finance@bawes.net
-     * @param $transfer_id
-     * @return array|bool
-     */
-    private function receiptMail($transfer_id)
-    {
-        $invoices = Invoice::find()
-            ->byTransfer($transfer_id)
-            ->all();
-
-        if(!$invoices) {
-            return [
-                "operation" => "error",
-                "message" => 'Invoice not found!'
-            ];
-        }
-
-        $this->layout = 'pdf';
-        $subject = [];
-        $template = 'receipt';
-        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
-        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
-        $i=1;
-        $invoice_id = 0;
-        foreach ($invoices as $invoice) {
-            $invoice_id = $invoice->invoice_id;
-            $content = $this->render($template, [
-                'invoice' => $invoice,
-            ]);
-            $pdf = new Pdf([
-                'mode' => Pdf::MODE_UTF8,
-                //UTF mode for arabic language
-                'format' => Pdf::FORMAT_A4,
-                // portrait orientation
-                'orientation' => Pdf::ORIENT_PORTRAIT,
-                // stream to browser inline
-                'destination' => Pdf::DEST_BROWSER,
-                // your html content input
-                'content' => $content,
-                // any css to be embedded if required
-                'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
-                // set mPDF properties on the fly
-                'options' => [],//['title' => 'Booking #'.$id],
-                // call mPDF methods on the fly
-            ]);
-            $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
-            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
-            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
-            $i++;
-            $subject[] = '#'.$invoice_id;
-            $invoice_id = 0; // reinitialize to 0 to store new with new loop
-        }
-        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
-
-        return $message->setTo($email)
-            ->setCc(Yii::$app->params['invoiceCC'])
-            ->setSubject($subjectLine)
-            ->send();
     }
 }

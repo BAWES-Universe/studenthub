@@ -178,6 +178,11 @@ class TransferCandidate extends \yii\db\ActiveRecord
         return ($this->company_hourly_rate * $this->hours) + $this->bonus;
     }
 
+    public function getProfit() 
+    {
+        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
+    }
+
     /**
      * Relations below
      */
