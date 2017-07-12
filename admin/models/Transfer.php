@@ -3,10 +3,6 @@ namespace admin\models;
 
 use Yii;
 use yii\base\Exception;
-use yii\helpers\ArrayHelper;
-use admin\models\TransferCandidate;
-use admin\models\Company;
-use admin\models\Invoice;
 
 /**
  * This is the model class for table "Transfer".
@@ -30,11 +26,7 @@ class Transfer extends \common\models\Transfer
         };
 
     	$fields['total_transfer_cost'] = function($model) {
-    		return TransferCandidate::find()
-                ->where([
-                    'transfer_id' => $model->transfer_id
-                ])
-                ->sum('transfer_cost');
+    		return Transfer::getTransferCost($model->transfer_id);
     	};
 
     	return $fields;
@@ -146,8 +138,8 @@ class Transfer extends \common\models\Transfer
      */
     public function getProfit()
     {
-        return $this->getTransferCandidates()
-            ->profit();
+        $profit = $this->company_total - $this->total - Transfer::getTransferCost($this->transfer_id);
+        return number_format($profit, 3, '.', '');
     }
 
     /**
@@ -200,5 +192,17 @@ class Transfer extends \common\models\Transfer
     public function getChildTransferCandidates($modelClass = "\admin\models\TransferCandidate")
     {
         return parent::getChildTransferCandidates($modelClass);
+    }
+
+    /**
+     * @param $transfer_id
+     * @return mixed
+     */
+    public static function getTransferCost($transfer_id) {
+        return TransferCandidate::find()
+            ->where([
+                'transfer_id' => $transfer_id
+            ])
+            ->sum('transfer_cost');
     }
 }
