@@ -256,7 +256,15 @@ class CandidateController extends Controller
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
 
-        $store = Store::findOne($model->store_id);
+        if (!$model->store) {
+            return [
+                "operation" => "error",
+                "message" => "Store not found",
+                "code" => 1
+            ];
+        }
+
+        $store = $model->store;
 
         if(!$store) {
             return [
@@ -475,12 +483,9 @@ class CandidateController extends Controller
         }
 
         //check if in invoice
+        $transfers = $model->transferCandidate;
 
-        $a = TransferCandidate::findOne([
-                'candidate_id' => $id
-            ]);
-
-        if($a)
+        if($transfers)
         {
             return [
                 "operation" => "error",
