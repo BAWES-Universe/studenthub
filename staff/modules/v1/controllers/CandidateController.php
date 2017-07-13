@@ -145,17 +145,7 @@ class CandidateController extends Controller
         }
 
         //Send Email to user
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        Yii::$app->mailer->compose("candidate-register",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
-            ->setTo($model->candidate_email)
-            ->setSubject('Welcome to the '.Yii::$app->name)
-            ->send();
+        Candidate::welcomeMail($model, $password);
 
         Yii::info('[Candidate Account Created] Candidate "'.$model->candidate_name.'" account created by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
             
@@ -439,19 +429,8 @@ class CandidateController extends Controller
         $model->save(false);
 
         //Send Email to user
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        Yii::$app->mailer->compose("candidate-password",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
-                'logo_2' => ''
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
-            ->setTo($model->candidate_email)
-            ->setSubject('Your internship account password has been reset')
-            ->send();
-                   
+        Candidate::passwordMail($model, $password);
+
         return [
             "operation" => "success",
             "message" => "New password sent to registered email successfully"
