@@ -2,6 +2,7 @@
 namespace staff\models;
 
 use Yii;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "Candidate".
@@ -39,5 +40,46 @@ class Candidate extends \common\models\Candidate {
         }
 
         return false;
+    }
+
+    /** 
+     * Send new password to customer 
+     * @param staff\models\Customer $model
+     * @param string $password
+     */
+    public static function passwordMail($model, $password)
+    {
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        Yii::$app->mailer->compose("candidate-password",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setTo($model->candidate_email)
+            ->setSubject('Your internship account password has been reset')
+            ->send();
+    }
+
+    /** 
+     * Send welcome mail to customer 
+     * @param staff\models\Customer $model
+     * @param string $password
+     */
+    public static function welcomeMail($model, $password) 
+    {
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        Yii::$app->mailer->compose("candidate-register",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setTo($model->candidate_email)
+            ->setSubject('Welcome to the '.Yii::$app->name)
+            ->send();
     }
 }
