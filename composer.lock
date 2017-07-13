@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8067c76a7af8b0b3abf0fe6014e40afe",
+    "content-hash": "8fb4b5a9da2580b91f94045c2a8f1a6f",
     "packages": [
         {
             "name": "2amigos/yii2-qrcode-helper",
@@ -870,7 +870,7 @@
                 "utf8",
                 "yii2"
             ],
-            "time": "2017-06-20 14:57:17"
+            "time": "2017-06-20T14:57:17+00:00"
         },
         {
             "name": "moonlandsoft/yii2-phpexcel",
@@ -2201,7 +2201,7 @@
                 "httpclient",
                 "yii2"
             ],
-            "time": "2017-06-19 10:01:24"
+            "time": "2017-06-19T10:01:24+00:00"
         },
         {
             "name": "yiisoft/yii2-imagine",
