@@ -350,7 +350,7 @@ class TransferController extends Controller
         else
             $template = 'invoice';
 
-        $content = $this->render($template, [
+        $content = $this->render('@admin/modules/v1/views/transfer/' . $template . '.php', [
             'invoice' => $invoice,
         ]);
 
