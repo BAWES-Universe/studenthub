@@ -5,8 +5,9 @@ namespace admin\modules\v1\controllers;
 use admin\models\Candidate;
 use Yii;
 use yii\rest\Controller;
-use common\models\Transfer;
-
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
+use admin\models\Transfer;
 /**
  * Statistic controller
  */
@@ -21,7 +22,7 @@ class StatisticController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -39,7 +40,7 @@ class StatisticController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -67,32 +68,16 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
-        $arr_status = Transfer::statusList();
-        $totalCandidate = Candidate::find()->notDeleted()->count();
-        $totalAssign = Candidate::find()->where('store_id is NOT NULL')->notDeleted()->count();
-        $approved = Candidate::find()->where(['approved'=>1])->notDeleted()->count();
+        $totalCandidate = Candidate::candidateCountByCondition();
+        $totalAssign = Candidate::candidateCountByCondition('assigned');
+        $approved = Candidate::candidateCountByCondition('approved');
         $result['transfers'] = [];
-
-        foreach ($arr_status as $key => $value) 
-        {
-            $count = Transfer::find()
-                ->where(['transfer_status' => $key])
-                ->notDeleted()
-                ->count();
-
-            $result['transfers'][] = [
-                'transfer_status' => $value,
-                'count' => $count,
-                'status_code' => $key
-            ];
-        }
-
+        $result['transfers'] = Transfer::getTransferStats();
         $result['candidates']['total_candidate'] = $totalCandidate;
         $result['candidates']['total_assign'] = $totalAssign;
         $result['candidates']['total_unassign'] = $totalCandidate - $totalAssign;
         $result['candidates']['total_approved'] = $approved;
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
-
         return $result;
     }
 }
