@@ -70,11 +70,11 @@ class StatisticController extends Controller
     {
         // Candidates
         $totalCandidate = Candidate::candidateCountByCondition();
-        $totalAssign = Candidate::candidateCountByCondition('assigned');
+        $totalAssignedToWork = Candidate::candidateCountByCondition('assigned');
         $approved = Candidate::candidateCountByCondition('approved');
 
         $result['candidates']['total_candidate'] = $totalCandidate;
-        $result['candidates']['total_unassign'] = $totalCandidate - $totalAssign;
+        $result['candidates']['total_assigned'] = $totalAssignedToWork;
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
 
         // Transfers
