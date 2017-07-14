@@ -4,6 +4,8 @@ namespace candidate\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 /**
  * Statistic controller
  */
@@ -18,7 +20,7 @@ class StatisticController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -36,7 +38,7 @@ class StatisticController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -65,32 +67,19 @@ class StatisticController extends Controller
     public function actionList()
     {
         $return = [];
-        
         $user = Yii::$app->user->identity;
-        
-        $totalHours = 0;
-        $totalPaid = 0;
-        $totalBonus = 0;
-        
-        foreach($user->transferCandidate as $transfer) 
-        {
-            $totalHours += $transfer->hours;
+        $stats = $user->accountStatistic;
 
-            if (
-                $transfer->invoice && 
-                $transfer->invoice->invoice_status == 'paid'
-            ) {
-                $totalPaid += ($transfer->hours * $transfer->company_hourly_rate);
-                $totalBonus += $transfer->bonus;
-            }
-        }
-        
+        $totalHours = (int)$stats['hours'];
+        $totalPaid  = (int)$stats['paid'];
+        $totalBonus = (int)$stats['bonus'];
+
         $return['total_hours'] = number_format($totalHours);
         $return['total_paid'] = $totalPaid;
         $return['total_bonus'] = $totalBonus;
         $return['total_earning'] = $totalPaid + $totalBonus;
         $return['candidate'] = $user;
-        
+
         return $return;
     }
 }

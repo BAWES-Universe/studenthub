@@ -5,9 +5,9 @@ namespace candidate\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
-
+use candidate\models\PasswordResetRequestForm;
 use candidate\models\Candidate;
-
+use yii\filters\Cors;
 /**
  * Auth controller provides the initial access token that is required for further requests
  * It initially authorizes via Http Basic Auth using a base64 encoded username and password
@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -122,7 +122,7 @@ class AuthController extends Controller
     {
         $emailInput = Yii::$app->request->getBodyParam("email");
 
-        $model = new \candidate\models\PasswordResetRequestForm();
+        $model = new PasswordResetRequestForm();
         $model->email = $emailInput;
 
         $errors = false;

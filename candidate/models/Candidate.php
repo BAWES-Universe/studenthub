@@ -38,11 +38,18 @@ class Candidate extends \common\models\Candidate {
         }
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
     {
         return parent::getTransferCandidate($modelClass);
     }
 
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getPaidTransferCandidate()
     {
         $status =[Transfer::STATUS_TRANSFER_COMPLETE,Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS];
