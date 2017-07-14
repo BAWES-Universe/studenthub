@@ -207,45 +207,20 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
-     * @return array
-     */
-    public static function getTransferStats() {
-
-        $response = [];
-        foreach (Transfer::statusList() as $key => $value) {
-            $result = Transfer::getTransferStatusRecordDetail($key);
-            if ($result) {
-                $response[] = [
-                    'transfer_status' => $value,
-                    'count' => $result['total'],
-                    'status_code' => $key
-                ];
-            } else {
-                $response[] = [
-                    'transfer_status' => $value,
-                    'count' => 0,
-                    'status_code' => $key
-                ];
-            }
-        }
-        return $response;
-    }
-
-
-    /**
      * @param int $statusCode
      * @return array|bool|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
     public static function getTransferStatusRecordDetail($statusCode = 0){
-        $status = Transfer::statusList();
+        $statusList = Transfer::statusList();
         $queryResult = Transfer::find()
             ->select('count(*) as total,transfer_status')
-            ->andWhere(['transfer_status'=>array_keys($status)])
+            ->andWhere(['transfer_status'=>array_keys($statusList)])
             ->notDeleted()
             ->isParentTransfer()
             ->groupBy('transfer_status')
             ->asArray()
             ->all();
+
         if ($statusCode) {
             foreach ($queryResult as $result) {
                 if ($result['transfer_status'] == $statusCode) {

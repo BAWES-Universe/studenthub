@@ -68,16 +68,29 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
+        // Candidates
         $totalCandidate = Candidate::candidateCountByCondition();
         $totalAssign = Candidate::candidateCountByCondition('assigned');
         $approved = Candidate::candidateCountByCondition('approved');
-        $result['transfers'] = [];
-        $result['transfers'] = Transfer::getTransferStats();
+
         $result['candidates']['total_candidate'] = $totalCandidate;
-        $result['candidates']['total_assign'] = $totalAssign;
         $result['candidates']['total_unassign'] = $totalCandidate - $totalAssign;
-        $result['candidates']['total_approved'] = $approved;
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
+
+        // Transfers
+        $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK);
+        $paymentSentTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_PAYMENT_SENT);
+
+        $result['transfers'] = [];
+        $result['transfers']['locked'] = [
+            "code" => Transfer::STATUS_LOCK,
+            "total" => $lockedTransfers['total']? $lockedTransfers['total'] : 0
+        ];
+        $result['transfers']['paymentSent'] = [
+            "code" => Transfer::STATUS_LOCK,
+            "total" => $paymentSentTransfers['total']? $paymentSentTransfers['total'] : 0
+        ];
+        
         return $result;
     }
 }
