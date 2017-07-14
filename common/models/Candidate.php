@@ -717,13 +717,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return array
      */
-    public static function getAccountStatistic() {
+    public function getAccountStatistic() {
 
         $totalHours = 0;
         $totalPaid = 0;
         $totalBonus = 0;
 
-        foreach (Yii::$app->user->identity->transferCandidate as $transfer) {
+        foreach ($this->transferCandidate as $transfer) {
 
             $totalHours += $transfer->hours;
 
