@@ -713,4 +713,32 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return new query\CandidateQuery(get_called_class());
     }
+
+    /**
+     * @return array
+     */
+    public static function getAccountStatistic() {
+
+        $totalHours = 0;
+        $totalPaid = 0;
+        $totalBonus = 0;
+
+        foreach (Yii::$app->user->identity->transferCandidate as $transfer) {
+
+            $totalHours += $transfer->hours;
+
+            if (
+                $transfer->invoice &&
+                $transfer->invoice->invoice_status == 'paid'
+            ) {
+                $totalPaid += ($transfer->hours * $transfer->company_hourly_rate);
+                $totalBonus += $transfer->bonus;
+            }
+        }
+        return [
+            'hours' => $totalHours,
+            'paid' => $totalPaid,
+            'bonus' => $totalBonus,
+        ];
+    }
 }
