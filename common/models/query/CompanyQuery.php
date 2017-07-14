@@ -34,5 +34,14 @@ class CompanyQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere(['parent_company_id' => $id]);
     }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterCompany($id)
+    {
+        return $this->andWhere(['{{%company}}.company_id'=>$id]);
+    }
 }
  

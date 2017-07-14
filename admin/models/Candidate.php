@@ -39,4 +39,23 @@ class Candidate extends \common\models\Candidate {
         }
         return $candidates;
     }
+
+    /**
+     * @param bool $condition
+     * @return int|string
+     */
+    public static function candidateCountByCondition($condition = false) {
+        $query = Candidate::find();
+
+        switch ($condition) {
+            case 'assigned':
+                $query->filterAssigned();
+                break;
+            case 'approved':
+                $query->byApprovalStatus(1);
+                break;
+        }
+
+        return $query->notDeleted()->count();
+    }
 }

@@ -81,14 +81,14 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
-                        'GET subcompanies/<id>' => 'subcompanies',
+                        'GET sub-companies/<id>' => 'sub-companies',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
-                        'OPTIONS subcompanies/<id>' => 'options',
+                        'OPTIONS sub-companies/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController

@@ -4,14 +4,11 @@ namespace admin\modules\v1\controllers;
 
 use Yii;
 use yii\base\Exception;
-use yii\data\ArrayDataProvider;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use admin\models\Candidate;
 use kartik\mpdf\Pdf;
 
 /**
@@ -138,11 +135,7 @@ class TransferController extends Controller
      */
     public function actionView($id)
     {
-        $transfer = Transfer::find()
-            ->where([
-                'transfer_id' => $id
-            ])
-            ->one();
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
@@ -198,9 +191,7 @@ class TransferController extends Controller
      */
     public function actionUnlock($id)
     {
-        $transfer = Transfer::findOne([
-            'transfer_id' => $id
-        ]);
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
@@ -233,7 +224,7 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $transfer = Transfer::findOne($id);
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
@@ -413,11 +404,7 @@ class TransferController extends Controller
      */
     public function actionExport($id)
     {
-        $transfer = Transfer::find()
-            ->where([
-                'transfer_id' => $id
-            ])
-            ->one();
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
