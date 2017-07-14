@@ -6,10 +6,10 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
-use company\models\Candidate;
 use company\models\Transfer;
 use common\models\Invoice;
-use company\models\TransferCandidate;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 use kartik\mpdf\Pdf;
 
 /**
@@ -26,7 +26,7 @@ class TransferController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -44,7 +44,7 @@ class TransferController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -74,13 +74,13 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $company = Company::findOne(Yii::$app->user->id);
-        $query = $company->getTransfers()
-            ->where('parent_transfer_id IS NULL')
-            ->orderBy('transfer_id DESC');
+        $company = Company::findOne(Yii::$app->user->id)
+                    ->getTransfers()
+                    ->isParentTransfer()
+                    ->decreasingOrder();
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $company
         ]);
     }
 
