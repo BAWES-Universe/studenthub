@@ -4,11 +4,8 @@ namespace staff\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
-use staff\models\Store;
 use staff\models\Candidate;
-use common\models\TransferCandidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -126,7 +123,7 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->candidate_password_hash = $password;
-
+        $model->password = $password; // temp password to send in mail
         //candidate_auth_key
 
         if (!$model->signup())
@@ -143,9 +140,6 @@ class CandidateController extends Controller
                 ];
             }
         }
-
-        //Send Email to user
-        Candidate::welcomeMail($model, $password);
 
         Yii::info('[Candidate Account Created] Candidate "'.$model->candidate_name.'" account created by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
             

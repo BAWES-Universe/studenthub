@@ -10,6 +10,7 @@ use yii\helpers\Url;
  */
 class Candidate extends \common\models\Candidate {
 
+    public $password = null;
     /**
      * @inheritdoc
      */
@@ -44,7 +45,7 @@ class Candidate extends \common\models\Candidate {
 
     /** 
      * Send new password to customer 
-     * @param staff\models\Customer $model
+     * @param Candidate $model
      * @param string $password
      */
     public static function passwordMail($model, $password)
@@ -63,15 +64,27 @@ class Candidate extends \common\models\Candidate {
             ->send();
     }
 
-    /** 
-     * Send welcome mail to customer 
-     * @param staff\models\Customer $model
-     * @param string $password
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @return bool
      */
-    public static function welcomeMail($model, $password) 
+    public function afterSave($insert, $changedAttributes)
     {
+        parent::afterSave($insert, $changedAttributes);
+        return $this->sendWelcomeEmail();
+    }
+
+    /**
+     * send welcome mail
+     * @return bool
+     */
+    public function sendWelcomeEmail(){
+        $model = $this;
         Yii::$app->mailer->htmlLayout = 'layouts/html';
-        Yii::$app->mailer->compose("candidate-register",
+        $password = $model->password;
+        $this->password = null;
+        return Yii::$app->mailer->compose("candidate-register",
             [
                 "model" => $model,
                 "password" => $password,
