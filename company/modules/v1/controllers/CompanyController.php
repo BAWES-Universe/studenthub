@@ -6,7 +6,8 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
-
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 /**
  * Company controller - Manage company accounts as Admin
  */
@@ -21,7 +22,7 @@ class CompanyController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -39,7 +40,7 @@ class CompanyController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -67,20 +68,9 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $query = Company::find()
-            ->select([
-                'company_id',
-                'parent_company_id',
-                'company_name',
-                'company_email',
-                'company_status',
-                'company_created_at',
-                'company_updated_at'
-            ])
-            ->where(['parent_company_id' => Yii::$app->user->identity->company_id]);
-
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => Company::find()
+                ->childCompany(Yii::$app->user->identity->company_id)
         ]);
     }
 }

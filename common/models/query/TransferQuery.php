@@ -4,12 +4,12 @@ namespace common\models\query;
 
 use Yii;
 use yii\helpers\ArrayHelper;
-
+use yii\db\ActiveQuery;
 /**
  * This is the ActiveQuery class for [[Country]].
  *
  */
-class TransferQuery extends \yii\db\ActiveQuery
+class TransferQuery extends ActiveQuery
 {
     /**
      * @param null $db
@@ -93,18 +93,10 @@ class TransferQuery extends \yii\db\ActiveQuery
     {
         $companies = $company->subCompanies;
 
-        $company_ids = ArrayHelper::map(
-            $companies,
-            'company_id',
-            'company_id'
-        );
+        $company_ids = ArrayHelper::map( $companies, 'company_id', 'company_id' );
 
         $company_ids[] = $company->company_id;
-        return $this->andWhere([
-            'in',
-            '{{%transfer}}.company_id',
-            $company_ids
-        ]);
+        return $this->andWhere([ 'in', '{{%transfer}}.company_id', $company_ids ]);
     }
 
     /**
@@ -129,5 +121,9 @@ class TransferQuery extends \yii\db\ActiveQuery
     public function transferCandidateJoin()
     {
         return $this->joinWith('transferCandidates');
+    }
+
+    public function decreasingOrder() {
+        return $this->orderBy('transfer_id DESC');
     }
 }

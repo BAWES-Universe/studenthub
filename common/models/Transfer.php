@@ -4,14 +4,9 @@ namespace common\models;
 
 use Yii;
 use yii\db\Expression;
-use yii\helpers\ArrayHelper;
-use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
-use common\models\Store;
-use common\models\Company;
-use common\models\Candidate;
 use kartik\mpdf\Pdf;
-
+use yii\db\ActiveRecord;
 /**
  * This is the model class for table "transfer".
  *
@@ -31,7 +26,7 @@ use kartik\mpdf\Pdf;
  * @property TransferCandidate[] $childTransferCandidates
  * @property Invoice $childTransferInvoices
  */
-class Transfer extends \yii\db\ActiveRecord
+class Transfer extends ActiveRecord
 {
     const STATUS_PAYMENT_SENT = 1;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
@@ -271,7 +266,7 @@ class Transfer extends \yii\db\ActiveRecord
         $i=1;
         $invoice_id = 0;
         
-        foreach ($invoices as $invoice) 
+        foreach ($invoices as $invoice)
         {
             $invoice_id = $invoice->invoice_id;
 
@@ -305,12 +300,9 @@ class Transfer extends \yii\db\ActiveRecord
             $invoice_id = 0; // reinitialize to 0 to store new with new loop
         }
 
-        if($template == 'invoice') 
-        {
+        if ( $template == 'invoice' ) {
             $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{invoice} other{Invoices}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
-        } 
-        else 
-        {
+        }  else {
             $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
         }
 

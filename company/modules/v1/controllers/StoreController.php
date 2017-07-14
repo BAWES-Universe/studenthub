@@ -7,7 +7,8 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use company\models\Store;
 use company\models\Company;
-
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 /**
  * Store controller - Manage store as Admin
  */
@@ -22,7 +23,7 @@ class StoreController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -40,7 +41,7 @@ class StoreController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -74,8 +75,8 @@ class StoreController extends Controller
         $company = Yii::$app->user->identity;
 
         //validate company id belong to sub company of current company 
-        if($companyId)
-        {
+        if ($companyId) {
+
             $sub_company = Company::findOne([
                 'parent_company_id' => $company->company_id,
                 'company_id' => $companyId
@@ -86,15 +87,13 @@ class StoreController extends Controller
                     "operation" => "error",
                     "message" => 'Company not found'
                 ];
-        }
-        else 
-        {
+
+        } else {
             //show store for current login company by default 
             $companyId = $company->company_id;    
         }       
 
-        $query = Store::find()
-            ->filterCompany($companyId);
+        $query = Store::find()->filterCompany($companyId);
 
         return new ActiveDataProvider([
             'query' => $query
