@@ -26,7 +26,7 @@ class Transfer extends \common\models\Transfer
         };
 
     	$fields['total_transfer_cost'] = function($model) {
-    		return Transfer::getTransferCost($model->transfer_id);
+    		return floatval(Transfer::getTransferCost($model->transfer_id));
     	};
 
     	return $fields;

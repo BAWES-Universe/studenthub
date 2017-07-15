@@ -43,22 +43,23 @@ class CandidateIdCard extends \common\models\CandidateIdCard
         return parent::getCandidate($modelClass);
     }
 
+    /**
+     * Create Zip
+     * @param  [type] $candidates [description]
+     * @return [type]             [description]
+     */
     public static function createZip($candidates)
-    {       
+    {
         $path = sys_get_temp_dir().'/'.time();
 
         FileHelper::createDirectory($path);
 
-        //create excel file
-
+        // Create excel file
         self::createExcel($candidates, $path);
-        
-        //create zip 
 
+        // Create zip
         $zipname = 'IdCards.zip';
-
         $zip = new \ZipArchive();
-
         if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
         {
             Yii::$app->response->statusCode = 500;
@@ -71,8 +72,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
         $zip->addFile($path.'/export.xlsx', 'export.xlsx');
 
-        //crate QR images
-
+        // Create QR images
         FileHelper::createDirectory($path.'/QR');
 
         foreach ($candidates as $key => $value) {
@@ -84,14 +84,12 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             );
         }
 
-        //add QR folder to zip
-
+        // Add QR folder to zip
         foreach (glob($path.'/QR/*') as $file) {
             $zip->addFile($file, 'QR/'.basename($file));
         }
 
-        //add candidate photos to zip
-
+        // Add candidate photos to zip
         FileHelper::createDirectory($path.'/photos');
 
         foreach ($candidates as $key => $value) {
@@ -105,8 +103,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             }
         }
 
-        //add photo folder to zip
-
+        // Add photo folder to zip
         foreach (glob($path.'/photos/*') as $file) {
             $zip->addFile($file, 'photos/'.basename($file));
         }
@@ -119,8 +116,14 @@ class CandidateIdCard extends \common\models\CandidateIdCard
         ];
     }
 
-    public static function createExcel($candidates, $path) 
-    {            
+    /**
+     * Create Excel
+     * @param  [type] $candidates [description]
+     * @param  [type] $path       [description]
+     * @return [type]             [description]
+     */
+    public static function createExcel($candidates, $path)
+    {
         Excel::export([
             'isMultipleSheet' => false,
             'models' => $candidates,
