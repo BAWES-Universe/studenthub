@@ -107,6 +107,16 @@ class Transfer extends ActiveRecord
     {
         $fields = parent::fields();
 
+        $fields['transfer_created_at'] = function($model) {
+            return Yii::$app->formatter->asDateTime($model->transfer_created_at);
+        };
+        $fields['transfer_updated_at'] = function($model) {
+            return Yii::$app->formatter->asDateTime($model->transfer_updated_at);
+        };
+        $fields['payment_received_on'] = function($model) {
+            return $model->payment_received_on? Yii::$app->formatter->asDate($model->payment_received_on) : $model->payment_received_on;
+        };
+
         unset($fields['deleted']);
 
         return $fields;
@@ -261,11 +271,11 @@ class Transfer extends ActiveRecord
         Yii::$app->controller->layout = 'pdf';
         $subject = [];
 
-        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);        
+        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
         $i=1;
         $invoice_id = 0;
-        
+
         foreach ($invoices as $invoice)
         {
             $invoice_id = $invoice->invoice_id;
