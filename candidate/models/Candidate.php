@@ -27,18 +27,6 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @param mixed $token
-     * @param null $type
-     * @return mixed
-     */
-    public static function findIdentityByAccessToken($token, $type = null) {
-        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
-        if($token){
-            return $token->candidate;
-        }
-    }
-
-    /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
