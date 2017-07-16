@@ -166,6 +166,16 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
+     * Get all invoices belonging to this transfer and its children transfers
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\admin\models\Invoice")
+    {
+        return parent::getInvoices($modelClass);
+    }
+
+    /**
      * @param string $modelClass
      * @return $this
      */
