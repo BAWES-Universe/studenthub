@@ -4,14 +4,11 @@ namespace admin\modules\v1\controllers;
 
 use Yii;
 use yii\base\Exception;
-use yii\data\ArrayDataProvider;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use admin\models\Candidate;
 use kartik\mpdf\Pdf;
 
 /**
@@ -93,26 +90,11 @@ class TransferController extends Controller
             $query->filterStatus($transfer_status);
 
         $query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
 
         return new ActiveDataProvider([
             'query' => $query
         ]);
-    }
-
-    /**
-     * Return unpaid candidates for given transfer
-     * @param $id
-     * @return array
-     */
-    public function actionUnpaidCandidates($id)
-    {
-        $candidates = TransferCandidate::find()
-            ->unpaid($id)
-            ->all();
-
-        return [
-            'candidates' => $candidates
-        ];
     }
 
     /**
@@ -128,10 +110,14 @@ class TransferController extends Controller
             ->isParentTransfer()
             ->all();
 
-        foreach ($transfers as $transfer) {
-            $candidates = $transfer->transferCandidates;
+        foreach ($transfers as $transfer)
+        {
+            $candidates = $transfer->getTransferCandidates()
+                ->where(['paid' => '0'])
+                ->all();
 
-            if($candidates) {
+            if($candidates)
+            {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates,
@@ -150,11 +136,7 @@ class TransferController extends Controller
      */
     public function actionView($id)
     {
-        $transfer = Transfer::find()
-            ->where([
-                'transfer_id' => $id
-            ])
-            ->one();
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
@@ -192,8 +174,10 @@ class TransferController extends Controller
             ];
         }
 
+        Yii::info('[Transfer marked as "Payment Received"] Transfer "'.$id.'" marked as "Payment Received" by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         // Sending receipt to company via email
-        $this->receiptMail($transfer->transfer_id);
+        $transfer->notify('receipt');
 
         return [
             "operation" => "success",
@@ -208,9 +192,7 @@ class TransferController extends Controller
      */
     public function actionUnlock($id)
     {
-        $transfer = Transfer::findOne([
-            'transfer_id' => $id
-        ]);
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
@@ -228,6 +210,8 @@ class TransferController extends Controller
             ];
         }
 
+        Yii::info('[Transfer unlocked] Transfer "'.$id.'" unlocked by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => 'Transfer unlocked successfully'
@@ -241,7 +225,7 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $transfer = Transfer::findOne($id);
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
@@ -259,89 +243,11 @@ class TransferController extends Controller
             ];
         }
 
+        Yii::info('[Transfer reverted to locked] Transfer "'.$id.'" reverted to locked by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Transfer status reverted to locked as requested."
-        ];
-    }
-
-    /**
-     * Mark Transfer as Payment In Completed
-     * @param $id
-     * @return array
-     */
-    public function actionPaymentCompleted($id)
-    {
-        $transfer = Transfer::findOne([
-            'transfer_id' => $id
-        ]);
-
-        if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found'
-            ];
-        }
-
-        try{
-            $transfer->paymentDistributionCompleted();
-        } catch(Exception $e){
-            return [
-                "operation" => "error",
-                "message" => $e->getMessage()
-            ];
-        }
-
-        return [
-            "operation" => "success",
-            "message" => 'Transfer has been marked as "Payment Complete"'
-        ];
-    }
-
-    /**
-     * Method to mark payment as paid
-     * @param $id
-     * @return array
-     */
-    public function actionMarkPaid($id)
-    {
-        $transfer = Transfer::findOne($id);
-
-        if(!$transfer) {
-            return [
-                'operation' => 'error',
-                'message' => 'Transfer not found!'
-            ];
-        }
-
-        // Get all child transfers
-        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
-        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-        $transfer_ids[] = $id;
-
-        // Mark as paid
-        $candidate_ids = Yii::$app->request->getBodyParam('candidates');
-        foreach ($candidate_ids as $key => $value)
-        {
-            TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$value.'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
-        }
-
-        // Check if all paid, mark transfer as complete
-        $unpaid = TransferCandidate::find()
-            ->andwhere([
-                'paid' => 0
-            ])
-            ->andWhere(['in', 'transfer_id', $transfer_ids])
-            ->count();
-
-        if(!$unpaid) {
-            $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-            $transfer->save();
-        }
-
-        return [
-            'operation' => 'success',
-            'message' => 'Candidate(s) marked as paid successfully'
         ];
     }
 
@@ -354,30 +260,29 @@ class TransferController extends Controller
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
         $main_transfer_id = 0;
 
-        foreach ($candidate_ids as $list) {
-            // Find transfer
-            $transfer = Transfer::findOne($list['transfer_id']);
-
-            // Get all child transfers
-            $transfers = Transfer::findAll(['parent_transfer_id' => $list['transfer_id']]);
-            $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-            $transfer_ids[] = $list['transfer_id'];
-
-            TransferCandidate::updateAll(['paid' => 1], 'candidate_id = "'.$list['candidate_id'].'" AND transfer_id IN ('.implode(',', $transfer_ids).')');
+        foreach ($candidate_ids as $value)
+        {
+            TransferCandidate::updateAll(
+                ['paid' => 1],
+                ['candidate_id' => $value['candidate_id'], 'transfer_id' => $value['transfer_id']]
+            );
 
             // Check if all paid, mark transfer as complete
             $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
                 ])
-                ->andWhere(['in', 'transfer_id', $transfer_ids])
+                ->andWhere(['transfer_id' => $value['transfer_id']])
                 ->count();
 
             if (!$unpaid) {
+                $transfer = Transfer::findOne($value['transfer_id']);
                 $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
                 $transfer->save();
             }
         }
+
+        Yii::info('[Candidate(s) have been marked as paid] ' . count($candidate_ids) . ' candidate(s) have been marked as paid by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             'operation' => 'success',
@@ -465,7 +370,7 @@ class TransferController extends Controller
             $s2 .=  "S2,".$detail->candidate->bank->bank_transfer_type.",".$detail->totalPaidToCandidate.",KWD,,,,11622216,".
                     $detail->candidate->candidate_iban.",".
                     $detail->transfer_id.",".
-                    $detail->invoice->invoice_id.",".
+                    $detail->invoiceNumber.",".
                     $description.",,,,".
                     $detail->candidate->bank_account_name.",".
                     $detail->candidate->bank->bank_name.",,".
@@ -500,11 +405,7 @@ class TransferController extends Controller
      */
     public function actionExport($id)
     {
-        $transfer = Transfer::find()
-            ->where([
-                'transfer_id' => $id
-            ])
-            ->one();
+        $transfer = Transfer::findOne((int)$id);
 
         if(!$transfer) {
             return [
@@ -617,67 +518,5 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
-    }
-
-    /**
-     * Receipt Mail by transfer id to recipient
-     * and also forward to finance@bawes.net
-     * @param $transfer_id
-     * @return array|bool
-     */
-    private function receiptMail($transfer_id)
-    {
-        $invoices = Invoice::find()
-            ->byTransfer($transfer_id)
-            ->all();
-
-        if(!$invoices) {
-            return [
-                "operation" => "error",
-                "message" => 'Invoice not found!'
-            ];
-        }
-
-        $this->layout = 'pdf';
-        $subject = [];
-        $template = 'receipt';
-        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
-        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
-        $i=1;
-        $invoice_id = 0;
-        foreach ($invoices as $invoice) {
-            $invoice_id = $invoice->invoice_id;
-            $content = $this->render($template, [
-                'invoice' => $invoice,
-            ]);
-            $pdf = new Pdf([
-                'mode' => Pdf::MODE_UTF8,
-                //UTF mode for arabic language
-                'format' => Pdf::FORMAT_A4,
-                // portrait orientation
-                'orientation' => Pdf::ORIENT_PORTRAIT,
-                // stream to browser inline
-                'destination' => Pdf::DEST_BROWSER,
-                // your html content input
-                'content' => $content,
-                // any css to be embedded if required
-                'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
-                // set mPDF properties on the fly
-                'options' => [],//['title' => 'Booking #'.$id],
-                // call mPDF methods on the fly
-            ]);
-            $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
-            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
-            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
-            $i++;
-            $subject[] = '#'.$invoice_id;
-            $invoice_id = 0; // reinitialize to 0 to store new with new loop
-        }
-        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
-
-        return $message->setTo($email)
-            ->setCc(Yii::$app->params['invoiceCC'])
-            ->setSubject($subjectLine)
-            ->send();
     }
 }

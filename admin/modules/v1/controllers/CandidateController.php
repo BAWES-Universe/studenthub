@@ -2,12 +2,12 @@
 
 namespace admin\modules\v1\controllers;
 
-use common\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Candidate;
-use common\models\Transfer;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 /**
  * Candidate controller - Manage Candidate accounts as Admin
  */
@@ -22,7 +22,7 @@ class CandidateController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -40,7 +40,7 @@ class CandidateController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -74,23 +74,19 @@ class CandidateController extends Controller
         $by = Yii::$app->request->get('by');
         switch ($by) {
             case 'country_id' :
-                $country_id = Yii::$app->request->get('country_id');
-                $query->andWhere(['country_id' => $country_id]);
+                $query->filterCountry(Yii::$app->request->get('country_id'));
                 break;
             case 'university_id' :
-                $country_id = Yii::$app->request->get('university_id');
-                $query->andWhere(['university_id' => $country_id]);
+                $query->filterUniversity(Yii::$app->request->get('university_id'));
                 break;
             case 'review' :
-                $review = Yii::$app->request->get('review');
-                $query->andWhere(['approved' => $review]);
+                $query->byApprovalStatus(Yii::$app->request->get('review'));
                 break;
             case 'store_id' :
-                $store_id = Yii::$app->request->get('store_id');
-                $query->andWhere(['store_id' => $store_id]);
+                $query->filterStore(Yii::$app->request->get('store_id'));
                 break;
             default:
-                $query->andWhere(['approved' => 0]);
+                $query->byApprovalStatus(0);
                 break;
         }
 
@@ -108,7 +104,7 @@ class CandidateController extends Controller
     {
         $query = Candidate::find()
             ->notDeleted()
-            ->andWhere(['approved' => 0]);
+            ->byApprovalStatus(0);
 
         return [
             'total' => $query->count(),
@@ -150,7 +146,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Approved] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Account Approved] Candidate "'.$model->candidate_email.'" approved by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",

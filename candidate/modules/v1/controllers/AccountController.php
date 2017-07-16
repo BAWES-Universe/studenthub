@@ -4,10 +4,10 @@ namespace candidate\modules\v1\controllers;
 
 use candidate\models\Candidate;
 use Yii;
-use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\data\ArrayDataProvider;
-
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
  */
@@ -22,7 +22,7 @@ class AccountController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -40,7 +40,7 @@ class AccountController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -68,7 +68,7 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $currentUser = Candidate::findOne(Yii::$app->user->getId());
+        $currentUser = Yii::$app->user->identity;
         return new ArrayDataProvider([
             'allModels' => array_reverse($currentUser->paidTransferCandidate),
             'pagination' => [
@@ -84,8 +84,7 @@ class AccountController extends Controller
     {
         $candidate = Yii::$app->user->identity;
 
-        //store detail 
-
+        //store detail
         if(empty($candidate->store)) {
             return [
                 "operation" => "error",
@@ -93,16 +92,15 @@ class AccountController extends Controller
             ];
         }
 
-        //company details 
-
+        //company details
         if(empty($candidate->store->company)) {
             $company_id = '';
             $company_name = '';
-            $company_email = '';            
+            $company_email = '';
         }else{
-            $company_id = $candidate->store->company->company_id; 
+            $company_id = $candidate->store->company->company_id;
             $company_name = $candidate->store->company->company_name;
-            $company_email = $candidate->store->company->company_email;           
+            $company_email = $candidate->store->company->company_email;
         }
 
         return [

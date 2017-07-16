@@ -97,6 +97,15 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $university_id
+     * @return $this
+     */
+    public function filterUniversity($university_id)
+    {
+        return $this->andWhere(['university_id' => $university_id]);
+    }
+
+    /**
      * @return $this
      */
     public function idExpired()
@@ -148,5 +157,13 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function notDeleted()
     {
         return $this->andWhere(['deleted'=>0]);
+    }
+
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function byApprovalStatus($status = 0) {
+        return $this->andWhere(['approved' => $status]);
     }
 }

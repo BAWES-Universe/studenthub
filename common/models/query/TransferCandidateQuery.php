@@ -90,9 +90,10 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      */
     public function payable()
     {
-        return  $this->joinWith('invoice')
-                    ->filterUnpaid()//unpaid candidate
-                    ->filterPaidInvoice();//paid invoice
+        return  $this->joinWith('transfer')
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->andWhere('parent_transfer_id IS NULL')//only parent transfers 
+            ->filterUnpaid();//unpaid candidate
     }
 
     /**

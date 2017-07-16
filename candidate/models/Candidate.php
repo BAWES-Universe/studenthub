@@ -1,7 +1,6 @@
 <?php
 namespace candidate\models;
 
-use common\models\CandidateToken;
 use Yii;
 /**
  * This is the model class for table "Candidate".
@@ -27,22 +26,17 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @param mixed $token
-     * @param null $type
-     * @return mixed
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
-        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
-        if($token){
-            return $token->candidate;
-        }
-    }
-
     public function getTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
     {
         return parent::getTransferCandidate($modelClass);
     }
 
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getPaidTransferCandidate()
     {
         $status =[Transfer::STATUS_TRANSFER_COMPLETE,Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS];
@@ -52,4 +46,16 @@ class Candidate extends \common\models\Candidate {
             ->filterCandidate(Yii::$app->user->getId())
             ->all();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
+        if($token){
+            return $token->candidate;
+        }
+    }
+
 }

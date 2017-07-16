@@ -4,11 +4,8 @@ namespace staff\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\Url;
 use yii\data\ActiveDataProvider;
-use staff\models\Store;
 use staff\models\Candidate;
-use common\models\TransferCandidate;
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -70,8 +67,9 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $query = Candidate::find();
-        $query->notDeleted();
+        $query = Candidate::find()
+            ->notDeleted();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -85,12 +83,13 @@ class CandidateController extends Controller
     {
         $store_id = Yii::$app->request->getBodyParam("store_id");
 
-        $query = Candidate::find();
+        $query = Candidate::find()
+            ->notDeleted();
 
         if($store_id) {
             $query->filterStore($store_id);
         }
-        $query->notDeleted();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -124,7 +123,7 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->candidate_password_hash = $password;
-
+        $model->password = $password; // temp password to send in mail
         //candidate_auth_key
 
         if (!$model->signup())
@@ -142,19 +141,8 @@ class CandidateController extends Controller
             }
         }
 
-        //Send Email to user
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        Yii::$app->mailer->compose("candidate-register",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
-            ->setTo($model->candidate_email)
-            ->setSubject('Welcome to the '.Yii::$app->name)
-            ->send();
-
+        Yii::info('[Candidate Account Created] Candidate "'.$model->candidate_name.'" account created by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+            
         return [
             "operation" => "success",
             "message" => "Candidate account successfully created",
@@ -218,12 +206,14 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Account Updated] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Account Updated] Candidate "'.$model->candidate_name.'" account updated by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
             "message" => "Candidate account updated successfully",
-            "candidate" => $model
+            "candidate" => $model,
+            "store" => $model->store,
+            "company" => $model->company
         ];
 
         // Check SQL Query Count and Duration
@@ -250,7 +240,15 @@ class CandidateController extends Controller
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
 
-        $store = Store::findOne($model->store_id);
+        if (!$model->store) {
+            return [
+                "operation" => "error",
+                "message" => "Store not found",
+                "code" => 1
+            ];
+        }
+
+        $store = $model->store;
 
         if(!$store) {
             return [
@@ -277,7 +275,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Store Assigned] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Assigned] Candidate "'.$model->candidate_name.'" assigned to store "'.$store->store_name.'" by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -328,7 +326,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info("[Candidate Store UnAssigned] ".$model->candidate_email, __METHOD__);
+        Yii::info('[Candidate Unassigned] Candidate "'.$model->candidate_name.'" unassigned from store by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -350,6 +348,7 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->filterNotAssigned()
             ->notDeleted();
+
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -370,6 +369,7 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->filterAssigned()
             ->notDeleted();
+
         if($candidate_name)
         {
             $query->filterName($candidate_name);
@@ -388,12 +388,12 @@ class CandidateController extends Controller
     {
         $country_id = Yii::$app->request->get('country_id');
 
-        $query = Candidate::find();
+        $query = Candidate::find()
+            ->notDeleted();
 
         if($country_id) {
             $query->filterCountry($country_id);
         }
-        $query->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -423,18 +423,7 @@ class CandidateController extends Controller
         $model->save(false);
 
         //Send Email to user
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        Yii::$app->mailer->compose("candidate-password",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
-                'logo_2' => ''
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
-            ->setTo($model->candidate_email)
-            ->setSubject('Your internship account password has been reset')
-            ->send();
+        Candidate::passwordMail($model, $password);
 
         return [
             "operation" => "success",
@@ -467,12 +456,9 @@ class CandidateController extends Controller
         }
 
         //check if in invoice
+        $transfers = $model->transferCandidate;
 
-        $a = TransferCandidate::findOne([
-                'candidate_id' => $id
-            ]);
-
-        if($a)
+        if($transfers)
         {
             return [
                 "operation" => "error",
@@ -480,7 +466,7 @@ class CandidateController extends Controller
             ];
         }
 
-        Yii::info("[Candidate Soft Deleted] ".$model->candidate_name, __METHOD__);
+        Yii::info('[Candidate Deleted] Candidate "'.$model->candidate_name.'" soft deleted by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
 
         $model->softDelete();
 

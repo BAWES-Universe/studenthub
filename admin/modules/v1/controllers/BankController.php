@@ -4,10 +4,10 @@ namespace admin\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use common\models\Bank;
-
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 /**
  * Bank controller - Manage bank as Admin
  */
@@ -22,7 +22,7 @@ class BankController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -40,7 +40,7 @@ class BankController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -82,7 +82,7 @@ class BankController extends Controller
      * @return array
      */
     public function actionCreate()
-    {
+    {        
         // Attempt to create new bank
         $model = new Bank();
 
@@ -104,6 +104,8 @@ class BankController extends Controller
                 ];
             }
         }
+
+        Yii::info('[Bank Created] Bank "'.$model->bank_name.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -151,8 +153,8 @@ class BankController extends Controller
             }
         }
 
-        Yii::info("[Bank Updated] ".$model->bank_name, __METHOD__);
-
+        Yii::info('[Bank Updated] Bank "'.$model->bank_name.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        
         return [
             "operation" => "success",
             "message" => "Bank successfully updated"
@@ -185,10 +187,10 @@ class BankController extends Controller
             ];
         }
 
-        Yii::info("[Bank Soft Deleted] ".$bank->bank_name, __METHOD__);
-
         // Delete bank
         $bank->softDelete();
+
+        Yii::info('[Bank Soft Deleted] Bank "'.$bank->bank_name.'" soft deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",

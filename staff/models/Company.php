@@ -21,6 +21,9 @@ class Company extends \common\models\Company {
             'company_name',
             'company_email',
             'company_status',
+            'total_candidates' => function($model) {
+                return self::getTotalCandidateCount($model->company_id);
+            },
             'subcompanies' => function($model) {
                 return $model->subCompanies;
             },

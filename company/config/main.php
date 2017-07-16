@@ -61,8 +61,10 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET total' => 'total',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS total' => 'options'
                     ]
                 ],
                 [ // TransferController

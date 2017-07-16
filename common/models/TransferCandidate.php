@@ -38,6 +38,8 @@ use common\models\Transfer;
  */
 class TransferCandidate extends \yii\db\ActiveRecord
 {
+    const PAID = 1;
+    const UNPAID = 0;
     /**
      * @inheritdoc
      */
@@ -176,11 +178,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
         return ($this->company_hourly_rate * $this->hours) + $this->bonus;
     }
 
-    /**
-     * Total amount that will be sent to the candidate
-     * @return string
-     */
-    public function getProfit()
+    public function getProfit() 
     {
         return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
     }

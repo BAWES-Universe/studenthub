@@ -2,14 +2,13 @@
 
 namespace admin\modules\v1\controllers;
 
-use common\models\Transfer;
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use admin\models\Store;
-
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 /**
  * Company controller - Manage company accounts as Admin
  */
@@ -24,7 +23,7 @@ class CompanyController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -42,7 +41,7 @@ class CompanyController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -83,7 +82,7 @@ class CompanyController extends Controller
      * @param $id
      * @return ActiveDataProvider
      */
-    public function actionSubcompanies($id)
+    public function actionSubCompanies($id)
     {
         $query = Company::find()->childCompany($id)->notDeleted();
 
@@ -128,6 +127,8 @@ class CompanyController extends Controller
             }
         }
 
+        Yii::info('[Company Account Created] Company "'.$model->company_name.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Company account successfully created"
@@ -145,8 +146,7 @@ class CompanyController extends Controller
     public function actionView($id)
     {
         $company = Company::find()
-            ->where(['company_id' => $id])
-            ->asArray()
+            ->filterCompany($id)
             ->notDeleted()
             ->one();
 
@@ -156,19 +156,6 @@ class CompanyController extends Controller
                     "message" => "Company account not found"
                 ];
         }
-
-        //sub companies
-
-        $company['subcompanies'] = Company::find()->where([
-                'parent_company_id' => $company['company_id']
-            ])->all();
-
-        //stores
-
-        $company['stores'] = Store::find()->where([
-                'company_id' => $company['company_id']
-            ])->notDeleted()->all();
-
         return $company;
     }
 
@@ -207,7 +194,7 @@ class CompanyController extends Controller
             }
         }
 
-        Yii::info("[Company Account Updated] ".$model->company_email, __METHOD__);
+        Yii::info('[Company Account Updated] Company "'.$model->company_name.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -250,7 +237,7 @@ class CompanyController extends Controller
                 ];
             }
 
-            Yii::info("[Company Account Soft Deleted] ".$company->company_email, __METHOD__);
+            Yii::info('[Company Account Soft Deleted] Company "'.$company->company_name.'" soft deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
             // Delete the account
             $company->softDelete();

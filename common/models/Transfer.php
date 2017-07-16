@@ -4,13 +4,9 @@ namespace common\models;
 
 use Yii;
 use yii\db\Expression;
-use yii\helpers\ArrayHelper;
-use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
-use common\models\Store;
-use common\models\Company;
-use common\models\Candidate;
-
+use kartik\mpdf\Pdf;
+use yii\db\ActiveRecord;
 /**
  * This is the model class for table "transfer".
  *
@@ -30,7 +26,7 @@ use common\models\Candidate;
  * @property TransferCandidate[] $childTransferCandidates
  * @property Invoice $childTransferInvoices
  */
-class Transfer extends \yii\db\ActiveRecord
+class Transfer extends ActiveRecord
 {
     const STATUS_PAYMENT_SENT = 1;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
@@ -110,6 +106,16 @@ class Transfer extends \yii\db\ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
+
+        $fields['transfer_created_at'] = function($model) {
+            return Yii::$app->formatter->asDateTime($model->transfer_created_at);
+        };
+        $fields['transfer_updated_at'] = function($model) {
+            return Yii::$app->formatter->asDateTime($model->transfer_updated_at);
+        };
+        $fields['payment_received_on'] = function($model) {
+            return $model->payment_received_on? Yii::$app->formatter->asDate($model->payment_received_on) : $model->payment_received_on;
+        };
 
         unset($fields['deleted']);
 
@@ -241,6 +247,79 @@ class Transfer extends \yii\db\ActiveRecord
         }
 
         return $invoice->invoice_id;
+    }
+
+    /**
+     * Receipt/Invoice Mail by transfer id to recipient
+     * and also forward to finance@bawes.net
+     * @param $template invoice/receipt
+     * @return array|bool
+     */
+    public function notify($template = 'invoice')
+    {
+        $invoices = Invoice::find()
+            ->byTransfer($this->transfer_id)
+            ->all();
+
+        if(!$invoices) {
+            return [
+                "operation" => "error",
+                "message" => 'Invoice not found!'
+            ];
+        }
+
+        Yii::$app->controller->layout = 'pdf';
+        $subject = [];
+
+        $message = Yii::$app->mailer->compose('receipt-attachment',['invoices'=>$invoices]);
+        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
+        $i=1;
+        $invoice_id = 0;
+
+        foreach ($invoices as $invoice)
+        {
+            $invoice_id = $invoice->invoice_id;
+
+            $viewPath = '@admin/modules/v1/views/transfer/' . $template . '.php';
+
+            $content = Yii::$app->controller->render($viewPath, [
+                'invoice' => $invoice,
+            ]);
+
+            $pdf = new Pdf([
+                'mode' => Pdf::MODE_UTF8,
+                //UTF mode for arabic language
+                'format' => Pdf::FORMAT_A4,
+                // portrait orientation
+                'orientation' => Pdf::ORIENT_PORTRAIT,
+                // stream to browser inline
+                'destination' => Pdf::DEST_BROWSER,
+                // your html content input
+                'content' => $content,
+                // any css to be embedded if required
+                'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+                // set mPDF properties on the fly
+                'options' => [],//['title' => 'Booking #'.$id],
+                // call mPDF methods on the fly
+            ]);
+            $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
+            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
+            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
+            $i++;
+            $subject[] = '#'.$invoice_id;
+            $invoice_id = 0; // reinitialize to 0 to store new with new loop
+        }
+
+        if ( $template == 'invoice' ) {
+            $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{invoice} other{Invoices}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
+        }  else {
+            $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
+        }
+
+        return $message->setTo($email)
+            ->setCc(Yii::$app->params['invoiceCC'])
+            ->setSubject($subjectLine)
+            ->send();
     }
 
     /**

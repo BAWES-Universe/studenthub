@@ -87,6 +87,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
+            ['candidate_hourly_rate', 'compare', 'compareValue' => 0, 'operator' => '>', 'type' => 'number'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
@@ -711,5 +712,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function find()
     {
         return new query\CandidateQuery(get_called_class());
+    }
+
+    /**
+     * @return array
+     */
+    public function getAccountStatistic() {
+
+        $totalHours = 0;
+        $totalPaid = 0;
+        $totalBonus = 0;
+
+        foreach ($this->transferCandidate as $transfer) {
+
+            $totalHours += $transfer->hours;
+
+            if (
+                $transfer->invoice &&
+                $transfer->invoice->invoice_status == 'paid'
+            ) {
+                $totalPaid += ($transfer->hours * $transfer->company_hourly_rate);
+                $totalBonus += $transfer->bonus;
+            }
+        }
+        return [
+            'hours' => $totalHours,
+            'paid' => $totalPaid,
+            'bonus' => $totalBonus,
+        ];
     }
 }

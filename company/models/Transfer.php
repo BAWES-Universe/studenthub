@@ -3,7 +3,6 @@ namespace company\models;
 
 use Yii;
 use yii\helpers\ArrayHelper;
-use company\models\TransferCandidate;
 
 /**
  * This is the model class for table "Transfer".
@@ -58,6 +57,16 @@ class Transfer extends \common\models\Transfer {
             'childTransferInvoices',
             'childTransferCandidates'
         ];
+    }
+
+    /**
+     * Get all invoices belonging to this transfer and its children transfers
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\company\models\Invoice")
+    {
+        return parent::getInvoices($modelClass);
     }
 
     /**
@@ -266,10 +275,10 @@ class Transfer extends \common\models\Transfer {
 
         foreach ($candidates as $key => $value) {
 
-            if(empty($value['bonus']))
+            if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
 
-            if(empty($value['hours']))
+            if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
             $candidate = Candidate::findOne($value['candidate_id']);
@@ -308,6 +317,8 @@ class Transfer extends \common\models\Transfer {
 
         $transaction->commit();
 
+        Yii::info('[Company Initiated Transfer] Transfer "'.$transfer->transfer_id.'" initiated by Company: "'.$company->company_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Transfer created.",
@@ -344,10 +355,10 @@ class Transfer extends \common\models\Transfer {
 
         foreach($candidates as $key => $value)
         {
-            if(empty($value['bonus']))
+            if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
 
-            if(empty($value['hours']))
+            if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
             //candiate hourly_rate
@@ -505,6 +516,8 @@ class Transfer extends \common\models\Transfer {
         }
 
         $transaction->commit();
+
+        Yii::info('[Company Update Transfer] Transfer "'.$model->transfer_id.'" updated by Company: "'.$company->company_name.'"', __METHOD__);
 
         return [
             "operation" => "success",

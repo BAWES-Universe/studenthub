@@ -6,10 +6,10 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
-use company\models\Candidate;
 use company\models\Transfer;
 use common\models\Invoice;
-use company\models\TransferCandidate;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 use kartik\mpdf\Pdf;
 
 /**
@@ -26,7 +26,7 @@ class TransferController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -44,7 +44,7 @@ class TransferController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -74,13 +74,13 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $company = Company::findOne(Yii::$app->user->id);
-        $query = $company->getTransfers()
-            ->where('parent_transfer_id IS NULL')
-            ->orderBy('transfer_id DESC');
+        $company = Company::findOne(Yii::$app->user->id)
+                    ->getTransfers()
+                    ->isParentTransfer()
+                    ->decreasingOrder();
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $company
         ]);
     }
 
@@ -117,8 +117,6 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
         $candidates = Yii::$app->request->getBodyParam("candidates");
-
-        Yii::info("[Company Initiated Transfer] ".$company->company_name, __METHOD__);
 
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
@@ -166,8 +164,6 @@ class TransferController extends Controller
                 "message" => 'Transfer status should be "Initiated" to edit it!'
             ];
         }
-
-        Yii::info("[Company Update Transfer] ".$company->company_name, __METHOD__);
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
@@ -218,7 +214,7 @@ class TransferController extends Controller
         $transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
         $transfer->save();
 
-        Yii::info("[Company Sent Transfer] ".$company->company_name, __METHOD__);
+        Yii::info('[Company Sent Transfer] Transfer "'.$transfer->transfer_id.'" marked as "Payment Sent" by Company: "'.$company->company_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -266,11 +262,12 @@ class TransferController extends Controller
         $model->transfer_status = Transfer::STATUS_LOCK;
         $model->save();
 
-        Yii::info("[Company Lock Transfer] ".$company->company_name, __METHOD__);
+        Yii::info('[Company Lock Transfer] Transfer "'.$model->transfer_id.'" has been locked by Company: "'.$company->company_name.'"', __METHOD__);
+        
         //select distinct company and create transfer for each company
         Transfer::generateEachCompanyTransfer($model, $company);
 
-        $this->invoiceMail($id); // send invoice mail
+        $model->notify('invoice'); // send invoice mail
 
         return [
             "operation" => "success",
@@ -286,6 +283,7 @@ class TransferController extends Controller
     public function actionDelete($id)
     {
         $company = Company::findOne(Yii::$app->user->id);
+        
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
@@ -316,7 +314,7 @@ class TransferController extends Controller
         //delete data child transfer
         Transfer::deleteChildTransfer($model);
 
-        Yii::info("[Company Deleted Transfer] ".$company->company_name, __METHOD__);
+        Yii::info('[Company Deleted Transfer] Transfer "'.$id.'" deleted by Company: "'.$company->company_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
@@ -352,7 +350,7 @@ class TransferController extends Controller
         else
             $template = 'invoice';
 
-        $content = $this->render($template, [
+        $content = $this->render('@admin/modules/v1/views/transfer/' . $template . '.php', [
             'invoice' => $invoice,
         ]);
 
@@ -379,73 +377,5 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
-    }
-
-
-
-    /**
-     * send invoice mail to recipient and cc to company email
-     * @param $id
-     * @return array|bool
-     */
-    public function invoiceMail($id)
-    {
-        $invoices = Invoice::find()
-            ->byTransfer($id)
-            ->all();
-
-        if(!$invoices) {
-            return [
-                "operation" => "error",
-                "message" => 'Invoice not found!'
-            ];
-        }
-        $this->layout = 'pdf';
-        $subject = [];
-        $template = 'invoice';
-        $message = Yii::$app->mailer->compose('invoice-attachment',['invoices'=>$invoices]);
-        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
-        $i=1;
-        $invoice_id = 0;
-
-        foreach ($invoices as $invoice) {
-
-            $invoice_id = $invoice->invoice_id;
-
-            $content = $this->render($template, [
-                'invoice' => $invoice,
-            ]);
-
-            $pdf = new Pdf([
-                'mode' => Pdf::MODE_UTF8,
-                //UTF mode for arabic language
-                'format' => Pdf::FORMAT_A4,
-                // portrait orientation
-                'orientation' => Pdf::ORIENT_PORTRAIT,
-                // stream to browser inline
-                'destination' => Pdf::DEST_BROWSER,
-                // your html content input
-                // any css to be embedded if required
-                'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
-                // set mPDF properties on the fly
-                'options' => [],//['title' => 'Booking #'.$id],
-                // call mPDF methods on the fly
-            ]);
-
-            $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
-
-            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
-            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
-            $i++;
-            $subject[] = '#'.$invoice_id;
-            $invoice_id = 0;
-        }
-
-        $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{invoice} other{Invoices}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
-
-        return $message->setTo($email)
-            ->setCc(Yii::$app->params['invoiceCC'])
-            ->setSubject($subjectLine)
-            ->send();
     }
 }

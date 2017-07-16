@@ -20,7 +20,7 @@
         "openbuildings/swiftmailer-css-inliner": "*",
         "moonlandsoft/yii2-phpexcel": "*",
         "kartik-v/yii2-mpdf": "dev-master",
-        "2amigos/yii2-qrcode-helper" : "~1.0",
+        "2amigos/yii2-qrcode-helper" : "^1.0",
         "guzzlehttp/guzzle": "~4.0",
         "notamedia/yii2-sentry": "^1.2"
     },

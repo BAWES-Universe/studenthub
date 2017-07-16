@@ -3,10 +3,6 @@ namespace admin\models;
 
 use Yii;
 use yii\base\Exception;
-use yii\helpers\ArrayHelper;
-use admin\models\TransferCandidate;
-use admin\models\Company;
-use admin\models\Invoice;
 
 /**
  * This is the model class for table "Transfer".
@@ -30,11 +26,7 @@ class Transfer extends \common\models\Transfer
         };
 
     	$fields['total_transfer_cost'] = function($model) {
-    		return TransferCandidate::find()
-                ->where([
-                    'transfer_id' => $model->transfer_id
-                ])
-                ->sum('transfer_cost');
+    		return floatval(Transfer::getTransferCost($model->transfer_id));
     	};
 
     	return $fields;
@@ -121,47 +113,22 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
-     * Process that payment distribution has been completed
-     * @throws yii\base\Exception
-     */
-    public function paymentDistributionCompleted()
-    {
-        if($this->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
-            throw new Exception('Transfer already marked as "Payment Complete"');
-        }
-        if($this->transfer_status != Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
-            throw new Exception('Transfer status need to be "Received & Distributing Salary" to mark as "Payment Complete"');
-        }
-
-        $this->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-        $this->save(false);
-
-        // Get all child transfers
-        $transfers = Transfer::findAll(['parent_transfer_id' => $id]);
-        $transfer_ids = ArrayHelper::map($transfers, 'transfer_id', 'transfer_id');
-        $transfer_ids[] = $id;
-
-        // Mark candidates as paid
-        TransferCandidate::updateAll(['paid' => 1], 'transfer_id IN ('.implode(',', $transfer_ids).')');
-    }
-
-    /**
-     * Get Total Paid
+     * Get count of Candidates who got paid for this transfer
      * @return double
      */
     public function getTotalPaid()
     {
-        return $this->getTransferCandidates()
+        return (int) $this->getTransferCandidates()
             ->totalPaid();
     }
 
     /**
-     * Get Total Unpaid
+     * Get count of Candidates who weren't paid for this transfer
      * @return double
      */
     public function getTotalUnpaid()
     {
-        return $this->getTransferCandidates()
+        return (int) $this->getTransferCandidates()
             ->totalUnpaid();
     }
 
@@ -171,8 +138,8 @@ class Transfer extends \common\models\Transfer
      */
     public function getProfit()
     {
-        return $this->getTransferCandidates()
-            ->profit();
+        $profit = $this->company_total - $this->total - Transfer::getTransferCost($this->transfer_id);
+        return number_format($profit, 3, '.', '');
     }
 
     /**
@@ -196,6 +163,16 @@ class Transfer extends \common\models\Transfer
     public function getTransferCandidates($modelClass = "\admin\models\TransferCandidate")
     {
         return parent::getTransferCandidates($modelClass);
+    }
+
+    /**
+     * Get all invoices belonging to this transfer and its children transfers
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\admin\models\Invoice")
+    {
+        return parent::getInvoices($modelClass);
     }
 
     /**
@@ -225,5 +202,44 @@ class Transfer extends \common\models\Transfer
     public function getChildTransferCandidates($modelClass = "\admin\models\TransferCandidate")
     {
         return parent::getChildTransferCandidates($modelClass);
+    }
+
+    /**
+     * @param $transfer_id
+     * @return mixed
+     */
+    public static function getTransferCost($transfer_id) {
+        return TransferCandidate::find()
+            ->where([
+                'transfer_id' => $transfer_id
+            ])
+            ->sum('transfer_cost');
+    }
+
+    /**
+     * @param int $statusCode
+     * @return array|bool|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
+     */
+    public static function getTransferStatusRecordDetail($statusCode = 0){
+        $statusList = Transfer::statusList();
+        $queryResult = Transfer::find()
+            ->select('count(*) as total,transfer_status')
+            ->andWhere(['transfer_status'=>array_keys($statusList)])
+            ->notDeleted()
+            ->isParentTransfer()
+            ->groupBy('transfer_status')
+            ->asArray()
+            ->all();
+
+        if ($statusCode) {
+            foreach ($queryResult as $result) {
+                if ($result['transfer_status'] == $statusCode) {
+                    return $result;
+                }
+            }
+            return false;
+        } else {
+            return $queryResult;
+        }
     }
 }

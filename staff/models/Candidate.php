@@ -2,6 +2,7 @@
 namespace staff\models;
 
 use Yii;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "Candidate".
@@ -9,6 +10,7 @@ use Yii;
  */
 class Candidate extends \common\models\Candidate {
 
+    public $password = null;
     /**
      * @inheritdoc
      */
@@ -39,5 +41,58 @@ class Candidate extends \common\models\Candidate {
         }
 
         return false;
+    }
+
+    /** 
+     * Send new password to customer 
+     * @param Candidate $model
+     * @param string $password
+     */
+    public static function passwordMail($model, $password)
+    {
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        Yii::$app->mailer->compose("candidate-password",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setTo($model->candidate_email)
+            ->setSubject('Your internship account password has been reset')
+            ->send();
+    }
+
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @return bool
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        return $this->sendWelcomeEmail();
+    }
+
+    /**
+     * send welcome mail
+     * @return bool
+     */
+    public function sendWelcomeEmail(){
+        $model = $this;
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        $password = $model->password;
+        $this->password = null;
+        return Yii::$app->mailer->compose("candidate-register",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setTo($model->candidate_email)
+            ->setSubject('Welcome to the '.Yii::$app->name)
+            ->send();
     }
 }

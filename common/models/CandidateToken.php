@@ -88,10 +88,12 @@ class CandidateToken extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass = "\common\models\Candidate")
     {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
+
 }
