@@ -113,22 +113,22 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
-     * Get Total Paid
+     * Get count of Candidates who got paid for this transfer
      * @return double
      */
     public function getTotalPaid()
     {
-        return $this->getTransferCandidates()
+        return (int) $this->getTransferCandidates()
             ->totalPaid();
     }
 
     /**
-     * Get Total Unpaid
+     * Get count of Candidates who weren't paid for this transfer
      * @return double
      */
     public function getTotalUnpaid()
     {
-        return $this->getTransferCandidates()
+        return (int) $this->getTransferCandidates()
             ->totalUnpaid();
     }
 
