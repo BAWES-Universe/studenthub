@@ -90,7 +90,7 @@ class TransferController extends Controller
             $query->filterStatus($transfer_status);
 
         $query->groupBy('{{%transfer}}.transfer_id');
-        $query->orderBy('{{%transfer}}.transfer_updated_at');
+        $query->orderBy('{{%transfer}}.transfer_updated_at ASC');
 
         return new ActiveDataProvider([
             'query' => $query
