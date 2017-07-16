@@ -68,7 +68,7 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $currentUser = Candidate::findOne(Yii::$app->user->getId());
+        $currentUser = Yii::$app->user->identity;
         return new ArrayDataProvider([
             'allModels' => array_reverse($currentUser->paidTransferCandidate),
             'pagination' => [
@@ -84,7 +84,7 @@ class AccountController extends Controller
     {
         $candidate = Yii::$app->user->identity;
 
-        //store detail 
+        //store detail
 
         if(empty($candidate->store)) {
             return [
@@ -93,16 +93,16 @@ class AccountController extends Controller
             ];
         }
 
-        //company details 
+        //company details
 
         if(empty($candidate->store->company)) {
             $company_id = '';
             $company_name = '';
-            $company_email = '';            
+            $company_email = '';
         }else{
-            $company_id = $candidate->store->company->company_id; 
+            $company_id = $candidate->store->company->company_id;
             $company_name = $candidate->store->company->company_name;
-            $company_email = $candidate->store->company->company_email;           
+            $company_email = $candidate->store->company->company_email;
         }
 
         return [

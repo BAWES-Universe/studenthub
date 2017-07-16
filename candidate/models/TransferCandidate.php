@@ -49,6 +49,11 @@ class TransferCandidate extends \common\models\TransferCandidate
             }
         };
 
+        $fields['tc_created_at'] = function($model) {
+            return Yii::$app->formatter->asDate($model->tc_created_at, "long");
+        };
+
+
         return $fields;
     }
 
