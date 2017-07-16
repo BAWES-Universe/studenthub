@@ -90,6 +90,7 @@ class TransferController extends Controller
             $query->filterStatus($transfer_status);
 
         $query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
 
         return new ActiveDataProvider([
             'query' => $query
@@ -109,13 +110,13 @@ class TransferController extends Controller
             ->isParentTransfer()
             ->all();
 
-        foreach ($transfers as $transfer) 
+        foreach ($transfers as $transfer)
         {
             $candidates = $transfer->getTransferCandidates()
                 ->where(['paid' => '0'])
                 ->all();
 
-            if($candidates) 
+            if($candidates)
             {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
@@ -259,10 +260,10 @@ class TransferController extends Controller
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
         $main_transfer_id = 0;
 
-        foreach ($candidate_ids as $value) 
+        foreach ($candidate_ids as $value)
         {
             TransferCandidate::updateAll(
-                ['paid' => 1], 
+                ['paid' => 1],
                 ['candidate_id' => $value['candidate_id'], 'transfer_id' => $value['transfer_id']]
             );
 
