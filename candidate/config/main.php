@@ -24,7 +24,7 @@ return [
             ]
         ],
         'user' => [
-            'identityClass' => 'common\models\Candidate',
+            'identityClass' => 'candidate\models\Candidate',
             'enableAutoLogin' => false,
             'enableSession' => false,
             'loginUrl' => null
@@ -54,7 +54,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS update-password' => 'options',
-                        'OPTIONS validate' => 'options'                        
+                        'OPTIONS validate' => 'options'
                     ]
                 ],
                 [ // AccountController
