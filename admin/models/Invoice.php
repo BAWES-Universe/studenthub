@@ -5,7 +5,7 @@ namespace admin\models;
  * It extends from \common\models\Invoice but with custom functionality for this application module
  */
 class Invoice extends \common\models\Invoice {
-    
+
     /**
      * @inheritdoc
      */
@@ -13,6 +13,10 @@ class Invoice extends \common\models\Invoice {
     {
         $fields = parent::fields();
 
+        //company relation
+        $fields['company'] = function($model) {
+            return $model->transfer->company;
+        };
         return $fields;
     }
 }

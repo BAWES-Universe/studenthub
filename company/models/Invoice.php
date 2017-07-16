@@ -11,7 +11,6 @@ class Invoice extends \common\models\Invoice {
      */
     public function fields()
     {
-
         $fields = parent::fields();
 
         //company relation
