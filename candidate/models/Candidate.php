@@ -1,7 +1,6 @@
 <?php
 namespace candidate\models;
 
-use common\models\CandidateToken;
 use Yii;
 /**
  * This is the model class for table "Candidate".
@@ -47,4 +46,16 @@ class Candidate extends \common\models\Candidate {
             ->filterCandidate(Yii::$app->user->getId())
             ->all();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
+        if($token){
+            return $token->candidate;
+        }
+    }
+
 }

@@ -76,11 +76,12 @@ class Company extends \common\models\Company {
     }
 
     /**
-     * @param mixed $token
-     * @param null $type
-     * @return mixed
+     * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        return parent::findIdentityByAccessToken($token, $type);
+        $token = CompanyToken::find()->where(['token_value' => $token])->with('company')->one();
+        if($token){
+            return $token->company;
+        }
     }
 }

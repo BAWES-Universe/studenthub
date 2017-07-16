@@ -85,7 +85,6 @@ class AccountController extends Controller
         $candidate = Yii::$app->user->identity;
 
         //store detail
-
         if(empty($candidate->store)) {
             return [
                 "operation" => "error",
@@ -94,7 +93,6 @@ class AccountController extends Controller
         }
 
         //company details
-
         if(empty($candidate->store->company)) {
             $company_id = '';
             $company_name = '';
