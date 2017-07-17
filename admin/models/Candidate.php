@@ -38,11 +38,7 @@ class Candidate extends \common\models\Candidate {
         foreach ($transfers as $transfer) {
             $candidates = $transfer->getTransferCandidates()->where(['paid' => '0'])->asArray()->all();
             $totalCandidate += count($candidates);
-            if (count($candidates)>0) {
-                foreach ($candidates as $candidateTransfer) {
-                    $totalAmount += $candidateTransfer['bonus'] + ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
-                }
-            }
+            $totalAmount += Candidate::calculateRemainingPaymentTransferTotal($candidates);
         }
         return [
             'payable'=>$totalCandidate,
@@ -67,5 +63,19 @@ class Candidate extends \common\models\Candidate {
         }
 
         return $query->notDeleted()->count();
+    }
+
+    /**
+     * @param $candidates
+     * @return int
+     */
+    public static function calculateRemainingPaymentTransferTotal($candidates) {
+        $totalAmount = 0;
+        if (count($candidates)>0) {
+            foreach ($candidates as $candidateTransfer) {
+                $totalAmount += $candidateTransfer['bonus'] + ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
+            }
+        }
+        return $totalAmount;
     }
 }
