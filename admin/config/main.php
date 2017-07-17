@@ -134,8 +134,7 @@ return [
                         'PATCH mark-paid/<id>' => 'mark-paid',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
-                        'PATCH payment-received/<id>' => 'payment-received',
-                        'PATCH payment-completed/<id>' => 'payment-completed',
+                        'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS payable-candidates' => 'options',
@@ -149,8 +148,7 @@ return [
                         'OPTIONS unlock/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS unpaid-candidates/<id>' => 'options',
-                        'OPTIONS payment-received/<id>' => 'options',
-                        'OPTIONS payment-completed/<id>' => 'options',
+                        'OPTIONS payment-received-distributing/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

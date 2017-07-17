@@ -153,7 +153,7 @@ class TransferController extends Controller
      * @param $id
      * @return array
      */
-    public function actionPaymentReceived($id)
+    public function actionPaymentReceivedDistributing($id)
     {
         $transfer = Transfer::findOne($id);
 
