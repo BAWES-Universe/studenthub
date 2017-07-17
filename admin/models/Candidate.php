@@ -25,19 +25,29 @@ class Candidate extends \common\models\Candidate {
 
     /**
      * return total number of payable candidate
-     * @return int
+     * @return array
      */
     public static function getTotalPayableCandidate(){
-        $candidates = 0;
+        $totalCandidate = 0;
+        $totalAmount = 0;
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             ->isParentTransfer()
             ->all();
 
         foreach ($transfers as $transfer) {
-            $candidates += $transfer->getTransferCandidates()->where(['paid' => '0'])->count();
+            $candidates = $transfer->getTransferCandidates()->where(['paid' => '0'])->asArray()->all();
+            $totalCandidate += count($candidates);
+            if (count($candidates)>0) {
+                foreach ($candidates as $candidateTransfer) {
+                    $totalAmount += $candidateTransfer['bonus'] + ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
+                }
+            }
         }
-        return $candidates;
+        return [
+            'payable'=>$totalCandidate,
+            'amount'=>$totalAmount,
+        ];
     }
 
     /**
