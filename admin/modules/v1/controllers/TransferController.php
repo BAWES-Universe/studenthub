@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Candidate;
 use Yii;
 use yii\base\Exception;
 use yii\rest\Controller;
@@ -103,7 +104,7 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $result = [];
-
+        $totalAmount = 0;
         // Candidates whose company paid to admin but admin have not paid yet
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
@@ -112,16 +113,18 @@ class TransferController extends Controller
 
         foreach ($transfers as $transfer)
         {
+            $totalAmount = 0;
             $candidates = $transfer->getTransferCandidates()
                 ->where(['paid' => '0'])
                 ->all();
 
+            $totalAmount = Candidate::calculateRemainingPaymentTransferTotal($candidates);
             if($candidates)
             {
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates,
-                    'total' => $transfer->total
+                    'total' => $totalAmount
                 ];
             }
         }
