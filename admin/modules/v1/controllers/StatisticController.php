@@ -87,11 +87,11 @@ class StatisticController extends Controller
         $result['transfers'] = [];
         $result['transfers']['locked'] = [
             "code" => Transfer::STATUS_LOCK,
-            "total" => $lockedTransfers['total']? (int)$lockedTransfers['total'] : 0
+            "total" => (isset($lockedTransfers['total']))? (int)$lockedTransfers['total'] : 0
         ];
         $result['transfers']['paymentSent'] = [
             "code" => Transfer::STATUS_PAYMENT_SENT,
-            "total" => $paymentSentTransfers['total']? (int)$paymentSentTransfers['total'] : 0
+            "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
         ];
 
         return $result;

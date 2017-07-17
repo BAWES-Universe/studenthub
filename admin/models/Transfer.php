@@ -221,25 +221,19 @@ class Transfer extends \common\models\Transfer
      * @return array|bool|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
     public static function getTransferStatusRecordDetail($statusCode = 0){
-        $statusList = Transfer::statusList();
         $queryResult = Transfer::find()
             ->select('count(*) as total,transfer_status')
-            ->andWhere(['transfer_status'=>array_keys($statusList)])
+            ->andWhere(['transfer_status'=>$statusCode])
             ->notDeleted()
             ->isParentTransfer()
             ->groupBy('transfer_status')
             ->asArray()
-            ->all();
+            ->one();
 
-        if ($statusCode) {
-            foreach ($queryResult as $result) {
-                if ($result['transfer_status'] == $statusCode) {
-                    return $result;
-                }
-            }
-            return false;
-        } else {
+        if ($queryResult) {
             return $queryResult;
+        } else {
+            return [];
         }
     }
 }
