@@ -72,7 +72,9 @@ class Candidate extends \common\models\Candidate {
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        return $this->sendWelcomeEmail();
+        if ($insert) {
+            return $this->sendWelcomeEmail();
+        }
     }
 
     /**
