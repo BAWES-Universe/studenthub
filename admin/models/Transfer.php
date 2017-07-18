@@ -138,8 +138,7 @@ class Transfer extends \common\models\Transfer
      */
     public function getProfit()
     {
-        $profit = $this->company_total - $this->total - Transfer::getTransferCost($this->transfer_id);
-        return number_format($profit, 3, '.', '');
+        return floatval($this->company_total - $this->total);
     }
 
     /**
