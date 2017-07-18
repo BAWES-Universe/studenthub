@@ -62,6 +62,9 @@ class TransferCandidate extends \common\models\TransferCandidate
 
     public static function saveCandidateTransfer($candidate, $model, $value) {
 
+        $total = 0;
+        $company_total = 0;
+
         $hourly_rate = $candidate->candidate_hourly_rate;
 
         $TCModel = new TransferCandidate;
@@ -76,11 +79,12 @@ class TransferCandidate extends \common\models\TransferCandidate
         $TCModel->company_name = $candidate->store->company->company_name;
         $TCModel->company_email = $candidate->store->company->company_email;
 
-        $total = $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
-        $company_total = $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
-
+        if ((int)$value['hours']>0) {
+            $total = $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
+            $company_total = $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+        }
         // in case if amount is less then 0 so that it should not show in payable candidate area
-        if ($total < 1) {
+        if ($total  == 0) {
             $TCModel->paid = TransferCandidate::PAID;
         }
 

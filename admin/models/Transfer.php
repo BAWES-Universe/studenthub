@@ -213,6 +213,7 @@ class Transfer extends \common\models\Transfer
             ->where([
                 'transfer_id' => $transfer_id
             ])
+            ->andWhere(['>', 'hours', 0])
             ->sum('transfer_cost');
     }
 
