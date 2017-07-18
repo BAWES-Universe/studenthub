@@ -169,7 +169,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getInvoices()
     {
-        return $this->hasMany(Invoice::className(), ['company_id' => 'company_id']);
+        if(!$this->parent_company_id) //parent company         
+        {
+            return $this->hasMany(Invoice::className(), ['company_id' => 'company_id'])
+                ->via('subCompanies');
+        }
+        else //child company
+        {
+            return $this->hasMany(Invoice::className(), ['company_id' => 'company_id']);
+        }        
     }
 
     /**
@@ -188,6 +196,17 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getTransfers($modelClass = "\common\models\Transfer")
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentTransfers($modelClass = "\common\models\Transfer")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
+            ->where('parent_transfer_id IS NULL')
+            ->orderBy('transfer_id DESC');
     }
 
     /**

@@ -104,7 +104,7 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $result = [];
-        $totalAmount = 0;
+        
         // Candidates whose company paid to admin but admin have not paid yet
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
@@ -113,14 +113,14 @@ class TransferController extends Controller
 
         foreach ($transfers as $transfer)
         {
-            $totalAmount = 0;
             $candidates = $transfer->getTransferCandidates()
                 ->where(['paid' => '0'])
                 ->all();
 
-            $totalAmount = Candidate::calculateRemainingPaymentTransferTotal($candidates);
             if($candidates)
             {
+                $totalAmount = Candidate::calculateRemainingPaymentTransferTotal($candidates);
+            
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates,
@@ -197,16 +197,19 @@ class TransferController extends Controller
     {
         $transfer = Transfer::findOne((int)$id);
 
-        if(!$transfer) {
+        if(!$transfer) 
+        {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
             ];
         }
 
-        try{
+        try {
             $transfer->unlock();
-        } catch(Exception $e){
+        } 
+        catch(Exception $e)
+        {
             return [
                 "operation" => "error",
                 "message" => $e->getMessage()
@@ -230,7 +233,8 @@ class TransferController extends Controller
     {
         $transfer = Transfer::findOne((int)$id);
 
-        if(!$transfer) {
+        if(!$transfer) 
+        {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
@@ -239,7 +243,9 @@ class TransferController extends Controller
 
         try{
             $transfer->lock();
-        } catch(Exception $e){
+        } 
+        catch(Exception $e)
+        {
             return [
                 "operation" => "error",
                 "message" => $e->getMessage()

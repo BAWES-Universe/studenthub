@@ -105,7 +105,9 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->notDeleted()
             ->byApprovalStatus(0);
+        
         $payable = Candidate::getTotalPayableCandidate();
+
         return [
             'total' => $query->count(),
             'payable' => $payable['payable']
