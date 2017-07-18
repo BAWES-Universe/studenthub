@@ -110,11 +110,13 @@ return [
                     'patterns' => [
                         'GET search' => 'search',
                         'GET total-to-review' => 'total-to-review',
+                        'GET transfers/<id>' => 'transfers',
                         'PATCH approve/<id>' => 'approve',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
                         'OPTIONS total-to-review' => 'options',
+                        'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS approve/<id>' => 'options'
                     ]
                 ],
