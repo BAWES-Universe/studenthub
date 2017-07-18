@@ -74,13 +74,11 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $company = Company::findOne(Yii::$app->user->id)
-                    ->getTransfers()
-                    ->isParentTransfer()
-                    ->decreasingOrder();
+        $query = Yii::$app->user->identity
+                    ->getParentTransfers();
 
         return new ActiveDataProvider([
-            'query' => $company
+            'query' => $query
         ]);
     }
 
@@ -91,11 +89,10 @@ class TransferController extends Controller
      */
     public function actionView($id)
     {
-        $company = Company::findOne(Yii::$app->user->id);
+        $company = Yii::$app->user->identity;
 
-        $transfer = Transfer::find()
-            ->joinWith('company')
-            ->filterCurrentCompany($company)
+        $transfer = $company
+            ->getTransfers()
             ->filterTransfer($id)
             ->one();
 
@@ -132,13 +129,13 @@ class TransferController extends Controller
      */
     public function actionEdit($id)
     {
-        $company = Company::findOne(Yii::$app->user->id);
+        $company = Yii::$app->user->identity;
 
         // list all sub companies
 
-        $model = Transfer::find()
+        $model = $company
+            ->getTransfers()
             ->filterTransfer($id)
-            ->filterCurrentCompany($company)
             ->one();
 
         if(!$model) {
@@ -167,7 +164,7 @@ class TransferController extends Controller
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
-        return Transfer::updateTransfer($company,$id,$candidates);
+        return Transfer::updateTransfer($company, $id, $candidates);
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
@@ -180,12 +177,11 @@ class TransferController extends Controller
      */
     public function actionPaymentSent($id)
     {
-        $company = Company::findOne(Yii::$app->user->id);
-        // list all sub companies
-
-        $transfer = Transfer::find()
+        $company = Yii::$app->user->identity;
+        
+        $transfer = $company
+            ->getTransfers()
             ->filterTransfer($id)
-            ->filterCompanyId($company->company_id)
             ->one();
 
         if(!$transfer) {
@@ -229,11 +225,11 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $company = Company::findOne(Yii::$app->user->id);
-
-        $model = Transfer::find()
+        $company = Yii::$app->user->identity;
+        
+        $model = $company
+            ->getTransfers()
             ->filterTransfer($id)
-            ->filterCurrentCompany($company)
             ->one();
 
         if(!$model) {
@@ -282,13 +278,13 @@ class TransferController extends Controller
      */
     public function actionDelete($id)
     {
-        $company = Company::findOne(Yii::$app->user->id);
+        $company = Yii::$app->user->identity;
         
-        $model = Transfer::find()
+        $model = $company
+            ->getTransfers()
             ->filterTransfer($id)
-            ->filterCurrentCompany($company)
             ->one();
-
+            
         if(!$model) {
             return [
                 "operation" => "error",

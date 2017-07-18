@@ -32,6 +32,15 @@ class InvoiceQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $invoice_id
+     * @return $this
+     */
+    public function filterInvoiceId($invoice_id)
+    {
+        return $this->andWhere(['{{%invoice}}.invoice_id' => $invoice_id]);
+    }
+
+    /**
      * @param $company_ids
      * @return $this
      */
