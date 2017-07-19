@@ -110,11 +110,13 @@ return [
                     'patterns' => [
                         'GET search' => 'search',
                         'GET total-to-review' => 'total-to-review',
+                        'GET transfers/<id>' => 'transfers',
                         'PATCH approve/<id>' => 'approve',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
                         'OPTIONS total-to-review' => 'options',
+                        'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS approve/<id>' => 'options'
                     ]
                 ],
@@ -131,11 +133,9 @@ return [
                         'GET export/<id>' => 'export',
                         'GET unpaid-candidates/<id>' => 'unpaid-candidates',
                         'PATCH mark-paid-all' => 'mark-paid-all',
-                        'PATCH mark-paid/<id>' => 'mark-paid',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
-                        'PATCH payment-received/<id>' => 'payment-received',
-                        'PATCH payment-completed/<id>' => 'payment-completed',
+                        'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS payable-candidates' => 'options',
@@ -144,13 +144,11 @@ return [
                         'OPTIONS text-export' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS export/<id>' => 'options',
-                        'OPTIONS mark-paid/<id>' => 'options',
                         'OPTIONS mark-paid-all' => 'options',
                         'OPTIONS unlock/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS unpaid-candidates/<id>' => 'options',
-                        'OPTIONS payment-received/<id>' => 'options',
-                        'OPTIONS payment-completed/<id>' => 'options',
+                        'OPTIONS payment-received-distributing/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

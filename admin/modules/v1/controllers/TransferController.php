@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Candidate;
 use Yii;
 use yii\base\Exception;
 use yii\rest\Controller;
@@ -103,7 +104,7 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $result = [];
-
+        
         // Candidates whose company paid to admin but admin have not paid yet
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
@@ -118,10 +119,12 @@ class TransferController extends Controller
 
             if($candidates)
             {
+                $totalAmount = Candidate::calculateRemainingPaymentTransferTotal($candidates);
+            
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates,
-                    'total' => $transfer->total
+                    'total' => $totalAmount
                 ];
             }
         }
@@ -153,7 +156,7 @@ class TransferController extends Controller
      * @param $id
      * @return array
      */
-    public function actionPaymentReceived($id)
+    public function actionPaymentReceivedDistributing($id)
     {
         $transfer = Transfer::findOne($id);
 
@@ -194,16 +197,19 @@ class TransferController extends Controller
     {
         $transfer = Transfer::findOne((int)$id);
 
-        if(!$transfer) {
+        if(!$transfer) 
+        {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
             ];
         }
 
-        try{
+        try {
             $transfer->unlock();
-        } catch(Exception $e){
+        } 
+        catch(Exception $e)
+        {
             return [
                 "operation" => "error",
                 "message" => $e->getMessage()
@@ -227,7 +233,8 @@ class TransferController extends Controller
     {
         $transfer = Transfer::findOne((int)$id);
 
-        if(!$transfer) {
+        if(!$transfer) 
+        {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
@@ -236,7 +243,9 @@ class TransferController extends Controller
 
         try{
             $transfer->lock();
-        } catch(Exception $e){
+        } 
+        catch(Exception $e)
+        {
             return [
                 "operation" => "error",
                 "message" => $e->getMessage()

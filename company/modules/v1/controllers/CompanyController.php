@@ -68,9 +68,11 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
+        $query = Company::find()
+                ->childCompany(Yii::$app->user->identity->company_id);
+                
         return new ActiveDataProvider([
-            'query' => Company::find()
-                ->childCompany(Yii::$app->user->identity->company_id)
+            'query' => $query
         ]);
     }
 }

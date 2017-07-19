@@ -105,10 +105,12 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->notDeleted()
             ->byApprovalStatus(0);
+        
+        $payable = Candidate::getTotalPayableCandidate();
 
         return [
             'total' => $query->count(),
-            'payable' => Candidate::getTotalPayableCandidate()
+            'payable' => $payable['payable']
         ];
     }
 
@@ -117,7 +119,6 @@ class CandidateController extends Controller
      * @param $id
      * @return array
      */
-
     public function actionApprove($id)
     {
         $model = Candidate::findOne((int) $id);
@@ -152,5 +153,18 @@ class CandidateController extends Controller
             "operation" => "success",
             "message" => "Candidate account approved successfully"
         ];
+    }
+
+    /**
+     * Return candidate's salary transfer with status
+     */
+    public function actionTransfers($id) 
+    {
+        $model = Candidate::findOne((int) $id);
+
+        if(!$model) 
+            return [];
+
+        return $model->transferCandidate;
     }
 }

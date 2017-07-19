@@ -297,8 +297,8 @@ class Transfer extends \common\models\Transfer {
                 $transaction->rollBack();
                 return $response; // error will be respond back
             } else {
-                $total += (int)$response['total'];
-                $company_total += (int)$response['company_total'];
+                $total += $response['total'];
+                $company_total += $response['company_total'];
             }
         }
 
@@ -381,8 +381,8 @@ class Transfer extends \common\models\Transfer {
                 $transaction->rollBack();
                 return $response; // error will be respond back
             } else {
-                $total += (int)$response['total'];
-                $company_total += (int)$response['company_total'];
+                $total += $response['total'];
+                $company_total += $response['company_total'];
             }
         }
 

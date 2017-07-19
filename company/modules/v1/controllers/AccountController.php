@@ -105,9 +105,9 @@ class AccountController extends Controller
             ];
         }
 
-        $candidate = Company::findOne($model->getId());
-        $candidate->setPassword($newPassword);
-        if ($candidate->save(false)) {
+        $model->setPassword($newPassword);
+        
+        if ($model->save(false)) {
             return [
                 "operation" => "success",
                 "message" => "Password changed successfully!"

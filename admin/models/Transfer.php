@@ -138,8 +138,7 @@ class Transfer extends \common\models\Transfer
      */
     public function getProfit()
     {
-        $profit = $this->company_total - $this->total - Transfer::getTransferCost($this->transfer_id);
-        return number_format($profit, 3, '.', '');
+        return floatval($this->company_total - $this->total);
     }
 
     /**
@@ -213,6 +212,7 @@ class Transfer extends \common\models\Transfer
             ->where([
                 'transfer_id' => $transfer_id
             ])
+            ->andWhere(['>', 'hours', 0])
             ->sum('transfer_cost');
     }
 
@@ -221,25 +221,19 @@ class Transfer extends \common\models\Transfer
      * @return array|bool|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
     public static function getTransferStatusRecordDetail($statusCode = 0){
-        $statusList = Transfer::statusList();
         $queryResult = Transfer::find()
             ->select('count(*) as total,transfer_status')
-            ->andWhere(['transfer_status'=>array_keys($statusList)])
+            ->andWhere(['transfer_status'=>$statusCode])
             ->notDeleted()
             ->isParentTransfer()
             ->groupBy('transfer_status')
             ->asArray()
-            ->all();
+            ->one();
 
-        if ($statusCode) {
-            foreach ($queryResult as $result) {
-                if ($result['transfer_status'] == $statusCode) {
-                    return $result;
-                }
-            }
-            return false;
-        } else {
+        if ($queryResult) {
             return $queryResult;
+        } else {
+            return [];
         }
     }
 }

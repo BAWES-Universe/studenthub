@@ -25,19 +25,25 @@ class Candidate extends \common\models\Candidate {
 
     /**
      * return total number of payable candidate
-     * @return int
+     * @return array
      */
     public static function getTotalPayableCandidate(){
-        $candidates = 0;
+        $totalCandidate = 0;
+        $totalAmount = 0;
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             ->isParentTransfer()
             ->all();
 
         foreach ($transfers as $transfer) {
-            $candidates += $transfer->getTransferCandidates()->where(['paid' => '0'])->count();
+            $candidates = $transfer->getTransferCandidates()->where(['paid' => '0'])->asArray()->all();
+            $totalCandidate += count($candidates);
+            $totalAmount += Candidate::calculateRemainingPaymentTransferTotal($candidates);
         }
-        return $candidates;
+        return [
+            'payable'=>$totalCandidate,
+            'amount'=>$totalAmount,
+        ];
     }
 
     /**
@@ -57,5 +63,19 @@ class Candidate extends \common\models\Candidate {
         }
 
         return $query->notDeleted()->count();
+    }
+
+    /**
+     * @param $candidates
+     * @return int
+     */
+    public static function calculateRemainingPaymentTransferTotal($candidates) {
+        $totalAmount = 0;
+        if (count($candidates)>0) {
+            foreach ($candidates as $candidateTransfer) {
+                $totalAmount += $candidateTransfer['bonus'] + ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
+            }
+        }
+        return $totalAmount;
     }
 }

@@ -69,6 +69,7 @@ class AccountController extends Controller
     public function actionSalary()
     {
         $currentUser = Yii::$app->user->identity;
+
         return new ArrayDataProvider([
             'allModels' => array_reverse($currentUser->paidTransferCandidate),
             'pagination' => [
@@ -153,7 +154,7 @@ class AccountController extends Controller
         }
 
         $candidate = Candidate::findOne($model->getId());
-        $candidate->setPassword($newPassword);
+        $candidate->setPassword($newPassword);        
         if ($candidate->save(false)) {
             return [
                 "operation" => "success",

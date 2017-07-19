@@ -68,6 +68,7 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
+        $payableDetail = Candidate::getTotalPayableCandidate();
         // Candidates
         $totalCandidate = Candidate::candidateCountByCondition();
         $totalAssignedToWork = Candidate::candidateCountByCondition('assigned');
@@ -76,6 +77,8 @@ class StatisticController extends Controller
         $result['candidates']['total_candidate'] = $totalCandidate;
         $result['candidates']['total_assigned'] = $totalAssignedToWork;
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
+        $result['payable']['total'] = $payableDetail['payable'];
+        $result['payable']['amount'] = $payableDetail['amount'];
 
         // Transfers
         $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK);
@@ -84,11 +87,11 @@ class StatisticController extends Controller
         $result['transfers'] = [];
         $result['transfers']['locked'] = [
             "code" => Transfer::STATUS_LOCK,
-            "total" => $lockedTransfers['total']? (int)$lockedTransfers['total'] : 0
+            "total" => (isset($lockedTransfers['total']))? (int)$lockedTransfers['total'] : 0
         ];
         $result['transfers']['paymentSent'] = [
             "code" => Transfer::STATUS_PAYMENT_SENT,
-            "total" => $paymentSentTransfers['total']? (int)$paymentSentTransfers['total'] : 0
+            "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
         ];
 
         return $result;
