@@ -165,6 +165,6 @@ class CandidateController extends Controller
         if(!$model) 
             return [];
 
-        return $model->transferCandidate;
+        return $model->paidTransferCandidate;
     }
 }

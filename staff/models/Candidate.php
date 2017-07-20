@@ -97,4 +97,12 @@ class Candidate extends \common\models\Candidate {
             ->setSubject('Welcome to the '.Yii::$app->name)
             ->send();
     }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getPaidTransferCandidate($modelClass = "\staff\models\TransferCandidate")
+    {
+        return parent::getPaidTransferCandidate($modelClass);
+    }
 }
