@@ -37,14 +37,9 @@ class Candidate extends \common\models\Candidate {
     /**
      * @return array|\yii\db\ActiveRecord[]
      */
-    public function getPaidTransferCandidate()
+    public function getPaidTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
     {
-        $status =[Transfer::STATUS_TRANSFER_COMPLETE,Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS];
-        return TransferCandidate::find()
-            ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
-            ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
-            ->filterCandidate(Yii::$app->user->getId())
-            ->all();
+        return parent::getPaidTransferCandidate($modelClass);
     }
 
     /**

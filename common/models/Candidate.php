@@ -703,7 +703,24 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $this->deleted = 1;
         return $this->save(false);
-    }
+    }    
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getPaidTransferCandidate($modelClass= "\common\models\TransferCandidate")
+    {
+        $status = [
+            Transfer::STATUS_TRANSFER_COMPLETE,
+            Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS
+        ];
+
+        return $modelClass::find()
+            ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
+            ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
+            ->filterCandidate($this->candidate_id)
+            ->all();
+    }   
 
     /**
      * @inheritdoc
