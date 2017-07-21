@@ -115,8 +115,6 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
-        Yii::info('['.$company->company_name.' created a new transfer draft] Check if they require assistance.', __METHOD__);
-
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
 
@@ -163,8 +161,6 @@ class TransferController extends Controller
         }
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
-
-        Yii::info('['.$company->company_name.' updated a transfer draft] Check if they require assistance.', __METHOD__);
 
         return Transfer::updateTransfer($company, $id, $candidates);
 

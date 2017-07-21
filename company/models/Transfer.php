@@ -315,7 +315,7 @@ class Transfer extends \common\models\Transfer {
 
         $transaction->commit();
 
-        Yii::info('[Company Initiated Transfer] Transfer "'.$transfer->transfer_id.'" initiated by Company: "'.$company->company_name.'"', __METHOD__);
+        Yii::info('['.$company->company_name.' created a new transfer draft] Check if they require assistance on transfer #'.$transfer->transfer_id.'.', __METHOD__);
 
         return [
             "operation" => "success",
@@ -511,7 +511,7 @@ class Transfer extends \common\models\Transfer {
 
         $transaction->commit();
 
-        Yii::info('[Company Update Transfer] Transfer "'.$model->transfer_id.'" updated by Company: "'.$company->company_name.'"', __METHOD__);
+        Yii::info('['.$company->company_name.' updated transfer #'.$model->transfer_id.'] Check if they require assistance.', __METHOD__);
 
         return [
             "operation" => "success",
