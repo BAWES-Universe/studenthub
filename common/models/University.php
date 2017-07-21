@@ -30,7 +30,7 @@ class University extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['university_name_en', 'university_name_ar'], 'string', 'max' => 100]
+            [['university_name_en', 'university_name_ar'], 'string', 'max' => 60]
         ];
     }
 
