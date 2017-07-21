@@ -280,11 +280,6 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate assigned to store successfully",
-            "store" => $model->store,
-            "company" => $model->company,
-            "store_id" => $store->store_id,
-            "store_name" => $store->store_name,
-            "company_name" => $store->company->company_name,
             "candidate_detail" => $model
         ];
 
