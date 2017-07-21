@@ -18,7 +18,7 @@ class Transfer extends \common\models\Transfer {
     public function rules()
     {
         $rules = parent::rules();
-        
+
         $rules[] = ['candidates', 'validateCandidates'];
 
         return $rules;
@@ -140,7 +140,6 @@ class Transfer extends \common\models\Transfer {
                 TransferCandidate::deleteAll(['transfer_id' => $transfer->transfer_id]);
 
                 // transfer candidate for current company
-
                 $candidates = TransferCandidate::find()
                     ->candidatesByTransfer($model->transfer_id)
                     ->filterCompanyId($company['company_id'])
@@ -160,7 +159,6 @@ class Transfer extends \common\models\Transfer {
 
                 // Generate invoice for each transfer
                 Transfer::generateTransferInvoice($transfer);
-
             }
         }
     }
@@ -361,12 +359,8 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
-            //candiate hourly_rate
-
             $candidate = Candidate::findOne($value['candidate_id']);
-
-            if(!$candidate)
-            {
+            if(!$candidate) {
                 $transaction->rollBack();
 
                 return [
@@ -546,7 +540,7 @@ class Transfer extends \common\models\Transfer {
         {
             $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
             $hours = (isset($value['hours'])) ? $value['hours'] : 0;
-            
+
             if($hours < 0)
             {
                 $this->addError($attribute, 'Hours can not be negative');
@@ -596,4 +590,3 @@ class Transfer extends \common\models\Transfer {
         }
     }
 }
-
