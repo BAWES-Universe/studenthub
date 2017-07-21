@@ -34,36 +34,36 @@ class BankTest extends \Codeception\Test\Unit
         //bank name validation 
 
         $bank->bank_name = null;
-        $this->assertFalse($bank->validate(['bank_name']));
+        expect('bank name should be required field', $bank->validate(['bank_name']))->false();
 
         $bank->bank_name = 'toolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeee';
-        $this->assertFalse($bank->validate(['bank_name']));
+        expect('should not accept too long bank name', $bank->validate(['bank_name']))->false();
 
         $bank->bank_name = 'INDB';
-        $this->assertTrue($bank->validate(['bank_name']));
+        expect('should accept valid bank name', $bank->validate(['bank_name']))->true();
 
         //bank_swift_code validation 
 
         $bank->bank_swift_code = null;
-        $this->assertFalse($bank->validate(['bank_swift_code']));
+        expect('should not accept null for bank swift code', $bank->validate(['bank_swift_code']))->false();
 
         $bank->bank_swift_code = 'toolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeee';
-        $this->assertFalse($bank->validate(['bank_swift_code']));
+        expect('bank swift code should not too long', $bank->validate(['bank_swift_code']))->false();
 
         $bank->bank_swift_code = 'SW275045';
-        $this->assertTrue($bank->validate(['bank_swift_code']));
+        expect('should accept valid bank swift code', $bank->validate(['bank_swift_code']))->true();
 
         //bank_address validation 
 
         $bank->bank_address = null;
-        $this->assertFalse($bank->validate(['bank_address']));
+        expect('bank address required', $bank->validate(['bank_address']))->false();
 
         //bank_transfer_type validation 
 
         $bank->bank_transfer_type = null;
-        $this->assertFalse(in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']));
+        expect('bank transfer type required', in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']))->false();
 
         $bank->bank_transfer_type = 'SWF';
-        $this->assertTrue(in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']));
+        expect('should accept valid transfer type', in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']))->true();
     }
 }
