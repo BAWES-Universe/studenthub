@@ -5,7 +5,7 @@ use yii\web\Controller;
 use common\models\Candidate;
 use common\models\University;
 use common\models\Store;
-use common\models\company;
+use common\models\Company;
 use common\models\CandidateIdCard;
 use yii\web\NotFoundHttpException;
 /**
@@ -72,11 +72,11 @@ class SiteController extends Controller
 
         $university = University::findOne($candidate->university_id);
 
-        $company = null;   
+        $company = null;
 
         if($store)
-            $company = Company::findOne($store->company_id);    
-             
+            $company = Company::findOne($store->company_id);
+
         return $this->render('index', [
                 'candidate' => $candidate,
                 'university' => $university,
