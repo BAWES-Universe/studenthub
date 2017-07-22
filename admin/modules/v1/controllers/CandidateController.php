@@ -64,8 +64,8 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a List of Candidate Accounts by 
-     * search criteria 
+     * Return a List of Candidate Accounts by
+     * search criteria
      */
     public function actionSearch()
     {
@@ -97,7 +97,7 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a No of Candidate to review 
+     * Return a No of Candidate to review
      * Return a No of Payable candidate also
      */
     public function actionTotalToReview()
@@ -105,7 +105,7 @@ class CandidateController extends Controller
         $query = Candidate::find()
             ->notDeleted()
             ->byApprovalStatus(0);
-        
+
         $payable = Candidate::getTotalPayableCandidate();
 
         return [
@@ -131,7 +131,7 @@ class CandidateController extends Controller
         }
 
         $model->approved = 1;
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -147,7 +147,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info('[Candidate Account Approved] Candidate "'.$model->candidate_email.'" approved by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('['.$model->candidate_email.' Account Approved] Candidate account approved by '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -158,13 +158,13 @@ class CandidateController extends Controller
     /**
      * Return candidate's salary transfer with status
      */
-    public function actionTransfers($id) 
+    public function actionTransfers($id)
     {
         $model = Candidate::findOne((int) $id);
 
-        if(!$model) 
+        if(!$model)
             return [];
 
-        return $model->transferCandidate;
+        return $model->paidTransferCandidate;
     }
 }

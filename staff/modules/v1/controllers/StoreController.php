@@ -105,7 +105,7 @@ class StoreController extends Controller
             }
         }
 
-        Yii::info('[Store Created] Store "'.$model->store_name.'" created by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+        Yii::info('[Store Created - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -151,7 +151,7 @@ class StoreController extends Controller
             }
         }
 
-        Yii::info('[Store Updated] Store "'.$model->store_name.'" updated by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+        Yii::info('[Store Updated - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -187,8 +187,8 @@ class StoreController extends Controller
             ];
         }
 
-        Yii::info('[Store Deleted] Store "'.$store->store_name.'" deleted by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
-        
+        Yii::info('[Store Deleted - '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
         // soft Delete store
         $store->softDelete();
 

@@ -127,7 +127,7 @@ class CompanyController extends Controller
             }
         }
 
-        Yii::info('[Company Account Created] Company "'.$model->company_name.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('['.$model->company_name.' Company Account Created] Company created by '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -194,7 +194,7 @@ class CompanyController extends Controller
             }
         }
 
-        Yii::info('[Company Account Updated] Company "'.$model->company_name.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('['.$model->company_name.' Company Account Updated] Company updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",

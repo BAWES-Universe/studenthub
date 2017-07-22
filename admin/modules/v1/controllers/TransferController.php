@@ -104,7 +104,7 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $result = [];
-        
+
         // Candidates whose company paid to admin but admin have not paid yet
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
@@ -120,7 +120,7 @@ class TransferController extends Controller
             if($candidates)
             {
                 $totalAmount = Candidate::calculateRemainingPaymentTransferTotal($candidates);
-            
+
                 $result[] = [
                     'transfer_id' => $transfer->transfer_id,
                     'candidates' => $candidates,
@@ -177,7 +177,7 @@ class TransferController extends Controller
             ];
         }
 
-        Yii::info('[Transfer marked as "Payment Received"] Transfer "'.$id.'" marked as "Payment Received" by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('[Transfer #'.$id.' marked as "Payment Received"] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         // Sending receipt to company via email
         $transfer->notify('receipt');
@@ -197,7 +197,7 @@ class TransferController extends Controller
     {
         $transfer = Transfer::findOne((int)$id);
 
-        if(!$transfer) 
+        if(!$transfer)
         {
             return [
                 "operation" => "error",
@@ -207,7 +207,7 @@ class TransferController extends Controller
 
         try {
             $transfer->unlock();
-        } 
+        }
         catch(Exception $e)
         {
             return [
@@ -216,7 +216,7 @@ class TransferController extends Controller
             ];
         }
 
-        Yii::info('[Transfer unlocked] Transfer "'.$id.'" unlocked by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('[Transfer #'.$id.' unlocked] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -233,7 +233,7 @@ class TransferController extends Controller
     {
         $transfer = Transfer::findOne((int)$id);
 
-        if(!$transfer) 
+        if(!$transfer)
         {
             return [
                 "operation" => "error",
@@ -243,7 +243,7 @@ class TransferController extends Controller
 
         try{
             $transfer->lock();
-        } 
+        }
         catch(Exception $e)
         {
             return [
@@ -252,7 +252,7 @@ class TransferController extends Controller
             ];
         }
 
-        Yii::info('[Transfer reverted to locked] Transfer "'.$id.'" reverted to locked by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('[Transfer #'.$id.' reverted to locked] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -291,11 +291,11 @@ class TransferController extends Controller
             }
         }
 
-        Yii::info('[Candidate(s) have been marked as paid] ' . count($candidate_ids) . ' candidate(s) have been marked as paid by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('[' . count($candidate_ids) . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             'operation' => 'success',
-            'message' => count($candidate_ids). ' candidate(s) have been marked as paid',
+            'message' => count($candidate_ids). ' candidates have been marked as paid',
         ];
     }
 

@@ -141,8 +141,8 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info('[Candidate Account Created] Candidate "'.$model->candidate_name.'" account created by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
-            
+        Yii::info('['.$model->candidate_name.' Candidate Account Created] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Candidate account successfully created",
@@ -206,7 +206,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info('[Candidate Account Updated] Candidate "'.$model->candidate_name.'" account updated by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+        Yii::info('['.$model->candidate_name.' Candidate Account Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -275,16 +275,11 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info('[Candidate Assigned] Candidate "'.$model->candidate_name.'" assigned to store "'.$store->store_name.'" by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+        Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
             "message" => "Candidate assigned to store successfully",
-            "store" => $model->store,
-            "company" => $model->company,
-            "store_id" => $store->store_id,
-            "store_name" => $store->store_name,
-            "company_name" => $store->company->company_name,
             "candidate_detail" => $model
         ];
 
@@ -326,7 +321,7 @@ class CandidateController extends Controller
             }
         }
 
-        Yii::info('[Candidate Unassigned] Candidate "'.$model->candidate_name.'" unassigned from store by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+        Yii::info('['.$model->candidate_name.' unassigned from store] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -466,7 +461,7 @@ class CandidateController extends Controller
             ];
         }
 
-        Yii::info('[Candidate Deleted] Candidate "'.$model->candidate_name.'" soft deleted by Staff: "'.Yii::$app->user->identity->staff_name.'"', __METHOD__);
+        Yii::info('[Candidate '.$model->candidate_name.' Deleted] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         $model->softDelete();
 
@@ -474,18 +469,18 @@ class CandidateController extends Controller
             "operation" => "success",
             "message" => "Candidate removed successfully"
         ];
-    }    
+    }
 
     /**
      * Return candidate's salary transfer with status
      */
-    public function actionTransfers($id) 
+    public function actionTransfers($id)
     {
         $model = Candidate::findOne((int) $id);
 
-        if(!$model) 
+        if(!$model)
             return [];
 
-        return $model->transferCandidate;
+        return $model->paidTransferCandidate;
     }
 }

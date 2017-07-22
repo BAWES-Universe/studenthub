@@ -2,6 +2,8 @@
 
 namespace admin\models;
 
+use Yii;
+
 /**
  * Class TransferCandidate
  * @package admin\models
@@ -18,6 +20,18 @@ class TransferCandidate extends \common\models\TransferCandidate
     	$fields['candidate'] = function($model) {
     		return $model->candidate;
     	};
+
+        $fields['status'] = function($model){
+            return ($model->paid) ? 'Paid' : 'Unpaid';
+        };
+
+        $fields['total'] = function($model) {
+            return ($model->candidate_hourly_rate * $model->hours) + $model->bonus;
+        };
+
+        $fields['tc_created_at'] = function($model) {
+            return Yii::$app->formatter->asDate($model->tc_created_at, "long");
+        };        
 
     	return $fields;
     }

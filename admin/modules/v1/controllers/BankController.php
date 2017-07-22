@@ -82,7 +82,7 @@ class BankController extends Controller
      * @return array
      */
     public function actionCreate()
-    {        
+    {
         // Attempt to create new bank
         $model = new Bank();
 
@@ -105,7 +105,7 @@ class BankController extends Controller
             }
         }
 
-        Yii::info('[Bank Created] Bank "'.$model->bank_name.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('[Bank Added: '.$model->bank_name.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -153,8 +153,9 @@ class BankController extends Controller
             }
         }
 
-        Yii::info('[Bank Updated] Bank "'.$model->bank_name.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
-        
+        Yii::info('[Bank Updated: '.$model->bank_name.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+
         return [
             "operation" => "success",
             "message" => "Bank successfully updated"
@@ -190,7 +191,7 @@ class BankController extends Controller
         // Delete bank
         $bank->softDelete();
 
-        Yii::info('[Bank Soft Deleted] Bank "'.$bank->bank_name.'" soft deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('[Bank Soft Deleted: '.$bank->bank_name.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",

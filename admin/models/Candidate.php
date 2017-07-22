@@ -78,4 +78,12 @@ class Candidate extends \common\models\Candidate {
         }
         return $totalAmount;
     }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getPaidTransferCandidate($modelClass = "\admin\models\TransferCandidate")
+    {
+        return parent::getPaidTransferCandidate($modelClass);
+    }
 }

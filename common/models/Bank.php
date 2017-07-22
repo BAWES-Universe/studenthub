@@ -36,7 +36,7 @@ class Bank extends \yii\db\ActiveRecord
     {
         return [
             [['bank_name','bank_swift_code','bank_address'], 'required'],
-            [['bank_name','bank_transfer_type'], 'string', 'max' => 100],
+            [['bank_name','bank_transfer_type'], 'string', 'max' => 50],
             [['bank_swift_code'], 'string', 'max' => 12],
             ['bank_transfer_type', 'in', 'range' => self::getBankCodeList()],
             [['bank_address'], 'string']
