@@ -48,7 +48,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['company_name'], 'required'],
-            [['company_password_hash'], 'required', 'on'=>'newAccount'],
+            [['company_password_hash', 'company_email'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_password_hash'], 'required', 'on'=>'newSubAccount'], // for sub account
@@ -56,7 +56,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['parent_company_id'], 'validateCompany'],
             [['company_name', 'company_email', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
-            [['company_password_reset_token'], 'unique'],
+            [['company_password_reset_token'], 'unique']
         ];
     }
 
@@ -65,8 +65,12 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function validateCompany()
     {
-        if($this->parentCompany->stores) {
-            $this->addError('company_id', "Company can't be assigned to company having stores.");
+        if(!$this->parentCompany) { 
+            $this->addError('parent_company_id', "Parent Company not found.");
+        } 
+        
+        if($this->parentCompany && $this->parentCompany->stores) {
+            $this->addError('parent_company_id', "Company can't be assigned to company having stores.");
         }
     }
 
