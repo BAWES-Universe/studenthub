@@ -35,7 +35,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                     <tr><td><p>Transfer number: <?=$invoice->transfer_id?></p></td></tr>
                     <tr><td><p>Issue date: <?=date('F d,Y',strtotime($invoice->invoice_date))?></p></td></tr>
                     <tr><td><p>Payment terms: Due immediately</p></td></tr>
-                    <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount due in KWD: <?= $invoice->transfer->company_total ?></h5></td></tr>
+                    <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount due in KWD: <?= number_format($invoice->transfer->company_total, 3) ?></h5></td></tr>
                 </table>
             </td>
         </tr>
@@ -48,7 +48,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 <span><b><?=number_format($totalHours)?> hours</b> worked x <b>2 KD</b> per hour</span>
             </td>
             <td align="right" style="text-align: right">
-                <span>KWD <?=number_format($totalAmount)?></span>
+                <span>KWD <?=number_format($totalAmount, 3)?></span>
             </td>
         </tr>
         <?php if($totalBonus > 0) { ?>
@@ -57,7 +57,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 <span><b>Bonus to be sent to interns</b></span>
             </td>
             <td align="right" style="text-align: right">
-                <span>KWD <?=number_format($totalBonus)?></span>
+                <span>KWD <?=number_format($totalBonus, 3)?></span>
             </td>
         </tr>
         <?php } ?>
@@ -69,7 +69,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount Due for <?=count($invoice->transfer->transferCandidates)?> interns</span>
             </td>
             <td align="right" style="text-align: right">
-                <span class="h5">KWD <?= $invoice->transfer->company_total ?></span>
+                <span class="h5">KWD <?= number_format($invoice->transfer->company_total, 3) ?></span>
             </td>
         </tr>
     </table>
@@ -87,10 +87,10 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
 <br/>
 <div class="col-xs-12" style="">
     <h3 style="font-weight: 100;">Bank Info</h3>
-    BAWES FOR COMPUTER PROGRAMMING AND WEBSITE DESIGN AND DEVELOPMENT COMPANY<br/>
-    شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت
-    <br/>National Bank of Kuwait
-    <br/>IBAN: KW07NBOK0000000000002009288593
-    <br/>Account #: 2009288593
-    <br/>Swift: NBOKKWKW
+    <?= Yii::$app->params['bankInfo']['accountName'] ?><br/>
+    <?= Yii::$app->params['bankInfo']['accountNameArabic'] ?>
+    <br/><?= Yii::$app->params['bankInfo']['bankName'] ?>
+    <br/>IBAN: <?= Yii::$app->params['bankInfo']['iban'] ?>
+    <br/>Account #: <?= Yii::$app->params['bankInfo']['accountNumber'] ?>
+    <br/>Swift: <?= Yii::$app->params['bankInfo']['swiftCode'] ?>
 </div>

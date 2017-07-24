@@ -98,9 +98,9 @@ class TransferController extends Controller
 
         if(!$transfer) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
         }
 
         return $transfer;
@@ -132,7 +132,6 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
 
         // list all sub companies
-
         $model = $company
             ->getTransfers()
             ->filterTransfer($id)
@@ -140,20 +139,19 @@ class TransferController extends Controller
 
         if(!$model) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
         }
 
         if($model->parent_transfer_id > 0) {
             return [
-                    "operation" => "error",
-                    "message" => 'Transfer for sub company can\'t be edited!'
-                ];
+                "operation" => "error",
+                "message" => 'Transfer for sub company can\'t be edited!'
+            ];
         }
 
         //transfer status should be "Initiated" to edit it
-
         if($model->transfer_status != Transfer::STATUS_INITIATED)
         {
             return [
@@ -178,7 +176,7 @@ class TransferController extends Controller
     public function actionPaymentSent($id)
     {
         $company = Yii::$app->user->identity;
-        
+
         $transfer = $company
             ->getTransfers()
             ->filterTransfer($id)
@@ -210,7 +208,7 @@ class TransferController extends Controller
         $transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
         $transfer->save();
 
-        Yii::info('[Company Sent Transfer] Transfer "'.$transfer->transfer_id.'" marked as "Payment Sent" by Company: "'.$company->company_name.'"', __METHOD__);
+        Yii::info('[Company '.$company->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
 
         return [
             "operation" => "success",
@@ -226,7 +224,7 @@ class TransferController extends Controller
     public function actionLock($id)
     {
         $company = Yii::$app->user->identity;
-        
+
         $model = $company
             ->getTransfers()
             ->filterTransfer($id)
@@ -258,8 +256,8 @@ class TransferController extends Controller
         $model->transfer_status = Transfer::STATUS_LOCK;
         $model->save();
 
-        Yii::info('[Company Lock Transfer] Transfer "'.$model->transfer_id.'" has been locked by Company: "'.$company->company_name.'"', __METHOD__);
-        
+        Yii::info('[Company '.$company->company_name.' has locked transfer #'.$model->transfer_id.'] They will be sending payment soon.', __METHOD__);
+
         //select distinct company and create transfer for each company
         Transfer::generateEachCompanyTransfer($model, $company);
 
@@ -279,12 +277,12 @@ class TransferController extends Controller
     public function actionDelete($id)
     {
         $company = Yii::$app->user->identity;
-        
+
         $model = $company
             ->getTransfers()
             ->filterTransfer($id)
             ->one();
-            
+
         if(!$model) {
             return [
                 "operation" => "error",
@@ -310,7 +308,7 @@ class TransferController extends Controller
         //delete data child transfer
         Transfer::deleteChildTransfer($model);
 
-        Yii::info('[Company Deleted Transfer] Transfer "'.$id.'" deleted by Company: "'.$company->company_name.'"', __METHOD__);
+        Yii::info('[Company '.$company->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
 
         return [
             "operation" => "success",
