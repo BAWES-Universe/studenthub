@@ -5,7 +5,6 @@ use common\models\University;
 use common\fixtures\University as UniversityFixture;
 use Codeception\Specify;
 
-
 class UniversityTest extends \Codeception\Test\Unit
 {
     use Specify;
