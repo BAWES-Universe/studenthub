@@ -34,7 +34,7 @@ class CandidateIdCard extends \yii\db\ActiveRecord
         return [
             [['candidate_id'], 'integer'],
             [['candidate_id'], 'unique'],
-            [['expiry_date'], 'required'],
+            [['candidate_id', 'expiry_date'], 'required'],
             [['created_at', 'updated_at'], 'safe'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
