@@ -28,30 +28,6 @@ class CompanyTest extends \Codeception\Test\Unit
                 'dataFile' => codecept_data_dir() . 'store.php'
             ]
         ]);
-        
-        //load data 
-        $companies = $this->tester->grabFixture('company');
-        
-        foreach ($companies as $company)
-        {
-            $model = new Company;
-            $model->attributes = $company;
-            if(!$model->save()){
-                print_r($model->getErrors());
-                die();
-            }
-        }
-        
-        $stores = $this->tester->grabFixture('store');
-        foreach ($stores as $store)
-        {
-            $model = new Store;
-            $model->attributes = $store;
-            if(!$model->save()){
-                print_r($model->getErrors());
-                die();
-            }
-        }
     }
 
     protected function _after()
