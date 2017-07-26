@@ -3,7 +3,6 @@ namespace common\tests;
 
 use Codeception\Specify;
 use common\models\Company;
-use common\models\Store;
 use common\fixtures\Company as CompanyFixture;
 use common\fixtures\Store as StoreFixture;
 
