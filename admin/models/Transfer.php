@@ -64,7 +64,7 @@ class Transfer extends \common\models\Transfer
             throw new Exception('Transfer needs to be marked as "Payment Sent" to revert to "Locked" status.');
         }
         $this->transfer_status = Transfer::STATUS_LOCK;
-        $this->save(false);
+        return $this->save(false);
     }
 
     /**
@@ -81,7 +81,7 @@ class Transfer extends \common\models\Transfer
             throw new Exception('Transfer status should be "Locked" to unlock it!');
         }
         $this->transfer_status = Transfer::STATUS_INITIATED;
-        $this->save(false);
+        return $this->save(false);        
     }
 
     /**
@@ -110,6 +110,8 @@ class Transfer extends \common\models\Transfer
         foreach ($child_transfers as $key => $value) {
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }
+        
+        return true;
     }
 
     /**
