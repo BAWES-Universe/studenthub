@@ -284,7 +284,6 @@ class Transfer extends ActiveRecord
         Yii::$app->controller->layout = 'pdf';
         $subject = [];
 
-
         $message = Yii::$app->mailer->compose($template.'-attachment',['invoices'=>$invoices]);
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
         $i=1;

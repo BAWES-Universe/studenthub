@@ -1,6 +1,6 @@
 <?php
-
 namespace common\models\query;
+
 use Yii;
 use yii\db\ActiveQuery;
 /**
@@ -14,9 +14,9 @@ class StoreQuery extends ActiveQuery
      * @return $this
      */
     public function filterCompany($companyId)
-	{
-		return $this->andWhere(['{{%store}}.company_id' => $companyId]);
-	}
+    {
+            return $this->andWhere(['{{%store}}.company_id' => $companyId]);
+    }
 
     /**
      * @return $this
