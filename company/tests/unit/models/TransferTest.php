@@ -114,7 +114,7 @@ class TransferTest extends \Codeception\Test\Unit
             expect('Candidate fixture loaded', Candidate::findOne(['candidate_id' => 1]))->notNull();
         });
         
-        $this->specify('Add new transfer', function() {
+        $this->specify('Add new transfer for company with child', function() {
             $company = Company::find()
                 ->where('parent_company_id > 0')
                 ->one()
@@ -159,6 +159,41 @@ class TransferTest extends \Codeception\Test\Unit
      */
     public function testSaveTransferWithoutChild() {
         
+        $this->specify('Add new transfer for company without child', function() {
+            $company = Company::findOne(3);
+
+            $candidates = $company
+                ->getCandidates()
+                ->all();
+
+            $arrCandiate = [];
+            $total = 0;
+            $company_total = 0;
+
+            foreach ($candidates as $value)
+            {
+                $data = [
+                    'bonus' => rand(0, 10), 
+                    'hours' => rand(0, 100),
+                    'candidate_id' => $value->candidate_id
+                ];
+
+                if ((int)$data['hours']>0) {
+                    $total += $data['bonus'] + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+                    $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                }
+
+                $arrCandiate[] = $data;
+            }       
+
+            $result = Transfer::saveTransfer($company, $arrCandiate);        
+
+            expect('Transfer should saved', $result)->hasKey('transfer_id');        
+
+            $transfer = Transfer::findOne($result['transfer_id']);
+            expect('Transfer total - admin will pay', $transfer->total)->equals($total);
+            expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+        });        
     }
         
     /**
