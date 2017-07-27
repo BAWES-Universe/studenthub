@@ -2,6 +2,7 @@
 namespace common\tests;
 
 use admin\models\Invoice;
+use common\fixtures\Invoice as InvoiceFixture;
 use common\fixtures\Candidate as CandidateFixture;
 use common\fixtures\Country as CountryFixture;
 use common\fixtures\University as UniversityFixture;
@@ -45,6 +46,10 @@ class InvoiceTest extends \Codeception\Test\Unit
             'transferCandidate' => [
                 'class' => TransferCandidateFixture::className(),
                 'dataFile' => codecept_data_dir() . 'transferCandidate.php'
+            ],
+            'invoice' => [
+                'class' => InvoiceFixture::className(),
+                'dataFile' => codecept_data_dir() . 'invoice.php'
             ]
         ]);
     }
@@ -70,7 +75,7 @@ class InvoiceTest extends \Codeception\Test\Unit
 
         $this->specify('check if transfer exist', function () {
             $model = new Invoice();
-            $model->transfer_id = '3';
+            $model->transfer_id = '93';
             $model->validate();
             expect('invalid transfer id', $model->errors)->haskey('transfer_id');
             expect('error count', count($model->errors))->equals(1);
