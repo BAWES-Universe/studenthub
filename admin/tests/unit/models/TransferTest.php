@@ -80,5 +80,89 @@ class TransferTest extends \Codeception\Test\Unit
             }     
             expect('Mark as lock from lock status', $result)->false();
         });
+        
+        $this->specify('Transfer model statistics for company without child', function () {            
+            $transfer = Transfer::find()
+                ->where(['company_id' => 3])
+                ->one();
+           
+            $transfer_cost = TransferCandidate::find()
+                ->where(['transfer_id' => $transfer->transfer_id])
+                ->sum('transfer_cost');
+            
+            expect('Check transfer cost getting calculated properly', $transfer_cost)
+                ->equals(floatval(Transfer::getTransferCost($transfer->transfer_id)));
+            
+            $totalPaid = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 1
+                ])
+                ->count();
+            
+            expect('Checking total no of candidate paid in transfer', $totalPaid)
+                ->equals($transfer->getTotalPaid());
+            
+            $totalUnaid = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 0
+                ])
+                ->count();
+            
+            expect('Checking total no of candidate unpaid in transfer', $totalUnaid)
+                ->equals($transfer->getTotalUnpaid());
+            
+            $profit = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id
+                ])
+                ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost');    
+            
+            expect('Checking profit from transfer getting calculated properly', $profit)
+                ->equals($transfer->getProfit());             
+        });         
+        
+        $this->specify('Transfer model statistics for company with child', function () {            
+            $transfer = Transfer::find()
+                ->where(['company_id' => 1])
+                ->one();
+           
+            $transfer_cost = TransferCandidate::find()
+                ->where(['transfer_id' => $transfer->transfer_id])
+                ->sum('transfer_cost');
+            
+            expect('Check transfer cost getting calculated properly', $transfer_cost)
+                ->equals(floatval(Transfer::getTransferCost($transfer->transfer_id)));
+            
+            $totalPaid = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 1
+                ])
+                ->count();
+            
+            expect('Checking total no of candidate paid in transfer', $totalPaid)
+                ->equals($transfer->getTotalPaid());
+            
+            $totalUnaid = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 0
+                ])
+                ->count();
+            
+            expect('Checking total no of candidate unpaid in transfer', $totalUnaid)
+                ->equals($transfer->getTotalUnpaid());
+            
+            $profit = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id
+                ])
+                ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost');    
+            
+            expect('Checking profit from transfer getting calculated properly', $profit)
+                ->equals($transfer->getProfit());             
+        });         
     }
 }

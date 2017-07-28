@@ -223,4 +223,41 @@ return [
         'tc_created_at' => '2017-02-23 18:04:42',
         'tc_updated_at' => '2017-02-23 18:04:42'
     ],
+    //transfer #13
+    [
+    	'tc_id' => 13,
+    	'transfer_id' => '13',
+    	'candidate_id' => '3',
+    	'store_id' => '3',
+    	'store_name' => 'Third Store - Without Child',
+    	'company_id' => '3',
+    	'company_name' => 'Without Child',
+    	'company_email' => 'company3@bawes.net',
+    	'candidate_hourly_rate' => '1.7',
+    	'company_hourly_rate' => '2.0',
+    	'hours' => 10,
+    	'bonus' => 10,
+    	'transfer_cost' => '0.350',
+    	'paid' => 0,
+    	'tc_created_at' => '2017-02-23 18:04:42',
+    	'tc_updated_at' => '2017-02-23 18:04:42'
+    ],
+    [
+        'tc_id' => 14,
+        'transfer_id' => '13',
+        'candidate_id' => '4',
+        'store_id' => '3',
+        'store_name' => 'Third Store - Without Child',
+        'company_id' => '3',
+        'company_name' => 'Without Child',
+        'company_email' => 'company3@bawes.net',
+        'candidate_hourly_rate' => '1.5',
+        'company_hourly_rate' => '2.0',
+        'hours' => 20,
+        'bonus' => 18,
+        'transfer_cost' => '0.350',
+        'paid' => 0,
+        'tc_created_at' => '2017-02-23 18:04:42',
+        'tc_updated_at' => '2017-02-23 18:04:42'
+    ],
 ];

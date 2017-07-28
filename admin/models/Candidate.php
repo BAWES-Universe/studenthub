@@ -40,9 +40,10 @@ class Candidate extends \common\models\Candidate {
             $totalCandidate += count($candidates);
             $totalAmount += Candidate::calculateRemainingPaymentTransferTotal($candidates);
         }
+        
         return [
-            'payable'=>$totalCandidate,
-            'amount'=>$totalAmount,
+            'payable' => $totalCandidate,
+            'amount' => $totalAmount,
         ];
     }
 
