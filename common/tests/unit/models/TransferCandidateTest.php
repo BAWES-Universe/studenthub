@@ -2,7 +2,6 @@
 namespace common\tests;
 
 use Codeception\Specify;
-use common\models\Transfer;
 use common\fixtures\Store as StoreFixture;
 use common\fixtures\Candidate as CandidateFixture;
 use common\fixtures\Company as CompanyFixture;
@@ -49,6 +48,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
     {
     }
 
+    /**
+     * test case for model validations
+     */
     public function testValidations()
     {
         $this->specify('fixture data load test', function () {
@@ -219,7 +221,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         expect('validate paid to candidate data ', $transferCandidateData->getTotalPaidByCompany())->equals($output);
     }
 
-
+    /**
+     * test cases for profit
+     */
     public function testProfit()
     {
         $this->specify('fixture data load test', function () {
