@@ -75,14 +75,14 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
         ]);
     }
 
-	/**
-	 * Return profit for transfer
-	 */
-	public function profit()
-	{
-            return $this->sum('(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate ) * {{%transfer_candidate}}.hours) - {{%transfer_candidate}}.transfer_cost');
-            // transfer cost will be on admin
-	}
+    /**
+     * Return profit for transfer
+     */
+    public function profit()
+    {
+        return $this->sum('(({{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate ) * {{%transfer_candidate}}.hours) - {{%transfer_candidate}}.transfer_cost');
+        // transfer cost will be on admin
+    }
 
     /**
      * Return candidates who not got paid

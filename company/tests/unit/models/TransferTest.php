@@ -26,7 +26,9 @@ class TransferTest extends \Codeception\Test\Unit
     protected function _before()
     {
         Yii::$app->params['inCodeception'] = true;
-        
+        Yii::$app->params['transfer_cost'] = 0.35;
+        Yii::$app->params['candidate_max_hourly_rate'] = 2;
+                
         $this->tester->haveFixtures([
             'company' => [
                 'class' => CompanyFixture::className(),
@@ -101,6 +103,99 @@ class TransferTest extends \Codeception\Test\Unit
             $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
             expect('Delete transfer having Payment sent status', Transfer::deleteTransfer($transfer))->false();
         });
+        
+        $this->specify('Transfer model without child company', function () {            
+            $transfer = Transfer::find()
+                ->where([
+                    'company_id' => 3,
+                    'transfer_status' => Transfer::STATUS_INITIATED
+                ])
+                ->one();
+            
+            //generate invoice
+            $transfer->lock();
+            
+            expect('Should generate 1 invoice for main transfer', count($transfer->invoices))
+                ->equals(1);            
+            
+            expect('Should generate child transfer for each sub company of candidates in transfer', sizeof($transfer->childTransfers))
+                ->equals(0);
+            
+            $total = $transfer
+                ->getTransferCandidates()
+                ->sum('(candidate_hourly_rate * hours) + bonus + transfer_cost');
+
+            expect('Testing transfer total field', $total)
+                ->equals($transfer->total);
+            
+            $company_total = $transfer
+                ->getTransferCandidates()
+                ->sum('(company_hourly_rate * hours) + bonus');
+
+            expect('Testing transfer company total field', $company_total)
+                ->equals($transfer->company_total);
+        });
+        
+        $this->specify('Transfer model with child company', function () {            
+            $transfer = Transfer::find()
+                ->where([
+                    'company_id' => 1,
+                    'transfer_status' => Transfer::STATUS_INITIATED
+                ])
+                ->one();
+            
+            $companiesCount = $transfer
+                ->getTransferCandidates()
+                ->groupBy('company_id')
+                ->count();
+            
+            //generate invoice
+            $transfer->lock();
+            
+            expect('Should generate invoice for each sub company of candidates in transfer', sizeof($transfer->invoices))
+                ->equals($companiesCount);
+            
+            expect('Should generate child transfer for each sub company of candidates in transfer', sizeof($transfer->childTransfers))
+                ->equals($companiesCount);
+            
+            expect('Testing childTransferInvoices method', sizeof($transfer->childTransferInvoices))
+                ->equals($companiesCount);
+            
+            //for main transfer 
+            
+            $total = $transfer
+                ->getTransferCandidates()
+                ->sum('(candidate_hourly_rate * hours) + bonus + transfer_cost');
+
+            expect('Testing main transfer total field', $total)
+                ->equals($transfer->total);
+            
+            $company_total = $transfer
+                ->getTransferCandidates()
+                ->sum('(company_hourly_rate * hours) + bonus');
+
+            expect('Testing main transfer company total field', $company_total)
+                ->equals($transfer->company_total);
+            
+            //for child transfer 
+            
+            foreach ($transfer->childTransfers as $childTransfer) 
+            {
+                $total = $childTransfer
+                    ->getTransferCandidates()
+                    ->sum('(candidate_hourly_rate * hours) + bonus + transfer_cost');
+
+                expect('Testing child transfer total field', $total)
+                    ->equals($childTransfer->total);
+
+                $company_total = $childTransfer
+                    ->getTransferCandidates()
+                    ->sum('(company_hourly_rate * hours) + bonus');
+
+                expect('Testing child transfer company total field', $company_total)
+                    ->equals($childTransfer->company_total);
+            }
+        }); 
     }    
 
     /**
@@ -153,6 +248,7 @@ class TransferTest extends \Codeception\Test\Unit
             expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
         });
     }
+     
     
     /**
      * For company having sub companies  
@@ -247,7 +343,7 @@ class TransferTest extends \Codeception\Test\Unit
 
     /**
      * fail test case For company with sub companies
-     */
+     */    
     public function testFailUpdateTransferWithChild() {
 
         $this->specify('fixture loaded data', function() {
