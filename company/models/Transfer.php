@@ -3,6 +3,7 @@ namespace company\models;
 
 use Yii;
 use yii\helpers\ArrayHelper;
+use yii\base\Exception;
 
 /**
  * This is the model class for table "Transfer".
@@ -158,7 +159,7 @@ class Transfer extends \common\models\Transfer {
                 $transfer->save();
 
                 // Generate invoice for each transfer
-                Transfer::generateTransferInvoice($transfer);
+                $transfer->generateTransferInvoice();
             }
         }
     }
@@ -167,12 +168,12 @@ class Transfer extends \common\models\Transfer {
      * @param $model
      * @return bool
      */
-    public static function generateTransferInvoice($model) {
-        $invoice = Invoice::findOne(['transfer_id' => $model->transfer_id]);
+    public function generateTransferInvoice() {
+        $invoice = Invoice::findOne(['transfer_id' => $this->transfer_id]);
 
         if(!$invoice) {
             $invoice = new Invoice;
-            $invoice->transfer_id = $model->transfer_id;
+            $invoice->transfer_id = $this->transfer_id;
             $invoice->invoice_date = date('Y-m-d');
             $invoice->invoice_status = 'unpaid';
             return $invoice->save();
@@ -185,18 +186,18 @@ class Transfer extends \common\models\Transfer {
      * @param $company
      * @return bool
      */
-    public static function generateEachCompanyTransfer($model,$company) {
+    public function generateEachCompanyTransfer() {
 
         $sub_companies = TransferCandidate::find()
-            ->candidatesByTransfer($model->transfer_id)
-            ->groupByCompany($model->company_id)
+            ->candidatesByTransfer($this->transfer_id)
+            ->groupByCompany($this->company_id)
             ->all();
 
         // condition to check if current company has existing sub companies.
         $sub_companies = (
             $sub_companies &&
-            (isset($company->subCompanies)) &&
-            count($company->subCompanies)>0
+            (isset($this->company->subCompanies)) &&
+            count($this->company->subCompanies)>0
         ) ? $sub_companies : false;
 
         /**
@@ -204,7 +205,7 @@ class Transfer extends \common\models\Transfer {
          * invoice for sub companies
          */
         if (!$sub_companies) {
-            Transfer::generateTransferInvoice($model);
+            $this->generateTransferInvoice();
         }
 
         /**
@@ -212,17 +213,76 @@ class Transfer extends \common\models\Transfer {
          * sub companies
          */
         if ($sub_companies) {
-            Transfer::generateSubCompanyTransfer($sub_companies, $model);
+            Transfer::generateSubCompanyTransfer($sub_companies, $this);
         }
         return true;
     }
+    
+    /**
+     * Mark transfer status to "Payment Sent"
+     * This is only possible after the status has been marked as `Locked`
+     * @throws yii\base\Exception
+     */
+    public function paymentSent()
+    {
+        if($this->transfer_status == Transfer::STATUS_PAYMENT_SENT)
+        {
+            throw new Exception('Transfer already marked as "Payment Sent"');
+        }
+        
+        if($this->transfer_status != Transfer::STATUS_LOCK)
+        {
+            throw new Exception('Transfer status should be "Locked" to send it!');
+        }
+        
+        $this->transfer_status = Transfer::STATUS_PAYMENT_SENT;        
+        
+        return $this->save(false);
+    }
+        
+    /**
+     * Mark transfer status to locked
+     * This is only possible after the status has been marked as `Payment Sent` by mistake
+     * @throws yii\base\Exception
+     */
+    public function lock()
+    {
+        if($this->transfer_status == Transfer::STATUS_LOCK)
+        {
+            throw new Exception('Transfer already locked.');
+        }
+        
+        if($this->transfer_status != Transfer::STATUS_INITIATED)
+        {
+            throw new Exception('Transfer status need to be "Initiated" to lock it!');
+        }
+        
+        $this->transfer_status = Transfer::STATUS_LOCK;
+                
+        //select distinct company and create transfer for each company
+        $this->generateEachCompanyTransfer();
 
+        return $this->save(false);
+    }
+    
     /**
      * @param $model
      * @return bool
      */
-    public static function deleteChildTransfer($model) {
+    public static function deleteTransfer($model) {
+        
+        //transfer status should be "Initiated" or "Locked" to delete it
 
+        $allowedStatus = [
+            Transfer::STATUS_INITIATED,
+            Transfer::STATUS_LOCK
+        ];
+
+        if(!in_array($model->transfer_status, $allowedStatus))
+        {
+            return false;
+        }
+        
         $children = Transfer::find()->filterParent($model->transfer_id)->all();
 
         //delete data for each child
@@ -247,7 +307,8 @@ class Transfer extends \common\models\Transfer {
      */
     public static function saveTransfer($company, $candidates) {
 
-        $transaction = Yii::$app->db->beginTransaction();
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction = Yii::$app->db->beginTransaction();
 
         $transfer = new Transfer;
         $transfer->company_id = $company->company_id;
@@ -282,7 +343,8 @@ class Transfer extends \common\models\Transfer {
             $candidate = Candidate::findOne($value['candidate_id']);
             if(!$candidate)
             {
-                $transaction->rollBack();
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
 
                 return [
                     "operation" => "error",
@@ -292,7 +354,10 @@ class Transfer extends \common\models\Transfer {
 
             $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
             if ($response['operation'] == "error") {
-                $transaction->rollBack();
+                
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
+                
                 return $response; // error will be respond back
             } else {
                 $total += $response['total'];
@@ -301,7 +366,9 @@ class Transfer extends \common\models\Transfer {
         }
 
         if($total <= 0) {
-            $transaction->rollBack();
+            
+            if(empty(Yii::$app->params['inCodeception']))
+                $transaction->rollBack();
 
             return [
                 "operation" => "error",
@@ -313,8 +380,10 @@ class Transfer extends \common\models\Transfer {
         $transfer->total = $total;
         $transfer->save();
 
-        $transaction->commit();
-
+        //codeception does not support nested transaction 
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction->commit();
+        
         Yii::info('['.$company->company_name.' created a new transfer draft] Check if they require assistance on transfer #'.$transfer->transfer_id.'.', __METHOD__);
 
         return [

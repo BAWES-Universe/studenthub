@@ -63,12 +63,25 @@ class Transfer extends ActiveRecord
     {
         return [
             [['company_id', 'transfer_status'], 'integer'],
+            [['transfer_status'], 'validateTransferStatus'],
             [['total', 'company_total'], 'number'],
             [['transfer_created_at', 'transfer_updated_at', 'payment_received_on'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
     }
 
+    /**
+     * find if transfer status invalid
+     */
+    public function validateTransferStatus()
+    {
+        $arrStatus = array_keys(self::statusList());
+        
+        if(!in_array($this->transfer_status, $arrStatus)) { 
+            $this->addError('transfer_status', "Invalid Transfer Status.");
+        } 
+    }
+        
     /**
      * @return array
      */
@@ -270,7 +283,6 @@ class Transfer extends ActiveRecord
 
         Yii::$app->controller->layout = 'pdf';
         $subject = [];
-
 
         $message = Yii::$app->mailer->compose($template.'-attachment',['invoices'=>$invoices]);
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);

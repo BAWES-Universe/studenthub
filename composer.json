@@ -1,7 +1,7 @@
 {
     "name": "BAWES/payroll",
     "description": "Payroll Application for Studenthub Training Program",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "keywords": ["payroll", "payment", "transfers"],
     "homepage": "https://studenthub.co/",
     "type": "project",
@@ -22,16 +22,15 @@
         "kartik-v/yii2-mpdf": "dev-master",
         "2amigos/yii2-qrcode-helper" : "^1.0",
         "guzzlehttp/guzzle": "~4.0",
-        "notamedia/yii2-sentry": "^1.2",
-        "codeception/specify": "*",
-        "codeception/verify": "*",
-        "codeception/codeception": "*"
+        "notamedia/yii2-sentry": "^1.2"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
         "yiisoft/yii2-gii": "~2.0.0",
         "yiisoft/yii2-faker": "~2.0.0",
-        "codeception/base": "^2.2.3"
+        "codeception/base": "^2.3.4",
+        "codeception/verify": "~0.4.0",
+        "codeception/specify": "~0.4.6"
     },
     "config": {
         "process-timeout": 1800,

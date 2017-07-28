@@ -189,24 +189,16 @@ class TransferController extends Controller
                 ];
         }
 
-        if($transfer->transfer_status == Transfer::STATUS_PAYMENT_SENT)
+        try{
+            $transfer->paymentSent();
+        }
+        catch(Exception $e)
         {
             return [
                 "operation" => "error",
-                "message" => 'Transfer already marked as "Payment Sent"'
+                "message" => $e->getMessage()
             ];
         }
-
-        if($transfer->transfer_status != Transfer::STATUS_LOCK)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status should be "Locked" to send it!'
-            ];
-        }
-
-        $transfer->transfer_status = Transfer::STATUS_PAYMENT_SENT;
-        $transfer->save();
 
         Yii::info('[Company '.$company->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
 
@@ -225,43 +217,33 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
 
-        $model = $company
+        $transfer = $company
             ->getTransfers()
             ->filterTransfer($id)
             ->one();
 
-        if(!$model) {
+        if(!$transfer) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer not found!'
             ];
         }
 
-        if($model->transfer_status == Transfer::STATUS_LOCK)
+        try{
+            $transfer->lock();
+        }
+        catch(Exception $e)
         {
             return [
                 "operation" => "error",
-                "message" => 'Transfer already locked'
+                "message" => $e->getMessage()
             ];
         }
+        
+        // send invoice mail
+        $transfer->notify('invoice'); 
 
-        if($model->transfer_status != Transfer::STATUS_INITIATED)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status need to be "Initiated" to lock it!'
-            ];
-        }
-
-        $model->transfer_status = Transfer::STATUS_LOCK;
-        $model->save();
-
-        Yii::info('[Company '.$company->company_name.' has locked transfer #'.$model->transfer_id.'] They will be sending payment soon.', __METHOD__);
-
-        //select distinct company and create transfer for each company
-        Transfer::generateEachCompanyTransfer($model, $company);
-
-        $model->notify('invoice'); // send invoice mail
+        Yii::info('[Company '.$company->company_name.' has locked transfer #'.$transfer->transfer_id.'] They will be sending payment soon.', __METHOD__);
 
         return [
             "operation" => "success",
@@ -290,30 +272,23 @@ class TransferController extends Controller
             ];
         }
 
-        //transfer status should be "Initiated" or "Locked" to delete it
+        //delete data child transfer
+        if(Transfer::deleteTransfer($model)) 
+        {
+            Yii::info('[Company '.$company->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
 
-        $allowedStatus = [
-            Transfer::STATUS_INITIATED,
-            Transfer::STATUS_LOCK
-        ];
-
-        if(!in_array($model->transfer_status, $allowedStatus))
+            return [
+                "operation" => "success",
+                "message" => 'Transfer deleted as requested.'
+            ];
+        } 
+        else 
         {
             return [
                 "operation" => "error",
                 "message" => 'Transfer status should be "Initiated" or "Locked" to delete it!'
-            ];
-        }
-
-        //delete data child transfer
-        Transfer::deleteChildTransfer($model);
-
-        Yii::info('[Company '.$company->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
-
-        return [
-            "operation" => "success",
-            "message" => 'Transfer deleted as requested.'
-        ];
+            ];            
+        }        
     }
 
     /**
