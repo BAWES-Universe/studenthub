@@ -554,8 +554,10 @@ class Transfer extends \common\models\Transfer {
 
             foreach ($candidates as $key => $value)
             {
-                $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
-                $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                if ((int)$value['hours']>0) {
+                    $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
+                    $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                }
             }
 
             // Save total in transfer
