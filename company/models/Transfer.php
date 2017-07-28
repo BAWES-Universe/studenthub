@@ -165,7 +165,6 @@ class Transfer extends \common\models\Transfer {
     }
 
     /**
-     * @param $model
      * @return bool
      */
     public function generateTransferInvoice() {
@@ -182,8 +181,6 @@ class Transfer extends \common\models\Transfer {
     }
 
     /**
-     * @param $model
-     * @param $company
      * @return bool
      */
     public function generateEachCompanyTransfer() {
@@ -394,6 +391,13 @@ class Transfer extends \common\models\Transfer {
     }
 
 
+    /**
+     * update transfer method
+     * @param $company
+     * @param $id
+     * @param $candidates
+     * @return array
+     */
     public static function updateTransfer($company,$id,$candidates) {
 
         $model = Transfer::find()
@@ -419,6 +423,15 @@ class Transfer extends \common\models\Transfer {
         //save candidates
 
         $total = $company_total = 0;
+
+        if (count($candidates) == 0) {
+            $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
 
         foreach($candidates as $key => $value)
         {
