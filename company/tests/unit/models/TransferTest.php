@@ -59,7 +59,7 @@ class TransferTest extends \Codeception\Test\Unit
     {
         $this->specify('Fixtures should be loaded', function() {
             expect('Transfer is in the table', Transfer::findOne(['transfer_id' => 1]))->notNull();
-            expect('Transfer is in the table', TransferCandidate::find()->one())->notNull();
+            expect('Transfer Candidate is in the table', TransferCandidate::find()->one())->notNull();
         });
                         
         $this->specify('Transfer model mark as Payment Sent', function () {            
@@ -124,7 +124,7 @@ class TransferTest extends \Codeception\Test\Unit
                 ->getCandidates()
                 ->all();
 
-            $arrCandiate = [];
+            $arrCandidate = [];
             $total = 0;
             $company_total = 0;
 
@@ -141,10 +141,10 @@ class TransferTest extends \Codeception\Test\Unit
                     $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
                 }
 
-                $arrCandiate[] = $data;
+                $arrCandidate[] = $data;
             }       
 
-            $result = Transfer::saveTransfer($company, $arrCandiate);        
+            $result = Transfer::saveTransfer($company, $arrCandidate);
 
             expect('Transfer should saved', $result)->hasKey('transfer_id');        
 
@@ -166,7 +166,7 @@ class TransferTest extends \Codeception\Test\Unit
                 ->getCandidates()
                 ->all();
 
-            $arrCandiate = [];
+            $arrCandidate = [];
             $total = 0;
             $company_total = 0;
 
@@ -183,10 +183,10 @@ class TransferTest extends \Codeception\Test\Unit
                     $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
                 }
 
-                $arrCandiate[] = $data;
+                $arrCandidate[] = $data;
             }       
 
-            $result = Transfer::saveTransfer($company, $arrCandiate);        
+            $result = Transfer::saveTransfer($company, $arrCandidate);
 
             expect('Transfer should saved', $result)->hasKey('transfer_id');        
 
@@ -197,15 +197,116 @@ class TransferTest extends \Codeception\Test\Unit
     }
         
     /**
-     * For company with sub companies  
-     
-    public function testUpdateTransferWithChild() {
-        
-    }*/
-        
+     * success test case For company with sub companies
+     */
+    public function testSuccessUpdateTransferWithChild() {
+
+        $this->specify('fixture loaded data', function() {
+            expect('is file exist',Transfer::findOne(9))->notNull();
+        });
+
+        $this->specify('Update transfer for company with child', function() {
+
+            $TransferID = 9;
+            $CompanyID = 1;
+            $company = Company::findOne($CompanyID);
+
+            $candidates = $company
+                ->getCandidates()
+                ->all();
+
+            $arrCandidate = [];
+            $total = 0;
+            $company_total = 0;
+
+            foreach ($candidates as $value)
+            {
+                $data = [
+                    'bonus' => rand(0, 10),
+                    'hours' => rand(0, 100),
+                    'candidate_id' => $value->candidate_id
+                ];
+
+                if ((int)$data['hours']>0) {
+                    $total += $data['bonus'] + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+                    $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                }
+
+                $arrCandidate[] = $data;
+            }
+
+            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+
+            expect('Transfer should updated', $result['message'])->contains('Your transfer has been updated.');
+
+            $transfer = Transfer::findOne($TransferID);
+            expect('Transfer total - admin will pay', $transfer->total)->equals($total);
+            expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+        });
+    }
+
+    /**
+     * fail test case For company with sub companies
+     */
+    public function testFailUpdateTransferWithChild() {
+
+        $this->specify('fixture loaded data', function() {
+            expect('is file exist',Transfer::findOne(9))->notNull();
+        });
+
+        $this->specify('Fail For Empty Candidates', function() {
+
+            $TransferID = 9;
+            $CompanyID = 1;
+            $company = Company::findOne($CompanyID);
+
+            $result = Transfer::updateTransfer($company, $TransferID, []);
+
+            expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+        });
+
+
+        $this->specify('Fail For Invalid Candidates', function() {
+
+            $TransferID = 9;
+            $CompanyID = 1;
+            $company = Company::findOne($CompanyID);
+
+            $data = [
+                'bonus' => rand(0, 10),
+                'hours' => rand(0, 100),
+                'candidate_id' => 205
+            ];
+            $arrCandidate[] = $data;
+
+            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+
+            expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+        });
+
+
+        $this->specify('Fail For Zero Total', function() {
+
+            $TransferID = 9;
+            $CompanyID = 1;
+            $company = Company::findOne($CompanyID);
+
+            $data = [
+                'bonus' => 0,
+                'hours' => 0,
+                'candidate_id' => 2
+            ];
+            $arrCandidate[] = $data;
+
+            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+
+            expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
+        });
+    }
+
     /**
      * For company without sub companies  
-     
+
     public function testUpdateTransferWithoutChild() {
         
     }*/

@@ -72,9 +72,9 @@ class StoreController extends Controller
         $query = Store::find();
         $query->filterWhere(['company_id' => $companyId]);
         $query->notDeleted();
-
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => false
         ]);
     }
 
