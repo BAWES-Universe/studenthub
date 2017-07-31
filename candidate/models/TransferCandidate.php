@@ -43,11 +43,7 @@ class TransferCandidate extends \common\models\TransferCandidate
         };
         
         $fields['company_name'] = function($model) {
-            if (isset($model->transfer->company->company_name)) {
-                return $model->transfer->company->company_name;
-            } else {
-                return '';
-            }
+            return $model->transfer->company_name;
         };
 
         $fields['tc_created_at'] = function($model) {

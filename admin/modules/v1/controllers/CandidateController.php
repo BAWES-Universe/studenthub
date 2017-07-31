@@ -91,6 +91,7 @@ class CandidateController extends Controller
         }
 
         $query->notDeleted();
+        
         return new ActiveDataProvider([
             'query' => $query
         ]);
