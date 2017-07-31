@@ -338,7 +338,11 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
-            $candidate = Candidate::findOne($value['candidate_id']);
+            $candidate = Candidate::find()
+                ->with(['store','company'])
+                ->where(['candidate_id'=>$value['candidate_id']])
+                ->asArray()
+                ->one();
             if(!$candidate)
             {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -376,7 +380,7 @@ class Transfer extends \common\models\Transfer {
 
         $transfer->company_total = $company_total;
         $transfer->total = $total;
-        $transfer->save();
+        $transfer->save(false);
 
         //codeception does not support nested transaction 
         if(empty(Yii::$app->params['inCodeception']))
@@ -387,7 +391,8 @@ class Transfer extends \common\models\Transfer {
         return [
             "operation" => "success",
             "message" => "Transfer created.",
-            "transfer_id" => $transfer->transfer_id
+            "transfer_id" => $transfer->transfer_id,
+            'execution_time'=>Yii::getLogger()->getElapsedTime()
         ];
     }
 
@@ -427,7 +432,7 @@ class Transfer extends \common\models\Transfer {
         $total = $company_total = 0;
 
         if (count($candidates) == 0) {
-            
+
             if(empty(Yii::$app->params['inCodeception']))
                 $transaction->rollBack();
 
@@ -445,9 +450,13 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
-            $candidate = Candidate::findOne($value['candidate_id']);
+            $candidate = Candidate::find()
+                ->with(['store','company'])
+                ->where(['candidate_id'=>$value['candidate_id']])
+                ->asArray()
+                ->one();
             if(!$candidate) 
-            {                
+            {
                 if(empty(Yii::$app->params['inCodeception']))
                     $transaction->rollBack();
 
@@ -461,7 +470,7 @@ class Transfer extends \common\models\Transfer {
             $response = TransferCandidate::saveCandidateTransfer($candidate, $model, $value);
             if ($response['operation'] == "error") {                
                 if(empty(Yii::$app->params['inCodeception']))
-                    $transaction->rollBack();                
+                    $transaction->rollBack();
                 return $response; // error will be respond back
             } else {
                 $total += $response['total'];
@@ -611,7 +620,8 @@ class Transfer extends \common\models\Transfer {
 
         return [
             "operation" => "success",
-            "message" => "Your transfer has been updated."
+            "message" => "Your transfer has been updated.",
+            'execution_time'=>Yii::getLogger()->getElapsedTime()
         ];
     }
 

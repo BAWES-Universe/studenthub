@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1276ced9414e95ede1d4a6bbcde482b2",
+    "content-hash": "f64a815ac436ccc9da7b082285ae391e",
     "packages": [
         {
             "name": "2amigos/yii2-qrcode-helper",
@@ -2162,12 +2162,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-httpclient.git",
-                "reference": "e4eb151908260c0eec8bcdaab4ade53038d51409"
+                "reference": "d1ab910c752dbcdfc88fdbde9a4ea0fdc9a10b62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-httpclient/zipball/e4eb151908260c0eec8bcdaab4ade53038d51409",
-                "reference": "e4eb151908260c0eec8bcdaab4ade53038d51409",
+                "url": "https://api.github.com/repos/yiisoft/yii2-httpclient/zipball/d1ab910c752dbcdfc88fdbde9a4ea0fdc9a10b62",
+                "reference": "d1ab910c752dbcdfc88fdbde9a4ea0fdc9a10b62",
                 "shasum": ""
             },
             "require": {
@@ -2201,7 +2201,7 @@
                 "httpclient",
                 "yii2"
             ],
-            "time": "2017-06-23 09:36:41"
+            "time": "2017-07-27 14:36:55"
         },
         {
             "name": "yiisoft/yii2-imagine",
