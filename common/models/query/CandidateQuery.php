@@ -19,7 +19,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterCompany($company)
     {
-        // create c bompany_id array from all sub companies and self
+        // create company_id array from all sub companies and self
 
         $companies = $company->subCompanies;
 
@@ -38,19 +38,6 @@ class CandidateQuery extends \yii\db\ActiveQuery
         // return candidate list for given company 
         
         return $this->andWhere(['in', 'store_id', $store_ids]);
-    }
-
-    /**
-     * @return $this
-     */
-    public function filterWithoutCard()
-    {
-        $cards = CandidateIdCard::find()
-            ->all();
-
-        $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
-
-        return $this->andWhere(['NOT IN', 'candidate_id', $candidate_ids]);
     }
 
     /**
