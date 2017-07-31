@@ -59,6 +59,11 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['{{%transfer_candidate}}.company_id' => $company_id]);
     }
 
+    /**
+     * return candidate by candidate id
+     * @param $candidate_id
+     * @return $this
+     */
     public function filterCandidate($candidate_id)
     {
         return $this->andWhere(['{{%transfer_candidate}}.candidate_id' => $candidate_id]);

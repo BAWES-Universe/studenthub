@@ -123,6 +123,10 @@ class TransferQuery extends ActiveQuery
         return $this->joinWith('transferCandidates');
     }
 
+    /**
+     * return transfer decreasing order
+     * @return $this
+     */
     public function decreasingOrder() {
         return $this->orderBy('transfer_id DESC');
     }

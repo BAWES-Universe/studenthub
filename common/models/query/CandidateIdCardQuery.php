@@ -14,16 +14,6 @@ class CandidateIdCardQuery extends \yii\db\ActiveQuery
      */
     public function idExpired()
 	{
-		return $this->andWhere('DATE(expiry_date) < DATE(NOW())')
-			->all();
-	}
-
-    /**
-     * @return int|string
-     */
-    public function totalIdExpired()
-	{
-		return $this->andWhere('DATE(expiry_date) < DATE(NOW())')
-            ->count();
+		return $this->andWhere('DATE(expiry_date) < DATE(NOW())');
 	}
 }
