@@ -71,7 +71,7 @@ class StatisticController extends Controller
 
     	$result['id_expired'] = CandidateIdCard::find()
             ->idExpired()
-            ->all();
+            ->count();
 
 		// # of candidates that need id generated
 
@@ -79,7 +79,7 @@ class StatisticController extends Controller
             ->notDeleted()
             ->filterAssigned()
     		->idNeedGenerated()
-            ->all();
+            ->count();
 
     	// Total Candidates
 
