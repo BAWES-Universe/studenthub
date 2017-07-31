@@ -65,19 +65,22 @@ class TransferCandidate extends \common\models\TransferCandidate
         $total = 0;
         $company_total = 0;
 
-        $hourly_rate = $candidate->candidate_hourly_rate;
+        $hourly_rate = $candidate['candidate_hourly_rate'];
 
+        $store = $candidate['store'];
+        $company = $candidate['company'];
         $TCModel = new TransferCandidate;
         $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
         $TCModel->candidate_hourly_rate = $hourly_rate;
         $TCModel->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
         $TCModel->attributes = $value;
         $TCModel->transfer_id = $model->transfer_id;
-        $TCModel->store_id = $candidate->store_id;
-        $TCModel->store_name = $candidate->store->store_name;
-        $TCModel->company_id = $candidate->store->company_id;
-        $TCModel->company_name = $candidate->store->company->company_name;
-        $TCModel->company_email = $candidate->store->company->company_email;
+        $TCModel->store_id = $candidate['store_id'];
+        $TCModel->store_name = $store['store_name'];
+        $TCModel->company_id = $store['company_id'];
+        $TCModel->company_name = $company['company_name'];
+        $TCModel->company_email = $company['company_email'];
+
 
         if ((int)$value['hours']>0) {
             $total = $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
