@@ -398,6 +398,48 @@ class TransferTest extends \Codeception\Test\Unit
 
             expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
         });
+        
+        $this->specify('Fail For Negative Hours', function() {
+
+            $TransferID = 9;
+            $CompanyID = 1;
+            $company = Company::findOne($CompanyID);
+
+            $arrCandidate = [
+                [
+                    'bonus' => 0,
+                    'hours' => 2,
+                    'candidate_id' => 2
+                ],
+                [
+                    'bonus' => 0,
+                    'hours' => -1,
+                    'candidate_id' => 2
+                ]
+            ];
+
+            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+
+            expect('Transfer should return error', $result['message'])->hasKey('candidates');
+        });
+        
+        $this->specify('Fail For Negative Bonus', function() {
+
+            $TransferID = 9;
+            $CompanyID = 1;
+            $company = Company::findOne($CompanyID);
+
+            $data = [
+                'bonus' => -1,
+                'hours' => 1,
+                'candidate_id' => 2
+            ];
+            $arrCandidate[] = $data;
+
+            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+
+            expect('Transfer should return error', $result['message'])->hasKey('candidates');
+        });            
     }
 
     /**

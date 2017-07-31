@@ -396,7 +396,6 @@ class Transfer extends \common\models\Transfer {
         ];
     }
 
-
     /**
      * update transfer method
      * @param $company
