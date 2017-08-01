@@ -358,6 +358,13 @@ class TransferTest extends \Codeception\Test\Unit
             $transfer = Transfer::findOne($TransferID);
             expect('Transfer total - admin will pay', $transfer->total)->equals($total);
             expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+                    
+            //check invoice after update 
+            
+            $transfer->lock();//generate invoices
+            
+            expect('Should generate transfer for each sub company', sizeof($transfer->invoices))
+                ->equals(sizeof($company->subCompanies));
         });
 
 
@@ -400,6 +407,12 @@ class TransferTest extends \Codeception\Test\Unit
             $transfer = Transfer::findOne($TransferID);
             expect('Transfer total - admin will pay', $transfer->total)->equals($total);
             expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+            
+            //check invoice after update 
+            
+            $transfer->lock();//generate invoices
+            
+            expect('Should generate invoice for transfer', $transfer->invoices)->notNull();
         });
 
     }
