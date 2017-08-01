@@ -333,31 +333,9 @@ class TransferController extends Controller
             // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
             // call mPDF methods on the fly
-//            'methods' => [
-//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
-//                'SetFooter'=>['{PAGENO}'],
-//            ]
         ]);
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
 }
-/*
-
-    {"name":"PHP Warning","message":"md5() expects parameter 1 to be string, array given","code":2,"type":"yii\\base\\ErrorException",
-        "file":"/Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/log/Logger.php",
-        "line":281,"stack-trace":["#0 [internal function]: yii\\base\\ErrorHandler->handleError(2, 'md5() expects p...', 
-        '/Applications/X...', 281, Array)","#1 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/log/Logger.php(281):
-         md5(Array)","#2 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/log/Logger.php(211): 
-         yii\\log\\Logger->calculateTimings(Array)","#3 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/log/Logger.php(255): 
-         yii\\log\\Logger->getProfiling(Array)","#4 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/company/modules/v1/controllers/TransferController.php(122): yii\\log\\Logger->getDbProfiling()",
-        "#5 [internal function]: company\\modules\\v1\\controllers\\TransferController->actionCreate()",
-        "#6 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/base/InlineAction.php(57): call_user_func_array(Array, Array)",
-        "#7 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/base/Controller.php(156): yii\\base\\InlineAction->runWithParams(Array)",
-        "#8 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/base/Module.php(523): yii\\base\\Controller->runAction('create', Array)",
-        "#9 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/web/Application.php(102): yii\\base\\Module->runAction('v1/transfer/cre...', Array)",
-        "#10 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/vendor/yiisoft/yii2/base/Application.php(380): yii\\web\\Application->handleRequest(Object(yii\\web\\Request))",
-        "#11 /Applications/XAMPP/xamppfiles/htdocs/whitebookclub/payroll/company/web/index.php(17): 
-         yii\\base\\Application->run()","#12 {main}"]}
-*/
