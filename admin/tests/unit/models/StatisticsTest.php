@@ -3,6 +3,8 @@ namespace admin\tests\models;
 
 use Yii;
 use Codeception\Specify;
+use admin\models\Store;
+use admin\models\Company;
 use admin\models\Candidate;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
@@ -11,6 +13,7 @@ use admin\fixtures\Store as StoreFixture;
 use admin\fixtures\Candidate as CandidateFixture;
 use admin\fixtures\Transfer as TransferFixture;
 use admin\fixtures\TransferCandidate as TransferCandidateFixture;
+use admin\fixtures\Invoice as InvoiceFixture;
 
 class StatisticsTest extends \Codeception\Test\Unit
 {
@@ -43,7 +46,11 @@ class StatisticsTest extends \Codeception\Test\Unit
             'transferCandidate' => [
                 'class' => TransferCandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ]
+            ],
+            'invoice' => [
+                'class' => InvoiceFixture::className(),
+                'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
+            ],
         ]);
     }
 
@@ -54,29 +61,35 @@ class StatisticsTest extends \Codeception\Test\Unit
      */
     public function testStatistics()
     {
+        $this->specify('Fixtures should be loaded', function () {
+            expect('Company is in the table', Company::findOne(['company_id' => 1]))->notNull();
+            expect('Store is in the table', Store::find()->one())->notNull();
+            expect('Candidate is in the table', Candidate::find()->one())->notNull();
+            expect('Transfer is in the table', Transfer::find()->one())->notNull();
+            expect('Transfer Candidate is in the table', TransferCandidate::find()->one())->notNull();
+        });
+        
         $this->specify('Candidate statistics', function () {
             $payableDetail = Candidate::getTotalPayableCandidate();
 
             $totalPayableCandidate = TransferCandidate::find()
-                ->joinWith('invoice')
+                ->joinWith('transfer')
                 ->where([
+                    'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                     'paid' => 0,
-                    'invoice_status' => 'paid'
                 ])
                 ->count();
 
             expect('Total payable candidate', $totalPayableCandidate)->equals($payableDetail['payable']);
-
         });
-
 
         $this->specify('Candidate statistics', function () {
             $payableDetail = Candidate::getTotalPayableCandidate();
             $totalPayable = TransferCandidate::find()
-               ->joinWith('invoice')
-               ->where([
+                ->joinWith('transfer')
+                ->where([
+                   'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                    'paid' => 0,
-                   'invoice_status' => 'paid'
                 ])
                ->sum('(candidate_hourly_rate * hours) + bonus');
             
