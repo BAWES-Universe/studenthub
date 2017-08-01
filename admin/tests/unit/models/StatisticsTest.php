@@ -47,26 +47,31 @@ class StatisticsTest extends \Codeception\Test\Unit
         ]);
     }
 
-    protected function _after()
-    {
-    }
+    protected function _after(){}
 
-    // tests
-    public function testSomeFeature()
+    /**
+     * test admin statistics
+     */
+    public function testStatistics()
     {
-        $this->specify('Candidate statistics', function () {            
+        $this->specify('Candidate statistics', function () {
             $payableDetail = Candidate::getTotalPayableCandidate();
-        
+
             $totalPayableCandidate = TransferCandidate::find()
-               ->joinWith('invoice')
-               ->where([
-                   'paid' => 0,
-                   'invoice_status' => 'paid'
+                ->joinWith('invoice')
+                ->where([
+                    'paid' => 0,
+                    'invoice_status' => 'paid'
                 ])
-               ->count();
-            
+                ->count();
+
             expect('Total payable candidate', $totalPayableCandidate)->equals($payableDetail['payable']);
-            
+
+        });
+
+
+        $this->specify('Candidate statistics', function () {
+            $payableDetail = Candidate::getTotalPayableCandidate();
             $totalPayable = TransferCandidate::find()
                ->joinWith('invoice')
                ->where([
