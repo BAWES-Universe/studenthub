@@ -1,4 +1,8 @@
 class_name: FunctionalTester
 modules:
     enabled:
+        - Filesystem 
         - Yii2
+        - REST:
+            url: http://localhost/payroll/admin/web/index-test.php/v1/
+            depends: PhpBrowser
