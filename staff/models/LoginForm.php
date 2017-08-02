@@ -3,7 +3,6 @@ namespace staff\models;
 
 use Yii;
 use yii\base\Model;
-use common\models\Staff;
 
 /**
  * Login form
