@@ -148,15 +148,16 @@ class Transfer extends \common\models\Transfer {
                     ->all();
 
                 foreach ($candidates as $key_one => $value) {
-                    $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
-
-                    $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                    if ((int)$value['hours']>0) {
+                        $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
+                        $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                    }
                 }
 
                 // Save total in transfer
                 $transfer->company_total = $company_total;
                 $transfer->total = $total;
-                $transfer->save();
+                $transfer->save(false);
 
                 // Generate invoice for each transfer
                 $transfer->generateTransferInvoice();
@@ -165,7 +166,6 @@ class Transfer extends \common\models\Transfer {
     }
 
     /**
-     * @param $model
      * @return bool
      */
     public function generateTransferInvoice() {
@@ -182,8 +182,6 @@ class Transfer extends \common\models\Transfer {
     }
 
     /**
-     * @param $model
-     * @param $company
      * @return bool
      */
     public function generateEachCompanyTransfer() {
@@ -340,7 +338,11 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
-            $candidate = Candidate::findOne($value['candidate_id']);
+            $candidate = Candidate::find()
+                ->with(['store','company'])
+                ->where(['candidate_id'=>$value['candidate_id']])
+                ->asArray()
+                ->one();
             if(!$candidate)
             {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -378,7 +380,7 @@ class Transfer extends \common\models\Transfer {
 
         $transfer->company_total = $company_total;
         $transfer->total = $total;
-        $transfer->save();
+        $transfer->save(false);
 
         //codeception does not support nested transaction 
         if(empty(Yii::$app->params['inCodeception']))
@@ -389,11 +391,18 @@ class Transfer extends \common\models\Transfer {
         return [
             "operation" => "success",
             "message" => "Transfer created.",
-            "transfer_id" => $transfer->transfer_id
+            "transfer_id" => $transfer->transfer_id,
+            'execution_time'=>Yii::getLogger()->getElapsedTime()
         ];
     }
 
-
+    /**
+     * update transfer method
+     * @param $company
+     * @param $id
+     * @param $candidates
+     * @return array
+     */
     public static function updateTransfer($company,$id,$candidates) {
 
         $model = Transfer::find()
@@ -410,7 +419,8 @@ class Transfer extends \common\models\Transfer {
         //Old Invoices
         $old_invoices = $model->invoices;
 
-        $transaction = Yii::$app->db->beginTransaction();
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction = Yii::$app->db->beginTransaction();
 
         //remove old candidates
 
@@ -420,6 +430,17 @@ class Transfer extends \common\models\Transfer {
 
         $total = $company_total = 0;
 
+        if (count($candidates) == 0) {
+
+            if(empty(Yii::$app->params['inCodeception']))
+                $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
+
         foreach($candidates as $key => $value)
         {
             if(empty($value['bonus']) || $value['bonus'] < 0)
@@ -428,9 +449,15 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
-            $candidate = Candidate::findOne($value['candidate_id']);
-            if(!$candidate) {
-                $transaction->rollBack();
+            $candidate = Candidate::find()
+                ->with(['store','company'])
+                ->where(['candidate_id'=>$value['candidate_id']])
+                ->asArray()
+                ->one();
+            if(!$candidate) 
+            {
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
 
                 return [
                     "operation" => "error",
@@ -440,8 +467,9 @@ class Transfer extends \common\models\Transfer {
 
             // save candidate transfer
             $response = TransferCandidate::saveCandidateTransfer($candidate, $model, $value);
-            if ($response['operation'] == "error") {
-                $transaction->rollBack();
+            if ($response['operation'] == "error") {                
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
                 return $response; // error will be respond back
             } else {
                 $total += $response['total'];
@@ -454,7 +482,8 @@ class Transfer extends \common\models\Transfer {
 
         if($total <= 0)
         {
-            $transaction->rollBack();
+            if(empty(Yii::$app->params['inCodeception']))
+                $transaction->rollBack();
 
             return [
                 "operation" => "error",
@@ -464,7 +493,8 @@ class Transfer extends \common\models\Transfer {
 
         if(!$model->save())
         {
-            $transaction->rollBack();
+            if(empty(Yii::$app->params['inCodeception']))
+                $transaction->rollBack();
 
             return [
                 "operation" => "error",
@@ -510,7 +540,8 @@ class Transfer extends \common\models\Transfer {
 
             if(!$transfer->save(false))
             {
-                $transaction->rollBack();
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
 
                 return [
                     "operation" => "error",
@@ -531,8 +562,10 @@ class Transfer extends \common\models\Transfer {
 
             foreach ($candidates as $key => $value)
             {
-                $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
-                $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                if ((int)$value['hours']>0) {
+                    $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
+                    $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                }
             }
 
             // Save total in transfer
@@ -540,7 +573,8 @@ class Transfer extends \common\models\Transfer {
             $transfer->total = $total;
             if(!$transfer->save())
             {
-                $transaction->rollBack();
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
 
                 return [
                     "operation" => "error",
@@ -578,13 +612,15 @@ class Transfer extends \common\models\Transfer {
             }
         }
 
-        $transaction->commit();
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction->commit();
 
         Yii::info('['.$company->company_name.' updated transfer #'.$model->transfer_id.'] Check if they require assistance.', __METHOD__);
 
         return [
             "operation" => "success",
-            "message" => "Your transfer has been updated."
+            "message" => "Your transfer has been updated.",
+            'execution_time'=>Yii::getLogger()->getElapsedTime()
         ];
     }
 

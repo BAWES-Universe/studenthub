@@ -19,7 +19,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterCompany($company)
     {
-        // create c bompany_id array from all sub companies and self
+        // create company_id array from all sub companies and self
 
         $companies = $company->subCompanies;
 
@@ -38,19 +38,6 @@ class CandidateQuery extends \yii\db\ActiveQuery
         // return candidate list for given company 
         
         return $this->andWhere(['in', 'store_id', $store_ids]);
-    }
-
-    /**
-     * @return $this
-     */
-    public function filterWithoutCard()
-    {
-        $cards = CandidateIdCard::find()
-            ->all();
-
-        $candidate_ids = ArrayHelper::map($cards, 'candidate_id', 'candidate_id');
-
-        return $this->andWhere(['NOT IN', 'candidate_id', $candidate_ids]);
     }
 
     /**
@@ -120,17 +107,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function idNeedGenerated()
     {
-        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)')
-            ->all();   
-    }
-
-    /**
-     * @return int|string
-     */
-    public function totalIdNeedGenerated()
-    {
-    	return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)')
-    		->count();
+        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)');
     }
 
     /**
@@ -138,8 +115,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function totalAssigned()
     {
-    	return $this->andWhere('store_id > 0')
-			->count();
+    	return $this->andWhere('store_id > 0');
 	}
 
     /**
@@ -147,8 +123,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function totalUnassigned()
     {
-        return $this->andWhere('store_id IS NULL OR store_id = 0')
-            ->count();
+        return $this->andWhere('store_id IS NULL OR store_id = 0');
     }
 
     /**

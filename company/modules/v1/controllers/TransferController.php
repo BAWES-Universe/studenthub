@@ -2,6 +2,7 @@
 
 namespace company\modules\v1\controllers;
 
+use company\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -117,9 +118,6 @@ class TransferController extends Controller
 
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
@@ -163,9 +161,6 @@ class TransferController extends Controller
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
         return Transfer::updateTransfer($company, $id, $candidates);
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
@@ -338,10 +333,6 @@ class TransferController extends Controller
             // set mPDF properties on the fly
             'options' => [],//['title' => 'Booking #'.$id],
             // call mPDF methods on the fly
-//            'methods' => [
-//                'SetHeader'=>['Transfer #'.$transfer['transfer_id']],
-//                'SetFooter'=>['{PAGENO}'],
-//            ]
         ]);
 
         header('Access-Control-Allow-Origin: *');
