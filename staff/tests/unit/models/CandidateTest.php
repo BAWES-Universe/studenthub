@@ -43,11 +43,12 @@ class CandidateTest extends \Codeception\Test\Unit
         Yii::$app->params['candidate_max_hourly_rate'] = 2;
     }
 
+    /**
+     * test case to test password email
+     */
     public function testPasswordMail() {
 
         Yii::$app->params['supportEmail'] = 'testing@testing.com';
-        $rand = rand(1111,9999);
-
 
         $model = Candidate::findOne(1);
 
@@ -65,6 +66,9 @@ class CandidateTest extends \Codeception\Test\Unit
         expect($emailMessage->toString())->contains('x12345');
     }
 
+    /**
+     * test case to test send welcome email
+     */
 
     public function testSendWelcomeEmail() {
 
