@@ -43,15 +43,16 @@ class Candidate extends \common\models\Candidate {
         return false;
     }
 
-    /** 
-     * Send new password to customer 
+    /**
+     * Send new password to customer
      * @param Candidate $model
-     * @param string $password
+     * @param $password
+     * @return bool
      */
     public static function passwordMail($model, $password)
     {
         Yii::$app->mailer->htmlLayout = 'layouts/html';
-        Yii::$app->mailer->compose("candidate-password",
+        return Yii::$app->mailer->compose("candidate-password",
             [
                 "model" => $model,
                 "password" => $password,
