@@ -233,7 +233,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'country',
             'bank'
         ]);
-
+        
         unset($fields['deleted']);
 
         return $fields;
@@ -245,7 +245,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
-
+            'store',
+            'company',
+            'university',
+            'country',
+            'bank'
         ];
     }
 
