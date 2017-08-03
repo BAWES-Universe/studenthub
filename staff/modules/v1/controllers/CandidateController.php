@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CandidateWorkHistory;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -260,6 +261,7 @@ class CandidateController extends Controller
 
         if (!$model->save(false))
         {
+
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -274,6 +276,9 @@ class CandidateController extends Controller
                 ];
             }
         }
+
+        // saving candidate work history
+        CandidateWorkHistory::saveAssignedHistory($model);
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
@@ -320,6 +325,8 @@ class CandidateController extends Controller
                 ];
             }
         }
+
+        CandidateWorkHistory::saveUnAssignedHistory($model);
 
         Yii::info('['.$model->candidate_name.' unassigned from store] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
