@@ -122,6 +122,13 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         ->exists();
     }
 
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore() {
+        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+    }
     /**
      * @inheritdoc
      * @return CandidateWorkHistoryQuery the active query used by this AR class.

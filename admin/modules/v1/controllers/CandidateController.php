@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\CandidateWorkHistory;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -167,5 +168,25 @@ class CandidateController extends Controller
             return [];
 
         return $model->paidTransferCandidate;
+    }
+
+
+    /**
+     * get candidate work history
+     * @param $id
+     * @return array|static[]
+     */
+    public function actionWorkHistory($id)
+    {
+        $model = CandidateWorkHistory::find()
+            ->filterCandidate($id)
+            ->with('store')
+            ->asArray()
+            ->all();
+
+        if(!$model)
+            return [];
+
+        return $model;
     }
 }

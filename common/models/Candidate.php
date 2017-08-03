@@ -439,6 +439,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory()
+    {
+        return $this->hasMany(CandidateWorkHistory::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
      * Signs user up.
      * @return static|null the saved model or null if saving fails
      */
