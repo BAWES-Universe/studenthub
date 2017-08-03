@@ -62,9 +62,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET total' => 'total',
+                        'GET work-history/<id>' => 'work-history',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS total' => 'options'
+                        'OPTIONS total' => 'options',
+                        'OPTIONS work-history/<id>' => 'options',
                     ]
                 ],
                 [ // TransferController
