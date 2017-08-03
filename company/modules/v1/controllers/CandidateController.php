@@ -7,6 +7,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\data\ActiveDataProvider;
 use company\models\Company;
 
 /**
@@ -73,6 +74,13 @@ class CandidateController extends Controller
         $company = Company::findOne(Yii::$app->user->id);
         
         return $company->getCandidates()
+            ->with([
+                'store',
+                'university',
+                'country',
+                'company'
+            ])    
+            ->asArray(false)    
             ->all();
     }
 
