@@ -711,10 +711,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $this->deleted = 1;
         return $this->save(false);
-    }    
+    }
 
     /**
-     * @return array|\yii\db\ActiveRecord[]
+     * @param string $modelClass
+     * @return mixed
      */
     public function getPaidTransferCandidate($modelClass= "\common\models\TransferCandidate")
     {

@@ -35,6 +35,7 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
+     * @param string $modelClass
      * @return array|\yii\db\ActiveRecord[]
      */
     public function getPaidTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
