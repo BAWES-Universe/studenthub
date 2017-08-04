@@ -95,6 +95,14 @@ class TransferController extends Controller
         $transfer = $company
             ->getTransfers()
             ->filterTransfer($id)
+            ->with([
+                'transferCandidates', 
+                'transferCandidates.candidate', 
+                'transferCandidates.candidate.store', 
+                'transferCandidates.candidate.company', 
+                'transferCandidates.candidate.bank',
+                'transferCandidates.candidate.university'
+            ])    
             ->one();
 
         if(!$transfer) {

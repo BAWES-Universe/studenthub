@@ -1,17 +1,14 @@
 <?php
 
-namespace company\modules\v1\controllers;
+namespace candidate\modules\v1\controllers;
 
 use common\models\CandidateWorkHistory;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
-use yii\data\ActiveDataProvider;
-use company\models\Company;
-
 /**
- * Candidate controller - Manage Candidate accounts as Admin
+ * Candidate controller
  */
 class CandidateController extends Controller
 {
@@ -59,52 +56,20 @@ class CandidateController extends Controller
         $actions['options'] = [
             'class' => 'yii\rest\OptionsAction',
             // optional:
-            'collectionOptions' => ['GET'],
-            'resourceOptions' => ['GET', 'OPTIONS'],
+            'collectionOptions' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
+            'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
     }
 
     /**
-     * Return a List of Candidate Accounts assigned to work
-     * for current company.
-     */
-    public function actionList()
-    {
-        $company = Company::findOne(Yii::$app->user->id);
-        
-        return $company->getCandidates()
-            ->with([
-                'store',
-                'university',
-                'country',
-                'company'
-            ])    
-            ->asArray(false)    
-            ->all();
-    }
-
-    /**
-     * Return no of Candidates assigned to work
-     * for current company.
-     */
-    public function actionTotal()
-    {
-        $company = Company::findOne(Yii::$app->user->id);
-        
-        return $company->getCandidates()
-            ->count();
-    }
-
-    /**
      * get candidate work history
-     * @param $id
      * @return array|static[]
      */
-    public function actionWorkHistory($id)
+    public function actionWorkHistory()
     {
         $model = CandidateWorkHistory::find()
-            ->filterCandidate($id)
+            ->filterCandidate(\Yii::$app->user->id)
             ->with('store')
             ->asArray()
             ->all();

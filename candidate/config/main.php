@@ -72,6 +72,16 @@ return [
                         'OPTIONS change-password' => 'options'
                     ]
                 ],
+                [ // CandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate',
+                    'patterns' => [
+                        'GET work-history' => 'work-history',
+                        //'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS work-history' => 'options',
+                    ]
+                ],
                 [ // StatisticController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/statistic',

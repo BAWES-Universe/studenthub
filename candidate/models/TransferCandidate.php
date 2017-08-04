@@ -41,10 +41,6 @@ class TransferCandidate extends \common\models\TransferCandidate
         $fields['total'] = function($model) {
             return ($model->candidate_hourly_rate * $model->hours) + $model->bonus;
         };
-        
-        $fields['company_name'] = function($model) {
-            return $model->transfer->company_name;
-        };
 
         $fields['tc_created_at'] = function($model) {
             return Yii::$app->formatter->asDate($model->tc_created_at, "long");

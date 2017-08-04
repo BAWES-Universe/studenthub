@@ -43,7 +43,7 @@ class UniversityController extends Controller
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
-
+        
         return $behaviors;
     }
 
@@ -106,7 +106,7 @@ class UniversityController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "University created successfully "
+            "message" => "University created successfully"
         ];
 
         // Check SQL Query Count and Duration

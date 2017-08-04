@@ -93,7 +93,15 @@ class StoreController extends Controller
             $companyId = $company->company_id;    
         }       
 
-        $query = Store::find()->filterCompany($companyId);
+        $query = Store::find()
+            ->with([
+                'candidates', 
+                'candidates.store', 
+                'candidates.company', 
+                'candidates.bank',
+                'candidates.university'
+            ])    
+            ->filterCompany($companyId);
 
         return new ActiveDataProvider([
             'query' => $query
@@ -111,12 +119,30 @@ class StoreController extends Controller
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
 
             $list['type'] = 'Company';
-            $list['results'] = $company->subCompanies;
+            $list['results'] = $company
+                    ->getSubCompanies()
+                    ->with([
+                        'stores.candidates', 
+                        'stores.candidates.store', 
+                        'stores.candidates.company', 
+                        'stores.candidates.bank',
+                        'stores.candidates.university'
+                    ])
+                    ->all();
 
         } else if (isset($company->stores) && count($company->stores)>0) {
 
             $list['type'] = 'Stores';
-            $list['results'] = $company->stores;
+            $list['results'] = $company
+                    ->getStores()
+                    ->with([
+                        'candidates', 
+                        'candidates.store', 
+                        'candidates.company', 
+                        'candidates.bank',
+                        'candidates.university'
+                    ])   
+                    ->all();
         }
 
         return $list;

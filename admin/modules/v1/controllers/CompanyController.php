@@ -70,7 +70,24 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $query = Company::find()->filterParent()->notDeleted();
+        $query = Company::find()
+            ->with([
+                'subCompanies',
+                'subCompanies.stores',
+                'subCompanies.stores.candidates', 
+                'subCompanies.stores.candidates.store', 
+                'subCompanies.stores.candidates.company', 
+                'subCompanies.stores.candidates.bank',
+                'subCompanies.stores.candidates.university',
+                'stores',
+                'stores.candidates', 
+                'stores.candidates.store', 
+                'stores.candidates.company', 
+                'stores.candidates.bank',
+                'stores.candidates.university'
+            ])    
+            ->filterParent()                
+            ->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -84,7 +101,16 @@ class CompanyController extends Controller
      */
     public function actionSubCompanies($id)
     {
-        $query = Company::find()->childCompany($id)->notDeleted();
+        $query = Company::find()
+            ->with([
+                'stores.candidates', 
+                'stores.candidates.store', 
+                'stores.candidates.company', 
+                'stores.candidates.bank',
+                'stores.candidates.university'
+            ])    
+            ->childCompany($id)
+            ->notDeleted();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -146,6 +172,21 @@ class CompanyController extends Controller
     public function actionView($id)
     {
         $company = Company::find()
+            ->with([
+                'subCompanies',
+                'subCompanies.stores',
+                'subCompanies.stores.candidates', 
+                'subCompanies.stores.candidates.store', 
+                'subCompanies.stores.candidates.company', 
+                'subCompanies.stores.candidates.bank',
+                'subCompanies.stores.candidates.university',
+                'stores',
+                'stores.candidates', 
+                'stores.candidates.store', 
+                'stores.candidates.company', 
+                'stores.candidates.bank',
+                'stores.candidates.university'
+            ])    
             ->filterCompany($id)
             ->notDeleted()
             ->one();

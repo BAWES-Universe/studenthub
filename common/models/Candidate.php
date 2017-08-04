@@ -233,7 +233,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'country',
             'bank'
         ]);
-
+        
         unset($fields['deleted']);
 
         return $fields;
@@ -245,7 +245,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
-
+            'store',
+            'company',
+            'university',
+            'country',
+            'bank'
         ];
     }
 
@@ -436,6 +440,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getAccessTokens()
     {
         return $this->hasMany(CandidateToken::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory()
+    {
+        return $this->hasMany(CandidateWorkHistory::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
@@ -703,10 +715,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $this->deleted = 1;
         return $this->save(false);
-    }    
+    }
 
     /**
-     * @return array|\yii\db\ActiveRecord[]
+     * @param string $modelClass
+     * @return mixed
      */
     public function getPaidTransferCandidate($modelClass= "\common\models\TransferCandidate")
     {

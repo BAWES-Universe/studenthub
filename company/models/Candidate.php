@@ -29,8 +29,24 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_status'],
         $fields['employee_id']
         );
+        
         // Clear bank info from array
         $fields['bank'] = function() {return [];};
+        
         return $fields;
+    }    
+    
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'store',
+            'company',
+            'university',
+            'country',
+            'bank'
+        ];
     }
 }

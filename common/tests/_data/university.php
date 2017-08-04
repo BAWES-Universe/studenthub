@@ -2,6 +2,7 @@
 
 return [
     [
+        'university_id' => 1,
         'university_name_en' => 'Gulf University for Science and Technology',
         'university_name_ar' => 'جامعة الخليج للعلوم والتكنولوجيا',
         'deleted' => '0',
