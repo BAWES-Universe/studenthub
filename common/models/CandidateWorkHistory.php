@@ -33,6 +33,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['candidate_id', 'store_id'], 'integer'],
             [['start_date', 'end_date'], 'safe'],
             [['candidate_hourly_rate'], 'number'],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
 
@@ -69,7 +71,6 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         }
     }
 
-
     /**
      * save candidate un-assign record
      * @param $candidate
@@ -79,7 +80,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
 
         // check if candidate assigned today then delete assigned history
         if (CandidateWorkHistory::checkTotalHistory($candidate)) {
-            CandidateWorkHistory::deleteAll(['candidate_id'=>$candidate->candidate_id,'start_date'=>date('Y-m-d')]);
+            return CandidateWorkHistory::deleteAll(['candidate_id'=>$candidate->candidate_id,'start_date'=>date('Y-m-d')]);
         } else {
             // else save unassigned history
             $model = CandidateWorkHistory::find()
@@ -99,7 +100,6 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
                         'message' =>'error while updating record. Please try again'
                     ];
                 }
-
             } else {
                 return [
                     'operation' =>'error',
