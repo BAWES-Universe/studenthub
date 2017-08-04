@@ -114,6 +114,13 @@ class TransferController extends Controller
         foreach ($transfers as $transfer)
         {
             $candidates = $transfer->getTransferCandidates()
+                ->with([
+                    'candidate', 
+                    'candidate.store', 
+                    'candidate.company', 
+                    'candidate.bank',
+                    'candidate.university'
+                ])        
                 ->where(['paid' => '0'])
                 ->all();
 
@@ -139,7 +146,19 @@ class TransferController extends Controller
      */
     public function actionView($id)
     {
-        $transfer = Transfer::findOne((int)$id);
+        $transfer = Transfer::find()
+            ->with([
+                'transferCandidates', 
+                'transferCandidates.candidate', 
+                'transferCandidates.candidate.store', 
+                'transferCandidates.candidate.company', 
+                'transferCandidates.candidate.bank',
+                'transferCandidates.candidate.university'
+            ])
+            ->where([
+                'transfer_id' => $id
+            ])    
+            ->one();
 
         if(!$transfer) {
             return [
