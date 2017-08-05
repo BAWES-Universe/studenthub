@@ -2,9 +2,9 @@
 namespace admin\tests;
 
 use Yii;
-use admin\models\Admin;
-use common\models\University;
 use admin\tests\FunctionalTester;
+use common\models\University;
+use common\models\AdminToken;
 use common\fixtures\Admin as AdminFixture;
 use common\fixtures\AdminToken as AdminTokenFixture;
 use common\fixtures\University as UniversityFixture;
@@ -12,6 +12,8 @@ use Codeception\Util\HttpCode;
 
 class universityCest
 {
+    public $token;
+    
     public function _before(FunctionalTester $I)
     {
         $I->haveFixtures([
@@ -28,6 +30,10 @@ class universityCest
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/university.php'
             ]
         ]);
+        
+        $this->token = AdminToken::find()
+            ->one()
+            ->token_value;
     }
 
     public function _after(FunctionalTester $I)
@@ -40,7 +46,7 @@ class universityCest
         //---------------- listing ---------------------------
         
         $I->wantTo('Validate university api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer tP6w9b4t9L2zTkA0VGI3D_QlVqFiO7D6');        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->sendGET('universities');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -48,7 +54,7 @@ class universityCest
         //---------------- create ---------------------------
         
         $I->wantTo('create a university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer tP6w9b4t9L2zTkA0VGI3D_QlVqFiO7D6');        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
             'universities', 
@@ -71,7 +77,7 @@ class universityCest
         //---------------- update ---------------------------
         
         $I->wantTo('update a university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer tP6w9b4t9L2zTkA0VGI3D_QlVqFiO7D6');        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
             'universities/' . $university_id, 
@@ -89,7 +95,7 @@ class universityCest
         //---------------- delete ---------------------------
         
         $I->wantTo('delete university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer tP6w9b4t9L2zTkA0VGI3D_QlVqFiO7D6');        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('universities/' . $university_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
