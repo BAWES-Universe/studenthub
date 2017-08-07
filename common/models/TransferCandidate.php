@@ -264,7 +264,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             $list[] = [
                 'transfer' => 'S2',
                 'bank_transfer_type' => $detail->candidate->bank->bank_transfer_type,
-                'amount' => number_format($detail->totalPaidToCandidate, 3, '.', ','),
+                'amount' => number_format($detail->totalPaidToCandidate, 3, '.', ''),
                 'currency' => 'KWD',
                 'emptyField1' => '',
                 'emptyField2' => '',
@@ -300,7 +300,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         return [
             'candidate_list' => $list,
-            'total_amount' => number_format($totalAmount, 3, '.', ','),
+            'total_amount' => number_format($totalAmount, 3, '.', ''),
         ];
     }
 
