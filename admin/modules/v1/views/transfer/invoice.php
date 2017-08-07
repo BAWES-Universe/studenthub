@@ -45,7 +45,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     <table class="table" cellpadding="3" cellspacing="3">
         <tr>
             <td align="left" style="text-align: left">
-                <span><b><?=number_format($totalHours)?> hours</b> worked x <b>2 KD</b> per hour</span>
+                <span><b><?= $totalHours ?> hours</b> worked x <b>2 KD</b> per hour</span>
             </td>
             <td align="right" style="text-align: right">
                 <span>KWD <?=number_format($totalAmount, 3)?></span>
