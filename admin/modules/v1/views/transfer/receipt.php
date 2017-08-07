@@ -32,7 +32,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                     <table cellpadding="2" class="table">
                         <tr><td><h3>Details<br></h3></td></tr>
                         <tr><td>Invoice number: <?=$invoice->invoice_id?></td></tr>
-                        <tr><td><p>Transfer number: <?=$invoice->transfer_id?></p></td></tr>
+                        <tr><td><p>Transfer number: <?= $invoice->transfer->parent_transfer_id? $invoice->transfer->parent_transfer_id : $invoice->transfer->transfer_id ?></p></td></tr>
                         <tr><td><p>Payment date: <?=date('F d,Y',strtotime($invoice->invoice_date))?></p></td></tr>
                         <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in KWD: <?= $invoice->transfer->company_total ?></h5></td></tr>
                     </table>
