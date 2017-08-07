@@ -76,6 +76,7 @@ return [
                         'GET assigned' => 'list-assigned',
                         'GET not-assigned' => 'list-not-assigned',
                         'GET transfers/<id>' => 'transfers',
+                        'GET work-history/<id>' => 'work-history',
                         'POST' => 'create',
 //                        'POST filter' => 'filter',
                         'PATCH <id>' => 'update',
@@ -95,6 +96,7 @@ return [
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',
+                        'OPTIONS work-history/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
