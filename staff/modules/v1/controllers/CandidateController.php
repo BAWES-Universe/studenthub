@@ -480,6 +480,8 @@ class CandidateController extends Controller
 
     /**
      * Return candidate's salary transfer with status
+     * @param $id
+     * @return array|mixed
      */
     public function actionTransfers($id)
     {
@@ -489,5 +491,24 @@ class CandidateController extends Controller
             return [];
 
         return $model->paidTransferCandidate;
+    }
+
+    /**
+     * get candidate work history
+     * @param $id
+     * @return array|static[]
+     */
+    public function actionWorkHistory($id)
+    {
+        $model = CandidateWorkHistory::find()
+            ->filterCandidate($id)
+            ->with('store')
+            ->asArray()
+            ->all();
+
+        if(!$model)
+            return [];
+
+        return $model;
     }
 }
