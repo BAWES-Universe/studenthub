@@ -14,5 +14,12 @@ return [
     	'invoice_date' => '2017-12-23',
     	'invoice_status' => 'paid',
     	'deleted' => '0',
+    ],
+    [
+    	'invoice_id' => 3,
+        'transfer_id' => 5,
+    	'invoice_date' => '2017-12-23',
+    	'invoice_status' => 'paid',
+    	'deleted' => '0',
     ]
 ];

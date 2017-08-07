@@ -62,7 +62,7 @@ class AdminTest extends \Codeception\Test\Unit
         $this->specify('Create New Admin', function () {
             $model = new Admin();
             $model->admin_name = 'Magan';
-            $model->admin_email = 'admin2@admin.com';
+            $model->admin_email = 'admin10@admin.com';
             $model->setPassword('admin2');                    
             expect('Created successfully', $model->save())->true();
             expect('Record is in database', $model->findOne(['admin_name' => 'Magan']))->notNull();

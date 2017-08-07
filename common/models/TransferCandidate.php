@@ -34,6 +34,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 {
     const PAID = 1;
     const UNPAID = 0;
+
     /**
      * @inheritdoc
      */
@@ -63,7 +64,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
     /**
      * @return array
      */
-    public function behaviors() {
+    public function behaviors()
+    {
         return [
             [
                 'class' => TimestampBehavior::className(),
@@ -106,35 +108,35 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $fields = parent::fields();
 
         // Total amount paid by company
-        $fields['total_paid'] =  function($model) {
+        $fields['total_paid'] = function ($model) {
             return $this->totalPaidByCompany;
         };
         // Total amount we need to pay to candidate
-        $fields['total_amount'] =  function($model) {
+        $fields['total_amount'] = function ($model) {
             return $this->totalPaidToCandidate;
         };
         // Our Profile
-        $fields['profit'] = function($model) {
+        $fields['profit'] = function ($model) {
             return $this->profit;
         };
 
         /**
          * Format as numbers/double so API doesnt output as a string
          */
-        $fields['hours'] = function($model) {
-            return (double) $this->hours;
+        $fields['hours'] = function ($model) {
+            return (double)$this->hours;
         };
-        $fields['bonus'] = function($model) {
-            return (double) $this->bonus;
+        $fields['bonus'] = function ($model) {
+            return (double)$this->bonus;
         };
-        $fields['transfer_cost'] = function($model) {
-            return (double) $this->transfer_cost;
+        $fields['transfer_cost'] = function ($model) {
+            return (double)$this->transfer_cost;
         };
-        $fields['candidate_hourly_rate'] = function($model) {
-            return (double) $this->candidate_hourly_rate;
+        $fields['candidate_hourly_rate'] = function ($model) {
+            return (double)$this->candidate_hourly_rate;
         };
-        $fields['company_hourly_rate'] = function($model) {
-            return (double) $this->company_hourly_rate;
+        $fields['company_hourly_rate'] = function ($model) {
+            return (double)$this->company_hourly_rate;
         };
 
         return $fields;
@@ -172,7 +174,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
         return ($this->company_hourly_rate * $this->hours) + $this->bonus;
     }
 
-    public function getProfit() 
+    public function getProfit()
     {
         return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
     }
@@ -185,7 +187,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStore($modelClass= "\common\models\Store")
+    public function getStore($modelClass = "\common\models\Store")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
@@ -233,5 +235,97 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public static function find()
     {
         return new query\TransferCandidateQuery(get_called_class());
+    }
+
+    /**
+     * get list of transferable candidate
+     * for text export
+     * @return array
+     */
+    public static function getPayableCandidateListFormat()
+    {
+        $totalAmount = 0;
+
+        $candidates = TransferCandidate::find()
+            ->payable()
+            ->all();
+
+        if (!$candidates) {
+            return false;
+        }
+        $list = [];
+        foreach ($candidates as $detail) {
+            $totalAmount += $detail->totalPaidToCandidate;
+
+            if (empty($detail->candidate->bank) || !$detail->invoiceNumber) {
+                continue;
+            }
+
+            $list[] = [
+                'transfer' => 'S2',
+                'bank_transfer_type' => $detail->candidate->bank->bank_transfer_type,
+                'amount' => number_format($detail->totalPaidToCandidate, 3, '.', ','),
+                'currency' => 'KWD',
+                'emptyField1' => '',
+                'emptyField2' => '',
+                'emptyField3' => '',
+                'Field1' => '11622216',
+                'iban' => ltrim(rtrim($detail->candidate->candidate_iban)),
+                'transfer_id' => $detail->transfer_id,
+                'invoice_number' => $detail->invoiceNumber,
+                'description' => 'Internship ' . $detail->hours . ' Hours',
+                'emptyField4' => '',
+                'emptyField5' => '',
+                'emptyField6' => '',
+                'bank_account_name' => ltrim(rtrim($detail->candidate->bank_account_name)),
+                'bank_name' => $detail->candidate->bank->bank_name,
+                'emptyField7' => '',
+                'bank_name_repeat' => $detail->candidate->bank->bank_name,
+                'bank_address' => $detail->candidate->bank->bank_address,
+                'emptyField8' => '',
+                'emptyField9' => '',
+                'bank_swift_code' => $detail->candidate->bank->bank_swift_code,
+                'emptyField10' => '',
+                'emptyField11' => '',
+                'emptyField12' => '',
+                'emptyField13' => '',
+                'emptyField14' => '',
+                'emptyField15' => '',
+                'Field2' => 'B',
+                'emptyField16' => '',
+                'emptyField17' => '',
+                'candidate_iban' => ltrim(rtrim($detail->candidate->candidate_iban))
+            ];
+        }
+
+        return [
+            'candidate_list' => $list,
+            'total_amount' => number_format($totalAmount, 3, '.', ','),
+        ];
+    }
+
+
+    /**
+     * get invoice number
+     * @return string
+     */
+    public function getInvoiceNumber() {
+
+        $invoice = false;
+        $parentTransfer = Transfer::findOne(
+            [
+                'parent_transfer_id'=>$this->transfer_id,
+                'company_id'=>$this->candidate->company->company_id
+            ]
+        );
+        if ($parentTransfer && isset($parentTransfer->invoices[0])) {
+            $invoice = $parentTransfer->invoices[0]->invoice_id;
+        } else {
+            $childTransfer = Transfer::findOne($this->transfer_id);
+            if ($childTransfer && isset($childTransfer->invoices[0])) {
+                $invoice = $childTransfer->invoices[0]->invoice_id;
+            }
+        }
+        return $invoice;
     }
 }
