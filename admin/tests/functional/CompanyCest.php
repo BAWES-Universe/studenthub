@@ -9,7 +9,7 @@ use common\fixtures\AdminToken as AdminTokenFixture;
 use common\models\AdminToken;
 use Codeception\Util\HttpCode;
 
-class companyCest
+class CompanyCest
 {
     public $token;
     
