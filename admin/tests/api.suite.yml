@@ -1,0 +1,22 @@
+actor: ApiTester
+modules:
+    enabled:
+      - Filesystem
+      - Yii2
+      - Db
+      - REST
+      - \ApiBundle\Helper\Api
+    config:
+        Db:
+            dsn: 'mysql:host=127.0.0.1;dbname=payroll_test'
+            user: 'root'
+            password: ''
+            populate: true
+            cleanup: true
+        REST:
+            depends: PhpBrowser
+            url: '/v1'
+        Yii2:
+            part: [orm, fixtures] # allow to use AR methods
+            cleanup: false # don't wrap test in transaction
+            entryScript: index-test.php
