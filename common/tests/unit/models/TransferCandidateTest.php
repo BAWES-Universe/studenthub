@@ -261,13 +261,19 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
 
             $testingData = $transferCandidateData['candidate_list'][count($transferCandidateData)-1];
+
             // testing for single candidate
             list($whole, $decimal) = explode('.', $testingData['amount']);
-            expect('length should be 3',strlen($decimal))->equals(3);
-
-            // testing for final amount
             list($whole1, $decimal1) = explode('.', $transferCandidateData['total_amount']);
+
+
+            expect('length should be 3',strlen($decimal))->equals(3);
             expect('length should be 3',strlen($decimal1))->equals(3);
+
+            expect('with comma test case',strpos('11,11',','))->equals(2);
+
+            expect('no comma in first value',strpos($whole,','))->false();
+            expect('no comma in first value',strpos($whole1,','))->false();
 
         });
     }
