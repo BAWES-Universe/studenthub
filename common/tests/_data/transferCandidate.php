@@ -3,7 +3,6 @@
 return [
     //transfer #1
     [
-    	'tc_id' => 1,
     	'transfer_id' => '1',
     	'candidate_id' => '1',
     	'store_id' => '1',
@@ -21,7 +20,6 @@ return [
     	'tc_updated_at' => '2017-02-23 18:04:42'
     ],
     [
-        'tc_id' => 2,
         'transfer_id' => '1',
         'candidate_id' => '2',
         'store_id' => '2',
@@ -40,7 +38,6 @@ return [
     ],
     //transfer #3
     [
-    	'tc_id' => 3,
     	'transfer_id' => '3',
     	'candidate_id' => '1',
     	'store_id' => '1',
@@ -58,7 +55,6 @@ return [
     	'tc_updated_at' => '2017-02-23 18:04:42'
     ],
     [
-        'tc_id' => 4,
         'transfer_id' => '3',
         'candidate_id' => '2',
         'store_id' => '2',
@@ -77,7 +73,6 @@ return [
     ],
     //transfer #5 
     [
-    	'tc_id' => 5,
     	'transfer_id' => '5',
     	'candidate_id' => '1',
     	'store_id' => '1',
@@ -95,7 +90,6 @@ return [
     	'tc_updated_at' => '2017-02-23 18:04:42'
     ],
     [
-        'tc_id' => 6,
         'transfer_id' => '5',
         'candidate_id' => '2',
         'store_id' => '2',
@@ -114,7 +108,6 @@ return [
     ],
     //transfer #7 
     [
-    	'tc_id' => 7,
     	'transfer_id' => '7',
     	'candidate_id' => '1',
     	'store_id' => '1',
@@ -132,7 +125,6 @@ return [
     	'tc_updated_at' => '2017-02-23 18:04:42'
     ],
     [
-        'tc_id' => 8,
         'transfer_id' => '7',
         'candidate_id' => '2',
         'store_id' => '2',
@@ -151,7 +143,6 @@ return [
     ],
     //transfer #9 
     [
-    	'tc_id' => 9,
     	'transfer_id' => '9',
     	'candidate_id' => '1',
     	'store_id' => '1',
@@ -169,7 +160,6 @@ return [
     	'tc_updated_at' => '2017-02-23 18:04:42'
     ],
     [
-        'tc_id' => 10,
         'transfer_id' => '9',
         'candidate_id' => '2',
         'store_id' => '2',
@@ -188,7 +178,6 @@ return [
     ],
     //transfer #11
     [
-    	'tc_id' => 11,
     	'transfer_id' => '11',
     	'candidate_id' => '1',
     	'store_id' => '1',
@@ -206,7 +195,6 @@ return [
     	'tc_updated_at' => '2017-02-23 18:04:42'
     ],
     [
-        'tc_id' => 12,
         'transfer_id' => '11',
         'candidate_id' => '2',
         'store_id' => '2',
@@ -225,7 +213,6 @@ return [
     ],
     //transfer #13
     [
-    	'tc_id' => 13,
     	'transfer_id' => '13',
     	'candidate_id' => '3',
     	'store_id' => '3',
@@ -243,7 +230,6 @@ return [
     	'tc_updated_at' => '2017-02-23 18:04:42'
     ],
     [
-        'tc_id' => 14,
         'transfer_id' => '13',
         'candidate_id' => '4',
         'store_id' => '3',
@@ -255,6 +241,91 @@ return [
         'company_hourly_rate' => '2.0',
         'hours' => 20,
         'bonus' => 18,
+        'transfer_cost' => '0.350',
+        'paid' => 0,
+        'tc_created_at' => '2017-02-23 18:04:42',
+        'tc_updated_at' => '2017-02-23 18:04:42'
+    ],
+    [
+        'transfer_id' => '14',
+        'candidate_id' => '3',
+        'store_id' => '3',
+        'store_name' => 'Third Store - Without Child',
+        'company_id' => '3',
+        'company_name' => 'Without Child',
+        'company_email' => 'company3@bawes.net',
+        'candidate_hourly_rate' => '1.5',
+        'company_hourly_rate' => '2.0',
+        'hours' => 10000,
+        'bonus' => 10000,
+        'transfer_cost' => '0.350',
+        'paid' => 0,
+        'tc_created_at' => '2017-02-23 18:04:42',
+        'tc_updated_at' => '2017-02-23 18:04:42'
+    ],
+    [
+        'transfer_id' => '14',
+        'candidate_id' => '4',
+        'store_id' => '3',
+        'store_name' => 'Third Store - Without Child',
+        'company_id' => '3',
+        'company_name' => 'Without Child',
+        'company_email' => 'company3@bawes.net',
+        'candidate_hourly_rate' => '1.5',
+        'company_hourly_rate' => '2.0',
+        'hours' => 10000,
+        'bonus' => 10000,
+        'transfer_cost' => '0.350',
+        'paid' => 0,
+        'tc_created_at' => '2017-02-23 18:04:42',
+        'tc_updated_at' => '2017-02-23 18:04:42'
+    ],
+    [
+        'transfer_id' => '14',
+        'candidate_id' => '5',
+        'store_id' => '3',
+        'store_name' => 'Third Store - Without Child',
+        'company_id' => '3',
+        'company_name' => 'Without Child',
+        'company_email' => 'company3@bawes.net',
+        'candidate_hourly_rate' => '1.5',
+        'company_hourly_rate' => '2.0',
+        'hours' => 10000,
+        'bonus' => 10000,
+        'transfer_cost' => '0.350',
+        'paid' => 0,
+        'tc_created_at' => '2017-02-23 18:04:42',
+        'tc_updated_at' => '2017-02-23 18:04:42'
+    ],
+    [
+        'transfer_id' => '14',
+        'candidate_id' => '6',
+        'store_id' => '3',
+        'store_name' => 'Third Store - Without Child',
+        'company_id' => '3',
+        'company_name' => 'Without Child',
+        'company_email' => 'company3@bawes.net',
+        'candidate_hourly_rate' => '1.5',
+        'company_hourly_rate' => '2.0',
+        'hours' => 10000,
+        'bonus' => 10000,
+        'transfer_cost' => '0.350',
+        'paid' => 0,
+        'tc_created_at' => '2017-02-23 18:04:42',
+        'tc_updated_at' => '2017-02-23 18:04:42'
+    ],
+    [
+        'transfer_id' => '14',
+        'candidate_id' => '7',
+        'store_id' => '3',
+        'store_name' => 'Third Store - Without Child',
+        'company_id' => '3',
+        'company_name' => 'Without Child',
+        'company_email' => 'company3@bawes.net',
+        'candidate_hourly_rate' => '1.5',
+        'company_hourly_rate' => '2.0',
+        'hours' => 10000,
+        'bonus' => 10000,
         'transfer_cost' => '0.350',
         'paid' => 0,
         'tc_created_at' => '2017-02-23 18:04:42',
