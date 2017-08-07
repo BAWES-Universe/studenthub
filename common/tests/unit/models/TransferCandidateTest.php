@@ -2,11 +2,13 @@
 namespace common\tests;
 
 use Codeception\Specify;
+use common\fixtures\Bank as BankFixture;
 use common\fixtures\Store as StoreFixture;
 use common\fixtures\Candidate as CandidateFixture;
 use common\fixtures\Company as CompanyFixture;
 use common\fixtures\Transfer as TransferFixture;
 use common\fixtures\TransferCandidate as TransferCandidateFixture;
+use common\fixtures\Invoice as InvoiceFixture;
 use common\models\TransferCandidate;
 
 class TransferCandidateTest extends \Codeception\Test\Unit
@@ -29,6 +31,10 @@ class TransferCandidateTest extends \Codeception\Test\Unit
                 'class' => StoreFixture::className(),
                 'dataFile' => codecept_data_dir() . 'store.php'
             ],
+            'bank' => [
+                'class' => BankFixture::className(),
+                'dataFile' => codecept_data_dir() . 'bank.php'
+            ],
             'candidate' => [
                 'class' => CandidateFixture::className(),
                 'dataFile' => codecept_data_dir() . 'candidate.php'
@@ -40,6 +46,10 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             'transferCandidate' => [
                 'class' => TransferCandidateFixture::className(),
                 'dataFile' => codecept_data_dir() . 'transferCandidate.php'
+            ],
+            'invoice' => [
+                'class' => InvoiceFixture::className(),
+                'dataFile' => codecept_data_dir() . 'invoice.php'
             ]
         ]);
     }
@@ -238,5 +248,27 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         $TransferCost = '.350';
         $profit = $CompanyTotal - $PaidToCandidate - $TransferCost;
         expect('validate profit value ', $transferCandidateData->getProfit())->equals($profit);
+    }
+
+    /**
+     * test case for transferable candidate
+     */
+    public function testGetPayableCandidateListFormat() {
+
+        $this->specify('fixture data load test & test to check payable amount is with 3 digit after point', function () {
+            $transferCandidateData = TransferCandidate::getPayableCandidateListFormat();
+            expect('if data exist', count($transferCandidateData['candidate_list']))->greaterThan(0);
+
+
+            $testingData = $transferCandidateData['candidate_list'][count($transferCandidateData)-1];
+            // testing for single candidate
+            list($whole, $decimal) = explode('.', $testingData['amount']);
+            expect('length should be 3',strlen($decimal))->equals(3);
+
+            // testing for final amount
+            list($whole1, $decimal1) = explode('.', $transferCandidateData['total_amount']);
+            expect('length should be 3',strlen($decimal1))->equals(3);
+
+        });
     }
 }

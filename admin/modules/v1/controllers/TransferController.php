@@ -371,14 +371,9 @@ class TransferController extends Controller
     public function actionText()
     {
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
-
         $s2 = '';
-        $totalTransaction = 0;
-        $totalAmount = 0;
 
-        $candidates = TransferCandidate::find()
-            ->payable()
-            ->all();
+        $candidates = TransferCandidate::getPayableCandidateListFormat();
 
         if(!$candidates) {
             return [
@@ -387,30 +382,12 @@ class TransferController extends Controller
             ];
         }
 
-        foreach ($candidates as $detail) {
-            $totalAmount += $detail->totalPaidToCandidate;
-            $description = 'Internship '.$detail->hours.' Hours';
+        foreach ($candidates['candidate_list'] as $detail) {
 
-            if(empty($detail->candidate->bank)) {
-                continue;
-            }
-
-            $s2 .=  "S2,".$detail->candidate->bank->bank_transfer_type.",".$detail->totalPaidToCandidate.",KWD,,,,11622216,".
-                    $detail->candidate->candidate_iban.",".
-                    $detail->transfer_id.",".
-                    $detail->invoiceNumber.",".
-                    $description.",,,,".
-                    $detail->candidate->bank_account_name.",".
-                    $detail->candidate->bank->bank_name.",,".
-                    $detail->candidate->bank->bank_name.",".
-                    $detail->candidate->bank->bank_address.",,,".
-                    $detail->candidate->bank->bank_swift_code.",,,,,,,B,,,".
-                    $detail->candidate->candidate_iban.",".PHP_EOL;
-            $totalTransaction +=1;
+            $s2 .=  implode(',',$detail).",".PHP_EOL;
         }
 
-        $finalAmount = number_format($totalAmount,3,'.',',');
-        $s3 = 'S3,'.$totalTransaction.','.$finalAmount; // Footer
+        $s3 = 'S3,'.count($candidates['candidate_list']).','.$candidates['total_amount']; // Footer
         $sAll = $s1.$s2.$s3;
 
         $fileName = 'BAWS-PAY-'.date('dmY').'-01.txt';
