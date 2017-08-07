@@ -5,6 +5,7 @@ include:
     - candidate
     - company
     - staff
+    - verification
 paths:
     log: console/runtime/logs
 settings:
