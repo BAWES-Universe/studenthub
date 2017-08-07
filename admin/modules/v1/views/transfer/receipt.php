@@ -44,10 +44,10 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <table class="table" cellpadding="3" cellspacing="3">
             <tr>
                 <td align="left" style="text-align: left">
-                    <span><b><?=number_format($totalHours)?> hours</b> worked x <b>2 KD</b> per hour</span>
+                    <span><b><?= $totalHours ?> hours</b> worked x <b>2 KD</b> per hour</span>
                 </td>
                 <td align="right" style="text-align: right">
-                    <span>KWD <?=number_format($totalAmount)?></span>
+                    <span>KWD <?= number_format($totalAmount, 3) ?></span>
                 </td>
             </tr>
             <?php if($totalBonus > 0) { ?>
@@ -56,7 +56,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                     <span><b>Bonus to be sent to interns</b></span>
                 </td>
                 <td align="right" style="text-align: right">
-                    <span>KWD <?=number_format($totalBonus)?></span>
+                    <span>KWD <?= number_format($totalBonus, 3) ?></span>
                 </td>
             </tr>
             <?php } ?>
@@ -65,7 +65,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <table class="table" >
             <tr>
                 <td align="left" style="text-align: left">
-                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?=count($invoice->transfer->transferCandidates)?> interns</span>
+                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?= count($invoice->transfer->transferCandidates) ?> interns</span>
                 </td>
                 <td align="right" style="text-align: right">
                     <span class="h5">KWD <?= $invoice->transfer->company_total ?></span>
@@ -80,6 +80,6 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <p style="margin-bottom:0;">Sincerely yours,</p>
         <p style="margin-bottom:0;">
             Khalid Al-Mutawa<br/>
-            <?=\yii\helpers\Html::img('images/signature.jpg',['style'=>'width:150px;'])?>
+            <?=\yii\helpers\Html::img('images/signature.jpg', ['style'=>'width:150px;'])?>
         </p>
     </div>
