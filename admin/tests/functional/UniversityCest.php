@@ -10,7 +10,7 @@ use common\fixtures\AdminToken as AdminTokenFixture;
 use common\fixtures\University as UniversityFixture;
 use Codeception\Util\HttpCode;
 
-class universityCest
+class UniversityCest
 {
     public $token;
     

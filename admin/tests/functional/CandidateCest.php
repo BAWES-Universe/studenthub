@@ -15,7 +15,7 @@ use common\fixtures\AdminToken as AdminTokenFixture;
 use common\fixtures\Country as CountryFixture;
 use Codeception\Util\HttpCode;
 
-class candidateCest
+class CandidateCest
 {
     public $token;
     
