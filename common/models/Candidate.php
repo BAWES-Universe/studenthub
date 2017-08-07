@@ -54,7 +54,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const STATUS_READY = 1;
 
     // Array of attribute names and folder names to store them in the permanent bucket
-    const FILE_ATTRIBUTES = [
+    public $FILE_ATTRIBUTES = [
         'candidate_personal_photo' => 'photos',
         'candidate_civil_photo_front' => 'civil-id',
         'candidate_civil_photo_back' => 'civil-id'
@@ -87,6 +87,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
+            [['bank_account_name', 'candidate_iban'], 'trim'],
             ['candidate_hourly_rate', 'compare', 'compareValue' => 0, 'operator' => '>', 'type' => 'number'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
@@ -269,7 +270,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     private function _moveTemporaryFilesToPermanentBucket()
     {
         // For each file, move its file from temporary to permanent
-        foreach(self::FILE_ATTRIBUTES as $attribute => $folderName){
+        foreach($this->FILE_ATTRIBUTES as $attribute => $folderName){
             if($this->{$attribute} !== $this->getOldAttribute($attribute)){
                 $fileName = $this->{$attribute};
                 $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
