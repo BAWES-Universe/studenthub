@@ -99,7 +99,12 @@ class TransferCandidateController extends Controller
         ]);
     }
 
-    public function actionUnpaid($id) {
+    /**
+     * @param $id
+     * @return array
+     */
+    public function actionUnpaid($id)
+    {
         return TransferCandidate::markUnpaid($id);
     }
 }

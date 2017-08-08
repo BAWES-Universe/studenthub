@@ -92,7 +92,7 @@ class TransferCandidate extends \common\models\TransferCandidate
      * @param $tc_id
      * @return array
      */
-    public function markUnpaid($tc_id)
+    public static function markUnpaid($tc_id)
     {
         $TransferCandidate = TransferCandidate::findOne($tc_id);
 
@@ -105,7 +105,6 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         $TransferCandidate->paid = 0;
 
-
         if ($TransferCandidate->save(false)) {
 
             $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
@@ -115,7 +114,7 @@ class TransferCandidate extends \common\models\TransferCandidate
                 if ($Transfer->save(false)) {
                     return [
                         "operation" => "success",
-                        "message" => 'Transfer marked as "Payment Received" successfully'
+                        "message" => 'Transfer marked as "unpaid" successfully'
                     ];
                 } else {
                     return [
