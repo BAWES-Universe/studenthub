@@ -31,7 +31,11 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         $fields['tc_created_at'] = function($model) {
             return Yii::$app->formatter->asDate($model->tc_created_at, "long");
-        };        
+        };
+
+        $fields['tc_updated_at'] = function($model) {
+            return Yii::$app->formatter->asDate($model->tc_updated_at, "long");
+        };
 
     	return $fields;
     }
@@ -69,7 +73,7 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public function getTransfer($modelClass = "\admin\models\Transfer")
     {
-        return parent::getTransfer($modelClass);;
+        return parent::getTransfer($modelClass);
     }
 
     /**

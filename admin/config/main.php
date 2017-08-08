@@ -153,6 +153,15 @@ return [
                         'OPTIONS payment-received-distributing/<id>' => 'options',
                     ]
                 ],
+                [ // TransferController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer-candidate',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // BankController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/bank',
