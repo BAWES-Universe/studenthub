@@ -84,4 +84,46 @@ class TransferCandidate extends \common\models\TransferCandidate
     {
         return parent::getInvoice($modelClass);
     }
+
+    /**
+     * mark transfer candidate as unpaid
+     * also mark transfer from complete to
+     * progress in case if its completed
+     * @param $tc_id
+     * @return array
+     */
+    public function markUnpaid($tc_id)
+    {
+        $TransferCandidate = TransferCandidate::findOne($tc_id);
+
+        if (!$TransferCandidate) {
+            return [
+                "operation" => "error",
+                "message" => 'Candidate Transfer not found'
+            ];
+        }
+
+        $TransferCandidate->paid = 0;
+
+
+        if ($TransferCandidate->save(false)) {
+
+            $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
+            // in case if transfer is paid
+            if ($Transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE) {
+                $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+                if ($Transfer->save(false)) {
+                    return [
+                        "operation" => "success",
+                        "message" => 'Transfer marked as "Payment Received" successfully'
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => $Transfer->errors
+                    ];
+                }
+            }
+        }
+    }
 }

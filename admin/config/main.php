@@ -158,8 +158,10 @@ return [
                     'controller' => 'v1/transfer-candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'PATCH unpaid/<id>' => 'unpaid',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS unpaid/<id>' => 'options',
                     ]
                 ],
                 [ // BankController
