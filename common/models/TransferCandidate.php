@@ -272,7 +272,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 'Field1' => '11622216',
                 'iban' => ltrim(rtrim($detail->candidate->candidate_iban)),
                 'transfer_id' => $detail->transfer_id,
-                'invoice_number' => $detail->invoiceNumber,
+                'tc_id' => $detail->tc_id,
                 'description' => 'Internship ' . $detail->hours . ' Hours',
                 'emptyField4' => '',
                 'emptyField5' => '',
