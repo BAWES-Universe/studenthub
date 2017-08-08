@@ -143,6 +143,51 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
             ->count();
     }
 
+
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function totalPaymentStatus($status)
+    {
+        return $this->andWhere(['paid' => $status]);
+    }
+
+    /**
+     * @param $company_name
+     * @return $this
+     */
+    public function filterCompany($company_name)
+    {
+        return $this->andWhere([
+            'like',
+            'company_name',
+            $company_name
+        ]);
+    }
+
+    /**
+     * @param $store_name
+     * @return $this
+     */
+    public function filterStore($store_name)
+    {
+        return $this->andWhere([
+            'like',
+            'store_name',
+            $store_name
+        ]);
+    }
+
+    /**
+     * @param $tc_id
+     * @return $this
+     */
+    public function filterByPrimaryKey($tc_id)
+    {
+        return $this->andWhere(['tc_id' => $tc_id]);
+    }
+
     /**
      * Return unpaid candidate list for a given transfer
      * @param $transfer_id
