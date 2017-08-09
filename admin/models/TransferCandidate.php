@@ -102,6 +102,13 @@ class TransferCandidate extends \common\models\TransferCandidate
                 "message" => 'Candidate Transfer not found'
             ];
         }
+
+        if (!($TransferCandidate->hours > 0)) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero"
+            ];
+        }
         $TransferCandidate->paid = TransferCandidate::UNPAID;
 
         if ($TransferCandidate->save(false)) {

@@ -49,6 +49,18 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             expect('Invalid id error', $response['message'])->equals('Candidate Transfer not found');
         });
 
+        $this->specify('testing for zero amount transfer', function () {
+            $TransferCandidate = TransferCandidate::findOne(33);
+            expect('zero hours',$TransferCandidate->hours)->equals(0);
+            expect('status paid ',$TransferCandidate->paid)->equals(TransferCandidate::PAID);
+
+            $response =  TransferCandidate::markUnpaid(33);
+
+            expect('error response',$response['operation'])->equals('error');
+            expect('error response message',$response['message'])->equals("Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero");
+
+        });
+
         $this->specify('testing for case when main transfer is completed', function () {
             // checking with existing without modifying fixture data
             $TransferCandidate = TransferCandidate::findOne(25);
