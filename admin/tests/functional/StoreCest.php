@@ -6,11 +6,10 @@ use admin\tests\FunctionalTester;
 use common\models\AdminToken;
 use common\fixtures\Admin as AdminFixture;
 use common\fixtures\AdminToken as AdminTokenFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\CandidateIdCard as CandidateIdCardFixture;
+use common\fixtures\Store as StoreFixture;
 use Codeception\Util\HttpCode;
 
-class StatisticsCest
+class StoreCest
 {
     public $token;
     
@@ -25,13 +24,9 @@ class StatisticsCest
                 'class' => AdminTokenFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
             ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'candidateIdCard' => [
-                'class' => CandidateIdCardFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateIdCard.php'
+            'store' => [
+                'class' => StoreFixture::className(),
+                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
             ]
         ]);
         
@@ -47,9 +42,9 @@ class StatisticsCest
     // tests
     public function tryToTest(FunctionalTester $I)
     {
-        $I->wantTo('Validate admin > statistics api response');
+        $I->wantTo('Validate admin > stores api response');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('statistics');
+        $I->sendGET('stores');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
