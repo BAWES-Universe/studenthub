@@ -74,24 +74,10 @@ class TransferCandidateController extends Controller
      */
     public function actionList()
     {
-        $tc_id          = Yii::$app->request->get('tc_id');
-        $status         = Yii::$app->request->get('status');
-        $candidate_id   = Yii::$app->request->get('candidate_id');
+        $tc_id = Yii::$app->request->get('tc_id');
 
         $query = TransferCandidate::find();
-
-        if ($status) {
-            $query->totalPaymentStatus($status);
-        }
-
-        if ($candidate_id) {
-            $query->filterCandidate($candidate_id);
-        }
-
-        if ($tc_id) {
-            $query->filterByPrimaryKey($tc_id);
-        }
-
+        $query->filterByPrimaryKey($tc_id);
         $query->payableWithPaid();
 
         return new ActiveDataProvider([
@@ -106,5 +92,14 @@ class TransferCandidateController extends Controller
     public function actionUnpaid($id)
     {
         return TransferCandidate::markUnpaid($id);
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function actionPaid($id)
+    {
+        return TransferCandidate::markPaid($id);
     }
 }
