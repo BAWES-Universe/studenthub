@@ -159,9 +159,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'PATCH unpaid/<id>' => 'unpaid',
+                        'PATCH paid/<id>' => 'paid',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS unpaid/<id>' => 'options',
+                        'OPTIONS paid/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

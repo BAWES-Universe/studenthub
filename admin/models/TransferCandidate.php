@@ -125,4 +125,38 @@ class TransferCandidate extends \common\models\TransferCandidate
             }
         }
     }
+
+    public static function markPaid($tc_id)
+    {
+        $TransferCandidate = TransferCandidate::findOne($tc_id);
+        $TransferCandidate->paid = 1;
+        if ($TransferCandidate->save()) {
+            $unpaid = TransferCandidate::find()
+                ->where([
+                    'paid' => 0
+                ])
+                ->andWhere(['transfer_id' => $TransferCandidate->transfer_id])
+                ->count();
+
+            if (!$unpaid) {
+                $transfer = Transfer::findOne($TransferCandidate->transfer_id);
+                $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+                if (!$transfer->save()) {
+                    return [
+                        "operation" => "error",
+                        "message" => $TransferCandidate->errors
+                    ];
+                }
+            }
+            return [
+                "operation" => "success",
+                "message" => 'Transfer marked as "paid" successfully'
+            ];
+        } else {
+            return [
+                "operation" => "error",
+                "message" => $TransferCandidate->errors
+            ];
+        }
+    }
 }
