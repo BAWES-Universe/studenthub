@@ -88,6 +88,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
             [['bank_account_name', 'candidate_iban'], 'trim'],
+            [['bank_account_name', 'candidate_iban'], 
+                'match',
+                'pattern' => '/^[0-9a-zA-Z\s]+$/',
+                'message' => 'Special characters not allowed'
+            ],            
             ['candidate_hourly_rate', 'compare', 'compareValue' => 0, 'operator' => '>', 'type' => 'number'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
