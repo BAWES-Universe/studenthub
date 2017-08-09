@@ -176,6 +176,18 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime('+1 day'));
             expect('Valid value passed', $candidate->validate(['candidate_civil_expiry_date']))->true();                                
         });
+        
+        $this->specify('Candidate beneficiary name and IBAN validation for special characters', function() {
+            $candidate = new Candidate;
+            $candidate->bank_account_name = '???????';
+            $candidate->candidate_iban = '???????';
+            expect('Bank account name should not contain special characters', $candidate->validate(['bank_account_name']))->false();
+            expect('Candidate IBAN should not contain special characters', $candidate->validate(['candidate_iban']))->false();
+            $candidate->bank_account_name = 'Manmohan';
+            $candidate->candidate_iban = 'IBAN123456';
+            expect('Bank account name should accept valid value', $candidate->validate(['bank_account_name']))->true();
+            expect('Candidate IBAN should accept valid value', $candidate->validate(['candidate_iban']))->true();
+        });
     }
 
     /**
