@@ -69,9 +69,17 @@ class StoreController extends Controller
      */
     public function actionList($companyId = null)
     {
-        $query = Store::find();
-        $query->filterWhere(['company_id' => $companyId]);
-        $query->notDeleted();
+        $query = Store::find()
+            ->with([
+                'candidates', 
+                'candidates.store', 
+                'candidates.company', 
+                'candidates.bank',
+                'candidates.university'
+            ])    
+            ->filterWhere(['company_id' => $companyId])
+            ->notDeleted();
+
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => false
