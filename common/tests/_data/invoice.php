@@ -28,5 +28,25 @@ return [
     	'invoice_date' => '2017-12-23',
     	'invoice_status' => 'paid',
     	'deleted' => '0',
+    ],
+    [
+    	'invoice_id' => 5,
+        'transfer_id' => 15,
+    	'invoice_date' => '2017-12-23',
+    	'invoice_status' => 'paid',
+    	'deleted' => '0',
+    ],
+    [
+    	'invoice_id' => 6,
+        'transfer_id' => 16,
+    	'invoice_date' => '2017-12-23',
+    	'invoice_status' => 'paid',
+    	'deleted' => '0',
+    ],[
+    	'invoice_id' => 7,
+        'transfer_id' => 17,
+    	'invoice_date' => '2017-12-23',
+    	'invoice_status' => 'paid',
+    	'deleted' => '0',
     ]
 ];

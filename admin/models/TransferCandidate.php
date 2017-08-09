@@ -102,19 +102,18 @@ class TransferCandidate extends \common\models\TransferCandidate
                 "message" => 'Candidate Transfer not found'
             ];
         }
-
-        $TransferCandidate->paid = 0;
+        $TransferCandidate->paid = TransferCandidate::UNPAID;
 
         if ($TransferCandidate->save(false)) {
 
             $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
             // in case if transfer is paid
-            if ($Transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE) {
+            if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
                 $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
                 if ($Transfer->save(false)) {
                     return [
                         "operation" => "success",
-                        "message" => 'Transfer marked as "unpaid" successfully'
+                        "message" => 'Candidate Transfer marked as "unpaid" with transfer status changed to salary distribution in progress successfully'
                     ];
                 } else {
                     return [
@@ -123,14 +122,31 @@ class TransferCandidate extends \common\models\TransferCandidate
                     ];
                 }
             }
+            return [
+                "operation" => "success",
+                "message" => 'Candidate Transfer marked as "unpaid" successfully'
+            ];
         }
     }
 
+    /**
+     * mark candidate transfer as paid
+     * @param $tc_id
+     * @return array
+     */
     public static function markPaid($tc_id)
     {
         $TransferCandidate = TransferCandidate::findOne($tc_id);
-        $TransferCandidate->paid = 1;
-        if ($TransferCandidate->save()) {
+
+        if (!$TransferCandidate) {
+            return [
+                "operation" => "error",
+                "message" => 'Candidate Transfer not found'
+            ];
+        }
+
+        $TransferCandidate->paid = TransferCandidate::PAID;
+        if ($TransferCandidate->save(false)) {
             $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
@@ -141,16 +157,21 @@ class TransferCandidate extends \common\models\TransferCandidate
             if (!$unpaid) {
                 $transfer = Transfer::findOne($TransferCandidate->transfer_id);
                 $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-                if (!$transfer->save()) {
+                if (!$transfer->save(false)) {
                     return [
                         "operation" => "error",
                         "message" => $TransferCandidate->errors
+                    ];
+                } else {
+                    return [
+                        "operation" => "success",
+                        "message" => 'Candidate Transfer marked as "paid" with transfer status changed to completed successfully'
                     ];
                 }
             }
             return [
                 "operation" => "success",
-                "message" => 'Transfer marked as "paid" successfully'
+                "message" => 'Candidate Transfer marked as "paid" successfully'
             ];
         } else {
             return [
