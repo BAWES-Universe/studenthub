@@ -50,7 +50,6 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',            
-            'request-reset-password',
             'update-password'
         ];
 
@@ -94,48 +93,6 @@ class AuthController extends Controller
             "id" => $staff->staff_id,
             "name" => $staff->staff_name,
             "email" => $staff->staff_email
-        ];
-    }
-
-    /**
-     * Sends password reset email to user
-     * @return array
-     */
-    public function actionRequestResetPassword()
-    {
-        $emailInput = Yii::$app->request->getBodyParam("email");
-
-        $model = new \staff\models\PasswordResetRequestForm();
-        $model->email = $emailInput;
-
-        $errors = false;
-
-        if ($model->validate()){
-
-            $staff = Staff::findOne([
-                'staff_email' => $model->email,
-            ]);
-
-            if ($staff && !$model->sendEmail($staff)) {
-                $errors = 'Sorry, we are unable to reset password for email provided.';
-            }
-            
-        }else if(isset($model->errors['email'])){
-            $errors = $model->errors['email'];
-        }
-
-        // If errors exist show them
-        if($errors){
-            return [
-                'operation' => 'error',
-                'message' => $errors
-            ];
-        }
-
-        // Otherwise return success
-        return [
-            'operation' => 'success',
-            'message' => 'Password reset link sent, please check your email for further instructions.'
         ];
     }
 
