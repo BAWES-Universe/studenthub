@@ -52,7 +52,6 @@ return [
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
-                        'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
                 ],
@@ -75,18 +74,18 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
-                        'GET pdf/<id>' => 'pdf',
                         'POST' => 'create',
                         'PATCH <id>' => 'edit',
+                        'PATCH payment-sent/<id>' => 'payment-sent',                        
                         'PATCH lock/<id>' => 'lock',
-                        'PATCH payment-sent/<id>' => 'payment-sent',
-                        'DELETE <id>' => 'delete',
+                        'DELETE <id>' => 'delete',                        
+                        'GET pdf/<id>' => 'pdf',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
-                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS payment-sent/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
-                        'OPTIONS payment-sent/<id>' => 'options'
+                        'OPTIONS pdf/<id>' => 'options'
                     ]
                 ],
                 [ // StoreController
@@ -97,9 +96,9 @@ return [
                         'GET company-store' => 'index',
                         'GET <companyId>' => 'list',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options',
-                        'OPTIONS <companyId>' => 'options',
-                        'OPTIONS company-store' => 'options'
+                        'OPTIONS' => 'options',                        
+                        'OPTIONS company-store' => 'options',
+                        'OPTIONS <companyId>' => 'options'
                     ]
                 ],
                 [ // CompanyController

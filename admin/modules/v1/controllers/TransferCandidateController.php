@@ -95,6 +95,15 @@ class TransferCandidateController extends Controller
     }
 
     /**
+     * @param $id
+     * @return mixed
+     */
+    public function actionPaid($id)
+    {
+        return TransferCandidate::markPaid($id);
+    }
+
+    /**
      * @return array
      */
     public function actionMarkPaidAll() {
@@ -109,14 +118,5 @@ class TransferCandidateController extends Controller
     public function actionMarkUnpaidAll() {
         $transferIds = Yii::$app->request->getBodyParam('transfers');
         return TransferCandidate::markAllUnPaid($transferIds);
-    }
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function actionPaid($id)
-    {
-        return TransferCandidate::markPaid($id);
     }
 }
