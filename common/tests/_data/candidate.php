@@ -24,7 +24,7 @@ return [
         'candidate_hourly_rate' => 1.7,
         'candidate_auth_key' => 'TnO9eI-XGIxeJGH7n57xSMyJfZ-5NKo6',
         'candidate_password_hash' => \Yii::$app->getSecurity()->generatePasswordHash('123456'),
-        'candidate_password_reset_token' => NULL,
+        'candidate_password_reset_token' => 'TnO9eI-XGIxeJGH7n57xSMyJfZ-5NKo6',
         'candidate_status' => 1,
         'approved' => 1,
         'candidate_created_at' => '2017-02-23 19:53:20',
