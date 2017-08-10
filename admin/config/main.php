@@ -133,7 +133,6 @@ return [
                         'GET <id>' => 'view',
                         'GET pdf/<id>' => 'pdf',
                         'GET export/<id>' => 'export',
-                        'GET unpaid-candidates/<id>' => 'unpaid-candidates',
                         'PATCH mark-paid-all' => 'mark-paid-all',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
@@ -149,7 +148,6 @@ return [
                         'OPTIONS mark-paid-all' => 'options',
                         'OPTIONS unlock/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
-                        'OPTIONS unpaid-candidates/<id>' => 'options',
                         'OPTIONS payment-received-distributing/<id>' => 'options',
                     ]
                 ],
