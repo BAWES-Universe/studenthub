@@ -108,8 +108,8 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     public function payableWithPaid()
     {
         return  $this->joinWith('transfer')
-            ->andFilterWhere(['IN','transfer_status',[Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,Transfer::STATUS_TRANSFER_COMPLETE]])
-            ->andWhere('parent_transfer_id IS NULL');//only parent transfers
+            ->andWhere(['IN','transfer.transfer_status',[Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,Transfer::STATUS_TRANSFER_COMPLETE]])
+            ->andWhere('transfer.parent_transfer_id IS NULL');//only parent transfers
     }
 
     /**
@@ -194,9 +194,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
      * @param $tc_id
      * @return $this
      */
-    public function filterByPrimaryKey($tc_id)
+    public function filterInPrimaryKey($tc_id)
     {
-        return $this->andWhere(['tc_id' => $tc_id]);
+        return $this->andWhere(['in','tc_id',$tc_id]);
     }
 
     /**
@@ -211,4 +211,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
             'transfer_id' => $transfer_id
         ]);
     }
+
+
 }
