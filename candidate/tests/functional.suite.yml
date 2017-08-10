@@ -2,3 +2,7 @@ class_name: FunctionalTester
 modules:
     enabled:
         - Yii2
+        - REST:
+            url: http://localhost/payroll/candidate/web/index-test.php/v1/
+            depends: PhpBrowser
+
