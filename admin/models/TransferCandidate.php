@@ -194,6 +194,7 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public static function markAllPaid($transfers) {
 
+        $total = 0;
         if (count($transfers) == 0) {
             return [
                 "operation" => "error",
@@ -205,9 +206,10 @@ class TransferCandidate extends \common\models\TransferCandidate
         {
             $TransferCandidate = TransferCandidate::findOne($value['tc_id']);
 
-            if ($TransferCandidate) {
+            if ($TransferCandidate && $TransferCandidate->paid == TransferCandidate::UNPAID) {
                 $TransferCandidate->paid = TransferCandidate::PAID;
-                $TransferCandidate->save();
+                $TransferCandidate->save(false);
+                $total++;
 
                 // Check if all paid, mark transfer as complete
                 $unpaid = TransferCandidate::find()
@@ -225,11 +227,11 @@ class TransferCandidate extends \common\models\TransferCandidate
             }
         }
 
-        Yii::info('[' . count($transfers) . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[' . $total . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             'operation' => 'success',
-            'message' => count($transfers). ' candidates have been marked as paid',
+            'message' => $total. ' candidates have been marked as paid',
         ];
     }
 
@@ -239,18 +241,19 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public static function markAllUnPaid($transfers) {
 
+        $total = 0;
         if (count($transfers) == 0) {
             return [
                 "operation" => "error",
                 "message" => 'empty transfer record'
             ];
         }
-
+//        37,25,42
         foreach ($transfers as $value)
         {
             $TransferCandidate = TransferCandidate::findOne($value['tc_id']);
 
-            if (!$TransferCandidate) {
+            if ((!$TransferCandidate) || ($TransferCandidate->hours < 1)) {
                 continue;
             }
 
@@ -258,6 +261,7 @@ class TransferCandidate extends \common\models\TransferCandidate
                 $TransferCandidate->paid = TransferCandidate::UNPAID;
 
                 if ($TransferCandidate->save(false)) {
+                    $total++;
 
                     $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
                     // in case if transfer is paid
@@ -269,11 +273,11 @@ class TransferCandidate extends \common\models\TransferCandidate
             }
         }
 
-        Yii::info('[' . count($transfers) . ' candidates have been marked as unpaid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[' . $total . ' candidates have been marked as unpaid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             'operation' => 'success',
-            'message' => count($transfers). ' candidates have been marked as unpaid',
+            'message' => $total. ' candidates have been marked as unpaid',
         ];
     }
 }
