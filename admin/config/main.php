@@ -96,12 +96,8 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
-                        'POST' => 'create',
-                        'PATCH <id>' => 'update',
-                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
+                        'OPTIONS' => 'options'
                     ]
                 ],
                 [ // CandidateController
@@ -110,15 +106,14 @@ return [
                     'patterns' => [
                         'GET search' => 'search',
                         'GET total-to-review' => 'total-to-review',
+                        'PATCH approve/<id>' => 'approve',                        
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
-                        'PATCH approve/<id>' => 'approve',
-                        //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
                         'OPTIONS total-to-review' => 'options',
-                        'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS approve/<id>' => 'options',
+                        'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
                     ]
                 ],
@@ -128,29 +123,44 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET payable-candidates' => 'payable-candidates',
-                        'GET export-payable-candidates' => 'export-payable-candidates',
-                        'GET text' => 'text',
                         'GET <id>' => 'view',
-                        'GET pdf/<id>' => 'pdf',
-                        'GET export/<id>' => 'export',
-                        'GET unpaid-candidates/<id>' => 'unpaid-candidates',
-                        'PATCH mark-paid-all' => 'mark-paid-all',
+                        'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
-                        'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
+                        'PATCH mark-paid-all' => 'mark-paid-all',                        
+                        'GET export-payable-candidates' => 'export-payable-candidates',                        
+                        'GET text' => 'text',
+                        'GET export/<id>' => 'export',                        
+                        'GET pdf/<id>' => 'pdf',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS payable-candidates' => 'options',
-                        'OPTIONS export-payable-candidates' => 'options',
                         'OPTIONS <id>' => 'options',
-                        'OPTIONS text-export' => 'options',
-                        'OPTIONS pdf/<id>' => 'options',
-                        'OPTIONS export/<id>' => 'options',
-                        'OPTIONS mark-paid-all' => 'options',
+                        'OPTIONS payment-received-distributing/<id>' => 'options',
                         'OPTIONS unlock/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
-                        'OPTIONS unpaid-candidates/<id>' => 'options',
-                        'OPTIONS payment-received-distributing/<id>' => 'options',
+                        'OPTIONS mark-paid-all' => 'options',
+                        'OPTIONS export-payable-candidates' => 'options',
+                        'OPTIONS text' => 'options',
+                        'OPTIONS export/<id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options',
+                    ]
+                ],
+                [ // TransferCandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer-candidate',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'PATCH unpaid/<id>' => 'unpaid',
+                        'PATCH paid/<id>' => 'paid',
+                        'PATCH mark-paid-all' => 'mark-paid-all',
+                        'PATCH mark-unpaid-all' => 'mark-unpaid-all',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS unpaid/<id>' => 'options',
+                        'OPTIONS paid/<id>' => 'options',
+                        'OPTIONS mark-paid-all' => 'options',
+                        'OPTIONS mark-unpaid-all' => 'options',
                     ]
                 ],
                 [ // BankController

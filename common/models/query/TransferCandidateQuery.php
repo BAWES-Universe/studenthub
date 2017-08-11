@@ -102,6 +102,17 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * Return candidates who not got paid or paid
+     * but his employer have paid to admin
+     */
+    public function payableWithPaid()
+    {
+        return  $this->joinWith('transfer')
+            ->andWhere(['IN','transfer.transfer_status',[Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,Transfer::STATUS_TRANSFER_COMPLETE]])
+            ->andWhere('transfer.parent_transfer_id IS NULL');//only parent transfers
+    }
+
+    /**
      * @param $company_id
      * @return $this
      */
@@ -143,6 +154,51 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
             ->count();
     }
 
+
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function totalPaymentStatus($status)
+    {
+        return $this->andWhere(['paid' => $status]);
+    }
+
+    /**
+     * @param $company_name
+     * @return $this
+     */
+    public function filterCompany($company_name)
+    {
+        return $this->andWhere([
+            'like',
+            'company_name',
+            $company_name
+        ]);
+    }
+
+    /**
+     * @param $store_name
+     * @return $this
+     */
+    public function filterStore($store_name)
+    {
+        return $this->andWhere([
+            'like',
+            'store_name',
+            $store_name
+        ]);
+    }
+
+    /**
+     * @param $tc_id
+     * @return $this
+     */
+    public function filterInPrimaryKey($tc_id)
+    {
+        return $this->andWhere(['in','tc_id',$tc_id]);
+    }
+
     /**
      * Return unpaid candidate list for a given transfer
      * @param $transfer_id
@@ -155,4 +211,6 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery
             'transfer_id' => $transfer_id
         ]);
     }
+
+
 }

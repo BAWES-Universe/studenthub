@@ -31,7 +31,11 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         $fields['tc_created_at'] = function($model) {
             return Yii::$app->formatter->asDate($model->tc_created_at, "long");
-        };        
+        };
+
+        $fields['tc_updated_at'] = function($model) {
+            return Yii::$app->formatter->asDate($model->tc_updated_at, "long");
+        };
 
     	return $fields;
     }
@@ -69,7 +73,7 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public function getTransfer($modelClass = "\admin\models\Transfer")
     {
-        return parent::getTransfer($modelClass);;
+        return parent::getTransfer($modelClass);
     }
 
     /**
@@ -79,5 +83,201 @@ class TransferCandidate extends \common\models\TransferCandidate
     public function getInvoice($modelClass = "\admin\models\Invoice")
     {
         return parent::getInvoice($modelClass);
+    }
+
+    /**
+     * mark transfer candidate as unpaid
+     * also mark transfer from complete to
+     * progress in case if its completed
+     * @param $tc_id
+     * @return array
+     */
+    public static function markUnpaid($tc_id)
+    {
+        $TransferCandidate = TransferCandidate::findOne($tc_id);
+
+        if (!$TransferCandidate) {
+            return [
+                "operation" => "error",
+                "message" => 'Candidate Transfer not found'
+            ];
+        }
+
+        if (!($TransferCandidate->hours > 0)) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero"
+            ];
+        }
+        $TransferCandidate->paid = TransferCandidate::UNPAID;
+
+        if ($TransferCandidate->save(false)) {
+
+            $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
+            // in case if transfer is paid
+            if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
+                $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+                if ($Transfer->save(false)) {
+                    return [
+                        "operation" => "success",
+                        "message" => 'Candidate Transfer marked as "unpaid" with transfer status changed to salary distribution in progress successfully'
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => $Transfer->errors
+                    ];
+                }
+            }
+            return [
+                "operation" => "success",
+                "message" => 'Candidate Transfer marked as "unpaid" successfully'
+            ];
+        }
+    }
+
+    /**
+     * mark candidate transfer as paid
+     * @param $tc_id
+     * @return array
+     */
+    public static function markPaid($tc_id)
+    {
+        $TransferCandidate = TransferCandidate::findOne($tc_id);
+
+        if (!$TransferCandidate) {
+            return [
+                "operation" => "error",
+                "message" => 'Candidate Transfer not found'
+            ];
+        }
+
+        $TransferCandidate->paid = TransferCandidate::PAID;
+        if ($TransferCandidate->save(false)) {
+            $unpaid = TransferCandidate::find()
+                ->where([
+                    'paid' => 0
+                ])
+                ->andWhere(['transfer_id' => $TransferCandidate->transfer_id])
+                ->count();
+
+            if (!$unpaid) {
+                $transfer = Transfer::findOne($TransferCandidate->transfer_id);
+                $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+                if (!$transfer->save(false)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $TransferCandidate->errors
+                    ];
+                } else {
+                    return [
+                        "operation" => "success",
+                        "message" => 'Candidate Transfer marked as "paid" with transfer status changed to completed successfully'
+                    ];
+                }
+            }
+            return [
+                "operation" => "success",
+                "message" => 'Candidate Transfer marked as "paid" successfully'
+            ];
+        } else {
+            return [
+                "operation" => "error",
+                "message" => $TransferCandidate->errors
+            ];
+        }
+    }
+
+    /**
+     * @param $transfers
+     * @return array
+     */
+    public static function markAllPaid($transfers) {
+
+        $total = 0;
+        if (count($transfers) == 0) {
+            return [
+                "operation" => "error",
+                "message" => 'Empty Transfer Record'
+            ];
+        }
+
+        foreach ($transfers as $value)
+        {
+            $TransferCandidate = TransferCandidate::findOne($value['tc_id']);
+
+            if ($TransferCandidate && $TransferCandidate->paid == TransferCandidate::UNPAID) {
+                $TransferCandidate->paid = TransferCandidate::PAID;
+                $TransferCandidate->save(false);
+                $total++;
+
+                // Check if all paid, mark transfer as complete
+                $unpaid = TransferCandidate::find()
+                    ->where([
+                        'paid' => 0
+                    ])
+                    ->andWhere(['transfer_id' => $value['transfer_id']])
+                    ->count();
+
+                if (!$unpaid) {
+                    $transfer = Transfer::findOne($value['transfer_id']);
+                    $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+                    $transfer->save();
+                }
+            }
+        }
+
+        Yii::info('[' . $total . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            'operation' => 'success',
+            'message' => $total. ' candidates have been marked as paid',
+        ];
+    }
+
+    /**
+     * @param $transfers
+     * @return array
+     */
+    public static function markAllUnPaid($transfers) {
+
+        $total = 0;
+        if (count($transfers) == 0) {
+            return [
+                "operation" => "error",
+                "message" => 'empty transfer record'
+            ];
+        }
+//        37,25,42
+        foreach ($transfers as $value)
+        {
+            $TransferCandidate = TransferCandidate::findOne($value['tc_id']);
+
+            if ((!$TransferCandidate) || ($TransferCandidate->hours < 1)) {
+                continue;
+            }
+
+            if ($TransferCandidate) {
+                $TransferCandidate->paid = TransferCandidate::UNPAID;
+
+                if ($TransferCandidate->save(false)) {
+                    $total++;
+
+                    $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
+                    // in case if transfer is paid
+                    if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
+                        $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+                        $Transfer->save(false);
+                    }
+                }
+            }
+        }
+
+        Yii::info('[' . $total . ' candidates have been marked as unpaid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            'operation' => 'success',
+            'message' => $total. ' candidates have been marked as unpaid',
+        ];
     }
 }

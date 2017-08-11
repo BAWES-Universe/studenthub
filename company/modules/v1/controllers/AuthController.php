@@ -51,7 +51,6 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
-            'request-reset-password',
             'update-password'
         ];
 

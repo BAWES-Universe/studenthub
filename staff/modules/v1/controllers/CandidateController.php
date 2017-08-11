@@ -77,26 +77,6 @@ class CandidateController extends Controller
     }
 
     /**
-     * Return a List of Candidate Accounts assigned to
-     * Specific Store.
-     */
-    public function actionFilter()
-    {
-        $store_id = Yii::$app->request->getBodyParam("store_id");
-
-        $query = Candidate::find()
-            ->notDeleted();
-
-        if($store_id) {
-            $query->filterStore($store_id);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
      * Create a Candidate account
      */
     public function actionCreate()

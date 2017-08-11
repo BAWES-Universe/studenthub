@@ -109,7 +109,7 @@ class BankController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Bank created successfully "
+            "message" => "Bank created successfully"
         ];
 
         // Check SQL Query Count and Duration

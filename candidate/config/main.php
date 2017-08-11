@@ -50,11 +50,9 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'PATCH update-password' => 'update-password',
-                        'POST validate' => 'validate',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS update-password' => 'options',
-                        'OPTIONS validate' => 'options'
                     ]
                 ],
                 [ // AccountController
