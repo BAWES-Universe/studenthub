@@ -1,7 +1,7 @@
 {
     "name": "BAWES/payroll",
     "description": "Payroll Application for Studenthub Training Program",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "keywords": ["payroll", "payment", "transfers"],
     "homepage": "https://studenthub.co/",
     "type": "project",
