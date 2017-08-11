@@ -45,9 +45,9 @@ env:
             - Yii2
             - Db
             - REST:
-                url: http://localhost/payroll/candidate/web/index-test.php/v1/
+                url: http://localhost/payroll/company/web/index-test.php/v1/
                 depends: PhpBrowser
             - Db:
                 dsn: 'mysql:host=127.0.0.1;dbname=payroll_test'
                 user: 'root'
-                password: ' '
+                password: ''
