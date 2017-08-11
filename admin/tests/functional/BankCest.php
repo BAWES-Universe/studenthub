@@ -48,15 +48,15 @@ class BankCest
         //---------------- listing ---------------------------
         
         $I->wantTo('Validate bank api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->amBearerAuthenticated($this->token);
         $I->sendGET('banks');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
+
         //---------------- create ---------------------------
         
         $I->wantTo('create a bank via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
             'banks', 
@@ -76,7 +76,7 @@ class BankCest
         //---------------- update ---------------------------
         
         $I->wantTo('update a bank via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
             'banks/' . $bank_id, 
@@ -96,7 +96,7 @@ class BankCest
         //---------------- delete ---------------------------
         
         $I->wantTo('delete bank via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('banks/' . $bank_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
