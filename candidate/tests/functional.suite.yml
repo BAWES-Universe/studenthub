@@ -19,7 +19,7 @@ env:
                 - Yii2
                 - Db
                 - REST:
-                    url: http://backend.payroll.local/v1/
+                    url: http://candidate.payroll.local/v1/
                     depends: PhpBrowser
                 - Db:
                     dsn: 'mysql:host=127.0.0.1;dbname=payroll_test'

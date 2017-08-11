@@ -78,41 +78,6 @@ class AccountController extends Controller
         ]);
     }
 
-    /**
-     * Return current employer detail
-     */
-    public function actionEmployer()
-    {
-        $candidate = Yii::$app->user->identity;
-
-        //store detail
-        if(empty($candidate->store)) {
-            return [
-                "operation" => "error",
-                "message" => "No employer detail found"
-            ];
-        }
-
-        //company details
-        if(empty($candidate->store->company)) {
-            $company_id = '';
-            $company_name = '';
-            $company_email = '';
-        }else{
-            $company_id = $candidate->store->company->company_id;
-            $company_name = $candidate->store->company->company_name;
-            $company_email = $candidate->store->company->company_email;
-        }
-
-        return [
-            'company_id' => $company_id,
-            'store_id' => $candidate->store->store_id,
-            'store_name' => $candidate->store->store_name,
-            'company_name' => $company_name,
-            'company_email'=> $company_email
-        ];
-    }
-
     public function actionChangePassword()
     {
         $model = Yii::$app->user->identity;
