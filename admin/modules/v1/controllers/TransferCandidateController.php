@@ -75,14 +75,15 @@ class TransferCandidateController extends Controller
     public function actionList()
     {
         $tc_id = Yii::$app->request->get('tc_id');
-        $tags = array_diff(explode(",", $tc_id),[""]);
-        $query = TransferCandidate::find();
-        $query->filterInPrimaryKey($tags);
-        $query->payableWithPaid();
 
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
+        $transferCandidateRecords = array_diff(explode(",", $tc_id),[""]);
+
+        // Return as Array as to not create ActiveRecord objects will eat away at the RAM
+        return TransferCandidate::find()
+            ->andWhere(['in', 'tc_id', $transferCandidateRecords])
+            ->payableWithPaid()
+            // ->asArray()
+            ->all();
     }
 
     /**
@@ -106,8 +107,8 @@ class TransferCandidateController extends Controller
     /**
      * @return array
      */
-    public function actionMarkPaidAll() {
-
+    public function actionMarkPaidAll()
+    {
         $transferIds = Yii::$app->request->getBodyParam('transfers');
         return TransferCandidate::markAllPaid($transferIds);
     }
@@ -115,8 +116,9 @@ class TransferCandidateController extends Controller
     /**
      * @return array
      */
-    public function actionMarkUnpaidAll() {
+    public function actionMarkUnpaidAll()
+    {
         $transferIds = Yii::$app->request->getBodyParam('transfers');
-        return TransferCandidate::markAllUnPaid($transferIds);
+        return TransferCandidate::markAllUnpaid($transferIds);
     }
 }

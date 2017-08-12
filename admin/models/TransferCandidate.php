@@ -204,11 +204,11 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         foreach ($transfers as $value)
         {
-            $TransferCandidate = TransferCandidate::findOne($value['tc_id']);
+            $transferCandidate = TransferCandidate::findOne($value['tc_id']);
 
-            if ($TransferCandidate && $TransferCandidate->paid == TransferCandidate::UNPAID) {
-                $TransferCandidate->paid = TransferCandidate::PAID;
-                $TransferCandidate->save(false);
+            if ($transferCandidate && $transferCandidate->paid == TransferCandidate::UNPAID) {
+                $transferCandidate->paid = TransferCandidate::PAID;
+                $transferCandidate->save(false);
                 $total++;
 
                 // Check if all paid, mark transfer as complete
@@ -239,7 +239,7 @@ class TransferCandidate extends \common\models\TransferCandidate
      * @param $transfers
      * @return array
      */
-    public static function markAllUnPaid($transfers) {
+    public static function markAllUnpaid($transfers) {
 
         $total = 0;
         if (count($transfers) == 0) {
@@ -251,19 +251,19 @@ class TransferCandidate extends \common\models\TransferCandidate
 //        37,25,42
         foreach ($transfers as $value)
         {
-            $TransferCandidate = TransferCandidate::findOne($value['tc_id']);
+            $transferCandidate = TransferCandidate::findOne($value['tc_id']);
 
-            if ((!$TransferCandidate) || ($TransferCandidate->hours < 1)) {
+            if ((!$transferCandidate) || ($transferCandidate->hours < 1)) {
                 continue;
             }
 
-            if ($TransferCandidate) {
-                $TransferCandidate->paid = TransferCandidate::UNPAID;
+            if ($transferCandidate) {
+                $transferCandidate->paid = TransferCandidate::UNPAID;
 
-                if ($TransferCandidate->save(false)) {
+                if ($transferCandidate->save(false)) {
                     $total++;
 
-                    $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
+                    $Transfer = Transfer::findOne($transferCandidate->transfer_id);
                     // in case if transfer is paid
                     if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
                         $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
