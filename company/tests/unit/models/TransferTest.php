@@ -61,10 +61,8 @@ class TransferTest extends \Codeception\Test\Unit
      */
     public function testFixturesHaveLoaded()
     {
-        $this->specify('Fixtures should be loaded', function () {
-            expect('Transfer is in the table', Transfer::findOne(['transfer_id' => 1]))->notNull();
-            expect('Transfer Candidate is in the table', TransferCandidate::find()->one())->notNull();
-        });
+        expect('Transfer is in the table', Transfer::findOne(['transfer_id' => 1]))->notNull();
+        expect('Transfer Candidate is in the table', TransferCandidate::find()->one())->notNull();
     }
 
     /**
@@ -94,10 +92,8 @@ class TransferTest extends \Codeception\Test\Unit
      */
     public function testCompanyCanLockATransferDraft()
     {
-        $this->specify('Transfer model mark as Lock', function () {
-            $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
-            expect('Mark as lock from "Initiated" status', $transfer->lock())->true();
-        });
+        $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
+        expect('Mark as lock from "Initiated" status', $transfer->lock())->true();
     }
 
     /**
@@ -115,16 +111,14 @@ class TransferTest extends \Codeception\Test\Unit
      */
     public function testCompanyCantDeleteTransferWhichIsntADraft()
     {
-        $this->specify('Delete transfer with "Initiated", "Locked", or "Sent" status', function () {
-            $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
-            expect('Delete transfer having Draft/Initiated status', Transfer::deleteTransfer($transfer))->true();
+        $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
+        expect('Able to delete transfer having Draft/Initiated status', Transfer::deleteTransfer($transfer))->true();
 
-            $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
-            expect('Delete transfer having Locked status', Transfer::deleteTransfer($transfer))->true();
+        $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
+        expect('Unable to delete transfer having Locked status', Transfer::deleteTransfer($transfer))->true();
 
-            $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
-            expect('Delete transfer having Payment sent status', Transfer::deleteTransfer($transfer))->false();
-        });
+        $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
+        expect('Unable to delete transfer having Payment sent status', Transfer::deleteTransfer($transfer))->false();
     }
 
     /**
