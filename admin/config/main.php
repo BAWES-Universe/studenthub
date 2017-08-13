@@ -106,7 +106,7 @@ return [
                     'patterns' => [
                         'GET search' => 'search',
                         'GET total-to-review' => 'total-to-review',
-                        'PATCH approve/<id>' => 'approve',                        
+                        'PATCH approve/<id>' => 'approve',
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
                         // OPTIONS VERBS
@@ -122,16 +122,16 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET text' => 'text',
                         'GET payable-candidates' => 'payable-candidates',
+                        'GET export-payable-candidates' => 'export-payable-candidates',
+                        'GET export/<id>' => 'export',
+                        'GET pdf/<id>' => 'pdf',
                         'GET <id>' => 'view',
                         'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
-                        'PATCH mark-paid-all' => 'mark-paid-all',                        
-                        'GET export-payable-candidates' => 'export-payable-candidates',                        
-                        'GET text' => 'text',
-                        'GET export/<id>' => 'export',                        
-                        'GET pdf/<id>' => 'pdf',
+                        'PATCH mark-paid-all' => 'mark-paid-all',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS payable-candidates' => 'options',
