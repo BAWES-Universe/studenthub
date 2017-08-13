@@ -55,58 +55,72 @@ class TransferTest extends \Codeception\Test\Unit
 
     protected function _after(){}
 
+
     /**
-     * Test case for payment status changes like sent lock delete
+     * Check if fixtures have loaded.
      */
-    public function testPaymentStatus()
+    public function testFixturesHaveLoaded()
     {
         $this->specify('Fixtures should be loaded', function () {
             expect('Transfer is in the table', Transfer::findOne(['transfer_id' => 1]))->notNull();
             expect('Transfer Candidate is in the table', TransferCandidate::find()->one())->notNull();
         });
+    }
 
-        $this->specify('Transfer model mark as Payment Sent', function () {
-            $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
-            expect('Mark as "Payment Sent" from "Locked" status', $transfer->paymentSent())->true();
-
-            try {
-                $transfer2 = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
-                $result = $transfer2->paymentSent();
-            } catch (yii\base\Exception $ex) {
-                $result = false;
-            }
-            expect('Mark as "Payment Sent" from "Payment Sent" status', $result)->false();
-        });
+    /**
+     * Check that we can mark Transfer as payment sent from locked status
+     */
+    public function testMarkTransferAsPaymentSentFromLockedStatus()
+    {
+        $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
+        expect('Mark as "Payment Sent" from "Locked" status', $transfer->paymentSent())->true();
+    }
 
 
-        //Test case for payment lock ================================================
+    /**
+     * Make sure error is thrown when you try to mark a transfer as payment sent
+     * when it is already marked as payment sent.
+     */
+    public function testMarkTransferAsPaymentSentWhenSetAsAlreadyPaymentSent()
+    {
+        $this->expectException("yii\base\Exception");
 
+        $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
+        $transfer->paymentSent();
+    }
 
+    /**
+     * Company should be able to lock a transfer draft/initiated
+     */
+    public function testCompanyCanLockATransferDraft()
+    {
         $this->specify('Transfer model mark as Lock', function () {
             $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
             expect('Mark as lock from "Initiated" status', $transfer->lock())->true();
-
-            try {
-                $transfer2 = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
-                $result = $transfer2->lock();
-            } catch (yii\base\Exception $ex) {
-                $result = false;
-            }
-            expect('Mark as lock from lock status', $result)->false();
         });
+    }
 
+    /**
+     * Company shouldnt be able to mark a transfer as locked when its already locked.
+     */
+    public function testCompanyCantMarkAsLockedWhenAlreadyLocked()
+    {
+        $this->expectException("yii\base\Exception");
+        $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
+        $transfer->lock();
+    }
 
-        //Test case for payment Delete ================================================
-
-        $this->specify('Delete transfer with "Initiated" or "Locked" status', function () {
+    /**
+     * See if company can delete a transfer with status which isnt a draft
+     */
+    public function testCompanyCantDeleteTransferWhichIsntADraft()
+    {
+        $this->specify('Delete transfer with "Initiated", "Locked", or "Sent" status', function () {
             $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
             expect('Delete transfer having Draft/Initiated status', Transfer::deleteTransfer($transfer))->true();
 
             $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
             expect('Delete transfer having Locked status', Transfer::deleteTransfer($transfer))->true();
-
-            $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
-            expect('Delete transfer having Payment sent status', Transfer::deleteTransfer($transfer))->false();
 
             $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
             expect('Delete transfer having Payment sent status', Transfer::deleteTransfer($transfer))->false();
@@ -118,7 +132,6 @@ class TransferTest extends \Codeception\Test\Unit
      */
     public function testTransferModel()
     {
-
         // Transfer Model Without Child Company ============================================
 
         $this->specify('Transfer model without child company', function () {
@@ -358,11 +371,11 @@ class TransferTest extends \Codeception\Test\Unit
             $transfer = Transfer::findOne($TransferID);
             expect('Transfer total - admin will pay', $transfer->total)->equals($total);
             expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
-                    
-            //check invoice after update 
-            
+
+            //check invoice after update
+
             $transfer->lock();//generate invoices
-            
+
             expect('Should generate transfer for each sub company', sizeof($transfer->invoices))
                 ->equals(sizeof($company->subCompanies));
         });
@@ -407,11 +420,11 @@ class TransferTest extends \Codeception\Test\Unit
             $transfer = Transfer::findOne($TransferID);
             expect('Transfer total - admin will pay', $transfer->total)->equals($total);
             expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
-            
-            //check invoice after update 
-            
+
+            //check invoice after update
+
             $transfer->lock();//generate invoices
-            
+
             expect('Should generate invoice for transfer', $transfer->invoices)->notNull();
         });
 
