@@ -32,12 +32,12 @@ env:
                 - Yii2
                 - Db
                 - REST:
-                    url: http://backend.payroll.test/v1/
+                    url: http://localhost/~BAWES/payroll/company/web/v1/
                     depends: PhpBrowser
                 - Db:
-                    dsn: 'mysql:host=127.0.0.1;dbname=payroll_khalid'
-                    user: 'root'
-                    password: ''
+                    dsn: 'mysql:host=127.0.0.1;dbname=payroll_test'
+                    user: 'payrollUser'
+                    password: 'pay'
     krushn:
        modules:
           enabled:
