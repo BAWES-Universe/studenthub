@@ -3,6 +3,7 @@
 namespace admin\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class TransferCandidate
@@ -154,28 +155,12 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         $TransferCandidate->paid = TransferCandidate::PAID;
         if ($TransferCandidate->save(false)) {
-            $unpaid = TransferCandidate::find()
-                ->where([
-                    'paid' => 0
-                ])
-                ->andWhere(['transfer_id' => $TransferCandidate->transfer_id])
-                ->count();
 
-            if (!$unpaid) {
-                $transfer = Transfer::findOne($TransferCandidate->transfer_id);
-                $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-                if (!$transfer->save(false)) {
-                    return [
-                        "operation" => "error",
-                        "message" => $TransferCandidate->errors
-                    ];
-                } else {
-                    return [
-                        "operation" => "success",
-                        "message" => 'Candidate Transfer marked as "paid" with transfer status changed to completed successfully'
-                    ];
-                }
+            $response = Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
+            if ($response) {
+                return $response;
             }
+
             return [
                 "operation" => "success",
                 "message" => 'Candidate Transfer marked as "paid" successfully'
@@ -189,63 +174,46 @@ class TransferCandidate extends \common\models\TransferCandidate
     }
 
     /**
+     * mark bulk transfer candidate as paid
+     * & transfer paid on base of that
      * @param $transferCandidateIds
      * @return array
      */
     public static function markAllPaid($transferCandidateIds) {
 
-        $total = 0;
         if (count($transferCandidateIds) == 0) {
             return [
                 "operation" => "error",
                 "message" => 'Empty Transfer Record'
             ];
         }
+        // fetch record of transfer candidate id and update all
+        $transferCandidateList = ArrayHelper::getColumn($transferCandidateIds,'tc_id');
+        TransferCandidate::updateAll(['paid'=>TransferCandidate::PAID],['in', 'tc_id', $transferCandidateList]);
 
-        echo "<pre>";
-        print_r($transferCandidateIds);
-        exit;
-
-        foreach ($transferCandidateIds as $value)
+        // fetch record of transfer list id and update one by one with condition
+        $transferList = ArrayHelper::getColumn($transferCandidateIds,'transfer_id');
+        foreach (array_unique($transferList) as $value)
         {
-            $transferCandidate = TransferCandidate::findOne($value['tc_id']);
-
-            if ($transferCandidate && $transferCandidate->paid == TransferCandidate::UNPAID) {
-                $transferCandidate->paid = TransferCandidate::PAID;
-                $transferCandidate->save(false);
-                $total++;
-
-                // Check if all paid, mark transfer as complete
-                $unpaid = TransferCandidate::find()
-                    ->where([
-                        'paid' => 0
-                    ])
-                    ->andWhere(['transfer_id' => $value['transfer_id']])
-                    ->count();
-
-                if (!$unpaid) {
-                    $transfer = Transfer::findOne($value['transfer_id']);
-                    $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-                    $transfer->save();
-                }
-            }
+            Transfer::markTransferCompleteOnCandidatePaid($value);
         }
 
-        Yii::info('[' . $total . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[' . count($transferCandidateIds) . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             'operation' => 'success',
-            'message' => $total. ' candidates have been marked as paid',
+            'message' => count($transferCandidateIds). ' candidates have been marked as paid',
         ];
     }
 
     /**
+     * mark all transfer candidate as unpaid
+     * and also mark transfer in progress on base of that
      * @param $transferCandidateIds
      * @return array
      */
     public static function markAllUnpaid($transferCandidateIds) {
 
-        $total = 0;
         if (count($transferCandidateIds) == 0) {
             return [
                 "operation" => "error",
@@ -253,35 +221,22 @@ class TransferCandidate extends \common\models\TransferCandidate
             ];
         }
 
-        foreach ($transferCandidateIds as $value)
-        {
-            $transferCandidate = TransferCandidate::findOne($value['tc_id']);
+        // fetch record of transfer candidate id and transfer list id
+        $transferCandidateList = ArrayHelper::getColumn($transferCandidateIds,'tc_id');
+        $transferList = array_unique(array_values(ArrayHelper::getColumn($transferCandidateIds,'transfer_id')));
+        $condition = ['and',
+            ['>', 'hours', 0],
+            ['in', 'tc_id', $transferCandidateList],
+        ];
 
-            if ((!$transferCandidate) || ($transferCandidate->hours < 1)) {
-                continue;
-            }
+        TransferCandidate::updateAll(['paid'=>TransferCandidate::UNPAID],$condition);
+        Transfer::updateAll(['transfer_status'=>Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS],['in', 'transfer_id', $transferList]);
 
-            if ($transferCandidate) {
-                $transferCandidate->paid = TransferCandidate::UNPAID;
-
-                if ($transferCandidate->save(false)) {
-                    $total++;
-
-                    $Transfer = Transfer::findOne($transferCandidate->transfer_id);
-                    // in case if transfer is paid
-                    if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
-                        $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-                        $Transfer->save(false);
-                    }
-                }
-            }
-        }
-
-        Yii::info('[' . $total . ' candidates have been marked as unpaid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[' . count($transferCandidateIds) . ' candidates have been marked as unpaid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             'operation' => 'success',
-            'message' => $total. ' candidates have been marked as unpaid',
+            'message' => count($transferCandidateIds). ' candidates have been marked as unpaid',
         ];
     }
 }

@@ -238,4 +238,37 @@ class Transfer extends \common\models\Transfer
             return [];
         }
     }
+
+    /**
+     * mark transfer complete on base of
+     * transfer candidate check if all candidate
+     * paid then make transfer paid
+     * @param $transferID
+     * @return array
+     */
+    public static function markTransferCompleteOnCandidatePaid($transferID)
+    {
+        $unpaid = TransferCandidate::find()
+            ->where([
+                'paid' => 0
+            ])
+            ->andWhere(['transfer_id' => $transferID])
+            ->count();
+
+        if (!$unpaid) {
+            $transfer = Transfer::findOne($transferID);
+            $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+            if (!$transfer->save(false)) {
+                return [
+                    "operation" => "error",
+                    "message" => $transfer->errors
+                ];
+            } else {
+                return [
+                    "operation" => "success",
+                    "message" => 'Candidate Transfer marked as "paid" with transfer status changed to completed successfully'
+                ];
+            }
+        }
+    }
 }
