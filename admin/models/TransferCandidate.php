@@ -189,20 +189,24 @@ class TransferCandidate extends \common\models\TransferCandidate
     }
 
     /**
-     * @param $transfers
+     * @param $transferCandidateIds
      * @return array
      */
-    public static function markAllPaid($transfers) {
+    public static function markAllPaid($transferCandidateIds) {
 
         $total = 0;
-        if (count($transfers) == 0) {
+        if (count($transferCandidateIds) == 0) {
             return [
                 "operation" => "error",
                 "message" => 'Empty Transfer Record'
             ];
         }
 
-        foreach ($transfers as $value)
+        echo "<pre>";
+        print_r($transferCandidateIds);
+        exit;
+
+        foreach ($transferCandidateIds as $value)
         {
             $transferCandidate = TransferCandidate::findOne($value['tc_id']);
 
@@ -236,20 +240,20 @@ class TransferCandidate extends \common\models\TransferCandidate
     }
 
     /**
-     * @param $transfers
+     * @param $transferCandidateIds
      * @return array
      */
-    public static function markAllUnpaid($transfers) {
+    public static function markAllUnpaid($transferCandidateIds) {
 
         $total = 0;
-        if (count($transfers) == 0) {
+        if (count($transferCandidateIds) == 0) {
             return [
                 "operation" => "error",
                 "message" => 'empty transfer record'
             ];
         }
-//        37,25,42
-        foreach ($transfers as $value)
+
+        foreach ($transferCandidateIds as $value)
         {
             $transferCandidate = TransferCandidate::findOne($value['tc_id']);
 
