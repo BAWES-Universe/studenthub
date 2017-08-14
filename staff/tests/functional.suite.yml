@@ -3,51 +3,31 @@ modules:
     enabled:
         - Filesystem
         - Yii2
-        - Db
         - REST:
             url: http://backend.payroll.local/v1/
             depends: PhpBrowser
-        - Db:
-            dsn: 'mysql:host=127.0.0.1;dbname=payroll_test'
-            user: 'root'
-            password: ''
 env:
     anil:
        modules:
             enabled:
                 - Filesystem
                 - Yii2
-                - Db
                 - REST:
                     url: http://backend.payroll.local/v1/
                     depends: PhpBrowser
-                - Db:
-                    dsn: 'mysql:host=127.0.0.1;dbname=payroll_test'
-                    user: 'root'
-                    password: ''
     khalid:
        modules:
             enabled:
                 - Filesystem
                 - Yii2
-                - Db
                 - REST:
                     url: http://backend.payroll.test/v1/
                     depends: PhpBrowser
-                - Db:
-                    dsn: 'mysql:host=127.0.0.1;dbname=payroll_khalid'
-                    user: 'root'
-                    password: ''
     krushn:
        modules:
           enabled:
             - Filesystem
             - Yii2
-            - Db
             - REST:
                 url: http://localhost/payroll/candidate/web/index-test.php/v1/
                 depends: PhpBrowser
-            - Db:
-                dsn: 'mysql:host=127.0.0.1;dbname=payroll_test'
-                user: 'root'
-                password: ' '
