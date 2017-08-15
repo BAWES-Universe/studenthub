@@ -54,7 +54,7 @@ class StatisticsCest
     {
         $I->wantTo('Validate candidate > statistics api response');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('statistics');
+        $I->sendGET('v1/statistics');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

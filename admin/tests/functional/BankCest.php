@@ -12,7 +12,7 @@ use Codeception\Util\HttpCode;
 
 class BankCest
 {
-    public $token;
+    public $token, $bank_id = 2;
     
     public function _before(FunctionalTester $I)
     {
@@ -40,26 +40,30 @@ class BankCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * Listing
+     * @param FunctionalTester $I
+     */
+    public function tryToList(FunctionalTester $I)
     {
-        $bank_id = 2;
-        
-        //---------------- listing ---------------------------
-        
         $I->wantTo('Validate bank api response for listing');
         $I->amBearerAuthenticated($this->token);
-        $I->sendGET('banks');
+        $I->sendGET('v1/banks');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        //---------------- create ---------------------------
-        
+    }
+    
+    /**
+     * Try to create new bank
+     * @param FunctionalTester $I
+     */
+    public function tryToCreate(FunctionalTester $I)
+    {   
         $I->wantTo('create a bank via API');
         $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
-            'banks', 
+            'v1/banks', 
             [
                 'name' => 'davert', 
                 'swift_code' => 'HDFCIN010000',
@@ -72,14 +76,19 @@ class BankCest
             "operation" => "success",
             "message" => "Bank created successfully"
         ]);
-        
-        //---------------- update ---------------------------
-        
+    }
+    
+    /**
+     * Try to update 
+     * @param FunctionalTester $I
+     */
+    public function tryToUpdate(FunctionalTester $I)
+    {   
         $I->wantTo('update a bank via API');
         $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'banks/' . $bank_id, 
+            'v1/banks/' . $this->bank_id, 
             [
                 'name' => 'davert', 
                 'swift_code' => 'HDFCIN010000',
@@ -92,13 +101,18 @@ class BankCest
             "operation" => "success",
             "message" => "Bank successfully updated"
         ]);
-        
-        //---------------- delete ---------------------------
-        
+    }
+    
+    /**
+     * Try to delete
+     * @param FunctionalTester $I
+     */
+    public function tryToDelete(FunctionalTester $I)
+    {
         $I->wantTo('delete bank via API');
         $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('banks/' . $bank_id);
+        $I->sendDelete('v1/banks/' . $this->bank_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",

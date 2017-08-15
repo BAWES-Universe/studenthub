@@ -33,11 +33,11 @@ class AccountCest
     }
 
     // tests
-    public function tryToTest(FunctionalTester $I)
+    public function testChangePassword(FunctionalTester $I)
     {
-        $I->wantTo('Validate company > account api to change password');
+        $I->wantTo('trying to change password');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendPOST('account/change-password', [
+        $I->sendPOST('v1/account/change-password', [
             'old_password' => '123456',
             'new_password' => 'newPassword'
         ]);
