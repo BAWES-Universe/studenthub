@@ -39,30 +39,41 @@ class CandidateCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
-    {
-        //-------------- list candidates 
-        
+    /**
+     * list candidates 
+     * @param FunctionalTester $I
+     */
+    public function tryListCandidates(FunctionalTester $I)
+    {        
         $I->wantTo('Validate company > candidates api');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendGET('candidates');
+        $I->sendGET('v1/candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        //-------------- get total candidates
-        
+    }
+    
+    /** 
+     * get total candidates
+     * @param FunctionalTester $I
+     */
+    public function getCandidateCount(FunctionalTester $I)
+    {   
         $I->wantTo('Validate company > candidates/total api to get total candidates');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendGET('candidates/total');
+        $I->sendGET('v1/candidates/total');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        //-------------- Get candidate work history 
-
+    }
+    
+    /**
+     * Get candidate work history  
+     * @param FunctionalTester $I
+     */
+    public function getWorkHistory(FunctionalTester $I)
+    {
         $I->wantTo('Validate company > candidates/work-history/1 api to list work history');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendGET('candidates/work-history/1');
+        $I->sendGET('v1/candidates/work-history/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

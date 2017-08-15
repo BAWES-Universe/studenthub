@@ -43,7 +43,6 @@ class AuthController extends Controller
                 if ($company && $company->validatePassword($password)) {
                     return $company;
                 }
-
                 return null;
             }
         ];
@@ -83,9 +82,9 @@ class AuthController extends Controller
      * @return array
      */
     public function actionLogin()
-    {
+    {  
         $company = Yii::$app->user->identity;
-
+        
         // Return Company access token if everything valid
         $accessToken = $company->accessToken->token_value;
 

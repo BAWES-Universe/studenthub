@@ -52,7 +52,7 @@ class AccountCest
     public function SalaryMethodTest(FunctionalTester $I)
     {
         $I->amGoingTo('Validate Salary Method response');
-        $I->sendGET('account/salary');
+        $I->sendGET('v1/account/salary');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson(['transfer_id'=>5,'total'=>27]);
     }
@@ -60,50 +60,64 @@ class AccountCest
     /**
      * @param \candidate\tests\FunctionalTester $I
      */
-    public function ChangePasswordTest(FunctionalTester $I)
+    public function validatePassword(FunctionalTester $I)
     {
-
         $I->amGoingTo('Validate Change Password with empty fields');
-        $I->sendPOST('account/change-password', array('old_password' => '', 'new_password' => ''));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '', 'new_password' => ''));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "Empty old password"]);
-
+    }
+    
+    public function tryNewPasswordEmpty(FunctionalTester $I) 
+    {
         $I->amGoingTo('Validate Change Password with new password empty field');
-        $I->sendPOST('account/change-password', array('old_password' => '123', 'new_password' => ''));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '123', 'new_password' => ''));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "Empty new password"]);
-
+    }
+    
+    public function tryOldPasswordEmpty(FunctionalTester $I) 
+    {
         $I->amGoingTo('Validate Change Password with old password empty field');
-        $I->sendPOST('account/change-password', array('old_password' => '', 'new_password' => '123'));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '', 'new_password' => '123'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "Empty old password"]);
+    }
 
-
+    public function trySamePassword(FunctionalTester $I) 
+    {
         $I->amGoingTo('Validate Change Password for same old and new password');
-        $I->sendPOST('account/change-password', array('old_password' => '123', 'new_password' => '123'));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '123', 'new_password' => '123'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "New password should not be same as old password"]);
-
-
+    }
+    
+    public function tryInvalidOldPassword(FunctionalTester $I) 
+    {
         $I->amGoingTo('Validate Change Password for 123456');
-        $I->sendPOST('account/change-password', array('old_password' => '123123123', 'new_password' => '123'));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '123123123', 'new_password' => '123'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "Invalid Old Password"]);
-
+    }
+    
+    public function tryInvalidPasswordLength(FunctionalTester $I) 
+    {
         $I->amGoingTo('Validate Change Password for new password length');
-        $I->sendPOST('account/change-password', array('old_password' => '123456', 'new_password' => '123'));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '123456', 'new_password' => '123'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "New password length should be great then equal to 5"]);
+    }
 
-
+    public function tryValidPassword(FunctionalTester $I) 
+    {
         $I->amGoingTo('Successful test for change password');
-        $I->sendPOST('account/change-password', array('old_password' => '123456', 'new_password' => '1234567'));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '123456', 'new_password' => '1234567'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "Password changed successfully!"]);

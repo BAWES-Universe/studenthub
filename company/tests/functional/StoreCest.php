@@ -39,30 +39,39 @@ class StoreCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * List stores 
+     * @param FunctionalTester $I
+     */
+    public function testListing(FunctionalTester $I)
     {
-        //------------ List stores 
-
         $I->wantTo('Validate company > stores api');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendGET('stores');
+        $I->sendGET('v1/stores');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        //------------ List sub company stores 
-
+    }
+    
+    /**
+     * List sub company stores 
+     * @param FunctionalTester $I
+     */
+    public function testStores(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list sub company\'s stores');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendGET('stores/2');
+        $I->sendGET('v1/stores/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        //------------ List store and sub companies 
-
+    }
+    
+    /**
+     * List store and sub companies 
+     * @param FunctionalTester $I
+     */
+    public function testSubCompanies(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list stores and sub company');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendGET('stores/company-store');
+        $I->sendGET('v1/stores/company-store');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

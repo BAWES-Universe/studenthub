@@ -40,24 +40,30 @@ class StaffCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * Listing 
+     * @param FunctionalTester $I
+     */
+    public function tryToList(FunctionalTester $I)
     {
-        //---------------- listing ---------------------------
-        
         $I->wantTo('Validate staff api response for listing');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('staff');
+        $I->sendGET('v1/staff');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        //---------------- create ---------------------------
-        
+    }
+    
+    /**
+     * Create staff
+     * @param FunctionalTester $I
+     */
+    public function tryToCreate(FunctionalTester $I)
+    {
         $I->wantTo('create a staff via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
-            'staff', 
+            'v1/staff', 
             [
                 "name" => "Mohammed Kanso",
                 "email" => "staff@staff.com",
@@ -69,19 +75,19 @@ class StaffCest
             "operation" => "success",
             "message" => "Staff account successfully created"
         ]);
-        
-        $staff_id = Staff::find()
-                ->where(['deleted' => 0])
-                ->one()
-                ->staff_id;
-        
-        //---------------- update ---------------------------
-        
+    }
+    
+    /**
+     * Try to update staff detail 
+     * @param FunctionalTester $I
+     */
+    public function tryToUpdate(FunctionalTester $I)
+    {
         $I->wantTo('update a staff via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'staff/' . $staff_id, 
+            'v1/staff/1', 
             [
                 "name" => "Mohammed Kanso",
                 "email" => "unique@staff.com",
@@ -92,13 +98,18 @@ class StaffCest
             "operation" => "success",
             "message" => "Staff account successfully updated"
         ]);
-        
-        //---------------- delete ---------------------------
-        
+    }
+    
+    /**
+     * Delete staff
+     * @param FunctionalTester $I
+     */
+    public function tryToDelete(FunctionalTester $I)
+    {
         $I->wantTo('delete staff via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('staff/' . $staff_id);
+        $I->sendDelete('v1/staff/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",
