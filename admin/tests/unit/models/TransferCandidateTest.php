@@ -150,9 +150,19 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             expect('candidate transfer is non paid',$TransferCandidate->paid)->equals(TransferCandidate::UNPAID);
             expect('main transfer is in progress',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
 
+            $Transfer = Transfer::findOne(17);
+            expect('Transfer to be in progress',($Transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS))->true();
+
+            $count = TransferCandidate::find()->where(['transfer_id'=>17,'paid'=>0])->count();
+            expect('one unpaid candidate',$count)->equals(1);
+
             // modifying fixture data
             $response =  TransferCandidate::markPaid(34);
             expect('paid candidate transfer', $response['message'])->equals('Candidate Transfer marked as "paid" with transfer status changed to completed successfully');
+
+
+            $count = TransferCandidate::find()->where(['transfer_id'=>17,'paid'=>0])->count();
+            expect('all candidate paid',$count)->equals(0);
 
             // checking after modifying fixture data
             $TransferCandidate = TransferCandidate::findOne(34);
@@ -160,6 +170,11 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             expect('candidate transfer is paid',$TransferCandidate->paid)->equals(TransferCandidate::PAID);
             expect('main transfer is completed',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_TRANSFER_COMPLETE);
             expect('main transfer is not in progress anymore',(Transfer::findOne($TransferCandidate->transfer_id)->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS))->false();
+
+            //check is transfer is marked as completed
+
+            $Transfer = Transfer::findOne(17);
+            expect('Transfer to be completed',($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE))->true();
 
         });
     }
