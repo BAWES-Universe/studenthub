@@ -42,21 +42,32 @@ class UniversityCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I){}
 
     /**
-     * List sub companies
+     * List university record by student records also
+     * @param FunctionalTester $I
+     */
+    public function listUniversityByStudentRecords(FunctionalTester $I)
+    {
+        $I->wantTo('get university listing');
+        $I->sendGET('v1/universities');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson(['university_id'=>1,'total_candidates'=>7],['university_id'=>3,'total_candidates'=>0]);
+    }
+
+    /**
+     * list all universities by id
      * @param FunctionalTester $I
      */
     public function listUniversity(FunctionalTester $I)
     {
-        $staff = StaffToken::find()->all();
-        $I->amBearerAuthenticated($this->token);
         $I->wantTo('get university listing');
-        $I->sendGET('v1/universities');
+        $I->sendGET('v1/universities/all');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseIsJson(['university_id'=>1]);
     }
 }
