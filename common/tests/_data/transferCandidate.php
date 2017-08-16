@@ -630,7 +630,7 @@ return [
     //transfer #18
     [
         'tc_id' => '35',
-        'transfer_id' => '17',
+        'transfer_id' => '18',
         'candidate_id' => '3',
         'store_id' => '3',
         'store_name' => 'Third Store - Without Child',
@@ -648,7 +648,7 @@ return [
     ],
     [
         'tc_id' => '36',
-        'transfer_id' => '17',
+        'transfer_id' => '18',
         'candidate_id' => '4',
         'store_id' => '3',
         'store_name' => 'Third Store - Without Child',
@@ -666,7 +666,7 @@ return [
     ],
     [
         'tc_id' => '37',
-        'transfer_id' => '17',
+        'transfer_id' => '18',
         'candidate_id' => '5',
         'store_id' => '3',
         'store_name' => 'Third Store - Without Child',
@@ -684,7 +684,7 @@ return [
     ],
     [
         'tc_id' => '38',
-        'transfer_id' => '17',
+        'transfer_id' => '18',
         'candidate_id' => '6',
         'store_id' => '3',
         'store_name' => 'Third Store - Without Child',
@@ -702,7 +702,7 @@ return [
     ],
     [
         'tc_id' => '39',
-        'transfer_id' => '17',
+        'transfer_id' => '18',
         'candidate_id' => '7',
         'store_id' => '3',
         'store_name' => 'Third Store - Without Child',
