@@ -224,4 +224,28 @@ return [
         'transfer_updated_at' => '2017-02-23 18:04:42',
         'deleted' => '0'
     ],
+    [ 
+        'transfer_id' => 19,
+        'parent_transfer_id' => null,
+        'company_id' => 3,
+        'total' => '126,750',
+        'company_total' => '150,000.00',
+        'payment_received_on' => '2017-12-23',
+        'transfer_status' => 5,
+        'transfer_created_at' => '2017-02-23 18:04:42',
+        'transfer_updated_at' => '2017-02-23 18:04:42',
+        'deleted' => '0'
+    ],    
+    [ 
+        'transfer_id' => 20,
+        'parent_transfer_id' => null,
+        'company_id' => 3,
+        'total' => '126,750',
+        'company_total' => '150,000.00',
+        'payment_received_on' => '2017-12-23',
+        'transfer_status' => 5,
+        'transfer_created_at' => '2017-02-23 18:04:42',
+        'transfer_updated_at' => '2017-02-23 18:04:42',
+        'deleted' => '0'
+    ],
 ];

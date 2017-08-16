@@ -15,7 +15,6 @@ use common\fixtures\AdminToken as AdminTokenFixture;
 use common\models\AdminToken;
 use admin\models\Transfer;
 use Codeception\Util\HttpCode;
-use yii\helpers\Url;
 
 class TransferCest
 {
@@ -65,8 +64,7 @@ class TransferCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
-        
-        
+                
         $this->transferWithPaymentSent = Transfer::find()
                 ->where([
                     'transfer_status' => Transfer::STATUS_PAYMENT_SENT
