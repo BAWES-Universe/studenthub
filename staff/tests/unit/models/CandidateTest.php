@@ -2,7 +2,6 @@
 namespace company\tests\unit\models;
 
 use Yii;
-use Codeception\Specify;
 use staff\fixtures\Country as CountryFixture;
 use staff\fixtures\Candidate as CandidateFixture;
 use staff\fixtures\University as UniversityFixture;
@@ -11,8 +10,6 @@ use staff\models\Candidate;
 
 class CandidateTest extends \Codeception\Test\Unit
 {
-    use Specify;
-
     /**
      * @var \common\tests\UnitTester
      */
@@ -69,18 +66,15 @@ class CandidateTest extends \Codeception\Test\Unit
     /**
      * test case to test send welcome email
      */
-
     public function testSendWelcomeEmail() {
 
         Yii::$app->params['supportEmail'] = 'testing@testing.com';
         $rand = rand(1111,9999);
 
-
         $model = Candidate::findOne(1);
         $model->password = 'x12345';
 
         expect_that($model->sendWelcomeEmail());
-
 
         // using Yii2 module actions to check email was sent
         $this->tester->seeEmailIsSent();

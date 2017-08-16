@@ -2,7 +2,6 @@
 namespace staff\tests\models;
 
 use Yii;
-use Codeception\Specify;
 use staff\models\Store;
 use staff\models\Company;
 use staff\models\Candidate;
@@ -13,8 +12,6 @@ use common\fixtures\Store as StoreFixture;
 
 class CandidateIdCardTest extends \Codeception\Test\Unit
 {
-    use Specify;
-    
     /**
      * @var \staff\tests\UnitTester
      */
@@ -42,45 +39,63 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
     {
     }
 
-    // tests
-    public function testSomeFeature()
+    /**
+     * Fixtures should be loaded
+     */
+    public function testFixtureLoad()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Comapny data loaded', Company::findOne(['company_id' => 1]))->notNull();
-            expect('Store data loaded', Store::find()->one())->notNull();
-            expect('Candidate data loaded', Candidate::find()->one())->notNull();
-        });
-          
-        $this->specify('CandidateIdCard model function to generate zip file containing ID Card details', function () {            
-            
-            $candidates = Candidate::find()
+        expect('Company data loaded', Company::findOne(['company_id' => 1]))->notNull();
+        expect('Store data loaded', Store::find()->one())->notNull();
+        expect('Candidate data loaded', Candidate::find()->one())->notNull();
+    }
+
+    /**
+     * CandidateIdCard model function to generate
+     * zip file containing ID Card details
+     */
+    public function testGenerateZipFile()
+    {
+        $candidates = Candidate::find()
                 ->limit(2)
                 ->all();
-
-            $result = CandidateIdCard::createZip($candidates);
-            
-            expect('Check generating zip', file_exists($result['zip']))->true(); 
-        });
+        $result = CandidateIdCard::createZip($candidates);
+        expect('Check generating zip', file_exists($result['zip']))->true();
     }
     
     /**
-     * Tests Create, Update
+     * Tests Create for New Candidate ID Card with existing candidate id in table
      */
-    public function testCrud()
+    public function testCrudErrorForNewCandidateIDCardWhenCandidateIDAlreadyExist()
     {
-        $this->specify('Create New Candidate ID Card', function () {
-            $model = new CandidateIdCard();
-            $model->candidate_id = 1;
-            $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
-            expect('Created successfully', $model->save())->true();
-            expect('Record is in database', $model->findOne(['candidate_id' => 1]))->notNull();
-        });
+        $model = new CandidateIdCard();
+        $model->candidate_id = 1;
+        $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
+        $model->validate();
+        expect('error found', $model->errors)->hasKey('candidate_id');
+        expect('Record is in database', $model->errors['candidate_id'][0])->contains('Candidate ID "1" has already been taken');
+    }
 
-        $this->specify('Update New Candidate ID Card', function() {
-            $model = CandidateIdCard::find()->one();
-            $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
-            expect('updated successfully', $model->save())->true();
-            expect('Updated Record is in database', $model->findOne(['candidate_id' => 1]))->notNull();
-        });
+    /**
+     * Tests Create for New Candidate ID Card
+     */
+    public function testCrudForNewCandidateIDCard()
+    {
+        $model = new CandidateIdCard();
+        $model->candidate_id = 2;
+        $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
+        expect('error found', count($model->errors))->equals(0);
+        expect('Created successfully', $model->save())->true();
+        expect('Record is in database', $model->findOne(['candidate_id' => 2]))->notNull();
+    }
+
+    /**
+     * Tests Create for Update Candidate ID Card
+     */
+    public function testCrudForUpdateCandidateIDCard()
+    {
+        $model = CandidateIdCard::find()->one();
+        $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
+        expect('updated successfully', $model->save())->true();
+        expect('Updated Record is in database', $model->findOne(['candidate_id' => 1]))->notNull();
     }
 }

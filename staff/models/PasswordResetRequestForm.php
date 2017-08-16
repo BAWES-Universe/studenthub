@@ -27,7 +27,7 @@ class PasswordResetRequestForm extends Model
      * @param $staff
      * @return bool
      */
-    public function sendEmail($staff)
+    public static function sendEmail($staff)
     {
         $staff->generatePasswordResetToken();
         $staff->save();
