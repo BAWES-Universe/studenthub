@@ -116,7 +116,8 @@ class CandidateIdCardController extends Controller
      */
     public function actionGenerate()
     {
-        $transaction = Yii::$app->db->beginTransaction();
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction = Yii::$app->db->beginTransaction();
 
         $candidate_ids = [];
 
@@ -149,7 +150,8 @@ class CandidateIdCardController extends Controller
 
             if(!$ID->save())
             {
-                $transaction->rollBack();
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
 
                 Yii::$app->response->statusCode = 400;
 
@@ -160,7 +162,8 @@ class CandidateIdCardController extends Controller
             }
         }
 
-        $transaction->commit();
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction->commit();
 
         //create zip file to download generated IDs
 
@@ -194,6 +197,7 @@ class CandidateIdCardController extends Controller
         $query = Candidate::find()
             ->idExpired()
             ->notDeleted();
+        
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
@@ -210,7 +214,8 @@ class CandidateIdCardController extends Controller
      */
     public function actionRenew()
     {
-        $transaction = Yii::$app->db->beginTransaction();
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction = Yii::$app->db->beginTransaction();
 
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
 
@@ -225,7 +230,8 @@ class CandidateIdCardController extends Controller
 
             if(!$ID)
             {
-                $transaction->rollBack();
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
 
                 return [
                     'operation' => 'error',
@@ -237,7 +243,8 @@ class CandidateIdCardController extends Controller
             $ID->save();
         }
 
-        $transaction->commit();
+        if(empty(Yii::$app->params['inCodeception']))
+            $transaction->commit();
 
         //log
 
