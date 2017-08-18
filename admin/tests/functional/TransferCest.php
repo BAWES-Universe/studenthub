@@ -193,10 +193,10 @@ class TransferCest
      */
     public function tryToDownloadPayable(FunctionalTester $I)    
     {   
-        /*$I->wantTo('Validate admin > transfer > Download Payable Candidates\' Detail api');
+        $I->wantTo('Validate admin > transfer > Download Payable Candidates\' Detail api');
         $I->amBearerAuthenticated($this->token);        
         $I->sendGET('v1/transfers/export-payable-candidates');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200        */
+        $I->seeResponseCodeIs(HttpCode::OK); // 200        
     }
     
     /**

@@ -346,4 +346,35 @@ class TransferController extends Controller
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
+    
+    /**
+     * Excel template to initiate transfer
+     */
+    public function actionExcelTemplate()
+    {
+        $company = Yii::$app->user->identity;
+        
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $company->candidates,
+            'columns' => [
+                'candidate_id',
+                'candidate_name',
+                [
+                    'label' => 'Hours',
+                    'value' => function() {
+                        return null;
+                    }
+                ],
+                [
+                    'label' => 'Bonus',
+                    'value' => function() {
+                        return null;
+                    }
+                ]
+            ]
+        ]);        
+    }
 }

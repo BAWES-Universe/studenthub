@@ -73,19 +73,21 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET <id>' => 'view',
+                        //'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'edit',
                         'PATCH payment-sent/<id>' => 'payment-sent',                        
                         'PATCH lock/<id>' => 'lock',
                         'DELETE <id>' => 'delete',                        
                         'GET pdf/<id>' => 'pdf',
+                        'GET excel-template' => 'excel-template',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS payment-sent/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
-                        'OPTIONS pdf/<id>' => 'options'
+                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS excel-template' => 'options'
                     ]
                 ],
                 [ // StoreController
