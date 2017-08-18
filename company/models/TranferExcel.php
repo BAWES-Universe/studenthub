@@ -13,7 +13,7 @@ class TranferExcel extends Model
     public function rules()
     {
         return [
-            [['excel'], 'file', 'skipOnEmpty' => false, 'extensions' => 'xls, xlsx'],
+            [['excel'], 'file', 'skipOnEmpty' => false, 'checkExtensionByMimeType' => false, 'extensions' => 'xlsx,xls'],
         ];
     }
 }

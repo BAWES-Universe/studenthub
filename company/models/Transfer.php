@@ -403,13 +403,36 @@ class Transfer extends \common\models\Transfer {
      * @param $candidates
      * @return array
      */
-    public static function updateTransfer($company,$id,$candidates) {
+    public static function updateTransfer($company, $id, $candidates) {
 
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
             ->one();
+        
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
 
+        if($model->parent_transfer_id > 0) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer for sub company can\'t be edited!'
+            ];
+        }
+
+        //transfer status should be "Initiated" to edit it
+        if($model->transfer_status != Transfer::STATUS_INITIATED)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status should be "Initiated" to edit it!'
+            ];
+        }
+        
         $model->candidates = $candidates;
 
         $new_transfer_id = $new_invoice_id = [];
