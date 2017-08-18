@@ -157,6 +157,70 @@ class TransferForWithChildCest
     }
     
     /**
+     * Edit transfers for company with child by excel
+     * @param FunctionalTester $I
+     */
+    public function tryToEditTransferByExcel(FunctionalTester $I)
+    {
+        $transfer = $this->companyWithChild
+            ->getTransfers()
+            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->isParentTransfer()    
+            ->one();
+        
+        //create excel 
+        
+        $I->wantTo('Create excel to upload @ ' . sys_get_temp_dir());
+        
+        $fileName = 'transferByExcelForCompanyWithChild.xlsx';
+        
+        Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $this->companyWithChild->candidates,
+            'savePath' => sys_get_temp_dir(),
+            'fileName' => $fileName,
+            'columns' => [
+                [
+                    'header' => 'candidate_id',
+                    'value' => function($data) {
+                        return $data->candidate_id;
+                    }
+                ],
+                [
+                    'header' => 'candidate_name',
+                    'value' => function($data) {
+                        return $data->candidate_name;
+                    }
+                ],
+                [
+                    'header' => 'hours',
+                    'value' => function() {
+                        return rand(1, 100);
+                    }
+                ],
+                [
+                    'header' => 'bonus',
+                    'value' => function() {
+                        return rand(1, 100);
+                    }
+                ]
+            ]
+        ]);        
+                        
+        $I->wantTo('Create transfer for company with child by excel upload');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);    
+        $I->haveHttpHeader('Content-Type', 'form-data');            
+        $I->sendPOST('v1/transfers/edit-by-excel/' . $transfer->transfer_id, [], [
+            "excel" => sys_get_temp_dir() . '/' . $fileName
+        ]);
+        $I->seeResponseContainsJson([
+             'operation' => 'success'
+        ]);
+        
+        unlink(sys_get_temp_dir() . '/' . $fileName);
+    }
+    
+    /**
      * Create transfers for company with child
      * @param FunctionalTester $I
      */

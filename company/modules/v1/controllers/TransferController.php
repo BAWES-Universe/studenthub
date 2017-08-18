@@ -152,6 +152,30 @@ class TransferController extends Controller
             return $model->getErrors();
         }
     }
+    
+    /**
+     * Edit transfer by excel.
+     * @return array
+     */
+    public function actionEditByExcel($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $model = new TranferExcel;        
+        $model->excel = \yii\web\UploadedFile::getInstanceByName('excel');
+        
+        if($model->validate())
+        {
+            $candidates = \moonland\phpexcel\Excel::import($model->excel->tempName);
+     
+            //save transfer
+            return Transfer::updateTransfer($company, $id, $candidates);
+        }
+        else 
+        {
+            return $model->getErrors();
+        }
+    }
 
     /**
      * Edit transfer with "Initiated" status
@@ -161,35 +185,6 @@ class TransferController extends Controller
     public function actionEdit($id)
     {
         $company = Yii::$app->user->identity;
-
-        // list all sub companies
-        $model = $company
-            ->getTransfers()
-            ->filterTransfer($id)
-            ->one();
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
-
-        if($model->parent_transfer_id > 0) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer for sub company can\'t be edited!'
-            ];
-        }
-
-        //transfer status should be "Initiated" to edit it
-        if($model->transfer_status != Transfer::STATUS_INITIATED)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status should be "Initiated" to edit it!'
-            ];
-        }
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
