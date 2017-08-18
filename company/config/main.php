@@ -73,7 +73,7 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET excel-template' => 'excel-template',
+                        'GET transfer-excel-template' => 'transfer-excel-template',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'POST create-by-excel' => 'create-by-excel',
@@ -88,7 +88,7 @@ return [
                         'OPTIONS payment-sent/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
-                        'OPTIONS excel-template' => 'options',
+                        'OPTIONS transfer-excel-template' => 'options',
                         'OPTIONS create-by-excel' => 'options',
                     ]
                 ],
