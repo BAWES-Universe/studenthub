@@ -234,6 +234,41 @@ class CandidateCest
     }
 
     /**
+     * try to create Candidate
+     * skipping image upload
+     * @param FunctionalTester $I
+     */
+    public function restCallToCreateCandidate(FunctionalTester $I)
+    {
+        $I->wantTo('create candidate profile');
+
+        $candidate = [
+            'store_id' => 1,
+            'bank_id' => 1,
+            'university_id' => 1,
+            'country_id' => 2,
+            'bank_account_name' => 'dhiman Kumar',
+            'iban' => 'IBAN121212223',
+            'name' => 'dhiman Kumar',
+            'name_ar' => 'ساريكا ديف',
+            'personal_photo' => 'photos/photo-1497874516406.png',
+            'email' => 'DHMANU@gmail.com',
+            'phone' => '989898989111',
+            'birth_date' => '1992-11-11',
+            'civil_id' => 'XIS1212222101',
+            'expiry_date' => date('Y-m-d', strtotime('+1 month')),
+            'photo_front' => 'photos/photo-1497874516406.png',
+            'photo_back' => 'photos/photo-1497874516406.png',
+            'hourly_rate' => 1.5,
+        ];
+        $candidateID = 8;
+
+        $I->sendPOST('v1/candidates',$candidate);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
      * Candidate List
      * @param FunctionalTester $I
      */
