@@ -375,7 +375,7 @@ class TransferController extends Controller
     /**
      * Excel template to initiate transfer
      */
-    public function actionExcelTemplate()
+    public function actionTransferExcelTemplate()
     {
         $company = Yii::$app->user->identity;
         
