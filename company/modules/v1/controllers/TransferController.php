@@ -138,8 +138,8 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
         
         $model = new TranferExcel;        
-        $model->excel = \yii\web\UploadedFile::getInstance($model, 'excel');
-      
+        $model->excel = \yii\web\UploadedFile::getInstanceByName('excel');
+        
         if($model->validate())
         {
             $candidates = \moonland\phpexcel\Excel::import($model->excel->tempName);

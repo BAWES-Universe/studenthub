@@ -13,9 +13,10 @@ use company\fixtures\Invoice as InvoiceFixture;
 use company\tests\FunctionalTester;
 use company\models\Transfer;
 use company\models\Company;
+use common\components\Excel;
 use Codeception\Util\HttpCode;
 
-class TransferCest
+class TransferForWithChildCest
 {
     public $token, $companyWithChild;
     
@@ -46,7 +47,7 @@ class TransferCest
                 'class' => CandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
             ],
-            'transfer' => [
+            /*'transfer' => [
                 'class' => TransferFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
             ],
@@ -57,7 +58,7 @@ class TransferCest
             'invoice' => [
                 'class' => InvoiceFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-            ]
+            ]*/
         ]);
         
         $this->companyWithChild = Company::findOne(1);
@@ -95,6 +96,64 @@ class TransferCest
         $I->sendGET('v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
+    }
+    
+    /**
+     * Create transfers for company with child by excel
+     * @param FunctionalTester $I
+     */
+    public function tryToCreateTransferByExcel(FunctionalTester $I)
+    {
+        //create excel 
+        
+        $I->wantTo('Create excel to upload @ ' . sys_get_temp_dir());
+        
+        $fileName = 'transferByExcelForCompanyWithChild.xlsx';
+        
+        Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $this->companyWithChild->candidates,
+            'savePath' => sys_get_temp_dir(),
+            'fileName' => $fileName,
+            'columns' => [
+                [
+                    'header' => 'candidate_id',
+                    'value' => function($data) {
+                        return $data->candidate_id;
+                    }
+                ],
+                [
+                    'header' => 'candidate_name',
+                    'value' => function($data) {
+                        return $data->candidate_name;
+                    }
+                ],
+                [
+                    'header' => 'hours',
+                    'value' => function() {
+                        return rand(1, 100);
+                    }
+                ],
+                [
+                    'header' => 'bonus',
+                    'value' => function() {
+                        return rand(1, 100);
+                    }
+                ]
+            ]
+        ]);        
+                        
+        $I->wantTo('Create transfer for company with child by excel upload');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);    
+        $I->haveHttpHeader('Content-Type', 'form-data');            
+        $I->sendPOST('v1/transfers/create-by-excel', [], [
+            "excel" => sys_get_temp_dir() . '/' . $fileName
+        ]);
+        $I->seeResponseMatchesJsonType([
+             'transfer_id' => 'integer'
+        ]);
+        
+        unlink(sys_get_temp_dir() . '/' . $fileName);
     }
     
     /**
