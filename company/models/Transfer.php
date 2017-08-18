@@ -338,6 +338,17 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if(empty($value['candidate_id'])) 
+            {
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => "Candidate ID field required"
+                ];
+            }
+            
             $candidate = Candidate::find()
                 ->with(['store','company'])
                 ->where(['candidate_id'=>$value['candidate_id']])
@@ -472,11 +483,23 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if(empty($value['candidate_id'])) 
+            {
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => "Candidate ID field required"
+                ];
+            }
+            
             $candidate = Candidate::find()
                 ->with(['store','company'])
-                ->where(['candidate_id'=>$value['candidate_id']])
+                ->where(['candidate_id' => $value['candidate_id']])
                 ->asArray()
                 ->one();
+            
             if(!$candidate) 
             {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -490,6 +513,7 @@ class Transfer extends \common\models\Transfer {
 
             // save candidate transfer
             $response = TransferCandidate::saveCandidateTransfer($candidate, $model, $value);
+            
             if ($response['operation'] == "error") {                
                 if(empty(Yii::$app->params['inCodeception']))
                     $transaction->rollBack();
