@@ -8,6 +8,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
 use company\models\Transfer;
+use company\models\TranferExcel;
 use common\models\Invoice;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -126,6 +127,30 @@ class TransferController extends Controller
 
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
+    }
+    
+    /**
+     * Initiate transfer by excel.
+     * @return array
+     */
+    public function actionCreateByExcel()
+    {
+        $company = Yii::$app->user->identity;
+        
+        $model = new TranferExcel;        
+        $model->excel = \yii\web\UploadedFile::getInstance($model, 'excel');
+      
+        if($model->validate())
+        {
+            $candidates = \moonland\phpexcel\Excel::import($model->excel->tempName);
+     
+            //save transfer
+            return Transfer::saveTransfer($company, $candidates);
+        }
+        else 
+        {
+            return $model->getErrors();
+        }
     }
 
     /**
@@ -360,18 +385,28 @@ class TransferController extends Controller
             'isMultipleSheet' => false,
             'models' => $company->candidates,
             'columns' => [
-                'candidate_id',
-                'candidate_name',
                 [
-                    'label' => 'Hours',
-                    'value' => function() {
-                        return null;
+                    'header' => 'candidate_id',
+                    'value' => function($data) {
+                        return $data->candidate_id;
                     }
                 ],
                 [
-                    'label' => 'Bonus',
+                    'header' => 'candidate_name',
+                    'value' => function($data) {
+                        return $data->candidate_name;
+                    }
+                ],
+                [
+                    'header' => 'hours',
                     'value' => function() {
-                        return null;
+                        return 0;
+                    }
+                ],
+                [
+                    'header' => 'bonus',
+                    'value' => function() {
+                        return 0;
                     }
                 ]
             ]
