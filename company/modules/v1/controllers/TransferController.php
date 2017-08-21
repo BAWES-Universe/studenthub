@@ -149,7 +149,10 @@ class TransferController extends Controller
         }
         else 
         {
-            return $model->getErrors();
+            return [
+                "operation" => "error",
+                "message" => $model->getErrors()
+            ];
         }
     }
     
@@ -173,7 +176,10 @@ class TransferController extends Controller
         }
         else 
         {
-            return $model->getErrors();
+            return [
+                "operation" => "error",
+                "message" => $model->getErrors()
+            ];
         }
     }
 
