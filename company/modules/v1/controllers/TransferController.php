@@ -142,8 +142,20 @@ class TransferController extends Controller
         
         if($model->validate())
         {
-            $candidates = \moonland\phpexcel\Excel::import($model->excel->tempName);
+            $candidates = [];
+
+            $data  = \moonland\phpexcel\Excel::import($model->excel->tempName);
      
+            //remove empty rows 
+
+            foreach ($data as $key => $value) 
+            {
+                if(empty($value['candidate_id']))
+                    continue;
+
+                $candidates[] = $value;
+            }
+
             //save transfer
             return Transfer::saveTransfer($company, $candidates);
         }
@@ -170,8 +182,20 @@ class TransferController extends Controller
         
         if($model->validate())
         {
-            $candidates = \moonland\phpexcel\Excel::import($model->excel->tempName);
-     
+            $candidates = [];
+
+            $data = \moonland\phpexcel\Excel::import($model->excel->tempName);
+            
+            //remove empty rows 
+            
+            foreach ($data as $key => $value) 
+            {
+                if(empty($value['candidate_id']))
+                    continue;
+
+                $candidates[] = $value;
+            }
+
             //save transfer
             return Transfer::updateTransfer($company, $id, $candidates);
         }
