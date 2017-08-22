@@ -316,6 +316,7 @@ class Transfer extends \common\models\Transfer {
             if(isset($transfer->errors)) {
                 return [
                     "operation" => "error",
+                    "type" => "system",
                     "message" => $transfer->errors
                 ];
             }
@@ -545,6 +546,7 @@ class Transfer extends \common\models\Transfer {
 
             return [
                 "operation" => "error",
+                "type" => "system",
                 "message" => $model->getErrors()
             ];
         }
@@ -625,6 +627,7 @@ class Transfer extends \common\models\Transfer {
 
                 return [
                     "operation" => "error",
+                    "type" => "system",
                     "message" => $transfer->getErrors()
                 ];
             }

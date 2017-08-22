@@ -151,6 +151,7 @@ class TransferController extends Controller
         {
             return [
                 "operation" => "error",
+                "type" => "system",
                 "message" => $model->getErrors()
             ];
         }
@@ -178,6 +179,7 @@ class TransferController extends Controller
         {
             return [
                 "operation" => "error",
+                "type" => "system",
                 "message" => $model->getErrors()
             ];
         }
