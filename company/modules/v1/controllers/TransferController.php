@@ -168,11 +168,12 @@ class TransferController extends Controller
             ];
         }
     }
-    
-    /**
-     * Edit transfer by excel.
-     * @return array
-     */
+
+	/**
+	 * Edit transfer by excel.
+	 * @param $id
+	 * @return array
+	 */
     public function actionEditByExcel($id)
     {
         $company = Yii::$app->user->identity;
@@ -424,6 +425,18 @@ class TransferController extends Controller
                         return $data->candidate_name;
                     }
                 ],
+	            [
+		            'header' => 'company_name',
+		            'value' => function($data) {
+			            return $data->company->company_name;
+		            }
+	            ],
+	            [
+		            'header' => 'store_name',
+		            'value' => function($data) {
+			            return $data->store->store_name;
+		            }
+	            ],
                 [
                     'header' => 'hours',
                     'value' => function() {
