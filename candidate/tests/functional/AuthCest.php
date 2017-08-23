@@ -34,21 +34,27 @@ class AuthCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * Login 
+     * @param FunctionalTester $I
+     */
+    public function tryToLogin(FunctionalTester $I)
     {
-        //---------- login ------------------
-        
         $I->wantTo('Validate auth > login api');
-        $I->haveHttpHeader('Authorization', 'Basic ' . base64_encode('candidate1@bawes.net:123456'));        
-        $I->sendGET('auth/login');
+        $I->amHttpAuthenticated('candidate1@bawes.net', '123456');        
+        $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-                
-        //---------- upadate password ------------------
-        
+    }
+    
+    /**
+     * Update password
+     * @param FunctionalTester $I
+     */
+    public function tryToTest(FunctionalTester $I)
+    {
         $I->wantTo('Validate auth > update password api');
-        $I->sendPATCH('auth/update-password', [
+        $I->sendPATCH('v1/auth/update-password', [
             'token' => 'TnO9eI-XGIxeJGH7n57xSMyJfZ-5NKo6',
             'newPassword' => '12345'
         ]);

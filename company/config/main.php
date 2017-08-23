@@ -73,18 +73,24 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET transfer-excel-template' => 'transfer-excel-template',
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        'POST create-by-excel' => 'create-by-excel',
                         'PATCH <id>' => 'edit',
                         'PATCH payment-sent/<id>' => 'payment-sent',                        
                         'PATCH lock/<id>' => 'lock',
+                        'POST edit-by-excel/<id>' => 'edit-by-excel',                        
                         'DELETE <id>' => 'delete',                        
-                        'GET pdf/<id>' => 'pdf',
+                        'GET pdf/<id>' => 'pdf',                        
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS transfer-excel-template' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS create-by-excel' => 'options',
                         'OPTIONS payment-sent/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
+                        'OPTIONS edit-by-excel/<id>' => 'options',                        
                         'OPTIONS pdf/<id>' => 'options'
                     ]
                 ],

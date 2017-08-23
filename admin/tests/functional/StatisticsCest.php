@@ -44,12 +44,15 @@ class StatisticsCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * Get statistics 
+     * @param FunctionalTester $I
+     */
+    public function tryToGetStatistics(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > statistics api response');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('statistics');
+        $I->sendGET('v1/statistics');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

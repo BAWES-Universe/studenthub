@@ -39,12 +39,15 @@ class StoreCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * List stores 
+     * @param FunctionalTester $I
+     */
+    public function tryToListStores(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > stores api response');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('stores');
+        $I->sendGET('v1/stores');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

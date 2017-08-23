@@ -64,70 +64,91 @@ class TransferCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
-    }
-
-    public function _after(FunctionalTester $I)
-    {
-    }
-
-    // tests
-    public function tryToTest(FunctionalTester $I)
-    {        
-        $transferWithPaymentSent = Transfer::find()
+                
+        $this->transferWithPaymentSent = Transfer::find()
                 ->where([
                     'transfer_status' => Transfer::STATUS_PAYMENT_SENT
                 ])
                 ->isParentTransfer()
                 ->one();
         
-        $lockedTransfer = Transfer::find()
+        $this->lockedTransfer = Transfer::find()
             ->where([
                 'transfer_status' => Transfer::STATUS_LOCK
             ])
             ->isParentTransfer()    
             ->one();      
                 
-        $transferWithPaymentReceived = Transfer::find()
+        $this->transferWithPaymentReceived = Transfer::find()
                 ->where([
                     'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS
                 ])
                 ->isParentTransfer()
                 ->one();
-        
-        // list transfers
-        
+    }
+
+    public function _after(FunctionalTester $I)
+    {
+    }
+
+    /**
+     * list transfers
+     * @param FunctionalTester $I
+     */
+    public function tryToList(FunctionalTester $I)
+    {        
         $I->wantTo('Validate admin > transfer api response for listing');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers');
+        $I->sendGET('v1/transfers');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        // view transfer 
-        
+    }
+    
+    /**
+     * View transfers 
+     * @param FunctionalTester $I
+     */
+    public function tryToView(FunctionalTester $I)
+    {
         $I->wantTo('Validate admin > transfer > view transfer api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers/' . $transferWithPaymentSent->transfer_id . '?expand=invoices,transferCandidates,totalPaid,totalUnpaid,profit ');
+        $I->sendGET('v1/transfers/' . $this->transferWithPaymentSent->transfer_id . '?expand=invoices,transferCandidates,totalPaid,totalUnpaid,profit ');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        // Mark Received & Distributing Salary
-        
+    }
+    
+    /**
+     * Mark Received & Distributing Salary
+     * @param FunctionalTester $I
+     */
+    public function tryToMarkReceived(FunctionalTester $I)    
+    {
         $I->wantTo('Validate admin > transfer > Mark Received & Distributing Salary api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendPATCH('transfers/payment-received-distributing/' . $transferWithPaymentSent->transfer_id);
+        $I->sendPATCH('v1/transfers/payment-received-distributing/' . $this->transferWithPaymentSent->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        // Unlock Transfer
-        
+    }
+            
+    /**
+     * Unlock Transfer
+     * @param FunctionalTester $I
+     */
+    public function tryToUnlock(FunctionalTester $I)    
+    {
         $I->wantTo('Validate admin > transfer > Unlock Transfer api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendPATCH('transfers/unlock/' . $lockedTransfer->transfer_id);
+        $I->sendPATCH('v1/transfers/unlock/' . $this->lockedTransfer->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        // lock Transfer 
-                
+    }
+    
+    /**
+     * Lock transfer
+     * @param FunctionalTester $I
+     */
+    public function tryToLock(FunctionalTester $I)    
+    {
         $transferWithPaymentSent2 = Transfer::find()
                 ->where([
                     'transfer_status' => Transfer::STATUS_PAYMENT_SENT
@@ -137,15 +158,20 @@ class TransferCest
         
         $I->wantTo('Validate admin > transfer > Lock Transfer api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendPATCH('transfers/lock/' . $transferWithPaymentSent2->transfer_id);
+        $I->sendPATCH('v1/transfers/lock/' . $transferWithPaymentSent2->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        // Mark All Candidate as Payment Received 
-        
+    }
+    
+    /**
+     * Mark All Candidate as Payment Received 
+     * @param FunctionalTester $I
+     */
+    public function tryToMarkCandidateReceived(FunctionalTester $I)    
+    {
         $I->wantTo('Validate admin > transfer > Mark All Candidate as Payment Received api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendPATCH('transfers/mark-paid-all', [
+        $I->sendPATCH('v1/transfers/mark-paid-all', [
             'candidates' => [
                 [
                     'candidate_id' => 6,
@@ -159,72 +185,117 @@ class TransferCest
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        // Download Payable Candidates' Detail 
-        
+    }
+    
+    /**
+     * Download Payable Candidates' Detail 
+     * @param FunctionalTester $I
+     */
+    public function tryToDownloadPayable(FunctionalTester $I)    
+    {   
         $I->wantTo('Validate admin > transfer > Download Payable Candidates\' Detail api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers/export-payable-candidates');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        
-        // List Payable Candidates 
-        
+        $I->amBearerAuthenticated($this->token);        
+        $I->sendGET('v1/transfers/export-payable-candidates');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200        
+    }
+    
+    /**
+     * List Payable Candidates 
+     * @param FunctionalTester $I
+     */
+    public function tryToListPayable(FunctionalTester $I)    
+    {
         $I->wantTo('Validate admin > transfer > List Payable Candidates api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers/payable-candidates');
+        $I->sendGET('v1/transfers/payable-candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        // List Payable Candidates All
-        
+    }
+    
+    /**
+     * List Payable Candidates All
+     * @param FunctionalTester $I
+     */
+    public function tryToListAllPayable(FunctionalTester $I)    
+    {
         $I->wantTo('Validate admin > transfer > List Payable Candidates All api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers/all-payable-candidates');
+        $I->sendGET('v1/transfers/all-payable-candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        // Download Invoice as TEXT - {{url-admin}}/transfers/text 
-        
+    }
+    
+    /**
+     * Download Invoice as TEXT 
+     * @param FunctionalTester $I
+     */
+    public function tryToAsText(FunctionalTester $I)    
+    {
         $I->wantTo('Validate admin > transfer > Download Invoice as TEXT api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers/text');
+        $I->sendGET('v1/transfers/text');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        
-        // Export Transfer Detail
-        
+    }
+    
+    /**
+     * Export Transfer Detail
+     * @param FunctionalTester $I
+     */
+    public function tryToExport(FunctionalTester $I)        
+    {
         $I->wantTo('Validate admin > transfer > Export Transfer Detail api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers/export/' . $transferWithPaymentReceived->transfer_id);
+        $I->sendGET('v1/transfers/export/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        
-        // Download Transfer
-        
+    }
+    
+    /**
+     * Download Transfer
+     * @param FunctionalTester $I
+     */
+    public function tryToDownload(FunctionalTester $I)        
+    {
         $I->wantTo('Validate admin > transfer > Download Transfer api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfers/pdf/' . $transferWithPaymentReceived->transfer_id);
+        $I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        
-        // List Candidate Transfers 
-        
+    }
+    
+    /**
+     * List Candidate Transfers 
+     * @param FunctionalTester $I
+     */
+    public function tryToListCandidateTransfers(FunctionalTester $I)        
+    {
         $I->wantTo('Validate admin > transfer > List Candidate Transfers api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('transfer-candidates?tc_id=6');
+        $I->sendGET('v1/transfer-candidates?tc_id=6');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        // Mark Candidate Transfers as unpaid
-        
+    }
+             
+    /**
+     * Mark Candidate Transfers as unpaid
+     * @param FunctionalTester $I
+     */
+    public function tryToMarkCandidateTransferUnpaid(FunctionalTester $I)        
+    {
         $I->wantTo('Validate admin > transfer > Mark Candidate Transfers as unpaid');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendPATCH('transfer-candidates/unpaid/6');
+        $I->sendPATCH('v1/transfer-candidates/unpaid/6');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-
-        // Mark Candidate Transfers as Paid
-        
+    }
+    
+    /**
+     * Mark Candidate Transfers as Paid
+     * @param FunctionalTester $I
+     */
+    public function tryToMarkCandidateTransferPaid(FunctionalTester $I)        
+    {
         $I->wantTo('Validate admin > transfer > Mark Candidate Transfers as Paid');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendPATCH('transfer-candidates/paid/6');
+        $I->sendPATCH('v1/transfer-candidates/paid/6');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

@@ -40,24 +40,30 @@ class UniversityCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * Listing 
+     * @param FunctionalTester $I
+     */
+    public function tryToList(FunctionalTester $I)
     {   
-        //---------------- listing ---------------------------
-        
         $I->wantTo('Validate university api response for listing');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('universities');
+        $I->sendGET('v1/universities');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        //---------------- create ---------------------------
-        
+    }
+    
+    /**
+     * Create
+     * @param FunctionalTester $I
+     */
+    public function tryToCreate(FunctionalTester $I)
+    {
         $I->wantTo('create a university via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
-            'universities', 
+            'v1/universities', 
             [
                 'name_en' => 'davert', 
                 'name_ar' => 'davert'
@@ -68,19 +74,19 @@ class UniversityCest
             "operation" => "success",
             "message" => "University created successfully"
         ]);
+    }
         
-        $university_id = University::find()
-                ->where(['deleted' => 0])
-                ->one()
-                ->university_id;
-        
-        //---------------- update ---------------------------
-        
+    /**
+     * Update
+     * @param FunctionalTester $I
+     */
+    public function tryToUpdate(FunctionalTester $I)
+    {
         $I->wantTo('update a university via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'universities/' . $university_id, 
+            'v1/universities/1', 
             [
                 'name_en' => 'davert', 
                 'name_ar' => 'davert'
@@ -91,13 +97,18 @@ class UniversityCest
             "operation" => "success",
             "message" => "University successfully updated"
         ]);
-        
-        //---------------- delete ---------------------------
-        
+    }
+    
+    /**
+     * Delete
+     * @param FunctionalTester $I
+     */
+    public function tryToDelete(FunctionalTester $I)
+    {        
         $I->wantTo('delete university via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('universities/' . $university_id);
+        $I->sendDelete('v1/universities/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",

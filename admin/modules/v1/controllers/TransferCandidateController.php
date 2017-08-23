@@ -2,13 +2,8 @@
 
 namespace admin\modules\v1\controllers;
 
-use admin\models\Candidate;
 use Yii;
-use yii\base\Exception;
 use yii\rest\Controller;
-use yii\data\ActiveDataProvider;
-use admin\models\Invoice;
-use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use yii\filters\auth\HttpBearerAuth;
 /**
@@ -70,7 +65,7 @@ class TransferCandidateController extends Controller
 
     /**
      * Return a List of Transfer.
-     * @return ActiveDataProvider
+     * @return array|\yii\db\ActiveRecord[]
      */
     public function actionList()
     {
@@ -81,8 +76,9 @@ class TransferCandidateController extends Controller
         // Return as Array as to not create ActiveRecord objects will eat away at the RAM
         return TransferCandidate::find()
             ->andWhere(['in', 'tc_id', $transferCandidateRecords])
+            ->with('candidate')
             ->payableWithPaid()
-            // ->asArray()
+            ->asArray()
             ->all();
     }
 
@@ -109,8 +105,8 @@ class TransferCandidateController extends Controller
      */
     public function actionMarkPaidAll()
     {
-        $transferIds = Yii::$app->request->getBodyParam('transfers');
-        return TransferCandidate::markAllPaid($transferIds);
+        $transferCandidateIds = Yii::$app->request->getBodyParam('transferCandidate');
+        return TransferCandidate::markAllPaid($transferCandidateIds);
     }
 
     /**
@@ -118,7 +114,7 @@ class TransferCandidateController extends Controller
      */
     public function actionMarkUnpaidAll()
     {
-        $transferIds = Yii::$app->request->getBodyParam('transfers');
-        return TransferCandidate::markAllUnpaid($transferIds);
+        $transferCandidateIds = Yii::$app->request->getBodyParam('transferCandidate');
+        return TransferCandidate::markAllUnpaid($transferCandidateIds);
     }
 }

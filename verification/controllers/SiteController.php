@@ -42,7 +42,7 @@ class SiteController extends Controller
 
         if(!$candidate)
         {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return $this->redirect('https://studenthub.co');
         }
 
         $id = CandidateIdCard::find()
@@ -51,7 +51,7 @@ class SiteController extends Controller
 
         if(!$id)
         {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return $this->redirect('https://studenthub.co');
         }
 
         $store = Store::findOne($candidate->store_id);
@@ -60,14 +60,14 @@ class SiteController extends Controller
 
         if(!$store)
         {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return $this->redirect('https://studenthub.co');
         }
 
         // show 404 if candidate ID is expired
 
         if(time() > strtotime($id->expiry_date))
         {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return $this->redirect('https://studenthub.co');
         }
 
         $university = University::findOne($candidate->university_id);

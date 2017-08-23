@@ -1,11 +1,7 @@
 <?php
 return [
-    'id' => 'app-common-tests',
+    'id' => 'StudentHub Internship Program - Test',
+    'timeZone' => 'Asia/Kuwait',
     'basePath' => dirname(__DIR__),
-    'components' => [
-        'user' => [
-            'class' => 'yii\web\User',
-            'identityClass' => 'common\models\User',
-        ],
-    ],
+    'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
 ];

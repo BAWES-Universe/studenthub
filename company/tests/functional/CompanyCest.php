@@ -32,12 +32,14 @@ class CompanyCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * List sub companies
+     * @param FunctionalTester $I
+     */
+    public function listCompanies(FunctionalTester $I)
     {        
-        $I->wantTo('List sub companies');
         $I->amBearerAuthenticated($this->token);        
-        $I->sendGET('companies');
+        $I->sendGET('v1/companies');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

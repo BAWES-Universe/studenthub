@@ -17,7 +17,7 @@ use Codeception\Util\HttpCode;
 
 class CandidateCest
 {
-    public $token;
+    public $token, $candidate_id;
     
     public function _before(FunctionalTester $I)
     {
@@ -59,80 +59,116 @@ class CandidateCest
         $this->token = AdminToken::find()
                 ->one()
                 ->token_value;
+        
+        $this->candidate_id = Candidate::find()
+            ->one()
+            ->candidate_id;
     }
 
     public function _after(FunctionalTester $I)
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
+    /**
+     * list candidates to review 
+     * @param FunctionalTester $I
+     */
+    public function tryToList(FunctionalTester $I)
     {        
-        $candidate_id = Candidate::find()
-            ->one()
-            ->candidate_id;
-        
-        //---------- list candidates to review 
-        
         $I->wantTo('Validate admin > candidates api response for review listing');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('candidates/search?by=review&review=0&expand=store,university,country,company,bank');
+        $I->sendGET('v1/candidates/search?by=review&review=0&expand=store,university,country,company,bank');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        //---------- approve candidate
-        
+    }
+    
+    /**
+     * Approve candidate
+     * @param FunctionalTester $I
+     */
+    public function tryToApprove(FunctionalTester $I) 
+    {
         $I->wantTo('Validate admin > candidates api to approve candidate');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendPATCH('candidates/approve/2');
+        $I->sendPATCH('v1/candidates/approve/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
+    }
         
-        //---------- list candidates by country
-        
+    /**
+     * List candidates by country
+     * @param FunctionalTester $I
+     */
+    public function tryToListByCountry(FunctionalTester $I)     
+    {
         $I->wantTo('Validate admin > candidates api to list candidates by country');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('candidates/search?by=country_id&country_id=168');
+        $I->sendGET('v1/candidates/search?by=country_id&country_id=168');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        //---------- list candidates by store
-        
+    }
+            
+    /**
+     * List candidates by store
+     * @param FunctionalTester $I
+     */
+    public function tryToListByStore(FunctionalTester $I)     
+    {
         $I->wantTo('Validate admin > candidates api to list candidates by store');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('candidates/search?by=store_id&store_id=5');
+        $I->sendGET('v1/candidates/search?by=store_id&store_id=5');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        //---------- list candidates by university
-        
+    }
+            
+    /**
+     * List candidates by university
+     * @param FunctionalTester $I
+     */
+    public function tryToListByUniversity(FunctionalTester $I)     
+    {
         $I->wantTo('Validate admin > candidates api to list candidates by university');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('candidates/search?by=university_id&university_id=1');
+        $I->sendGET('v1/candidates/search?by=university_id&university_id=1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseIsJson();        
+    }   
         
-        //---------- Get total no of candidate to review 
-        
+    /**
+     * Get total no of candidate to review 
+     * @param FunctionalTester $I
+     */
+    public function getTotalCandidates(FunctionalTester $I)     
+    {
         $I->wantTo('Validate admin > candidates api to list candidates by university');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('candidates/total-to-review');
+        $I->sendGET('v1/candidates/total-to-review');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        //---------- Get candidate salary transfer
-        
+    }
+            
+    /**
+     * Get candidate salary transfer
+     * @param FunctionalTester $I
+     */
+    public function getSalaryTransfers(FunctionalTester $I)         
+    {
         $I->wantTo('Validate admin > candidates api to list candidates\' salary transfer');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('candidates/transfers/' . $candidate_id);
+        $I->sendGET('v1/candidates/transfers/' . $this->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        
-        //---------- Get candidate's work history 
-        
+    }
+    
+    /**
+     * Get candidate's work history 
+     * @param FunctionalTester $I
+     */
+    public function getWorkHistory(FunctionalTester $I)         
+    {
         $I->wantTo('Validate admin > candidates api to list candidates\' salary transfer');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('candidates/work-history/' . $candidate_id);
+        $I->sendGET('v1/candidates/work-history/' . $this->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

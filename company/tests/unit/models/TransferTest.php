@@ -424,157 +424,140 @@ class TransferTest extends \Codeception\Test\Unit
 
     }
 
+
+    public function testFixtureLoaded(){
+        expect('is file exist',Transfer::findOne(9))->notNull();
+    }
+
     /**
      * fail test case For company with sub companies
+     * when transfer is with empty candidate
      */
-    public function testFailUpdateTransferWithChild() {
+    public function testFailUpdateTransferForEmptyCandidateWhenCompanyWithChild()
+    {
+        $TransferID = 9;
+        $CompanyID = 1;
+        $company = Company::findOne($CompanyID);
+        $result = Transfer::updateTransfer($company, $TransferID, []);
+        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+    }
 
-        // test fail Update Transfer With Child ============================================================
-        $this->specify('fixture loaded data', function() {
-            expect('is file exist',Transfer::findOne(9))->notNull();
-        });
+    /**
+     * Fail For Invalid Candidates
+     */
+    public function testFailUpdateTransferForInvalidCandidateWhenCompanyWithChild()
+    {
+        $TransferID = 9;
+        $CompanyID = 1;
+        $company = Company::findOne($CompanyID);
 
-        $this->specify('Fail For Empty Candidates', function() {
-
-            $TransferID = 9;
-            $CompanyID = 1;
-            $company = Company::findOne($CompanyID);
-
-            $result = Transfer::updateTransfer($company, $TransferID, []);
-
-            expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-        });
-
-
-        $this->specify('Fail For Invalid Candidates', function() {
-
-            $TransferID = 9;
-            $CompanyID = 1;
-            $company = Company::findOne($CompanyID);
-
-            $data = [
-                'bonus' => rand(0, 10),
-                'hours' => rand(0, 100),
-                'candidate_id' => 205
-            ];
-            $arrCandidate[] = $data;
-
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
-
-            expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-        });
+        $data = [
+            'bonus' => rand(0, 10),
+            'hours' => rand(0, 100),
+            'candidate_id' => 205
+        ];
+        $arrCandidate[] = $data;
+        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+    }
 
 
-        $this->specify('Fail For Zero Total', function() {
+    /**
+     * Fail For Zero Total
+     */
 
-            $TransferID = 9;
-            $CompanyID = 1;
-            $company = Company::findOne($CompanyID);
+    public function testFailUpdateTransferForTotalZeroWhenCompanyWithChild()
+    {
+        $TransferID = 9;
+        $CompanyID = 1;
+        $company = Company::findOne($CompanyID);
 
-            $data = [
-                'bonus' => 0,
-                'hours' => 0,
-                'candidate_id' => 2
-            ];
-            $arrCandidate[] = $data;
+        $data = [
+            'bonus' => 0,
+            'hours' => 0,
+            'candidate_id' => 2
+        ];
+        $arrCandidate[] = $data;
 
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
 
-            expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
-        });
+        expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
+    }
 
-        $this->specify('Fail For Negative Hours', function() {
+    /**
+     * Fail For Negative Hours
+     */
+    public function testFailUpdateTransferWithNegativeHoursWhenCompanyWithChild()
+    {
+        $TransferID = 9;
+        $CompanyID = 1;
+        $company = Company::findOne($CompanyID);
+        $arrCandidate = [
+            ['bonus' => 0,'hours' => 2,'candidate_id' => 2],
+            ['bonus' => 0,'hours' => -1,'candidate_id' => 2]
+        ];
+        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+        expect('Transfer should return error', $result['message'])->hasKey('candidates');
+    }
 
-            $TransferID = 9;
-            $CompanyID = 1;
-            $company = Company::findOne($CompanyID);
+    /**
+     * Fail For Negative Bonus
+     */
+    public function testFailUpdateTransferWithNegativeBonusWhenCompanyWithChild()
+    {
+        $TransferID = 9;
+        $CompanyID = 1;
+        $company = Company::findOne($CompanyID);
+        $data = [ 'bonus' => -1, 'hours' => 1, 'candidate_id' => 2 ];
+        $arrCandidate[] = $data;
+        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+        expect('Transfer should return error', $result['message'])->hasKey('candidates');
+    }
 
-            $arrCandidate = [
-                [
-                    'bonus' => 0,
-                    'hours' => 2,
-                    'candidate_id' => 2
-                ],
-                [
-                    'bonus' => 0,
-                    'hours' => -1,
-                    'candidate_id' => 2
-                ]
-            ];
+    /**
+     * Fail For Empty Candidates
+     */
+    public function testFailUpdateTransferWithEmptyCandidatesWhenCompanyWithChild()
+    {
+        $TransferID = 13;
+        $CompanyID = 3;
+        $company = Company::findOne($CompanyID);
+        $result = Transfer::updateTransfer($company, $TransferID, []);
+        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+    }
 
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+    /**
+     * Fail For Invalid Candidates
+     */
+    public function testFailUpdateTransferWithInvalidCandidatesWhenCompanyWithChild()
+    {
+        $TransferID = 13;
+        $CompanyID = 3;
+        $company = Company::findOne($CompanyID);
 
-            expect('Transfer should return error', $result['message'])->hasKey('candidates');
-        });
+        $data = [
+            'bonus' => rand(0, 10),
+            'hours' => rand(0, 100),
+            'candidate_id' => 205
+        ];
+        $arrCandidate[] = $data;
 
-        $this->specify('Fail For Negative Bonus', function() {
+        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
 
-            $TransferID = 9;
-            $CompanyID = 1;
-            $company = Company::findOne($CompanyID);
+        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+    }
 
-            $data = [
-                'bonus' => -1,
-                'hours' => 1,
-                'candidate_id' => 2
-            ];
-            $arrCandidate[] = $data;
-
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
-
-            expect('Transfer should return error', $result['message'])->hasKey('candidates');
-        });
-
-
-
-        // test fail Update Transfer Without Child ============================================================
-        $this->specify('Fail For Empty Candidates', function() {
-
-            $TransferID = 13;
-            $CompanyID = 3;
-            $company = Company::findOne($CompanyID);
-
-            $result = Transfer::updateTransfer($company, $TransferID, []);
-
-            expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-        });
-
-
-        $this->specify('Fail For Invalid Candidates', function() {
-
-            $TransferID = 13;
-            $CompanyID = 3;
-            $company = Company::findOne($CompanyID);
-
-            $data = [
-                'bonus' => rand(0, 10),
-                'hours' => rand(0, 100),
-                'candidate_id' => 205
-            ];
-            $arrCandidate[] = $data;
-
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
-
-            expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-        });
-
-
-        $this->specify('Fail For Zero Total', function() {
-
-            $TransferID = 13;
-            $CompanyID = 3;
-            $company = Company::findOne($CompanyID);
-
-            $data = [
-                'bonus' => 0,
-                'hours' => 0,
-                'candidate_id' => 2
-            ];
-            $arrCandidate[] = $data;
-
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
-
-            expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
-        });
+    /**
+     * Fail For Zero Total
+     */
+    public function testFailUpdateTransferWithZeroTotalWhenCompanyWithChild()
+    {
+        $TransferID = 13;
+        $CompanyID = 3;
+        $company = Company::findOne($CompanyID);
+        $data = [ 'bonus' => 0, 'hours' => 0, 'candidate_id' => 2];
+        $arrCandidate[] = $data;
+        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate);
+        expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
     }
 }

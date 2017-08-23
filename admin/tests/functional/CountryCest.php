@@ -37,14 +37,15 @@ class CountryCest
     {
     }
 
-    // tests
-    public function tryToTest(FunctionalTester $I)
-    {
-        //---------------- list country ----------------
-        
+    /**
+     * List countries 
+     * @param FunctionalTester $I
+     */
+    public function tryToList(FunctionalTester $I)
+    {        
         $I->wantTo('Validate admin > countries api response for listing');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
-        $I->sendGET('countries');
+        $I->sendGET('v1/countries');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

@@ -316,6 +316,7 @@ class Transfer extends \common\models\Transfer {
             if(isset($transfer->errors)) {
                 return [
                     "operation" => "error",
+                    "type" => "system",
                     "message" => $transfer->errors
                 ];
             }
@@ -338,6 +339,17 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if(empty($value['candidate_id'])) 
+            {
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => "Candidate ID field required"
+                ];
+            }
+            
             $candidate = Candidate::find()
                 ->with(['store','company'])
                 ->where(['candidate_id'=>$value['candidate_id']])
@@ -403,13 +415,36 @@ class Transfer extends \common\models\Transfer {
      * @param $candidates
      * @return array
      */
-    public static function updateTransfer($company,$id,$candidates) {
+    public static function updateTransfer($company, $id, $candidates) {
 
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
             ->one();
+        
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
 
+        if($model->parent_transfer_id > 0) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer for sub company can\'t be edited!'
+            ];
+        }
+
+        //transfer status should be "Initiated" to edit it
+        if($model->transfer_status != Transfer::STATUS_INITIATED)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer status should be "Initiated" to edit it!'
+            ];
+        }
+        
         $model->candidates = $candidates;
 
         $new_transfer_id = $new_invoice_id = [];
@@ -449,11 +484,23 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if(empty($value['candidate_id'])) 
+            {
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => "Candidate ID field required"
+                ];
+            }
+            
             $candidate = Candidate::find()
                 ->with(['store','company'])
-                ->where(['candidate_id'=>$value['candidate_id']])
+                ->where(['candidate_id' => $value['candidate_id']])
                 ->asArray()
                 ->one();
+            
             if(!$candidate) 
             {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -467,6 +514,7 @@ class Transfer extends \common\models\Transfer {
 
             // save candidate transfer
             $response = TransferCandidate::saveCandidateTransfer($candidate, $model, $value);
+            
             if ($response['operation'] == "error") {                
                 if(empty(Yii::$app->params['inCodeception']))
                     $transaction->rollBack();
@@ -498,6 +546,7 @@ class Transfer extends \common\models\Transfer {
 
             return [
                 "operation" => "error",
+                "type" => "system",
                 "message" => $model->getErrors()
             ];
         }
@@ -578,6 +627,7 @@ class Transfer extends \common\models\Transfer {
 
                 return [
                     "operation" => "error",
+                    "type" => "system",
                     "message" => $transfer->getErrors()
                 ];
             }

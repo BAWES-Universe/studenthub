@@ -8,6 +8,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
 use company\models\Transfer;
+use company\models\TranferExcel;
 use common\models\Invoice;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -127,6 +128,87 @@ class TransferController extends Controller
         //save transfer
         return Transfer::saveTransfer($company, $candidates);
     }
+    
+    /**
+     * Initiate transfer by excel.
+     * @return array
+     */
+    public function actionCreateByExcel()
+    {
+        $company = Yii::$app->user->identity;
+        
+        $model = new TranferExcel;        
+        $model->excel = \yii\web\UploadedFile::getInstanceByName('excel');
+        
+        if($model->validate())
+        {
+            $candidates = [];
+
+            $data  = \moonland\phpexcel\Excel::import($model->excel->tempName);
+     
+            //remove empty rows 
+
+            foreach ($data as $key => $value) 
+            {
+                if(empty($value['candidate_id']))
+                    continue;
+
+                $candidates[] = $value;
+            }
+
+            //save transfer
+            return Transfer::saveTransfer($company, $candidates);
+        }
+        else 
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => $model->getErrors()
+            ];
+        }
+    }
+
+	/**
+	 * Edit transfer by excel.
+	 * @param $id
+	 * @return array
+	 */
+    public function actionEditByExcel($id)
+    {
+        $company = Yii::$app->user->identity;
+
+        $model = new TranferExcel;        
+        $model->excel = \yii\web\UploadedFile::getInstanceByName('excel');
+        
+        if($model->validate())
+        {
+            $candidates = [];
+
+            $data = \moonland\phpexcel\Excel::import($model->excel->tempName);
+            
+            //remove empty rows 
+            
+            foreach ($data as $key => $value) 
+            {
+                if(empty($value['candidate_id']))
+                    continue;
+
+                $candidates[] = $value;
+            }
+
+            //save transfer
+            return Transfer::updateTransfer($company, $id, $candidates);
+        }
+        else 
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => $model->getErrors()
+            ];
+        }
+    }
 
     /**
      * Edit transfer with "Initiated" status
@@ -136,35 +218,6 @@ class TransferController extends Controller
     public function actionEdit($id)
     {
         $company = Yii::$app->user->identity;
-
-        // list all sub companies
-        $model = $company
-            ->getTransfers()
-            ->filterTransfer($id)
-            ->one();
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
-
-        if($model->parent_transfer_id > 0) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer for sub company can\'t be edited!'
-            ];
-        }
-
-        //transfer status should be "Initiated" to edit it
-        if($model->transfer_status != Transfer::STATUS_INITIATED)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer status should be "Initiated" to edit it!'
-            ];
-        }
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
 
@@ -345,5 +398,58 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
+    }
+    
+    /**
+     * Excel template to initiate transfer
+     */
+    public function actionTransferExcelTemplate()
+    {
+        $company = Yii::$app->user->identity;
+        
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $company->candidates,
+            'columns' => [
+                [
+                    'header' => 'candidate_id',
+                    'value' => function($data) {
+                        return $data->candidate_id;
+                    }
+                ],
+                [
+                    'header' => 'candidate_name',
+                    'value' => function($data) {
+                        return $data->candidate_name;
+                    }
+                ],
+	            [
+		            'header' => 'company_name',
+		            'value' => function($data) {
+			            return $data->company->company_name;
+		            }
+	            ],
+	            [
+		            'header' => 'store_name',
+		            'value' => function($data) {
+			            return $data->store->store_name;
+		            }
+	            ],
+                [
+                    'header' => 'hours',
+                    'value' => function() {
+                        return 0;
+                    }
+                ],
+                [
+                    'header' => 'bonus',
+                    'value' => function() {
+                        return 0;
+                    }
+                ]
+            ]
+        ]);        
     }
 }
