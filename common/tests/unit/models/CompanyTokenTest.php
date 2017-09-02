@@ -5,14 +5,14 @@ use Codeception\Specify;
 use common\models\Company;
 use common\models\CompanyToken;
 use common\models\Store;
-use common\fixtures\CompanyToken as CompanyTokenFixture;
-use common\fixtures\Company as CompanyFixture;
-use common\fixtures\Store as StoreFixture;
+use common\fixtures\CompanyTokenFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\StoreFixture;
 
 class CompanyTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */

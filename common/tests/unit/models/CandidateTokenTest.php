@@ -3,17 +3,17 @@ namespace common\tests;
 
 use Yii;
 use common\models\CandidateToken;
-use common\fixtures\CandidateToken as CandidateTokenFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Country as CountryFixture;
-use common\fixtures\University as UniversityFixture;
-use common\fixtures\Store as StoreFixture;
+use common\fixtures\CandidateTokenFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\StoreFixture;
 use Codeception\Specify;
 
 class CandidateTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */
@@ -25,15 +25,15 @@ class CandidateTokenTest extends \Codeception\Test\Unit
             'candidates' => [
                 'class' => CandidateFixture::className(),
                 'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],         
+            ],
             'country' => [
                 'class' => CountryFixture::className(),
                 'dataFile' => codecept_data_dir() . 'country.php'
-            ],         
+            ],
             'university' => [
                 'class' => UniversityFixture::className(),
                 'dataFile' => codecept_data_dir() . 'university.php'
-            ],         
+            ],
             'store' => [
                 'class' => StoreFixture::className(),
                 'dataFile' => codecept_data_dir() . 'store.php'
@@ -43,7 +43,7 @@ class CandidateTokenTest extends \Codeception\Test\Unit
                 'dataFile' => codecept_data_dir() . 'candidateToken.php'
             ]
         ]);
-        
+
         Yii::$app->params['candidate_max_hourly_rate'] = 2;
     }
 

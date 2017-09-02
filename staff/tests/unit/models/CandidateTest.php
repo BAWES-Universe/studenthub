@@ -2,10 +2,10 @@
 namespace company\tests\unit\models;
 
 use Yii;
-use staff\fixtures\Country as CountryFixture;
-use staff\fixtures\Candidate as CandidateFixture;
-use staff\fixtures\University as UniversityFixture;
-use common\fixtures\Store as StoreFixture;
+use staff\fixtures\CountryFixture;
+use staff\fixtures\CandidateFixture;
+use staff\fixtures\UniversityFixture;
+use common\fixtures\StoreFixture;
 use staff\models\Candidate;
 
 class CandidateTest extends \Codeception\Test\Unit

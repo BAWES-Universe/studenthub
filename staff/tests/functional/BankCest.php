@@ -3,9 +3,9 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use common\fixtures\Bank as BankFixture;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
+use common\fixtures\BankFixture;
+use staff\fixtures\StaffTokenFixture;
+use staff\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class BankCest

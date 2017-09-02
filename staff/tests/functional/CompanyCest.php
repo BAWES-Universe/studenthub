@@ -4,14 +4,14 @@ namespace staff\tests;
 use yii;
 use staff\tests\FunctionalTester;
 use common\models\StaffToken;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
+use staff\fixtures\StaffTokenFixture;
+use staff\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class CompanyCest
 {
     public $token;
-        
+
     public function _before(FunctionalTester $I)
     {
         $I->haveFixtures([
@@ -24,11 +24,11 @@ class CompanyCest
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
             ],
         ]);
-        
+
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
-        
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -37,13 +37,13 @@ class CompanyCest
     }
 
     /**
-     * List companies 
+     * List companies
      * @param FunctionalTester $I
      */
     public function tryToListing(FunctionalTester $I)
     {
         $I->wantTo('get Company listing');
         $I->sendGET('v1/companies');
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
     }
 }

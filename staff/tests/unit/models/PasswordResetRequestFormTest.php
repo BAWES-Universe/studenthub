@@ -1,10 +1,10 @@
 <?php
 namespace company\tests\unit\models;
 
-use staff\models\Staff;
 use Yii;
-use staff\fixtures\Staff as StaffFixture;
+use staff\models\Staff;
 use staff\models\PasswordResetRequestForm;
+use staff\fixtures\StaffFixture;
 
 class PasswordResetRequestFormTest extends \Codeception\Test\Unit
 {

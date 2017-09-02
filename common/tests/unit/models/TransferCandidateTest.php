@@ -2,19 +2,19 @@
 namespace common\tests;
 
 use Codeception\Specify;
-use common\fixtures\Bank as BankFixture;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Company as CompanyFixture;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
-use common\fixtures\Invoice as InvoiceFixture;
+use common\fixtures\BankFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
+use common\fixtures\InvoiceFixture;
 use common\models\TransferCandidate;
 
 class TransferCandidateTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */

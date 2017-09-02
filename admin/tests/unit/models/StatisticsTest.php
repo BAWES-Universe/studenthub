@@ -8,17 +8,17 @@ use admin\models\Company;
 use admin\models\Candidate;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use admin\fixtures\Company as CompanyFixture;
-use admin\fixtures\Store as StoreFixture;
-use admin\fixtures\Candidate as CandidateFixture;
-use admin\fixtures\Transfer as TransferFixture;
-use admin\fixtures\TransferCandidate as TransferCandidateFixture;
-use admin\fixtures\Invoice as InvoiceFixture;
+use admin\fixtures\CompanyFixture;
+use admin\fixtures\StoreFixture;
+use admin\fixtures\CandidateFixture;
+use admin\fixtures\TransferFixture;
+use admin\fixtures\TransferCandidateFixture;
+use admin\fixtures\InvoiceFixture;
 
 class StatisticsTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \admin\tests\UnitTester
      */

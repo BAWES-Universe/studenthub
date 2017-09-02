@@ -5,17 +5,17 @@ use common\models\CandidateWorkHistory;
 use Yii;
 use common\models\Store;
 use common\models\Candidate;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\CandidateWorkHistory as CandidateWorkHistoryFixture;
-use common\fixtures\Country as CountryFixture;
-use common\fixtures\University as UniversityFixture;
-use common\fixtures\Store as StoreFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CandidateWorkHistoryFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\StoreFixture;
 use Codeception\Specify;
 
 class CandidateWorkHistoryTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */
@@ -27,15 +27,15 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
             'candidates' => [
                 'class' => CandidateFixture::className(),
                 'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],         
+            ],
             'country' => [
                 'class' => CountryFixture::className(),
                 'dataFile' => codecept_data_dir() . 'country.php'
-            ],         
+            ],
             'university' => [
                 'class' => UniversityFixture::className(),
                 'dataFile' => codecept_data_dir() . 'university.php'
-            ],         
+            ],
             'store' => [
                 'class' => StoreFixture::className(),
                 'dataFile' => codecept_data_dir() . 'store.php'
@@ -59,7 +59,7 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
                 CandidateWorkHistory::findOne(['candidate_id' => 1])
             )->notNull();
         });
-        
+
         $this->specify('Candidate model required field validation', function() {
             $model = new CandidateWorkHistory();
             $model->candidate_id = 'candidate_id';

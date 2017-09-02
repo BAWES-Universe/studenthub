@@ -1,10 +1,10 @@
 <?php
 namespace company\tests\unit\models;
 
-use staff\models\Staff;
 use Yii;
-use staff\fixtures\Staff as StaffFixture;
+use staff\models\Staff;
 use staff\models\LoginForm;
+use staff\fixtures\StaffFixture;
 
 class LoginFormTest extends \Codeception\Test\Unit
 {

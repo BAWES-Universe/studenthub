@@ -3,12 +3,12 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use common\fixtures\CandidateIdCard as CandidateIdCardFixture;
-use staff\fixtures\Candidate as CandidateFixture;
-use staff\fixtures\University as UniversityFixture;
-use staff\fixtures\Country as CountryFixture;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
+use common\fixtures\CandidateIdCardFixture;
+use staff\fixtures\CandidateFixture;
+use staff\fixtures\UniversityFixture;
+use staff\fixtures\CountryFixture;
+use staff\fixtures\StaffTokenFixture;
+use staff\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class StatisticsCest

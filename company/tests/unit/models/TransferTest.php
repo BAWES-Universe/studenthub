@@ -8,11 +8,11 @@ use company\models\Company;
 use company\models\Candidate;
 use company\models\Transfer;
 use company\models\TransferCandidate;
-use common\fixtures\Company as CompanyFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 
 class TransferTest extends \Codeception\Test\Unit
 {

@@ -5,21 +5,21 @@ use Yii;
 use admin\tests\FunctionalTester;
 use common\models\Bank;
 use common\models\AdminToken;
-use common\fixtures\Admin as AdminFixture;
-use common\fixtures\AdminToken as AdminTokenFixture;
-use common\fixtures\Bank as BankFixture;
+use common\fixtures\AdminFixture;
+use common\fixtures\AdminTokenFixture;
+use common\fixtures\BankFixture;
 use Codeception\Util\HttpCode;
 
 class BankCest
 {
     public $token, $bank_id = 2;
-    
+
     public function _before(FunctionalTester $I)
     {
         $I->haveFixtures([
             'admin' => [
                 'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'                
+                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'
             ],
             'adminToken' => [
                 'class' => AdminTokenFixture::className(),
@@ -30,7 +30,7 @@ class BankCest
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/bank.php'
             ]
         ]);
-        
+
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
@@ -52,20 +52,20 @@ class BankCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * Try to create new bank
      * @param FunctionalTester $I
      */
     public function tryToCreate(FunctionalTester $I)
-    {   
+    {
         $I->wantTo('create a bank via API');
         $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
-            'v1/banks', 
+            'v1/banks',
             [
-                'name' => 'davert', 
+                'name' => 'davert',
                 'swift_code' => 'HDFCIN010000',
                 'address' => '201, Albert Street',
                 'type' => 'LCL'
@@ -77,20 +77,20 @@ class BankCest
             "message" => "Bank created successfully"
         ]);
     }
-    
+
     /**
-     * Try to update 
+     * Try to update
      * @param FunctionalTester $I
      */
     public function tryToUpdate(FunctionalTester $I)
-    {   
+    {
         $I->wantTo('update a bank via API');
         $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'v1/banks/' . $this->bank_id, 
+            'v1/banks/' . $this->bank_id,
             [
-                'name' => 'davert', 
+                'name' => 'davert',
                 'swift_code' => 'HDFCIN010000',
                 'address' => '201, Albert Street',
                 'type' => 'LCL'
@@ -102,7 +102,7 @@ class BankCest
             "message" => "Bank successfully updated"
         ]);
     }
-    
+
     /**
      * Try to delete
      * @param FunctionalTester $I

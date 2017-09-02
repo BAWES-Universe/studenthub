@@ -3,16 +3,16 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use staff\fixtures\Store as StoreFixture;
-use staff\fixtures\Candidate as CandidateFixture;
-use staff\fixtures\University as UniversityFixture;
-use staff\fixtures\Company as CompanyFixture;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
-use common\fixtures\Invoice as InvoiceFixture;
-use common\fixtures\CandidateWorkHistory as CandidateWorkHistoryFixture;
+use staff\fixtures\StoreFixture;
+use staff\fixtures\CandidateFixture;
+use staff\fixtures\UniversityFixture;
+use staff\fixtures\CompanyFixture;
+use staff\fixtures\StaffTokenFixture;
+use staff\fixtures\StaffFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
+use common\fixtures\InvoiceFixture;
+use common\fixtures\CandidateWorkHistoryFixture;
 use Codeception\Util\HttpCode;
 
 class CandidateCest

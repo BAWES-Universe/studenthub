@@ -2,13 +2,13 @@
 namespace common\tests;
 
 use admin\models\Invoice;
-use common\fixtures\Invoice as InvoiceFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Country as CountryFixture;
-use common\fixtures\University as UniversityFixture;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
+use common\fixtures\InvoiceFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 
 use Codeception\Specify;
 

@@ -4,13 +4,13 @@ namespace common\tests;
 use Codeception\Specify;
 use common\models\Admin;
 use common\models\AdminToken;
-use common\fixtures\Admin as AdminFixture;
-use common\fixtures\AdminToken as AdminTokenFixture;
+use common\fixtures\AdminFixture;
+use common\fixtures\AdminTokenFixture;
 
 class AdminTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */
@@ -62,7 +62,7 @@ class AdminTokenTest extends \Codeception\Test\Unit
 
         $this->specify('Test existing Token', function() {
             expect(
-                'unique token string', 
+                'unique token string',
                 AdminToken::findOne(['token_value' => AdminToken::generateUniqueTokenString()])
             )->null();
         });

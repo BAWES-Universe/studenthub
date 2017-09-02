@@ -3,8 +3,8 @@ namespace company\tests;
 
 use Yii;
 use company\tests\FunctionalTester;
-use common\fixtures\Company as CompanyFixture;
-use common\fixtures\CompanyToken as CompanyTokenFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\CompanyTokenFixture;
 use Codeception\Util\HttpCode;
 
 use common\models\Company;
@@ -16,7 +16,7 @@ class AuthCest
         $I->haveFixtures([
             'company' => [
                 'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'                
+                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
             ],
             'companyToken' => [
                 'class' => CompanyTokenFixture::className(),
@@ -30,7 +30,7 @@ class AuthCest
     }
 
     /**
-     * Try to login 
+     * Try to login
      * @param FunctionalTester $I
      */
     public function tryToLogin(FunctionalTester $I)
@@ -41,12 +41,12 @@ class AuthCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * Update Password
      * @param FunctionalTester $I
      */
-    public function tryToUpdatePassword(FunctionalTester $I)    
+    public function tryToUpdatePassword(FunctionalTester $I)
     {
         $I->wantTo('Validate auth > update password api');
         $I->sendPATCH('v1/auth/update-password', [
@@ -55,5 +55,5 @@ class AuthCest
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-    } 
+    }
 }

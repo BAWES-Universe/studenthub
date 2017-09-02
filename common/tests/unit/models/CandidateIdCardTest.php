@@ -2,14 +2,14 @@
 namespace common\tests;
 
 use common\models\CandidateIdCard;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\CandidateIdCard as CandidateIdCardFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CandidateIdCardFixture;
 use Codeception\Specify;
 
 class CandidateIdCardTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */
@@ -25,7 +25,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
             'candidateIdCards' => [
                 'class' => CandidateIdCardFixture::className(),
                 'dataFile' => codecept_data_dir() . 'candidateIdCard.php'
-            ]            
+            ]
         ]);
     }
 
@@ -41,19 +41,19 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
                 CandidateIdCard::findOne(['candidate_id'=>1])
             )->notNull();
         });
-        
+
         $this->specify('CandidateIdCard model required field validation', function() {
             $id = new CandidateIdCard;
             expect('Candidate ID should be required field', $id->validate(['candidate_id']))->false();
             expect('Expiry date should be required field', $id->validate(['expiry_date']))->false();
         });
-        
+
         $this->specify('CandidateIdCard model should not accept random candidate id', function() {
             $id = new CandidateIdCard;
             $id->candidate_id = 9999999999999999999999;
             expect('Invalid canidate id passed', $id->validate(['candidate_id']))->false();
-        });        
-        
+        });
+
         $this->specify('Candidate ID should be valid candidate_id from candidate table', function () {
             $candidate = $this->tester->grabFixture('candidates', 0);
             $model = new CandidateIdCard;
@@ -61,7 +61,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
             expect('Valid canidate id passed', $model->errors)->hasntKey('candidate_id');
         });
     }
-    
+
     /**
      * Tests Create, Update and Delete for the staff model
      */

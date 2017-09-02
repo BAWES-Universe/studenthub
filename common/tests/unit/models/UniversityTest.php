@@ -2,7 +2,7 @@
 namespace common\tests;
 
 use common\models\University;
-use common\fixtures\University as UniversityFixture;
+use common\fixtures\UniversityFixture;
 use Codeception\Specify;
 
 class UniversityTest extends \Codeception\Test\Unit

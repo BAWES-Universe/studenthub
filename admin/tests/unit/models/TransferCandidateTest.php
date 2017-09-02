@@ -5,13 +5,13 @@ use Yii;
 use Codeception\Specify;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 
 class TransferCandidateTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \admin\tests\UnitTester
      */

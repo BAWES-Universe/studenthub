@@ -2,8 +2,8 @@
 namespace common\tests;
 
 use common\models\Store;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Company as CompanyFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CompanyFixture;
 use Codeception\Specify;
 
 class StoreTest extends \Codeception\Test\Unit

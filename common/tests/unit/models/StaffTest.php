@@ -1,9 +1,7 @@
 <?php
-
 namespace common\tests\unit\models;
 
-
-use common\fixtures\Staff as StaffFixture;
+use common\fixtures\StaffFixture;
 use common\models\Staff;
 use Codeception\Specify;
 

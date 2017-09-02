@@ -1,10 +1,8 @@
 <?php
-
 namespace common\tests\unit\models;
 
-
-use common\fixtures\StaffToken as StaffTokenFixture;
-use common\fixtures\Staff as StaffFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use common\models\StaffToken;
 use Codeception\Specify;
 

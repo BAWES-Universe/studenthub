@@ -1,6 +1,6 @@
 <?php
 
-use common\fixtures\Country as CountryFixture;
+use common\fixtures\CountryFixture;
 use common\models\Country;
 
 class CountryTest extends \Codeception\Test\Unit

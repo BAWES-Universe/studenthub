@@ -4,27 +4,27 @@ namespace candidate\tests;
 use yii;
 use candidate\tests\FunctionalTester;
 use candidate\models\CandidateToken;
-use candidate\fixtures\Candidate as CandidateFixture;
-use candidate\fixtures\CandidateToken as CandidateTokenFixture;
+use candidate\fixtures\CandidateFixture;
+use candidate\fixtures\CandidateTokenFixture;
 use Codeception\Util\HttpCode;
 
 class AuthCest
 {
     public $token;
-    
+
     public function _before(FunctionalTester $I)
     {
         $I->haveFixtures([
             'candidate' => [
                 'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'                
+                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
             ],
             'candidateToken' => [
                 'class' => CandidateTokenFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateToken.php'
             ]
         ]);
-        
+
         $this->token = CandidateToken::find()
                 ->one()
                 ->token_value;
@@ -35,18 +35,18 @@ class AuthCest
     }
 
     /**
-     * Login 
+     * Login
      * @param FunctionalTester $I
      */
     public function tryToLogin(FunctionalTester $I)
     {
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated('candidate1@bawes.net', '123456');        
+        $I->amHttpAuthenticated('candidate1@bawes.net', '123456');
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * Update password
      * @param FunctionalTester $I
