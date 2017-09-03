@@ -16,9 +16,9 @@ class AdminTokenTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    public function _fixtures()
     {
-        $this->tester->haveFixtures([
+        return [
             'admin' => [
                 'class' => AdminFixture::className(),
                 'dataFile' => codecept_data_dir() . 'admin.php'
@@ -27,12 +27,16 @@ class AdminTokenTest extends \Codeception\Test\Unit
                 'class' => AdminTokenFixture::className(),
                 'dataFile' => codecept_data_dir() . 'adminToken.php'
             ]
-        ]);
+        ];
     }
+
+    protected function _before(){}
 
     protected function _after(){}
 
-    // tests
+    /**
+     * Test Validation
+     */
     public function testValidation()
     {
         $this->specify('Fixtures should be loaded', function() {
