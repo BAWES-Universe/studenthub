@@ -23,11 +23,6 @@ jobs:
 
     working_directory: ~/payroll
 
-    branches:
-      only:
-        - master
-        - develop
-
     steps:
       - checkout
 
