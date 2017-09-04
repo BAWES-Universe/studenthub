@@ -24,38 +24,35 @@ class StatisticsTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-            ],
-        ]);
-    }
-
-    protected function _after(){}
-
+	public function _fixtures()
+	{
+		return [
+			'company' => [
+				'class' => CompanyFixture::className(),
+				'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
+			],
+			'store' => [
+				'class' => StoreFixture::className(),
+				'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
+			],
+			'candidate' => [
+				'class' => CandidateFixture::className(),
+				'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
+			],
+			'transfer' => [
+				'class' => TransferFixture::className(),
+				'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
+			],
+			'transferCandidate' => [
+				'class' => TransferCandidateFixture::className(),
+				'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
+			],
+			'invoice' => [
+				'class' => InvoiceFixture::className(),
+				'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
+			],
+		];
+	}
 
     /**
      * test admin statistics
@@ -128,7 +125,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ])
             ->count();
 
-        expect('Total assigned candidates', $totalAssignedToWork)->equals(Candidate::candidateCountByCondition());
+        expect('Total assigned candidates', $totalAssignedToWork)->equals(Candidate::candidateCountByCondition('assigned'));
     }
 
     /**
