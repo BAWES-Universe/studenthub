@@ -106,6 +106,31 @@ return [
             'verification/config/main-local.php',
         ],
     ],
+    'Circle-CI' => [
+        'path' => 'circle-ci',
+        'setWritable' => [
+            'admin/runtime',
+            'admin/web/assets',
+            'candidate/runtime',
+            'candidate/web/assets',
+            'company/runtime',
+            'company/web/assets',
+            'staff/runtime',
+            'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
+        ],
+        'setExecutable' => [
+            'yii',
+        ],
+        'setCookieValidationKey' => [
+            'admin/config/main-local.php',
+            'candidate/config/main-local.php',
+            'company/config/main-local.php',
+            'staff/config/main-local.php',
+            'verification/config/main-local.php',
+        ],
+    ],
     'Production' => [
         'path' => 'prod',
         'setWritable' => [
