@@ -28,12 +28,10 @@ jobs:
 
       # Install additional PHP modules
       - run: sudo apt-get update
-      - run: sudo apt-get install libpng-dev libmcrypt-dev libreadline-dev
+      - run: sudo apt-get install libpng-dev libmcrypt-dev libreadline-dev mysql-client
       - run: sudo docker-php-ext-install gd
       - run: sudo docker-php-ext-install mcrypt && sudo docker-php-ext-enable mcrypt
       - run: sudo docker-php-ext-install pdo_mysql && sudo docker-php-ext-enable pdo_mysql
-      - run: sudo apt-get install mysql-client
-
 
       # Download and cache dependencies
       - restore_cache:
@@ -50,6 +48,14 @@ jobs:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
+
+      -run:
+          name: Initialize Dev Environment
+          command: ./init --env=Development --overwrite=All
+
+      -run:
+          name: Install DB Migrations
+          command: ./yii migrate --interactive=0
 
       # run tests!
       # - run: phpunit
