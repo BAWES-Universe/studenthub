@@ -20,14 +20,8 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 	public function _fixtures()
 	{
         return [
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ]
+            'transfer' =>TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className()
         ];
     }
 

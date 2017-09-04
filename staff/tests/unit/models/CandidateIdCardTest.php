@@ -21,22 +21,10 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
 	public function _fixtures()
 	{
 		return [
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-			'candidateIdCardFixture' => [
-                'class' => CandidateIdCardFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateIdCard.php'
-            ]
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className(),
+            'candidate' => CandidateFixture::className(),
+			'candidateIdCardFixture' => CandidateIdCardFixture::className()
         ];
     }
 

@@ -15,18 +15,9 @@ class CandidateCest
 
 	public function _fixtures() {
 		return [
-			'company'      => [
-				'class'    => CompanyFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
-			],
-			'companyToken' => [
-				'class'    => CompanyTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/companyToken.php'
-			],
-			'candidate'    => [
-				'class'    => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
-			]
+			'company'      => CompanyFixture::className(),
+			'companyToken' => CompanyTokenFixture::className(),
+			'candidate'    => CandidateFixture::className()
 		] ;
 	}
 

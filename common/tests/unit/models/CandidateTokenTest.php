@@ -19,35 +19,22 @@ class CandidateTokenTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'candidates' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => codecept_data_dir() . 'country.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => codecept_data_dir() . 'university.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ],
-            'candidateToken' => [
-                'class' => CandidateTokenFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidateToken.php'
-            ]
-        ]);
-
-        Yii::$app->params['candidate_max_hourly_rate'] = 2;
+        return [
+            'candidates' => CandidateFixture::className(),
+            'country' => CountryFixture::className(),
+            'university' => UniversityFixture::className(),
+            'store' => StoreFixture::className(),
+            'candidateToken' => CandidateTokenFixture::className(),
+        ];
     }
 
-    protected function _after()
+    protected function _before() {
+	    Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    }
+
+	protected function _after()
     {
     }
 

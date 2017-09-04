@@ -16,18 +16,9 @@ class StaffCest
 
 	public function _fixtures() {
 		return [
-			'admin'      => [
-				'class'    => AdminFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
-			],
-			'adminToken' => [
-				'class'    => AdminTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
-			],
-			'staff'      => [
-				'class'    => StaffFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
-			]
+			'admin' => AdminFixture::className(),
+			'adminToken' => AdminTokenFixture::className(),
+			'staff' => StaffFixture::className(),
 		];
 	}
 

@@ -19,27 +19,18 @@ class CandidateTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
+    protected function _fixtures()
+    {
+	    return [
+		    'candidates' => CandidateFixture::className(),
+		    'country'    => CountryFixture::className(),
+		    'university' => UniversityFixture::className(),
+		    'store'      => StoreFixture::className()
+	    ];
+    }
+
     protected function _before()
     {
-        $this->tester->haveFixtures([
-            'candidates' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => codecept_data_dir() . 'country.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => codecept_data_dir() . 'university.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ]
-        ]);
-
         Yii::$app->params['candidate_max_hourly_rate'] = 2;
     }
 

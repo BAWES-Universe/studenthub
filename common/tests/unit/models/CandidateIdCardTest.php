@@ -15,18 +15,12 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'candidates' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],
-            'candidateIdCards' => [
-                'class' => CandidateIdCardFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidateIdCard.php'
-            ]
-        ]);
+        return [
+            'candidates' => CandidateFixture::className(),
+            'candidateIdCards' => CandidateIdCardFixture::className()
+        ];
     }
 
     protected function _after()

@@ -4,7 +4,7 @@ namespace company\tests\unit\models;
 use Yii;
 use staff\models\Staff;
 use staff\models\LoginForm;
-use staff\fixtures\StaffFixture;
+use common\fixtures\StaffFixture;
 
 class LoginFormTest extends \Codeception\Test\Unit
 {
@@ -16,12 +16,7 @@ class LoginFormTest extends \Codeception\Test\Unit
 
 	public function _fixtures()
 	{
-        return [
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-        ];
+        return [ 'staff' => StaffFixture::className()];
     }
 
     /**

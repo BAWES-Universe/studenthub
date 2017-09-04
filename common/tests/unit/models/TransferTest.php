@@ -14,14 +14,9 @@ class TransferTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => codecept_data_dir() . 'company.php'
-            ]
-        ]);
+        return ['company' => CompanyFixture::className()];
     }
 
     protected function _after()

@@ -3,11 +3,11 @@ namespace candidate\tests;
 
 use yii;
 use candidate\tests\FunctionalTester;
-use candidate\models\CandidateToken;
-use candidate\fixtures\CandidateFixture;
-use candidate\fixtures\CandidateTokenFixture;
-use candidate\fixtures\TransferFixture;
-use candidate\fixtures\TransferCandidateFixture;
+use common\models\CandidateToken;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CandidateTokenFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 use Codeception\Util\HttpCode;
 
@@ -18,26 +18,11 @@ class StatisticsCest
     public function _fixtures()
     {
         return [
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'candidateToken' => [
-                'class' => CandidateTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateToken.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-            ]
+            'candidate' => CandidateFixture::className(),
+            'candidateToken' => CandidateTokenFixture::className(),
+            'transfer' => TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className(),
+            'invoice' => InvoiceFixture::className()
         ];
     }
 

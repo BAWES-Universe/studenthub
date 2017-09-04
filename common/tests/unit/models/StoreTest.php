@@ -14,18 +14,12 @@ class StoreTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => codecept_data_dir() . 'company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ]
-        ]);
+        return [
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className()
+        ];
     }
 
     protected function _after(){}

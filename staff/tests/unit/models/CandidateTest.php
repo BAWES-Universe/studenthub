@@ -2,9 +2,9 @@
 namespace company\tests\unit\models;
 
 use Yii;
-use staff\fixtures\CountryFixture;
-use staff\fixtures\CandidateFixture;
-use staff\fixtures\UniversityFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\UniversityFixture;
 use common\fixtures\StoreFixture;
 use staff\models\Candidate;
 
@@ -23,22 +23,10 @@ class CandidateTest extends \Codeception\Test\Unit
     public function _fixtures()
 	{
         return [
-            'candidates' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/country.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/university.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ]
+            'candidates' => CandidateFixture::className(),
+            'country' => CountryFixture::className(),
+            'university' => UniversityFixture::className(),
+            'store' => StoreFixture::className()
         ];
     }
 

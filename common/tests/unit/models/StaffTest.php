@@ -25,14 +25,9 @@ class StaffTest extends \Codeception\Test\Unit
     }
 
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => codecept_data_dir() . 'staff.php'
-            ]
-        ]);
+        return ['staff' => StaffFixture::className()];
     }
 
     protected function _after()

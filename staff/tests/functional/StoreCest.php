@@ -3,10 +3,10 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use staff\fixtures\StoreFixture;
-use staff\fixtures\CompanyFixture;
-use staff\fixtures\StaffTokenFixture;
-use staff\fixtures\StaffFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class StoreCest
@@ -16,22 +16,10 @@ class StoreCest
 	public function _fixtures()
 	{
 		return [
-			'staff'      => [
-				'class'    => StaffFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
-			],
-			'staffToken' => [
-				'class'    => StaffTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
-			],
-			'company'    => [
-				'class'    => CompanyFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
-			],
-			'store'      => [
-				'class'    => StoreFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
-			],
+			'staff'      => StaffFixture::className(),
+			'staffToken' => StaffTokenFixture::className(),
+			'company'    => CompanyFixture::className(),
+			'store'      => StoreFixture::className()
 		];
 	}
 

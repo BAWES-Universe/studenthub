@@ -3,11 +3,11 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use staff\fixtures\CandidateFixture;
-use staff\fixtures\UniversityFixture;
-use staff\fixtures\CountryFixture;
-use staff\fixtures\StaffTokenFixture;
-use staff\fixtures\StaffFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class CountryCest
@@ -17,26 +17,11 @@ class CountryCest
 	public function _fixtures()
 	{
 		return [
-			'country'    => [
-				'class'    => CountryFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/country.php'
-			],
-			'candidate'  => [
-				'class'    => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
-			],
-			'university' => [
-				'class'    => UniversityFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/university.php'
-			],
-			'staff'      => [
-				'class'    => StaffFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
-			],
-			'staffToken' => [
-				'class'    => StaffTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
-			],
+			'country'    => CountryFixture::className(),
+			'candidate'  => CandidateFixture::className(),
+			'university' => UniversityFixture::className(),
+			'staff'      => StaffFixture::className(),
+			'staffToken' => StaffTokenFixture::className()
 		];
 	}
 

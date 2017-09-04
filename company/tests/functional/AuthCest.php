@@ -14,14 +14,8 @@ class AuthCest
 	public function _fixtures()
 	{
         return [
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'companyToken' => [
-                'class' => CompanyTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/companyToken.php'
-            ]
+            'company' => CompanyFixture::className(),
+            'companyToken' => CompanyTokenFixture::className()
         ];
     }
 

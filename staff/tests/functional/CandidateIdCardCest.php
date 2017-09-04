@@ -5,10 +5,10 @@ use yii;
 use yii\helpers\ArrayHelper;
 use common\models\StaffToken;
 use staff\models\Candidate;
-use staff\fixtures\StaffFixture;
-use staff\fixtures\StaffTokenFixture;
-use staff\fixtures\CandidateFixture;
-use staff\fixtures\CandidateIdCardFixture;
+use common\fixtures\StaffFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CandidateIdCardFixture;
 use Codeception\Util\HttpCode;
 
 class CandidateIdCardCest
@@ -18,22 +18,10 @@ class CandidateIdCardCest
 	public function _fixtures()
 	{
 		return [
-			'staff'           => [
-				'class'    => StaffFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
-			],
-			'staffToken'      => [
-				'class'    => StaffTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
-			],
-			'candidate'       => [
-				'class'    => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
-			],
-			'candidateIdCard' => [
-				'class'    => CandidateIdCardFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidateIdCard.php'
-			]
+			'staff'           => StaffFixture::className(),
+			'staffToken'      => StaffTokenFixture::className(),
+			'candidate'       => CandidateFixture::className(),
+			'candidateIdCard' => CandidateIdCardFixture::className()
 		];
 	}
 

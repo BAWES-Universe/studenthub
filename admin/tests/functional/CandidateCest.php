@@ -5,11 +5,11 @@ use Yii;
 use admin\tests\FunctionalTester;
 use admin\models\Candidate;
 use common\models\AdminToken;
-use admin\fixtures\CompanyFixture;
-use admin\fixtures\StoreFixture;
-use admin\fixtures\CandidateFixture;
-use admin\fixtures\TransferFixture;
-use admin\fixtures\TransferCandidateFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
 use common\fixtures\CountryFixture;
@@ -22,38 +22,14 @@ class CandidateCest
 	public function _fixtures() {
 
 		return [
-			'admin'             => [
-				'class'    => AdminFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
-			],
-			'adminToken'        => [
-				'class'    => AdminTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
-			],
-			'country'           => [
-				'class'    => CountryFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/country.php'
-			],
-			'company'           => [
-				'class'    => CompanyFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
-			],
-			'store'             => [
-				'class'    => StoreFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
-			],
-			'candidate'         => [
-				'class'    => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
-			],
-			'transfer'          => [
-				'class'    => TransferFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transfer.php'
-			],
-			'transferCandidate' => [
-				'class'    => TransferCandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transferCandidate.php'
-			]
+			'admin' => AdminFixture::className(),
+			'adminToken' => AdminTokenFixture::className(),
+			'country' => CountryFixture::className(),
+			'company' => CompanyFixture::className(),
+			'store' => StoreFixture::className(),
+			'candidate' => CandidateFixture::className(),
+			'transfer' => TransferFixture::className(),
+			'transferCandidate' => TransferCandidateFixture::className()
 		];
 	}
 	public function _before(FunctionalTester $I)

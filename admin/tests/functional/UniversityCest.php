@@ -3,7 +3,6 @@ namespace admin\tests;
 
 use Yii;
 use admin\tests\FunctionalTester;
-use common\models\University;
 use common\models\AdminToken;
 use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
@@ -17,18 +16,9 @@ class UniversityCest
 	public function _fixtures()
 	{
 		return [
-			'admin'      => [
-				'class'    => AdminFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
-			],
-			'adminToken' => [
-				'class'    => AdminTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
-			],
-			'university' => [
-				'class'    => UniversityFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/university.php'
-			]
+			'admin' => AdminFixture::className(),
+			'adminToken' => AdminTokenFixture::className(),
+			'university' => UniversityFixture::className(),
 		];
 	}
 

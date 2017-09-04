@@ -8,12 +8,12 @@ use admin\models\Company;
 use admin\models\Candidate;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use admin\fixtures\CompanyFixture;
-use admin\fixtures\StoreFixture;
-use admin\fixtures\CandidateFixture;
-use admin\fixtures\TransferFixture;
-use admin\fixtures\TransferCandidateFixture;
-use admin\fixtures\InvoiceFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
+use common\fixtures\InvoiceFixture;
 
 class StatisticsTest extends \Codeception\Test\Unit
 {
@@ -27,30 +27,12 @@ class StatisticsTest extends \Codeception\Test\Unit
 	public function _fixtures()
 	{
 		return [
-			'company' => [
-				'class' => CompanyFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-			],
-			'store' => [
-				'class' => StoreFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-			],
-			'candidate' => [
-				'class' => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-			],
-			'transfer' => [
-				'class' => TransferFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-			],
-			'transferCandidate' => [
-				'class' => TransferCandidateFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-			],
-			'invoice' => [
-				'class' => InvoiceFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-			],
+			'company' => CompanyFixture::className(),
+			'store' => StoreFixture::className(),
+			'candidate' => CandidateFixture::className(),
+			'transfer' => TransferFixture::className(),
+			'transferCandidate' => TransferCandidateFixture::className(),
+			'invoice' => InvoiceFixture::className()
 		];
 	}
 
