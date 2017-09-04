@@ -8,13 +8,19 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/php:7.1.5-browsers
-      
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mysql:9.4
+      - image: circleci/mysql:latest
+        environment:
+            MYSQL_DATABASE="payroll"
+            MYSQL_HOST="localhost"
+            MYSQL_USER="payrollUser"
+            MYSQL_PASSWORD="pay"
+            MYSQL_ROOT_PASSWORD="pay"
 
-    working_directory: ~/repo
+    working_directory: ~/payroll
 
     steps:
       - checkout
@@ -26,12 +32,14 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: composer install -n --prefer-dist
+      - run:
+          name: Install Dependencies
+          command: composer install -n --prefer-dist
 
       - save_cache:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
-        
+
       # run tests!
-      - run: phpunit
+      # - run: phpunit
