@@ -9,14 +9,14 @@ class CountryTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return ['country' => CountryFixture::className()];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     public function testValidate()
     {

@@ -14,14 +14,14 @@ class UniversityTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return ['university' => UniversityFixture::className()];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     /**
      * Tests validator

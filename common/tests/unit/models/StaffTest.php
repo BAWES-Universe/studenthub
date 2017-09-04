@@ -14,25 +14,14 @@ class StaffTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-
-    /**
-     * Executes before tests
-     */
-    protected function setUp()
-    {
-        // nothing else to do for this test
-        parent::setUp();
-    }
-
-
-    protected function _fixtures()
+    public function _fixtures()
     {
         return ['staff' => StaffFixture::className()];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     public function testValidators()
     {

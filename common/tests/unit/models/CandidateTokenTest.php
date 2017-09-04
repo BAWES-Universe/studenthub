@@ -19,7 +19,7 @@ class CandidateTokenTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return [
             'candidates' => CandidateFixture::className(),

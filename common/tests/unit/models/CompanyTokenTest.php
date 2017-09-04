@@ -16,7 +16,7 @@ class CompanyTokenTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return [
             'company' => CompanyFixture::className(),
@@ -24,6 +24,8 @@ class CompanyTokenTest extends \Codeception\Test\Unit
             'store' => StoreFixture::className()
         ];
     }
+
+    protected function _before(){}
 
     protected function _after(){}
 

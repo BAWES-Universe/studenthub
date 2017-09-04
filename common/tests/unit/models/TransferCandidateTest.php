@@ -20,7 +20,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return [
             'company' => CompanyFixture::className(),
@@ -33,9 +33,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         ];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     /**
      * test case for model validations

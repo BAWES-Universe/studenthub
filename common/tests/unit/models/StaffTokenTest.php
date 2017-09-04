@@ -15,24 +15,15 @@ class StaffTokenTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-
-    /**
-     * Executes before tests
-     */
-    protected function setUp()
-    {
-        // nothing else to do for this test
-        parent::setUp();
-    }
-
-
-    protected function _fixtures()
+    public function _fixtures()
     {
         return [
             'staffToken' => StaffTokenFixture::className(),
             'staff' => StaffFixture::className(),
         ];
     }
+
+    protected function _before(){}
 
     protected function _after(){}
 

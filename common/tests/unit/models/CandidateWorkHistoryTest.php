@@ -21,7 +21,7 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return [
             'candidates' => CandidateFixture::className(),
@@ -31,6 +31,8 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
             'candidateWorkHistory' => CandidateWorkHistoryFixture::className()
         ];
     }
+
+    protected function _before(){}
 
     protected function _after(){}
 

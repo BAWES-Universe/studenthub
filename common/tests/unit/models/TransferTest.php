@@ -14,14 +14,14 @@ class TransferTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return ['company' => CompanyFixture::className()];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     public function testValidations()
     {

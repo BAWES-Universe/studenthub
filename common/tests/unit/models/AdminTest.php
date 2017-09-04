@@ -14,10 +14,11 @@ class AdminTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
+    public function _fixtures(){
         return ['admin' => AdminFixture::className()];
     }
+
+    protected function _before(){}
 
     protected function _after() { }
 

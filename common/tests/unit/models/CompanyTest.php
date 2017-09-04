@@ -15,13 +15,15 @@ class CompanyTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _fixtures()
+    public function _fixtures()
     {
         return [
             'company' => CompanyFixture::className(),
             'store' => StoreFixture::className(),
         ];
     }
+
+    protected function _before(){}
 
     protected function _after() {}
 
