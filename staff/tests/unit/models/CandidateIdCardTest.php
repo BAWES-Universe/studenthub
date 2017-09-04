@@ -8,6 +8,7 @@ use staff\models\Candidate;
 use staff\models\CandidateIdCard;
 use common\fixtures\CompanyFixture;
 use common\fixtures\CandidateFixture;
+use common\fixtures\CandidateIdCardFixture;
 use common\fixtures\StoreFixture;
 
 class CandidateIdCardTest extends \Codeception\Test\Unit
@@ -31,6 +32,10 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
             'candidate' => [
                 'class' => CandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
+            ],
+			'candidateIdCardFixture' => [
+                'class' => CandidateIdCardFixture::className(),
+                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateIdCard.php'
             ]
         ];
     }
