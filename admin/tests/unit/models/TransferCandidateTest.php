@@ -17,9 +17,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
+	public function _fixtures()
+	{
+        return [
             'transfer' => [
                 'class' => TransferFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
@@ -28,11 +28,8 @@ class TransferCandidateTest extends \Codeception\Test\Unit
                 'class' => TransferCandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
             ]
-        ]);
+        ];
     }
-
-    protected function _after(){}
-
 
     /**
      * test for fixture load
