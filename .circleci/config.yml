@@ -27,6 +27,7 @@ jobs:
 
       # Install additional PHP modules
       - run: sudo apt-get update
+      - run: sudo apt-get install -y libpng-dev
       - run: sudo docker-php-ext-install gd
       - run: sudo docker-php-ext-install mcrypt && sudo docker-php-ext-enable mcrypt
       - run: sudo docker-php-ext-install pdo_mysql && sudo docker-php-ext-enable pdo_mysql
