@@ -17,18 +17,9 @@ class BankCest
 	public function _fixtures()
 	{
 		return [
-			'admin'      => [
-				'class'    => AdminFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
-			],
-			'adminToken' => [
-				'class'    => AdminTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
-			],
-			'bank'       => [
-				'class'    => BankFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/bank.php'
-			]
+			'admin' => AdminFixture::className(),
+			'adminToken' => AdminTokenFixture::className(),
+			'bank'       => BankFixture::className(),
 		];
 	}
 

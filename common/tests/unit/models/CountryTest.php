@@ -1,7 +1,6 @@
 <?php
 
 use common\fixtures\CountryFixture;
-use common\models\Country;
 
 class CountryTest extends \Codeception\Test\Unit
 {
@@ -10,14 +9,9 @@ class CountryTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => codecept_data_dir() . 'country.php'
-            ]
-        ]);
+        return ['country' => CountryFixture::className()];
     }
 
     protected function _after()

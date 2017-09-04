@@ -2,9 +2,7 @@
 namespace common\tests;
 
 use Codeception\Specify;
-use common\models\Company;
 use common\models\CompanyToken;
-use common\models\Store;
 use common\fixtures\CompanyTokenFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\StoreFixture;
@@ -18,22 +16,13 @@ class CompanyTokenTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => codecept_data_dir() . 'company.php'
-            ],
-            'companyToken' => [
-                'class' => CompanyTokenFixture::className(),
-                'dataFile' => codecept_data_dir() . 'companyToken.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ]
-        ]);
+        return [
+            'company' => CompanyFixture::className(),
+            'companyToken' => CompanyTokenFixture::className(),
+            'store' => StoreFixture::className()
+        ];
     }
 
     protected function _after(){}

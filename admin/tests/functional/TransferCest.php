@@ -3,15 +3,15 @@ namespace admin\tests;
 
 use Yii;
 use admin\tests\FunctionalTester;
-use admin\fixtures\StoreFixture;
-use admin\fixtures\CandidateFixture;
-use admin\fixtures\CompanyFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CompanyFixture;
 use common\fixtures\BankFixture;
 use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
+use common\fixtures\CandidateFixture;
 use common\models\AdminToken;
 use admin\models\Transfer;
 use Codeception\Util\HttpCode;
@@ -22,42 +22,15 @@ class TransferCest
 
 	public function _fixtures() {
 		return [
-			'admin'             => [
-				'class'    => AdminFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
-			],
-			'adminToken'        => [
-				'class'    => AdminTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
-			],
-			'company'           => [
-				'class'    => CompanyFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
-			],
-			'store'             => [
-				'class'    => StoreFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
-			],
-			'bank'              => [
-				'class'    => BankFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/bank.php'
-			],
-			'candidate'         => [
-				'class'    => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
-			],
-			'transfer'          => [
-				'class'    => TransferFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transfer.php'
-			],
-			'transferCandidate' => [
-				'class'    => TransferCandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transferCandidate.php'
-			],
-			'invoice'           => [
-				'class'    => InvoiceFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/invoice.php'
-			]
+			'admin' => AdminFixture::className(),
+			'adminToken' => AdminTokenFixture::className(),
+			'company' => CompanyFixture::className(),
+			'store' => StoreFixture::className(),
+			'bank' => BankFixture::className(),
+			'candidate' => CandidateFixture::className(),
+			'transfer' => TransferFixture::className(),
+			'transferCandidate' => TransferCandidateFixture::className(),
+			'invoice' => InvoiceFixture::className()
 		];
 	}
 
@@ -261,6 +234,7 @@ class TransferCest
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+	    $I->seeResponseIsJson();
     }
 
     /**

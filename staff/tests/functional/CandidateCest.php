@@ -3,12 +3,12 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use staff\fixtures\StoreFixture;
-use staff\fixtures\CandidateFixture;
-use staff\fixtures\UniversityFixture;
-use staff\fixtures\CompanyFixture;
-use staff\fixtures\StaffTokenFixture;
-use staff\fixtures\StaffFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
@@ -22,46 +22,16 @@ class CandidateCest
 	public function _fixtures()
 	{
         return [
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/university.php'
-            ],
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ],
-            'candidateWorkHistory' => [
-                'class' => CandidateWorkHistoryFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateWorkHistory.php'
-            ],
+            'staff' => StaffFixture::className(),
+            'staffToken' => StaffTokenFixture::className(),
+            'candidate' => CandidateFixture::className(),
+            'university' => UniversityFixture::className(),
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className(),
+            'transfer' => TransferFixture::className(),
+            'invoice' => InvoiceFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className(),
+            'candidateWorkHistory' => CandidateWorkHistoryFixture::className()
         ];
 	}
 

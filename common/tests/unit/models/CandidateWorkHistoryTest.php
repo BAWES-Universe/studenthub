@@ -21,30 +21,15 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'candidates' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => codecept_data_dir() . 'country.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => codecept_data_dir() . 'university.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ] ,
-            'candidateWorkHistory' => [
-                'class' => CandidateWorkHistoryFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidateWorkHistory.php'
-            ]
-        ]);
+        return [
+            'candidates' => CandidateFixture::className(),
+            'country' => CountryFixture::className(),
+            'university' => UniversityFixture::className(),
+            'store' => StoreFixture::className(),
+            'candidateWorkHistory' => CandidateWorkHistoryFixture::className()
+        ];
     }
 
     protected function _after(){}

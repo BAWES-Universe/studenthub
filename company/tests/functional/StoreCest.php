@@ -14,18 +14,9 @@ class StoreCest
     public $token;
 	public function _fixtures() {
 		return [
-			'company'      => [
-				'class'    => CompanyFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
-			],
-			'companyToken' => [
-				'class'    => CompanyTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/companyToken.php'
-			],
-			'store'        => [
-				'class'    => StoreFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
-			]
+			'company'      => CompanyFixture::className(),
+			'companyToken' => CompanyTokenFixture::className(),
+			'store'        => StoreFixture::className()
 		];
 	}
 

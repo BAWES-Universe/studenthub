@@ -14,14 +14,9 @@ class UniversityTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => codecept_data_dir() . 'university.php'
-            ]
-        ]);
+        return ['university' => UniversityFixture::className()];
     }
 
     protected function _after()

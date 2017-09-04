@@ -16,17 +16,10 @@ class AdminTest extends \Codeception\Test\Unit
 
     protected function _before()
     {
-        $this->tester->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => codecept_data_dir() . 'admin.php'
-            ]
-        ]);
+        return ['admin' => AdminFixture::className()];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _after() { }
 
     /**
      * Tests validator

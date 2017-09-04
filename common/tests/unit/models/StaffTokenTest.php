@@ -26,18 +26,12 @@ class StaffTokenTest extends \Codeception\Test\Unit
     }
 
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => codecept_data_dir() . 'staffToken.php'
-            ],
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => codecept_data_dir() . 'staff.php'
-            ]
-        ]);
+        return [
+            'staffToken' => StaffTokenFixture::className(),
+            'staff' => StaffFixture::className(),
+        ];
     }
 
     protected function _after(){}

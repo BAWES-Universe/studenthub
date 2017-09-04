@@ -1,7 +1,6 @@
 <?php
 namespace common\tests;
 
-use common\models\Bank;
 use common\fixtures\BankFixture;
 
 class BankTest extends \Codeception\Test\Unit
@@ -11,19 +10,12 @@ class BankTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'bank' => [
-                'class' => BankFixture::className(),
-                'dataFile' => codecept_data_dir() . 'bank.php'
-            ]
-        ]);
+        return ['bank' => BankFixture::className()];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _after() {}
 
     public function testValidate()
     {

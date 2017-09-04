@@ -4,8 +4,8 @@ namespace staff\tests;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\BankFixture;
-use staff\fixtures\StaffTokenFixture;
-use staff\fixtures\StaffFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class BankCest
@@ -14,18 +14,9 @@ class BankCest
 
 	public function _fixtures() {
 		return [
-			'bank'       => [
-				'class'    => BankFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/bank.php'
-			],
-			'staff'      => [
-				'class'    => StaffFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
-			],
-			'staffToken' => [
-				'class'    => StaffTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
-			],
+			'bank'       => BankFixture::className(),
+			'staff'      => StaffFixture::className(),
+			'staffToken' => StaffTokenFixture::className()
 		];
 	}
 

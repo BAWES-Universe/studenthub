@@ -19,14 +19,8 @@ class AdminTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => codecept_data_dir() . 'admin.php'
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => codecept_data_dir() . 'adminToken.php'
-            ]
+            'admin' => AdminFixture::className(),
+            'adminToken' => AdminTokenFixture::className()
         ];
     }
 

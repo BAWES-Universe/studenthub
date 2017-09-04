@@ -4,8 +4,8 @@ namespace staff\tests;
 use yii;
 use staff\tests\FunctionalTester;
 use common\models\StaffToken;
-use staff\fixtures\StaffTokenFixture;
-use staff\fixtures\StaffFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class CompanyCest
@@ -15,14 +15,8 @@ class CompanyCest
 	public function _fixtures()
 	{
 		return [
-			'staff'      => [
-				'class'    => StaffFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
-			],
-			'staffToken' => [
-				'class'    => StaffTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
-			],
+			'staff'      => StaffFixture::className(),
+			'staffToken' => StaffTokenFixture::className()
 		];
 	}
 

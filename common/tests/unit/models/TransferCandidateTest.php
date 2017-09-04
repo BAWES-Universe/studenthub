@@ -20,38 +20,17 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    protected function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => codecept_data_dir() . 'company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ],
-            'bank' => [
-                'class' => BankFixture::className(),
-                'dataFile' => codecept_data_dir() . 'bank.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => codecept_data_dir() . 'transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => codecept_data_dir() . 'invoice.php'
-            ]
-        ]);
+        return [
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className(),
+            'bank' => BankFixture::className(),
+            'candidate' => CandidateFixture::className(),
+            'transfer' => TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className(),
+            'invoice' => InvoiceFixture::className(),
+        ];
     }
 
     protected function _after()

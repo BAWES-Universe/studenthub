@@ -2,14 +2,11 @@
 namespace company\tests;
 
 use Yii;
-use company\fixtures\CompanyFixture;
-use company\fixtures\CompanyTokenFixture;
-use company\fixtures\StoreFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\CompanyTokenFixture;
+use common\fixtures\StoreFixture;
 use common\fixtures\BankFixture;
-use company\fixtures\CandidateFixture;
-use company\fixtures\TransferFixture;
-use company\fixtures\TransferCandidateFixture;
-use company\fixtures\InvoiceFixture;
+use common\fixtures\CandidateFixture;
 use company\tests\FunctionalTester;
 use company\models\Transfer;
 use company\models\Company;
@@ -36,26 +33,11 @@ class TransferForWithChildCest
 	public function _fixtures()
 	{
 		return [
-			'company'      => [
-				'class'    => CompanyFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
-			],
-			'companyToken' => [
-				'class'    => CompanyTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/companyToken.php'
-			],
-			'store'        => [
-				'class'    => StoreFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
-			],
-			'bank'         => [
-				'class'    => BankFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/bank.php'
-			],
-			'candidate'    => [
-				'class'    => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
-			],
+			'company'      => CompanyFixture::className(),
+			'companyToken' => CompanyTokenFixture::className(),
+			'store'        => StoreFixture::className(),
+			'bank'         => BankFixture::className(),
+			'candidate'    => CandidateFixture::className()
 		];
 	}
     /**

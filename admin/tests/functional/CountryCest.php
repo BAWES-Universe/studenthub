@@ -14,18 +14,9 @@ class CountryCest
 	public function _fixtures()
 	{
 		return [
-			'admin'      => [
-				'class'    => AdminFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
-			],
-			'adminToken' => [
-				'class'    => AdminTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
-			],
-			'country'    => [
-				'class'    => CountryFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/country.php'
-			]
+			'admin' => AdminFixture::className(),
+			'adminToken' => AdminTokenFixture::className(),
+			'country' => CountryFixture::className()
 		];
 	}
 

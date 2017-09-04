@@ -4,8 +4,8 @@ namespace candidate\tests;
 use yii;
 use candidate\tests\FunctionalTester;
 use candidate\models\CandidateToken;
-use candidate\fixtures\CandidateFixture;
-use candidate\fixtures\CandidateTokenFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CandidateTokenFixture;
 use Codeception\Util\HttpCode;
 
 class AuthCest
@@ -15,14 +15,8 @@ class AuthCest
 	public function _fixtures()
 	{
 		return [
-			'candidate'      => [
-				'class'    => CandidateFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
-			],
-			'candidateToken' => [
-				'class'    => CandidateTokenFixture::className(),
-				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidateToken.php'
-			]
+			'candidate' => CandidateFixture::className(),
+			'candidateToken' => CandidateTokenFixture::className()
 		];
 	}
 	public function _before(FunctionalTester $I)

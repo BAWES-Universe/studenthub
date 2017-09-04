@@ -3,7 +3,7 @@ namespace admin\tests;
 
 use Yii;
 use admin\tests\FunctionalTester;
-use admin\fixtures\CompanyFixture;
+use common\fixtures\CompanyFixture;
 use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
 use common\models\AdminToken;
@@ -16,18 +16,9 @@ class CompanyCest
 	public function _fixtures()
 	{
         return [
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
-            ],
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ]
+            'admin' => AdminFixture::className(),
+            'adminToken' => AdminTokenFixture::className(),
+            'company' => CompanyFixture::className()
         ];
 	}
 
