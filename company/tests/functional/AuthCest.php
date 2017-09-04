@@ -11,9 +11,9 @@ use common\models\Company;
 
 class AuthCest
 {
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
+	public function _fixtures()
+	{
+        return [
             'company' => [
                 'class' => CompanyFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
@@ -22,7 +22,7 @@ class AuthCest
                 'class' => CompanyTokenFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/companyToken.php'
             ]
-        ]);
+        ];
     }
 
     public function _after(FunctionalTester $I)

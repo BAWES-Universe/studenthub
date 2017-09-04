@@ -15,9 +15,9 @@ class StatisticsCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
+    public function _fixtures()
     {
-        $I->haveFixtures([
+        return [
             'candidate' => [
                 'class' => CandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
@@ -38,8 +38,11 @@ class StatisticsCest
                 'class' => InvoiceFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
             ]
-        ]);
+        ];
+    }
 
+	public function _before(FunctionalTester $I)
+    {
         $this->token = CandidateToken::find()
                 ->one()
                 ->token_value;

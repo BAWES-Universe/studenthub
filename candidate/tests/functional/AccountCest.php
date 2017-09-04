@@ -15,9 +15,9 @@ class AccountCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
+	public function _fixtures()
+	{
+        return [
             'candidate' => [
                 'class' => CandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
@@ -38,9 +38,12 @@ class AccountCest
                 'class' => InvoiceFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
             ]
-        ]);
+        ];
+	}
 
-        $this->token = CandidateToken::find()->one()->token_value;
+	public function _before(FunctionalTester $I)
+	{
+		$this->token = CandidateToken::find()->one()->token_value;
         $I->amBearerAuthenticated($this->token);
     }
 

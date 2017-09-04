@@ -12,19 +12,22 @@ class CompanyCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ],
-        ]);
+	public function _fixtures()
+	{
+		return [
+			'staff'      => [
+				'class'    => StaffFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
+			],
+			'staffToken' => [
+				'class'    => StaffTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
+			],
+		];
+	}
 
+	public function _before(FunctionalTester $I)
+	{
         $this->token = StaffToken::find()
             ->one()
             ->token_value;

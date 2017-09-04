@@ -10,27 +10,27 @@ use Codeception\Util\HttpCode;
 
 class AccountCest
 {
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'companyToken' => [
-                'class' => CompanyTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/companyToken.php'
-            ]
-        ]);
+	public function _fixtures() {
+		return [
+			'company'      => [
+				'class'    => CompanyFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
+			],
+			'companyToken' => [
+				'class'    => CompanyTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/companyToken.php'
+			]
+		];
+	}
 
+	public function _before(FunctionalTester $I)
+	{
         $this->token = CompanyToken::find()
             ->one()
             ->token_value;
     }
 
-    public function _after(FunctionalTester $I)
-    {
-    }
+    public function _after(FunctionalTester $I){}
 
     // tests
     public function testChangePassword(FunctionalTester $I)

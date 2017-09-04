@@ -14,33 +14,34 @@ class StaffCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
-            ],
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ]
-        ]);
+	public function _fixtures() {
+		return [
+			'admin'      => [
+				'class'    => AdminFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
+			],
+			'adminToken' => [
+				'class'    => AdminTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
+			],
+			'staff'      => [
+				'class'    => StaffFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
+			]
+		];
+	}
 
-        $this->token = AdminToken::find()
-            ->one()
-            ->token_value;
+	public function _before(FunctionalTester $I)
+	{
+		$this->token = AdminToken::find()
+                     ->one()->token_value;
+	}
+
+	public function _after(FunctionalTester $I)
+    {
     }
 
-    public function _after(FunctionalTester $I)
-    {
-    }
-
-    /**
+	/**
      * Listing
      * @param FunctionalTester $I
      */

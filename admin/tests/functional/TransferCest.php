@@ -20,47 +20,49 @@ class TransferCest
 {
     public $token;
 
+	public function _fixtures() {
+		return [
+			'admin'             => [
+				'class'    => AdminFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
+			],
+			'adminToken'        => [
+				'class'    => AdminTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
+			],
+			'company'           => [
+				'class'    => CompanyFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
+			],
+			'store'             => [
+				'class'    => StoreFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
+			],
+			'bank'              => [
+				'class'    => BankFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/bank.php'
+			],
+			'candidate'         => [
+				'class'    => CandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
+			],
+			'transfer'          => [
+				'class'    => TransferFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transfer.php'
+			],
+			'transferCandidate' => [
+				'class'    => TransferCandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transferCandidate.php'
+			],
+			'invoice'           => [
+				'class'    => InvoiceFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/invoice.php'
+			]
+		];
+	}
+
     public function _before(FunctionalTester $I)
     {
-        $I->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
-            ],
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'bank' => [
-                'class' => BankFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/bank.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-            ]
-        ]);
-
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
