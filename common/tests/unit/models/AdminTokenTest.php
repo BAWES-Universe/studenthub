@@ -4,7 +4,6 @@ namespace common\tests;
 use Codeception\Specify;
 use common\models\Admin;
 use common\models\AdminToken;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
 
 class AdminTokenTest extends \Codeception\Test\Unit
@@ -19,7 +18,6 @@ class AdminTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'admin' => AdminFixture::className(),
             'adminToken' => AdminTokenFixture::className()
         ];
     }
