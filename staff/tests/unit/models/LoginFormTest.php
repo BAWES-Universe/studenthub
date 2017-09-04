@@ -14,14 +14,14 @@ class LoginFormTest extends \Codeception\Test\Unit
     protected $tester;
 
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
+	public function _fixtures()
+	{
+        return [
             'staff' => [
                 'class' => StaffFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
             ],
-        ]);
+        ];
     }
 
     /**

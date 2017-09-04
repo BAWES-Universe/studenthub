@@ -23,13 +23,15 @@ class TransferTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
-        Yii::$app->params['inCodeception'] = true;
-        Yii::$app->params['transfer_cost'] = 0.35;
-        Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    protected function _before() {
+	    Yii::$app->params['inCodeception']             = true;
+	    Yii::$app->params['transfer_cost']             = 0.35;
+	    Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    }
 
-        $this->tester->haveFixtures([
+    public function _fixtures()
+    {
+        return [
             'company' => [
                 'class' => CompanyFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
@@ -50,7 +52,7 @@ class TransferTest extends \Codeception\Test\Unit
                 'class' => TransferCandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
             ]
-        ]);
+        ];
     }
 
     protected function _after(){}
