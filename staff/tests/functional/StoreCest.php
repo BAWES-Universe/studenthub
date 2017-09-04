@@ -13,27 +13,30 @@ class StoreCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ],
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-        ]);
+	public function _fixtures()
+	{
+		return [
+			'staff'      => [
+				'class'    => StaffFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
+			],
+			'staffToken' => [
+				'class'    => StaffTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
+			],
+			'company'    => [
+				'class'    => CompanyFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
+			],
+			'store'      => [
+				'class'    => StoreFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
+			],
+		];
+	}
 
+	public function _before(FunctionalTester $I)
+	{
         $this->token = StaffToken::find()
             ->one()
             ->token_value;

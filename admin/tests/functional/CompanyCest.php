@@ -13,9 +13,9 @@ class CompanyCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
+	public function _fixtures()
+	{
+        return [
             'admin' => [
                 'class' => AdminFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'
@@ -28,9 +28,12 @@ class CompanyCest
                 'class' => CompanyFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
             ]
-        ]);
+        ];
+	}
 
-        $this->token = AdminToken::find()
+	public function _before(FunctionalTester $I)
+	{
+		$this->token = AdminToken::find()
             ->one()
             ->token_value;
     }

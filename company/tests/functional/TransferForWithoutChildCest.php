@@ -20,46 +20,48 @@ class TransferForWithoutChildCest
 {
     public $token, $companyWithoutChild;
 
-    public function _before(FunctionalTester $I)
+	public function _fixtures() {
+		return [
+			'company'           => [
+				'class'    => CompanyFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
+			],
+			'companyToken'      => [
+				'class'    => CompanyTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/companyToken.php'
+			],
+			'store'             => [
+				'class'    => StoreFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
+			],
+			'bank'              => [
+				'class'    => BankFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/bank.php'
+			],
+			'candidate'         => [
+				'class'    => CandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
+			],
+			'transfer'          => [
+				'class'    => TransferFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transfer.php'
+			],
+			'transferCandidate' => [
+				'class'    => TransferCandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transferCandidate.php'
+			],
+			'invoice'           => [
+				'class'    => InvoiceFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/invoice.php'
+			]
+		];
+	}
+
+	public function _before(FunctionalTester $I)
     {
         Yii::$app->params['inCodeception'] = true;
         Yii::$app->params['transfer_cost'] = 0.35;
         Yii::$app->params['candidate_max_hourly_rate'] = 2;
-
-        $I->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'companyToken' => [
-                'class' => CompanyTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/companyToken.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'bank' => [
-                'class' => BankFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/bank.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-            ]
-        ]);
 
         $this->companyWithoutChild = Company::findOne(3);
 

@@ -15,29 +15,31 @@ class CandidateIdCardCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        Yii::$app->params['inCodeception'] = true;
+	public function _fixtures()
+	{
+		return [
+			'staff'           => [
+				'class'    => StaffFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staff.php'
+			],
+			'staffToken'      => [
+				'class'    => StaffTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/staffToken.php'
+			],
+			'candidate'       => [
+				'class'    => CandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
+			],
+			'candidateIdCard' => [
+				'class'    => CandidateIdCardFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidateIdCard.php'
+			]
+		];
+	}
 
-        $I->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'candidateIdCard' => [
-                'class' => CandidateIdCardFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateIdCard.php'
-            ]
-        ]);
-
+	public function _before(FunctionalTester $I)
+	{
+		Yii::$app->params['inCodeception'] = true;
         $this->token = StaffToken::find()
             ->one()
             ->token_value;

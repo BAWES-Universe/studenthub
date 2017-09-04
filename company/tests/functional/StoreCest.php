@@ -12,32 +12,31 @@ use Codeception\Util\HttpCode;
 class StoreCest
 {
     public $token;
+	public function _fixtures() {
+		return [
+			'company'      => [
+				'class'    => CompanyFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
+			],
+			'companyToken' => [
+				'class'    => CompanyTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/companyToken.php'
+			],
+			'store'        => [
+				'class'    => StoreFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
+			]
+		];
+	}
 
     public function _before(FunctionalTester $I)
     {
-        $I->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'companyToken' => [
-                'class' => CompanyTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/companyToken.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ]
-        ]);
-
         $this->token = CompanyToken::find()
             ->one()
             ->token_value;
     }
 
-    public function _after(FunctionalTester $I)
-    {
-    }
+    public function _after(FunctionalTester $I){}
 
     /**
      * List stores

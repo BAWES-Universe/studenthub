@@ -19,43 +19,45 @@ class CandidateCest
 {
     public $token, $candidate_id;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
-            ],
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/country.php'
-            ],
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ]
-        ]);
+	public function _fixtures() {
 
+		return [
+			'admin'             => [
+				'class'    => AdminFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
+			],
+			'adminToken'        => [
+				'class'    => AdminTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
+			],
+			'country'           => [
+				'class'    => CountryFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/country.php'
+			],
+			'company'           => [
+				'class'    => CompanyFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/company.php'
+			],
+			'store'             => [
+				'class'    => StoreFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/store.php'
+			],
+			'candidate'         => [
+				'class'    => CandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
+			],
+			'transfer'          => [
+				'class'    => TransferFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transfer.php'
+			],
+			'transferCandidate' => [
+				'class'    => TransferCandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/transferCandidate.php'
+			]
+		];
+	}
+	public function _before(FunctionalTester $I)
+	{
         $this->token = AdminToken::find()
                 ->one()
                 ->token_value;

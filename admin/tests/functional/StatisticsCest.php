@@ -14,37 +14,37 @@ class StatisticsCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'candidateIdCard' => [
-                'class' => CandidateIdCardFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateIdCard.php'
-            ]
-        ]);
+	public function _fixtures() {
+		return [
+			'admin'           => [
+				'class'    => AdminFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/admin.php'
+			],
+			'adminToken'      => [
+				'class'    => AdminTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/adminToken.php'
+			],
+			'candidate'       => [
+				'class'    => CandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
+			],
+			'candidateIdCard' => [
+				'class'    => CandidateIdCardFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidateIdCard.php'
+			]
+		];
+	}
 
-        $this->token = AdminToken::find()
-            ->one()
-            ->token_value;
+	public function _before(FunctionalTester $I)
+	{
+		$this->token = AdminToken::find()->one()->token_value;
+	}
+
+	public function _after(FunctionalTester $I)
+    {
     }
 
-    public function _after(FunctionalTester $I)
-    {
-    }
-
-    /**
+	/**
      * Get statistics
      * @param FunctionalTester $I
      */

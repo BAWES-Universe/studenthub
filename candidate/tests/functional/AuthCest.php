@@ -12,19 +12,21 @@ class AuthCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'candidateToken' => [
-                'class' => CandidateTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateToken.php'
-            ]
-        ]);
-
+	public function _fixtures()
+	{
+		return [
+			'candidate'      => [
+				'class'    => CandidateFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
+			],
+			'candidateToken' => [
+				'class'    => CandidateTokenFixture::className(),
+				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidateToken.php'
+			]
+		];
+	}
+	public function _before(FunctionalTester $I)
+	{
         $this->token = CandidateToken::find()
                 ->one()
                 ->token_value;
