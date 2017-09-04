@@ -2,7 +2,6 @@
 namespace common\tests;
 
 use common\models\CandidateIdCard;
-use common\fixtures\CandidateFixture;
 use common\fixtures\CandidateIdCardFixture;
 use Codeception\Specify;
 
@@ -18,14 +17,13 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidates' => CandidateFixture::className(),
-            'candidateIdCards' => CandidateIdCardFixture::className()
+            'candidateIdCard' => CandidateIdCardFixture::className()
         ];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     // tests
     public function testValidations()
@@ -46,13 +44,6 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
             $id = new CandidateIdCard;
             $id->candidate_id = 9999999999999999999999;
             expect('Invalid canidate id passed', $id->validate(['candidate_id']))->false();
-        });
-
-        $this->specify('Candidate ID should be valid candidate_id from candidate table', function () {
-            $candidate = $this->tester->grabFixture('candidates', 0);
-            $model = new CandidateIdCard;
-            $model->candidate_id = (int)$candidate->candidate_id;
-            expect('Valid canidate id passed', $model->errors)->hasntKey('candidate_id');
         });
     }
 
