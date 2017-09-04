@@ -49,11 +49,11 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
 
-      -run:
+      - run:
           name: Initialize Dev Environment
           command: ./init --env=Development --overwrite=All
 
-      -run:
+      - run:
           name: Install DB Migrations
           command: ./yii migrate --interactive=0
 
