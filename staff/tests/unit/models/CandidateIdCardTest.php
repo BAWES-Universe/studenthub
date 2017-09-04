@@ -17,9 +17,9 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
+	public function _fixtures()
+	{
+		return [
             'company' => [
                 'class' => CompanyFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
@@ -32,7 +32,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
                 'class' => CandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
             ]
-        ]);
+        ];
     }
 
     protected function _after()

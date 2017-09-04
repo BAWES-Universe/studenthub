@@ -16,9 +16,13 @@ class CandidateTest extends \Codeception\Test\Unit
     protected $tester;
 
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
+    protected function _before() {
+	    Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    }
+
+    public function _fixtures()
+	{
+        return [
             'candidates' => [
                 'class' => CandidateFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
@@ -35,9 +39,7 @@ class CandidateTest extends \Codeception\Test\Unit
                 'class' => StoreFixture::className(),
                 'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
             ]
-        ]);
-
-        Yii::$app->params['candidate_max_hourly_rate'] = 2;
+        ];
     }
 
     /**
