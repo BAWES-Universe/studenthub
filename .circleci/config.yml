@@ -7,17 +7,31 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.1.5-browsers
-      
+      - image: circleci/php:latest
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mysql:9.4
+      - image: circleci/mysql:latest
+        environment:
+            MYSQL_DATABASE: payroll_test
+            MYSQL_HOST: 127.0.0.1
+            MYSQL_USER: payrollUser
+            MYSQL_PASSWORD: pay
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_ROOT_PASSWORD: pay
 
-    working_directory: ~/repo
+    working_directory: ~/payroll
 
     steps:
       - checkout
+
+      # Install additional PHP modules
+      - run: sudo apt-get update
+      - run: sudo apt-get install libpng-dev libmcrypt-dev libreadline-dev mysql-client
+      - run: sudo docker-php-ext-install gd
+      - run: sudo docker-php-ext-install mcrypt && sudo docker-php-ext-enable mcrypt
+      - run: sudo docker-php-ext-install pdo_mysql && sudo docker-php-ext-enable pdo_mysql
 
       # Download and cache dependencies
       - restore_cache:
@@ -26,12 +40,23 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: composer install -n --prefer-dist
+      - run:
+          name: Install Dependencies
+          command: composer install -n --prefer-dist
 
       - save_cache:
           paths:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
-        
-      # run tests!
-      - run: phpunit
+
+      - run:
+          name: Initialize Dev Environment
+          command: ./init --env=Circle-CI --overwrite=All
+
+      - run:
+          name: Install DB Migrations
+          command: ./yii_test migrate --interactive=0
+
+      - run:
+          name: Run Codeception Tests
+          command: ./vendor/bin/codecept run
