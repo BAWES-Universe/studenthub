@@ -2,25 +2,23 @@
 
 return [
     [
-        'token_id' => 1,
         'admin_id' => 1,
-        'token_value' => 'tP6w9b4t9L2zTkA0VGI3D_QlVqFiO7D6',
+        'token_value' => 'Usqg4h8eiFiVfK7W41UfaDrWqJpx6Fzk',
         'token_device' => null,
         'token_device_id' => null,
         'token_status' => 1,
         'token_last_used_datetime' => null,
         'token_expiry_datetime' => null,
-        'token_created_datetime' => '2017-02-23 17:46:51',
+        'token_created_datetime' => '1980-01-25T06:32:12+0300',
     ],
     [
-        'token_id' => 2,
         'admin_id' => 2,
-        'token_value' => 'aP6w9b4t9L2zTkA0VGI3D_QlVqFiO7D6',
+        'token_value' => 's9HiB8H8bSc40Un7Isg0YOUuiVKiJT8t',
         'token_device' => null,
         'token_device_id' => null,
         'token_status' => 1,
         'token_last_used_datetime' => null,
         'token_expiry_datetime' => null,
-        'token_created_datetime' => '2017-02-23 17:46:51',
-    ]
+        'token_created_datetime' => '1970-04-18T23:20:45+0300',
+    ],
 ];
