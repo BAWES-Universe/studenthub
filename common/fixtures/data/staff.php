@@ -2,18 +2,18 @@
 
 return [
     [
-        'staff_name' => 'testing-staff',
-        'staff_email' => 'staff@gmail.com',
-        'staff_password_hash' => Yii::$app->getSecurity()->generatePasswordHash('12345'),
+        'staff_name' => 'Bailey',
+        'staff_email' => 'krajcik.viola@bogan.com',
+        'staff_password_hash' => '$2y$13$lBpjhiDeMoYpIciiuwxdY.Uj3GkufbvdJgJCc/bDDW.Cha8s971g2',
     ],
     [
-        'staff_name' => 'testing-staff-2',
-        'staff_email' => 'staff2@gmail.com',
-        'staff_password_hash' => Yii::$app->getSecurity()->generatePasswordHash('12345'),
+        'staff_name' => 'Ernestina',
+        'staff_email' => 'spinka.mellie@hotmail.com',
+        'staff_password_hash' => '$2y$13$FCqa9Iv09Jlgz3aDpPaiZO40peDpgUjsuQms1Z4RcQg90mT01za3G',
     ],
     [
-        'staff_name' => 'testing-staff-3',
-        'staff_email' => 'staff3@gmail.com',
-        'staff_password_hash' => Yii::$app->getSecurity()->generatePasswordHash('12345'),
+        'staff_name' => 'Emelie',
+        'staff_email' => 'pollich.patrick@yahoo.com',
+        'staff_password_hash' => '$2y$13$q9CE7TmO7/rCuHoCAF1Py.Y2lWowQMu6nytkP9q1AM6FESjwufAZ.',
     ],
 ];
