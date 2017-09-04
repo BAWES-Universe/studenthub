@@ -14,11 +14,12 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/mysql:latest
         environment:
-            MYSQL_DATABASE="payroll"
-            MYSQL_HOST="localhost"
-            MYSQL_USER="payrollUser"
-            MYSQL_PASSWORD="pay"
-            MYSQL_ROOT_PASSWORD="pay"
+            MYSQL_DATABASE: payroll
+            MYSQL_HOST: 127.0.0.1
+            MYSQL_USER: payrollUser
+            MYSQL_PASSWORD: pay
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_ROOT_PASSWORD: pay
 
     working_directory: ~/payroll
 
@@ -27,7 +28,7 @@ jobs:
 
       # Install additional PHP modules
       - run: sudo apt-get update
-      - run: sudo apt-get install -y libpng-dev
+      - run: sudo apt-get install libpng-dev libmcrypt-dev libreadline-dev
       - run: sudo docker-php-ext-install gd
       - run: sudo docker-php-ext-install mcrypt && sudo docker-php-ext-enable mcrypt
       - run: sudo docker-php-ext-install pdo_mysql && sudo docker-php-ext-enable pdo_mysql
