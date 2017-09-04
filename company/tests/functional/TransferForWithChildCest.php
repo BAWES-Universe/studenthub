@@ -18,7 +18,7 @@ use Codeception\Util\HttpCode;
 
 class TransferForWithChildCest
 {
-    public $token, $companyWithChild;
+    public $token, $model;
 
     public function _before(FunctionalTester $I)
     {
@@ -26,9 +26,8 @@ class TransferForWithChildCest
         Yii::$app->params['transfer_cost'] = 0.35;
         Yii::$app->params['candidate_max_hourly_rate'] = 2;
 
-        $this->companyWithChild = Company::findOne(1);
-
-        $this->token = $this->companyWithChild->accessToken->token_value;
+        $this->model = Company::findOne(1);
+        $this->token = $this->model->accessToken->token_value;
     }
 
     public function _after(FunctionalTester $I){}
@@ -57,18 +56,6 @@ class TransferForWithChildCest
 				'class'    => CandidateFixture::className(),
 				'dataFile' => Yii::getAlias( '@common' ) . '/tests/_data/candidate.php'
 			],
-			/*'transfer' => [
-				'class' => TransferFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-			],
-			'transferCandidate' => [
-				'class' => TransferCandidateFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-			],
-			'invoice' => [
-				'class' => InvoiceFixture::className(),
-				'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-			]*/
 		];
 	}
     /**
@@ -90,8 +77,7 @@ class TransferForWithChildCest
      */
     public function tryToView(FunctionalTester $I)
     {
-        $transfer = $this->companyWithChild->getTransfers()->one();
-
+        $transfer = $this->model->getTransfers()->one();
         $I->wantTo('View transfer with relations for company with child');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates');
@@ -113,7 +99,7 @@ class TransferForWithChildCest
 
         Excel::export([
             'isMultipleSheet' => false,
-            'models' => $this->companyWithChild->candidates,
+            'models' => $this->model->candidates,
             'savePath' => sys_get_temp_dir(),
             'fileName' => $fileName,
             'columns' => [
@@ -163,7 +149,7 @@ class TransferForWithChildCest
      */
     public function tryToEditTransferByExcel(FunctionalTester $I)
     {
-        $transfer = $this->companyWithChild
+        $transfer = $this->model
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_INITIATED])
             ->isParentTransfer()
@@ -177,7 +163,7 @@ class TransferForWithChildCest
 
         Excel::export([
             'isMultipleSheet' => false,
-            'models' => $this->companyWithChild->candidates,
+            'models' => $this->model->candidates,
             'savePath' => sys_get_temp_dir(),
             'fileName' => $fileName,
             'columns' => [
@@ -227,7 +213,7 @@ class TransferForWithChildCest
      */
     public function tryToCreateTransfer(FunctionalTester $I)
     {
-        $candidates = $this->companyWithChild
+        $candidates = $this->model
                 ->getCandidates()
                 ->all();
 
@@ -257,7 +243,7 @@ class TransferForWithChildCest
      */
     public function tryToEditTransfer(FunctionalTester $I)
     {
-        $candidates = $this->companyWithChild
+        $candidates = $this->model
                 ->getCandidates()
                 ->all();
 
@@ -272,7 +258,7 @@ class TransferForWithChildCest
             ];
         }
 
-        $transfer = $this->companyWithChild
+        $transfer = $this->model
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
@@ -292,11 +278,10 @@ class TransferForWithChildCest
      */
     public function tryToMarkPaymentSent(FunctionalTester $I)
     {
-        $transfer = $this->companyWithChild
+        $transfer = $this->model
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
-
         $I->wantTo('Mark transfer as "Payment Sent" for company with child');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfers/payment-sent/' . $transfer->transfer_id);
@@ -310,7 +295,7 @@ class TransferForWithChildCest
      */
     public function tryToMarkLocked(FunctionalTester $I)
     {
-        $transfer = $this->companyWithChild
+        $transfer = $this->model
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
@@ -328,7 +313,7 @@ class TransferForWithChildCest
      */
     public function tryToDelete(FunctionalTester $I)
     {
-        $transfer = $this->companyWithChild
+        $transfer = $this->model
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
@@ -346,7 +331,7 @@ class TransferForWithChildCest
      */
     public function tryToDownloadInvoice(FunctionalTester $I)
     {
-        $transfer = $this->companyWithChild
+        $transfer = $this->model
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
