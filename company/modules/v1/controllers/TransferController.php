@@ -248,7 +248,7 @@ class TransferController extends Controller
         try{
             $transfer->paymentSent();
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
             return [
                 "operation" => "error",
@@ -288,7 +288,7 @@ class TransferController extends Controller
         try{
             $transfer->lock();
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
             return [
                 "operation" => "error",

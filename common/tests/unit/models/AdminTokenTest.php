@@ -4,35 +4,31 @@ namespace common\tests;
 use Codeception\Specify;
 use common\models\Admin;
 use common\models\AdminToken;
-use common\fixtures\Admin as AdminFixture;
-use common\fixtures\AdminToken as AdminTokenFixture;
+use common\fixtures\AdminTokenFixture;
 
 class AdminTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */
     protected $tester;
 
-    protected function _before()
+    public function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => codecept_data_dir() . 'admin.php'
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => codecept_data_dir() . 'adminToken.php'
-            ]
-        ]);
+        return [
+            'adminToken' => AdminTokenFixture::className()
+        ];
     }
+
+    protected function _before(){}
 
     protected function _after(){}
 
-    // tests
+    /**
+     * Test Validation
+     */
     public function testValidation()
     {
         $this->specify('Fixtures should be loaded', function() {
@@ -62,7 +58,7 @@ class AdminTokenTest extends \Codeception\Test\Unit
 
         $this->specify('Test existing Token', function() {
             expect(
-                'unique token string', 
+                'unique token string',
                 AdminToken::findOne(['token_value' => AdminToken::generateUniqueTokenString()])
             )->null();
         });

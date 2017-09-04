@@ -3,34 +3,27 @@ namespace admin\tests;
 
 use Yii;
 use admin\tests\FunctionalTester;
-use common\models\University;
 use common\models\AdminToken;
-use common\fixtures\Admin as AdminFixture;
-use common\fixtures\AdminToken as AdminTokenFixture;
-use common\fixtures\University as UniversityFixture;
+use common\fixtures\AdminFixture;
+use common\fixtures\AdminTokenFixture;
+use common\fixtures\UniversityFixture;
 use Codeception\Util\HttpCode;
 
 class UniversityCest
 {
     public $token;
-    
+
+	public function _fixtures()
+	{
+		return [
+			'admin' => AdminFixture::className(),
+			'adminToken' => AdminTokenFixture::className(),
+			'university' => UniversityFixture::className(),
+		];
+	}
+
     public function _before(FunctionalTester $I)
     {
-        $I->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'                
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/university.php'
-            ]
-        ]);
-        
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
@@ -41,18 +34,18 @@ class UniversityCest
     }
 
     /**
-     * Listing 
+     * Listing
      * @param FunctionalTester $I
      */
     public function tryToList(FunctionalTester $I)
-    {   
+    {
         $I->wantTo('Validate university api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/universities');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * Create
      * @param FunctionalTester $I
@@ -60,12 +53,12 @@ class UniversityCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
-            'v1/universities', 
+            'v1/universities',
             [
-                'name_en' => 'davert', 
+                'name_en' => 'davert',
                 'name_ar' => 'davert'
             ]
         );
@@ -75,7 +68,7 @@ class UniversityCest
             "message" => "University created successfully"
         ]);
     }
-        
+
     /**
      * Update
      * @param FunctionalTester $I
@@ -83,12 +76,12 @@ class UniversityCest
     public function tryToUpdate(FunctionalTester $I)
     {
         $I->wantTo('update a university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'v1/universities/1', 
+            'v1/universities/1',
             [
-                'name_en' => 'davert', 
+                'name_en' => 'davert',
                 'name_ar' => 'davert'
             ]
         );
@@ -98,15 +91,15 @@ class UniversityCest
             "message" => "University successfully updated"
         ]);
     }
-    
+
     /**
      * Delete
      * @param FunctionalTester $I
      */
     public function tryToDelete(FunctionalTester $I)
-    {        
+    {
         $I->wantTo('delete university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('v1/universities/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200

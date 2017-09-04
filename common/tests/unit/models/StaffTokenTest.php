@@ -1,10 +1,8 @@
 <?php
-
 namespace common\tests\unit\models;
 
-
-use common\fixtures\StaffToken as StaffTokenFixture;
-use common\fixtures\Staff as StaffFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use common\models\StaffToken;
 use Codeception\Specify;
 
@@ -17,30 +15,15 @@ class StaffTokenTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-
-    /**
-     * Executes before tests
-     */
-    protected function setUp()
+    public function _fixtures()
     {
-        // nothing else to do for this test
-        parent::setUp();
+        return [
+            'staffToken' => StaffTokenFixture::className(),
+            'staff' => StaffFixture::className(),
+        ];
     }
 
-
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => codecept_data_dir() . 'staffToken.php'
-            ],
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => codecept_data_dir() . 'staff.php'
-            ]
-        ]);
-    }
+    protected function _before(){}
 
     protected function _after(){}
 

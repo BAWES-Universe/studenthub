@@ -3,37 +3,28 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use staff\fixtures\Store as StoreFixture;
-use staff\fixtures\Company as CompanyFixture;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class StoreCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ],
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-        ]);
+	public function _fixtures()
+	{
+		return [
+			'staff'      => StaffFixture::className(),
+			'staffToken' => StaffTokenFixture::className(),
+			'company'    => CompanyFixture::className(),
+			'store'      => StoreFixture::className()
+		];
+	}
 
+	public function _before(FunctionalTester $I)
+	{
         $this->token = StaffToken::find()
             ->one()
             ->token_value;

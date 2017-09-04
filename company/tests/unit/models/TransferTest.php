@@ -8,11 +8,11 @@ use company\models\Company;
 use company\models\Candidate;
 use company\models\Transfer;
 use company\models\TransferCandidate;
-use common\fixtures\Company as CompanyFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 
 class TransferTest extends \Codeception\Test\Unit
 {
@@ -23,34 +23,21 @@ class TransferTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
-        Yii::$app->params['inCodeception'] = true;
-        Yii::$app->params['transfer_cost'] = 0.35;
-        Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    protected function _before() {
+	    Yii::$app->params['inCodeception']             = true;
+	    Yii::$app->params['transfer_cost']             = 0.35;
+	    Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    }
 
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ]
-        ]);
+    public function _fixtures()
+    {
+        return [
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className(),
+            'candidate' => CandidateFixture::className(),
+            'transfer' => TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className()
+        ];
     }
 
     protected function _after(){}

@@ -8,54 +8,33 @@ use admin\models\Company;
 use admin\models\Candidate;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use admin\fixtures\Company as CompanyFixture;
-use admin\fixtures\Store as StoreFixture;
-use admin\fixtures\Candidate as CandidateFixture;
-use admin\fixtures\Transfer as TransferFixture;
-use admin\fixtures\TransferCandidate as TransferCandidateFixture;
-use admin\fixtures\Invoice as InvoiceFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
+use common\fixtures\InvoiceFixture;
 
 class StatisticsTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \admin\tests\UnitTester
      */
     protected $tester;
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/invoice.php'
-            ],
-        ]);
-    }
-
-    protected function _after(){}
-
+	public function _fixtures()
+	{
+		return [
+			'company' => CompanyFixture::className(),
+			'store' => StoreFixture::className(),
+			'candidate' => CandidateFixture::className(),
+			'transfer' => TransferFixture::className(),
+			'transferCandidate' => TransferCandidateFixture::className(),
+			'invoice' => InvoiceFixture::className()
+		];
+	}
 
     /**
      * test admin statistics
@@ -128,7 +107,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ])
             ->count();
 
-        expect('Total assigned candidates', $totalAssignedToWork)->equals(Candidate::candidateCountByCondition());
+        expect('Total assigned candidates', $totalAssignedToWork)->equals(Candidate::candidateCountByCondition('assigned'));
     }
 
     /**

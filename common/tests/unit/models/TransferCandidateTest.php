@@ -2,61 +2,40 @@
 namespace common\tests;
 
 use Codeception\Specify;
-use common\fixtures\Bank as BankFixture;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Company as CompanyFixture;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
-use common\fixtures\Invoice as InvoiceFixture;
+use common\fixtures\BankFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
+use common\fixtures\InvoiceFixture;
 use common\models\TransferCandidate;
 
 class TransferCandidateTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */
     protected $tester;
 
-    protected function _before()
+    public function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => codecept_data_dir() . 'company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ],
-            'bank' => [
-                'class' => BankFixture::className(),
-                'dataFile' => codecept_data_dir() . 'bank.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => codecept_data_dir() . 'transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => codecept_data_dir() . 'invoice.php'
-            ]
-        ]);
+        return [
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className(),
+            'bank' => BankFixture::className(),
+            'candidate' => CandidateFixture::className(),
+            'transfer' => TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className(),
+            'invoice' => InvoiceFixture::className(),
+        ];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     /**
      * test case for model validations

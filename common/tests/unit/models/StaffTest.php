@@ -1,9 +1,7 @@
 <?php
-
 namespace common\tests\unit\models;
 
-
-use common\fixtures\Staff as StaffFixture;
+use common\fixtures\StaffFixture;
 use common\models\Staff;
 use Codeception\Specify;
 
@@ -16,30 +14,14 @@ class StaffTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-
-    /**
-     * Executes before tests
-     */
-    protected function setUp()
+    public function _fixtures()
     {
-        // nothing else to do for this test
-        parent::setUp();
+        return ['staff' => StaffFixture::className()];
     }
 
+    protected function _before(){}
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => codecept_data_dir() . 'staff.php'
-            ]
-        ]);
-    }
-
-    protected function _after()
-    {
-    }
+    protected function _after(){}
 
     public function testValidators()
     {

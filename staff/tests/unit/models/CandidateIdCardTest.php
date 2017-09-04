@@ -6,9 +6,10 @@ use staff\models\Store;
 use staff\models\Company;
 use staff\models\Candidate;
 use staff\models\CandidateIdCard;
-use common\fixtures\Company as CompanyFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Store as StoreFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CandidateIdCardFixture;
+use common\fixtures\StoreFixture;
 
 class CandidateIdCardTest extends \Codeception\Test\Unit
 {
@@ -17,22 +18,14 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/store.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ]
-        ]);
+	public function _fixtures()
+	{
+		return [
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className(),
+            'candidate' => CandidateFixture::className(),
+			'candidateIdCardFixture' => CandidateIdCardFixture::className()
+        ];
     }
 
     protected function _after()
@@ -61,7 +54,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
         $result = CandidateIdCard::createZip($candidates);
         expect('Check generating zip', file_exists($result['zip']))->true();
     }
-    
+
     /**
      * Tests Create for New Candidate ID Card with existing candidate id in table
      */

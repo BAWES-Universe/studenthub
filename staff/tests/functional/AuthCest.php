@@ -3,28 +3,25 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class AuthCest
 {
     public $token;
-    
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ]
-        ]);
-        
-        $this->token = StaffToken::find()
+
+	public function _fixtures()
+	{
+        return [
+            'staff' => StaffFixture::className(),
+            'staffToken' => StaffTokenFixture::className()
+        ];
+	}
+
+	public function _before(FunctionalTester $I)
+	{
+		$this->token = StaffToken::find()
                 ->one()
                 ->token_value;
     }
@@ -34,7 +31,7 @@ class AuthCest
     }
 
     /**
-     * Login 
+     * Login
      * @param FunctionalTester $I
      */
     public function tryToLogin(FunctionalTester $I)
@@ -45,7 +42,7 @@ class AuthCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * Update password
      * @param FunctionalTester $I

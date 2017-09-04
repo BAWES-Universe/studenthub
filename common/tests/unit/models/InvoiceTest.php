@@ -2,13 +2,13 @@
 namespace common\tests;
 
 use admin\models\Invoice;
-use common\fixtures\Invoice as InvoiceFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Country as CountryFixture;
-use common\fixtures\University as UniversityFixture;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
+use common\fixtures\InvoiceFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 
 use Codeception\Specify;
 
@@ -20,39 +20,20 @@ class InvoiceTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    public function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'candidates' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => codecept_data_dir() . 'country.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => codecept_data_dir() . 'university.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ],
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => codecept_data_dir() . 'transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'transferCandidate.php'
-            ],
-            'invoice' => [
-                'class' => InvoiceFixture::className(),
-                'dataFile' => codecept_data_dir() . 'invoice.php'
-            ]
-        ]);
+        return [
+            'candidates' => CandidateFixture::className(),
+            'country' => CountryFixture::className(),
+            'university' => UniversityFixture::className(),
+            'store' => StoreFixture::className(),
+            'transfer' => TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className(),
+            'invoice' => InvoiceFixture::className(),
+        ];
     }
+
+    protected function _before(){}
 
     protected function _after(){}
 

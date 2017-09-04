@@ -1,10 +1,10 @@
 <?php
 namespace company\tests\unit\models;
 
-use staff\models\Staff;
 use Yii;
-use staff\fixtures\Staff as StaffFixture;
+use staff\models\Staff;
 use staff\models\PasswordResetRequestForm;
+use common\fixtures\StaffFixture;
 
 class PasswordResetRequestFormTest extends \Codeception\Test\Unit
 {
@@ -14,14 +14,9 @@ class PasswordResetRequestFormTest extends \Codeception\Test\Unit
     protected $tester;
 
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-        ]);
+	public function _fixtures()
+	{
+        return ['staff' => StaffFixture::className()];
     }
 
     /**

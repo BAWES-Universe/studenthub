@@ -5,34 +5,25 @@ use Yii;
 use Codeception\Specify;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use common\fixtures\Transfer as TransferFixture;
-use common\fixtures\TransferCandidate as TransferCandidateFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
 
 class TransferCandidateTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \admin\tests\UnitTester
      */
     protected $tester;
 
-    protected function _before()
-    {
-        $this->tester->haveFixtures([
-            'transfer' => [
-                'class' => TransferFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transfer.php'
-            ],
-            'transferCandidate' => [
-                'class' => TransferCandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/transferCandidate.php'
-            ]
-        ]);
+	public function _fixtures()
+	{
+        return [
+            'transfer' =>TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className()
+        ];
     }
-
-    protected function _after(){}
-
 
     /**
      * test for fixture load

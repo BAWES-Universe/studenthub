@@ -3,47 +3,32 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use common\fixtures\CandidateIdCard as CandidateIdCardFixture;
-use staff\fixtures\Candidate as CandidateFixture;
-use staff\fixtures\University as UniversityFixture;
-use staff\fixtures\Country as CountryFixture;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
+use common\fixtures\CandidateIdCardFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class StatisticsCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/country.php'
-            ],
-            'candidate' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidate.php'
-            ],
-            'candidateIdCardFixture' => [
-                'class' => CandidateIdCardFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/candidateIdCard.php'
-            ],
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/university.php'
-            ],
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ],
-        ]);
+	public function _fixtures()
+	{
+        return [
+            'country' => CountryFixture::className(),
+            'candidate' => CandidateFixture::className(),
+            'candidateIdCardFixture' => CandidateIdCardFixture::className(),
+            'university' => UniversityFixture::className(),
+            'staff' => StaffFixture::className(),
+            'staffToken' => StaffTokenFixture::className()
+        ];
+	}
 
+	public function _before(FunctionalTester $I)
+	{
         $this->token = StaffToken::find()
             ->one()
             ->token_value;

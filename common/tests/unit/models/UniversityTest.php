@@ -2,7 +2,7 @@
 namespace common\tests;
 
 use common\models\University;
-use common\fixtures\University as UniversityFixture;
+use common\fixtures\UniversityFixture;
 use Codeception\Specify;
 
 class UniversityTest extends \Codeception\Test\Unit
@@ -14,19 +14,14 @@ class UniversityTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    public function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => codecept_data_dir() . 'university.php'
-            ]
-        ]);
+        return ['university' => UniversityFixture::className()];
     }
 
-    protected function _after()
-    {
-    }
+    protected function _before(){}
+
+    protected function _after(){}
 
     /**
      * Tests validator

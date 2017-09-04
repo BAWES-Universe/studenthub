@@ -3,32 +3,25 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use common\fixtures\Bank as BankFixture;
-use staff\fixtures\StaffToken as StaffTokenFixture;
-use staff\fixtures\staff as StaffFixture;
+use common\fixtures\BankFixture;
+use common\fixtures\StaffTokenFixture;
+use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class BankCest
 {
     public $token;
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'bank' => [
-                'class' => BankFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/bank.php'
-            ],
-            'staff' => [
-                'class' => StaffFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staff.php'
-            ],
-            'staffToken' => [
-                'class' => StaffTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/staffToken.php'
-            ],
-        ]);
+	public function _fixtures() {
+		return [
+			'bank'       => BankFixture::className(),
+			'staff'      => StaffFixture::className(),
+			'staffToken' => StaffTokenFixture::className()
+		];
+	}
 
+	public function _before(FunctionalTester $I)
+	{
         $this->token = StaffToken::find()
             ->one()
             ->token_value;

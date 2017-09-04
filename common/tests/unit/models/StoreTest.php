@@ -2,8 +2,8 @@
 namespace common\tests;
 
 use common\models\Store;
-use common\fixtures\Store as StoreFixture;
-use common\fixtures\Company as CompanyFixture;
+use common\fixtures\StoreFixture;
+use common\fixtures\CompanyFixture;
 use Codeception\Specify;
 
 class StoreTest extends \Codeception\Test\Unit
@@ -14,19 +14,15 @@ class StoreTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-    protected function _before()
+    public function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => codecept_data_dir() . 'company.php'
-            ],
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ]
-        ]);
+        return [
+            'company' => CompanyFixture::className(),
+            'store' => StoreFixture::className()
+        ];
     }
+
+    protected function _before(){}
 
     protected function _after(){}
 

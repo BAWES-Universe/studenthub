@@ -3,34 +3,28 @@ namespace admin\tests;
 
 use Yii;
 use admin\tests\FunctionalTester;
-use admin\fixtures\Company as CompanyFixture;
-use common\fixtures\Admin as AdminFixture;
-use common\fixtures\AdminToken as AdminTokenFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\AdminFixture;
+use common\fixtures\AdminTokenFixture;
 use common\models\AdminToken;
 use Codeception\Util\HttpCode;
 
 class CompanyCest
 {
     public $token;
-    
-    public function _before(FunctionalTester $I)
-    {
-        $I->haveFixtures([
-            'admin' => [
-                'class' => AdminFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/admin.php'                
-            ],
-            'adminToken' => [
-                'class' => AdminTokenFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/adminToken.php'
-            ],
-            'company' => [
-                'class' => CompanyFixture::className(),
-                'dataFile' => Yii::getAlias('@common').'/tests/_data/company.php'                
-            ]
-        ]);
-        
-        $this->token = AdminToken::find()
+
+	public function _fixtures()
+	{
+        return [
+            'admin' => AdminFixture::className(),
+            'adminToken' => AdminTokenFixture::className(),
+            'company' => CompanyFixture::className()
+        ];
+	}
+
+	public function _before(FunctionalTester $I)
+	{
+		$this->token = AdminToken::find()
             ->one()
             ->token_value;
     }
@@ -46,51 +40,51 @@ class CompanyCest
     public function tryToList(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > companies api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/companies');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * view company
      * @param FunctionalTester $I
      */
-    public function tryToView(FunctionalTester $I)    
+    public function tryToView(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > companies api response for company detail');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/companies/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * List Sub Companies for a given company
      * @param FunctionalTester $I
      */
-    public function tryToListSubCompanies(FunctionalTester $I)        
+    public function tryToListSubCompanies(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > companies api to list sub companies for a given company');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/companies/sub-companies/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
     /**
      * create company account
      * @param FunctionalTester $I
      */
-    public function tryToCreateCompany(FunctionalTester $I)        
+    public function tryToCreateCompany(FunctionalTester $I)
     {
         $I->wantTo('create a company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
-            'v1/companies', 
+            'v1/companies',
             [
-                'name' => 'davert', 
+                'name' => 'davert',
                 'email' => 'davert@bawes.com',
                 'password' => '12345',
             ]
@@ -101,20 +95,20 @@ class CompanyCest
             "message" => "Company account successfully created"
         ]);
     }
-    
+
     /**
      * create sub company
      * @param FunctionalTester $I
      */
-    public function tryToCreateSubCompany(FunctionalTester $I)        
+    public function tryToCreateSubCompany(FunctionalTester $I)
     {
         $I->wantTo('create a sub company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
-            'v1/companies', 
+            'v1/companies',
             [
-                'name' => 'davert', 
+                'name' => 'davert',
                 'parent' => 1
             ]
         );
@@ -124,20 +118,20 @@ class CompanyCest
             "message" => "Company account successfully created"
         ]);
     }
-    
+
     /**
      * update company
      * @param FunctionalTester $I
      */
-    public function tryToUpdateCompany(FunctionalTester $I)        
+    public function tryToUpdateCompany(FunctionalTester $I)
     {
         $I->wantTo('update company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'v1/companies/1', 
+            'v1/companies/1',
             [
-                'name' => 'davert', 
+                'name' => 'davert',
                 'email' => 'davert@bawes.com'
             ]
         );
@@ -147,21 +141,21 @@ class CompanyCest
             "message" => "Company account successfully updated"
         ]);
     }
-    
+
     /**
      * Delete company
      * @param FunctionalTester $I
      */
-    public function tryToDeleteCompany(FunctionalTester $I)       
+    public function tryToDeleteCompany(FunctionalTester $I)
     {
         $I->wantTo('delete company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);        
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDELETE('v1/companies/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",
             "message" => "Company account successfully deleted"
-        ]);        
+        ]);
     }
 }

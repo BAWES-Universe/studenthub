@@ -3,51 +3,38 @@ namespace common\tests;
 
 use Yii;
 use common\models\CandidateToken;
-use common\fixtures\CandidateToken as CandidateTokenFixture;
-use common\fixtures\Candidate as CandidateFixture;
-use common\fixtures\Country as CountryFixture;
-use common\fixtures\University as UniversityFixture;
-use common\fixtures\Store as StoreFixture;
+use common\fixtures\CandidateTokenFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\UniversityFixture;
+use common\fixtures\StoreFixture;
 use Codeception\Specify;
 
 class CandidateTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
-    
+
     /**
      * @var \common\tests\UnitTester
      */
     protected $tester;
 
-    protected function _before()
+    public function _fixtures()
     {
-        $this->tester->haveFixtures([
-            'candidates' => [
-                'class' => CandidateFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidate.php'
-            ],         
-            'country' => [
-                'class' => CountryFixture::className(),
-                'dataFile' => codecept_data_dir() . 'country.php'
-            ],         
-            'university' => [
-                'class' => UniversityFixture::className(),
-                'dataFile' => codecept_data_dir() . 'university.php'
-            ],         
-            'store' => [
-                'class' => StoreFixture::className(),
-                'dataFile' => codecept_data_dir() . 'store.php'
-            ],
-            'candidateToken' => [
-                'class' => CandidateTokenFixture::className(),
-                'dataFile' => codecept_data_dir() . 'candidateToken.php'
-            ]
-        ]);
-        
-        Yii::$app->params['candidate_max_hourly_rate'] = 2;
+        return [
+            'candidates' => CandidateFixture::className(),
+            'country' => CountryFixture::className(),
+            'university' => UniversityFixture::className(),
+            'store' => StoreFixture::className(),
+            'candidateToken' => CandidateTokenFixture::className(),
+        ];
     }
 
-    protected function _after()
+    protected function _before() {
+	    Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    }
+
+	protected function _after()
     {
     }
 
