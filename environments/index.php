@@ -122,6 +122,7 @@ return [
         ],
         'setExecutable' => [
             'yii',
+            'yii_test',
         ],
         'setCookieValidationKey' => [
             'admin/config/main-local.php',
