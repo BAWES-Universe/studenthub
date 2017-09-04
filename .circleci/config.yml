@@ -14,7 +14,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/mysql:latest
         environment:
-            MYSQL_DATABASE: payroll
+            MYSQL_DATABASE: payroll_test
             MYSQL_HOST: 127.0.0.1
             MYSQL_USER: payrollUser
             MYSQL_PASSWORD: pay
@@ -55,7 +55,8 @@ jobs:
 
       - run:
           name: Install DB Migrations
-          command: ./yii migrate --interactive=0
+          command: ./yii_test migrate --interactive=0
 
-      # run tests!
-      # - run: phpunit
+      - run:
+          name: Run Codeception Tests
+          command: ./vendor/bin/codecept run
