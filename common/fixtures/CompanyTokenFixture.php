@@ -6,4 +6,7 @@ use yii\test\ActiveFixture;
 class CompanyTokenFixture extends ActiveFixture
 {
     public $modelClass = 'common\models\CompanyToken';
+    public $depends = [
+        'common\fixtures\CompanyFixture'
+    ];
 }
