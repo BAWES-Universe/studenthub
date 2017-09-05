@@ -54,20 +54,6 @@ class TransferForWithChildCest
     }
 
     /**
-     * View transfers for company with child
-     * @param FunctionalTester $I
-     */
-    public function tryToView(FunctionalTester $I)
-    {
-        $transfer = $this->model->getTransfers()->one();
-        $I->wantTo('View transfer with relations for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }
-
-    /**
      * Create transfers for company with child by excel
      * @param FunctionalTester $I
      */
@@ -254,7 +240,25 @@ class TransferForWithChildCest
         $I->seeResponseIsJson();
     }
 
-    /**
+	/**
+	 * Mark transfers as "Locked" for company with child
+	 * @param FunctionalTester $I
+	 */
+	public function tryToMarkLocked(FunctionalTester $I)
+	{
+		$transfer = $this->model
+			->getTransfers()
+			->where(['transfer_status' => Transfer::STATUS_INITIATED])
+			->one();
+
+		$I->wantTo('Mark transfer as "Locked" for company with child');
+		$I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+		$I->sendPATCH('v1/transfers/lock/' . $transfer->transfer_id);
+		$I->seeResponseCodeIs(HttpCode::OK); // 200
+		$I->seeResponseIsJson();
+	}
+
+	/**
      * Mark transfers as "Payment Sent" for company with child
      * @param FunctionalTester $I
      */
@@ -264,32 +268,29 @@ class TransferForWithChildCest
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
-        $I->wantTo('Mark transfer as "Payment Sent" for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendPATCH('v1/transfers/payment-sent/' . $transfer->transfer_id);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->wantTo( 'Mark transfer as "Payment Sent" for company with child' );
+        $I->haveHttpHeader( 'Authorization', 'Bearer ' . $this->token );
+        $I->sendPATCH( 'v1/transfers/payment-sent/' . $transfer->transfer_id );
+        $I->seeResponseCodeIs( HttpCode::OK ); // 200
         $I->seeResponseIsJson();
     }
 
-    /**
-     * Mark transfers as "Locked" for company with child
-     * @param FunctionalTester $I
-     */
-    public function tryToMarkLocked(FunctionalTester $I)
-    {
-        $transfer = $this->model
-            ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
+	/**
+	 * View transfers for company with child
+	 * @param FunctionalTester $I
+	 */
+	public function tryToView(FunctionalTester $I)
+	{
+		$transfer = $this->model->getTransfers()->one();
+		$I->wantTo( 'View transfer with relations for company with child' );
+		$I->haveHttpHeader( 'Authorization', 'Bearer ' . $this->token );
+		$I->sendGET( 'v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates' );
+		$I->seeResponseCodeIs( HttpCode::OK ); // 200
+		$I->seeResponseIsJson();
 
-        $I->wantTo('Mark transfer as "Locked" for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendPATCH('v1/transfers/lock/' . $transfer->transfer_id);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }
+	}
 
-    /**
+	/**
      * Delete transfers for company with child
      * @param FunctionalTester $I
      */
