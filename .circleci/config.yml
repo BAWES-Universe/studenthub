@@ -59,4 +59,4 @@ jobs:
 
       - run:
           name: Run Codeception Tests
-          command: ./vendor/bin/codecept run
+          command: ./vendor/bin/codecept run --debug
