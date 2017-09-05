@@ -2,16 +2,9 @@
 namespace admin\tests;
 
 use Yii;
-use admin\tests\FunctionalTester;
-use common\fixtures\StoreFixture;
-use common\fixtures\CompanyFixture;
-use common\fixtures\BankFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
-use common\fixtures\CandidateFixture;
 use common\models\AdminToken;
 use admin\models\Transfer;
 use Codeception\Util\HttpCode;
@@ -22,13 +15,7 @@ class TransferCest
 
 	public function _fixtures() {
 		return [
-			'admin' => AdminFixture::className(),
 			'adminToken' => AdminTokenFixture::className(),
-			'company' => CompanyFixture::className(),
-			'store' => StoreFixture::className(),
-			'bank' => BankFixture::className(),
-			'candidate' => CandidateFixture::className(),
-			'transfer' => TransferFixture::className(),
 			'transferCandidate' => TransferCandidateFixture::className(),
 			'invoice' => InvoiceFixture::className()
 		];

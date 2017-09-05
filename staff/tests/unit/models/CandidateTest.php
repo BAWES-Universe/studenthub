@@ -2,10 +2,7 @@
 namespace company\tests\unit\models;
 
 use Yii;
-use common\fixtures\CountryFixture;
 use common\fixtures\CandidateFixture;
-use common\fixtures\UniversityFixture;
-use common\fixtures\StoreFixture;
 use staff\models\Candidate;
 
 class CandidateTest extends \Codeception\Test\Unit
@@ -24,9 +21,6 @@ class CandidateTest extends \Codeception\Test\Unit
 	{
         return [
             'candidates' => CandidateFixture::className(),
-            'country' => CountryFixture::className(),
-            'university' => UniversityFixture::className(),
-            'store' => StoreFixture::className()
         ];
     }
 

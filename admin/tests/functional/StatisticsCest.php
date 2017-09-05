@@ -4,9 +4,7 @@ namespace admin\tests;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
-use common\fixtures\CandidateFixture;
 use common\fixtures\CandidateIdCardFixture;
 use Codeception\Util\HttpCode;
 
@@ -16,9 +14,7 @@ class StatisticsCest
 
 	public function _fixtures() {
 		return [
-			'admin' => AdminFixture::className(),
 			'adminToken' => AdminTokenFixture::className(),
-			'candidate' => CandidateFixture::className(),
 			'candidateIdCard' =>  CandidateIdCardFixture::className(),
 		];
 	}

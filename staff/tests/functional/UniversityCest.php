@@ -4,10 +4,7 @@ namespace staff\tests;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\CandidateFixture;
-use common\fixtures\UniversityFixture;
-use common\fixtures\CountryFixture;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class UniversityCest
@@ -17,10 +14,7 @@ class UniversityCest
 	public function _fixtures()
 	{
 		return [
-			'country'    => CountryFixture::className(),
 			'candidate'  => CandidateFixture::className(),
-			'university' => UniversityFixture::className(),
-			'staff'      => StaffFixture::className(),
 			'staffToken' => StaffTokenFixture::className()
 		];
 	}

@@ -5,7 +5,6 @@ use yii;
 use staff\tests\FunctionalTester;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class CompanyCest
@@ -15,7 +14,6 @@ class CompanyCest
 	public function _fixtures()
 	{
 		return [
-			'staff'      => StaffFixture::className(),
 			'staffToken' => StaffTokenFixture::className()
 		];
 	}

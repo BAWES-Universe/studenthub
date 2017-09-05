@@ -5,7 +5,6 @@ use Yii;
 use Codeception\Specify;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 
 class TransferCandidateTest extends \Codeception\Test\Unit
@@ -20,7 +19,6 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 	public function _fixtures()
 	{
         return [
-            'transfer' =>TransferFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className()
         ];
     }

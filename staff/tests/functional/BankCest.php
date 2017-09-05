@@ -15,7 +15,6 @@ class BankCest
 	public function _fixtures() {
 		return [
 			'bank'       => BankFixture::className(),
-			'staff'      => StaffFixture::className(),
 			'staffToken' => StaffTokenFixture::className()
 		];
 	}

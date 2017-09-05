@@ -4,9 +4,7 @@ namespace staff\tests;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StoreFixture;
-use common\fixtures\CompanyFixture;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class StoreCest
@@ -16,9 +14,7 @@ class StoreCest
 	public function _fixtures()
 	{
 		return [
-			'staff'      => StaffFixture::className(),
 			'staffToken' => StaffTokenFixture::className(),
-			'company'    => CompanyFixture::className(),
 			'store'      => StoreFixture::className()
 		];
 	}

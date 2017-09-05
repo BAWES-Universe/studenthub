@@ -4,9 +4,7 @@ namespace candidate\tests;
 use yii;
 use candidate\tests\FunctionalTester;
 use common\models\CandidateToken;
-use common\fixtures\CandidateFixture;
 use common\fixtures\CandidateTokenFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 use Codeception\Util\HttpCode;
@@ -18,9 +16,7 @@ class StatisticsCest
     public function _fixtures()
     {
         return [
-            'candidate' => CandidateFixture::className(),
             'candidateToken' => CandidateTokenFixture::className(),
-            'transfer' => TransferFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className(),
             'invoice' => InvoiceFixture::className()
         ];

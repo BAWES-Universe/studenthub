@@ -5,14 +5,8 @@ use Yii;
 use admin\tests\FunctionalTester;
 use admin\models\Candidate;
 use common\models\AdminToken;
-use common\fixtures\CompanyFixture;
-use common\fixtures\StoreFixture;
-use common\fixtures\CandidateFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
-use common\fixtures\CountryFixture;
 use Codeception\Util\HttpCode;
 
 class CandidateCest
@@ -22,13 +16,7 @@ class CandidateCest
 	public function _fixtures() {
 
 		return [
-			'admin' => AdminFixture::className(),
 			'adminToken' => AdminTokenFixture::className(),
-			'country' => CountryFixture::className(),
-			'company' => CompanyFixture::className(),
-			'store' => StoreFixture::className(),
-			'candidate' => CandidateFixture::className(),
-			'transfer' => TransferFixture::className(),
 			'transferCandidate' => TransferCandidateFixture::className()
 		];
 	}
