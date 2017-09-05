@@ -20,6 +20,8 @@ jobs:
             MYSQL_PASSWORD: pay
             MYSQL_ROOT_HOST: "%"
             MYSQL_ROOT_PASSWORD: pay
+        command:
+            mysqld --sql-mode=NO_ENGINE_SUBSTITUTION
 
     working_directory: ~/payroll
 
@@ -28,8 +30,9 @@ jobs:
 
       # Install additional PHP modules
       - run: sudo apt-get update
-      - run: sudo apt-get install libpng-dev libmcrypt-dev libreadline-dev mysql-client
+      - run: sudo apt-get install libpng-dev libmcrypt-dev libreadline-dev mysql-client zip zlib1g-dev
       - run: sudo docker-php-ext-install gd
+      - run: sudo docker-php-ext-install zip
       - run: sudo docker-php-ext-install mcrypt && sudo docker-php-ext-enable mcrypt
       - run: sudo docker-php-ext-install pdo_mysql && sudo docker-php-ext-enable pdo_mysql
 
