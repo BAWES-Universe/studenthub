@@ -212,19 +212,6 @@ class TransferCest
     }
 
     /**
-     * Download Transfer
-     * @param FunctionalTester $I
-     */
-    public function tryToDownload(FunctionalTester $I)
-    {
-        $I->wantTo('Validate admin > transfer > Download Transfer api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-	    $I->seeResponseIsJson();
-    }
-
-    /**
      * List Candidate Transfers
      * @param FunctionalTester $I
      */
@@ -262,4 +249,17 @@ class TransferCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
+
+	/**
+	 * Download Transfer
+	 * @param FunctionalTester $I
+	 */
+//	public function tryToDownload(FunctionalTester $I)
+//	{
+//		$I->wantTo('Validate admin > transfer > Download Transfer api');
+//		$I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+//		$I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
+//		$I->seeResponseCodeIs(HttpCode::OK); // 200
+//		$I->seeResponseIsJson();
+//	}
 }

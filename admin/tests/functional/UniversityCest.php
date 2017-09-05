@@ -99,7 +99,7 @@ class UniversityCest
         $I->wantTo('delete university via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('v1/universities/1');
+        $I->sendDelete('v1/universities/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",
