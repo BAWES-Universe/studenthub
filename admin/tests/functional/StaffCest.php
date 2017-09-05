@@ -12,24 +12,24 @@ class StaffCest
 {
     public $token;
 
-	public function _fixtures() {
-		return [
-			'adminToken' => AdminTokenFixture::className(),
-			'staff' => StaffFixture::className(),
-		];
-	}
+    public function _fixtures() {
+        return [
+            'adminToken' => AdminTokenFixture::className(),
+            'staff' => StaffFixture::className(),
+        ];
+    }
 
-	public function _before(FunctionalTester $I)
-	{
-		$this->token = AdminToken::find()
-                     ->one()->token_value;
-	}
+    public function _before(FunctionalTester $I)
+    {
+        $this->token = AdminToken::find()
+             ->one()->token_value;
+    }
 
-	public function _after(FunctionalTester $I)
+    public function _after(FunctionalTester $I)
     {
     }
 
-	/**
+    /**
      * Listing
      * @param FunctionalTester $I
      */

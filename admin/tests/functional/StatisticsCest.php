@@ -12,23 +12,24 @@ class StatisticsCest
 {
     public $token;
 
-	public function _fixtures() {
-		return [
-			'adminToken' => AdminTokenFixture::className(),
-			'candidateIdCard' =>  CandidateIdCardFixture::className(),
-		];
-	}
+    public function _fixtures() 
+    {
+        return [
+            'adminToken' => AdminTokenFixture::className(),
+            'candidateIdCard' =>  CandidateIdCardFixture::className(),
+        ];
+    }
 
-	public function _before(FunctionalTester $I)
-	{
-		$this->token = AdminToken::find()->one()->token_value;
-	}
+    public function _before(FunctionalTester $I)
+    {
+        $this->token = AdminToken::find()->one()->token_value;
+    }
 
-	public function _after(FunctionalTester $I)
+    public function _after(FunctionalTester $I)
     {
     }
 
-	/**
+    /**
      * Get statistics
      * @param FunctionalTester $I
      */
