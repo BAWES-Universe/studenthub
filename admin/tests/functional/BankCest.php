@@ -14,17 +14,17 @@ class BankCest
 {
     public $token, $bank_id = 2;
 
-	public function _fixtures()
-	{
-		return [
-			'admin' => AdminFixture::className(),
-			'adminToken' => AdminTokenFixture::className(),
-			'bank'       => BankFixture::className(),
-		];
-	}
+    public function _fixtures()
+    {
+        return [
+            'admin' => AdminFixture::className(),
+            'adminToken' => AdminTokenFixture::className(),
+            'bank' => BankFixture::className(),
+        ];
+    }
 
-	public function _before(FunctionalTester $I)
-	{
+    public function _before(FunctionalTester $I)
+    {
         $this->token = AdminToken::find()
             ->one()
             ->token_value;

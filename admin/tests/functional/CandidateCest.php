@@ -13,18 +13,19 @@ class CandidateCest
 {
     public $token, $candidate_id;
 
-	public function _fixtures() {
+    public function _fixtures() 
+    {
+        return [
+            'adminToken' => AdminTokenFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className()
+        ];
+    }
 
-		return [
-			'adminToken' => AdminTokenFixture::className(),
-			'transferCandidate' => TransferCandidateFixture::className()
-		];
-	}
-	public function _before(FunctionalTester $I)
-	{
+    public function _before(FunctionalTester $I)
+    {
         $this->token = AdminToken::find()
-                ->one()
-                ->token_value;
+            ->one()
+            ->token_value;
 
         $this->candidate_id = Candidate::find()
             ->one()
