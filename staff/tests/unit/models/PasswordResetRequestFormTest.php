@@ -1,6 +1,7 @@
 <?php
 namespace company\tests\unit\models;
 
+use common\models\StaffToken;
 use Yii;
 use staff\models\Staff;
 use staff\models\PasswordResetRequestForm;
@@ -61,8 +62,9 @@ class PasswordResetRequestFormTest extends \Codeception\Test\Unit
      */
     public function testZeroEmailErrorWhenEmailAddressIsCorrect()
     {
+    	$staff = Staff::find()->one();
         $model = new PasswordResetRequestForm();
-        $model->email = 'staff@gmail.com';
+        $model->email = $staff->staff_email;
         $model->validate();
         expect('zero error', count($model->errors))->equals(0);
     }

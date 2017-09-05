@@ -31,9 +31,9 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
      */
     public function testFixtureLoad()
     {
-        expect('Company data loaded', Company::findOne(['company_id' => 1]))->notNull();
-        expect('Store data loaded', Store::find()->one())->notNull();
-        expect('Candidate data loaded', Candidate::find()->one())->notNull();
+        expect('Company data loaded', Company::find()->count())->notNull();
+        expect('Store data loaded', Store::find()->count())->notNull();
+        expect('Candidate data loaded', Candidate::find()->count())->notNull();
     }
 
     /**
@@ -54,8 +54,9 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
      */
     public function testCrudErrorForNewCandidateIDCardWhenCandidateIDAlreadyExist()
     {
+	    $candidateIdCard = CandidateIdCard::find()->one();
         $model = new CandidateIdCard();
-        $model->candidate_id = 1;
+        $model->candidate_id = $candidateIdCard->candidate_id;
         $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
         $model->validate();
         expect('error found', $model->errors)->hasKey('candidate_id');
@@ -68,7 +69,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
     public function testCrudForNewCandidateIDCard()
     {
         $model = new CandidateIdCard();
-        $model->candidate_id = 2;
+        $model->candidate_id = 3;
         $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
         expect('error found', count($model->errors))->equals(0);
         expect('Created successfully', $model->save())->true();
