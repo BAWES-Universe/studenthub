@@ -4,7 +4,6 @@ namespace company\tests;
 use Yii;
 use company\tests\FunctionalTester;
 use company\models\CompanyToken;
-use common\fixtures\CompanyFixture;
 use common\fixtures\CompanyTokenFixture;
 use common\fixtures\StoreFixture;
 use Codeception\Util\HttpCode;
@@ -14,7 +13,6 @@ class StoreCest
     public $token;
 	public function _fixtures() {
 		return [
-			'company'      => CompanyFixture::className(),
 			'companyToken' => CompanyTokenFixture::className(),
 			'store'        => StoreFixture::className()
 		];

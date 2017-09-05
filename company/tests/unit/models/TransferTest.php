@@ -8,10 +8,6 @@ use company\models\Company;
 use company\models\Candidate;
 use company\models\Transfer;
 use company\models\TransferCandidate;
-use common\fixtures\CompanyFixture;
-use common\fixtures\CandidateFixture;
-use common\fixtures\StoreFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 
 class TransferTest extends \Codeception\Test\Unit
@@ -32,10 +28,6 @@ class TransferTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'company' => CompanyFixture::className(),
-            'store' => StoreFixture::className(),
-            'candidate' => CandidateFixture::className(),
-            'transfer' => TransferFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className()
         ];
     }

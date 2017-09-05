@@ -3,18 +3,14 @@ namespace company\tests;
 
 use Yii;
 use company\tests\FunctionalTester;
-use common\fixtures\CompanyFixture;
 use common\fixtures\CompanyTokenFixture;
 use Codeception\Util\HttpCode;
-
-use common\models\Company;
 
 class AuthCest
 {
 	public function _fixtures()
 	{
         return [
-            'company' => CompanyFixture::className(),
             'companyToken' => CompanyTokenFixture::className()
         ];
     }

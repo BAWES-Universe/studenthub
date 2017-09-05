@@ -4,13 +4,8 @@ namespace company\tests;
 use Yii;
 use common\fixtures\CompanyFixture;
 use common\fixtures\CompanyTokenFixture;
-use common\fixtures\StoreFixture;
-use common\fixtures\BankFixture;
-use common\fixtures\CandidateFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
-use company\tests\FunctionalTester;
 use company\models\Transfer;
 use company\models\Company;
 use common\components\Excel;
@@ -22,12 +17,7 @@ class TransferForWithoutChildCest
 
 	public function _fixtures() {
 		return [
-			'company' => CompanyFixture::className(),
 			'companyToken' => CompanyTokenFixture::className(),
-			'store' => StoreFixture::className(),
-			'bank' => BankFixture::className(),
-			'candidate' => CandidateFixture::className(),
-			'transfer' => TransferFixture::className(),
 			'transferCandidate' => TransferCandidateFixture::className(),
 			'invoice' => InvoiceFixture::className()
 		];

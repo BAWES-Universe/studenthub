@@ -4,7 +4,6 @@ namespace admin\tests;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
 use common\fixtures\UniversityFixture;
 use Codeception\Util\HttpCode;
@@ -16,7 +15,6 @@ class UniversityCest
 	public function _fixtures()
 	{
 		return [
-			'admin' => AdminFixture::className(),
 			'adminToken' => AdminTokenFixture::className(),
 			'university' => UniversityFixture::className(),
 		];

@@ -4,7 +4,6 @@ namespace candidate\tests;
 use yii;
 use candidate\tests\FunctionalTester;
 use candidate\models\CandidateToken;
-use common\fixtures\CandidateFixture;
 use common\fixtures\CandidateTokenFixture;
 use Codeception\Util\HttpCode;
 
@@ -15,7 +14,6 @@ class AuthCest
 	public function _fixtures()
 	{
 		return [
-			'candidate' => CandidateFixture::className(),
 			'candidateToken' => CandidateTokenFixture::className()
 		];
 	}

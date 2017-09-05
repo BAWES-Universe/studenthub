@@ -6,10 +6,7 @@ use staff\models\Store;
 use staff\models\Company;
 use staff\models\Candidate;
 use staff\models\CandidateIdCard;
-use common\fixtures\CompanyFixture;
-use common\fixtures\CandidateFixture;
 use common\fixtures\CandidateIdCardFixture;
-use common\fixtures\StoreFixture;
 
 class CandidateIdCardTest extends \Codeception\Test\Unit
 {
@@ -21,9 +18,6 @@ class CandidateIdCardTest extends \Codeception\Test\Unit
 	public function _fixtures()
 	{
 		return [
-            'company' => CompanyFixture::className(),
-            'store' => StoreFixture::className(),
-            'candidate' => CandidateFixture::className(),
 			'candidateIdCardFixture' => CandidateIdCardFixture::className()
         ];
     }

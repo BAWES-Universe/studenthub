@@ -4,7 +4,6 @@ namespace staff\tests;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class AuthCest
@@ -14,7 +13,6 @@ class AuthCest
 	public function _fixtures()
 	{
         return [
-            'staff' => StaffFixture::className(),
             'staffToken' => StaffTokenFixture::className()
         ];
 	}

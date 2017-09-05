@@ -1,11 +1,9 @@
 <?php
 namespace company\tests;
 
+use common\fixtures\InvoiceFixture;
 use Yii;
-use common\fixtures\CompanyFixture;
 use common\fixtures\CompanyTokenFixture;
-use common\fixtures\StoreFixture;
-use common\fixtures\BankFixture;
 use common\fixtures\CandidateFixture;
 use company\tests\FunctionalTester;
 use company\models\Transfer;
@@ -33,11 +31,9 @@ class TransferForWithChildCest
 	public function _fixtures()
 	{
 		return [
-			'company'      => CompanyFixture::className(),
 			'companyToken' => CompanyTokenFixture::className(),
-			'store'        => StoreFixture::className(),
-			'bank'         => BankFixture::className(),
-			'candidate'    => CandidateFixture::className()
+			'candidate'    => CandidateFixture::className(),
+			'invoice'    => InvoiceFixture::className()
 		];
 	}
     /**

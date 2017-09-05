@@ -4,7 +4,6 @@ namespace company\tests;
 use Yii;
 use company\tests\FunctionalTester;
 use company\models\CompanyToken;
-use common\fixtures\CompanyFixture;
 use common\fixtures\CompanyTokenFixture;
 use common\fixtures\CandidateFixture;
 use Codeception\Util\HttpCode;
@@ -15,7 +14,6 @@ class CandidateCest
 
 	public function _fixtures() {
 		return [
-			'company'      => CompanyFixture::className(),
 			'companyToken' => CompanyTokenFixture::className(),
 			'candidate'    => CandidateFixture::className()
 		] ;

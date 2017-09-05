@@ -4,7 +4,6 @@ namespace admin\tests;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\fixtures\CountryFixture;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
 use common\models\AdminToken;
 use Codeception\Util\HttpCode;
@@ -14,7 +13,6 @@ class CountryCest
 	public function _fixtures()
 	{
 		return [
-			'admin' => AdminFixture::className(),
 			'adminToken' => AdminTokenFixture::className(),
 			'country' => CountryFixture::className()
 		];
