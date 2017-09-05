@@ -3,13 +3,7 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use common\fixtures\StoreFixture;
-use common\fixtures\CandidateFixture;
-use common\fixtures\UniversityFixture;
-use common\fixtures\CompanyFixture;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\StaffFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 use common\fixtures\CandidateWorkHistoryFixture;
@@ -22,13 +16,7 @@ class CandidateCest
 	public function _fixtures()
 	{
         return [
-            'staff' => StaffFixture::className(),
             'staffToken' => StaffTokenFixture::className(),
-            'candidate' => CandidateFixture::className(),
-            'university' => UniversityFixture::className(),
-            'company' => CompanyFixture::className(),
-            'store' => StoreFixture::className(),
-            'transfer' => TransferFixture::className(),
             'invoice' => InvoiceFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className(),
             'candidateWorkHistory' => CandidateWorkHistoryFixture::className()

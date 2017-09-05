@@ -4,7 +4,6 @@ namespace admin\tests;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
 use common\fixtures\UniversityFixture;
 use Codeception\Util\HttpCode;
@@ -16,7 +15,6 @@ class UniversityCest
 	public function _fixtures()
 	{
 		return [
-			'admin' => AdminFixture::className(),
 			'adminToken' => AdminTokenFixture::className(),
 			'university' => UniversityFixture::className(),
 		];
@@ -101,7 +99,7 @@ class UniversityCest
         $I->wantTo('delete university via API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('v1/universities/1');
+        $I->sendDelete('v1/universities/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",

@@ -1,10 +1,10 @@
 <?php
 namespace staff\tests;
 
+use staff\models\Staff;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
 class AuthCest
@@ -14,7 +14,6 @@ class AuthCest
 	public function _fixtures()
 	{
         return [
-            'staff' => StaffFixture::className(),
             'staffToken' => StaffTokenFixture::className()
         ];
 	}
@@ -36,8 +35,9 @@ class AuthCest
      */
     public function tryToLogin(FunctionalTester $I)
     {
+    	$staff = Staff::find()->one();
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated('staff@gmail.com', '12345');
+        $I->amHttpAuthenticated($staff->staff_email, 'password_'.($staff->staff_id-1));
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();

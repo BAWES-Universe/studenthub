@@ -5,9 +5,7 @@ use yii;
 use yii\helpers\ArrayHelper;
 use common\models\StaffToken;
 use staff\models\Candidate;
-use common\fixtures\StaffFixture;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\CandidateFixture;
 use common\fixtures\CandidateIdCardFixture;
 use Codeception\Util\HttpCode;
 
@@ -18,9 +16,7 @@ class CandidateIdCardCest
 	public function _fixtures()
 	{
 		return [
-			'staff'           => StaffFixture::className(),
 			'staffToken'      => StaffTokenFixture::className(),
-			'candidate'       => CandidateFixture::className(),
 			'candidateIdCard' => CandidateIdCardFixture::className()
 		];
 	}

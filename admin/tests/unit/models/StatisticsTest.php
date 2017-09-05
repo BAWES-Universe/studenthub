@@ -8,10 +8,6 @@ use admin\models\Company;
 use admin\models\Candidate;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
-use common\fixtures\CompanyFixture;
-use common\fixtures\StoreFixture;
-use common\fixtures\CandidateFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 
@@ -27,10 +23,6 @@ class StatisticsTest extends \Codeception\Test\Unit
 	public function _fixtures()
 	{
 		return [
-			'company' => CompanyFixture::className(),
-			'store' => StoreFixture::className(),
-			'candidate' => CandidateFixture::className(),
-			'transfer' => TransferFixture::className(),
 			'transferCandidate' => TransferCandidateFixture::className(),
 			'invoice' => InvoiceFixture::className()
 		];

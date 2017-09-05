@@ -2,16 +2,9 @@
 namespace admin\tests;
 
 use Yii;
-use admin\tests\FunctionalTester;
-use common\fixtures\StoreFixture;
-use common\fixtures\CompanyFixture;
-use common\fixtures\BankFixture;
-use common\fixtures\TransferFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
-use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
-use common\fixtures\CandidateFixture;
 use common\models\AdminToken;
 use admin\models\Transfer;
 use Codeception\Util\HttpCode;
@@ -22,13 +15,7 @@ class TransferCest
 
 	public function _fixtures() {
 		return [
-			'admin' => AdminFixture::className(),
 			'adminToken' => AdminTokenFixture::className(),
-			'company' => CompanyFixture::className(),
-			'store' => StoreFixture::className(),
-			'bank' => BankFixture::className(),
-			'candidate' => CandidateFixture::className(),
-			'transfer' => TransferFixture::className(),
 			'transferCandidate' => TransferCandidateFixture::className(),
 			'invoice' => InvoiceFixture::className()
 		];
@@ -225,19 +212,6 @@ class TransferCest
     }
 
     /**
-     * Download Transfer
-     * @param FunctionalTester $I
-     */
-    public function tryToDownload(FunctionalTester $I)
-    {
-        $I->wantTo('Validate admin > transfer > Download Transfer api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-	    $I->seeResponseIsJson();
-    }
-
-    /**
      * List Candidate Transfers
      * @param FunctionalTester $I
      */
@@ -275,4 +249,17 @@ class TransferCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
+
+	/**
+	 * Download Transfer
+	 * @param FunctionalTester $I
+	 */
+//	public function tryToDownload(FunctionalTester $I)
+//	{
+//		$I->wantTo('Validate admin > transfer > Download Transfer api');
+//		$I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+//		$I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
+//		$I->seeResponseCodeIs(HttpCode::OK); // 200
+//		$I->seeResponseIsJson();
+//	}
 }
