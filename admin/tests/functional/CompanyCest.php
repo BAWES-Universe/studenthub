@@ -12,17 +12,17 @@ class CompanyCest
 {
     public $token;
 
-	public function _fixtures()
-	{
+    public function _fixtures()
+    {
         return [
             'adminToken' => AdminTokenFixture::className(),
             'company' => CompanyFixture::className()
         ];
-	}
+    }
 
-	public function _before(FunctionalTester $I)
-	{
-		$this->token = AdminToken::find()
+    public function _before(FunctionalTester $I)
+    {
+        $this->token = AdminToken::find()
             ->one()
             ->token_value;
     }

@@ -12,13 +12,13 @@ class UniversityCest
 {
     public $token;
 
-	public function _fixtures()
-	{
-		return [
-			'adminToken' => AdminTokenFixture::className(),
-			'university' => UniversityFixture::className(),
-		];
-	}
+    public function _fixtures()
+    {
+        return [
+            'adminToken' => AdminTokenFixture::className(),
+            'university' => UniversityFixture::className(),
+        ];
+    }
 
     public function _before(FunctionalTester $I)
     {

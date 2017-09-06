@@ -13,13 +13,14 @@ class TransferCest
 {
     public $token;
 
-	public function _fixtures() {
-		return [
-			'adminToken' => AdminTokenFixture::className(),
-			'transferCandidate' => TransferCandidateFixture::className(),
-			'invoice' => InvoiceFixture::className()
-		];
-	}
+    public function _fixtures() 
+    {
+        return [
+            'adminToken' => AdminTokenFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className(),
+            'invoice' => InvoiceFixture::className()
+        ];
+    }
 
     public function _before(FunctionalTester $I)
     {
@@ -152,15 +153,14 @@ class TransferCest
     /**
      * Download Payable Candidates' Detail
      * @param FunctionalTester $I
-     */
     public function tryToDownloadPayable(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Download Payable Candidates\' Detail api');
         $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/transfers/export-payable-candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
-
+    }*/
+    
     /**
      * List Payable Candidates
      * @param FunctionalTester $I
@@ -190,7 +190,7 @@ class TransferCest
     /**
      * Download Invoice as TEXT
      * @param FunctionalTester $I
-     */
+    */
     public function tryToAsText(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Download Invoice as TEXT api');
@@ -198,19 +198,19 @@ class TransferCest
         $I->sendGET('v1/transfers/text');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
-
+    
     /**
      * Export Transfer Detail
      * @param FunctionalTester $I
-     */
     public function tryToExport(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Export Transfer Detail api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/export/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
-
+    }    
+     */
+        
     /**
      * List Candidate Transfers
      * @param FunctionalTester $I
@@ -250,16 +250,15 @@ class TransferCest
         $I->seeResponseIsJson();
     }
 
-	/**
-	 * Download Transfer
-	 * @param FunctionalTester $I
-	 */
-//	public function tryToDownload(FunctionalTester $I)
-//	{
-//		$I->wantTo('Validate admin > transfer > Download Transfer api');
-//		$I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-//		$I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
-//		$I->seeResponseCodeIs(HttpCode::OK); // 200
-//		$I->seeResponseIsJson();
-//	}
+    /**
+     * Download Transfer
+     * @param FunctionalTester $I
+     */
+    public function tryToDownload(FunctionalTester $I)
+    {
+        $I->wantTo('Validate admin > transfer > Download Transfer api');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
 }

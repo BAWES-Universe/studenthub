@@ -10,16 +10,16 @@ use Codeception\Util\HttpCode;
 
 class CountryCest
 {
-	public function _fixtures()
-	{
-		return [
-			'adminToken' => AdminTokenFixture::className(),
-			'country' => CountryFixture::className()
-		];
-	}
+    public function _fixtures()
+    {
+        return [
+            'adminToken' => AdminTokenFixture::className(),
+            'country' => CountryFixture::className()
+        ];
+    }
 
-	public function _before(FunctionalTester $I)
-	{
+    public function _before(FunctionalTester $I)
+    {
         $this->token = AdminToken::find()
             ->one()
             ->token_value;

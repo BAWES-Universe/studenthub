@@ -12,13 +12,14 @@ class StoreCest
 {
     public $token;
 
-	public function _fixtures()
-	{
-		return [
-			'adminToken' => AdminTokenFixture::className(),
-			'store' => StoreFixture::className(),
-		];
-	}
+    public function _fixtures()
+    {
+        return [
+            'adminToken' => AdminTokenFixture::className(),
+            'store' => StoreFixture::className(),
+        ];
+    }
+    
     public function _before(FunctionalTester $I)
     {
         $this->token = AdminToken::find()
