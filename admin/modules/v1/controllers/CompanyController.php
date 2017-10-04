@@ -304,4 +304,35 @@ class CompanyController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
+    
+    /**
+     * Reset Company password
+     * @param $id
+     * @return array
+     */
+    public function actionResetPassword($id)
+    {
+        $model = Company::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company not found",
+                "code" => 1
+            ];
+        }
+
+        $password = Yii::$app->security->generateRandomString(5);
+
+        $model->setPassword($password);
+        $model->save(false);
+
+        //Send Email to user
+        Company::passwordMail($model, $password);
+
+        return [
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
+        ];
+    }
 }
