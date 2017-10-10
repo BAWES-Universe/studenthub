@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "company".
@@ -434,6 +435,28 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
     }
 
+    /**
+     * Send new password to customer
+     * @param Candidate $model
+     * @param $password
+     * @return bool
+     */
+    public static function passwordMail($model, $password)
+    {
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        return Yii::$app->mailer->compose("company-password",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setTo($model->company_email)
+            ->setSubject('Your password has been reset')
+            ->send();
+    }
+    
     /**
      * @return bool
      */
