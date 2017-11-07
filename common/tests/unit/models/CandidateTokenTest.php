@@ -30,11 +30,11 @@ class CandidateTokenTest extends \Codeception\Test\Unit
         ];
     }
 
-    protected function _before() {
-	    Yii::$app->params['candidate_max_hourly_rate'] = 2;
+    protected function _before() 
+    {	    
     }
 
-	protected function _after()
+    protected function _after()
     {
     }
 

@@ -130,6 +130,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $fields['bonus'] = function ($model) {
             return (double)$this->bonus;
         };
+        
+        $fields['bonus_commission'] = function ($model) {
+            return (double)$this->bonus_commission;
+        };
+        
+        $fields['candidate_bonus'] = function ($model) {
+            return $this->bonus - $this->bonus_commission;
+        };
+        
         $fields['transfer_cost'] = function ($model) {
             return (double)$this->transfer_cost;
         };
@@ -163,7 +172,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getTotalPaidToCandidate()
     {
-        return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
+        return ($this->candidate_hourly_rate * $this->hours) + $this->bonus - $this->bonus_commission;
     }
 
     /**
@@ -177,7 +186,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
     public function getProfit()
     {
-        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
+        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost + $this->bonus_commission;
     }
 
     /**

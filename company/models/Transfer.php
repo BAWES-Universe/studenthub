@@ -148,9 +148,11 @@ class Transfer extends \common\models\Transfer {
                     ->all();
 
                 foreach ($candidates as $key_one => $value) {
-                    if ((int)$value['hours']>0) {
-                        $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
-                        $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                    if ((int)$value['hours']>0 || $value['bonus'] > 0) {
+                        //total amount we will pay to bank 
+                        $total += $value['bonus'] - $value['bonus_commission'] + ($value['hours'] * $value['candidate_hourly_rate']) + $value['transfer_cost'];
+                        //total amount company will pay to us
+                        $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate']);
                     }
                 }
 
@@ -355,6 +357,7 @@ class Transfer extends \common\models\Transfer {
                 ->where(['candidate_id'=>$value['candidate_id']])
                 ->asArray()
                 ->one();
+            
             if(!$candidate)
             {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -367,6 +370,7 @@ class Transfer extends \common\models\Transfer {
             }
 
             $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+            
             if ($response['operation'] == "error") {
                 
                 if(empty(Yii::$app->params['inCodeception']))
@@ -611,9 +615,9 @@ class Transfer extends \common\models\Transfer {
 
             foreach ($candidates as $key => $value)
             {
-                if ((int)$value['hours']>0) {
-                    $total += $value['bonus'] + ($value['hours'] * $value['candidate_hourly_rate']) + Yii::$app->params['transfer_cost'];
-                    $company_total += $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                if ((int)$value['hours']>0 || $value['bonus'] > 0) {
+                    $total += $value['bonus'] - $value['bonus_commission'] + ($value['hours'] * $value['candidate_hourly_rate']) + $value['transfer_cost'];
+                    $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate']);
                 }
             }
 
@@ -711,7 +715,22 @@ class Transfer extends \common\models\Transfer {
                 $this->addError($attribute, 'Candidate field require.');
             }
 
-            $company_total += $bonus + ($hours * Yii::$app->params['candidate_max_hourly_rate']);
+            //get company hourly rate 
+            
+            $candidate = Candidate::findOne(['candidate_id' => $value['candidate_id']]);
+            
+            $company = $candidate->company;
+            
+            $company_hourly_rate = $company['company_hourly_rate'];
+
+            //if value not set take from parent company 
+
+            if($company['company_hourly_rate'] == 0 &&  $company['bonus_commission'] == 0 && $company->parentCompany)
+            {
+                $company_hourly_rate = $company->parentCompany['company_hourly_rate'];
+            }    
+        
+            $company_total += $bonus + ($hours * $company_hourly_rate);
         }
 
         // Case where transfer total is zero/empty

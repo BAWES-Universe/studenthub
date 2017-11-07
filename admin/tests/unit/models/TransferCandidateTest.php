@@ -1,4 +1,5 @@
 <?php
+
 namespace admin\tests\models;
 
 use Yii;
@@ -7,8 +8,8 @@ use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use common\fixtures\TransferCandidateFixture;
 
-class TransferCandidateTest extends \Codeception\Test\Unit
-{
+class TransferCandidateTest extends \Codeception\Test\Unit {
+
     use Specify;
 
     /**
@@ -16,8 +17,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-	public function _fixtures()
-	{
+    public function _fixtures() {
         return [
             'transferCandidate' => TransferCandidateFixture::className()
         ];
@@ -36,7 +36,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      * transfer id is invalid
      */
     public function testMarkUnpaidWithInvalidTransferCandidateID() {
-        $response =  TransferCandidate::markUnpaid(1000);
+        $response = TransferCandidate::markUnpaid(1000);
         expect('Invalid id error', $response['message'])->equals('Candidate Transfer not found');
     }
 
@@ -46,13 +46,13 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     public function testMarkUnpaidWhenZeroAmountTransferError() {
         $TransferCandidate = TransferCandidate::findOne(33);
-        expect('zero hours',$TransferCandidate->hours)->equals(0);
-        expect('status paid ',$TransferCandidate->paid)->equals(TransferCandidate::PAID);
+        expect('zero hours', $TransferCandidate->hours)->equals(0);
+        expect('status paid ', $TransferCandidate->paid)->equals(TransferCandidate::PAID);
 
-        $response =  TransferCandidate::markUnpaid(33);
+        $response = TransferCandidate::markUnpaid(33);
 
-        expect('error response',$response['operation'])->equals('error');
-        expect('error response message',$response['message'])->equals("Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero");
+        expect('error response', $response['operation'])->equals('error');
+        expect('error response message', $response['message'])->equals("Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero");
     }
 
     /**
@@ -62,55 +62,52 @@ class TransferCandidateTest extends \Codeception\Test\Unit
     public function testMarkUnpaidWhenTransferIsCompleted() {
         // checking with existing without modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(25);
-        expect('candidate transfer not non-paid',($TransferCandidate->paid == TransferCandidate::UNPAID))->false();
+        expect('candidate transfer not non-paid', ($TransferCandidate->paid == TransferCandidate::UNPAID))->false();
 
-        expect('candidate transfer is paid',$TransferCandidate->paid)->equals(TransferCandidate::PAID);
-        expect('main transfer is completed',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_TRANSFER_COMPLETE);
+        expect('candidate transfer is paid', $TransferCandidate->paid)->equals(TransferCandidate::PAID);
+        expect('main transfer is completed', Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_TRANSFER_COMPLETE);
 
         // modifying fixture data
-        $response =  TransferCandidate::markUnpaid(25);
+        $response = TransferCandidate::markUnpaid(25);
         expect('unpaid candidate transfer for completed transfer', $response['message'])->equals('Candidate Transfer marked as "unpaid" with transfer status changed to salary distribution in progress successfully');
 
         // checking after modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(25);
-        expect('candidate transfer not paid',($TransferCandidate->paid == TransferCandidate::PAID))->false();
-        expect('candidate transfer is paid',$TransferCandidate->paid)->equals(TransferCandidate::UNPAID);
-        expect('main transfer is in progress',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
-        expect('main transfer is not completed',(Transfer::findOne($TransferCandidate->transfer_id)->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE))->false();
-
+        expect('candidate transfer not paid', ($TransferCandidate->paid == TransferCandidate::PAID))->false();
+        expect('candidate transfer is paid', $TransferCandidate->paid)->equals(TransferCandidate::UNPAID);
+        expect('main transfer is in progress', Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
+        expect('main transfer is not completed', (Transfer::findOne($TransferCandidate->transfer_id)->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE))->false();
     }
 
     /**
      * test case for mark unpaid transfer candidate when
      * transfer is not completed
      */
-    public function testMarkUnpaidWhenTransferIsNotCompleted()
-    {
+    public function testMarkUnpaidWhenTransferIsNotCompleted() {
         // checking with existing without modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(24);
 
-        expect('candidate transfer not non-paid',($TransferCandidate->paid == TransferCandidate::UNPAID))->false();
-        expect('candidate transfer is paid',$TransferCandidate->paid)->equals(TransferCandidate::PAID);
-        expect('main transfer is completed',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
+        expect('candidate transfer not non-paid', ($TransferCandidate->paid == TransferCandidate::UNPAID))->false();
+        expect('candidate transfer is paid', $TransferCandidate->paid)->equals(TransferCandidate::PAID);
+        expect('main transfer is completed', Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
 
         // modifying fixture data
-        $response =  TransferCandidate::markUnpaid(24);
+        $response = TransferCandidate::markUnpaid(24);
         expect('unpaid candidate transfer for completed transfer', $response['message'])->equals('Candidate Transfer marked as "unpaid" successfully');
 
         // checking after modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(24);
-        expect('candidate transfer not paid',($TransferCandidate->paid == TransferCandidate::UNPAID))->true();
-        expect('candidate transfer is unpaid',$TransferCandidate->paid)->equals(TransferCandidate::UNPAID);
-        expect('main transfer is still in progress',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
-        expect('main transfer is not completed',(Transfer::findOne($TransferCandidate->transfer_id)->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE))->false();
+        expect('candidate transfer not paid', ($TransferCandidate->paid == TransferCandidate::UNPAID))->true();
+        expect('candidate transfer is unpaid', $TransferCandidate->paid)->equals(TransferCandidate::UNPAID);
+        expect('main transfer is still in progress', Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
+        expect('main transfer is not completed', (Transfer::findOne($TransferCandidate->transfer_id)->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE))->false();
     }
 
     /**
      * test case for mark paid transfer candidate when
      * transfer id is invalid
      */
-    public function testMarkPaidWithInvalidTransferCandidateID()
-    {
+    public function testMarkPaidWithInvalidTransferCandidateID() {
         $response = TransferCandidate::markUnpaid(1000);
         expect('Invalid id error', $response['message'])->equals('Candidate Transfer not found');
     }
@@ -119,8 +116,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      * test case for mark unpaid transfer candidate when
      * salary distribution is in progress
      */
-    public function testMarkPaidWhenSalaryDistributionInProgress()
-    {
+    public function testMarkPaidWhenSalaryDistributionInProgress() {
         // checking with existing without modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(22);
         expect('candidate transfer not non-paid', ($TransferCandidate->paid == TransferCandidate::UNPAID))->true();
@@ -144,39 +140,39 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      * testing for case when main transfer is
      * remain 1 candidate to mark it completed
      */
-    public function testMarkPaidWhenOneCandidateRemainToCompeteTransfer()
-    {
+    public function testMarkPaidWhenOneCandidateRemainToCompeteTransfer() {
         // checking with existing without modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(34);
 
-        expect('candidate transfer not non-paid',($TransferCandidate->paid == TransferCandidate::UNPAID))->true();
-        expect('candidate transfer is non paid',$TransferCandidate->paid)->equals(TransferCandidate::UNPAID);
-        expect('main transfer is in progress',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
+        expect('candidate transfer not non-paid', ($TransferCandidate->paid == TransferCandidate::UNPAID))->true();
+        expect('candidate transfer is non paid', $TransferCandidate->paid)->equals(TransferCandidate::UNPAID);
+        expect('main transfer is in progress', Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
 
         $Transfer = Transfer::findOne(17);
-        expect('Transfer to be in progress',($Transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS))->true();
+        expect('Transfer to be in progress', ($Transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS))->true();
 
-        $count = TransferCandidate::find()->where(['transfer_id'=>17,'paid'=>0])->count();
-        expect('one unpaid candidate',$count)->equals(1);
+        $count = TransferCandidate::find()->where(['transfer_id' => 17, 'paid' => 0])->count();
+        expect('one unpaid candidate', $count)->equals(1);
 
         // modifying fixture data
-        $response =  TransferCandidate::markPaid(34);
+        $response = TransferCandidate::markPaid(34);
         expect('paid candidate transfer', $response['message'])->equals('Candidate Transfer marked as "paid" with transfer status changed to completed successfully');
 
 
-        $count = TransferCandidate::find()->where(['transfer_id'=>17,'paid'=>0])->count();
-        expect('all candidate paid',$count)->equals(0);
+        $count = TransferCandidate::find()->where(['transfer_id' => 17, 'paid' => 0])->count();
+        expect('all candidate paid', $count)->equals(0);
 
         // checking after modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(34);
-        expect('candidate transfer paid',($TransferCandidate->paid == TransferCandidate::UNPAID))->false();
-        expect('candidate transfer is paid',$TransferCandidate->paid)->equals(TransferCandidate::PAID);
-        expect('main transfer is completed',Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_TRANSFER_COMPLETE);
-        expect('main transfer is not in progress anymore',(Transfer::findOne($TransferCandidate->transfer_id)->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS))->false();
+        expect('candidate transfer paid', ($TransferCandidate->paid == TransferCandidate::UNPAID))->false();
+        expect('candidate transfer is paid', $TransferCandidate->paid)->equals(TransferCandidate::PAID);
+        expect('main transfer is completed', Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_TRANSFER_COMPLETE);
+        expect('main transfer is not in progress anymore', (Transfer::findOne($TransferCandidate->transfer_id)->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS))->false();
 
         //check is transfer is marked as completed
 
         $Transfer = Transfer::findOne(17);
-        expect('Transfer to be completed',($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE))->true();
+        expect('Transfer to be completed', ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE))->true();
     }
+
 }

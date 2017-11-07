@@ -20,9 +20,8 @@ class TransferTest extends \Codeception\Test\Unit
     protected $tester;
 
     protected function _before() {
-	    Yii::$app->params['inCodeception']             = true;
-	    Yii::$app->params['transfer_cost']             = 0.35;
-	    Yii::$app->params['candidate_max_hourly_rate'] = 2;
+        Yii::$app->params['inCodeception']             = true;
+        Yii::$app->params['transfer_cost']             = 0.35;
     }
 
     public function _fixtures()
@@ -171,7 +170,7 @@ class TransferTest extends \Codeception\Test\Unit
 
             $total = $transfer
                 ->getTransferCandidates()
-                ->sum('(candidate_hourly_rate * hours) + bonus + transfer_cost');
+                ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission + transfer_cost');
 
             expect('Testing main transfer total field', $total)
                 ->equals($transfer->total);
@@ -189,7 +188,7 @@ class TransferTest extends \Codeception\Test\Unit
             {
                 $total = $childTransfer
                     ->getTransferCandidates()
-                    ->sum('(candidate_hourly_rate * hours) + bonus + transfer_cost');
+                    ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission + transfer_cost');
 
                 expect('Testing child transfer total field', $total)
                     ->equals($childTransfer->total);
@@ -238,10 +237,23 @@ class TransferTest extends \Codeception\Test\Unit
                     'hours' => rand(0, 100),
                     'candidate_id' => $value->candidate_id
                 ];
+                
+                $company_bonus_commission = $value->company->company_bonus_commission;
+                $company_hourly_rate = $value->company->company_hourly_rate;
 
+                //if value not set take from parent company 
+
+                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
+                {
+                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+                }
+
+                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+                
                 if ((int)$data['hours']>0) {
-                    $total += $data['bonus'] + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
                 }
 
                 $arrCandidate[] = $data;
@@ -277,10 +289,23 @@ class TransferTest extends \Codeception\Test\Unit
                     'hours' => rand(0, 100),
                     'candidate_id' => $value->candidate_id
                 ];
+                
+                $company_bonus_commission = $value->company->company_bonus_commission;
+                $company_hourly_rate = $value->company->company_hourly_rate;
 
+                //if value not set take from parent company 
+
+                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
+                {
+                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+                }
+
+                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+                
                 if ((int)$data['hours']>0) {
-                    $total += $data['bonus'] + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
                 }
 
                 $arrCandidate[] = $data;
@@ -327,11 +352,24 @@ class TransferTest extends \Codeception\Test\Unit
                     'bonus' => rand(0, 10),
                     'hours' => rand(0, 100),
                     'candidate_id' => $value->candidate_id
-                ];
+                ];                
+                
+                $company_bonus_commission = $value->company->company_bonus_commission;
+                $company_hourly_rate = $value->company->company_hourly_rate;
 
+                //if value not set take from parent company 
+
+                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
+                {
+                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+                }
+
+                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+                
                 if ((int)$data['hours']>0) {
-                    $total += $data['bonus'] + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
                 }
 
                 $arrCandidate[] = $data;
@@ -378,9 +416,22 @@ class TransferTest extends \Codeception\Test\Unit
                     'candidate_id' => $value->candidate_id
                 ];
 
+                $company_bonus_commission = $value->company->company_bonus_commission;
+                $company_hourly_rate = $value->company->company_hourly_rate;
+
+                //if value not set take from parent company 
+
+                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
+                {
+                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+                }
+
+                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+                
                 if ((int)$data['hours']>0) {
-                    $total += $data['bonus'] + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
                 }
 
                 $arrCandidate[] = $data;

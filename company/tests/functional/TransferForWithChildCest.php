@@ -19,7 +19,6 @@ class TransferForWithChildCest
     {
         Yii::$app->params['inCodeception'] = true;
         Yii::$app->params['transfer_cost'] = 0.35;
-        Yii::$app->params['candidate_max_hourly_rate'] = 2;
 
         $this->model = Company::findOne(1);
         $this->token = $this->model->accessToken->token_value;

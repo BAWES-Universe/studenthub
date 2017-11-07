@@ -27,8 +27,7 @@ class TransferForWithoutChildCest
     {
         Yii::$app->params['inCodeception'] = true;
         Yii::$app->params['transfer_cost'] = 0.35;
-        Yii::$app->params['candidate_max_hourly_rate'] = 2;
-
+      
         $this->companyWithoutChild = Company::findOne(3);
 
         $this->token = $this->companyWithoutChild->accessToken->token_value;

@@ -350,7 +350,13 @@ class TransferController extends Controller
                 'candidate.store.store_name',
                 'hours',
                 'candidate_hourly_rate',
-                'bonus',
+                [
+                    'attribute'=>'bonus',
+                    'label'=>'Candidate Bonus',
+                    'value' => function($data){
+                        return $data->bonus - $data->bonus_commission;
+                    }
+                ],
                 'transfer_cost',
                 [
                     'attribute'=>'candidate_total',
@@ -448,7 +454,13 @@ class TransferController extends Controller
                 'candidate.store.store_name',
                 'hours',
                 'candidate_hourly_rate',
-                'bonus',
+                [
+                    'attribute'=>'bonus',
+                    'label'=>'Candidate Bonus',
+                    'value' => function($data){
+                        return $data->bonus - $data->bonus_commission;
+                    }
+                ],
                 'transfer_cost',
                 [
                     'attribute'=>'candidate_total',
