@@ -70,7 +70,7 @@ class StatisticsTest extends \Codeception\Test\Unit
                 'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                 'paid' => 0,
             ])
-            ->sum('(candidate_hourly_rate * hours) + bonus');
+            ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission');
 
         expect('Total payable amount to candidate', $totalPayable)->equals($payableDetail['amount']);
     }

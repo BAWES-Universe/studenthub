@@ -83,7 +83,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
-            [['candidate_hourly_rate'], 'number', 'max' => Yii::$app->params['candidate_max_hourly_rate']],
+            [['candidate_hourly_rate'], 'number'],//, 'max' => Yii::$app->params['candidate_max_hourly_rate']
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
@@ -767,10 +767,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $transfer->invoice &&
                 $transfer->invoice->invoice_status == 'paid'
             ) {
-                $totalPaid += ($transfer->hours * $transfer->company_hourly_rate);
-                $totalBonus += $transfer->bonus;
+                $totalPaid += ($transfer->hours * $transfer->candidate_hourly_rate);
+                $totalBonus += $transfer->bonus - $transfer->bonus_commission;
             }
         }
+        
         return [
             'hours' => $totalHours,
             'paid' => $totalPaid,

@@ -1,8 +1,6 @@
 <?php
-
 namespace company\modules\v1\controllers;
 
-use company\models\Company;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;

@@ -87,6 +87,7 @@ class AuthController extends Controller
 
         // Return Admin access token if everything valid
         $accessToken = $admin->accessToken->token_value;
+        
         return [
             "operation" => "success",
             "token" => $accessToken,
