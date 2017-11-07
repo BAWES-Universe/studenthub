@@ -39,7 +39,8 @@ class CompanyTest extends \Codeception\Test\Unit
             expect('company name required', $model->validate(['company_name']))->false();
             expect('password hash required', $model->validate(['company_password_hash']))->false();
             expect('company email', $model->validate(['company_email']))->false();
-
+            expect('company hourly rate', $model->validate(['company_hourly_rate']))->false();
+            
             //email validation
 
             $model->company_email = 'ashsakdhkashdkjhkhkhkhtest@gmail.com';
@@ -68,7 +69,8 @@ class CompanyTest extends \Codeception\Test\Unit
             $model->scenario = "newSubAccount";
 
             expect('company name required', $model->validate(['company_name']))->false();
-
+            expect('company hourly rate', $model->validate(['company_hourly_rate']))->false();
+            
             // parent_company_id
 
             $company = $this->tester->grabFixture('company', 0);

@@ -6,7 +6,6 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
-use admin\models\Store;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 /**
@@ -128,15 +127,17 @@ class CompanyController extends Controller
 
         if (Yii::$app->request->getBodyParam('parent')) {
             $model->scenario = "newSubAccount";
-            $model->company_name = Yii::$app->request->getBodyParam("name");
             $model->parent_company_id =Yii::$app->request->getBodyParam("parent");
             $model->company_password_hash = rand(11111,99999);
         } else {
             $model->scenario = "newAccount";
-            $model->company_name = Yii::$app->request->getBodyParam("name");
             $model->company_email =Yii::$app->request->getBodyParam("email");
             $model->company_password_hash = Yii::$app->request->getBodyParam("password");
         }
+        
+        $model->company_name = Yii::$app->request->getBodyParam("name");
+        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");	
+        $model->company_bonus_commission = Yii::$app->request->getBodyParam("bonus_commission");
 
         if (!$model->signup())
         {
@@ -220,7 +221,9 @@ class CompanyController extends Controller
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
-
+        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");	
+        $model->company_bonus_commission = Yii::$app->request->getBodyParam("bonus_commission");
+        
         if (!$model->save()) {
             if (isset($model->errors)) {
                 return [

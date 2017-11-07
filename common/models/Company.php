@@ -49,18 +49,19 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['company_name'], 'required'],
-            [['company_password_hash', 'company_email'], 'required', 'on'=>'newAccount'],
+            [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
-            [['company_password_hash'], 'required', 'on'=>'newSubAccount'], // for sub account
+            [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_status'], 'integer'],
+            [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             [['company_name', 'company_email', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_password_reset_token'], 'unique']
         ];
     }
-
+  
     /**
      * find if company have store
      */
