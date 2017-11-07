@@ -19,6 +19,8 @@ class Company extends \common\models\Company {
             'company_name',
             'company_email',
             'company_status',
+            'company_bonus_commission',
+            'company_hourly_rate',
             'total_candidates' => function($model) {
                 return self::getTotalCandidateCount($model->company_id);
             },

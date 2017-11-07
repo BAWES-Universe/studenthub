@@ -52,7 +52,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_id', 'candidate_id', 'store_id', 'company_id'], 'integer'],
             [['store_name', 'company_name'], 'string', 'max' => 100],
             [['company_email'], 'email'],
-            [['hours', 'transfer_cost', 'bonus', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
+            [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['tc_created_at', 'tc_updated_at'], 'safe'],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
@@ -95,6 +95,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'company_hourly_rate' => 'Company Hourly Rate',
             'transfer_cost' => 'Transfer cost',
             'bonus' => 'Bonus',
+            'bonus_commission' => 'Bonus Commission (KWD)',
             'tc_created_at' => 'Tc Created At',
             'tc_updated_at' => 'Tc Updated At',
         ];

@@ -85,6 +85,8 @@ class CompanyCest
                 'name' => 'davert',
                 'email' => 'davert@bawes.com',
                 'password' => '12345',
+                'bonus_commission' => 20,
+                'hourly_rate' => 1.5
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -107,7 +109,9 @@ class CompanyCest
             'v1/companies',
             [
                 'name' => 'davert',
-                'parent' => 1
+                'parent' => 1,
+                'bonus_commission' => 20,
+                'hourly_rate' => 1.5
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -130,7 +134,9 @@ class CompanyCest
             'v1/companies/1',
             [
                 'name' => 'davert',
-                'email' => 'davert@bawes.com'
+                'email' => 'davert@bawes.com',
+                'bonus_commission' => 20,
+                'hourly_rate' => 1.5
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
