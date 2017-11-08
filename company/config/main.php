@@ -101,10 +101,12 @@ return [
                         'GET' => 'list',
                         'GET company-store' => 'index',
                         'GET <companyId>' => 'list',
+                        'GET view/<id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',                        
                         'OPTIONS company-store' => 'options',
-                        'OPTIONS <companyId>' => 'options'
+                        'OPTIONS <companyId>' => 'options',
+                        'OPTIONS view/<id>' => 'options',
                     ]
                 ],
                 [ // CompanyController
