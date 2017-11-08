@@ -18,19 +18,35 @@ class Company extends \common\models\Company {
             'company_name',
             'company_email',
             'company_status',
-            'company_hourly_rate',
-            'total_candidates' => function($model) {
-                return self::getTotalCandidateCount($model->company_id);
-            },
-            'subcompanies' => function($model) {
-                return $model->subCompanies;
-            },
-            'stores' => function($model) {
-                return $model->stores;
-            }
+            'company_hourly_rate' => function($model) {
+                if($model->company_hourly_rate)
+                    return (double)$model->company_hourly_rate;
+                
+                if($model->parentCompany)
+                    return (double)$model->parentCompany->company_hourly_rate;
+            },                     
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+//            'company',
+            'candidates',
+            'stores',
+            'subCompanies',
+            'totalCandidates'
+        ];
+    }
+    
+    public function getTotalCandidates() 
+    {
+        return parent::getTotalCandidateCount($this->company_id);
+    }
+        
     /**
      * @param string $modelClass
      * @return $this

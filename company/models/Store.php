@@ -17,12 +17,26 @@ class Store extends \common\models\Store {
             'company_id',
             'store_name',
             'store_status',
-            'candidates' => function($model) {
-                return $model->candidates;
-            }
         ];
     }
-
+    
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'company',
+            'candidates',
+            'totalCandidates'
+        ];
+    }
+    
+    public function getTotalCandidates() 
+    {
+        return count($this->candidates);
+    }
+        
     /**
      * @param string $modelClass
      * @return $this
