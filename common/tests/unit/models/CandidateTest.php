@@ -123,11 +123,28 @@ class CandidateTest extends \Codeception\Test\Unit
 
         $this->specify('Candidate model hourly rate validation', function() {
             $candidate = new Candidate;
+            
+            // get max allowed value 
+            
+            $max = 0;
+
+            if($candidate->company && $candidate->company->company_hourly_rate)
+            {
+                $max = $candidate->company->company_hourly_rate;
+            }
+            elseif($candidate->company && $candidate->company->parentCompany)
+            {
+                $max =  $candidate->company->parentCompany->company_hourly_rate;
+            }
+            
+            if(!$max)
+                return null;
+            
             $candidate->candidate_hourly_rate = 0;
             expect('Invalid value passed', $candidate->validate(['candidate_hourly_rate']))->false();
-            $candidate->candidate_hourly_rate = 9999;
+            $candidate->candidate_hourly_rate = $max + 1;
             expect('Higher than max allowed value passed', $candidate->validate(['candidate_hourly_rate']))->false();
-            $candidate->candidate_hourly_rate = 1;
+            $candidate->candidate_hourly_rate = $max;
             expect('Valid Hourly rate passed', $candidate->validate(['candidate_hourly_rate']))->true();
         });
 
