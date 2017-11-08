@@ -83,7 +83,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
-            [['candidate_hourly_rate'], 'number'],//, 'max' => Yii::$app->params['candidate_max_hourly_rate']
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
@@ -93,7 +92,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'pattern' => '/^[0-9a-zA-Z\s]+$/',
                 'message' => 'Special characters not allowed'
             ],            
-            ['candidate_hourly_rate', 'compare', 'compareValue' => 0, 'operator' => '>', 'type' => 'number'],
+            ['candidate_hourly_rate', 'validateHourlyRate'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
@@ -130,8 +129,35 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Validate candidate hourly rate 
+     */
+    public function validateHourlyRate()
+    {
+        if($this->candidate_hourly_rate <= 0)
+        {
+            $this->addError('candidate_hourly_rate', 'Candidate hourly rate should be greater than 0.');
+            return null;
+        }
+        
+        $max = 0;
+        
+        if($this->company && $this->company->company_hourly_rate)
+        {
+            $max = $this->company->company_hourly_rate;
+        }
+        elseif($this->company && $this->company->parentCompany)
+        {
+            $max =  $this->company->parentCompany->company_hourly_rate;
+        }
+        
+        if($max && $this->candidate_hourly_rate > $max)
+        {
+            $this->addError('candidate_hourly_rate', 'Candidate hourly rate should be less than or equal to ' . $max . '.');
+        }
+    }
+    
+    /**
      * Validate Civil ID Expiry Date
-     * @return [type] [description]
      */
     public function validateCivilExpiry()
     {
