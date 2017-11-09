@@ -56,12 +56,29 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['parent_company_id', 'company_status'], 'integer'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
+            ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_password_reset_token'], 'unique']
         ];
     }
   
+    /**
+     * Company hourly rate should be higher than his candidates' hourly rate 
+     */
+    public function validateHourlyRate() 
+    {
+        $result = $this->getCandidates()
+            ->andWhere(['>', 'candidate_hourly_rate', $this->company_hourly_rate])
+            ->orderBy('candidate_hourly_rate DESC')
+            ->one();
+        
+        if($result)
+        {
+            $this->addError('candidate_hourly_rate', "Company having candidate with hiher hourly rate (".$result->candidate_hourly_rate." KWD).");
+        }
+    }
+    
     /**
      * find if company have store
      */
