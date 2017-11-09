@@ -5,6 +5,7 @@ use Codeception\Specify;
 use common\models\Company;
 use common\fixtures\CompanyFixture;
 use common\fixtures\StoreFixture;
+use common\fixtures\CandidateFixture;
 
 class CompanyTest extends \Codeception\Test\Unit
 {
@@ -20,6 +21,7 @@ class CompanyTest extends \Codeception\Test\Unit
         return [
             'company' => CompanyFixture::className(),
             'store' => StoreFixture::className(),
+            'candidates' => CandidateFixture::className()
         ];
     }
 
@@ -95,6 +97,26 @@ class CompanyTest extends \Codeception\Test\Unit
                 'should not accept parent_company_id if could not find company having company_id = given parent_company_id',
                 $model->validate(['parent_company_id'])
             )->false();
+        });
+        
+        $this->specify('Company model hourly rate validation on update', function () {
+            $model = Company::find()
+               // ->where(['company_id' => 1])
+                ->one();
+            
+            //get min value required for company_hourly_rate
+            
+            $candidate = $model->getCandidates()
+                ->orderBy('candidate_hourly_rate DESC')
+                ->one();
+
+            $model->company_hourly_rate = $candidate->candidate_hourly_rate;
+            
+            expect('Company hourly rate should be greater than or equal to candidate hourly rate', $model->validate(['company_hourly_rate']))->true();
+            
+            $model->company_hourly_rate = $candidate->candidate_hourly_rate -1;
+            
+            expect('Company hourly rate should not be less than candidate hourly rate', $model->validate(['company_hourly_rate']))->false();            
         });
     }
 }
