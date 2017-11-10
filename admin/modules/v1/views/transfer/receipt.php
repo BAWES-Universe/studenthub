@@ -2,13 +2,22 @@
 
 use yii\helpers\Url;
 
-$totalHours = 0;
-$totalBonus = 0;
-$totalAmount = 0;
-foreach ($invoice->transfer->transferCandidates as $key => $value) {
-    $totalHours += $value->hours;
-    $totalBonus += $value->bonus;
-    $totalAmount += ($value->hours * $value->company_hourly_rate);
+$result = [];
+
+foreach ($invoice->transfer->transferCandidates as $key => $value) {  
+    
+    if(empty($result[$value->company_hourly_rate]))
+    {
+        $result[$value->company_hourly_rate] = [
+            'totalHours' => 0,
+            'totalBonus' => 0,
+            'totalAmount' => 0
+        ];        
+    }
+    
+    $result[$value->company_hourly_rate]['totalHours'] += $value->hours;
+    $result[$value->company_hourly_rate]['totalBonus'] += $value->bonus;
+    $result[$value->company_hourly_rate]['totalAmount'] += ($value->hours * $value->company_hourly_rate);
 }
 ?>
     <div class="row">
@@ -42,24 +51,26 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     </div>
     <div class="row" style="border:1px solid #ececec;border-radius:6px; position: relative;overflow: hidden;padding: 1.85714286em;margin-bottom: 30px;">
         <table class="table" cellpadding="3" cellspacing="3">
-            <tr>
-                <td align="left" style="text-align: left">
-                    <span><b><?= $totalHours ?> hours</b> worked x <b>2 KD</b> per hour</span>
-                </td>
-                <td align="right" style="text-align: right">
-                    <span>KWD <?= number_format($totalAmount, 3) ?></span>
-                </td>
-            </tr>
-            <?php if($totalBonus > 0) { ?>
-            <tr>
-                <td align="left" style="text-align: left">
-                    <span><b>Bonus to be sent to interns</b></span>
-                </td>
-                <td align="right" style="text-align: right">
-                    <span>KWD <?= number_format($totalBonus, 3) ?></span>
-                </td>
-            </tr>
-            <?php } ?>
+            <?php foreach ($result as $hourly_rate => $row) { ?>
+                <tr>
+                    <td align="left" style="text-align: left">
+                        <span><b><?= $row['totalHours'] ?> hours</b> worked x <b><?= $hourly_rate ?> KD</b> per hour</span>
+                    </td>
+                    <td align="right" style="text-align: right">
+                        <span>KWD <?= number_format($row['totalAmount'], 3) ?></span>
+                    </td>
+                </tr>            
+                <?php if($row['totalBonus'] > 0) { ?>
+                <tr>
+                    <td align="left" style="text-align: left">
+                        <span><b>Bonus to be sent to interns</b></span>
+                    </td>
+                    <td align="right" style="text-align: right">
+                        <span>KWD <?= number_format($row['totalBonus'], 3) ?></span>
+                    </td>
+                </tr>
+                <?php } ?>
+            <?php } ?>            
         </table>
         <hr/>
         <table class="table" >
