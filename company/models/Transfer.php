@@ -725,7 +725,7 @@ class Transfer extends \common\models\Transfer {
 
             //if value not set take from parent company 
 
-            if($company['company_hourly_rate'] == 0 &&  $company['bonus_commission'] == 0 && $company->parentCompany)
+            if($company['company_hourly_rate'] == 0 &&  $company['company_bonus_commission'] == 0 && $company->parentCompany)
             {
                 $company_hourly_rate = $company->parentCompany['company_hourly_rate'];
             }    
