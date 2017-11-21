@@ -225,8 +225,13 @@ class TransferCandidate extends \common\models\TransferCandidate
         // fetch record of transfer candidate id and transfer list id
         $transferCandidateList = ArrayHelper::getColumn($transferCandidateIds,'tc_id');
         $transferList = array_unique(array_values(ArrayHelper::getColumn($transferCandidateIds,'transfer_id')));
-        $condition = ['and',
-            ['>', 'hours', 0],
+        $condition = [
+            'and',
+            [
+                'or',
+                ['>', 'hours', 0],
+                ['>', 'bonus', 0],
+            ],
             ['in', 'tc_id', $transferCandidateList],
         ];
 
