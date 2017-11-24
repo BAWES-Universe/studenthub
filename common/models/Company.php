@@ -18,7 +18,7 @@ use yii\helpers\Url;
  * @property string $company_password_hash
  * @property string $company_password_reset_token
  * @property decimal $company_hourly_rate
- * @property decimal $company_bonus_commission
+ * @property decimal $company_bonus_commission - % Of Bonus admin will take
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
@@ -34,11 +34,23 @@ use yii\helpers\Url;
  * @property Transfer[] $parentTransfers 
  * @property CompanyToken $accessToken
  * @property Store[] $subCompanyStores
+ * 
+ * E.g. 
+ * company_hourly_rate = 1.5 KWD
+ * company_bonus_commission = 20%
+ * 
+ * candidate 1 have worked for 2 hour having hourly rate 1.2 KWD + suppose getting bonus 20 KWD 
+ * 
+ * Total amount company will pay = (1.5 KWD * 2 hour) + 20 KWD = 23 KWD
+ * 
+ * Total amount admin will pay to candidate = (1.2 KWD * 2 hour) + 20 KWD - 20% of bonus as comission 
+ *  = 2.4 KWD + 20 KWD - 4 KWD 
+ *  = 18.4 KWD
  */
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-
     const STATUS_ACTIVE = 10;
+    
     /**
      * @inheritdoc
      */
