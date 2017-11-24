@@ -5,7 +5,6 @@ namespace common\models;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 

@@ -14,6 +14,8 @@ use common\models\Candidate;
  * @property string $bank_address
  * @property string $bank_transfer_type
  * @property integer $deleted
+ * 
+ * @property Candidate[] $candidate
  */
 class Bank extends \yii\db\ActiveRecord
 {

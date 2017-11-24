@@ -17,6 +17,8 @@ use yii\helpers\Url;
  * @property string $company_auth_key
  * @property string $company_password_hash
  * @property string $company_password_reset_token
+ * @property decimal $company_hourly_rate
+ * @property decimal $company_bonus_commission
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
@@ -24,11 +26,14 @@ use yii\helpers\Url;
  *
  * @property Company $parentCompany
  * @property Company[] $subCompanies
- * @property CompanyToken[] $accessTokens
+ * @property Candidate[] $candidates
  * @property Invoice[] $invoices
  * @property Store[] $stores
  * @property Transfer[] $transfers
- * @property Candidate[] $candidates
+ * @property CompanyToken[] $accessTokens
+ * @property Transfer[] $parentTransfers 
+ * @property CompanyToken $accessToken
+ * @property Store[] $subCompanyStores
  */
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
