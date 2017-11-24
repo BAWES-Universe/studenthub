@@ -80,7 +80,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         
         if($result)
         {
-            $this->addError('candidate_hourly_rate', "Company having candidate with hiher hourly rate (".$result->candidate_hourly_rate." KWD).");
+            $this->addError('candidate_hourly_rate', "Company has candidates with higher hourly rate.");
         }
     }
     
