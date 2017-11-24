@@ -251,7 +251,7 @@ class TransferTest extends \Codeception\Test\Unit
 
                 $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
                 
-                if ((int)$data['hours']>0 || $data['bonus' > 0]) {
+                if ((int)$data['hours'] > 0 || $data['bonus'] > 0) {
                     $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
                     $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
                 }

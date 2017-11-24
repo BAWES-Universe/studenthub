@@ -129,14 +129,14 @@ class TransferTest extends \Codeception\Test\Unit {
                 ->where(['company_id' => 3])
                 ->one();
 
-        $totalUnaid = TransferCandidate::find()
+        $totalUnpaid = TransferCandidate::find()
                 ->where([
                     'transfer_id' => $transfer->transfer_id,
                     'paid' => 0
                 ])
                 ->count();
 
-        expect('Checking total no of candidate unpaid in transfer', $totalUnaid)
+        expect('Checking total no of candidate unpaid in transfer', $totalUnpaid)
                 ->equals($transfer->getTotalUnpaid());
     }
 
@@ -205,14 +205,14 @@ class TransferTest extends \Codeception\Test\Unit {
                 ->where(['company_id' => 1])
                 ->one();
 
-        $totalUnaid = TransferCandidate::find()
+        $totalUnpaid = TransferCandidate::find()
                 ->where([
                     'transfer_id' => $transfer->transfer_id,
                     'paid' => 0
                 ])
                 ->count();
 
-        expect('Checking total no of candidate unpaid in transfer', $totalUnaid)
+        expect('Checking total no of candidate unpaid in transfer', $totalUnpaid)
                 ->equals($transfer->getTotalUnpaid());
     }
 
