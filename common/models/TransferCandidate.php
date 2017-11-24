@@ -17,11 +17,12 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_id
  * @property string $company_name
  * @property string $company_email
- * @property string $hours
- * @property string $candidate_hourly_rate
- * @property string $company_hourly_rate
- * @property string $bonus
- * @property string $transfer_cost
+ * @property decimal $candidate_hourly_rate
+ * @property decimal $company_hourly_rate 
+ * @property decimal $hours
+ * @property decimal $bonus
+ * @property decimal $bonus_commission
+ * @property decimal $transfer_cost
  * @property integer $paid
  * @property string $tc_created_at
  * @property string $tc_updated_at

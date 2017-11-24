@@ -11,14 +11,16 @@ use yii\db\ActiveRecord;
  * This is the model class for table "transfer".
  *
  * @property integer $transfer_id
- * @property integer $company_id
- * @property integer $company_total
- * @property integer $transfer_status
  * @property integer $parent_transfer_id
- * @property number $total
+ * @property integer $company_id
+ * @property integer $total
+ * @property integer $company_total
+ * @property date $payment_received_on
+ * @property integer $transfer_status
  * @property string $transfer_created_at
  * @property string $transfer_updated_at
- *
+ * @property number deleted
+ * 
  * @property Company $company
  * @property TransferCandidate[] $transferCandidates
  * @property Invoice $invoice

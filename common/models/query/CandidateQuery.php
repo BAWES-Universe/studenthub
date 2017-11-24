@@ -9,7 +9,6 @@ use common\models\Store;
 
 /**
  * This is the ActiveQuery class for [[Candidate]].
- *
  */
 class CandidateQuery extends \yii\db\ActiveQuery 
 {
