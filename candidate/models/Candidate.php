@@ -43,6 +43,80 @@ class Candidate extends \common\models\Candidate {
         return parent::getPaidTransferCandidate($modelClass);
     }
 
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity($modelClass = "\candidate\models\University")
+    {
+        return parent::getUniversity($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\candidate\models\Country")
+    {
+        return parent::getCountry($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\common\models\Bank")
+    {
+        return parent::getBank($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore($modelClass = "\common\models\Store")
+    {
+        return parent::getStore($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\candidate\models\Company")
+    {
+        return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCard($modelClass = "\common\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCard($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCards($modelClass = "\common\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCard($modelClass);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\CandidateToken")
+    {
+        return parent::getAccessToken($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return parent::getWorkHistory($modelClass);
+    }
+    
     /**
      * @inheritdoc
      */
