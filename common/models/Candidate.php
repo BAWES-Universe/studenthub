@@ -331,9 +331,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         rename($tmpFile, $fileName);
         $tmpFile = $fileName;
 
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($fileName);
+
         // Resize to $size x $size
         $thumbnail = new \Imagine\Gd\Imagine();
-        $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
+        $thumbnail = $thumbnail->open($fileUrl);//'https://bawes-public.s3.amazonaws.com/'.$fileName
         $thumbnail->resize($thumbnail->getSize()->widen($size));
         $thumbnail->save($tmpFile);
 
