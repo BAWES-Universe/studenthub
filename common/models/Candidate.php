@@ -327,9 +327,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     private function _generateThumbnail($fileName, $folderName, $size = 100)
     {
         // Create temporary file to store image in
-        $tmpFile = tempnam(sys_get_temp_dir(), "TEMP");
-        rename($tmpFile, $fileName);
-        $tmpFile = $fileName;
+        $tmpFile = 'php://temp/'.$fileName;
+        $tmp = fopen($tmpFile, 'r+');
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($fileName);
 
         $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($fileName);
 
@@ -348,8 +349,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             mime_content_type($tmpFile)
         );
 
-        // Delete the tmp file
-        unlink($tmpFile);
+        fclose($tmp);
     }
 
     /**
