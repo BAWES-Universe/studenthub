@@ -301,13 +301,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     private function _generateThumbnail($fileName, $folderName, $size = 100)
     {
         // Create temporary file to store image in
-        $tmpFile = tempnam(sys_get_temp_dir(), "TEMP");
-        rename($tmpFile, $fileName);
-        $tmpFile = $fileName;
+        $tmpFile = 'php://temp/'.$fileName;
+        $tmp = fopen($tmpFile, 'r+');
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($fileName);
 
         // Resize to $size x $size
         $thumbnail = new \Imagine\Gd\Imagine();
-        $thumbnail = $thumbnail->open('https://bawes-public.s3.amazonaws.com/'.$fileName);
+        $thumbnail = $thumbnail->open($fileUrl);//'https://bawes-public.s3.amazonaws.com/'.$fileName
         $thumbnail->resize($thumbnail->getSize()->widen($size));
         $thumbnail->save($tmpFile);
 
@@ -320,8 +321,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             mime_content_type($tmpFile)
         );
 
-        // Delete the tmp file
-        unlink($tmpFile);
+        fclose($tmp);
     }
 
     /**
