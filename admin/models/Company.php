@@ -20,17 +20,29 @@ class Company extends \common\models\Company {
             'company_email',
             'company_status',
             'total_candidates' => function($model) {
-                return self::getTotalCandidateCount($model->company_id);
+                return (int)self::getTotalCandidateCount($model->company_id);
             },
-            'subcompanies' => function($model) {
-                return $model->subCompanies;
+            'total_subcompanies' => function($model) {
+                return (int)$model->getSubCompanies()->count();
             },
-            'stores' => function($model) {
-                return $model->stores;
+            'total_stores' => function($model) {
+                return (int)$model->getStores()->count();
             }
         ];
     }
 
+     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'candidates',
+            'subCompanies',
+            'stores'
+        ];
+    }
+    
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
