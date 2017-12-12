@@ -14,9 +14,9 @@ class CompanyQuery extends \yii\db\ActiveQuery
      * @return $this
      */
     public function filterParent()
-	{
-		return $this->andWhere(['parent_company_id' => null]);		
-	}
+    {
+        return $this->andWhere(['parent_company_id' => null]);		
+    }
 
     /**
      * @return $this

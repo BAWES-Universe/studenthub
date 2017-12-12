@@ -127,7 +127,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
 //            'company',
-            'candidates'
+            'candidates',
+            'subCompanies',
+            'stores'
         ];
     }
 

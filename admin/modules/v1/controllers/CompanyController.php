@@ -6,9 +6,9 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
-use admin\models\Store;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+
 /**
  * Company controller - Manage company accounts as Admin
  */
@@ -71,21 +71,6 @@ class CompanyController extends Controller
     public function actionList()
     {
         $query = Company::find()
-            ->with([
-                'subCompanies',
-                'subCompanies.stores',
-                'subCompanies.stores.candidates', 
-                'subCompanies.stores.candidates.store', 
-                'subCompanies.stores.candidates.company', 
-                'subCompanies.stores.candidates.bank',
-                'subCompanies.stores.candidates.university',
-                'stores',
-                'stores.candidates', 
-                'stores.candidates.store', 
-                'stores.candidates.company', 
-                'stores.candidates.bank',
-                'stores.candidates.university'
-            ])    
             ->filterParent()                
             ->notDeleted();
 
