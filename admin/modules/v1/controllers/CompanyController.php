@@ -71,6 +71,10 @@ class CompanyController extends Controller
     public function actionList()
     {
         $query = Company::find()
+            ->with([
+                'subCompanies',
+                'stores',
+            ])    
             ->filterParent()                
             ->notDeleted();
 
