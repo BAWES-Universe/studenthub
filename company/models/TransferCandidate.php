@@ -2,6 +2,8 @@
 namespace company\models;
 
 use Yii;
+use company\models\Company;
+
 class TransferCandidate extends \common\models\TransferCandidate
 {
     /**
@@ -72,7 +74,6 @@ class TransferCandidate extends \common\models\TransferCandidate
         $TCModel = new TransferCandidate;
         $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
         $TCModel->candidate_hourly_rate = $hourly_rate;
-        $TCModel->company_hourly_rate = Yii::$app->params['candidate_max_hourly_rate'];
         $TCModel->attributes = $value;
         $TCModel->transfer_id = $model->transfer_id;
         $TCModel->store_id = $candidate['store_id'];
@@ -81,11 +82,47 @@ class TransferCandidate extends \common\models\TransferCandidate
         $TCModel->company_name = $company['company_name'];
         $TCModel->company_email = $company['company_email'];
 
-
-        if ((int)$value['hours']>0) {
-            $total = $value['bonus'] + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
-            $company_total = $value['bonus'] + ($value['hours'] * Yii::$app->params['candidate_max_hourly_rate']);
+        $company_bonus_commission = $company['company_bonus_commission'];
+        $company_hourly_rate = $company['company_hourly_rate'];
+        
+        //if value not set take from parent company 
+        
+        if(($company_bonus_commission + $company_hourly_rate == 0) && $company['parent_company_id'])
+        {
+            $parent = Company::findOne(['company_id' => $company['parent_company_id']]);
+            
+            if(!$parent)
+            {
+                return [
+                    "operation" => "error",
+                    "message" => "Parent not found."
+                ];
+            }
+            
+            $company_bonus_commission = $parent['company_bonus_commission'];
+            $company_hourly_rate = $parent['company_hourly_rate'];
         }
+        
+        //if bonus commission or hourly rate not set 
+        
+        if($company_bonus_commission == 0 && $company_hourly_rate == 0) {
+            return [
+                "operation" => "error",
+                "message" => "Company hourly rate not set, please contact us for assistance"
+            ];
+        }            
+        
+        //calculate and save bonus_commission 
+        
+        $TCModel->bonus_commission = $value['bonus'] * $company_bonus_commission / 100;
+                
+        $TCModel->company_hourly_rate = $company_hourly_rate;
+        
+        if ((int)$value['hours']>0 || $value['bonus'] > 0) {
+            $total = $value['bonus'] - $TCModel->bonus_commission + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
+            $company_total = $value['bonus'] + ($value['hours'] * $company_hourly_rate);
+        }
+        
         // in case if amount is less then 0 so that it should not show in payable candidate area
         if ($total  == 0) {
             $TCModel->paid = TransferCandidate::PAID;

@@ -49,4 +49,61 @@ class Candidate extends \common\models\Candidate {
             'bank'
         ];
     }
+        
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity($modelClass = "\common\models\University")
+    {
+        return parent::getUniversity($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\common\models\Country")
+    {
+        return parent::getCountry($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore($modelClass = "\company\models\Store")
+    {
+        return parent::getStore($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\company\models\Company")
+    {
+        return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidate($modelClass = "\company\models\TransferCandidate")
+    {
+        return parent::getTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCard($modelClass = "\common\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCard($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCards($modelClass = "\common\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCards($modelClass);
+    }
 }

@@ -19,6 +19,20 @@ class Company extends \common\models\Company {
             'company_name',
             'company_email',
             'company_status',
+            'company_bonus_commission' => function($model) {
+                if($model->company_bonus_commission)
+                    return (double)$model->company_bonus_commission;
+                
+                if($model->parentCompany)
+                    return (double)$model->parentCompany->company_bonus_commission;
+            },
+            'company_hourly_rate' => function($model) {
+                if($model->company_hourly_rate)
+                    return (double)$model->company_hourly_rate;
+                
+                if($model->parentCompany)
+                    return (double)$model->parentCompany->company_hourly_rate;
+            },
             'total_candidates' => function($model) {
                 return (int)self::getTotalCandidateCount($model->company_id);
             },

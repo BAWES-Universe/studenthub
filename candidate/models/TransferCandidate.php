@@ -26,6 +26,8 @@ class TransferCandidate extends \common\models\TransferCandidate
             $fields['company_name'],
             $fields['company_email'],
             $fields['company_hourly_rate'],
+            $fields['bonus'],    
+            $fields['bonus_commission'],    
             $fields['transfer_cost'],
             $fields['tc_updated_at'],
             $fields['total_amount'],
@@ -33,13 +35,13 @@ class TransferCandidate extends \common\models\TransferCandidate
             $fields['paid'],
             $fields['total_paid']
         );
-
+        
         $fields['status'] = function($model){
             return ($model->paid) ? 'Paid' : 'Unpaid';
         };
 
         $fields['total'] = function($model) {
-            return ($model->candidate_hourly_rate * $model->hours) + $model->bonus;
+            return ($model->candidate_hourly_rate * $model->hours) + $model->bonus - $model->bonus_commission;
         };
 
         $fields['tc_created_at'] = function($model) {

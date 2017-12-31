@@ -11,7 +11,7 @@ use yii\db\ActiveRecord;
  * @property integer $transfer_id
  * @property string $invoice_date
  * @property string $invoice_status
- *
+ * @property integer $deleted
  * @property Transfer $transfer
  */
 class Invoice extends ActiveRecord

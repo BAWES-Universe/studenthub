@@ -1,4 +1,5 @@
 <?php
+
 namespace admin\tests\models;
 
 use Yii;
@@ -7,8 +8,8 @@ use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use common\fixtures\TransferCandidateFixture;
 
-class TransferTest extends \Codeception\Test\Unit
-{
+class TransferTest extends \Codeception\Test\Unit {
+
     use Specify;
 
     /**
@@ -16,8 +17,7 @@ class TransferTest extends \Codeception\Test\Unit
      */
     protected $tester;
 
-	public function _fixtures()
-    {
+    public function _fixtures() {
         return [
             'transferCandidate' => TransferCandidateFixture::className(),
         ];
@@ -26,11 +26,11 @@ class TransferTest extends \Codeception\Test\Unit
     /**
      * test fixture loaded
      */
-    public function testFixtureLoad()
-    {
+    public function testFixtureLoad() {
         expect('Transfer is in the table', Transfer::findOne(['transfer_id' => 1]))->notNull();
         expect('Transfer is in the table', TransferCandidate::find()->one())->notNull();
     }
+
     /**
      * test case for multiple payment status like Lock | Unlock | Payment received
      */
@@ -39,8 +39,7 @@ class TransferTest extends \Codeception\Test\Unit
      * Test payment status when
      * Transfer is sent
      */
-    public function testMarkPaymentStatusReceivedWhenTransferIsSent()
-    {
+    public function testMarkPaymentStatusReceivedWhenTransferIsSent() {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
         expect('Mark as "Payment Received" from "Payment Sent" Status', $transfer->paymentReceived())->true();
 
@@ -56,8 +55,7 @@ class TransferTest extends \Codeception\Test\Unit
     /**
      * Transfer model mark as Initiated from Lock
      */
-    public function testMarkPaymentStatusUnlockWhenTransferStatusIsLocked()
-    {
+    public function testMarkPaymentStatusUnlockWhenTransferStatusIsLocked() {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
         expect('Unlock Transfer from Lock Status', $transfer->unlock())->true();
 
@@ -73,8 +71,7 @@ class TransferTest extends \Codeception\Test\Unit
     /**
      * Transfer model mark as Lock from Payment Sent
      */
-    public function testMarkPaymentStatusLockedWhenTransferStatusIsSent()
-    {
+    public function testMarkPaymentStatusLockedWhenTransferStatusIsSent() {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
         expect('Mark as lock from payment sent status', $transfer->lock())->true();
 
@@ -90,163 +87,153 @@ class TransferTest extends \Codeception\Test\Unit
     /**
      * Transfer model statistics for company without child
      */
-    public function testStatisticsForTransferCostWhenCompanyWithoutChild()
-    {
+    public function testStatisticsForTransferCostWhenCompanyWithoutChild() {
         $transfer = Transfer::find()
-            ->where(['company_id' => 3])
-            ->one();
+                ->where(['company_id' => 3])
+                ->one();
 
         $transfer_cost = TransferCandidate::find()
-            ->where(['transfer_id' => $transfer->transfer_id])
-            ->sum('transfer_cost');
+                ->where(['transfer_id' => $transfer->transfer_id])
+                ->sum('transfer_cost');
 
         expect('Check transfer cost getting calculated properly', $transfer_cost)
-            ->equals(floatval(Transfer::getTransferCost($transfer->transfer_id)));
-
+                ->equals(floatval(Transfer::getTransferCost($transfer->transfer_id)));
     }
 
     /**
      * test to check total paid transfer
      * when company without child
      */
-    public function testStatisticsForTotalPaidTransferWhenCompanyWithoutChild()
-    {
+    public function testStatisticsForTotalPaidTransferWhenCompanyWithoutChild() {
         $transfer = Transfer::find()
-            ->where(['company_id' => 3])
-            ->one();
+                ->where(['company_id' => 3])
+                ->one();
 
         $totalPaid = TransferCandidate::find()
-            ->where([
-                'transfer_id' => $transfer->transfer_id,
-                'paid' => 1
-            ])
-            ->count();
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 1
+                ])
+                ->count();
 
         expect('Checking total no of candidate paid in transfer', $totalPaid)
-            ->equals($transfer->getTotalPaid());
-
+                ->equals($transfer->getTotalPaid());
     }
 
     /**
      * test to check calculation of total unpaid
      * transfer when company without child
      */
-    public function testStatisticsForTotalUnpaidTransferCandidateWhenCompanyWithoutChild()
-    {
+    public function testStatisticsForTotalUnpaidTransferCandidateWhenCompanyWithoutChild() {
         $transfer = Transfer::find()
-            ->where(['company_id' => 3])
-            ->one();
+                ->where(['company_id' => 3])
+                ->one();
 
-        $totalUnaid = TransferCandidate::find()
-            ->where([
-                'transfer_id' => $transfer->transfer_id,
-                'paid' => 0
-            ])
-            ->count();
+        $totalUnpaid = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 0
+                ])
+                ->count();
 
-        expect('Checking total no of candidate unpaid in transfer', $totalUnaid)
-            ->equals($transfer->getTotalUnpaid());
-
+        expect('Checking total no of candidate unpaid in transfer', $totalUnpaid)
+                ->equals($transfer->getTotalUnpaid());
     }
 
     /**
      * test to check calculation of total profit of
      * transfer when company without child
      */
-    public function testStatisticsForTransferProfitWhenCompanyWithoutChild()
-    {
+    public function testStatisticsForTransferProfitWhenCompanyWithoutChild() {
         $transfer = Transfer::find()
-            ->where(['company_id' => 3])
-            ->one();
+                ->where(['company_id' => 3])
+                ->one();
 
         $profit = TransferCandidate::find()
-            ->where([
-                'transfer_id' => $transfer->transfer_id
-            ])
-            ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost');
+                ->where([
+                    'transfer_id' => $transfer->transfer_id
+                ])
+                ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost + bonus_commission');
 
         expect('Checking profit from transfer getting calculated properly', $profit)
-            ->equals($transfer->getProfit());
+                ->equals($transfer->getProfit());
     }
 
     /**
      * test to check calculation of total cost of
      * transfer when company with child
      */
-    public function testStatisticsForTransferCostWhenCompanyWithChild()
-    {
+    public function testStatisticsForTransferCostWhenCompanyWithChild() {
         $transfer = Transfer::find()
-            ->where(['company_id' => 1])
-            ->one();
+                ->where(['company_id' => 1])
+                ->one();
 
         $transfer_cost = TransferCandidate::find()
-            ->where(['transfer_id' => $transfer->transfer_id])
-            ->sum('transfer_cost');
+                ->where(['transfer_id' => $transfer->transfer_id])
+                ->sum('transfer_cost');
 
         expect('Check transfer cost getting calculated properly', $transfer_cost)
-            ->equals(floatval(Transfer::getTransferCost($transfer->transfer_id)));
-
+                ->equals(floatval(Transfer::getTransferCost($transfer->transfer_id)));
     }
 
     /**
      * test to check calculation of total paid candidate of
      * transfer when company with child
      */
-    public function testStatisticsForPaidTransferCandidateWhenCompanyWithChild()
-    {
+    public function testStatisticsForPaidTransferCandidateWhenCompanyWithChild() {
         $transfer = Transfer::find()
-            ->where(['company_id' => 1])
-            ->one();
+                ->where(['company_id' => 1])
+                ->one();
 
         $totalPaid = TransferCandidate::find()
-            ->where([
-                'transfer_id' => $transfer->transfer_id,
-                'paid' => 1
-            ])
-            ->count();
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 1
+                ])
+                ->count();
 
         expect('Checking total no of candidate paid in transfer', $totalPaid)
-            ->equals($transfer->getTotalPaid());
+                ->equals($transfer->getTotalPaid());
     }
 
     /**
      * test to check calculation of total unpaid candidate of
      * transfer when company with child
      */
-    public function testStatisticsForUnPaidTransferCandidateWhenCompanyWithChild()
-    {
+    public function testStatisticsForUnPaidTransferCandidateWhenCompanyWithChild() {
         $transfer = Transfer::find()
-            ->where(['company_id' => 1])
-            ->one();
+                ->where(['company_id' => 1])
+                ->one();
 
-        $totalUnaid = TransferCandidate::find()
-            ->where([
-                'transfer_id' => $transfer->transfer_id,
-                'paid' => 0
-            ])
-            ->count();
+        $totalUnpaid = TransferCandidate::find()
+                ->where([
+                    'transfer_id' => $transfer->transfer_id,
+                    'paid' => 0
+                ])
+                ->count();
 
-        expect('Checking total no of candidate unpaid in transfer', $totalUnaid)
-            ->equals($transfer->getTotalUnpaid());
-
+        expect('Checking total no of candidate unpaid in transfer', $totalUnpaid)
+                ->equals($transfer->getTotalUnpaid());
     }
 
     /**
      * test to check calculation of total Profit of
      * transfer when company with child
      */
-    public function testStatisticsForTransferProfitWhenCompanyWithChild()
-    {
+    public function testStatisticsForTransferProfitWhenCompanyWithChild() {
+        
         $transfer = Transfer::find()
-            ->where(['company_id' => 1])
-            ->one();
-            $profit = TransferCandidate::find()
+                ->where(['company_id' => 1])
+                ->one();
+        
+        $profit = TransferCandidate::find()
                 ->where([
                     'transfer_id' => $transfer->transfer_id
                 ])
-                ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost');
+                ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost + bonus_commission');
 
-            expect('Checking profit from transfer getting calculated properly', $profit)
+        expect('Checking profit from transfer getting calculated properly', $profit)
                 ->equals($transfer->getProfit());
     }
+
 }

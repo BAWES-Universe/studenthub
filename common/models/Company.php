@@ -17,6 +17,8 @@ use yii\helpers\Url;
  * @property string $company_auth_key
  * @property string $company_password_hash
  * @property string $company_password_reset_token
+ * @property decimal $company_hourly_rate
+ * @property decimal $company_bonus_commission - % Of Bonus admin will take
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
@@ -24,16 +26,31 @@ use yii\helpers\Url;
  *
  * @property Company $parentCompany
  * @property Company[] $subCompanies
- * @property CompanyToken[] $accessTokens
+ * @property Candidate[] $candidates
  * @property Invoice[] $invoices
  * @property Store[] $stores
  * @property Transfer[] $transfers
- * @property Candidate[] $candidates
+ * @property CompanyToken[] $accessTokens
+ * @property Transfer[] $parentTransfers 
+ * @property CompanyToken $accessToken
+ * @property Store[] $subCompanyStores
+ * 
+ * E.g. 
+ * company_hourly_rate = 1.5 KWD
+ * company_bonus_commission = 20%
+ * 
+ * candidate 1 have worked for 2 hour having hourly rate 1.2 KWD + suppose getting bonus 20 KWD 
+ * 
+ * Total amount company will pay = (1.5 KWD * 2 hour) + 20 KWD = 23 KWD
+ * 
+ * Total amount admin will pay to candidate = (1.2 KWD * 2 hour) + 20 KWD - 20% of bonus as comission 
+ *  = 2.4 KWD + 20 KWD - 4 KWD 
+ *  = 18.4 KWD
  */
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-
     const STATUS_ACTIVE = 10;
+    
     /**
      * @inheritdoc
      */
@@ -49,18 +66,36 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['company_name'], 'required'],
-            [['company_password_hash', 'company_email'], 'required', 'on'=>'newAccount'],
+            [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
-            [['company_password_hash'], 'required', 'on'=>'newSubAccount'], // for sub account
+            [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_status'], 'integer'],
+            [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
+            ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_password_reset_token'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_password_reset_token'], 'unique']
         ];
     }
-
+  
+    /**
+     * Company hourly rate should be higher than his candidates' hourly rate 
+     */
+    public function validateHourlyRate() 
+    {
+        $result = $this->getCandidates()
+            ->andWhere(['>', 'candidate_hourly_rate', $this->company_hourly_rate])
+            ->orderBy('candidate_hourly_rate DESC')
+            ->one();
+        
+        if($result)
+        {
+            $this->addError('candidate_hourly_rate', "Company has candidates with higher hourly rate.");
+        }
+    }
+    
     /**
      * find if company have store
      */

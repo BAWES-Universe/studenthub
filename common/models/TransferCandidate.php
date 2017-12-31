@@ -17,11 +17,12 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_id
  * @property string $company_name
  * @property string $company_email
- * @property string $hours
- * @property string $candidate_hourly_rate
- * @property string $company_hourly_rate
- * @property string $bonus
- * @property string $transfer_cost
+ * @property decimal $candidate_hourly_rate - hourly rate candidate will receive
+ * @property decimal $company_hourly_rate - hourly rate company paying 
+ * @property decimal $hours - no of hours candidate have worked
+ * @property decimal $bonus - bonus amount company paying 
+ * @property decimal $bonus_commission - commission admin will take from bonus in KWD
+ * @property decimal $transfer_cost - transfer cost of payment 
  * @property integer $paid
  * @property string $tc_created_at
  * @property string $tc_updated_at
@@ -29,6 +30,12 @@ use yii\behaviors\TimestampBehavior;
  * @property Candidate $candidate
  * @property Transfer $transfer
  * @property Invoice $Invoice
+ * 
+ * Company paying = ($hours * $company_hourly_rate) + $bonus;
+ * 
+ * Candidate getting = ($hours * $candidate_hourly_rate) + $bonus - $bonus_commission;
+ * 
+ * Admin profit = Company paying - Candidate getting - $transfer_cost;
  */
 class TransferCandidate extends \yii\db\ActiveRecord
 {
@@ -52,7 +59,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_id', 'candidate_id', 'store_id', 'company_id'], 'integer'],
             [['store_name', 'company_name'], 'string', 'max' => 100],
             [['company_email'], 'email'],
-            [['hours', 'transfer_cost', 'bonus', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
+            [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['tc_created_at', 'tc_updated_at'], 'safe'],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
@@ -95,6 +102,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'company_hourly_rate' => 'Company Hourly Rate',
             'transfer_cost' => 'Transfer cost',
             'bonus' => 'Bonus',
+            'bonus_commission' => 'Bonus Commission (KWD)',
             'tc_created_at' => 'Tc Created At',
             'tc_updated_at' => 'Tc Updated At',
         ];
@@ -129,6 +137,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $fields['bonus'] = function ($model) {
             return (double)$this->bonus;
         };
+        
+        $fields['bonus_commission'] = function ($model) {
+            return (double)$this->bonus_commission;
+        };
+        
+        $fields['candidate_bonus'] = function ($model) {
+            return $this->bonus - $this->bonus_commission;
+        };
+        
         $fields['transfer_cost'] = function ($model) {
             return (double)$this->transfer_cost;
         };
@@ -162,7 +179,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getTotalPaidToCandidate()
     {
-        return ($this->candidate_hourly_rate * $this->hours) + $this->bonus;
+        return ($this->candidate_hourly_rate * $this->hours) + $this->bonus - $this->bonus_commission;
     }
 
     /**
@@ -176,7 +193,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
     public function getProfit()
     {
-        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost;
+        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost + $this->bonus_commission;
     }
 
     /**

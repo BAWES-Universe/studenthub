@@ -2,7 +2,6 @@
 
 namespace company\modules\v1\controllers;
 
-use company\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
