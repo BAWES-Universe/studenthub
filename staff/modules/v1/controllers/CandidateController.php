@@ -239,7 +239,7 @@ class CandidateController extends Controller
             ];
         }
 
-        if (!$model->save(false))
+        if (!$model->save())
         {
 
             if(isset($model->errors)){
