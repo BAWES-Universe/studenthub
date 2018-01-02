@@ -52,6 +52,7 @@ class Candidate extends \common\models\Candidate {
     public static function passwordMail($model, $password)
     {
         Yii::$app->mailer->htmlLayout = 'layouts/html';
+        
         return Yii::$app->mailer->compose("candidate-password",
             [
                 "model" => $model,

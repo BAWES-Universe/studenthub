@@ -69,10 +69,12 @@ return [
                         'GET' => 'list',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS reset-password/<id>' => 'options',
                     ]
                 ],
                 [ // CompanyController
