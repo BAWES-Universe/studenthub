@@ -12,12 +12,11 @@ class AccountController extends Controller
 {
     public function behaviors()
     {
-        $behaviors = [];//parent::behaviors();
+        $behaviors = parent::behaviors();
 
         // remove authentication filter for cors to work
         unset($behaviors['authenticator']);
 
-        // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
             'class' => \yii\filters\Cors::className(),
             'cors' => [
@@ -28,7 +27,7 @@ class AccountController extends Controller
                 'Access-Control-Max-Age' => 86400,
             ],
         ];
-
+        
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
@@ -39,6 +38,21 @@ class AccountController extends Controller
         return $behaviors;
     }
     
+    /**
+     * @inheritdoc
+     */
+    public function actions()
+    {
+        $actions = parent::actions();
+        $actions['options'] = [
+            'class' => 'yii\rest\OptionsAction',
+            // optional:
+            'collectionOptions' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
+            'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+        ];
+        return $actions;
+    }
+
     /**
      * Updates password based on current password
      * @return array
@@ -52,13 +66,13 @@ class AccountController extends Controller
 
         //validate current password 
         
-        if(!$staff->validatePassword($password)) 
+        /*if(!$staff->validatePassword($password)) 
         {
             return [
                 'operation' => 'error',
                 'message' => 'Invalid current password provided'
             ];
-        }
+        }*/
         
         //update password 
         
