@@ -60,7 +60,7 @@ return [
                     'controller' => 'v1/account',
                     'pluralize' => false,
                     'patterns' => [
-                        'PATCH update-password' => 'update-password',
+                        'POST update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS update-password' => 'options',
                     ]
