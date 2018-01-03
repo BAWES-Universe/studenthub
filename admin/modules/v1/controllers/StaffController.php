@@ -8,6 +8,7 @@ use yii\data\ActiveDataProvider;
 use admin\models\Staff;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+
 /**
  * Staff controller - Manage staff accounts as Admin
  */
@@ -194,5 +195,36 @@ class StaffController extends Controller
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
+    }
+    
+    /**
+     * Reset staff password
+     * @param $id
+     * @return array
+     */
+    public function actionResetPassword($id)
+    {
+        $model = Staff::findOne((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Staff not found",
+                "code" => 1
+            ];
+        }
+
+        $password = Yii::$app->security->generateRandomString(5);
+
+        $model->password = $password;
+        $model->save(false);
+
+        //Send Email to user
+        Staff::passwordMail($model, $password);
+
+        return [
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
+        ];
     }
 }

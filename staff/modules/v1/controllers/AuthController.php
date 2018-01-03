@@ -97,6 +97,48 @@ class AuthController extends Controller
     }
 
     /**
+     * Sends password reset email to user
+     * @return array
+     */
+    public function actionRequestResetPassword()
+    {
+        $emailInput = Yii::$app->request->getBodyParam("email");
+
+        $model = new \staff\models\PasswordResetRequestForm();
+        $model->email = $emailInput;
+
+        $errors = false;
+
+        if ($model->validate()) {
+
+            $staff = Staff::findOne([
+                'email' => $model->email,
+            ]);
+
+            if ($staff && !$model->sendEmail($staff)) {
+                $errors = Yii::t('app', 'Sorry, we are unable to reset password for email provided.');
+            }
+
+        } else if (isset($model->errors['email'])) {
+            $errors = $model->errors['email'];
+        }
+
+        // If errors exist show them
+        if ($errors) {
+            return [
+                'operation' => 'error',
+                'message' => $errors
+            ];
+        }
+
+        // Otherwise return success
+        return [
+            'operation' => 'success',
+            'message' => 'Reset password token sent on your email address.'
+        ];
+    }
+    
+    /**
      * Updates password based on passed token
      * @return array
      */

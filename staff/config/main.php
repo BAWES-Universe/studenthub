@@ -54,7 +54,17 @@ return [
                         'OPTIONS login' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
-                ],                
+                ],     
+                [ // AccountController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/account',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST update-password' => 'update-password',
+                        // OPTIONS VERBS
+                        'OPTIONS update-password' => 'options',
+                    ]
+                ],     
                 [ // StatisticController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/statistic',
