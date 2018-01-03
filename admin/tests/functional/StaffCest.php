@@ -114,7 +114,8 @@ class StaffCest
     {
         $staffID = 1;
         $I->wantTo('reset staff password');
-        $I->sendPATCH('v1/staffs/reset-password' . $staffID);
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPATCH('v1/staff/reset-password/' . $staffID);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson([
             "operation" => "success",
