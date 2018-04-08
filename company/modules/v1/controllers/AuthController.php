@@ -40,6 +40,7 @@ class AuthController extends Controller
             'except' => ['options'],
             'auth' => function ($email, $password) {
                 $company = Company::findByEmail($email);
+                
                 if ($company && $company->validatePassword($password)) {
                     return $company;
                 }

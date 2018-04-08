@@ -257,6 +257,24 @@ class Transfer extends \common\models\Transfer {
             throw new Exception('Transfer status need to be "Initiated" to lock it!');
         }
         
+        //check if is there any candidate in transfer who not working any more with this company 
+        
+        $companyCandidates = $this->company->getCandidates()->select('candidate_id');
+        
+        $extraCandidates = $this->getTransferCandidates()
+            ->where([
+                'not in',
+                'candidate_id',
+                $companyCandidates
+            ])
+            ->count();        
+        
+        if($extraCandidates > 0) 
+        {
+            throw new Exception('You got '.$extraCandidates.' candidate who not assign to you anymore. '
+                    . 'Please remove this transfer and create new one!'); 
+        }
+        
         $this->transfer_status = Transfer::STATUS_LOCK;
                 
         //select distinct company and create transfer for each company
@@ -353,8 +371,8 @@ class Transfer extends \common\models\Transfer {
             }
             
             $candidate = Candidate::find()
-                ->with(['store','company'])
-                ->where(['candidate_id'=>$value['candidate_id']])
+                ->with(['store', 'company'])
+                ->where(['candidate_id' => $value['candidate_id']])
                 ->asArray()
                 ->one();
             
@@ -717,9 +735,18 @@ class Transfer extends \common\models\Transfer {
 
             //get company hourly rate 
             
-            $candidate = Candidate::findOne(['candidate_id' => $value['candidate_id']]);
+            $candidate = Candidate::find()
+                ->where(['candidate_id' => $value['candidate_id']])
+                ->one();
             
             $company = $candidate->company;
+            
+            //check if transfer company belong to candidate's company 
+            
+            if(!in_array($this->company_id, [$company->parent_company_id, $company->company_id]))
+            {
+                $this->addError($attribute, 'Canidate "' . $candidate->candidate_name . '" is not your employee.');
+            }
             
             $company_hourly_rate = $company['company_hourly_rate'];
 
@@ -753,6 +780,7 @@ class Transfer extends \common\models\Transfer {
         // Find all candidates that work in stores belonging to company but not included in candidate list
         // that is being validated. Show error if any missing
         $candidate_ids = ArrayHelper::map($this->candidates, 'candidate_id', 'candidate_id');
+        
         $missing = Candidate::find()
             ->where(['in', 'store_id', $store_ids])
             ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
