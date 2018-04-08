@@ -77,9 +77,11 @@ class Transfer extends \common\models\Transfer
         if($this->transfer_status == Transfer::STATUS_INITIATED) {
             throw new Exception('Transfer already unlocked.');
         }
-        if($this->transfer_status != Transfer::STATUS_LOCK) {
-            throw new Exception('Transfer status should be "Locked" to unlock it!');
+        
+        if(!in_array($this->transfer_status, [Transfer::STATUS_LOCK, Transfer::STATUS_PAYMENT_SENT])) {
+            throw new Exception('Transfer status should be "Locked" or "Payment Sent" to unlock it!');
         }
+        
         $this->transfer_status = Transfer::STATUS_INITIATED;
         return $this->save(false);        
     }
