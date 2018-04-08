@@ -271,6 +271,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             return false;
         }
         $list = [];
+        
         foreach ($candidates as $detail) {
             $totalAmount += $detail->totalPaidToCandidate;
 
