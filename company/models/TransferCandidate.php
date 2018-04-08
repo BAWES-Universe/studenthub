@@ -71,6 +71,7 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         $store = $candidate['store'];
         $company = $candidate['company'];
+        
         $TCModel = new TransferCandidate;
         $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
         $TCModel->candidate_hourly_rate = $hourly_rate;
