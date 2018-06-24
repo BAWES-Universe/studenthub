@@ -24,8 +24,24 @@ return [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
-                    'dsn' => 'https://b4bef13c94834f7b9a422b4fefa6d73f:096f6ba42f1f4edfaa2c8d47c0ec9f80@sentry.io/168205',
+                    'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
                     'levels' => ['error', 'warning'],
+                    'clientOptions' => [
+                        //which environment are we running this on?
+                        'environment' => 'dev-server'
+                        // Disable notifications for malicious errors from 3rd party
+                        'send_callback' => function($data) {
+                            // Error Types to Ignore
+                            $ignore_types = [
+                                'yii\web\NotFoundHttpException',
+                            ];
+
+                            if (isset($data['exception']) && in_array($data['exception']['values'][0]['type'], $ignore_types))
+                            {
+                                return false;
+                            }
+                        },
+                    ],
                     'context' => true // Write the context information. The default is true.
                 ],
             ],
