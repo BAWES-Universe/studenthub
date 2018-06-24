@@ -37,8 +37,10 @@ return [
                                 'Page not found.'
                             ];
 
-                            if (isset($data['exception']) && in_array($data['exception']['values'][0]['type'], $ignore_types))
-                            {
+                            if (isset($data['exception']) &&
+                                (in_array($data['exception']['values'][0]['type'], $ignore_types) ||
+                                in_array($data['exception']['values'][0]['value'], $ignore_types))
+                            ){
                                 return false;
                             }
                         },
