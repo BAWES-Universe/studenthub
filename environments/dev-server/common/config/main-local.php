@@ -28,7 +28,7 @@ return [
                     'levels' => ['error', 'warning'],
                     'clientOptions' => [
                         //which environment are we running this on?
-                        'environment' => 'dev-server'
+                        'environment' => 'dev-server',
                         // Disable notifications for malicious errors from 3rd party
                         'send_callback' => function($data) {
                             // Error Types to Ignore
