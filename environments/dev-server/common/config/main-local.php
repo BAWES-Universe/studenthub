@@ -34,6 +34,7 @@ return [
                             // Error Types to Ignore
                             $ignore_types = [
                                 'yii\web\NotFoundHttpException',
+                                'Page not found.'
                             ];
 
                             if (isset($data['exception']) && in_array($data['exception']['values'][0]['type'], $ignore_types))
