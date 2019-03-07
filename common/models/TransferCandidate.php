@@ -330,20 +330,25 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function getInvoiceNumber() {
 
         $invoice = false;
+        
+        //check if we have sub invoice/transfer, else return invoice for main company 
+        
         $parentTransfer = Transfer::findOne(
             [
-                'parent_transfer_id'=>$this->transfer_id,
-                'company_id'=>$this->candidate->company->company_id
+                'parent_transfer_id'=> $this->transfer_id,
+                'company_id' => $this->company_id //$this->candidate->company->company_id
             ]
         );
-        if ($parentTransfer && isset($parentTransfer->invoices[0])) {
+        
+        if ($parentTransfer && isset($parentTransfer->invoices[0])) { //
             $invoice = $parentTransfer->invoices[0]->invoice_id;
-        } else {
+        } else { 
             $childTransfer = Transfer::findOne($this->transfer_id);
             if ($childTransfer && isset($childTransfer->invoices[0])) {
                 $invoice = $childTransfer->invoices[0]->invoice_id;
             }
         }
+        
         return $invoice;
     }
 }
