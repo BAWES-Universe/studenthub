@@ -739,13 +739,23 @@ class Transfer extends \common\models\Transfer {
                 ->where(['candidate_id' => $value['candidate_id']])
                 ->one();
             
+            if(!$candidate) {
+                $this->addError($attribute, 'Candidate #' . $value['candidate_id'] . ' not found.');
+                return false; 
+            }
+            
+            if(!$candidate->company) {
+                $this->addError($attribute, 'Candidate "' . $candidate->candidate_name . '" is not assigned to any employer.');
+                return false; 
+            }
+            
             $company = $candidate->company;
             
             //check if transfer company belong to candidate's company 
             
             if(!in_array($this->company_id, [$company->parent_company_id, $company->company_id]))
             {
-                $this->addError($attribute, 'Canidate "' . $candidate->candidate_name . '" is not your employee.');
+                $this->addError($attribute, 'Candidate "' . $candidate->candidate_name . '" is not your employee.');
             }
             
             $company_hourly_rate = $company['company_hourly_rate'];
