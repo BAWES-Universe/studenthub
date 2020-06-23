@@ -66,12 +66,12 @@ class StoreController extends Controller
 
     public function actionView($id)
     {
-        $query = Store::find()
-            ->where(['store_id' => $id]);
-        
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
+        return $query = Store::findOne($id);
+//            ->where(['store_id' => $id]);
+//
+//        return new ActiveDataProvider([
+//            'query' => $query
+//        ]);
     }
     
     /**

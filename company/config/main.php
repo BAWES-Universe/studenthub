@@ -62,10 +62,12 @@ return [
                         'GET' => 'list',
                         'GET total' => 'total',
                         'GET work-history/<id>' => 'work-history',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS total' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // TransferController
@@ -114,8 +116,10 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // AccountController
