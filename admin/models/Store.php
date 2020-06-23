@@ -16,10 +16,7 @@ class Store extends \common\models\Store {
             'store_id',
             'company_id',
             'store_name',
-            'store_status',
-            'candidates' => function($model) {
-                return $model->candidates;
-            }
+            'store_status'
         ];
     }
 

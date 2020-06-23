@@ -4,6 +4,7 @@ namespace admin\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
+use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -85,6 +86,28 @@ class TransferCandidateController extends Controller
             ->all();
     }
 
+    /**
+     * load candidate transfer entries by transfer id
+     * @param number $id
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function actionByTransfer($id) 
+    {
+        $transfer = $this->findTransfer($id);
+        
+        $query = $transfer->getTransferCandidates()
+            ->orderBy('store_id');//to group it by store on infinite scrolling listing 
+        
+        return new \yii\data\ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+    
+    /**
+     * view candidate transfer detail
+     * @param type $id
+     * @return type
+     */
     public function actionView($id)
     { 
         // Return as Array as to not create ActiveRecord objects will eat away at the RAM
@@ -130,5 +153,21 @@ class TransferCandidateController extends Controller
     {
         $transferCandidateIds = Yii::$app->request->getBodyParam('transferCandidate');
         return TransferCandidate::markAllUnpaid($transferCandidateIds);
+    }
+    
+    /**
+     * Finds the Transfer model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findTransfer($id)
+    {
+        if (($model = Transfer::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

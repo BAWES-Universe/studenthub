@@ -5,6 +5,7 @@ namespace admin\models;
 use Yii;
 use yii\helpers\ArrayHelper;
 
+
 /**
  * Class TransferCandidate
  * @package admin\models
@@ -17,10 +18,6 @@ class TransferCandidate extends \common\models\TransferCandidate
     public function fields()
     {
     	$fields = parent::fields();
-
-    	$fields['candidate'] = function($model) {
-    		return $model->candidate;
-    	};
 
         $fields['status'] = function($model){
             return ($model->paid) ? 'Paid' : 'Unpaid';

@@ -7,12 +7,14 @@ use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
+
 /**
  * This is the model class for table "store".
  *
  * @property integer $store_id
  * @property integer $company_id
  * @property string $store_name
+ * @property string $store_total_candidates
  * @property integer $store_status
  * @property string $store_created_at
  * @property string $store_updated_at
@@ -37,7 +39,7 @@ class Store extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id', 'store_status'], 'integer'],
+            [['company_id', 'store_status', 'store_total_candidates'], 'integer'],
             [['store_name'], 'required'],
             [['store_created_at', 'store_updated_at','deleted'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
@@ -96,6 +98,10 @@ class Store extends \yii\db\ActiveRecord
 
         unset($fields['deleted']);
 
+        $fields['store_total_candidates'] = function($model) {
+            return (int) $model->store_total_candidates;
+        };
+        
         return $fields;
     }
 
@@ -136,6 +142,7 @@ class Store extends \yii\db\ActiveRecord
         $this->deleted = 1;
         return $this->save(false);
     }
+    
     /**
      * @inheritdoc
      * @return query\StoreQuery the active query used by this AR class.
