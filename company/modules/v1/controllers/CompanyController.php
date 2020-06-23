@@ -75,4 +75,12 @@ class CompanyController extends Controller
             'query' => $query
         ]);
     }
+
+    /**
+     * Return a company Detail
+     */
+    public function actionView($id)
+    {
+        return Company::findOne($id);
+    }
 }

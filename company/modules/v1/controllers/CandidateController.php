@@ -3,6 +3,7 @@
 namespace company\modules\v1\controllers;
 
 use common\models\CandidateWorkHistory;
+use company\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
@@ -112,5 +113,13 @@ class CandidateController extends Controller
             return [];
 
         return $model;
+    }
+
+    /**
+     * Return no of Candidate detail
+     */
+    public function actionView($id)
+    {
+        return Candidate::findOne($id);
     }
 }
