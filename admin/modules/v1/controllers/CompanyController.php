@@ -8,6 +8,8 @@ use yii\data\ActiveDataProvider;
 use admin\models\Company;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
 
 /**
  * Company controller - Manage company accounts as Admin
@@ -198,8 +200,7 @@ class CompanyController extends Controller
      */
     public function actionUpdate($id)
     {
-        // Attempt to create new account
-        $model = Company::findOne((int) $id);
+        $model = $this->findModel((int) $id);
 
         if (!$model) {
             return [
@@ -246,7 +247,7 @@ class CompanyController extends Controller
      */
     public function actionDelete($id)
     {
-        $company = Company::findOne((int)$id);
+        $company = $this->findModel((int) $id);
 
         if ($company) {
 
@@ -305,7 +306,7 @@ class CompanyController extends Controller
      */
     public function actionResetPassword($id)
     {
-        $model = Company::findOne((int) $id);
+        $model = $this->findModel((int) $id);
 
         if(!$model) {
             return [
@@ -327,5 +328,21 @@ class CompanyController extends Controller
             "operation" => "success",
             "message" => "New password sent to registered email successfully"
         ];
+    }
+    
+    /**
+     * Finds the Company model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Company::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

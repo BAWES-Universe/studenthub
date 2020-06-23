@@ -11,6 +11,8 @@ use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use kartik\mpdf\Pdf;
+use yii\web\NotFoundHttpException;
+
 
 /**
  * Transfer controller - Manage Transfer
@@ -150,10 +152,10 @@ class TransferController extends Controller
             ->with([
                 'transferCandidates', 
                 'transferCandidates.candidate', 
-                'transferCandidates.candidate.store', 
-                'transferCandidates.candidate.company', 
-                'transferCandidates.candidate.bank',
-                'transferCandidates.candidate.university'
+            //    'transferCandidates.candidate.store', 
+            //    'transferCandidates.candidate.company', 
+            //    'transferCandidates.candidate.bank',
+            //    'transferCandidates.candidate.university'
             ])
             ->where([
                 'transfer_id' => $id
@@ -161,10 +163,7 @@ class TransferController extends Controller
             ->one();
 
         if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found'
-            ];
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         return $transfer;
@@ -177,16 +176,9 @@ class TransferController extends Controller
      */
     public function actionPaymentReceivedDistributing($id)
     {
-        $transfer = Transfer::findOne($id);
+        $transfer = $this->findModel($id);
 
-        if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
-
-        try{
+        try {
             $transfer->paymentReceived();
         }
         catch(Exception $e){
@@ -214,15 +206,7 @@ class TransferController extends Controller
      */
     public function actionUnlock($id)
     {
-        $transfer = Transfer::findOne((int)$id);
-
-        if(!$transfer)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
+        $transfer = $this->findModel((int)$id);
 
         try {
             $transfer->unlock();
@@ -250,7 +234,7 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $transfer = Transfer::findOne((int)$id);
+        $transfer = $this->findModel((int)$id);
 
         if(!$transfer)
         {
@@ -296,6 +280,7 @@ class TransferController extends Controller
             );
 
             // Check if all paid, mark transfer as complete
+            
             $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
@@ -304,7 +289,7 @@ class TransferController extends Controller
                 ->count();
 
             if (!$unpaid) {
-                $transfer = Transfer::findOne($value['transfer_id']);
+                $transfer = $this->findModel($value['transfer_id']);
                 $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
                 $transfer->save();
             }
@@ -416,14 +401,7 @@ class TransferController extends Controller
      */
     public function actionExport($id)
     {
-        $transfer = Transfer::findOne((int)$id);
-
-        if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
+        $transfer = $this->findModel((int)$id);
 
         $candidates = TransferCandidate::find()
             ->candidatesByTransfer($id)
@@ -535,5 +513,21 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
+    }
+    
+    /**
+     * Finds the Transfer model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Transfer::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }
