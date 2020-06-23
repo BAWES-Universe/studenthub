@@ -18,7 +18,7 @@ class CronController extends \yii\console\Controller {
     /**
      * Used for testing only
      */
-    public function actionIndex(){
+    public function actionIndex() {
         $this->stdout("Sample Output \n", Console::FG_RED, Console::BOLD);
     }
 

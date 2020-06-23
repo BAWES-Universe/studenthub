@@ -152,7 +152,7 @@ return [
                         'OPTIONS export-payable-candidates' => 'options',
                         'OPTIONS text' => 'options',
                         'OPTIONS export/<id>' => 'options',
-                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options'
                     ]
                 ],
                 [ // TransferCandidateController
@@ -160,6 +160,7 @@ return [
                     'controller' => 'v1/transfer-candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET by-transfer/<id>' => 'by-transfer',
                         'GET <id>' => 'view',
                         'PATCH unpaid/<id>' => 'unpaid',
                         'PATCH paid/<id>' => 'paid',
@@ -168,6 +169,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS by-transfer/<id>' => 'options',
                         'OPTIONS unpaid/<id>' => 'options',
                         'OPTIONS paid/<id>' => 'options',
                         'OPTIONS mark-paid-all' => 'options',
