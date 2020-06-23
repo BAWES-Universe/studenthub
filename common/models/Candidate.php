@@ -276,10 +276,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
          */
         $fields = ArrayHelper::merge($fields, [
             'store',
-            'company',
-            'university',
-            'country',
-            'bank'
+            'company'
         ]);
         
         unset($fields['deleted']);

@@ -99,6 +99,21 @@ class TransferController extends Controller
             'query' => $query
         ]);
     }
+    
+    /**
+     * list invoices
+     * @param type $id
+     * @return ActiveDataProvider
+     */
+    public function actionInvoices($id) 
+    {
+        $transfer = $this->findModel($id);
+        
+        return new ActiveDataProvider([
+            'query' => $transfer->getInvoices(),
+            'pagination' => false
+        ]);
+    }
 
     /**
      * Return a List of all Payable Candidates with invoice status paid

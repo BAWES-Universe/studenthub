@@ -134,6 +134,7 @@ return [
                         'GET text' => 'text',
                         'GET payable-candidates' => 'payable-candidates',
                         'GET export-payable-candidates' => 'export-payable-candidates',
+                        'GET invoices/<id>' => 'invoices',
                         'GET export/<id>' => 'export',
                         'GET pdf/<id>' => 'pdf',
                         'GET <id>' => 'view',
@@ -144,6 +145,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS payable-candidates' => 'options',
+                        'OPTIONS invoices/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS payment-received-distributing/<id>' => 'options',
                         'OPTIONS unlock/<id>' => 'options',
