@@ -25,6 +25,10 @@ class TransferCandidate extends \common\models\TransferCandidate
         $fields['status'] = function($model){
             return ($model->paid) ? 'Paid' : 'Unpaid';
         };
+        
+        $fields['paid'] = function($model){
+            return (int)$model->paid;
+        };      
 
         //total amount candidate will receive 
         $fields['total'] = function($model) {

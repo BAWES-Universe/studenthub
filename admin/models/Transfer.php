@@ -25,6 +25,10 @@ class Transfer extends \common\models\Transfer
             return $model->company->company_email;
         };
 
+        $fields['transfer_status'] = function($model) {
+            return (int) $model->transfer_status;
+        };
+        
     	$fields['total_transfer_cost'] = function($model) {
     		return floatval(Transfer::getTransferCost($model->transfer_id));
     	};

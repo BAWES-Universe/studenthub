@@ -9,6 +9,9 @@ use yii\data\ActiveDataProvider;
 use admin\models\Candidate;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
+
 /**
  * Candidate controller - Manage Candidate accounts as Admin
  */
@@ -123,7 +126,7 @@ class CandidateController extends Controller
      */
     public function actionApprove($id)
     {
-        $model = Candidate::findOne((int) $id);
+        $model = $this->findModel((int) $id);
 
         if(!$model) {
             return [
@@ -162,15 +165,21 @@ class CandidateController extends Controller
      */
     public function actionTransfers($id)
     {
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model)
-            return [];
+        $model = $this->findModel((int) $id);
 
         return $model->paidTransferCandidate;
     }
 
-
+    /**
+     * load candidate details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+    
     /**
      * get candidate work history
      * @param $id
@@ -188,5 +197,21 @@ class CandidateController extends Controller
             return [];
 
         return $model;
+    }
+    
+    /**
+     * Finds the Candidate model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Candidate::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }
