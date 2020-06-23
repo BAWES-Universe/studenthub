@@ -6,6 +6,9 @@ use Yii;
 use yii\rest\Controller;
 use admin\models\TransferCandidate;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
+
 /**
  * Transfer controller - Manage Transfer
  */
@@ -80,6 +83,17 @@ class TransferCandidateController extends Controller
             ->payableWithPaid()
             ->asArray()
             ->all();
+    }
+
+    public function actionView($id)
+    { 
+        // Return as Array as to not create ActiveRecord objects will eat away at the RAM
+        return TransferCandidate::find()
+            ->andWhere(['tc_id' => $id])
+            ->with('candidate')
+            ->payableWithPaid()
+            ->asArray()
+            ->one();
     }
 
     /**

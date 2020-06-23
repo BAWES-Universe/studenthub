@@ -8,6 +8,9 @@ use yii\data\ActiveDataProvider;
 use common\models\Country;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
+
 /**
  * Country controller - Manage Country as Admin
  */
@@ -75,5 +78,31 @@ class CountryController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+    
+    /**
+     * load country details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+    
+    /**
+     * Finds the Country model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Country::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

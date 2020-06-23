@@ -8,6 +8,9 @@ use yii\data\ActiveDataProvider;
 use admin\models\Store;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
+
 /**
  * Store controller - Manage store as Admin
  */
@@ -73,5 +76,31 @@ class StoreController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+    
+    /**
+     * load store details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+    
+    /**
+     * Finds the Store model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Store::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }
