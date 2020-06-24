@@ -50,8 +50,21 @@ class Transfer extends \common\models\Transfer
             'childTransferCandidates',
             'totalPaid',
             'totalUnpaid',
+            'unPaidTransferCandidates',
+            'remainingPaymentTransferTotal',
             'profit'
         ];
+    }
+    
+    /**
+     * Get count of Candidates who got paid for this transfer
+     * @return double
+     */
+    public function getRemainingPaymentTransferTotal()
+    {
+        $unpaidCandidates = $this->getUnPaidTransferCandidates()->asArray()->all();
+        
+        return Candidate::calculateRemainingPaymentTransferTotal($unpaidCandidates);
     }
 
     /**

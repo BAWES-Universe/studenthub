@@ -120,40 +120,15 @@ class TransferController extends Controller
      */
     public function actionPayableCandidates()
     {
-        $result = [];
-
         // Candidates whose company paid to admin but admin have not paid yet
-        $transfers = Transfer::find()
+        $query = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->isParentTransfer()
-            ->all();
-
-        foreach ($transfers as $transfer)
-        {
-            $candidates = $transfer->getTransferCandidates()
-                ->with([
-                    'candidate', 
-                    'candidate.store', 
-                    'candidate.company', 
-                    'candidate.bank',
-                    'candidate.university'
-                ])        
-                ->where(['paid' => '0'])
-                ->all();
-
-            if($candidates)
-            {
-                $totalAmount = Candidate::calculateRemainingPaymentTransferTotal($candidates);
-
-                $result[] = [
-                    'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $candidates,
-                    'total' => $totalAmount
-                ];
-            }
-        }
-
-        return $result;
+            ->isParentTransfer();
+        
+        return new \yii\data\ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false
+        ]);
     }
 
     /**
