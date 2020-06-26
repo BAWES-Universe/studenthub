@@ -57,6 +57,7 @@ class AdminTest extends \Codeception\Test\Unit
             $model = new Admin();
             $model->admin_name = 'Magan';
             $model->admin_email = 'unique@admin.com';
+            $model->admin_auth_key = '';
             $model->setPassword('admin2');
             expect('Created successfully', $model->save())->true();
             expect('Record is in database', $model->findOne(['admin_name' => 'Magan']))->notNull();
@@ -65,6 +66,7 @@ class AdminTest extends \Codeception\Test\Unit
         $this->specify('Update university Data', function() {
             $model = Admin::findOne(['admin_id' => 1]);
             $model->admin_name = 'Chhagan';
+            $model->admin_auth_key = '';
             expect('updated successfully', $model->save())->true();
             expect('Updated Record is in database', $model->findOne(['admin_name' => 'Chhagan']))->notNull();
         });

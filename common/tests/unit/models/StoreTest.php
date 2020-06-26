@@ -1,4 +1,5 @@
 <?php
+
 namespace common\tests;
 
 use common\models\Store;
@@ -6,33 +7,36 @@ use common\fixtures\StoreFixture;
 use common\fixtures\CompanyFixture;
 use Codeception\Specify;
 
-class StoreTest extends \Codeception\Test\Unit
-{
+class StoreTest extends \Codeception\Test\Unit {
+
     use Specify;
+
     /**
      * @var \common\tests\UnitTester
      */
     protected $tester;
 
-    public function _fixtures()
-    {
+    public function _fixtures() {
         return [
             'company' => CompanyFixture::className(),
             'store' => StoreFixture::className()
         ];
     }
 
-    protected function _before(){}
+    protected function _before() {
+        
+    }
 
-    protected function _after(){}
+    protected function _after() {
+        
+    }
 
     /**
      * test case for validate required fields
      */
-    public function testValidatorRequired()
-    {
+    public function testValidatorRequired() {
         $this->specify('Fixtures Data loaded Test', function() {
-            expect('table data is in the table', Store::findOne(['store_name'=>'First Store']))->notNull();
+            expect('table data is in the table', Store::find()->one())->notNull();
         });
 
         $this->specify('model should not accept empty required fields', function () {
@@ -55,8 +59,7 @@ class StoreTest extends \Codeception\Test\Unit
     /**
      * test case for validate length
      */
-    public function testValidatorLength()
-    {
+    public function testValidatorLength() {
         $this->specify('model Data Type fields test', function () {
             $StoreName = 'GR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR Outlets';
             $StoreName .= 'GR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR Outlets';
@@ -72,28 +75,25 @@ class StoreTest extends \Codeception\Test\Unit
     /**
      * Test case for soft Delete
      */
-    public function testSoftDelete()
-    {
+    public function testSoftDelete() {
         $this->specify('Store check record exist', function () {
-            expect('store record is in the table',
-                Store::findOne(['store_name'=>'Second Store','deleted' => '0'])
+            expect('store record is in the table', Store::findOne(['store_id' => 2, 'deleted' => '0'])
             )->notNull();
         });
 
         $this->specify('Soft delete Testing', function () {
-            $model = Store::findOne(['store_name'=>'Second Store','deleted' => '0']);
+            $model = Store::findOne(['store_id' => 2, 'deleted' => '0']);
             $model->deleted = 1;
             expect('updated successfully', $model->save())->true();
-            expect('checking is soft delete Record updated in database', $model->findOne(['store_name'=>'Second Store','deleted' => '0']))->null();
-            expect('checking is soft delete Record updated in database', $model->findOne(['store_name'=>'Second Store','deleted' => '1']))->notNull();
+            expect('checking is soft delete Record updated in database', $model->findOne(['store_id' => 2, 'deleted' => '0']))->null();
+            expect('checking is soft delete Record updated in database', $model->findOne(['store_id' => 2, 'deleted' => '1']))->notNull();
         });
     }
 
     /**
      * test case for SubCompany validation
      */
-    public function testValidatorValidCompany()
-    {
+    public function testValidatorValidCompany() {
 
         $this->specify('Testing Invalid Company', function () {
             $model = new Store();
@@ -108,4 +108,5 @@ class StoreTest extends \Codeception\Test\Unit
             expect('sub company error case ', $model->errors)->hasKey('company_id');
         });
     }
+
 }
