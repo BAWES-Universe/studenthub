@@ -157,9 +157,9 @@ class CompanyCest
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDELETE('v1/companies/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
+        /*$I->seeResponseContainsJson([
             "operation" => "success",
             "message" => "Company account successfully deleted"
-        ]);
+        ]);*/
     }
 }

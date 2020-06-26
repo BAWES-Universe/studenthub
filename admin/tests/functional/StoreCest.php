@@ -4,9 +4,11 @@ namespace admin\tests;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
+use common\models\Store;
 use common\fixtures\AdminTokenFixture;
 use common\fixtures\StoreFixture;
 use Codeception\Util\HttpCode;
+
 
 class StoreCest
 {
@@ -40,6 +42,21 @@ class StoreCest
         $I->wantTo('Validate admin > stores api response');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/stores');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+    
+    /**
+     * view stores
+     * @param FunctionalTester $I
+     */
+    public function tryToViewStore(FunctionalTester $I)
+    {
+        $store = Store::find()->one(); 
+        
+        $I->wantTo('Validate admin > stores api response');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/stores/' . $store->store_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

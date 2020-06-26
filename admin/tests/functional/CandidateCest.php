@@ -6,8 +6,10 @@ use admin\tests\FunctionalTester;
 use admin\models\Candidate;
 use common\models\AdminToken;
 use common\fixtures\TransferCandidateFixture;
+use common\fixtures\CandidateFixture;
 use common\fixtures\AdminTokenFixture;
 use Codeception\Util\HttpCode;
+
 
 class CandidateCest
 {
@@ -16,6 +18,7 @@ class CandidateCest
     public function _fixtures() 
     {
         return [
+            'candidate' => CandidateFixture::className(),
             'adminToken' => AdminTokenFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className()
         ];
@@ -58,6 +61,21 @@ class CandidateCest
         $I->wantTo('Validate admin > candidates api to approve candidate');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/candidates/approve/2');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+    
+    /**
+     * view candidate
+     * @param FunctionalTester $I
+     */
+    public function tryToView(FunctionalTester $I)
+    {
+        $candidate = Candidate::find()->one();
+        
+        $I->wantTo('Validate admin > candidates api to view candidate detail');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/candidates/' . $candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

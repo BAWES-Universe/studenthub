@@ -182,7 +182,7 @@ class TransferCest
     {
         $I->wantTo('Validate admin > transfer > List Payable Candidates All api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/transfers/all-payable-candidates');
+        $I->sendGET('v1/transfers/payable-candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
