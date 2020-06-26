@@ -8,6 +8,7 @@ use common\fixtures\AdminTokenFixture;
 use common\fixtures\UniversityFixture;
 use Codeception\Util\HttpCode;
 
+
 class UniversityCest
 {
     public $token;
@@ -40,6 +41,19 @@ class UniversityCest
         $I->wantTo('Validate university api response for listing');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/universities');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+    
+    /**
+     * Listing
+     * @param FunctionalTester $I
+     */
+    public function tryToView(FunctionalTester $I)
+    {
+        $I->wantTo('Validate university api response for detail');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/universities/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

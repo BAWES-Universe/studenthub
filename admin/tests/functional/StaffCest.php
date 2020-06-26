@@ -4,9 +4,11 @@ namespace admin\tests;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
+use common\models\Staff;
 use common\fixtures\AdminTokenFixture;
 use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
+
 
 class StaffCest
 {
@@ -38,6 +40,21 @@ class StaffCest
         $I->wantTo('Validate staff api response for listing');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/staff');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+    
+    /**
+     * view staff
+     * @param FunctionalTester $I
+     */
+    public function tryToView(FunctionalTester $I)
+    {
+        $staff = Staff::find()->one(); 
+        
+        $I->wantTo('Validate staff api response for listing');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/staff/' . $staff->staff_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

@@ -9,7 +9,7 @@ return [
         'token_status' => 1,
         'token_last_used_datetime' => null,
         'token_expiry_datetime' => null,
-        'token_created_datetime' => '1980-01-25T06:32:12+0300',
+        'token_created_datetime' => '1973-01-16 15:39:14',
     ],
     [
         'admin_id' => 2,
@@ -19,6 +19,6 @@ return [
         'token_status' => 1,
         'token_last_used_datetime' => null,
         'token_expiry_datetime' => null,
-        'token_created_datetime' => '1970-04-18T23:20:45+0300',
+        'token_created_datetime' => '1973-01-16 15:39:14',
     ],
 ];
