@@ -134,6 +134,10 @@ class Transfer extends ActiveRecord
             return $model->payment_received_on? Yii::$app->formatter->asDate($model->payment_received_on) : $model->payment_received_on;
         };
 
+        $fields['transfer_status'] = function($model) {
+            return (int) $model->transfer_status;
+        };
+        
         unset($fields['deleted']);
 
         return $fields;
