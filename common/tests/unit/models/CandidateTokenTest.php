@@ -10,6 +10,7 @@ use common\fixtures\UniversityFixture;
 use common\fixtures\StoreFixture;
 use Codeception\Specify;
 
+
 class CandidateTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
@@ -47,7 +48,6 @@ class CandidateTokenTest extends \Codeception\Test\Unit
             expect('Token is in the table', CandidateToken::findOne(['candidate_id'=>'1']))->notNull();
         });
 
-
         $this->specify('Test Validator', function() {
             $model = new CandidateToken();
             $model->validate();
@@ -74,7 +74,10 @@ class CandidateTokenTest extends \Codeception\Test\Unit
         });
 
         $this->specify('relation testing', function() {
-            expect('relative data testing', CandidateToken::findOne(['candidate_id'=>'1'])->getCandidate()->one()->candidate_email)->equals($this->tester->grabFixture('candidates', 0)->candidate_email);
+            
+            $candidate_email = CandidateToken::findOne(['candidate_id'=>'1'])->candidate->candidate_email;
+           
+            expect('relative data testing', $candidate_email)->equals($this->tester->grabFixture('candidates', 'candidate0')->candidate_email);
         });
     }
 }

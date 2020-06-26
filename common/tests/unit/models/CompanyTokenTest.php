@@ -63,7 +63,7 @@ class CompanyTokenTest extends \Codeception\Test\Unit
         });
 
         $this->specify('relation testing', function() {
-            expect('relative data testing', CompanyToken::findOne(['company_id'=>'1'])->getCompany()->one()->company_email)->equals($this->tester->grabFixture('company', 0)->company_email);
+            expect('relative data testing', CompanyToken::findOne(['company_id'=>'1'])->getCompany()->one()->company_email)->equals($this->tester->grabFixture('company', 'company0')->company_email);
         });
     }
 }

@@ -9,6 +9,7 @@ use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 use Codeception\Util\HttpCode;
 
+
 class AccountCest
 {
     public $token;
@@ -92,7 +93,7 @@ class AccountCest
     public function tryInvalidPasswordLength(FunctionalTester $I)
     {
         $I->amGoingTo('Validate Change Password for new password length');
-        $I->sendPOST('v1/account/change-password', array('old_password' => '123456', 'new_password' => '123'));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '12345', 'new_password' => '123'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "New password length should be great then equal to 5"]);
@@ -101,7 +102,7 @@ class AccountCest
     public function tryValidPassword(FunctionalTester $I)
     {
         $I->amGoingTo('Successful test for change password');
-        $I->sendPOST('v1/account/change-password', array('old_password' => '123456', 'new_password' => '1234567'));
+        $I->sendPOST('v1/account/change-password', array('old_password' => '12345', 'new_password' => '123456'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(["message" => "Password changed successfully!"]);
