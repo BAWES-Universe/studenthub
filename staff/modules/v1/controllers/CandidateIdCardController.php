@@ -2,16 +2,13 @@
 
 namespace staff\modules\v1\controllers;
 
-use Yii;
-use yii\helpers\Url;
-use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
+use Yii; 
+use yii\helpers\ArrayHelper; 
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use staff\models\CandidateIdCard;
-use common\components\Excel;
-use dosamigos\qrcode\QrCode;
+
 
 /**
  * CandidateIdcard controller - Manage Candidate ID as Staff
