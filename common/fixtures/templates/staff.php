@@ -6,5 +6,11 @@
 return [
     'staff_name' => $faker->firstName,
     'staff_email' => $faker->email,
-    'staff_password_hash' => Yii::$app->getSecurity()->generatePasswordHash('password_' . $index+1)
+    'staff_auth_key' => Yii::$app->getSecurity()->generateRandomString(),
+    'staff_password_hash' => Yii::$app->getSecurity()->generatePasswordHash('12345'),
+    'staff_password_reset_token' => Yii::$app->getSecurity()->generateRandomString(),
+    'staff_status' => 10,
+    'staff_created_at' => $faker->date('Y-m-d H:i:s'),
+    'staff_updated_at' => $faker->date('Y-m-d H:i:s'),
+    'deleted' => 0
 ];

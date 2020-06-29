@@ -76,4 +76,14 @@ class CompanyController extends Controller
             'query' => $query
         ]);
     }
+
+    /**
+     * Company Detail
+     * @param $id
+     * @return ActiveDataProvider
+     */
+    public function actionView($id)
+    {
+        return Company::findOne($id);
+    }
 }

@@ -90,7 +90,7 @@ class AuthController extends Controller
         return [
             "operation" => "success",
             "token" => $accessToken,
-            "id" => $staff->staff_id,
+            "staff_id" => $staff->staff_id,
             "name" => $staff->staff_name,
             "email" => $staff->staff_email
         ];

@@ -79,6 +79,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET detail/<id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH assign/<id>' => 'assign',
@@ -93,6 +94,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS detail/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',                        
                         'OPTIONS not-assigned' => 'options',
@@ -121,8 +123,10 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // BankController
@@ -142,9 +146,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET all' => 'all',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS all' => 'options'
+                        'OPTIONS all' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // CountryController
@@ -152,10 +158,12 @@ return [
                     'controller' => 'v1/country',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'GET all' => 'all',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS all' => 'options'
+                        'OPTIONS all' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // CandidateIdCardController
@@ -174,7 +182,7 @@ return [
                         'OPTIONS generate' => 'options',
                         'OPTIONS list-expired' => 'options',
                         'OPTIONS renew' => 'options',                        
-                        'OPTIONS total-expired' => 'options'
+                        'OPTIONS total-expired' => 'options',
                     ]
                 ],
             ],

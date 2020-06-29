@@ -85,4 +85,13 @@ class CountryController extends Controller
             ->listWithCandidateCount()
             ->all();
     }
+
+    /**
+     * detail
+     * without pagination.
+     */
+    public function actionView($id)
+    {
+        return Country::findOne($id);
+    }
 }

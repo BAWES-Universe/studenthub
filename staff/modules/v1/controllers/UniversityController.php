@@ -87,4 +87,13 @@ class UniversityController extends Controller
             ->notDeleted()
             ->all();
     }
+
+    /**
+     * Return a List of University Accounts available
+     * without pagination.
+     */
+    public function actionView($id)
+    {
+        return University::findOne($id);
+    }
 }

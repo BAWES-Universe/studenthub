@@ -491,4 +491,17 @@ class CandidateController extends Controller
 
         return $model;
     }
+
+    /**
+     * get candidate detail
+     * @param $id
+     */
+    public function actionView($id)
+    {
+        $model = Candidate::findOne($id);
+        if(!$model)
+            return [];
+
+        return $model;
+    }
 }
