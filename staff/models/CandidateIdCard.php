@@ -4,8 +4,9 @@ namespace staff\models;
 
 use yii\helpers\Url;
 use yii\helpers\FileHelper;
-use dosamigos\qrcode\QrCode;
 use common\components\Excel;
+use Da\QrCode\QrCode;
+
 
 /**
  * This is the model class for table "candidate_id_card".
@@ -76,12 +77,14 @@ class CandidateIdCard extends \common\models\CandidateIdCard
         FileHelper::createDirectory($path.'/QR');
 
         foreach ($candidates as $key => $value) {
-            QrCode::jpg(
-                'https://v.studenthub.co/'.$value->candidate_uid,
-                $path.'/QR/'.$value->employeeId.'.jpg',
-                0,
-                14
-            );
+            
+            $writer = new \Da\QrCode\Writer\JpgWriter();
+            
+            $qrCode = (new QrCode('https://v.studenthub.co/'.$value->candidate_uid, null, $writer))
+                ->setSize(250)
+                ->setMargin(5);
+
+            $qrCode->writeFile($path.'/QR/'.$value->employeeId.'.jpg');
         }
 
         // Add QR folder to zip

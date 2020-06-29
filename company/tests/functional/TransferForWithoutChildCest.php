@@ -1,8 +1,7 @@
 <?php
 namespace company\tests;
 
-use Yii;
-use common\fixtures\CompanyFixture;
+use Yii; 
 use common\fixtures\CompanyTokenFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
@@ -10,6 +9,7 @@ use company\models\Transfer;
 use company\models\Company;
 use common\components\Excel;
 use Codeception\Util\HttpCode;
+
 
 class TransferForWithoutChildCest
 {
