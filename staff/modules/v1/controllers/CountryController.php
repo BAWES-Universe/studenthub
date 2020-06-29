@@ -81,7 +81,7 @@ class CountryController extends Controller
      */
     public function actionAll()
     {
-        return Country::find()
+          return Country::find()
             ->listWithCandidateCount()
             ->all();
     }
