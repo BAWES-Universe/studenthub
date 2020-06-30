@@ -7,6 +7,7 @@ use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
 use Codeception\Util\HttpCode;
 
+
 class AuthCest
 {
     public $token;
@@ -37,7 +38,7 @@ class AuthCest
     {
     	$staff = Staff::find()->one();
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated($staff->staff_email, 'password_'.($staff->staff_id-1));
+        $I->amHttpAuthenticated($staff->staff_email, '12345');
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
