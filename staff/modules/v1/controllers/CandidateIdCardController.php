@@ -122,6 +122,13 @@ class CandidateIdCardController extends Controller
 
         $a = Yii::$app->request->getBodyParam('candidates');
 
+        if(!$a || !is_array($a)) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid Candidate Ids'
+            ];
+        }
+        
         foreach ($a as $key => $value)
         {
             if($value)
