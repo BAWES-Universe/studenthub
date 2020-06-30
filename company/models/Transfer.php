@@ -582,9 +582,8 @@ class Transfer extends \common\models\Transfer {
         $sub_companies = TransferCandidate::find()
             ->candidatesByTransfer($model->transfer_id)
             ->groupByCompany($model->company_id)
-            ->asArray()
-            ->all();
-
+            ->all(); 
+            
         /**
          * generate invoice for main transfer if no sub companies else generate
          * invoice for each sub companies
@@ -642,6 +641,7 @@ class Transfer extends \common\models\Transfer {
             // Save total in transfer
             $transfer->company_total = $company_total;
             $transfer->total = $total;
+
             if(!$transfer->save())
             {
                 if(empty(Yii::$app->params['inCodeception']))
