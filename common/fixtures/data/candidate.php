@@ -4,7 +4,7 @@ return [
     'candidate0' => [
         'candidate_id' => 1,
         'candidate_uid' => 30954809739,
-        'store_id' => 40,
+        'store_id' => 21,
         'bank_id' => 3,
         'university_id' => 1,
         'country_id' => 5,
@@ -34,7 +34,7 @@ Stromanborough, WV 00655-2270',
     'candidate1' => [
         'candidate_id' => 2,
         'candidate_uid' => 36516247647,
-        'store_id' => 2,
+        'store_id' => 21,
         'bank_id' => 1,
         'university_id' => 2,
         'country_id' => 3,
