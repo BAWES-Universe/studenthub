@@ -1,4 +1,5 @@
 <?php
+
 namespace staff\tests;
 
 use yii;
@@ -9,21 +10,21 @@ use common\fixtures\StaffTokenFixture;
 use common\fixtures\CandidateIdCardFixture;
 use Codeception\Util\HttpCode;
 
-class CandidateIdCardCest
-{
+
+class CandidateIdCardCest {
+
     public $token;
 
-	public function _fixtures()
-	{
-		return [
-			'staffToken'      => StaffTokenFixture::className(),
-			'candidateIdCard' => CandidateIdCardFixture::className()
-		];
-	}
+    public function _fixtures() {
+        return [
+            'staffToken' => StaffTokenFixture::className(),
+            'candidateIdCard' => CandidateIdCardFixture::className()
+        ];
+    }
 
-	public function _before(FunctionalTester $I)
-	{
-		Yii::$app->params['inCodeception'] = true;
+    public function _before(FunctionalTester $I) {
+        Yii::$app->params['inCodeception'] = true;
+        
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
@@ -35,8 +36,7 @@ class CandidateIdCardCest
      * List Candidates having ID Cards
      * @param FunctionalTester $I
      */
-    public function listCandidatesHavingIdCards(FunctionalTester $I)
-    {
+    public function listCandidatesHavingIdCards(FunctionalTester $I) {
         $I->wantTo('List Candidates having ID Cards');
         $I->sendGET('v1/candidate-id-cards/list-candidate-ids?page=1&candidate_name=');
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -46,8 +46,7 @@ class CandidateIdCardCest
      * List Candidates to Generate ID Cards
      * @param FunctionalTester $I
      */
-    public function listCandidatesToGenerateIdCards(FunctionalTester $I)
-    {
+    public function listCandidatesToGenerateIdCards(FunctionalTester $I) {
         $I->wantTo('List Candidates to Generate ID Cards');
         $I->sendGET('v1/candidate-id-cards/list-candidates');
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -57,12 +56,11 @@ class CandidateIdCardCest
      * Generate ID Cards
      * @param FunctionalTester $I
      */
-    public function tryToGenerateIdCards(FunctionalTester $I)
-    {
+    public function tryToGenerateIdCards(FunctionalTester $I) {
         //candidate not having cards
         $candidates = Candidate::find()
-            ->where('candidate_id NOT IN(select candidate_id from candidate_id_card)')
-            ->all();
+                ->where('candidate_id NOT IN(select candidate_id from candidate_id_card)')
+                ->all();
 
         $arrCandidates = ArrayHelper::map($candidates, 'candidate_id', 'candidate_id');
 
@@ -77,8 +75,7 @@ class CandidateIdCardCest
      * List Expired ID
      * @param FunctionalTester $I
      */
-    public function listExpiredIdCards(FunctionalTester $I)
-    {
+    public function listExpiredIdCards(FunctionalTester $I) {
         $I->wantTo('List Expired ID');
         $I->sendGET('v1/candidate-id-cards/list-expired');
         $I->seeResponseCodeIs(HttpCode::OK);
@@ -88,8 +85,7 @@ class CandidateIdCardCest
      * Renew ID Cards
      * @param FunctionalTester $I
      */
-    public function renewIDCards(FunctionalTester $I)
-    {
+    public function renewIDCards(FunctionalTester $I) {
         $arrCandidates = [1, 2];
 
         $I->wantTo('Renew ID Cards');
@@ -103,10 +99,10 @@ class CandidateIdCardCest
      * Total Expired ID
      * @param FunctionalTester $I
      */
-    public function getTotalExpiredIdCards(FunctionalTester $I)
-    {
+    public function getTotalExpiredIdCards(FunctionalTester $I) {
         $I->wantTo('List Expired ID');
         $I->sendGET('v1/candidate-id-cards/total-expired');
         $I->seeResponseCodeIs(HttpCode::OK);
     }
+
 }

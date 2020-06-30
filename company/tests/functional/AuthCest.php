@@ -26,7 +26,7 @@ class AuthCest
     public function tryToLogin(FunctionalTester $I)
     {
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated('company3@bawes.net', '123456');
+        $I->amHttpAuthenticated('ukertzmann@leffler.net', '12345');
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();

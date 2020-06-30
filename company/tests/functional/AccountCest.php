@@ -32,7 +32,7 @@ class AccountCest
         $I->wantTo('trying to change password');
         $I->amBearerAuthenticated($this->token);
         $I->sendPOST('v1/account/change-password', [
-            'old_password' => '123456',
+            'old_password' => '12345',
             'new_password' => 'newPassword'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200

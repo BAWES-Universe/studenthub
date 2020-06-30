@@ -107,6 +107,7 @@ class TransferTest extends \Codeception\Test\Unit
         // Transfer Model Without Child Company ============================================
 
         $this->specify('Transfer model without child company', function () {
+
             $transfer = Transfer::find()
                 ->where([
                     'company_id' => 3,
@@ -127,14 +128,14 @@ class TransferTest extends \Codeception\Test\Unit
                 ->getTransferCandidates()
                 ->sum('(candidate_hourly_rate * hours) + bonus + transfer_cost');
 
-            expect('Testing transfer total field', $total)
+            expect('Testing transfer total field', number_format($total, 3, '.', ''))
                 ->equals($transfer->total);
 
             $company_total = $transfer
                 ->getTransferCandidates()
                 ->sum('(company_hourly_rate * hours) + bonus');
 
-            expect('Testing transfer company total field', $company_total)
+            expect('Testing transfer company total field', number_format($company_total, 3, '.', ''))
                 ->equals($transfer->company_total);
         });
 
@@ -151,7 +152,7 @@ class TransferTest extends \Codeception\Test\Unit
 
             $companiesCount = $transfer
                 ->getTransferCandidates()
-                ->groupBy('company_id')
+                ->groupByCompany($transfer->company_id)
                 ->count();
 
             //generate invoice
@@ -172,14 +173,14 @@ class TransferTest extends \Codeception\Test\Unit
                 ->getTransferCandidates()
                 ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission + transfer_cost');
 
-            expect('Testing main transfer total field', $total)
+            expect('Testing main transfer total field', number_format($total, 3, '.', ''))
                 ->equals($transfer->total);
 
             $company_total = $transfer
                 ->getTransferCandidates()
                 ->sum('(company_hourly_rate * hours) + bonus');
 
-            expect('Testing main transfer company total field', $company_total)
+            expect('Testing main transfer company total field', number_format($company_total, 3, '.', ''))
                 ->equals($transfer->company_total);
 
             //for child transfer
@@ -190,14 +191,14 @@ class TransferTest extends \Codeception\Test\Unit
                     ->getTransferCandidates()
                     ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission + transfer_cost');
 
-                expect('Testing child transfer total field', $total)
+                expect('Testing child transfer total field', number_format($total, 3, '.', ''))
                     ->equals($childTransfer->total);
 
                 $company_total = $childTransfer
                     ->getTransferCandidates()
                     ->sum('(company_hourly_rate * hours) + bonus');
 
-                expect('Testing child transfer company total field', $company_total)
+                expect('Testing child transfer company total field', number_format($company_total, 3, '.', ''))
                     ->equals($childTransfer->company_total);
             }
         });
@@ -264,8 +265,11 @@ class TransferTest extends \Codeception\Test\Unit
             expect('Transfer should saved', $result)->hasKey('transfer_id');
 
             $transfer = Transfer::findOne($result['transfer_id']);
-            expect('Transfer total - admin will pay', $transfer->total)->equals($total);
-            expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+
+            expect('Transfer total - admin will pay', $transfer->total)
+                ->equals(number_format($total, 3, '.', ''));
+
+            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
         });
 
 
@@ -316,8 +320,11 @@ class TransferTest extends \Codeception\Test\Unit
             expect('Transfer should saved', $result)->hasKey('transfer_id');
 
             $transfer = Transfer::findOne($result['transfer_id']);
-            expect('Transfer total - admin will pay', $transfer->total)->equals($total);
-            expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+
+            expect('Transfer total - admin will pay', $transfer->total)
+                ->equals(number_format($total, 3, '.', ''));
+
+            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
         });
     }
 
@@ -380,8 +387,11 @@ class TransferTest extends \Codeception\Test\Unit
             expect('Transfer should updated', $result['message'])->contains('Your transfer has been updated.');
 
             $transfer = Transfer::findOne($TransferID);
-            expect('Transfer total - admin will pay', $transfer->total)->equals($total);
-            expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+            
+            expect('Transfer total - admin will pay', $transfer->total)
+                ->equals(number_format($total, 3, '.', ''));
+
+            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
 
             //check invoice after update
 
@@ -442,8 +452,11 @@ class TransferTest extends \Codeception\Test\Unit
             expect('Transfer should updated', $result['message'])->contains('Your transfer has been updated.');
 
             $transfer = Transfer::findOne($TransferID);
-            expect('Transfer total - admin will pay', $transfer->total)->equals($total);
-            expect('Transfer company total - company will pay', $transfer->company_total)->equals($company_total);
+            
+            expect('Transfer total - admin will pay', $transfer->total)
+                ->equals(number_format($total, 3, '.', ''));
+
+            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
 
             //check invoice after update
 
@@ -453,7 +466,6 @@ class TransferTest extends \Codeception\Test\Unit
         });
 
     }
-
 
     public function testFixtureLoaded(){
         expect('is file exist',Transfer::findOne(9))->notNull();
@@ -491,11 +503,9 @@ class TransferTest extends \Codeception\Test\Unit
         expect('Transfer should return error', $result['message'])->contains('Candidate not found');
     }
 
-
     /**
      * Fail For Zero Total
      */
-
     public function testFailUpdateTransferForTotalZeroWhenCompanyWithChild()
     {
         $TransferID = 9;

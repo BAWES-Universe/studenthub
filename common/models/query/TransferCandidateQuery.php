@@ -119,8 +119,10 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function groupByCompany($company_id) {
-        return $this->andWhere(['!=', '{{%transfer_candidate}}.company_id', $company_id])
-            ->groupBy('{{%transfer_candidate}}.company_id');
+        return $this->select('{{%transfer_candidate}}.company_id')
+            ->distinct()
+            //hide main company 
+            ->andWhere(['!=', '{{%transfer_candidate}}.company_id', $company_id]);
     }
 
     /**
