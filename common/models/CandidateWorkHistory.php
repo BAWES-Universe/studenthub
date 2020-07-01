@@ -123,6 +123,13 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     }
 
 
+    public function extraFields()
+    {
+        return [
+            'store'
+        ];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

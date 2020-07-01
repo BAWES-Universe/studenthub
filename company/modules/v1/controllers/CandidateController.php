@@ -73,15 +73,7 @@ class CandidateController extends Controller
     {
         $company = Company::findOne(Yii::$app->user->id);
         
-        return $company->getCandidates()
-            ->with([
-                'store',
-                'university',
-                'country',
-                'company'
-            ])    
-            ->asArray(false)    
-            ->all();
+        return $company->getCandidates()->all();
     }
 
     /**
@@ -105,8 +97,6 @@ class CandidateController extends Controller
     {
         $model = CandidateWorkHistory::find()
             ->filterCandidate($id)
-            ->with('store')
-            ->asArray()
             ->all();
 
         if(!$model)

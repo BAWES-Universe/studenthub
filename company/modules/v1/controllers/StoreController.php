@@ -67,11 +67,6 @@ class StoreController extends Controller
     public function actionView($id)
     {
         return $query = Store::findOne($id);
-//            ->where(['store_id' => $id]);
-//
-//        return new ActiveDataProvider([
-//            'query' => $query
-//        ]);
     }
     
     /**
@@ -104,13 +99,13 @@ class StoreController extends Controller
         }       
 
         $query = Store::find()
-            ->with([
-                'candidates', 
-                'candidates.store', 
-                'candidates.company', 
-                'candidates.bank',
-                'candidates.university'
-            ])    
+//            ->with([
+//                'candidates',
+//                'candidates.store',
+//                'candidates.company',
+//                'candidates.bank',
+//                'candidates.university'
+//            ])
             ->filterCompany($companyId);
 
         return new ActiveDataProvider([
@@ -123,19 +118,20 @@ class StoreController extends Controller
      */
     public function actionIndex()
     {
+
         $company = Company::findOne(Yii::$app->user->id);
         
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
 
             $query = $company
-                ->getSubCompanies()
-                ->with([
-                    'stores.candidates', 
-                    'stores.candidates.store', 
-                    'stores.candidates.company', 
-                    'stores.candidates.bank',
-                    'stores.candidates.university'
-                ]);
+                ->getSubCompanies();
+//                ->with([
+//                    'stores.candidates',
+//                    'stores.candidates.store',
+//                    'stores.candidates.company',
+//                    'stores.candidates.bank',
+//                    'stores.candidates.university'
+//                ]);
 
             return new ActiveDataProvider([
                 'query' => $query
@@ -146,14 +142,14 @@ class StoreController extends Controller
         if (isset($company->stores) && count($company->stores)>0) {
 
             $query = $company
-                ->getStores()
-                ->with([
-                    'candidates', 
-                    'candidates.store', 
-                    'candidates.company', 
-                    'candidates.bank',
-                    'candidates.university'
-                ]);
+                ->getStores();
+//                ->with([
+//                    'candidates',
+//                    'candidates.store',
+//                    'candidates.company',
+//                    'candidates.bank',
+//                    'candidates.university'
+//                ]);
             
             return new ActiveDataProvider([
                 'query' => $query
