@@ -4,8 +4,8 @@ return [
         'db' => [
             'class' => 'yii\db\Connection',
             'dsn' => 'mysql:host=127.0.0.1;dbname=payroll',
-            'username' => 'payrollUser',
-            'password' => 'pay',
+            'username' => 'root',
+            'password' => '',
             'charset' => 'utf8',
         ],
         'mailer' => [

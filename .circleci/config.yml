@@ -5,36 +5,47 @@
 version: 2
 jobs:
   build:
+    branches:
+      only:
+        - master
+        - develop
     docker:
       # specify the version you desire here
-      - image: circleci/php:7.1.9
+      - image: circleci/php:7.4-apache-node-browsers
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
+    #older: 7.3-apache-stretch-node-browsers
+
       - image: circleci/mysql:5.7
         environment:
-            MYSQL_DATABASE: payroll_test
-            MYSQL_HOST: 127.0.0.1
-            MYSQL_USER: payrollUser
-            MYSQL_PASSWORD: pay
-            MYSQL_ROOT_HOST: "%"
-            MYSQL_ROOT_PASSWORD: pay
+          MYSQL_DATABASE: payroll_test
+          MYSQL_USER: root
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
         command:
-            mysqld --sql-mode=NO_ENGINE_SUBSTITUTION
+            mysqld --sql-mode=NO_ENGINE_SUBSTITUTION --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true
 
-    working_directory: ~/payroll
+    # Specify Server Type. Keep it as small as possible to reduce costs
+    resource_class: small
+
+    working_directory: ~/studenthub
 
     steps:
       - checkout
 
-      # Install additional PHP modules
-      - run: sudo apt-get update
-      - run: sudo apt-get install libpng-dev libmcrypt-dev libreadline-dev mysql-client zip zlib1g-dev
-      - run: sudo docker-php-ext-install gd
-      - run: sudo docker-php-ext-install zip
-      - run: sudo docker-php-ext-install mcrypt && sudo docker-php-ext-enable mcrypt
-      - run: sudo docker-php-ext-install pdo_mysql && sudo docker-php-ext-enable pdo_mysql
+      - run:
+          name: Install things we need
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client
+
+      - run:
+          name: Install PHP exts
+          command: |
+            sudo docker-php-ext-install zip
+            sudo docker-php-ext-install gd
+            sudo apt-get install
+            sudo docker-php-ext-install pdo_mysql && sudo docker-php-ext-enable pdo_mysql
+        # sudo docker-php-ext-configure intl
+        # sudo docker-php-ext-install intl
 
       # Download and cache dependencies
       - restore_cache:
@@ -60,6 +71,56 @@ jobs:
           name: Install DB Migrations
           command: ./yii_test migrate --interactive=0
 
+
+      #---------- staff app --------------#
+
       - run:
-          name: Run Codeception Tests
-          command: ./vendor/bin/codecept run --debug
+          name: Run Staff app Codeception functional tests and store result output
+          command: cd ./staff && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run Staff app Codeception tests and store result output
+         command: ./vendor/bin/codecept run staff/tests/unit --xml --html --fail-fast
+
+      #---------- company app --------------#
+
+      - run:
+          name: Run Company app Codeception functional tests and store result output
+          command: cd ./company && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run Company app Codeception tests and store result output
+         command: ./vendor/bin/codecept run company/tests/unit --xml --html --fail-fast
+
+      #---------- admin app --------------#
+
+      - run:
+          name: Run Admin app Codeception functional tests and store result output
+          command: cd ./admin && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run Codeception tests and store result output
+         command: cd ./admin && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- candidate app --------------#
+
+      - run:
+          name: Run User app Codeception functional tests and store result output
+          command: cd ./candidate && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run Candidate app Codeception unit tests and store result output
+         command: cd ./candidate && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- common --------------#
+
+      - run:
+          name: Run Codeception tests and store result output
+          command: cd ./common && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      - store_test_results:
+         path: ~/tamr/console/runtime/logs
+
+      - store_artifacts:
+         path: ~/tamr/console/runtime/logs/report.html
+         destination: report
