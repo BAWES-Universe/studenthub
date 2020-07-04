@@ -119,8 +119,8 @@ jobs:
           command: cd ./common && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
       - store_test_results:
-         path: ~/tamr/console/runtime/logs
+         path: ~/studenthub/console/runtime/logs
 
       - store_artifacts:
-         path: ~/tamr/console/runtime/logs/report.html
+         path: ~/studenthub/console/runtime/logs/report.html
          destination: report
