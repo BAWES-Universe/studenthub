@@ -112,7 +112,7 @@ jobs:
          name: Run Candidate app Codeception unit tests and store result output
          command: cd ./candidate && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
-      #---------- common --------------#
+      #---------- common ---------------#
 
       - run:
           name: Run Codeception tests and store result output
