@@ -78,11 +78,10 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             }
             
             $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id);
-            
-            //webkit2png on local 
-            //"cd " . $path . " && 
-            
-            exec("./webkit2png.py -o ". $value->candidate_uid ." -F -W 1000 -H 1000 " . $card_url);
+
+            $webkitPath = Yii::getAlias('@app') . '/../webkit2png.py';
+
+            exec("python " .$webkitPath . " -D " . $path . " --ignore-ssl-check --debug -o ". $value->candidate_uid ." -F -W 564 -H 1738 " . $card_url);
         }
 
         // Add QR folder to zip
