@@ -45,7 +45,7 @@ class CandidateIdCardController extends Controller
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options', 'view'];
 
         return $behaviors;
     }
@@ -65,6 +65,20 @@ class CandidateIdCardController extends Controller
         return $actions;
     }
 
+    /**
+     * View ID card detail
+     */
+    public function actionView($id)
+    {
+        $model = $this->findModel($id);
+        
+        Yii::$app->response->format = yii\web\Response::FORMAT_HTML;
+        
+        return $this->renderPartial('view', [
+            'model' => $model,
+        ]);
+    }
+    
     /**
      * List candidates having ID Cards
      */
@@ -175,7 +189,7 @@ class CandidateIdCardController extends Controller
             ->where(['in', 'candidate_id', $candidate_ids])
             ->all();
 
-        $result = CandidateIdCard::createZip($candidates);
+        $result = CandidateIdCard::createIdCards($candidates);
 
         if($result['operation'] == 'error')
             return $result;
@@ -279,5 +293,21 @@ class CandidateIdCardController extends Controller
         return [
             'total' => $query->count()
         ];
+    }
+    
+    /**
+     * Finds the Candidate ID model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return CandidateIdCard the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    private function findModel($id) 
+    {
+        if (($model = CandidateIdCard::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

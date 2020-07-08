@@ -177,13 +177,14 @@ return [
                         'GET list-expired' => 'list-expired',
                         'POST renew' => 'renew',                                                
                         'GET total-expired' => 'total-expired',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS list-candidate-ids' => 'options',
                         'OPTIONS list-candidates' => 'options',
                         'OPTIONS generate' => 'options',
                         'OPTIONS list-expired' => 'options',
                         'OPTIONS renew' => 'options',                        
-                        'OPTIONS total-expired' => 'options',
+                        'OPTIONS total-expired' => 'options'
                     ]
                 ],
             ],

@@ -3,9 +3,9 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=payroll',
+            'dsn' => 'mysql:host=localhost:8889;dbname=studenthub',
             'username' => 'root',
-            'password' => '12345678',
+            'password' => 'root',
             'charset' => 'utf8',
         ],
         'mailer' => [
@@ -20,7 +20,7 @@ return [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'baseUrl' => 'http://localhost:8888/bawes/studenthub/staff/web/v1',
+            'baseUrl' => 'https://payroll-staff.dev.studenthub.co/v1',
         ],
     ],
 ];
