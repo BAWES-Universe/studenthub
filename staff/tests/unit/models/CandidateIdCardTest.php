@@ -40,7 +40,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit {
     /**
      * CandidateIdCard model function to generate
      * zip file containing ID Card details
-     */
+     *
     public function testGenerateZipFile() {
         $candidates = Candidate::find()
                 ->limit(2)
@@ -48,7 +48,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit {
 
         $result = CandidateIdCard::createIdCards($candidates);
         expect('Check generating zip', file_exists($result['zip']))->true();
-    }
+    }*/
 
     /**
      * Tests Create for New Candidate ID Card with existing candidate id in table
