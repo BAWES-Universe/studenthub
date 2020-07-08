@@ -21,5 +21,4 @@ class Module extends \yii\base\Module
 
         //Can Initialize / add params to this module here
     }
-
 }

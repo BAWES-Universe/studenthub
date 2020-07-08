@@ -2,6 +2,7 @@
 
 namespace staff\models;
 
+use Yii;
 use yii\helpers\Url;
 use yii\helpers\FileHelper;
 use common\components\Excel;
@@ -44,6 +45,56 @@ class CandidateIdCard extends \common\models\CandidateIdCard
         return parent::getCandidate($modelClass);
     }
 
+    /**
+     * Create Zip of Id Cards
+     * @param  [type] $candidates [description]
+     * @return [type]             [description]
+     */
+    public static function createIdCards($candidates)
+    {
+        $path = sys_get_temp_dir().'/'.time();
+
+        FileHelper::createDirectory($path);
+
+        // Create zip
+        $zipname = 'IdCards.zip';
+        $zip = new \ZipArchive();
+        if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
+        {
+            Yii::$app->response->statusCode = 500;
+
+            return [
+                'operation' => 'error',
+                'message' => 'Cannot create a zip file'
+            ];
+        }
+
+        // Create card images
+        
+        foreach ($candidates as $key => $value) {
+            
+            if(!$value->candidateIdCard) {
+                continue;
+            }
+            
+            $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id);
+            
+            exec("cd " . $path . " && webkit2png -o ". $value->candidate_uid ." -F -W 100 -H 100 " . $card_url);
+        }
+
+        // Add QR folder to zip
+        foreach (glob($path.'/*') as $file) {
+            $zip->addFile($file, basename($file));
+        }
+
+        $zip->close();
+
+        return [
+            'operation' => 'success',
+            'zip' => $path.'/'.$zipname
+        ];
+    }
+    
     /**
      * Create Zip
      * @param  [type] $candidates [description]

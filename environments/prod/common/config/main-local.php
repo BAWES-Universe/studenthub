@@ -20,6 +20,12 @@ return [
                 'encryption' => 'tls',
             ],
         ],
+        'urlManagerStaff' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => 'https://payroll-staff.studenthub.co/v1',
+        ],
         'log' => [
             'targets' => [
                 [
