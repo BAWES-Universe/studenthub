@@ -40,8 +40,8 @@ jobs:
       - run:
           name: Install webkit2png
           command: |
-            sudo apt-get install -y python-pip
-            pip install webkit2png
+            sudo apt-get install -y python-pip python-qt4 libqtwebkit4
+            pip install git+https://github.com/adamn/python-webkit2png.git
 
       - run:
           name: Install PHP exts
