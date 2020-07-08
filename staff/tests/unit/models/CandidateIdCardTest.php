@@ -46,7 +46,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit {
                 ->limit(2)
                 ->all();
 
-        $result = CandidateIdCard::createZip($candidates);
+        $result = CandidateIdCard::createIdCards($candidates);
         expect('Check generating zip', file_exists($result['zip']))->true();
     }
 
