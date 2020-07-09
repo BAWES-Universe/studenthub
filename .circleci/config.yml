@@ -38,12 +38,6 @@ jobs:
             sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client
 
       - run:
-          name: Install webkit2png
-          command: |
-            sudo apt-get install -y python-pip python-qt4 libqtwebkit4
-            pip install git+https://github.com/adamn/python-webkit2png.git
-
-      - run:
           name: Install PHP exts
           command: |
             sudo docker-php-ext-install zip

@@ -215,11 +215,11 @@ class CandidateIdCardController extends Controller
                 'message' => 'Zip file not exist',
                 'cardUrl' => Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/")
             ];
+
+        } else {// Download Zip File
+
+            return Yii::$app->response->sendFile($result['zip']);
         }
-
-        // Download Zip File
-
-        return Yii::$app->response->sendFile($result['zip']);
     }
 
     /**

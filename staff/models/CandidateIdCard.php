@@ -7,6 +7,7 @@ use yii\helpers\Url;
 use yii\helpers\FileHelper;
 use common\components\Excel;
 use Da\QrCode\QrCode;
+use Spatie\Browsershot\Browsershot;
 
 
 /**
@@ -77,12 +78,13 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 continue;
             }
             
-            $card_url = "https://google.com";//Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id);
+            $token = 'Jkha-8D9zD1nEfRbxV4G9N2fmK4GHNfr';//Yii::$app->user->identity->accessTokens[0]->token_value;
 
-            $webkitPath = Yii::getAlias('@app') . '/../webkit2png.py';
+            $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
-            // --debug
-            exec("python " .$webkitPath . " -D " . $path . " --ignore-ssl-check -o ". $value->candidate_uid ." -F -W 564 -H 1738 " . $card_url);
+            //-W 564 -H 1738
+
+            Browsershot::url($card_url)->save($path. '/' . $value->candidate_uid .'.png');
         }
 
         // Add QR folder to zip
