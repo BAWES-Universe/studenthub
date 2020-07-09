@@ -79,9 +79,12 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             $token = Yii::$app->user->identity->accessTokens[0]->token_value;
             $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
+            $card_url = "https://google.com";//Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id);
+
             $webkitPath = Yii::getAlias('@app') . '/../webkit2png.py';
 
-            exec("python " .$webkitPath . " -D " . $path . " --ignore-ssl-check --debug -o ". $value->candidate_uid ." -F -W 564 -H 1738 " . $card_url);
+            // --debug
+            exec("python " .$webkitPath . " -D " . $path . " --ignore-ssl-check -o ". $value->candidate_uid ." -F -W 564 -H 1738 " . $card_url);
         }
 
         // Add QR folder to zip
