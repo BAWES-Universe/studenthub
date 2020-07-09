@@ -33,11 +33,11 @@ $nameSections = mb_split( ' ',$model->candidate->candidate_name_ar);
     <div class="top-part">
         <span class="code"><?=$model->candidate->candidate_uid?></span>
         <div class="image">
-            <?php /*if ($model->candidate->candidate_personal_photo) { ?>
+            <?php if ($model->candidate->candidate_personal_photo) { ?>
                 <img onerror="this.src='../../../img/no_image.png';"  src="https://sh-payroll.s3.eu-west-2.amazonaws.com/"<?=$model->candidate->candidate_personal_photo; ?> style="width: 100%">
-            <?php } else  { */
+            <?php } else  {
                 echo \yii\helpers\Html::img('@web/img/no_image.png',['style'=>'width: 100%']);
-            //} ?>
+            } ?>
         </div>
         <span class="name-top">
             <?=(isset($nameSections[0])) ? $nameSections[0] : '-'?>
