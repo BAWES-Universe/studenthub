@@ -78,7 +78,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 continue;
             }
             
-            $token = 'Jkha-8D9zD1nEfRbxV4G9N2fmK4GHNfr';//Yii::$app->user->identity->accessTokens[0]->token_value;
+            $token = Yii::$app->user->identity->accessTokens[0]->token_value;
 
             $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 

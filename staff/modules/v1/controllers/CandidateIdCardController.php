@@ -2,7 +2,9 @@
 
 namespace staff\modules\v1\controllers;
 
-use Yii; 
+use common\models\Staff;
+use Da\QrCode\QrCode;
+use Yii;
 use yii\helpers\ArrayHelper; 
 use yii\web\NotFoundHttpException;
 use yii\rest\Controller;
@@ -69,17 +71,27 @@ class CandidateIdCardController extends Controller
     /**
      * View ID card detail
      */
-    public function actionView($id)
+    public function actionView($id, $token)
     {
+        if (!$this->loginByAccessToken($token)) {
+            throw new \yii\web\ForbiddenHttpException('Invalid Access');
+            exit;
+        }
         $model = $this->findModel($id);
-        
+
         Yii::$app->response->format = yii\web\Response::FORMAT_HTML;
-        
+
+        $writer = new \Da\QrCode\Writer\JpgWriter();
+        $qrCode = (new QrCode('https://v.studenthub.co/'.$id, null, $writer))
+            ->setSize(250)
+            ->setMargin(5);
+
         return $this->renderPartial('view', [
             'model' => $model,
+            'qrCode' => $qrCode,
         ]);
     }
-    
+
     /**
      * List candidates having ID Cards
      */
@@ -311,7 +323,22 @@ class CandidateIdCardController extends Controller
             'total' => $query->count()
         ];
     }
-    
+
+    /**
+     * @param $token
+     * @param null $type
+     * @return mixed|\yii\web\IdentityInterface|null
+     */
+    public function loginByAccessToken($token, $type = null)
+    {
+        $identity = Staff::findIdentityByAccessToken($token, $type);
+        if ($identity && Yii::$app->user->login($identity)) {
+            return $identity;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Finds the Candidate ID model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
