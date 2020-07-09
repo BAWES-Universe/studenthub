@@ -77,7 +77,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 continue;
             }
             
-            $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id);
+            $card_url = "https://google.com";//Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id);
 
             $webkitPath = Yii::getAlias('@app') . '/../webkit2png.py';
 
