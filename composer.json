@@ -1,5 +1,5 @@
 {
-    "name": "BAWES/payroll",
+    "name": "bawes/payroll",
     "description": "Payroll Application for Studenthub Training Program",
     "version": "1.2.2",
     "keywords": ["payroll", "payment", "transfers"],

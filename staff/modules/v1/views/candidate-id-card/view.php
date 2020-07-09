@@ -2,7 +2,7 @@
 <head>
     <title>ID Card</title>
     <style>
-        body {background: #000;}
+        html,body {background: #fff;padding:0;margin:0;}
         .front-card {width:566px; float:left;margin-right: 22px;margin-bottom: 50px}
         .top-part{background: #3D4AB8;min-height:491px;text-align: center;position: relative;}
         .code{position: absolute;left: 9px;writing-mode: vertical-rl;text-orientation: mixed;top: 20px;font-size: 31px;color: #E0E0E0;}

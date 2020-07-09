@@ -53,7 +53,13 @@ class CandidateIdCard extends \common\models\CandidateIdCard
      */
     public static function createIdCards($candidates)
     {
-        $path = sys_get_temp_dir().'/'.time();
+        $path = sys_get_temp_dir().'/id-cards/';
+
+        //remove old content
+
+        FileHelper::removeDirectory($path);
+
+        //create directory if not exists 
 
         FileHelper::createDirectory($path);
 
@@ -84,7 +90,9 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
             //-W 564 -H 1738
 
-            Browsershot::url($card_url)->save($path. '/' . $value->candidate_uid .'.png');
+            Browsershot::url($card_url)
+                ->windowSize(1154, 864)
+                ->save($path. '/' . $value->candidate_uid .'.png');
         }
 
         // Add QR folder to zip
