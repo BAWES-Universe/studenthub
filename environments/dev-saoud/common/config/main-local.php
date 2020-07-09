@@ -20,7 +20,7 @@ return [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'baseUrl' => 'https://payroll-staff.dev.studenthub.co/v1',
+            'baseUrl' => 'http://payroll-staff.dev.studenthub.co/v1',
         ],
     ],
 ];
