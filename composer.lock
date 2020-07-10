@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7fc9b2b113fa48a3902756e29c042a3e",
+    "content-hash": "43dfd29970cc6554db955be13f96145c",
     "packages": [
         {
             "name": "2amigos/yii2-qrcode-helper",
@@ -76,16 +76,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.145.3",
+            "version": "3.145.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "69b7e99246c64d75b16dd3e926da0ea9f73088ad"
+                "reference": "3c5a921f0de917f9fc3d51b2970106d3abfc6b8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/69b7e99246c64d75b16dd3e926da0ea9f73088ad",
-                "reference": "69b7e99246c64d75b16dd3e926da0ea9f73088ad",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3c5a921f0de917f9fc3d51b2970106d3abfc6b8f",
+                "reference": "3c5a921f0de917f9fc3d51b2970106d3abfc6b8f",
                 "shasum": ""
             },
             "require": {
@@ -157,7 +157,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2020-07-08T18:13:01+00:00"
+            "time": "2020-07-09T18:13:42+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",

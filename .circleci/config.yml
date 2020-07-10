@@ -43,8 +43,8 @@ jobs:
             sudo docker-php-ext-install zip
             sudo docker-php-ext-install gd
             sudo apt-get install
-            sudo docker-php-ext-install pdo_mysql  exif && sudo docker-php-ext-enable pdo_mysql
-        #sudo docker-php-ext-install ext-exif mbstring
+            sudo docker-php-ext-install pdo_mysql exif && sudo docker-php-ext-enable pdo_mysql
+        #sudo docker-php-ext-install libonig-dev mbstring exif
         # sudo docker-php-ext-configure intl
         # sudo docker-php-ext-install intl
 
