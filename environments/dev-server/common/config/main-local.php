@@ -26,7 +26,7 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'http://payroll-staff.dev.studenthub.co/v1',
         ],
-        /*'log' => [
+        'log' => [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
@@ -35,8 +35,17 @@ return [
                     'clientOptions' => [
                         //which environment are we running this on?
                         'environment' => 'dev-server',
+                            
+                        'excluded_exceptions' => [
+                            'yii\web\BadRequestHttpException',
+                            'yii\web\UnauthorizedHttpException',
+                            'yii\web\NotFoundHttpException',
+                            'yii\web\HttpException:400',
+                            'yii\web\HttpException:401',
+                            'yii\web\HttpException:404',
+                        ],
                         // Disable notifications for malicious errors from 3rd party
-                        'send_callback' => function($data) {
+                        /*'send_callback' => function($data) {
                             // Error Types to Ignore
                             $ignore_types = [
                                 'yii\web\NotFoundHttpException',
@@ -49,11 +58,11 @@ return [
                             ){
                                 return false;
                             }
-                        },
+                        },*/
                     ],
                     'context' => true // Write the context information. The default is true.
                 ],
             ],
-        ],*/
+        ],
     ],
 ];
