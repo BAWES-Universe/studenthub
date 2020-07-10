@@ -26,7 +26,7 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'http://payroll-staff.dev.studenthub.co/v1',
         ],
-        'log' => [
+        /*'log' => [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
@@ -54,6 +54,6 @@ return [
                     'context' => true // Write the context information. The default is true.
                 ],
             ],
-        ],
+        ],*/
     ],
 ];
