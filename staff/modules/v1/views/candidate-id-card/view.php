@@ -39,30 +39,26 @@ $nameSections = mb_split( ' ',$model->candidate->candidate_name_ar);
                 font-family: 'Droid Arabic Kufi', 'effra', sans-serif;
                 background: #fff;padding:0;margin:0;
             }
-            .front-card {width:1132px; float:left;margin-right: 44px;margin-bottom: 100px}
-            .top-part{background: #3D4AB8;min-height:982px;text-align: center;position: relative;}
-            .code{position: absolute;left: 18px;writing-mode: vertical-rl;text-orientation: mixed;top: 40px;font-size: 62px;color: #E0E0E0;}
-            .image{width: 396px; overflow: hidden; border-radius: 50%;position: absolute;top: 20%;left: 33%;border: 10px solid #fff;}
-            .name-top{font-size: 120px; position: absolute; right: 84px; bottom: 2px; color: #fff;}
-            .bottom-part{background: #fff; height: 756px; position: relative;}
-            .name-bottom{position: absolute; right: 84px; top: 8px; font-size: 120px;}
-            .back-card {width:1132px;float: left;background: #fff;margin-bottom: 100px;position: relative;padding-bottom: 14px;}
-            .qr-code {text-align: center;padding-top: 144px;}
+            .front-card {width:638px; height:1011px; float:left;margin-right: 44px;margin-bottom: 100px;}
+            .top-part{background: #3D4AB8;min-height:599px;text-align: center;position: relative;}
+            .code{position: absolute;left: 18px;writing-mode: vertical-rl;text-orientation: mixed;top: 40px;font-size: 36px;letter-spacing: normal;color: #ffffff;}
+            .image{width: 319px;overflow: hidden;border-radius: 50%;position: absolute;top: 10%;left: 23%;border: 10px solid #fff;}
+            .name-top{position: absolute; right: 69px; bottom: 25px; font-family: DroidArabicKufi;   font-size: 64px;   font-weight: bold;   font-stretch: normal;   font-style: normal;   line-height: normal;   letter-spacing: normal;   color: #ffffff;}
+            .name-bottom{position: absolute; right: 69px; top: 25px; font-family: DroidArabicKufi;   font-size: 64px;   font-weight: bold;   font-stretch: normal;   font-style: normal;   line-height: normal;   letter-spacing: normal;   color: #000000;}
+            .bottom-part{background: #fff; height: 412px; position: relative;}
+            .back-card {width:638px;height:1011px;float: left;background: #fff;margin-bottom: 100px;position: relative;}
+            .qr-code {text-align: center;padding-top: 93px;}
             .qr-code h3 {font-size: 56px;margin-top: 18px;font-weight: normal;color: #2A2728;}
-            .address{text-align: right;margin-right: 80px;}
+            .address{text-align: right;margin-right: 50px;}
             .contact-detail{line-height: 0;font-size: 44px;margin-top: 170px;}
-            .secondry-address{font-size: 50px;line-height: 4.2px;margin-top: 184px;}
+            .secondry-address{font-size: 24px;line-height: 0.59;margin-top: 36px;}
             .main-address{font-size: 50px;margin-top: 108px;}
-            .uni-label{margin: 0;  font-size: 70px;  font-weight: bold;}
-            .uni-data{margin: 0;font-size: 64px;font-weight: normal;}
-            .civil-lbl{margin-bottom: 0;font-weight: bold;font-size: 70px;margin-top: 34px;}
-            .logo-1 {
-                position: absolute; 
-                bottom: 88px;
-                left: calc((100% - 738px)/2);
-                width: 738px;
-            }
-            .qr{width: 468px;}
+            .uni-label{margin: 0;  font-size: 36px;  font-weight: bold;}
+            .uni-data{margin: 0;font-size: 36px;font-weight: normal;}
+            .civil-lbl{margin-bottom: 0;font-weight: bold;font-size: 36px;margin-top: 9px;}
+            .logo-1 {position: absolute;bottom: 61px;left: calc((100% - 437px)/2);}
+            .qr{width: 367px;margin: 0 auto;padding: 53px 0;}
+            .qr img{width: 74%;}
         </style>
     </head>
     <body>
@@ -86,7 +82,7 @@ $nameSections = mb_split( ' ',$model->candidate->candidate_name_ar);
                 <span class="name-bottom">
                     <?=(isset($nameSections[1])) ? $nameSections[1] : '-'?>
                 </span>
-                <?php echo \yii\helpers\Html::img('@web/img/logo.png',['class'=>'logo-1'])?>
+                <?php echo \yii\helpers\Html::img('@web/img/logo.svg',['class'=>'logo-1'])?>
             </div>
         </div>
 
@@ -96,26 +92,28 @@ $nameSections = mb_split( ' ',$model->candidate->candidate_name_ar);
 
         <div class="back-card">
             <div class="qr-code">
-                <?php echo \yii\helpers\Html::img($qrCode->writeDataUri(),['class'=>'qr'])?>
-                <h3>https://studenthub.co</h3>
+                <div class="qr-inner qr">
+                    <?php echo \yii\helpers\Html::img($qrCode->writeDataUri())?>
+                </div>
+<!--                <h3>https://studenthub.co</h3>-->
             </div>
             <div class="address">
                 <div class="main-address">
                     <p class="uni-label">طالب</p>
                     <p class="uni-data"><?= $model->candidate->university->university_name_ar ?></p>
                     <p class="civil-lbl">الرقم المدني</p>
-                    <p style="margin: 0;"><?=$model->candidate->candidate_civil_id;?></p>
+                    <p style="margin: 0;font-size: 36px;"><?=$model->candidate->candidate_civil_id;?></p>
                 </div>
                 <div class="secondry-address">
                     <p>إذا تم العثور على هذه البطاقة</p>
                     <p>يرجى إبلاغ شركة باوس لبرمجة</p>
                     <p>الكمبيوتر</p>
                 </div>
-                <div class="contact-detail">
-                    <p>contact@bawes.net</p>
-                    <p>+965 98009771</p>
-                </div>
-                <?php echo \yii\helpers\Html::img('@web/img/back-logo.png',['style'=>'position: absolute;left: 80px;bottom: 24px;z-index: 999;'])?>
+<!--                <div class="contact-detail">-->
+<!--                    <p>contact@bawes.net</p>-->
+<!--                    <p>+965 98009771</p>-->
+<!--                </div>-->
+                <?php echo \yii\helpers\Html::img('@web/img/back-logo.svg',['style'=>'position: absolute;left: 80px;left: 36px;bottom: 34px'])?>
             </div>
         </div>
 
