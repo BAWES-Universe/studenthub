@@ -77,18 +77,23 @@ class CandidateIdCardController extends Controller
             throw new \yii\web\ForbiddenHttpException('Invalid Access');
             exit;
         }
+
+        $side = Yii::$app->request->get('side');
+
         $model = $this->findModel($id);
 
         Yii::$app->response->format = yii\web\Response::FORMAT_HTML;
 
         $writer = new \Da\QrCode\Writer\JpgWriter();
+        
         $qrCode = (new QrCode('https://v.studenthub.co/'.$id, null, $writer))
-            ->setSize(250)
+            ->setSize(500)
             ->setMargin(5);
 
         return $this->renderPartial('view', [
             'model' => $model,
             'qrCode' => $qrCode,
+            'side' => $side
         ]);
     }
 
