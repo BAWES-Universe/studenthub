@@ -1,7 +1,16 @@
-# SH Payroll Platform
-## Youth Training Program
+# StudentHub
 
 The payroll platform enables the admin to create `Corporate` accounts and `Studenthub Staff` accounts that will manage the employees that are part of the program.
+
+## Backend API Endpoints
+
+### Dev Server
+
+* staff.api.dev.studenthub.co
+* student.api.dev.studenthub.co
+* admin.api.dev.studenthub.co
+* employer.api.dev.studenthub.co
+* v.dev.studenthub.co
 
 ## Types of Users
 
