@@ -20,6 +20,19 @@ return [
                 'encryption' => 'tls',
             ],
         ],
+        'resourceManager' => [
+            'class' => 'common\components\S3ResourceManager',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
+            'region' => 'eu-west-2', // Bucket based in London
+            'bucket' => 'studenthub-uploads-dev-server',
+            /**
+             * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
+             *
+             * You can access the bucket with:
+             * https://studenthub-uploads-dev-server.s3.amazonaws.com/
+             * https://studenthub-uploads-dev-server.s3.amazonaws.com/folderName/fileName.jpg
+             */
+        ],
         'urlManagerStaff' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
