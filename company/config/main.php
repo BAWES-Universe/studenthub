@@ -82,7 +82,7 @@ return [
                         'PATCH <id>' => 'edit',
                         'PATCH payment-sent/<id>' => 'payment-sent',                        
                         'PATCH lock/<id>' => 'lock',
-                        'POST edit-by-excel/<id>' => 'edit-by-excel',                        
+                        'PATCH edit-by-excel/<id>' => 'edit-by-excel',                        
                         'DELETE <id>' => 'delete',                        
                         'GET pdf/<id>' => 'pdf',                        
                         // OPTIONS VERBS
