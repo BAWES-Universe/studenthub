@@ -1,7 +1,9 @@
 <?php 
 namespace company\models;
 
+use Yii;
 use yii\base\Model;
+
 
 class TranferExcel extends Model
 {
@@ -13,7 +15,14 @@ class TranferExcel extends Model
     public function rules()
     {
         return [
-            [['excel'], 'file', 'skipOnEmpty' => false, 'checkExtensionByMimeType' => false, 'extensions' => 'xlsx,xls'],
+            [
+                'excel', 
+                '\common\components\S3FileExistValidator', 
+                'filePath' => '',
+                'message' => "Please upload valid excel",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'extensions' => 'xlsx,xls'
+            ]
         ];
     }
 }

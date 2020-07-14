@@ -137,28 +137,9 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
         
         $model = new TranferExcel;        
-        $model->excel = \yii\web\UploadedFile::getInstanceByName('excel');
+        $model->excel = Yii::$app->request->getBodyParam('excel');
         
-        if($model->validate())
-        {
-            $candidates = [];
-
-            $data  = \moonland\phpexcel\Excel::import($model->excel->tempName);
-     
-            //remove empty rows 
-
-            foreach ($data as $key => $value) 
-            {
-                if(empty($value['candidate_id']))
-                    continue;
-
-                $candidates[] = $value;
-            }
-
-            //save transfer
-            return Transfer::saveTransfer($company, $candidates);
-        }
-        else 
+        if(!$model->validate())
         {
             return [
                 "operation" => "error",
@@ -166,40 +147,56 @@ class TransferController extends Controller
                 "message" => $model->getErrors()
             ];
         }
+        
+        $candidates = [];
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel); 
+
+        //save in temp folder to process 
+        
+        $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
+                
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) { 
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        } 
+
+        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+
+        //no need file anymore 
+        
+        @unlink($tmpFile);
+        
+        //remove empty rows 
+
+        foreach ($data as $key => $value) 
+        {
+            if(empty($value['candidate_id']))
+                continue;
+
+            $candidates[] = $value;
+        }
+
+        //save transfer
+        return Transfer::saveTransfer($company, $candidates);
     }
 
-	/**
-	 * Edit transfer by excel.
-	 * @param $id
-	 * @return array
-	 */
+    /**
+     * Edit transfer by excel.
+     * @param $id
+     * @return array
+     */
     public function actionEditByExcel($id)
     {
         $company = Yii::$app->user->identity;
 
-        $model = new TranferExcel;        
-        $model->excel = \yii\web\UploadedFile::getInstanceByName('excel');
+        $model = new TranferExcel;    
+        $model->excel = Yii::$app->request->getBodyParam('excel');
         
-        if($model->validate())
-        {
-            $candidates = [];
-
-            $data = \moonland\phpexcel\Excel::import($model->excel->tempName);
-            
-            //remove empty rows 
-            
-            foreach ($data as $key => $value) 
-            {
-                if(empty($value['candidate_id']))
-                    continue;
-
-                $candidates[] = $value;
-            }
-
-            //save transfer
-            return Transfer::updateTransfer($company, $id, $candidates);
-        }
-        else 
+        if(!$model->validate())
         {
             return [
                 "operation" => "error",
@@ -207,6 +204,41 @@ class TransferController extends Controller
                 "message" => $model->getErrors()
             ];
         }
+        
+        $candidates = [];
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel); 
+
+        //save in temp folder to process 
+
+        $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
+
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) { 
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        } 
+
+        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+
+        //no need file anymore 
+
+        @unlink($tmpFile);
+
+        //remove empty rows 
+
+        foreach ($data as $key => $value) 
+        {
+            if(empty($value['candidate_id']))
+                continue;
+
+            $candidates[] = $value;
+        }
+
+        //save transfer
+        return Transfer::updateTransfer($company, $id, $candidates);
     }
 
     /**
