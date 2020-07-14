@@ -3,9 +3,9 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=devpayroll',
-            'username' => 'devPayrollUser',
-            'password' => 'devpay',
+            'dsn' => 'mysql:host=localhost;dbname=studenthub',
+            'username' => 'root',
+            'password' => 'studenthub',
             'charset' => 'utf8',
         ],
         'mailer' => [
@@ -48,7 +48,7 @@ return [
                     'clientOptions' => [
                         //which environment are we running this on?
                         'environment' => 'dev-server',
-                            
+
                         'excluded_exceptions' => [
                             'yii\web\BadRequestHttpException',
                             'yii\web\UnauthorizedHttpException',
