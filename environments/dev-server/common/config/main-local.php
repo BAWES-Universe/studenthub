@@ -20,6 +20,19 @@ return [
                 'encryption' => 'tls',
             ],
         ],
+        'resourceManager' => [
+            'class' => 'common\components\S3ResourceManager',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
+            'region' => 'eu-west-2', // Bucket based in London
+            'bucket' => 'studenthub-uploads-dev-server',
+            /**
+             * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
+             *
+             * You can access the bucket with:
+             * https://studenthub-uploads-dev-server.s3.amazonaws.com/
+             * https://studenthub-uploads-dev-server.s3.amazonaws.com/folderName/fileName.jpg
+             */
+        ],
         'urlManagerStaff' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
@@ -35,8 +48,17 @@ return [
                     'clientOptions' => [
                         //which environment are we running this on?
                         'environment' => 'dev-server',
+                            
+                        'excluded_exceptions' => [
+                            'yii\web\BadRequestHttpException',
+                            'yii\web\UnauthorizedHttpException',
+                            'yii\web\NotFoundHttpException',
+                            'yii\web\HttpException:400',
+                            'yii\web\HttpException:401',
+                            'yii\web\HttpException:404',
+                        ],
                         // Disable notifications for malicious errors from 3rd party
-                        'send_callback' => function($data) {
+                        /*'send_callback' => function($data) {
                             // Error Types to Ignore
                             $ignore_types = [
                                 'yii\web\NotFoundHttpException',
@@ -49,7 +71,7 @@ return [
                             ){
                                 return false;
                             }
-                        },
+                        },*/
                     ],
                     'context' => true // Write the context information. The default is true.
                 ],

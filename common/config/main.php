@@ -4,18 +4,18 @@ return [
     'timeZone' => 'Asia/Kuwait',
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'components' => [
-        'resourceManager' => [
-            'class' => 'common\components\S3ResourceManager',
-            'key' => 'AKIAIKZYNH7OERZMXZ2A',
-            'secret' => '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',
-            'bucket' => 'sh-payroll',
-            'region' => 'eu-west-2'
-            /**
-             * You can access the main bucket with:
-             * https://sh-payroll.s3.amazonaws.com/
-             * https://sh-payroll.s3.amazonaws.com/folderName/fileName.jpg
-             */
-        ],
+//        'resourceManager' => [
+//            'class' => 'common\components\S3ResourceManager',
+//            'key' => 'AKIAIKZYNH7OERZMXZ2A',
+//            'secret' => '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',
+//            'bucket' => 'sh-payroll',
+//            'region' => 'eu-west-2'
+//            /**
+//             * You can access the main bucket with:
+//             * https://sh-payroll.s3.amazonaws.com/
+//             * https://sh-payroll.s3.amazonaws.com/folderName/fileName.jpg
+//             */
+//        ],
         'temporaryBucketResourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'key' => 'AKIAIKZYNH7OERZMXZ2A',

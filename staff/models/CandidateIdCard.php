@@ -88,16 +88,21 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
             $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
-            //-W 564 -H 1738
+            FileHelper::createDirectory($path. '/' . $value->candidate_uid);
 
-            Browsershot::url($card_url)
-                ->windowSize(1154, 864)
-                ->save($path. '/' . $value->candidate_uid .'.png');
-        }
+            Browsershot::url($card_url . '?side=front')
+                ->windowSize(1132, 1728)
+                ->save($path. '/' . $value->candidate_uid .'/front.png');
 
-        // Add QR folder to zip
-        foreach (glob($path.'/*') as $file) {
-            $zip->addFile($file, basename($file));
+            Browsershot::url($card_url . '?side=back')
+                ->windowSize(1132, 1728)
+                ->save($path. '/' . $value->candidate_uid .'/back.png');
+
+            // Add photo folder to zip
+                
+            $zip->addFile($path. '/' . $value->candidate_uid .'/front.png', $value->candidate_uid . '/front.png');
+
+            $zip->addFile($path. '/' . $value->candidate_uid .'/back.png', $value->candidate_uid . '/back.png');
         }
 
         $zip->close();
