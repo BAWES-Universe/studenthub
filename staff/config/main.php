@@ -159,8 +159,8 @@ return [
                     'controller' => 'v1/country',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET <id>' => 'view',
                         'GET all' => 'all',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS all' => 'options',

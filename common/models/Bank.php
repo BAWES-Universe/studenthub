@@ -10,6 +10,7 @@ use common\models\Candidate;
  *
  * @property integer $bank_id
  * @property string $bank_name
+ * @property string|null $bank_iban_code
  * @property string $bank_swift_code
  * @property string $bank_address
  * @property string $bank_transfer_type
@@ -37,7 +38,7 @@ class Bank extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['bank_name','bank_swift_code','bank_address'], 'required'],
+            [['bank_name','bank_swift_code','bank_address', 'bank_iban_code'], 'required'],
             [['bank_name','bank_transfer_type'], 'string', 'max' => 50],
             [['bank_swift_code'], 'string', 'max' => 12],
             ['bank_transfer_type', 'in', 'range' => self::getBankCodeList()],
@@ -53,6 +54,7 @@ class Bank extends \yii\db\ActiveRecord
         return [
             'bank_id' => 'ID',
             'bank_name' => 'Name',
+            'bank_iban_code' => 'Bank IBAN',
             'bank_swift_code' => 'Swift Code',
             'bank_address' => 'Address',
             'bank_transfer_type' => 'Transfer Type',
@@ -64,18 +66,11 @@ class Bank extends \yii\db\ActiveRecord
      */
     public function fields()
     {
-        return [
-            'bank_id',
-            'bank_name',
-            'bank_swift_code',
-            'bank_address',
-            'bank_transfer_type',
+        return array_merge(parent::fields(), [
             'transfer_type_value' => function($data) {
                 return $data->getTypeValue();
             }
-        ];
-
-        return $fields;
+        ]);
     }
 
     /**

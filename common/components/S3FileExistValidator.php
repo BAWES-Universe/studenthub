@@ -57,10 +57,10 @@ class S3FileExistValidator extends Validator
 
         //if allowd extensions defined 
         
-        $allowdExtensions = explode(',', str_replace('.', '', $this->extensions)); 
-        
-        if($allowdExtensions) 
+        if($this->extensions) 
         {
+            $allowdExtensions = explode(',', str_replace('.', '', $this->extensions)); 
+        
             $extension = pathinfo($filename, PATHINFO_EXTENSION); 
 
             if(!in_array(strtolower($extension), $allowdExtensions) &&
