@@ -75,8 +75,9 @@ class Country extends \yii\db\ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
+        
         $fields['total_candidates'] = function($model) {
-            return sizeof($model->candidates);
+            return (int) sizeof($model->candidates);
         };
         return $fields;
     }
