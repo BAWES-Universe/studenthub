@@ -52,3 +52,7 @@ sudo chmod -R o+rx /usr/lib/node_modules/puppeteer/.local-chromium
 ### php extensions required 
 
 exif, pdo_mysql
+
+### make sure to update staff api url 
+
+for `urlManagerStaff` component's `baseUrl` property for files at environments/*/common/config/main-local.php 
