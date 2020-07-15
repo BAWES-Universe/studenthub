@@ -62,7 +62,7 @@ class BankCest
     /**
      * Try to create new bank
      * @param FunctionalTester $I
-     */
+     *
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a bank via API');
@@ -88,7 +88,7 @@ class BankCest
     /**
      * Try to update
      * @param FunctionalTester $I
-     */
+     *
     public function tryToUpdate(FunctionalTester $I)
     {
         $I->wantTo('update a bank via API');
