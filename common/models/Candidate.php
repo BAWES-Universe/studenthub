@@ -161,7 +161,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!$found) {
             $this->addError($attribute, 'We do not support transfers to this bank.');
         } else if (!preg_match('/^[a-zA-Z0-9]{30}$/', $this->$attribute)) {
-         //   $this->addError($attribute, 'Bank IBAN must contain exactly 30 digits.');
+            $this->addError($attribute, 'Bank IBAN must contain exactly 30 digits.');
         }
     }
 
