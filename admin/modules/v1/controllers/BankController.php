@@ -102,6 +102,7 @@ class BankController extends Controller
         $model->bank_name = Yii::$app->request->getBodyParam("name");
         $model->bank_swift_code = Yii::$app->request->getBodyParam("swift_code");
         $model->bank_address = Yii::$app->request->getBodyParam("address");
+        $model->bank_iban_code = Yii::$app->request->getBodyParam("bank_iban_code");
         $model->bank_transfer_type = Yii::$app->request->getBodyParam("type");
         if (!$model->save())
         {
@@ -148,6 +149,7 @@ class BankController extends Controller
 
         $model->bank_name = Yii::$app->request->getBodyParam("name");
         $model->bank_swift_code = Yii::$app->request->getBodyParam("swift_code");
+        $model->bank_iban_code = Yii::$app->request->getBodyParam("bank_iban_code");
         $model->bank_address = Yii::$app->request->getBodyParam("address");
         $model->bank_transfer_type = Yii::$app->request->getBodyParam("type");
 

@@ -84,7 +84,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
-            [['candidate_uid', 'candidate_phone'], 'string', 'max' => 20],
+            [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_email'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
