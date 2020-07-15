@@ -78,7 +78,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['university_id', 'country_id', 'bank_account_name', 'candidate_iban', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
-            ['candidate_iban', 'validateIban'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
@@ -93,7 +92,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'match',
                 'pattern' => '/^[0-9a-zA-Z\s]+$/',
                 'message' => 'Special characters not allowed'
-            ],            
+            ],  
+            ['candidate_iban', 'validateIban'],
             ['candidate_hourly_rate', 'validateHourlyRate'],
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],

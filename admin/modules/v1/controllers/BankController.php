@@ -104,6 +104,7 @@ class BankController extends Controller
         $model->bank_address = Yii::$app->request->getBodyParam("address");
         $model->bank_iban_code = Yii::$app->request->getBodyParam("bank_iban_code");
         $model->bank_transfer_type = Yii::$app->request->getBodyParam("type");
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
