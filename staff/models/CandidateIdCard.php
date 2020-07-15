@@ -91,10 +91,14 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             FileHelper::createDirectory($path. '/' . $value->candidate_uid);
 
             Browsershot::url($card_url . '?side=front')
+                ->timeout(0)
+                ->waitUntilNetworkIdle()
                 ->windowSize(1132, 1728)
                 ->save($path. '/' . $value->candidate_uid .'/front.png');
 
             Browsershot::url($card_url . '?side=back')
+                ->timeout(0)     
+                ->waitUntilNetworkIdle()
                 ->windowSize(1132, 1728)
                 ->save($path. '/' . $value->candidate_uid .'/back.png');
 
@@ -104,7 +108,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
             $zip->addFile($path. '/' . $value->candidate_uid .'/back.png', $value->candidate_uid . '/back.png');
         }
-
+        
         $zip->close();
 
         return [
