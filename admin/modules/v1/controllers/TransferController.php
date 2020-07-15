@@ -460,9 +460,10 @@ class TransferController extends Controller
     /**
      * Download Transfer as PDF
      * @param $id
+     * @param $type
      * @return array|mixed
      */
-    public function actionPdf($id)
+    public function actionPdf($id, $type)
     {
         $invoice = Invoice::find()
             ->withTransfer($id)
@@ -477,7 +478,8 @@ class TransferController extends Controller
 
         $this->layout = 'pdf';
 
-        if($invoice['invoice_status'] == 'paid')
+        if($type == 'receipt')
+//        if($invoice['invoice_status'] == 'paid' || $type == 'receipt')
             $template = 'receipt';
         else
             $template = 'invoice';
