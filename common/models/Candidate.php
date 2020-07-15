@@ -7,6 +7,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
 
+
 /**
  * This is the model class for table "candidate".
  *
@@ -74,9 +75,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['bank_id', 'university_id', 'country_id', 'bank_account_name', 'candidate_iban', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
+            [['university_id', 'country_id', 'bank_account_name', 'candidate_iban', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
             [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
+            ['candidate_iban', 'validateIban'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
@@ -104,21 +106,30 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
-            [['candidate_personal_photo'], '\common\components\S3FileExistValidator', 'filePath' => '',
+            [
+                ['candidate_personal_photo'], 
+                '\common\components\S3FileExistValidator', 
+                'filePath' => '',
                 'message' => "Please upload a personal photo for the candidate",
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
-            [['candidate_civil_photo_front'], '\common\components\S3FileExistValidator', 'filePath' => '',
+            [
+                ['candidate_civil_photo_front'], 
+                '\common\components\S3FileExistValidator', 
+                'filePath' => '',
                 'message' => "Please upload a civil id photo (front) for the candidate",
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
-            [['candidate_civil_photo_back'], '\common\components\S3FileExistValidator', 'filePath' => '',
+            [
+                ['candidate_civil_photo_back'], 
+                '\common\components\S3FileExistValidator', 
+                'filePath' => '',
                 'message' => "Please upload a civil id photo (back) for the candidate",
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
@@ -126,6 +137,32 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 }
             ]
         ];
+    }
+
+    /**
+     * validate bank IBAN value
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     */
+    public function validateIban($attribute, $params, $validator)
+    {  
+        $banks = Bank::find()->all();
+        
+        $found = false; 
+         
+        foreach($banks as $bank) {
+            if($bank->bank_iban_code && strpos(strtolower($this->candidate_iban), strtolower($bank->bank_iban_code)) > -1) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found) {
+            $this->addError($attribute, 'We do not support transfers to this bank.');
+        } else if (!preg_match('/^[a-zA-Z0-9]{30}$/', $this->$attribute)) {
+            $this->addError($attribute, 'Bank IBAN must contain exactly 30 digits.');
+        }
     }
 
     /**
@@ -366,23 +403,32 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         fclose($tmpHandle);
         @unlink($tmpFile);
     }
-
+    
     /**
      * @inheritdoc
      */
     public function beforeSave($insert)
     {
-        if (parent::beforeSave($insert)) {
-            // Move uploaded files to permanent bucket
-            $this->_moveTemporaryFilesToPermanentBucket();
+        if (!parent::beforeSave($insert)) 
+            return false; 
 
-            if (!$this->candidate_uid) {
-                $this->candidate_uid = $this->generateUid();
+        // Move uploaded files to permanent bucket
+        $this->_moveTemporaryFilesToPermanentBucket();
+
+        if (!$this->candidate_uid) {
+            $this->candidate_uid = $this->generateUid();
+        } 
+        
+        $banks = Bank::find()->all();
+
+        foreach($banks as $bank) {
+            if($bank->bank_iban_code && strpos(strtolower($this->candidate_iban), strtolower($bank->bank_iban_code)) > -1) {
+                $this->bank_id = $bank->bank_id;
+                break;
             }
-
-            return true;
         }
-        return false;
+
+        return true;
     }
 
     /**
