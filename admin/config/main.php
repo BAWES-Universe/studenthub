@@ -136,7 +136,7 @@ return [
                         'GET export-payable-candidates' => 'export-payable-candidates',
                         'GET invoices/<id>' => 'invoices',
                         'GET export/<id>' => 'export',
-                        'GET pdf/<id>' => 'pdf',
+                        'GET pdf/<id>/<type>' => 'pdf',
                         'GET <id>' => 'view',
                         'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         'PATCH unlock/<id>' => 'unlock',
@@ -154,7 +154,7 @@ return [
                         'OPTIONS export-payable-candidates' => 'options',
                         'OPTIONS text' => 'options',
                         'OPTIONS export/<id>' => 'options',
-                        'OPTIONS pdf/<id>' => 'options'
+                        'OPTIONS pdf/<id>/<type>' => 'options'
                     ]
                 ],
                 [ // TransferCandidateController
