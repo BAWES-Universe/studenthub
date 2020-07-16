@@ -93,13 +93,13 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             Browsershot::url($card_url . '?side=front')
                 ->timeout(0)
                 ->waitUntilNetworkIdle()
-                ->windowSize(1132, 1728)
+                ->windowSize(638, 1011)
                 ->save($path. '/' . $value->candidate_uid .'/front.png');
 
             Browsershot::url($card_url . '?side=back')
                 ->timeout(0)     
                 ->waitUntilNetworkIdle()
-                ->windowSize(1132, 1728)
+                ->windowSize(638, 1011)
                 ->save($path. '/' . $value->candidate_uid .'/back.png');
 
             // Add photo folder to zip
