@@ -22,5 +22,33 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
         ],
+        'log' => [
+            'targets' => [
+                [
+                    'class' => 'notamedia\sentry\SentryTarget',
+                    'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
+                    'levels' => ['error', 'warning'],
+                    'except' => [
+                        'yii\web\BadRequestHttpException',
+                        'yii\web\UnauthorizedHttpException',
+                        'yii\web\NotFoundHttpException',
+                        'yii\web\HttpException:400',
+                        'yii\web\HttpException:401',
+                        'yii\web\HttpException:404',
+                    ],
+                    'clientOptions' => [
+                        //which environment are we running this on?
+                        'environment' => 'circle-ci',
+                    ],
+                    'context' => true // Write the context information. The default is true.
+                ],
+                [
+                    'class' => 'common\components\SlackLogger',
+                    'logVars' => [],
+                    'levels' => ['info', 'warning'],
+                    'categories' => ['admin\*', 'candidate\*', 'company\*', 'staff\*', 'remail\*', 'common\*', 'console\*'],
+                ],
+            ],
+        ],
     ],
 ];
