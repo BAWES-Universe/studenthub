@@ -66,7 +66,8 @@ class StoreController extends Controller
 
     public function actionView($id)
     {
-        return $query = Store::findOne($id);
+        return Yii::$app->user->identity->getSubCompanyStores()
+            ->filterByStoreId($id)->one();
     }
     
     /**
@@ -99,13 +100,6 @@ class StoreController extends Controller
         }       
 
         $query = Store::find()
-//            ->with([
-//                'candidates',
-//                'candidates.store',
-//                'candidates.company',
-//                'candidates.bank',
-//                'candidates.university'
-//            ])
             ->filterCompany($companyId);
 
         return new ActiveDataProvider([
@@ -125,14 +119,6 @@ class StoreController extends Controller
 
             $query = $company
                 ->getSubCompanies();
-//                ->with([
-//                    'stores.candidates',
-//                    'stores.candidates.store',
-//                    'stores.candidates.company',
-//                    'stores.candidates.bank',
-//                    'stores.candidates.university'
-//                ]);
-
             return new ActiveDataProvider([
                 'query' => $query
             ]);
@@ -143,14 +129,6 @@ class StoreController extends Controller
 
             $query = $company
                 ->getStores();
-//                ->with([
-//                    'candidates',
-//                    'candidates.store',
-//                    'candidates.company',
-//                    'candidates.bank',
-//                    'candidates.university'
-//                ]);
-            
             return new ActiveDataProvider([
                 'query' => $query
             ]);

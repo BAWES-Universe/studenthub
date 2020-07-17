@@ -216,7 +216,10 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public static function markAllUnpaid($transferCandidateIds) {
 
-        if (count($transferCandidateIds) == 0) {
+        if (
+            ($transferCandidateIds && count($transferCandidateIds) == 0) ||
+            !$transferCandidateIds
+        ) {
             return [
                 "operation" => "error",
                 "message" => 'empty transfer record'
