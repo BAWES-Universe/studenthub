@@ -25,4 +25,13 @@ class StoreQuery extends ActiveQuery
     {
         return $this->andWhere(['{{%store}}.deleted'=>0]);
     }
+
+    /**
+     * @param $store_id
+     * @return StoreQuery
+     */
+    public function filterByStoreId($store_id)
+    {
+        return $this->andWhere(['{{%store}}.store_id'=>$store_id]);
+    }
 }

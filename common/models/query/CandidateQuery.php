@@ -140,4 +140,13 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function byApprovalStatus($status = 0) {
         return $this->andWhere(['approved' => $status]);
     }
+
+    /**
+     * @param $id
+     * @return CandidateQuery
+     */
+    public function filterById($id)
+    {
+        return $this->andWhere(['{{%candidate}}.candidate_id'=>$id]);
+    }
 }

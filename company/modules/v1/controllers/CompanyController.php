@@ -81,6 +81,7 @@ class CompanyController extends Controller
      */
     public function actionView($id)
     {
-        return Company::findOne($id);
+        return Yii::$app->user->identity->getSubCompanies()
+            ->filterCompany($id)->one();
     }
 }

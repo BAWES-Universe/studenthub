@@ -71,9 +71,7 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $company = Company::findOne(Yii::$app->user->id);
-        
-        return $company->getCandidates()->all();
+        return Yii::$app->user->identity->getCandidates()->all();
     }
 
     /**
@@ -82,10 +80,7 @@ class CandidateController extends Controller
      */
     public function actionTotal()
     {
-        $company = Company::findOne(Yii::$app->user->id);
-        
-        return $company->getCandidates()
-            ->count();
+        return Yii::$app->user->identity->getCandidates()->count();
     }
 
     /**
@@ -110,6 +105,6 @@ class CandidateController extends Controller
      */
     public function actionView($id)
     {
-        return Candidate::findOne($id);
+        return Yii::$app->user->identity->getCandidates()->filterById($id)->one();
     }
 }
