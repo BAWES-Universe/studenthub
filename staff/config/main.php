@@ -110,10 +110,10 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
-                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
