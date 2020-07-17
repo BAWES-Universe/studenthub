@@ -37,8 +37,8 @@ return [
         ],
         'slack' => [
             'class' => 'understeam\slack\Client',
-            'url' => 'https://hooks.slack.com/services/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',
-            'username' => 'Payroll',
+            'url' => 'https://hooks.slack.com/services/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',
+            'username' => 'StudentHub',
         ],
         'httpclient' => [
             'class' =>'yii\httpclient\Client',
