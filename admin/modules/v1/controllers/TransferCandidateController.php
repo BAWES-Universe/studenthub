@@ -111,12 +111,18 @@ class TransferCandidateController extends Controller
     public function actionView($id)
     { 
         // Return as Array as to not create ActiveRecord objects will eat away at the RAM
-        return TransferCandidate::find()
+        $model =  TransferCandidate::find()
             ->andWhere(['tc_id' => $id])
             ->with('candidate')
             ->payableWithPaid()
             ->asArray()
             ->one();
+         
+        if(!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+        
+        return $model;
     }
 
     /**
