@@ -9,6 +9,8 @@ use company\models\Store;
 use company\models\Company;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+
+
 /**
  * Store controller - Manage store as Admin
  */
@@ -66,8 +68,24 @@ class StoreController extends Controller
 
     public function actionView($id)
     {
-        return Yii::$app->user->identity->getSubCompanyStores()
-            ->filterByStoreId($id)->one();
+        $company = Yii::$app->user->identity;
+        
+        $arr_sub_companies = \yii\helpers\ArrayHelper::getColumn(
+            $company->subCompanies, 
+            'company_id'
+        );
+        
+        $store = Store::find()
+            //store should belong to logged in company or child of logged in company 
+            ->filterWhere([
+                'in', 
+                'company_id', 
+                array_merge($arr_sub_companies, [$company->company_id])
+            ])
+            ->filterByStoreId($id)    
+            ->one();
+        
+        return $store;
     }
     
     /**
@@ -112,13 +130,13 @@ class StoreController extends Controller
      */
     public function actionIndex()
     {
-
         $company = Company::findOne(Yii::$app->user->id);
         
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
 
             $query = $company
                 ->getSubCompanies();
+            
             return new ActiveDataProvider([
                 'query' => $query
             ]);
@@ -129,6 +147,7 @@ class StoreController extends Controller
 
             $query = $company
                 ->getStores();
+            
             return new ActiveDataProvider([
                 'query' => $query
             ]);

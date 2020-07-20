@@ -32,6 +32,6 @@ class StoreQuery extends ActiveQuery
      */
     public function filterByStoreId($store_id)
     {
-        return $this->andWhere(['{{%store}}.store_id'=>$store_id]);
+        return $this->andWhere(['{{%store}}.store_id' => $store_id]);
     }
 }

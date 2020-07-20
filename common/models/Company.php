@@ -520,7 +520,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
             ->via('subCompanies')
-            ->where(['deleted'=>0]);
+            ->andWhere(['deleted'=>0]);
     }
 
     /**
