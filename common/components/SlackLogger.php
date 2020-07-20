@@ -5,6 +5,7 @@ use Yii;
 use understeam\slack\LogTarget;
 use yii\log\Logger;
 
+
 class SlackLogger extends LogTarget
 {
     public function getLevelColor($level)
@@ -32,18 +33,25 @@ class SlackLogger extends LogTarget
 
             //Title of the logged message goes between [brackets] - isolate it from message along with content
             preg_match_all("/\[[^\]]*\]/", $logMessage, $matches);
-            $title = $matches[0][0];
-            $finalTitle = str_replace(['[',']'],"",$matches[0][0]);
-            $finalContent = str_replace($title, "", $logMessage);
+
+            if(!isset($matches[0][0])) {
+                $finalTitle = str_replace(['[',']'],"", $logMessage);
+                $finalContent = $logMessage;
+            } else {
+                $title = $matches[0][0];
+                $finalTitle = str_replace(['[',']'],"",$matches[0][0]);
+                $finalContent = str_replace($title, "", $logMessage);
+            }
 
             //The class/method that triggered the log
-            $classMethod = $message[2];
+            //$classMethod = $message[2];
 
             $attachments[] = [
                 'fallback' => $logMessage,
-                'title' => "[". ucfirst(YII_ENV)."] ". $finalTitle,
+                'title' => $finalTitle,
                 'text' => $finalContent,
                 'color' => $this->getLevelColor($message[1]),
+                'footer' => 'Environment: '.ucfirst(YII_ENV)
             ];
         }
         return $attachments;
