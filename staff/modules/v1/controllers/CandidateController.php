@@ -499,6 +499,7 @@ class CandidateController extends Controller
     public function actionView($id)
     {
         $model = Candidate::findOne($id);
+        
         if(!$model)
             return [];
 
