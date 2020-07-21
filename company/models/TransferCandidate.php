@@ -82,7 +82,10 @@ class TransferCandidate extends \common\models\TransferCandidate
         $TCModel->company_id = $store['company_id'];
         $TCModel->company_name = $company['company_name'];
         $TCModel->company_email = $company['company_email'];
-
+        $TCModel->bank_id = $candidate['bank_id'];
+        $TCModel->transfer_benef_name = $candidate['bank_account_name'];
+        $TCModel->transfer_benef_iban = $candidate['candidate_iban'];
+        
         $company_bonus_commission = $company['company_bonus_commission'];
         $company_hourly_rate = $company['company_hourly_rate'];
         

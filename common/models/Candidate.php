@@ -272,6 +272,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
             Store::updateAllCounters(['store_total_candidates' => -1], ['store_id' => $changedAttributes['store_id']]);
+        } 
+        else if (
+            array_key_exists('candidate_iban', $changedAttributes) ||
+            array_key_exists('bank_account_name', $changedAttributes) ||
+            array_key_exists('bank_id', $changedAttributes)
+        ) {
+            //update bank details on all non paid transfers 
+            
+            \company\models\TransferCandidate::updateAll([
+                'bank_id' => $this->bank_id,
+                'transfer_benef_name' => $this->bank_account_name,
+                'transfer_benef_iban' => $this->candidate_iban
+            ], [
+                'paid' => 0,
+                'candidate_id' => $this->candidate_id
+            ]);
         }
         
         return true;
