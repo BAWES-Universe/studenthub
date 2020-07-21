@@ -86,7 +86,7 @@ class CandidateIdCardController extends Controller
 
         $writer = new \Da\QrCode\Writer\JpgWriter();
         
-        $qrCode = (new QrCode('https://v.studenthub.co/'.$id, null, $writer))
+        $qrCode = (new QrCode('https://v.studenthub.co/'.$model->candidate_uid, null, $writer))
             ->setSize(500)
             ->setMargin(5);
 
