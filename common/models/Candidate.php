@@ -53,6 +53,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 {
     // Candidate Status
     const STATUS_READY = 1;
+    const STATUS_PENDING = 0;
 
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
@@ -76,7 +77,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             [['university_id', 'country_id', 'bank_account_name', 'candidate_iban', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
-            [['candidate_password_hash'], 'required', 'on'=>'newAccount'],
+            [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
@@ -84,7 +85,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
-            [['candidate_email'], 'unique'],
+            [['candidate_email','candidate_phone'], 'unique'],
             [['candidate_email'], 'email'],
             [['candidate_civil_id'], 'unique'],
             [['bank_account_name', 'candidate_iban'], 'trim'],
@@ -98,7 +99,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
-            ['candidate_status', 'default', 'value' => self::STATUS_READY],
+            ['candidate_status', 'default', 'value' => self::STATUS_PENDING],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
@@ -138,6 +139,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ]
         ];
     }
+
+    /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+        $scenarios = parent::scenarios();
+
+        $scenarios['signup'] = ['candidate_name', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
+        return $scenarios;
+    }
+
 
     /**
      * validate bank IBAN value
@@ -866,5 +878,32 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'paid' => $totalPaid,
             'bonus' => $totalBonus,
         ];
+    }
+
+
+    /**
+     * Sends an email requesting a user to verify his email address
+     * @return boolean whether the email was sent
+     */
+    public function sendVerificationEmail() {
+
+        $this->generateAuthKey();
+
+        //Update candidate last email limit timestamp
+        $this->limit_email = new Expression('NOW()');
+        $this->save(false);
+
+        $email = $this->candidate_email;
+
+        return Yii::$app->mailer->compose([
+            'html' => 'candidate/verify-email-html',
+            'text' => 'candidate/verify-email-text',
+        ], [
+            'candidate' => $this
+        ])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setTo($email)
+            ->setSubject('Please confirm your email address')
+            ->send();
     }
 }
