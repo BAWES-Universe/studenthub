@@ -3,6 +3,7 @@
 namespace candidate\modules\v1\controllers;
 
 use Yii;
+use yii\base\DynamicModel;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use candidate\models\Candidate;
@@ -52,7 +53,8 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
-            'update-password'
+            'update-password',
+            'email-check'
         ];
 
         return $behaviors;
@@ -143,4 +145,45 @@ class AuthController extends Controller
             'message' => 'Your password has been reset'
         ];
     }
+
+
+    /**
+     * Mobile Check
+     * @return User|null
+     */
+    public function actionEmailCheck() {
+
+        $email = Yii::$app->request->getBodyParam('email');
+
+        $model = DynamicModel::validateData(['email' => $email], [
+            [['email'], 'email'],
+        ]);
+
+        if ($model->hasErrors()) {
+            return self::response('error',$model->errors, 0);
+
+        } else {
+            $candidate = Candidate::findByEmail($email);
+            if ($candidate) {
+                return self::response('success',$candidate, 0);
+            } else  {
+                return self::response('success',false, 0);
+            }
+
+        }
+    }
+
+    /**
+     * @param $type
+     * @param $msg
+     * @param int $translate
+     * @return array
+     */
+    public static function response($type, $msg, $translate = 1) {
+        return [
+            'operation' => $type,
+            'message' => ($translate) ? Yii::t('user', $msg) : $msg
+        ];
+    }
+
 }
