@@ -66,6 +66,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_confirmation_id'], 'string', 'max' => 128],
             [['transfer_benef_iban'], 'string', 'max' => 50],
             [['transfer_confirmation_id'], 'unique'],
+            ['paid', 'validateStatus'],
             [['transfer_benef_name'], 'string', 'max' => 60],
             [['bank_id', 'transfer_confirmation_id', 'transfer_benef_name', 'transfer_benef_iban'], 'validateBankDetails'],
             [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
@@ -78,6 +79,20 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
     }
 
+    public function validateStatus($attribute, $params, $validator)
+    {
+        //on mark as paid clear out the name/iban/bankid/transfer_confirmation_id
+        
+        if($this->getOldAttribute('paid') && !$this->paid) {
+            $this->bank_id = null; 
+            $this->transfer_confirmation_id = null; 
+            $this->transfer_benef_iban = null; 
+            $this->transfer_benef_name = null;
+        }
+        
+        return true;
+    }
+    
     /**
      * validate bank detail
      * @param $attribute

@@ -22,12 +22,6 @@ class CronController extends \yii\console\Controller {
     public function actionIndex() {
         $this->stdout("Sample Output \n", Console::FG_RED, Console::BOLD);
     }
-
-    public function actionTestIdGenerate() {
-        $c = Candidate::find()->limit(2)->all();
-        $data = \staff\models\CandidateIdCard::createIdCards($c);
-        var_dump($data);
-    }
     
     /**
      * Method called by cron once a day
