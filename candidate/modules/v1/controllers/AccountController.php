@@ -62,7 +62,30 @@ class AccountController extends Controller
         ];
         return $actions;
     }
+    
+    /**
+     * Set language preference 
+     */
+    public function actionLanguagePref() {
+        $language_pref = Yii::$app->request->getBodyParam('language_pref');
 
+        $model = Yii::$app->user->identity;
+        $model->candidate_language_pref = $language_pref;
+
+        $model->scenario = 'updateLanguagePref';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+    
     /**
      * Return a List of Salary transfers
      */
