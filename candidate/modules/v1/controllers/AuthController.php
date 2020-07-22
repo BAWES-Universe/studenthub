@@ -54,7 +54,8 @@ class AuthController extends Controller
         $behaviors['authenticator']['except'] = [
             'options',
             'update-password',
-            'email-check'
+            'email-check',
+            'signup'
         ];
 
         return $behaviors;
@@ -174,6 +175,44 @@ class AuthController extends Controller
     }
 
     /**
+     * Signup by candidate, only firstname, lastname, email and password needed
+     * @return array
+     */
+    public function actionSignup() {
+        $model = new Candidate();
+        $model->scenario = "signup";
+
+        $firstname = ucfirst(Yii::$app->request->getBodyParam('name'));
+
+        $model->candidate_name = $firstname;
+        $model->candidate_name_ar = $firstname;
+        $model->candidate_email = Yii::$app->request->getBodyParam('email');
+        $model->candidate_phone = Yii::$app->request->getBodyParam('phone');
+        $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
+        $model->candidate_status = \common\models\Candidate::STATUS_PENDING;
+
+        if (!$model->signup()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors,
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => Yii::t('job', "We've faced a problem creating your account, please contact us for assistance.")
+                ];
+            }
+        }
+//        $this->sendVerificationEmail();
+        return [
+            "operation" => "success",
+            "candidate_uuid" => $model->candidate_id,
+            "message" => Yii::t('app', "Please click on the link sent to you by email to verify your account"),
+        ];
+    }
+
+    /**
      * @param $type
      * @param $msg
      * @param int $translate
@@ -185,5 +224,4 @@ class AuthController extends Controller
             'message' => ($translate) ? Yii::t('user', $msg) : $msg
         ];
     }
-
 }

@@ -50,9 +50,11 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'POST email-check' => 'email-check',
+                        'POST register' => 'signup',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS register' => 'options',
                         'OPTIONS email-check' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
