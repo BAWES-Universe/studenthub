@@ -34,6 +34,7 @@ use yii\helpers\ArrayHelper;
  * @property string $candidate_auth_key
  * @property string $candidate_password_hash
  * @property string $candidate_password_reset_token
+ * @property string $user_language_pref 
  * @property integer $candidate_status
  * @property integer $approved
  * @property string $candidate_created_at
@@ -87,6 +88,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_email','candidate_phone'], 'unique'],
             [['candidate_email'], 'email'],
+            ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
             [['bank_account_name', 'candidate_iban'], 'trim'],
             [['bank_account_name', 'candidate_iban'], 
@@ -145,11 +147,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function scenarios() {
         $scenarios = parent::scenarios();
-
+ 
+        $scenarios["updateLanguagePref"] = ["user_language_pref"];
+        
         $scenarios['signup'] = ['candidate_name', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
+        
         return $scenarios;
     }
-
 
     /**
      * validate bank IBAN value
@@ -266,6 +270,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_auth_key' => 'Auth Key',
             'candidate_password_hash' => 'Password',
             'candidate_password_reset_token' => 'Password Reset Token',
+            'candidate_language_pref' => 'Language preference',
             'candidate_status' => 'Status',
             'candidate_created_at' => 'Created At',
             'candidate_updated_at' => 'Updated At',

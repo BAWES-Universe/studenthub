@@ -67,11 +67,13 @@ return [
                         'GET salary' => 'salary',
                         'GET employer' => 'employer',
                         'POST change-password' => 'change-password',
+                        'POST language-pref' => 'language-pref', 
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS salary' => 'options',
                         'OPTIONS employer' => 'options',
-                        'OPTIONS change-password' => 'options'
+                        'OPTIONS change-password' => 'options',
+                        'OPTIONS language-pref' => 'options', 
                     ]
                 ],
                 [ // CandidateController
