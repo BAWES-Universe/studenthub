@@ -90,9 +90,9 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 <span class="code"><?= $model->candidate->employeeId ?></span>
                 <div class="image">
                     <?php if ($model->candidate->candidate_personal_photo) { ?>
-                        <img onerror="this.src='../../../img/no_image.png';"  src="https://sh-payroll.s3.eu-west-2.amazonaws.com/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%">
+                        <img onerror="this.src='../../../img/no_image.png';"  src="https://sh-payroll.s3.eu-west-2.amazonaws.com/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
                     <?php } else  {
-                        echo \yii\helpers\Html::img('@web/img/no_image.png',['style'=>'width: 100%']);
+                        echo \yii\helpers\Html::img('@web/img/no_image.png',['style'=>'width: 100%;min-height: : 100%']);
                     } ?>
                 </div>
                 <span class="name-top">
