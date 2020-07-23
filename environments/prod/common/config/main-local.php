@@ -3,10 +3,35 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=10.131.43.120;dbname=payroll',
-            'username' => 'studenthubpayrollbawes',
+            'dsn' => 'mysql:host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=studenthub',
+            'username' => 'bawes',
             'password' => 'bawes12student!hub',
+            // Old config
+            // 'dsn' => 'mysql:host=10.131.43.120;dbname=payroll',
+            // 'username' => 'studenthubpayrollbawes',
+            // 'password' => 'bawes12student!hub',
             'charset' => 'utf8',
+
+            // common configuration for slaves
+            'slaveConfig' => [
+                'username' => 'bawes',
+                'password' => 'bawes12student!hub',
+                'attributes' => [
+                    // use a smaller connection timeout
+                    PDO::ATTR_TIMEOUT => 10,
+                ],
+            ],
+            // list of slave configurations for Read-write splitting
+            'slaves' => [
+                ['dsn' => 'mysql:host=studenthub-prod.cluster-ro-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=studenthub']
+            ],
+
+            // Enable Caching of Schema to Reduce SQL Queries
+            'enableSchemaCache' => true,
+            // Duration of schema cache.
+            'schemaCacheDuration' => 3600, // 1 hr
+            // Name of the cache component used to store schema information
+            'schemaCache' => 'cache',
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
@@ -46,7 +71,7 @@ return [
                     'class' => 'notamedia\sentry\SentryTarget',
                     'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
                     'levels' => ['error', 'warning'],
-                    
+
                     'clientOptions' => [
                         //which environment are we running this on?
                         'environment' => 'production',
