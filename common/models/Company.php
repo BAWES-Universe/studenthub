@@ -520,7 +520,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
             ->via('subCompanies')
-            ->where(['deleted'=>0]);
+            ->andWhere(['deleted'=>0]);
     }
 
     /**
@@ -534,16 +534,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $company_ids = yii\helpers\ArrayHelper::map($companies, 'company_id', 'company_id');
         $company_ids[] = $company_id;
 
-        // create store_id array
-
-        $stores = Store::find()
+        return Store::find()
             ->where(['in', 'company_id', $company_ids])
-            ->all();
-
-        $store_ids = yii\helpers\ArrayHelper::map($stores, 'store_id', 'store_id');
-
-        return Candidate::find()
-            ->where(['in', 'store_id', $store_ids])
-            ->count();
+            ->sum('store_total_candidates');
     }
 }

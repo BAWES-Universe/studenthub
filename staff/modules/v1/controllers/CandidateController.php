@@ -2,11 +2,12 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\CandidateWorkHistory;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
+use common\models\CandidateWorkHistory;
+
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -83,11 +84,11 @@ class CandidateController extends Controller
     {
         // Attempt to create new account
         $password = Yii::$app->security->generateRandomString(5);
+
         $model = new Candidate();
-        $model->scenario = "newAccount";
+        //$model->scenario = "newAccount";
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
-        $model->bank_id = Yii::$app->request->getBodyParam("bank_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->country_id = Yii::$app->request->getBodyParam("country_id");
         $model->bank_account_name = Yii::$app->request->getBodyParam("bank_account_name");
@@ -97,9 +98,9 @@ class CandidateController extends Controller
         $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
-        $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
-        $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date");
+        $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("birth_date"))): null;
+        $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("expiry_date"))): null;
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
@@ -152,7 +153,6 @@ class CandidateController extends Controller
         }
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
-        $model->bank_id = Yii::$app->request->getBodyParam("bank_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->country_id = Yii::$app->request->getBodyParam("country_id");
         $model->bank_account_name = Yii::$app->request->getBodyParam("bank_account_name");
@@ -162,14 +162,15 @@ class CandidateController extends Controller
         $model->candidate_personal_photo = Yii::$app->request->getBodyParam("personal_photo");
         $model->candidate_email = Yii::$app->request->getBodyParam("email");
         $model->candidate_phone = Yii::$app->request->getBodyParam("phone");
-        $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date");
         $model->candidate_civil_id = Yii::$app->request->getBodyParam("civil_id");
 
-        $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date");
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
-
+ 
+        $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("birth_date"))): null;
+        $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("expiry_date"))): null;
+       
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -486,6 +487,20 @@ class CandidateController extends Controller
             ->asArray()
             ->all();
 
+        if(!$model)
+            return [];
+
+        return $model;
+    }
+
+    /**
+     * get candidate detail
+     * @param $id
+     */
+    public function actionView($id)
+    {
+        $model = Candidate::findOne($id);
+        
         if(!$model)
             return [];
 

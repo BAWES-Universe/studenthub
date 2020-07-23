@@ -10,6 +10,7 @@ use common\fixtures\AdminTokenFixture;
 use common\fixtures\BankFixture;
 use Codeception\Util\HttpCode;
 
+
 class BankCest
 {
     public $token, $bank_id = 2;
@@ -30,10 +31,6 @@ class BankCest
             ->token_value;
     }
 
-    public function _after(FunctionalTester $I)
-    {
-    }
-
     /**
      * Listing
      * @param FunctionalTester $I
@@ -43,6 +40,21 @@ class BankCest
         $I->wantTo('Validate bank api response for listing');
         $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/banks');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+    
+    /**
+     * View bank detail
+     * @param FunctionalTester $I
+     */
+    public function tryToView(FunctionalTester $I)
+    {
+        $bank = Bank::find()->one();
+        
+        $I->wantTo('Validate bank api to view bank detail');
+        $I->amBearerAuthenticated($this->token);
+        $I->sendGET('v1/banks/' . $bank->bank_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -60,12 +72,14 @@ class BankCest
             'v1/banks',
             [
                 'name' => 'davert',
+                'bank_iban_code' => 'asdas',
                 'swift_code' => 'HDFCIN010000',
                 'address' => '201, Albert Street',
                 'type' => 'LCL'
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+        
         $I->seeResponseContainsJson([
             "operation" => "success",
             "message" => "Bank created successfully"
@@ -85,6 +99,7 @@ class BankCest
             'v1/banks/' . $this->bank_id,
             [
                 'name' => 'davert',
+                'bank_iban_code' => 'asdas',
                 'swift_code' => 'HDFCIN010000',
                 'address' => '201, Albert Street',
                 'type' => 'LCL'
@@ -108,9 +123,5 @@ class BankCest
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('v1/banks/' . $this->bank_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Bank deleted successfully"
-        ]);
     }
 }

@@ -75,4 +75,13 @@ class CompanyController extends Controller
             'query' => $query
         ]);
     }
+
+    /**
+     * Return a company Detail
+     */
+    public function actionView($id)
+    {
+        return Yii::$app->user->identity->getSubCompanies()
+            ->filterCompany($id)->one();
+    }
 }

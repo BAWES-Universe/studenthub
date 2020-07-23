@@ -51,7 +51,7 @@ class CompanyTest extends \Codeception\Test\Unit
             $model->company_email = 'testtets tests';
             expect('company email should not accept random string', $model->validate(['company_email']))->false();
 
-            $model->company_email = $this->tester->grabFixture('company', 0)->company_email;
+            $model->company_email = $this->tester->grabFixture('company', 'company0')->company_email;
             expect('company email should not exists in db', $model->validate(['company_email']))->false();
 
             $model->company_email = 'comprrrrrr@localhost.com';//new email
@@ -75,8 +75,8 @@ class CompanyTest extends \Codeception\Test\Unit
             
             // parent_company_id
 
-            $company = $this->tester->grabFixture('company', 0);
-            $store = $this->tester->grabFixture('store', 0);
+            $company = $this->tester->grabFixture('company', 'company0');
+            $store = $this->tester->grabFixture('store', 'store0');
 
             //had to create new Object each time to fix validation issue
 

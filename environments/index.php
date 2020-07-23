@@ -29,6 +29,60 @@
  * ```
  */
 return [
+    'krushn' => [
+        'path' => 'krushn',
+        'setWritable' => [
+            'admin/runtime',
+            'admin/web/assets',
+            'candidate/runtime',
+            'candidate/web/assets',
+            'company/runtime',
+            'company/web/assets',
+            'staff/runtime',
+            'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
+        ],
+        'setExecutable' => [
+            'yii',
+            'yii_test',
+        ],
+        'setCookieValidationKey' => [
+            'admin/config/main-local.php',
+            'candidate/config/main-local.php',
+            'company/config/main-local.php',
+            'staff/config/main-local.php',
+            'verification/config/main-local.php',
+        ],
+    ],
+    
+    'anil' => [
+        'path' => 'anil',
+        'setWritable' => [
+            'admin/runtime',
+            'admin/web/assets',
+            'candidate/runtime',
+            'candidate/web/assets',
+            'company/runtime',
+            'company/web/assets',
+            'staff/runtime',
+            'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
+        ],
+        'setExecutable' => [
+            'yii',
+            'yii_test',
+        ],
+        'setCookieValidationKey' => [
+            'admin/config/main-local.php',
+            'candidate/config/main-local.php',
+            'company/config/main-local.php',
+            'staff/config/main-local.php',
+            'verification/config/main-local.php',
+        ],
+    ],
+
     'Development' => [
         'path' => 'dev',
         'setWritable' => [

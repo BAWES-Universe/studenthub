@@ -1,8 +1,7 @@
 <?php
 namespace company\tests;
 
-use Yii;
-use common\fixtures\CompanyFixture;
+use Yii; 
 use common\fixtures\CompanyTokenFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
@@ -11,19 +10,20 @@ use company\models\Company;
 use common\components\Excel;
 use Codeception\Util\HttpCode;
 
+
 class TransferForWithoutChildCest
 {
     public $token, $companyWithoutChild;
 
-	public function _fixtures() {
-		return [
-			'companyToken' => CompanyTokenFixture::className(),
-			'transferCandidate' => TransferCandidateFixture::className(),
-			'invoice' => InvoiceFixture::className()
-		];
-	}
+    public function _fixtures() {
+            return [
+                    'companyToken' => CompanyTokenFixture::className(),
+                    'transferCandidate' => TransferCandidateFixture::className(),
+                    'invoice' => InvoiceFixture::className()
+            ];
+    }
 
-	public function _before(FunctionalTester $I)
+    public function _before(FunctionalTester $I)
     {
         Yii::$app->params['inCodeception'] = true;
         Yii::$app->params['transfer_cost'] = 0.35;
@@ -110,11 +110,21 @@ class TransferForWithoutChildCest
             ]
         ]);
 
+        //save in S3 temp bucket
+
+        $response = Yii::$app->temporaryBucketResourceManager->save(
+            null,
+            'temp-' . $fileName,
+            [],
+            sys_get_temp_dir() . '/' . $fileName,
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        
         $I->wantTo('Create transfer for company with child by excel upload');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'form-data');
-        $I->sendPOST('v1/transfers/create-by-excel', [], [
-            "excel" => sys_get_temp_dir() . '/' . $fileName
+        $I->sendPOST('v1/transfers/create-by-excel', [
+            "excel" => basename($response['ObjectURL'])
         ]);
         $I->seeResponseMatchesJsonType([
              'transfer_id' => 'integer'
@@ -174,11 +184,21 @@ class TransferForWithoutChildCest
             ]
         ]);
 
+        //save in S3 temp bucket
+
+        $response = Yii::$app->temporaryBucketResourceManager->save(
+            null,
+            'temp-' . $fileName,
+            [],
+            sys_get_temp_dir() . '/' . $fileName,
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        
         $I->wantTo('Create transfer for company with child by excel upload');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'form-data');
-        $I->sendPOST('v1/transfers/edit-by-excel/' . $transfer->transfer_id, [], [
-            "excel" => sys_get_temp_dir() . '/' . $fileName
+        $I->sendPATCH('v1/transfers/edit-by-excel/' . $transfer->transfer_id, [
+            "excel" => basename($response['ObjectURL'])
         ]);
         $I->seeResponseContainsJson([
              'operation' => 'success'

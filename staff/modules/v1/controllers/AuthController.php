@@ -7,6 +7,7 @@ use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use staff\models\Staff;
 
+
 /**
  * Auth controller provides the initial access token that is required for further requests
  * It initially authorizes via Http Basic Auth using a base64 encoded username and password
@@ -90,7 +91,7 @@ class AuthController extends Controller
         return [
             "operation" => "success",
             "token" => $accessToken,
-            "id" => $staff->staff_id,
+            "staff_id" => $staff->staff_id,
             "name" => $staff->staff_name,
             "email" => $staff->staff_email
         ];

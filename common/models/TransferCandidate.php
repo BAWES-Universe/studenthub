@@ -17,6 +17,10 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $company_id
  * @property string $company_name
  * @property string $company_email
+ * @property integer $bank_id
+ * @property string $transfer_confirmation_id
+ * @property string $transfer_benef_name
+ * @property string $transfer_benef_iban
  * @property decimal $candidate_hourly_rate - hourly rate candidate will receive
  * @property decimal $company_hourly_rate - hourly rate company paying 
  * @property decimal $hours - no of hours candidate have worked
@@ -56,11 +60,18 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['transfer_id', 'candidate_id', 'store_id', 'company_id'], 'integer'],
+            [['transfer_id', 'candidate_id', 'store_id', 'bank_id', 'company_id'], 'integer'],
             [['store_name', 'company_name'], 'string', 'max' => 100],
             [['company_email'], 'email'],
+            [['transfer_confirmation_id'], 'string', 'max' => 128],
+            [['transfer_benef_iban'], 'string', 'max' => 50],
+            [['transfer_confirmation_id'], 'unique'],
+            ['paid', 'validateStatus'],
+            [['transfer_benef_name'], 'string', 'max' => 60],
+            [['bank_id', 'transfer_confirmation_id', 'transfer_benef_name', 'transfer_benef_iban'], 'validateBankDetails'],
             [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['tc_created_at', 'tc_updated_at'], 'safe'],
+            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -68,6 +79,40 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
     }
 
+    public function validateStatus($attribute, $params, $validator)
+    {
+        //on mark as paid clear out the name/iban/bankid/transfer_confirmation_id
+        
+        if($this->getOldAttribute('paid') && !$this->paid) {
+            $this->bank_id = null; 
+            $this->transfer_confirmation_id = null; 
+            $this->transfer_benef_iban = null; 
+            $this->transfer_benef_name = null;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * validate bank detail
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     */
+    public function validateBankDetails($attribute, $params, $validator)
+    {   
+        //if paid, don't allow bank detail change 
+        
+        if(
+            $this->getOldAttribute('paid') &&
+            (
+                $this->$attribute != $this->getOldAttribute($attribute)
+            )      
+        ) {
+            $this->addError($attribute, 'Bank detail can not be updated on paid transfer.');
+        }
+    }
+           
     /**
      * @return array
      */
@@ -97,6 +142,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'company_id' => 'Company ID',
             'company_name' => 'Company Name',
             'company_email' => 'Company Email',
+            'bank_id' => 'Bank ID',
+            'transfer_confirmation_id' => 'Transfer confirmation ID',
+            'transfer_benef_name' => 'Transfer Benef Name',
+            'transfer_benef_iban' => 'Transfer Benef IBAN',
             'hours' => 'Hours',
             'candidate_hourly_rate' => 'Candidate Hourly Rate',
             'company_hourly_rate' => 'Company Hourly Rate',

@@ -79,6 +79,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET detail/<id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH assign/<id>' => 'assign',
@@ -93,6 +94,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS detail/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',                        
                         'OPTIONS not-assigned' => 'options',
@@ -108,6 +110,7 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
@@ -121,8 +124,10 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // BankController
@@ -142,9 +147,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET all' => 'all',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS all' => 'options'
+                        'OPTIONS all' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // CountryController
@@ -153,9 +160,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET all' => 'all',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS all' => 'options'
+                        'OPTIONS all' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // CandidateIdCardController
@@ -168,13 +177,15 @@ return [
                         'GET list-expired' => 'list-expired',
                         'POST renew' => 'renew',                                                
                         'GET total-expired' => 'total-expired',
+                        'GET <id>/<token>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS list-candidate-ids' => 'options',
                         'OPTIONS list-candidates' => 'options',
                         'OPTIONS generate' => 'options',
                         'OPTIONS list-expired' => 'options',
                         'OPTIONS renew' => 'options',                        
-                        'OPTIONS total-expired' => 'options'
+                        'OPTIONS total-expired' => 'options',
+                        'OPTIONS <id>/<token>' => 'options'
                     ]
                 ],
             ],

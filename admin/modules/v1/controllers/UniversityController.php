@@ -6,6 +6,8 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use common\models\University;
+use yii\web\NotFoundHttpException;
+
 
 /**
  * University controller - Manage university as Admin
@@ -77,6 +79,16 @@ class UniversityController extends Controller
     }
 
     /**
+     * load university details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+    
+    /**
      * Create a university account
      */
     public function actionCreate()
@@ -121,7 +133,7 @@ class UniversityController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = University::findOne((int) $id);
+        $model = $this->findModel((int) $id);
 
         if(!$model){
             return [
@@ -166,7 +178,7 @@ class UniversityController extends Controller
      */
     public function actionDelete($id)
     {
-        $university = University::findOne((int)$id);
+        $university = $this->findModel((int)$id);
 
         if(!$university) {
             return [
@@ -201,5 +213,21 @@ class UniversityController extends Controller
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
+    }
+    
+    /**
+     * Finds the University model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = University::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

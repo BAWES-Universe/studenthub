@@ -67,6 +67,7 @@ return [
                     'controller' => 'v1/staff',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
@@ -100,8 +101,10 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // CandidateController
@@ -113,12 +116,14 @@ return [
                         'PATCH approve/<id>' => 'approve',
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // TransferController
@@ -129,8 +134,9 @@ return [
                         'GET text' => 'text',
                         'GET payable-candidates' => 'payable-candidates',
                         'GET export-payable-candidates' => 'export-payable-candidates',
+                        'GET invoices/<id>' => 'invoices',
                         'GET export/<id>' => 'export',
-                        'GET pdf/<id>' => 'pdf',
+                        'GET pdf/<id>/<type>' => 'pdf',
                         'GET <id>' => 'view',
                         'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         'PATCH unlock/<id>' => 'unlock',
@@ -139,6 +145,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS payable-candidates' => 'options',
+                        'OPTIONS invoices/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS payment-received-distributing/<id>' => 'options',
                         'OPTIONS unlock/<id>' => 'options',
@@ -147,7 +154,7 @@ return [
                         'OPTIONS export-payable-candidates' => 'options',
                         'OPTIONS text' => 'options',
                         'OPTIONS export/<id>' => 'options',
-                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS pdf/<id>/<type>' => 'options'
                     ]
                 ],
                 [ // TransferCandidateController
@@ -155,12 +162,16 @@ return [
                     'controller' => 'v1/transfer-candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET by-transfer/<id>' => 'by-transfer',
+                        'GET <id>' => 'view',
                         'PATCH unpaid/<id>' => 'unpaid',
                         'PATCH paid/<id>' => 'paid',
                         'PATCH mark-paid-all' => 'mark-paid-all',
                         'PATCH mark-unpaid-all' => 'mark-unpaid-all',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS by-transfer/<id>' => 'options',
                         'OPTIONS unpaid/<id>' => 'options',
                         'OPTIONS paid/<id>' => 'options',
                         'OPTIONS mark-paid-all' => 'options',
@@ -172,6 +183,7 @@ return [
                     'controller' => 'v1/bank',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
@@ -185,6 +197,7 @@ return [
                     'controller' => 'v1/university',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
@@ -198,8 +211,10 @@ return [
                     'controller' => 'v1/country',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],

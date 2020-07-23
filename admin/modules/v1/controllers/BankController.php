@@ -8,6 +8,9 @@ use yii\data\ActiveDataProvider;
 use common\models\Bank;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
+
 /**
  * Bank controller - Manage bank as Admin
  */
@@ -78,6 +81,16 @@ class BankController extends Controller
     }
 
     /**
+     * load bank details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+    
+    /**
      * Create a bank account
      * @return array
      */
@@ -89,7 +102,9 @@ class BankController extends Controller
         $model->bank_name = Yii::$app->request->getBodyParam("name");
         $model->bank_swift_code = Yii::$app->request->getBodyParam("swift_code");
         $model->bank_address = Yii::$app->request->getBodyParam("address");
+        $model->bank_iban_code = Yii::$app->request->getBodyParam("bank_iban_code");
         $model->bank_transfer_type = Yii::$app->request->getBodyParam("type");
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -124,7 +139,7 @@ class BankController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = Bank::findOne((int) $id);
+        $model = $this->findModel((int) $id);
 
         if(!$model){
             return [
@@ -135,6 +150,7 @@ class BankController extends Controller
 
         $model->bank_name = Yii::$app->request->getBodyParam("name");
         $model->bank_swift_code = Yii::$app->request->getBodyParam("swift_code");
+        $model->bank_iban_code = Yii::$app->request->getBodyParam("bank_iban_code");
         $model->bank_address = Yii::$app->request->getBodyParam("address");
         $model->bank_transfer_type = Yii::$app->request->getBodyParam("type");
 
@@ -172,7 +188,7 @@ class BankController extends Controller
      */
     public function actionDelete($id)
     {
-        $bank = Bank::findOne((int)$id);
+        $bank = $this->findModel((int)$id);
 
         if(!$bank) {
             return [
@@ -200,5 +216,21 @@ class BankController extends Controller
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
+    }
+    
+    /**
+     * Finds the Bank model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Bank::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

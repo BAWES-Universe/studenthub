@@ -7,6 +7,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use common\models\Country;
 
+
 /**
  * Country controller - Manage university as Admin
  */
@@ -81,8 +82,17 @@ class CountryController extends Controller
      */
     public function actionAll()
     {
-        return Country::find()
+          return Country::find()
             ->listWithCandidateCount()
             ->all();
+    }
+
+    /**
+     * detail
+     * without pagination.
+     */
+    public function actionView($id)
+    {
+        return Country::findOne($id);
     }
 }

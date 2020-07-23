@@ -65,7 +65,7 @@ class University extends \yii\db\ActiveRecord
         $fields = parent::fields();
         unset($fields['deleted']);
         $fields['total_candidates'] = function($model) {
-            return sizeof($model->candidates);
+            return (int) sizeof($model->candidates);
         };
 
         return $fields;

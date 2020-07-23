@@ -24,6 +24,18 @@ class S3FileExistValidator extends Validator
     public $filePath = "";
     
     /**
+     * File extensions allowed 
+     * @var type 
+     */
+    public $extensions;
+    
+    /**
+     * Max file size allowed
+     * @var type 
+     */
+    public $maxSize;
+    
+    /**
      * @var string the error message to be shown if validation fails
      */
     public $message = "Uploaded file does not exist";
@@ -31,11 +43,45 @@ class S3FileExistValidator extends Validator
     public function validateAttribute($model, $attribute)
     {
         $filename = $model->$attribute;
-        if($filename && $this->resourceManager){
-            //check if this file exists within this resourceManager bucket
-            if(!$this->resourceManager->fileExists($this->filePath.$filename)){
-                $this->addError($model, $attribute, $this->message);
+        
+        if(!$filename || !$this->resourceManager) {
+            return null; 
+        }
+        
+        //check if this file exists within this resourceManager bucket
+
+        if(!$this->resourceManager->fileExists($this->filePath.$filename))
+        {
+            $this->addError($model, $attribute, Yii::t('app', $this->message));
+        }
+
+        //if allowd extensions defined 
+        
+        if($this->extensions) 
+        {
+            $allowdExtensions = explode(',', str_replace('.', '', $this->extensions)); 
+        
+            $extension = pathinfo($filename, PATHINFO_EXTENSION); 
+
+            if(!in_array(strtolower($extension), $allowdExtensions) &&
+                    !in_array(strtoupper($extension), $allowdExtensions)) 
+            {
+                $this->addError($model, $attribute, Yii::t('app', 'Invalid file type'));
             }
         }
+        
+        //if max size defined 
+        
+        if($this->maxSize) 
+        {
+            $size = $this->resourceManager->getSize($filename);
+
+            if($this->maxSize < $size) 
+            {
+                $this->addError($model, $attribute, Yii::t('app', 'Max allowed file size is {size}', [
+                    'size' => $this->maxSize
+                ]));
+            }
+        }   
     }
 }

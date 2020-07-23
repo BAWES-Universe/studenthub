@@ -81,7 +81,7 @@ class LoginFormTest extends \Codeception\Test\Unit
         $staff = Staff::findOne(1);
         $model = new LoginForm([
             'email' => $staff->staff_email,
-            'password' => 'password_0',
+            'password' => '12345',
         ]);
         $model->validate();
         expect('model should login user', $model->login())->true();

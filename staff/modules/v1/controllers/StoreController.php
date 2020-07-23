@@ -208,4 +208,14 @@ class StoreController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
+
+    /**
+     * store View
+     * @param  integer $id
+     * @return array
+     */
+    public function actionView($id)
+    {
+        return Store::findOne($id);
+    }
 }

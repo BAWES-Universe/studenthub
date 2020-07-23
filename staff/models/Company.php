@@ -15,23 +15,19 @@ class Company extends \common\models\Company {
     public function fields()
     {
         // Whitelisted fields to return
-        return [
-            'company_id',
-            'parent_company_id',
-            'company_name',
-            'company_email',
-            'company_status',
-            'total_candidates' => function($model) {
-                return self::getTotalCandidateCount($model->company_id);
-            },
-            'subcompanies' => function($model) {
-                return $model->subCompanies;
-            },
-            'stores' => function($model) {
-                return $model->stores;
-            }
-        ];
+        $field = parent::fields();
+        unset(
+            $field['company_hourly_rate'],
+            $field['company_bonus_commission'],
+            $field['company_created_at'],
+            $field['company_updated_at']
+        );
+        $field['total_candidates'] = function($model) {
+            return self::getTotalCandidateCount($model->company_id);
+        };
+        return $field;
     }
+
 
     /**
      * @param string $modelClass

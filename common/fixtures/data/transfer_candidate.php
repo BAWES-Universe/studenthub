@@ -5,7 +5,7 @@ return [
     [
     	'tc_id' => '1',
     	'transfer_id' => '1',
-    	'candidate_id' => '1',
+    	'candidate_id' => '3',
     	'store_id' => '1',
     	'store_name' => 'First Store',
     	'company_id' => '2',
@@ -24,7 +24,7 @@ return [
     [
         'tc_id' => '2',
         'transfer_id' => '1',
-        'candidate_id' => '2',
+        'candidate_id' => '6',
         'store_id' => '2',
         'store_name' => 'Second Store',
         'company_id' => '2',
@@ -239,8 +239,8 @@ return [
     [
         'tc_id' => '13',
     	'transfer_id' => '13',
-    	'candidate_id' => '3',
-    	'store_id' => '3',
+    	'candidate_id' => '7',
+    	'store_id' => '44',
     	'store_name' => 'Third Store - Without Child',
     	'company_id' => '3',
     	'company_name' => 'Without Child',
@@ -258,8 +258,8 @@ return [
     [
         'tc_id' => '14',
         'transfer_id' => '13',
-        'candidate_id' => '4',
-        'store_id' => '3',
+        'candidate_id' => '8',
+        'store_id' => '14',
         'store_name' => 'Third Store - Without Child',
         'company_id' => '3',
         'company_name' => 'Without Child',

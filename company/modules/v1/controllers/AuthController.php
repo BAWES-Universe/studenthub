@@ -92,7 +92,7 @@ class AuthController extends Controller
         return [
             "operation" => "success",
             "token" => $accessToken,
-            "id" => $company->company_id,
+            "company_id" => $company->company_id,
             "name" => $company->company_name,
             "email" => $company->company_email
         ];

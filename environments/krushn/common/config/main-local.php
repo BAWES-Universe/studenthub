@@ -1,0 +1,41 @@
+<?php
+return [
+    'components' => [
+        'db' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=localhost:8889;dbname=studenthub',
+            'username' => 'root',
+            'password' => 'root',
+            'charset' => 'utf8',
+        ],
+        'mailer' => [
+            'class' => 'yii\swiftmailer\Mailer',
+            'viewPath' => '@common/mail',
+            // send all mails to a file by default. You have to set
+            // 'useFileTransport' to false and configure a transport
+            // for the mailer to send real emails.
+            'useFileTransport' => true,
+        ],
+        'urlManagerStaff' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
+        ],
+        'resourceManager' => [
+            'class' => 'common\components\S3ResourceManager',
+            'region' => 'eu-west-2', // Bucket based in London
+            'key' => 'AKIAJXOMRCDE65WKBPUA',
+            'secret' => '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',
+            'bucket' => 'studenthub-uploads-dev-server',
+            /**
+             * For Local Development, we access using key and secret
+             * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
+             *
+             * You can access the bucket with:
+             * https://studenthub-uploads-dev-server.s3.amazonaws.com/
+             * https://studenthub-uploads-dev-server.s3.amazonaws.com/folderName/fileName.jpg
+             */
+        ],
+    ],
+];

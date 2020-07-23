@@ -5,6 +5,7 @@ namespace admin\models;
 use Yii;
 use yii\helpers\ArrayHelper;
 
+
 /**
  * Class TransferCandidate
  * @package admin\models
@@ -18,13 +19,13 @@ class TransferCandidate extends \common\models\TransferCandidate
     {
     	$fields = parent::fields();
 
-    	$fields['candidate'] = function($model) {
-    		return $model->candidate;
-    	};
-
         $fields['status'] = function($model){
             return ($model->paid) ? 'Paid' : 'Unpaid';
         };
+        
+        $fields['paid'] = function($model){
+            return (int)$model->paid;
+        };      
 
         //total amount candidate will receive 
         $fields['total'] = function($model) {
@@ -215,7 +216,10 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public static function markAllUnpaid($transferCandidateIds) {
 
-        if (count($transferCandidateIds) == 0) {
+        if (
+            ($transferCandidateIds && count($transferCandidateIds) == 0) ||
+            !$transferCandidateIds
+        ) {
             return [
                 "operation" => "error",
                 "message" => 'empty transfer record'

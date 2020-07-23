@@ -2,11 +2,13 @@
 
 namespace candidate\modules\v1\controllers;
 
-use common\models\CandidateWorkHistory;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use common\models\CandidateWorkHistory;
+
+
 /**
  * Candidate controller
  */

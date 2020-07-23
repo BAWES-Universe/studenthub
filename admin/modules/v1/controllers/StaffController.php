@@ -8,6 +8,8 @@ use yii\data\ActiveDataProvider;
 use admin\models\Staff;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
 
 /**
  * Staff controller - Manage staff accounts as Admin
@@ -78,6 +80,16 @@ class StaffController extends Controller
     }
 
     /**
+     * load staff details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+    
+    /**
      * Create a staff account
      */
     public function actionCreate()
@@ -122,7 +134,7 @@ class StaffController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = Staff::findOne((int) $id);
+        $model = $this->findModel((int) $id);
 
         if(!$model){
             return [
@@ -167,7 +179,7 @@ class StaffController extends Controller
      */
     public function actionDelete($id)
     {
-        $staffMember = Staff::findOne((int)$id);
+        $staffMember = $this->findModel((int)$id);
 
         if($staffMember) 
         {
@@ -204,7 +216,7 @@ class StaffController extends Controller
      */
     public function actionResetPassword($id)
     {
-        $model = Staff::findOne((int) $id);
+        $model = $this->findModel((int) $id);
 
         if(!$model) {
             return [
@@ -226,5 +238,21 @@ class StaffController extends Controller
             "operation" => "success",
             "message" => "New password sent to registered email successfully"
         ];
+    }
+    
+    /**
+     * Finds the Staff model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Staff::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

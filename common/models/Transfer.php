@@ -7,6 +7,8 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use kartik\mpdf\Pdf;
 use yii\db\ActiveRecord;
+
+
 /**
  * This is the model class for table "transfer".
  *
@@ -132,6 +134,10 @@ class Transfer extends ActiveRecord
             return $model->payment_received_on? Yii::$app->formatter->asDate($model->payment_received_on) : $model->payment_received_on;
         };
 
+        $fields['transfer_status'] = function($model) {
+            return (int) $model->transfer_status;
+        };
+        
         unset($fields['deleted']);
 
         return $fields;
@@ -156,6 +162,18 @@ class Transfer extends ActiveRecord
     public function getCompany($modelClass = "\common\models\Company")
     {
         return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * Get all unpaid TransferCandidate related to this transfer or its parent transfer
+     * which include each employees hours worked, hourly rate, etc
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getUnPaidTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->getTransferCandidates($modelClass)
+            ->andWhere(['paid' => '0']);
     }
 
     /**

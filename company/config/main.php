@@ -62,10 +62,12 @@ return [
                         'GET' => 'list',
                         'GET total' => 'total',
                         'GET work-history/<id>' => 'work-history',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS total' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // TransferController
@@ -74,15 +76,15 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET transfer-excel-template' => 'transfer-excel-template',
+                        'GET pdf/<id>' => 'pdf',                        
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'POST create-by-excel' => 'create-by-excel',
-                        'PATCH <id>' => 'edit',
                         'PATCH payment-sent/<id>' => 'payment-sent',                        
                         'PATCH lock/<id>' => 'lock',
-                        'POST edit-by-excel/<id>' => 'edit-by-excel',                        
+                        'PATCH edit-by-excel/<id>' => 'edit-by-excel',                        
+                        'PATCH <id>' => 'edit',
                         'DELETE <id>' => 'delete',                        
-                        'GET pdf/<id>' => 'pdf',                        
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS transfer-excel-template' => 'options',
@@ -100,8 +102,8 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET company-store' => 'index',
-                        'GET <companyId>' => 'list',
                         'GET view/<id>' => 'view',
+                        'GET <companyId>' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',                        
                         'OPTIONS company-store' => 'options',
@@ -114,8 +116,10 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
-                        'OPTIONS' => 'options'
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // AccountController

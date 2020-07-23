@@ -11,6 +11,8 @@ use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use kartik\mpdf\Pdf;
+use yii\web\NotFoundHttpException;
+
 
 /**
  * Transfer controller - Manage Transfer
@@ -97,46 +99,36 @@ class TransferController extends Controller
             'query' => $query
         ]);
     }
+    
+    /**
+     * list invoices
+     * @param type $id
+     * @return ActiveDataProvider
+     */
+    public function actionInvoices($id) 
+    {
+        $transfer = $this->findModel($id);
+        
+        return new ActiveDataProvider([
+            'query' => $transfer->getInvoices(),
+            'pagination' => false
+        ]);
+    }
 
     /**
      * Return a List of all Payable Candidates with invoice status paid
      */
     public function actionPayableCandidates()
     {
-        $result = [];
-
         // Candidates whose company paid to admin but admin have not paid yet
-        $transfers = Transfer::find()
+        $query = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->isParentTransfer()
-            ->all();
-
-        foreach ($transfers as $transfer)
-        {
-            $candidates = $transfer->getTransferCandidates()
-                ->with([
-                    'candidate', 
-                    'candidate.store', 
-                    'candidate.company', 
-                    'candidate.bank',
-                    'candidate.university'
-                ])        
-                ->where(['paid' => '0'])
-                ->all();
-
-            if($candidates)
-            {
-                $totalAmount = Candidate::calculateRemainingPaymentTransferTotal($candidates);
-
-                $result[] = [
-                    'transfer_id' => $transfer->transfer_id,
-                    'candidates' => $candidates,
-                    'total' => $totalAmount
-                ];
-            }
-        }
-
-        return $result;
+            ->isParentTransfer();
+        
+        return new \yii\data\ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false
+        ]);
     }
 
     /**
@@ -150,10 +142,10 @@ class TransferController extends Controller
             ->with([
                 'transferCandidates', 
                 'transferCandidates.candidate', 
-                'transferCandidates.candidate.store', 
-                'transferCandidates.candidate.company', 
-                'transferCandidates.candidate.bank',
-                'transferCandidates.candidate.university'
+            //    'transferCandidates.candidate.store', 
+            //    'transferCandidates.candidate.company', 
+            //    'transferCandidates.candidate.bank',
+            //    'transferCandidates.candidate.university'
             ])
             ->where([
                 'transfer_id' => $id
@@ -161,10 +153,7 @@ class TransferController extends Controller
             ->one();
 
         if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found'
-            ];
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         return $transfer;
@@ -177,16 +166,9 @@ class TransferController extends Controller
      */
     public function actionPaymentReceivedDistributing($id)
     {
-        $transfer = Transfer::findOne($id);
+        $transfer = $this->findModel($id);
 
-        if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
-
-        try{
+        try {
             $transfer->paymentReceived();
         }
         catch(Exception $e){
@@ -214,15 +196,7 @@ class TransferController extends Controller
      */
     public function actionUnlock($id)
     {
-        $transfer = Transfer::findOne((int)$id);
-
-        if(!$transfer)
-        {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
+        $transfer = $this->findModel((int)$id);
 
         try {
             $transfer->unlock();
@@ -250,7 +224,7 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $transfer = Transfer::findOne((int)$id);
+        $transfer = $this->findModel((int)$id);
 
         if(!$transfer)
         {
@@ -296,6 +270,7 @@ class TransferController extends Controller
             );
 
             // Check if all paid, mark transfer as complete
+            
             $unpaid = TransferCandidate::find()
                 ->where([
                     'paid' => 0
@@ -304,7 +279,7 @@ class TransferController extends Controller
                 ->count();
 
             if (!$unpaid) {
-                $transfer = Transfer::findOne($value['transfer_id']);
+                $transfer = $this->findModel($value['transfer_id']);
                 $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
                 $transfer->save();
             }
@@ -416,14 +391,7 @@ class TransferController extends Controller
      */
     public function actionExport($id)
     {
-        $transfer = Transfer::findOne((int)$id);
-
-        if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
+        $transfer = $this->findModel((int)$id);
 
         $candidates = TransferCandidate::find()
             ->candidatesByTransfer($id)
@@ -492,9 +460,10 @@ class TransferController extends Controller
     /**
      * Download Transfer as PDF
      * @param $id
+     * @param $type
      * @return array|mixed
      */
-    public function actionPdf($id)
+    public function actionPdf($id, $type)
     {
         $invoice = Invoice::find()
             ->withTransfer($id)
@@ -509,7 +478,8 @@ class TransferController extends Controller
 
         $this->layout = 'pdf';
 
-        if($invoice['invoice_status'] == 'paid')
+        if($type == 'receipt')
+//        if($invoice['invoice_status'] == 'paid' || $type == 'receipt')
             $template = 'receipt';
         else
             $template = 'invoice';
@@ -535,5 +505,21 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
+    }
+    
+    /**
+     * Finds the Transfer model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Transfer::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

@@ -3,11 +3,13 @@
 namespace candidate\modules\v1\controllers;
 
 use Yii;
+use yii\base\DynamicModel;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
-use candidate\models\PasswordResetRequestForm;
 use candidate\models\Candidate;
 use yii\filters\Cors;
+
+
 /**
  * Auth controller provides the initial access token that is required for further requests
  * It initially authorizes via Http Basic Auth using a base64 encoded username and password
@@ -51,7 +53,9 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
-            'update-password'
+            'update-password',
+            'email-check',
+            'signup'
         ];
 
         return $behaviors;
@@ -140,6 +144,83 @@ class AuthController extends Controller
         return [
             'operation' => 'success',
             'message' => 'Your password has been reset'
+        ];
+    }
+
+
+    /**
+     * Mobile Check
+     * @return User|null
+     */
+    public function actionEmailCheck() {
+
+        $email = Yii::$app->request->getBodyParam('email');
+
+        $model = DynamicModel::validateData(['email' => $email], [
+            [['email'], 'email'],
+        ]);
+
+        if ($model->hasErrors()) {
+            return self::response('error',$model->errors, 0);
+        } else {
+            $candidate = Candidate::findByEmail($email);
+            if ($candidate) {
+                return self::response('success',$candidate, 0);
+            } else  {
+                return self::response('success',false, 0);
+            }
+
+        }
+    }
+
+    /**
+     * Signup by candidate, only firstname, lastname, email and password needed
+     * @return array
+     */
+    public function actionSignup() {
+        $model = new Candidate();
+        $model->scenario = "signup";
+
+        $firstname = ucfirst(Yii::$app->request->getBodyParam('name'));
+
+        $model->candidate_name = $firstname;
+        $model->candidate_name_ar = $firstname;
+        $model->candidate_email = Yii::$app->request->getBodyParam('email');
+        $model->candidate_phone = Yii::$app->request->getBodyParam('phone');
+        $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
+        $model->candidate_status = \common\models\Candidate::STATUS_PENDING;
+
+        if (!$model->signup()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors,
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => Yii::t('job', "We've faced a problem creating your account, please contact us for assistance.")
+                ];
+            }
+        }
+//        $this->sendVerificationEmail();
+        return [
+            "operation" => "success",
+            "candidate_uuid" => $model->candidate_id,
+            "message" => Yii::t('app', "Please click on the link sent to you by email to verify your account"),
+        ];
+    }
+
+    /**
+     * @param $type
+     * @param $msg
+     * @param int $translate
+     * @return array
+     */
+    public static function response($type, $msg, $translate = 1) {
+        return [
+            'operation' => $type,
+            'message' => ($translate) ? Yii::t('user', $msg) : $msg
         ];
     }
 }

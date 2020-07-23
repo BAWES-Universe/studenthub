@@ -2,10 +2,13 @@
 
 namespace staff\models;
 
+use Yii;
 use yii\helpers\Url;
 use yii\helpers\FileHelper;
-use dosamigos\qrcode\QrCode;
 use common\components\Excel;
+use Da\QrCode\QrCode;
+use Spatie\Browsershot\Browsershot;
+
 
 /**
  * This is the model class for table "candidate_id_card".
@@ -44,6 +47,77 @@ class CandidateIdCard extends \common\models\CandidateIdCard
     }
 
     /**
+     * Create Zip of Id Cards
+     * @param  [type] $candidates [description]
+     * @return [type]             [description]
+     */
+    public static function createIdCards($candidates)
+    {
+        $path = sys_get_temp_dir().'/id-cards/';
+
+        //remove old content
+
+        FileHelper::removeDirectory($path);
+
+        //create directory if not exists 
+
+        FileHelper::createDirectory($path);
+
+        // Create zip
+        $zipname = 'IdCards.zip';
+        $zip = new \ZipArchive();
+        if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
+        {
+            Yii::$app->response->statusCode = 500;
+
+            return [
+                'operation' => 'error',
+                'message' => 'Cannot create a zip file'
+            ];
+        }
+
+        // Create card images
+        
+        foreach ($candidates as $key => $value) {
+            
+            if(!$value->candidateIdCard) {
+                continue;
+            }
+            
+            $token = Yii::$app->user->identity->accessTokens[0]->token_value;
+
+            $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
+
+            FileHelper::createDirectory($path. '/' . $value->candidate_uid);
+
+            Browsershot::url($card_url . '?side=front')
+                ->timeout(0)
+                ->waitUntilNetworkIdle()
+                ->windowSize(638, 1011)
+                ->save($path. '/' . $value->candidate_uid .'/front.png');
+
+            Browsershot::url($card_url . '?side=back')
+                ->timeout(0)     
+                ->waitUntilNetworkIdle()
+                ->windowSize(638, 1011)
+                ->save($path. '/' . $value->candidate_uid .'/back.png');
+
+            // Add photo folder to zip
+                
+            $zip->addFile($path. '/' . $value->candidate_uid .'/front.png', $value->candidate_uid . '/front.png');
+
+            $zip->addFile($path. '/' . $value->candidate_uid .'/back.png', $value->candidate_uid . '/back.png');
+        }
+        
+        $zip->close();
+
+        return [
+            'operation' => 'success',
+            'zip' => $path.'/'.$zipname
+        ];
+    }
+    
+    /**
      * Create Zip
      * @param  [type] $candidates [description]
      * @return [type]             [description]
@@ -60,6 +134,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
         // Create zip
         $zipname = 'IdCards.zip';
         $zip = new \ZipArchive();
+
         if (!$zip->open($path.'/'.$zipname, \ZipArchive::CREATE))
         {
             Yii::$app->response->statusCode = 500;
@@ -76,12 +151,14 @@ class CandidateIdCard extends \common\models\CandidateIdCard
         FileHelper::createDirectory($path.'/QR');
 
         foreach ($candidates as $key => $value) {
-            QrCode::jpg(
-                'https://v.studenthub.co/'.$value->candidate_uid,
-                $path.'/QR/'.$value->employeeId.'.jpg',
-                0,
-                14
-            );
+            
+            $writer = new \Da\QrCode\Writer\JpgWriter();
+            
+            $qrCode = (new QrCode('https://v.studenthub.co/'.$value->candidate_uid, null, $writer))
+                ->setSize(250)
+                ->setMargin(5);
+
+            $qrCode->writeFile($path.'/QR/'.$value->employeeId.'.jpg');
         }
 
         // Add QR folder to zip

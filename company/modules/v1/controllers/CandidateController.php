@@ -3,6 +3,7 @@
 namespace company\modules\v1\controllers;
 
 use common\models\CandidateWorkHistory;
+use company\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
@@ -70,17 +71,7 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $company = Company::findOne(Yii::$app->user->id);
-        
-        return $company->getCandidates()
-            ->with([
-                'store',
-                'university',
-                'country',
-                'company'
-            ])    
-            ->asArray(false)    
-            ->all();
+        return Yii::$app->user->identity->getCandidates()->all();
     }
 
     /**
@@ -89,10 +80,7 @@ class CandidateController extends Controller
      */
     public function actionTotal()
     {
-        $company = Company::findOne(Yii::$app->user->id);
-        
-        return $company->getCandidates()
-            ->count();
+        return Yii::$app->user->identity->getCandidates()->count();
     }
 
     /**
@@ -104,13 +92,19 @@ class CandidateController extends Controller
     {
         $model = CandidateWorkHistory::find()
             ->filterCandidate($id)
-            ->with('store')
-            ->asArray()
             ->all();
 
         if(!$model)
             return [];
 
         return $model;
+    }
+
+    /**
+     * Return no of Candidate detail
+     */
+    public function actionView($id)
+    {
+        return Yii::$app->user->identity->getCandidates()->filterById($id)->one();
     }
 }
