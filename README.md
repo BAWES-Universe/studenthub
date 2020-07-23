@@ -55,6 +55,27 @@ Employees are to also sign a "Tanazol" document forfeiting their rights as a ful
 
 exif, pdo_mysql
 
+### cron set up for admin notifications 
+
+# Pull from git every minute
+`* * * * * cd ~/www && git pull >> ~/logs/git.log`
+
+# Install composer dependencies every minute
+`* * * * * cd ~/www && /usr/local/bin/composer install 2>&1 | cat >> ~/logs/$`
+
+# Initialize server environment files every minute
+Dev server ---> `* * * * * cd ~/www && ./init --env=Dev-Server --overwrite=All > ~/logs/init$`
+Production ---> `* * * * * cd ~/www && ./init --env=Production --overwrite=All > ~/logs/init$`
+
+# Migrate database changes every minute
+`* * * * * cd ~/www && ./yii migrate --interactive=0 >> ~/logs/migrate.log`
+
+# Daily CRON at 1:30 PM Every Day
+`30 13 * * * php ~/www/yii cron/daily > /dev/null 2>&1`
+
+# CRON every minute
+`* * * * * php ~/www/yii cron/every-minute > /dev/null 2>&1`
+
 ### make sure to update staff api url 
 
 for `urlManagerStaff` component's `baseUrl` property for files at environments/*/common/config/main-local.php 
