@@ -84,8 +84,9 @@ class CandidateController extends Controller
     {
         // Attempt to create new account
         $password = Yii::$app->security->generateRandomString(5);
+
         $model = new Candidate();
-        $model->scenario = "newAccount";
+        //$model->scenario = "newAccount";
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");

@@ -162,7 +162,6 @@ class AuthController extends Controller
 
         if ($model->hasErrors()) {
             return self::response('error',$model->errors, 0);
-
         } else {
             $candidate = Candidate::findByEmail($email);
             if ($candidate) {
