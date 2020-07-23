@@ -84,20 +84,20 @@ return [
                             'yii\web\HttpException:404',
                         ],
                         // Disable notifications for malicious errors from 3rd party
-                        'send_callback' => function($data) {
-                            // Error Types to Ignore
-                            $ignore_types = [
-                                'yii\web\NotFoundHttpException',
-                                'Page not found.'
-                            ];
-
-                            if (isset($data['exception']) &&
-                                (in_array($data['exception']['values'][0]['type'], $ignore_types) ||
-                                in_array($data['exception']['values'][0]['value'], $ignore_types))
-                            ){
-                                return false;
-                            }
-                        },
+                        // 'send_callback' => function($data) {
+                        //     // Error Types to Ignore
+                        //     $ignore_types = [
+                        //         'yii\web\NotFoundHttpException',
+                        //         'Page not found.'
+                        //     ];
+                        //
+                        //     if (isset($data['exception']) &&
+                        //         (in_array($data['exception']['values'][0]['type'], $ignore_types) ||
+                        //         in_array($data['exception']['values'][0]['value'], $ignore_types))
+                        //     ){
+                        //         return false;
+                        //     }
+                        // },
                     ],
                     'context' => true // Write the context information. The default is true.
                 ],
