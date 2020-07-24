@@ -40,7 +40,9 @@ class AuthController extends Controller
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
             'auth' => function ($email, $password) {
+            
                 $admin = Admin::findByEmail($email);
+                
                 if ($admin && $admin->validatePassword($password)) {
                     return $admin;
                 }
@@ -56,7 +58,6 @@ class AuthController extends Controller
 
         return $behaviors;
     }
-
 
     /**
      * @inheritdoc
@@ -74,7 +75,6 @@ class AuthController extends Controller
         ];
         return $actions;
     }
-
 
     /**
      * Perform validation on the admin account (check if he's allowed login to platform)
