@@ -68,18 +68,46 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
             .bottom-part{background: #fff; height: 412px; position: relative;}
             .back-card {width:638px;height:1011px;float: left;background: #fff;margin-bottom: 0;position: relative;}
             .qr-code {text-align: center;padding-top: 93px;}
-            .qr-code h3 {font-size: 56px;margin-top: 18px;font-weight: normal;color: #2A2728;}
+           
             .address{text-align: right;margin-right: 50px;}
-            .contact-detail{line-height: 0;font-size: 44px;margin-top: 170px;}
+           
             .secondry-address{font-size: 24px;line-height: 1.59;margin-top: 50px;}
             .secondry-address p { margin: 0px; }
-            .main-address{font-size: 50px;margin-top: 85px;}
+            .main-address{font-size: 50px;margin-top: 43px;}
             .uni-label{margin: 0;  font-size: 36px;  font-weight: bold;}
             .uni-data{margin: -9px 0 -4px 0;font-size: 36px;font-weight: normal;}
             .civil-lbl{margin-bottom: 0;font-weight: bold;font-size: 36px;margin-top: 9px;}
             .logo-1 {position: absolute;bottom: 61px;left: calc((100% - 403px)/2);}
             .qr{width: 367px;margin: 0 auto;padding: 0;}
             .qr img{width: 289px; height: 289px}
+            .txt-url { 
+              font-size: 28px;
+              font-weight: normal;
+              font-stretch: normal;
+              font-style: normal;
+              line-height: 1.28;
+              letter-spacing: normal;
+              color: #000000;
+              margin-top: 7px;
+            }
+
+            .contact-detail {
+              margin-top: 30px;
+              margin-bottom: 37px;
+              font-size: 26px;
+              font-weight: normal;
+              font-stretch: normal;
+              font-style: normal;
+              line-height: 1.28;
+              letter-spacing: normal;
+              color: #000000;
+            }
+
+            .contact-detail p {
+                margin: 0;
+                padding: 0;
+                font-weight: normal;
+            }
         </style>
     </head>
     <body>
@@ -90,9 +118,9 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 <span class="code"><?= $model->candidate->employeeId ?></span>
                 <div class="image">
                     <?php if ($model->candidate->candidate_personal_photo) { ?>
-                        <img onerror="this.src='../../../img/no_image.png';"  src="https://sh-payroll.s3.eu-west-2.amazonaws.com/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%">
+                        <img onerror="this.src='../../../img/no_image.png';"  src="https://sh-payroll.s3.eu-west-2.amazonaws.com/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
                     <?php } else  {
-                        echo \yii\helpers\Html::img('@web/img/no_image.png',['style'=>'width: 100%']);
+                        echo \yii\helpers\Html::img('@web/img/no_image.png',['style'=>'width: 100%;min-height: : 100%']);
                     } ?>
                 </div>
                 <span class="name-top">
@@ -116,7 +144,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 <div class="qr-inner qr">
                     <?php echo \yii\helpers\Html::img($qrCode->writeDataUri())?>
                 </div>
-<!--                <h3>https://studenthub.co</h3>-->
+                <h3 class="txt-url">https://studenthub.co</h3>
             </div>
             <div class="address">
                 <div class="main-address">
@@ -130,11 +158,11 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                     <p>يرجى إبلاغ شركة باوس لبرمجة</p>
                     <p>الكمبيوتر</p>
                 </div>
-<!--                <div class="contact-detail">-->
-<!--                    <p>contact@bawes.net</p>-->
-<!--                    <p>+965 98009771</p>-->
-<!--                </div>-->
-                <?php echo \yii\helpers\Html::img('@web/img/back-logo.svg',['style'=>'position: absolute;left: 35px;bottom: 45px'])?>
+               <div class="contact-detail">
+                    <p>contact@bawes.net</p>
+                    <p>+965 9800771</p>
+                </div>
+                <?php echo \yii\helpers\Html::img('@web/img/back-logo.svg',['style'=>'position: absolute;left: 35px;bottom: 30px'])?>
             </div>
         </div>
 
