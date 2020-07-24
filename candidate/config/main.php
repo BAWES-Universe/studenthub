@@ -51,12 +51,22 @@ return [
                         'GET login' => 'login',
                         'POST email-check' => 'email-check',
                         'POST register' => 'signup',
+                        'POST request-reset-password' => 'request-reset-password',
+                        'POST is-email-verified' => 'is-email-verified',
+                        'POST update-email' => 'update-email',          
+                        'POST resend-verification-email' => 'resend-verification-email',
+                        'POST verify-email' => 'verify-email',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS register' => 'options',
                         'OPTIONS email-check' => 'options',
                         'OPTIONS update-password' => 'options',
+                        'OPTIONS request-reset-password' => 'options',
+                        'OPTIONS is-email-verified' => 'options',
+                        'OPTIONS update-email' => 'options',        
+                        'OPTIONS resend-verification-email' => 'options',
+                        'OPTIONS verify-email' => 'options'
                     ]
                 ],
                 [ // AccountController
@@ -66,12 +76,14 @@ return [
                     'patterns' => [
                         'GET salary' => 'salary',
                         'GET employer' => 'employer',
+                        'POST update-email' => 'update-email',      
                         'POST change-password' => 'change-password',
                         'POST language-pref' => 'language-pref', 
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS salary' => 'options',
                         'OPTIONS employer' => 'options',
+                        'OPTIONS update-email' => 'options', 
                         'OPTIONS change-password' => 'options',
                         'OPTIONS language-pref' => 'options', 
                     ]

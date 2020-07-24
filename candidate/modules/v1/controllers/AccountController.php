@@ -64,6 +64,50 @@ class AccountController extends Controller
     }
     
     /**
+     * Update candidate email address 
+     * @return type
+     */
+    public function actionUpdateEmail() {
+        
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        $new_email = Yii::$app->request->getBodyParam("email");
+
+        if (!$new_email) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Candidate new email address required")
+            ];
+        }
+
+        if ($new_email == $candidate->candidate_email || $new_email == $candidate->candidate_new_email) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Candidate new email address is same as old email")
+            ];
+        }
+
+        $candidate->scenario = "updateEmail";
+
+        $candidate->candidate_new_email = $new_email;
+
+        if ($candidate->save()) {
+
+            $candidate->sendVerificationEmail();
+
+            return [
+                "operation" => "success",
+                "message" => Yii::t('candidate', "Candidate Account Info Updated Successfully, please check email to verify new email address"),
+            ];
+        } else {
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+    }
+
+    /**
      * Set language preference 
      */
     public function actionLanguagePref() {

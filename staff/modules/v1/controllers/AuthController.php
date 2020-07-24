@@ -39,7 +39,9 @@ class AuthController extends Controller
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
             'auth' => function ($email, $password) {
+            
                 $staff = Staff::findByEmail($email);
+                
                 if ($staff && $staff->validatePassword($password)) {
                     return $staff;
                 }
@@ -88,6 +90,7 @@ class AuthController extends Controller
 
         // Return Staff access token if everything valid
         $accessToken = $staff->accessToken->token_value;
+        
         return [
             "operation" => "success",
             "token" => $accessToken,

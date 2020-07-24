@@ -23,6 +23,9 @@ use yii\helpers\ArrayHelper;
  * @property string $candidate_name_ar
  * @property string $candidate_personal_photo
  * @property string $candidate_email
+ * @property string $candidate_new_email
+ * @property string $candidate_email_verification
+ * @property string $candidate_limit_email
  * @property string $candidate_phone
  * @property string $candidate_address_line1
  * @property string $candidate_birth_date
@@ -34,7 +37,7 @@ use yii\helpers\ArrayHelper;
  * @property string $candidate_auth_key
  * @property string $candidate_password_hash
  * @property string $candidate_password_reset_token
- * @property string $user_language_pref 
+ * @property string $candidate_language_pref 
  * @property integer $candidate_status
  * @property integer $approved
  * @property string $candidate_created_at
@@ -56,6 +59,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const STATUS_READY = 1;
     const STATUS_PENDING = 0;
 
+    //Email verification values for `candidate_email_verification`
+    const EMAIL_VERIFIED = 1;
+    const EMAIL_NOT_VERIFIED = 0;
+    
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
         'candidate_personal_photo' => 'photos',
@@ -79,7 +86,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             [['university_id', 'country_id', 'bank_account_name', 'candidate_iban', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
             [['candidate_password_hash'], 'required'],
-            [['store_id', 'candidate_status', 'approved', 'bank_id'], 'integer'],
+            [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
@@ -87,7 +94,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_email','candidate_phone'], 'unique'],
-            [['candidate_email'], 'email'],
+            [['candidate_email', 'candidate_new_email'], 'email'],
+            ['approved', 'default', 'value'=> false],
+            [['candidate_new_email'], 'validateNewEmail'],
+            ['candidate_limit_email', 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
             [['bank_account_name', 'candidate_iban'], 'trim'],
@@ -148,13 +158,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function scenarios() {
         $scenarios = parent::scenarios();
  
-        $scenarios["updateLanguagePref"] = ["user_language_pref"];
+        $scenarios["updateLanguagePref"] = ["candidate_language_pref"];
         
-        $scenarios['signup'] = ['candidate_name', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
+        $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
+
+        $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
         
         return $scenarios;
     }
 
+    /**
+     * Validate email in new_email field
+     */
+    public function validateNewEmail() {
+        $count = self::find()
+            ->andWhere(['!=', 'candidate_id', $this->candidate_id])
+            ->andWhere([
+                'or',
+                ['candidate_new_email' => $this->candidate_new_email],
+                ['candidate_email' => $this->candidate_new_email]
+            ])
+            ->count();
+
+        if ($count) {
+            $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
+        }
+    }
+    
     /**
      * validate bank IBAN value
      * @param $attribute
@@ -259,6 +289,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_name_ar' => 'Name [Arabic]',
             'candidate_personal_photo' => 'Personal Photo',
             'candidate_email' => 'Email',
+            'candidate_new_email' => 'New Email',
+            'candidate_email_verification' => 'Email Verification',
+            'candidate_limit_email' => 'Limit Email',
             'candidate_phone' => 'Phone',
             'candidate_address_line1' => 'Candidate Address',
             'candidate_birth_date' => 'Birth Date',
@@ -901,7 +934,55 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
+        $token = CandidateToken::find()->where(['token_value' => $token])
+                ->with('candidate')
+                ->one();
 
+        if ($token && $token->candidate && !$token->candidate->deleted) {
+            return $token->candidate;
+        }
+    }
+    
+    /**
+     * Verifies the candidate email
+     */
+    public static function verifyEmail($code) {
+        //Code is his auth key, check if code is valid
+        //        $candidate = Candidate::find()->where("auth_key like binary '{$code}'")->one(); // disable case sensistive
+        // due to #169799637
+        $candidate = Candidate::findOne(['candidate_auth_key' => $code]);
+
+//        $candidate = Candidate::find()
+//            ->where("auth_key like binary '{$code}'")
+//            ->one();
+
+        if ($candidate && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
+            //If not verified
+            if ($candidate->candidate_email_verification == Candidate::EMAIL_NOT_VERIFIED) {
+                //Verify this candidates email
+                $candidate->candidate_email_verification = Candidate::EMAIL_VERIFIED;
+            }
+
+            // new email address
+
+            if (!empty($candidate->candidate_new_email)) {
+                $candidate->candidate_email = $candidate->candidate_new_email;
+                $candidate->candidate_new_email = null;
+            }
+
+            $candidate->candidate_auth_key = ''; //remove auth key
+            $candidate->save(false);
+
+            return $candidate;
+        } else {
+            return false;
+        }
+    }
+    
     /**
      * Sends an email requesting a user to verify his email address
      * @return boolean whether the email was sent
