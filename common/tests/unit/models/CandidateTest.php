@@ -53,8 +53,6 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate = new Candidate;
             expect('Unibersity ID should be required field', $candidate->validate(['university_id']))->false();
             expect('Country ID should be required field', $candidate->validate(['country_id']))->false();
-            expect('Bank account name should be required field', $candidate->validate(['bank_account_name']))->false();
-            expect('Candidate IBAN should be required field', $candidate->validate(['candidate_iban']))->false();
             expect('Candidate name should be required field', $candidate->validate(['candidate_name']))->false();
             expect('Candidate name - Arabic should be required field', $candidate->validate(['candidate_name_ar']))->false();
             expect('Candidate email should be required field', $candidate->validate(['candidate_email']))->false();
