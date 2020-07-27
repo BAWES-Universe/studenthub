@@ -1,5 +1,6 @@
 <?php
 return [
+    'appName' => 'StudentHub',
     'invoiceFrom' => 'khalid@bawes.net',
     'invoiceCC' => 'finance@bawes.net',
     'adminEmail' => 'khalid@studenthub.co',

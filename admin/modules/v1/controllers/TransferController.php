@@ -2,7 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
-use admin\models\Candidate;
+
 use Yii;
 use yii\base\Exception;
 use yii\rest\Controller;

@@ -4,8 +4,8 @@
 
 ?>
 
-Hi, <?= $candidate->firstname ?>
+Hi, <?= $candidate->candidate_name ?>
 
-Thanks for joining Pogi. Your code to verify your email is 
+Thanks for joining StudentHub. Your code to verify your email is 
 
-<?= $candidate->auth_key ?>
+<?= $candidate->candidate_auth_key ?>
