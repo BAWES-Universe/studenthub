@@ -39,7 +39,7 @@ return [
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.sendgrid.net',
-                'username' => 'apikey',//sh-payroll
+                'username' => 'apikey',
                 'password' => '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',//WeLoveSHTrainingProg!121',
                 'port' => '587',
                 'encryption' => 'tls',
