@@ -6,8 +6,12 @@ return yii\helpers\ArrayHelper::merge(
     [
         'components' => [
             'db' => [
-                'dsn' => 'mysql:host=localhost;dbname=yii2advanced_test',
-            ]
+                'class' => 'yii\db\Connection',
+                'dsn' => 'mysql:host=localhost:8889;dbname=studenthub_test',
+                'username' => 'root',
+                'password' => 'root',
+                'charset' => 'utf8',
+            ],
         ],
     ]
 );
