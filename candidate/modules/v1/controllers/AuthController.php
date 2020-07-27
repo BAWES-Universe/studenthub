@@ -98,13 +98,13 @@ class AuthController extends Controller
 
         // Email and password are correct, check if his email has been verified
         // If candidate email has been verified, then allow him to log in
-        /*if($candidate->candidate_email_verified != Candidate::EMAIL_VERIFIED){
+        if($candidate->candidate_email_verification != Candidate::EMAIL_VERIFIED){
             return [
                 "operation" => "error",
                 "errorType" => "email-not-verified",
                 "message" => "Please click the verification link sent to you by email to activate your account",
             ];
-        }*/
+        }
 
         // Return candidate access token if everything valid
 
@@ -271,6 +271,7 @@ class AuthController extends Controller
      * @return array
      */
     public function actionVerifyEmail() {
+        
         $code = Yii::$app->request->getBodyParam("code");
         $email = Yii::$app->request->getBodyParam("email");
 
@@ -416,7 +417,6 @@ class AuthController extends Controller
         ];
     }
 
-
     /**
      * Mobile Check
      * @return User|null
@@ -473,7 +473,9 @@ class AuthController extends Controller
                 ];
             }
         }
-//        $this->sendVerificationEmail();
+        
+        $this->sendVerificationEmail();
+        
         return [
             "operation" => "success",
             "candidate_uuid" => $model->candidate_id,
