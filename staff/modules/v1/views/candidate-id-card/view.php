@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 mb_internal_encoding("UTF-8");
 
@@ -55,7 +55,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 font-family: 'Droid Arabic Kufi', 'effra', sans-serif;
                 background: #fff;padding:0;margin:0;
             }
-            
+
             :focus, a:focus {
                 outline: 0
             }
@@ -68,9 +68,9 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
             .bottom-part{background: #fff; height: 412px; position: relative;}
             .back-card {width:638px;height:1011px;float: left;background: #fff;margin-bottom: 0;position: relative;}
             .qr-code {text-align: center;padding-top: 93px;}
-           
+
             .address{text-align: right;margin-right: 50px;}
-           
+
             .secondry-address{font-size: 24px;line-height: 1.59;margin-top: 50px;}
             .secondry-address p { margin: 0px; }
             .main-address{font-size: 50px;margin-top: 43px;}
@@ -80,7 +80,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
             .logo-1 {position: absolute;bottom: 61px;left: calc((100% - 403px)/2);}
             .qr{width: 367px;margin: 0 auto;padding: 0;}
             .qr img{width: 289px; height: 289px}
-            .txt-url { 
+            .txt-url {
               font-size: 28px;
               font-weight: normal;
               font-stretch: normal;
@@ -135,7 +135,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
             </div>
         </div>
 
-        <?php } ?> 
+        <?php } ?>
 
         <?php if(!$side || $side == 'back') { ?>
 
@@ -160,7 +160,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 </div>
                <div class="contact-detail">
                     <p>contact@bawes.net</p>
-                    <p>+965 9800771</p>
+                    <p>+965 98009771</p>
                 </div>
                 <?php echo \yii\helpers\Html::img('@web/img/back-logo.svg',['style'=>'position: absolute;left: 35px;bottom: 30px'])?>
             </div>
