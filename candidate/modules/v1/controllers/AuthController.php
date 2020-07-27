@@ -3,12 +3,13 @@
 namespace candidate\modules\v1\controllers;
 
 use Yii;
+use yii\filters\Cors;
 use yii\base\DynamicModel;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use candidate\models\Candidate;
 use candidate\models\CandidateToken;
-use yii\filters\Cors;
+use common\models\CandidateEmailVerifyAttempt;
 
 
 /**
@@ -280,7 +281,7 @@ class AuthController extends Controller
                     'candidate_email' => $email,
                     'ip_address' => Yii::$app->getRequest()->getUserIP()
                 ])
-                ->andWhere(new \yii\db\Expression("candidate_created_at >= DATE_SUB(NOW(),INTERVAL 1 HOUR)"))//last 1 hour 
+                ->andWhere(new \yii\db\Expression("created_at >= DATE_SUB(NOW(),INTERVAL 1 HOUR)"))//last 1 hour 
                 ->count();
 
         if ($totalInvalidAttempts > 4) {
@@ -338,7 +339,7 @@ class AuthController extends Controller
         if ($model->validate()) {
 
             $candidate = Candidate::findOne([
-                'candidate_email' => $model->candidate_email,
+                'candidate_email' => $model->email,
             ]);
 
             if ($candidate) {

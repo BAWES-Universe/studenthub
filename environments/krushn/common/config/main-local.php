@@ -20,7 +20,8 @@ return [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
+            'baseUrl' => 'http://localhost:8888/bawes/studenthub/staff/web/v1',
+            //http://payroll-staff.dev.studenthub.co/v1'//
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
