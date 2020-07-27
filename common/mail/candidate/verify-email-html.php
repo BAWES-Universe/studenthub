@@ -2,15 +2,13 @@
 /* @var $this yii\web\View */
 /* @var $candidate common\models\Candidate */
 
-$email = ($candidate->new_email) ? $candidate->new_email : $candidate->email;
+$email = ($candidate->candidate_new_email) ? $candidate->candidate_new_email : $candidate->candidate_email;
 
-$webUrl = Yii::$app->params['frontAppUrl'] . 'verify-email/' . urlencode($email) . '/' . $candidate->auth_key;
+$webUrl = Yii::$app->params['candidateAppUrl'] . 'verify-email/' . urlencode($email) . '/' . $candidate->candidate_auth_key;
 
-$mobileUrl = 'pogi-jobs://verify-email/' . urlencode($email) . '/' . $candidate->auth_key;
+$mobileUrl = 'studenthub-student://verify-email/' . urlencode($email) . '/' . $candidate->candidate_auth_key;
 
-$employerApiBase = Yii::$app->urlManagerEmployer->getBaseUrl();
-
-$logo = $employerApiBase . '/img/email/logo.png';
+$logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
 
 ?>
 
@@ -181,7 +179,7 @@ $logo = $employerApiBase . '/img/email/logo.png';
                                                                                     <div
                                                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:19px;line-height:24px;text-align:center;color:#000000;"
                                                                                         >
-                                                                                        Thanks for signing up on Pogi. Please take a sec to confirm your email.
+                                                                                        Thanks for signing up on StudentHub. Please take a sec to confirm your email.
                                                                                     </div>
 
                                                                                 </td>
@@ -229,7 +227,7 @@ $logo = $employerApiBase . '/img/email/logo.png';
                                                                                 <td align="center" style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:15px;word-break:break-word;">
 
                                                                                     <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:27px;line-height:24px;text-align:center;color:#000000;">
-                                                                                        <?= $candidate->auth_key ?>
+                                                                                        <?= $candidate->candidate_auth_key ?>
                                                                                     </div>
 
                                                                                 </td>

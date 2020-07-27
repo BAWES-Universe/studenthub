@@ -30,13 +30,14 @@ class Candidate extends \common\models\Candidate {
     public static function getTotalPayableCandidate(){
         $totalCandidate = 0;
         $totalAmount = 0;
+        
         $transfers = Transfer::find()
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             ->isParentTransfer()
             ->all();
 
         foreach ($transfers as $transfer) {
-            $candidates = $transfer->getTransferCandidates()->where(['paid' => '0'])->asArray()->all();
+            $candidates = $transfer->getUnPaidTransferCandidates()->asArray()->all();
             $totalCandidate += count($candidates);
             $totalAmount += Candidate::calculateRemainingPaymentTransferTotal($candidates);
         }

@@ -173,7 +173,7 @@ class Transfer extends ActiveRecord
     public function getUnPaidTransferCandidates($modelClass = "\common\models\TransferCandidate")
     {
         return $this->getTransferCandidates($modelClass)
-            ->andWhere(['paid' => '0']);
+            ->andWhere(['paid' => 0]);
     }
 
     /**

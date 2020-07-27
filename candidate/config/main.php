@@ -75,14 +75,12 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET salary' => 'salary',
-                        'GET employer' => 'employer',
-                        'POST update-email' => 'update-email',      
                         'POST change-password' => 'change-password',
+                        'POST update-email' => 'update-email',      
                         'POST language-pref' => 'language-pref', 
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS salary' => 'options',
-                        'OPTIONS employer' => 'options',
                         'OPTIONS update-email' => 'options', 
                         'OPTIONS change-password' => 'options',
                         'OPTIONS language-pref' => 'options', 
