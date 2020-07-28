@@ -7,9 +7,11 @@ use Yii;
 use yii\base\Exception;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
+use admin\models\Candidate;
 use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
+use company\models\TranferExcel;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
 
@@ -254,19 +256,120 @@ class TransferController extends Controller
     }
 
     /**
+     * import bank excel to extract candidate data
+     * @return type
+     */
+    public function actionImportExcel() {
+    
+        $model = new TranferExcel;        
+        $model->excel = Yii::$app->request->getBodyParam('excel');
+        
+        if(!$model->validate())
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => $model->getErrors()
+            ];
+        }
+        
+        $candidates = [];
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel); 
+
+        //save in temp folder to process 
+        
+        $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
+                
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) { 
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        } 
+
+        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+            'setFirstRecordAsKeys' => false
+        ]);
+        
+        //remove first blank row 
+        
+        \yii\helpers\ArrayHelper::remove($excelData, '1');
+
+        //second row will be key 
+        
+        $keys = \yii\helpers\ArrayHelper::remove($excelData, '2');
+
+        //create array with key to read data 
+        
+        $data = [];
+
+        foreach ($excelData as $values)
+        {
+            $data[] = array_combine($keys, $values);
+        } 
+            
+        //no need file anymore 
+        
+        @unlink($tmpFile);
+        
+        //remove empty rows 
+
+        foreach ($data as $key => $value) 
+        {
+            if(empty($value['Status'])) {
+                return [
+                    'operation' => 'error',
+                    'message' => 'Invalid excel'
+                ];
+            }
+            
+            if($value['Status'] == 'FAIL')
+                continue;
+
+            //get candidate by IBAN 
+            
+            $candidate = Candidate::find()->where(['candidate_iban' => $value['IBAN']])->one();
+            
+            if(!$candidate) {
+                return [
+                    'operation' => 'error',
+                    'message' => 'Invalid excel'
+                ];
+            }
+            
+            $candidates[] = [
+                'transfer_confirmation_id' => $value['Status Description'], 
+                'transfer_id' => $value['Debit Narrative'],  
+                'tc_id' => $value['Credit Narrative'],  
+                'candidate_id' => $candidate->candidate_id, 
+                'candidate_name' => $candidate->candidate_name, 
+                'total_amount' => $value['Credit Amount']
+            ];
+        }
+        
+        return $candidates;
+    }
+    
+    /**
      * Method linked with payable candidate
      * section option to mark all candidate at one time
      */
     public function actionMarkPaidAll()
     {
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
-        $main_transfer_id = 0;
-
+      
         foreach ($candidate_ids as $value)
         {
             TransferCandidate::updateAll(
-                ['paid' => 1],
-                ['candidate_id' => $value['candidate_id'], 'transfer_id' => $value['transfer_id']]
+                [
+                    'paid' => 1,
+                    'transfer_confirmation_id' => $value['transfer_confirmation_id']
+                ],
+                [
+                    'tc_id' => $value['tc_id']
+                ]
             );
 
             // Check if all paid, mark transfer as complete
