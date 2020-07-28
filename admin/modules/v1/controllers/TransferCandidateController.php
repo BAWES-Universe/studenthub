@@ -75,14 +75,25 @@ class TransferCandidateController extends Controller
     {
         $tc_id = Yii::$app->request->get('tc_id');
 
-        $transferCandidateRecords = array_diff(explode(",", $tc_id),[""]);
+        $transfer_confirmation_id = Yii::$app->request->get('transfer_confirmation_id');
 
-        // Return as Array as to not create ActiveRecord objects will eat away at the RAM
-        return TransferCandidate::find()
-            ->andWhere(['in', 'tc_id', $transferCandidateRecords])
+        $query = TransferCandidate::find()
             ->with('candidate')
-            ->payableWithPaid()
-            ->asArray()
+            ->payableWithPaid();
+        
+        if($tc_id) 
+        {
+            $transferCandidateRecords = array_diff(explode(",", $tc_id),[""]);
+    
+            $query->andWhere(['in', 'tc_id', $transferCandidateRecords]);
+        }
+        
+        if($transfer_confirmation_id) {
+            $query->andWhere(['transfer_confirmation_id' => $transfer_confirmation_id]);
+        }
+        
+        // Return as Array as to not create ActiveRecord objects (will eat away at the RAM)
+        return $query->asArray()
             ->all();
     }
 
