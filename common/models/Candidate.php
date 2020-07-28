@@ -485,6 +485,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->candidate_uid = $this->generateUid();
         } 
         
+        $this->bank_id = null; 
+            
         $banks = Bank::find()->all();
 
         foreach($banks as $bank) {
