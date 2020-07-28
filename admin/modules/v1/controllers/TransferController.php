@@ -401,11 +401,19 @@ class TransferController extends Controller
      */
     public function actionExportPayableCandidates()
     {
+        $onlyPayable = Yii::$app->request->get('only-payable');
+        
         // Candidates whose company paid to admin but admin have not paid yet
-        $candidates = TransferCandidate::find()
-            ->payable()
-            ->all();
+        $query = TransferCandidate::find()
+            ->payable();
 
+        if($onlyPayable) {
+            $query->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'));    
+        }
+        
+        $candidates = $query
+            ->all();
+        
         header('Access-Control-Allow-Origin: *');
 
         \moonland\phpexcel\Excel::export([
@@ -467,7 +475,6 @@ class TransferController extends Controller
         }
 
         foreach ($candidates['candidate_list'] as $detail) {
-
             $s2 .=  implode(',',$detail).",".PHP_EOL;
         }
 
