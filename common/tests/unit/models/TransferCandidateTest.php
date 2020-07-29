@@ -236,6 +236,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
         $this->specify('fixture data load test & test to check payable amount is with 3 digit after point', function () {
             $transferCandidateData = TransferCandidate::getPayableCandidateListFormat();
+
             expect('if data exist', count($transferCandidateData['candidate_list']))->greaterThan(0);
 
 
