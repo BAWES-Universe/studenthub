@@ -72,7 +72,7 @@ class StatisticController extends Controller
     	$result['id_expired'] = CandidateIdCard::find()
             ->idExpired()
 //            ->filterAssigned() // only candidate with assigned work
-            ->notDeleted()
+//            ->notDeleted()
             ->count();
 
 	// # of candidates that need id generated
