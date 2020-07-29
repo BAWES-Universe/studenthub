@@ -151,7 +151,9 @@ class TransferCandidateController extends Controller
      */
     public function actionPaid($id)
     {
-        return TransferCandidate::markPaid($id);
+        $transfer_confirmation_id = Yii::$app->request->getBodyParam('transfer_confirmation_id');
+        
+        return TransferCandidate::markPaid($id, $transfer_confirmation_id);
     }
 
     /**

@@ -141,10 +141,11 @@ class TransferCandidate extends \common\models\TransferCandidate
 
     /**
      * mark candidate transfer as paid
-     * @param $tc_id
+     * @param $tc_id number
+     * @param $transfer_confirmation_id string
      * @return array
      */
-    public static function markPaid($tc_id)
+    public static function markPaid($tc_id, $transfer_confirmation_id)
     {
         $TransferCandidate = TransferCandidate::findOne($tc_id);
 
@@ -156,6 +157,8 @@ class TransferCandidate extends \common\models\TransferCandidate
         }
 
         $TransferCandidate->paid = TransferCandidate::PAID;
+        $TransferCandidate->transfer_confirmation_id = $transfer_confirmation_id;
+        
         if ($TransferCandidate->save(false)) {
 
             $response = Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
@@ -189,12 +192,15 @@ class TransferCandidate extends \common\models\TransferCandidate
                 "message" => 'Empty Transfer Record'
             ];
         }
+        
         // fetch record of transfer candidate id and update all
         $transferCandidateList = ArrayHelper::getColumn($transferCandidateIds,'tc_id');
+        
         TransferCandidate::updateAll(['paid'=>TransferCandidate::PAID],['in', 'tc_id', $transferCandidateList]);
 
         // fetch record of transfer list id and update one by one with condition
         $transferList = ArrayHelper::getColumn($transferCandidateIds,'transfer_id');
+        
         foreach (array_unique($transferList) as $value)
         {
             Transfer::markTransferCompleteOnCandidatePaid($value);
