@@ -92,18 +92,18 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
                 if ($model->save()) {
                     return [
                         'operation' =>'success',
-                        'message' =>'record successfully updated'
+                        'message' =>Yii::t('candidate','record successfully updated')
                     ];
                 } else {
                     return [
                         'operation' =>'error',
-                        'message' =>'error while updating record. Please try again'
+                        'message' =>Yii::t('candidate','error while updating record. Please try again')
                     ];
                 }
             } else {
                 return [
                     'operation' =>'error',
-                    'message' =>'no record found'
+                    'message' =>Yii::t('app','no record found')
                 ];
             }
         }

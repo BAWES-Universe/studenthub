@@ -102,7 +102,7 @@ class AuthController extends Controller
             return [
                 "operation" => "error",
                 "errorType" => "email-not-verified",
-                "message" => "Please click the verification link sent to you by email to activate your account",
+                "message" => Yii::t('candidate',"Please click the verification link sent to you by email to activate your account"),
             ];
         }
 
@@ -146,7 +146,7 @@ class AuthController extends Controller
         if (!$candidate) {
             return [
                 "operation" => "error",
-                "message" => "Candidate not found"
+                "message" => Yii::t('candidate',"Candidate not found")
             ];
         }
 
@@ -396,14 +396,14 @@ class AuthController extends Controller
         if(!$candidate){
             return [
                 'operation' => 'error',
-                'message' => 'Invalid password reset token. Please request another password reset email'
+                'message' => Yii::t('candidate','Invalid password reset token. Please request another password reset email')
             ];
         }
 
         if(!$newPassword) {
             return [
                 'operation' => 'error',
-                'message' => 'Password field required'
+                'message' => Yii::t('candidate','Password field required')
             ];
         }
 
@@ -413,7 +413,7 @@ class AuthController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => 'Your password has been reset'
+            'message' => Yii::t('candidate','Your password has been reset')
         ];
     }
 

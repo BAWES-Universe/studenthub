@@ -70,15 +70,15 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function attributeLabels()
     {
         return [
-            'staff_id' => 'Staff ID',
-            'staff_name' => 'Staff Name',
-            'staff_email' => 'Staff Email',
-            'staff_auth_key' => 'Staff Auth Key',
-            'staff_password_hash' => 'Password',
-            'staff_password_reset_token' => 'Staff Password Reset Token',
-            'staff_status' => 'Staff Status',
-            'staff_created_at' => 'Staff Created At',
-            'staff_updated_at' => 'Staff Updated At',
+            'staff_id' => Yii::t('app','Staff ID'),
+            'staff_name' => Yii::t('app','Staff Name'),
+            'staff_email' => Yii::t('app','Staff Email'),
+            'staff_auth_key' => Yii::t('app','Staff Auth Key'),
+            'staff_password_hash' => Yii::t('app','Password'),
+            'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
+            'staff_status' => Yii::t('app','Staff Status'),
+            'staff_created_at' => Yii::t('app','Staff Created At'),
+            'staff_updated_at' => Yii::t('app','Staff Updated At'),
         ];
     }
 

@@ -106,14 +106,14 @@ class Transfer extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'transfer_id' => 'Transfer ID',
-            'company_id' => 'Company ID',
-            'company_total' => 'Total for company',
-            'total' => 'Total',
-            'transfer_status' => 'Transfer Status',
-            'transfer_created_at' => 'Transfer Created At',
-            'transfer_updated_at' => 'Transfer Updated At',
-            'payment_received_on' => 'Payment Received On'
+            'transfer_id' => Yii::t('app','Transfer ID'),
+            'company_id' => Yii::t('app','Company ID'),
+            'company_total' => Yii::t('app','Total for company'),
+            'total' => Yii::t('app','Total'),
+            'transfer_status' => Yii::t('app','Transfer Status'),
+            'transfer_created_at' => Yii::t('app','Transfer Created At'),
+            'transfer_updated_at' => Yii::t('app','Transfer Updated At'),
+            'payment_received_on' => Yii::t('app','Payment Received On')
         ];
     }
 

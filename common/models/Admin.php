@@ -68,9 +68,9 @@ class Admin extends ActiveRecord implements IdentityInterface {
             'admin_auth_key' => Yii::t('app', 'Admin Auth Key'),
             'admin_password_hash' => Yii::t('app', 'Admin Password'),
             'admin_password_reset_token' => Yii::t('app', 'Admin Password Reset Token'),
-            'admin_status' => 'Admin Status',
-            'admin_created_at' => 'Admin Created At',
-            'admin_updated_at' => 'Admin Updated At',
+            'admin_status' => Yii::t('app','Admin Status'),
+            'admin_created_at' => Yii::t('app','Admin Created At'),
+            'admin_updated_at' => Yii::t('app','Admin Updated At'),
         ];
     }
 
