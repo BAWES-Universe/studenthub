@@ -133,8 +133,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStore() {
-        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+    public function getStore($className = '\common\models\Store') {
+        return $this->hasOne($className::className(), ['store_id' => 'store_id']);
     }
     /**
      * @inheritdoc

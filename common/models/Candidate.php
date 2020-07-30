@@ -384,6 +384,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ]);
         
         unset($fields['deleted']);
+        unset($fields['candidate_uid']);
 
         return $fields;
     }
