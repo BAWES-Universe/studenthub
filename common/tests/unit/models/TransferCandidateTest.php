@@ -257,4 +257,18 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
         });
     }
+
+    /**
+     * test case for transferable candidate
+     */
+    public function testToCheckNotAbleToEditTransferBankAfterPaid() {
+
+        $this->specify('unit test to check if transfer is paid then bank detail should not be editable', function () {
+            $transfer = TransferCandidate::findOne(['paid'=>TransferCandidate::PAID]);
+
+            $transfer->bank_id = 2;
+            expect('validation error',$transfer->validate())->false();
+            expect('error msg',$transfer->getErrors())->hasKey('bank_id');
+        });
+    }
 }

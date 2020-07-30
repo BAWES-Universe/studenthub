@@ -81,7 +81,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
     public function validateStatus($attribute, $params, $validator)
     {
-        //on mark as paid clear out the name/iban/bankid/transfer_confirmation_id
+        //on mark as paid clear out the name/iban/bank id/transfer_confirmation_id
         
         if($this->getOldAttribute('paid') && !$this->paid) {
             $this->bank_id = null; 
