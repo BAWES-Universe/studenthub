@@ -84,6 +84,11 @@ class CompanyController extends Controller
      */
     public function actionView($id)
     {
-        return Company::findOne($id);
+        $data = Company::findOne($id);
+
+        if (!$data)
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+
+        return $data;
     }
 }

@@ -71,13 +71,11 @@ class StatisticController extends Controller
 
     	$result['id_expired'] = CandidateIdCard::find()
             ->idExpired()
-//            ->filterAssigned() // only candidate with assigned work
-//            ->notDeleted()
             ->count();
 
 	// # of candidates that need id generated
 
-	$result['id_need_generated'] = Candidate::find()
+	    $result['id_need_generated'] = Candidate::find()
             ->notDeleted()
             ->filterAssigned()
             ->idNeedGenerated()
@@ -89,9 +87,9 @@ class StatisticController extends Controller
             ->notDeleted()
             ->count();
 
-	// Total assigned
+        // Total assigned
 
-	$result['total_candidates_assigned'] = Candidate::find()
+        $result['total_candidates_assigned'] = Candidate::find()
             ->notDeleted()
             ->totalAssigned()
             ->count();
@@ -103,7 +101,7 @@ class StatisticController extends Controller
             ->totalUnassigned()
             ->count();
 
-	return $result;
+	    return $result;
     }
 }
 

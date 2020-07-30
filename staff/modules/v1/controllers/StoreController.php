@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Store;
+use yii\web\NotFoundHttpException;
 
 /**
  * Store controller - Manage store as Admin
@@ -132,14 +133,7 @@ class StoreController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = Store::findOne((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Store not found."
-            ];
-        }
+        $model = $this->findModel($id);
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_name = Yii::$app->request->getBodyParam("name");
@@ -177,14 +171,7 @@ class StoreController extends Controller
      */
     public function actionDelete($id)
     {
-        $store = Store::findOne((int)$id);
-
-        if(!$store){
-            return [
-                "operation" => "error",
-                "message" => "Store not found or already deleted."
-            ];
-        }
+        $store = $this->findModel($id);
 
         //Shouldn't be able to delete a store that has candidates assigned to it
 
@@ -216,6 +203,21 @@ class StoreController extends Controller
      */
     public function actionView($id)
     {
-        return Store::findOne($id);
+        return $this->findModel($id);
+    }
+
+    /**
+     * Finds the Store model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Store::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }
