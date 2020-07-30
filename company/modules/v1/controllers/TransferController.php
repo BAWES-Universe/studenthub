@@ -382,7 +382,10 @@ class TransferController extends Controller
             ->one();
 
         if(!$invoice) {
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            return [
+                "operation" => "error",
+                "message" => 'Invoice not found!'
+            ];
         }
 
         $this->layout = 'pdf';

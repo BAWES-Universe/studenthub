@@ -99,8 +99,7 @@ class StoreCest
     {
         $I->wantTo('update store with invalid id');
         $I->sendPATCH('v1/stores/100',['name'=>'Adidas Store','company_id'=>'2']);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(["operation"=>"error","message"=>"Store not found."]);
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND); // 200
     }
 
     /**
@@ -123,8 +122,7 @@ class StoreCest
     {
         $I->wantTo('delete store with error');
         $I->sendDELETE('v1/stores/103');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(["operation"=>"error","message"=>"Store not found or already deleted."]);
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND); // 200
     }
 
     /**
