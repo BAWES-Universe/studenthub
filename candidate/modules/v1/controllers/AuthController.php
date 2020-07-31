@@ -68,7 +68,6 @@ class AuthController extends Controller
         return $behaviors;
     }
 
-
     /**
      * @inheritdoc
      */
@@ -474,7 +473,7 @@ class AuthController extends Controller
             }
         }
         
-        $this->sendVerificationEmail();
+        $model->sendVerificationEmail();
         
         return [
             "operation" => "success",
@@ -501,7 +500,8 @@ class AuthController extends Controller
             "id" => $candidate->candidate_id,
             "name" => $candidate->candidate_name,
             "email" => $candidate->candidate_email,
-            "language_pref" => $candidate->candidate_language_pref
+            "language_pref" => $candidate->candidate_language_pref,
+            "approved" => $candidate->approved
         ];
     }
 
