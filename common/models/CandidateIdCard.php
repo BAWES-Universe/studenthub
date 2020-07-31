@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 
@@ -57,11 +58,11 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'candidate_id' => 'Candidate ID',
-            'expiry_date' => 'Expiry Date',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At'
+            'id' => Yii::t('app','ID'),
+            'candidate_id' => Yii::t('app','Candidate ID'),
+            'expiry_date' => Yii::t('app','Expiry Date'),
+            'created_at' => Yii::t('app','Created At'),
+            'updated_at' => Yii::t('app','Updated At'),
         ];
     }
 

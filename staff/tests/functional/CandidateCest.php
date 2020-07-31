@@ -1,6 +1,7 @@
 <?php
 namespace staff\tests;
 
+use staff\models\Candidate;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
@@ -91,9 +92,9 @@ class CandidateCest
      */
     public function restCallToResetCandidatePassword(FunctionalTester $I)
     {
-        $candidateID = 8;
-        $I->wantTo('delete candidate successfully');
-        $I->sendPATCH('v1/candidates/reset-password'.$candidateID);
+        $candiate = Candidate::find()->one();
+        $I->wantTo('reset password successfully');
+        $I->sendPATCH('v1/candidates/reset-password/'.$candiate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson(["operation" => "success","message" => "New password sent to registered email successfully"]);
     }

@@ -40,10 +40,10 @@ class University extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'university_id' => 'University ID',
-            'university_name_en' => 'University Name En',
-            'university_name_ar' => 'University Name Ar',
-            'deleted' => 'Deleted'
+            'university_id' => Yii::t('app','University ID'),
+            'university_name_en' => Yii::t('app','University Name En'),
+            'university_name_ar' => Yii::t('app','University Name Ar'),
+            'deleted' => Yii::t('app','Deleted')
         ];
     }
 

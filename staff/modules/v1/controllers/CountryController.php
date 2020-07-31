@@ -93,6 +93,11 @@ class CountryController extends Controller
      */
     public function actionView($id)
     {
-        return Country::findOne($id);
+        $data = Country::findOne($id);
+
+        if (!$data)
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+
+        return $data;
     }
 }

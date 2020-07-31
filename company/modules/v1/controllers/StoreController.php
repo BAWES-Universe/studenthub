@@ -84,7 +84,10 @@ class StoreController extends Controller
             ])
             ->filterByStoreId($id)    
             ->one();
-        
+
+        if (!$store)
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+
         return $store;
     }
     

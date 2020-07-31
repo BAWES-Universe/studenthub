@@ -94,6 +94,11 @@ class UniversityController extends Controller
      */
     public function actionView($id)
     {
-        return University::findOne($id);
+        $data = University::findOne($id);
+
+        if (!$data)
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+
+        return $data;
     }
 }

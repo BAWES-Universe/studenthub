@@ -64,15 +64,15 @@ class AdminToken extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'token_id' => 'Token ID',
-            'admin_id' => 'Admin ID',
-            'token_value' => 'Token Value',
-            'token_device' => 'Token Device',
-            'token_device_id' => 'Token Device ID',
-            'token_status' => 'Token Status',
-            'token_last_used_datetime' => 'Token Last Used Datetime',
-            'token_expiry_datetime' => 'Token Expiry Datetime',
-            'token_created_datetime' => 'Token Created Datetime',
+            'token_id' => Yii::t('app','Token ID'),
+            'admin_id' => Yii::t('app','Admin ID'),
+            'token_value' => Yii::t('app','Token Value'),
+            'token_device' => Yii::t('app','Token Device'),
+            'token_device_id' => Yii::t('app','Token Device ID'),
+            'token_status' => Yii::t('app','Token Status'),
+            'token_last_used_datetime' => Yii::t('app','Token Last Used Datetime'),
+            'token_expiry_datetime' => Yii::t('app','Token Expiry Datetime'),
+            'token_created_datetime' => Yii::t('app','Token Created Datetime'),
         ];
     }
 

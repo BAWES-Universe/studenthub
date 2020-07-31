@@ -136,7 +136,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_personal_photo'], 
                 '\common\components\S3FileExistValidator', 
                 'filePath' => '',
-                'message' => "Please upload a personal photo for the candidate",
+                'message' => Yii::t('candidate',"Please upload a personal photo for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
@@ -158,7 +158,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_civil_photo_front'], 
                 '\common\components\S3FileExistValidator', 
                 'filePath' => '',
-                'message' => "Please upload a civil id photo (front) for the candidate",
+                'message' => Yii::t('candidate',"Please upload a civil id photo (front) for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
@@ -168,7 +168,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_civil_photo_back'], 
                 '\common\components\S3FileExistValidator', 
                 'filePath' => '',
-                'message' => "Please upload a civil id photo (back) for the candidate",
+                'message' => Yii::t('candidate',"Please upload a civil id photo (back) for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
@@ -252,9 +252,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if (!$found) {
-            $this->addError($attribute, 'We do not support transfers to this bank.');
+            $this->addError($attribute, Yii::t('candidate','We do not support transfers to this bank.'));
         } else if (!preg_match('/^[a-zA-Z0-9]{30}$/', $this->$attribute)) {
-            $this->addError($attribute, 'Bank IBAN must contain exactly 30 digits.');
+            $this->addError($attribute, Yii::t('candidate','Bank IBAN must contain exactly 30 digits.'));
         }
     }
 
@@ -265,7 +265,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if($this->candidate_hourly_rate <= 0)
         {
-            $this->addError('candidate_hourly_rate', 'Candidate hourly rate should be greater than 0.');
+            $this->addError('candidate_hourly_rate', Yii::t('candidate','Candidate hourly rate should be greater than 0.'));
             return null;
         }
         
@@ -282,7 +282,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         if($max && $this->candidate_hourly_rate > $max)
         {
-            $this->addError('candidate_hourly_rate', 'Candidate hourly rate should be less than or equal to ' . $max . '.');
+
+            $this->addError('candidate_hourly_rate', Yii::t('candidate', "Candidate hourly rate should be less than or equal to {max}.", ['max' => $max]));
         }
     }
     
@@ -293,7 +294,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
         {
-            $this->addError('candidate_civil_expiry_date', 'Candidate have expired civil id.');
+            $this->addError('candidate_civil_expiry_date', Yii::t('candidate','Candidate have expired civil id.'));
         }
     }
 
@@ -303,7 +304,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function validateAge()
     {
         if($this->age < 18 || $this->age > 24) {
-            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 24.');
+            $this->addError('candidate_birth_date', Yii::t('candidate','Candidate age should be between 18 to 24.'));
         }
     }
 
@@ -327,38 +328,38 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function attributeLabels()
     {
         return [
-            'candidate_id' => 'Candidate ID',
-            'store_id' => 'Store ID',
-            'bank_id' => 'Bank ID',
-            'bank_account_name' => 'Bank account name',
-            'candidate_iban' => 'IBAN',
-            'candidate_name' => 'Name [English]',
-            'candidate_name_ar' => 'Name [Arabic]',
-            'candidate_gender' => 'Gender',
-            'candidate_objective' => 'Objective',
-            'candidate_personal_photo' => 'Personal Photo',
-            'candidate_email' => 'Email',
-            'candidate_new_email' => 'New Email',
-            'candidate_email_verification' => 'Email Verification',
-            'candidate_limit_email' => 'Limit Email',
-            'candidate_phone' => 'Phone',
-            'candidate_address_line1' => 'Candidate Address',
-            'candidate_birth_date' => 'Birth Date',
-            'candidate_civil_id' => 'Civil ID',
-            'candidate_civil_expiry_date' => 'Civil Expiry Date',
-            'candidate_civil_photo_front' => 'Civil Photo Front',
-            'candidate_civil_photo_back' => 'Civil Photo Back',
-            'candidate_driving_license' => 'Driving License',
-            'candidate_resume' => 'Resume',
-            'candidate_hourly_rate' => 'Hourly Rate',
-            'candidate_auth_key' => 'Auth Key',
-            'candidate_password_hash' => 'Password',
-            'candidate_password_reset_token' => 'Password Reset Token',
-            'candidate_language_pref' => 'Language preference',
-            'candidate_status' => 'Status',
-            'candidate_created_at' => 'Created At',
-            'candidate_updated_at' => 'Updated At',
-            'employee_id' => 'Employee ID',
+            'candidate_id' => Yii::t('candidate','Candidate ID'),
+            'store_id' => Yii::t('candidate','Store ID'),
+            'bank_id' => Yii::t('candidate','Bank ID'),
+            'bank_account_name' => Yii::t('candidate','Bank account name'),
+            'candidate_iban' => Yii::t('candidate','IBAN'),
+            'candidate_name' => Yii::t('candidate','Name [English]'),
+            'candidate_name_ar' => Yii::t('candidate','Name [Arabic]'),
+            'candidate_gender' => Yii::t('candidate','Gender'),
+            'candidate_objective' => Yii::t('candidate','Objective'),
+            'candidate_personal_photo' => Yii::t('candidate','Personal Photo'),
+            'candidate_email' => Yii::t('candidate','Email'),
+            'candidate_new_email' => Yii::t('candidate','New Email'),
+            'candidate_email_verification' => Yii::t('candidate','Email Verification'),
+            'candidate_limit_email' => Yii::t('candidate','Limit Email'),
+            'candidate_phone' => Yii::t('candidate','Phone'),
+            'candidate_address_line1' => Yii::t('candidate','Candidate Address'),
+            'candidate_birth_date' => Yii::t('candidate','Birth Date'),
+            'candidate_civil_id' => Yii::t('candidate','Civil ID'),
+            'candidate_civil_expiry_date' => Yii::t('candidate','Civil Expiry Date'),
+            'candidate_civil_photo_front' => Yii::t('candidate','Civil Photo Front'),
+            'candidate_civil_photo_back' => Yii::t('candidate','Civil Photo Back'),
+            'candidate_driving_license' => Yii::t('candidate','Driving License'),
+            'candidate_resume' => Yii::t('candidate','Resume'),
+            'candidate_hourly_rate' => Yii::t('candidate','Hourly Rate'),
+            'candidate_auth_key' => Yii::t('candidate','Auth Key'),
+            'candidate_password_hash' => Yii::t('candidate','Password'),
+            'candidate_password_reset_token' => Yii::t('candidate','Password Reset Token'),
+            'candidate_language_pref' => Yii::t('candidate','Language preference'),
+            'candidate_status' => Yii::t('candidate','Status'),
+            'candidate_created_at' => Yii::t('candidate','Created At'),
+            'candidate_updated_at' => Yii::t('candidate','Updated At'),
+            'employee_id' => Yii::t('candidate','Employee ID')
         ];
     }
 
@@ -434,6 +435,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ]);
         
         unset($fields['deleted']);
+        unset($fields['candidate_uid']);
 
         return $fields;
     }
@@ -587,7 +589,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getUniversity($modelClass = "\common\models\University")
     {
-        return $this->hasOne($modelClass::className(), ['university_id' => 'university_id'])->andWhere(['{{%university}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['university_id' => 'university_id'])
+            ->andWhere(['{{%university}}.deleted'=>0]);
 
     }
 
@@ -604,7 +607,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getBank($modelClass = "\common\models\Bank")
     {
-        return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id'])->andWhere(['{{%bank}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id'])
+            ->andWhere(['{{%bank}}.deleted'=>0]);
     }
 
     /**
@@ -612,7 +616,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getStore($modelClass = "\common\models\Store")
     {
-        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id'])->andWhere(['{{%store}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id'])
+            ->andWhere(['{{%store}}.deleted'=>0]);
     }
 
     /**
@@ -620,7 +625,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->via('store')->andWhere(['{{%company}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('store')
+            ->andWhere(['{{%company}}.deleted'=>0]);
     }
 
     /**

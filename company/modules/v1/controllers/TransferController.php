@@ -105,14 +105,12 @@ class TransferController extends Controller
             ])    
             ->one();
 
-        if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
+
+        if (!$transfer)
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
 
         return $transfer;
+
     }
 
     /**
@@ -269,11 +267,8 @@ class TransferController extends Controller
             ->filterTransfer($id)
             ->one();
 
-        if(!$transfer) {
-            return [
-                    "operation" => "error",
-                    "message" => 'Transfer not found'
-                ];
+        if (!$transfer) {
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
         try{
@@ -310,10 +305,7 @@ class TransferController extends Controller
             ->one();
 
         if(!$transfer) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
         try{
@@ -353,10 +345,7 @@ class TransferController extends Controller
             ->one();
 
         if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
         //delete data child transfer

@@ -236,6 +236,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
         $this->specify('fixture data load test & test to check payable amount is with 3 digit after point', function () {
             $transferCandidateData = TransferCandidate::getPayableCandidateListFormat();
+
             expect('if data exist', count($transferCandidateData['candidate_list']))->greaterThan(0);
 
 
@@ -254,6 +255,20 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             expect('no comma in first value',strpos($whole,','))->false();
             expect('no comma in first value',strpos($whole1,','))->false();
 
+        });
+    }
+
+    /**
+     * test case for transferable candidate
+     */
+    public function testToCheckNotAbleToEditTransferBankAfterPaid() {
+
+        $this->specify('unit test to check if transfer is paid then bank detail should not be editable', function () {
+            $transfer = TransferCandidate::findOne(['paid'=>TransferCandidate::PAID]);
+
+            $transfer->bank_id = 2;
+            expect('validation error',$transfer->validate())->false();
+            expect('error msg',$transfer->getErrors())->hasKey('bank_id');
         });
     }
 }

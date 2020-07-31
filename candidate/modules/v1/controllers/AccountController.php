@@ -296,33 +296,33 @@ class AccountController extends Controller
         if (empty($oldPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Empty old password"
+                "message" => Yii::t('candidate',"Empty old password")
             ];
         } else if (empty($newPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Empty new password"
+                "message" => Yii::t('candidate',"Empty new password")
             ];
         }
 
         if ($oldPassword === $newPassword) {
             return [
                 "operation" => "error",
-                "message" => "New password should not be same as old password"
+                "message" => Yii::t('candidate',"New password should not be same as old password")
             ];
         }
 
         if (!$model->validatePassword($oldPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Invalid Old Password"
+                "message" => Yii::t('candidate',"Invalid Old Password")
             ];
         }
 
         if (strlen($newPassword) < 5) {
             return [
                 "operation" => "error",
-                "message" => "New password length should be great then equal to 5"
+                "message" => Yii::t('candidate',"New password length should be great then equal to 5")
             ];
         }
 
@@ -331,7 +331,7 @@ class AccountController extends Controller
         if ($candidate->save(false)) {
             return [
                 "operation" => "success",
-                "message" => "Password changed successfully!"
+                "message" => Yii::t('candidate',"Password changed successfully!")
             ];
         }
     }

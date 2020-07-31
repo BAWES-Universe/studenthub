@@ -127,16 +127,16 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function attributeLabels()
     {
         return [
-            'company_id' => 'Company ID',
-            'parent_company_id' => 'Parent Company',
-            'company_name' => 'Company Name',
-            'company_email' => 'Company Email',
-            'company_auth_key' => 'Company Auth Key',
-            'company_password_hash' => 'Password',
-            'company_password_reset_token' => 'Company Password Reset Token',
-            'company_status' => 'Company Status',
-            'company_created_at' => 'Company Created At',
-            'company_updated_at' => 'Company Updated At',
+            'company_id' => Yii::t('app','Company ID'),
+            'parent_company_id' => Yii::t('app','Parent Company'),
+            'company_name' => Yii::t('app','Company Name'),
+            'company_email' => Yii::t('app','Company Email'),
+            'company_auth_key' => Yii::t('app','Company Auth Key'),
+            'company_password_hash' => Yii::t('app','Password'),
+            'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
+            'company_status' => Yii::t('app','Company Status'),
+            'company_created_at' => Yii::t('app','Company Created At'),
+            'company_updated_at' => Yii::t('app','Company Updated At'),
         ];
     }
     
