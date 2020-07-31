@@ -104,4 +104,8 @@ return [
     'University ID' => 'معرف الجامعة',
     'University Name En' => 'اسم الجامعة',
     'University Name Ar' => 'اسم الجامعة Ar',
+    'Gender' => '',
+    'Objective' => '',
+    'Driving License' => '',
+    'Resume' => ''
 ];
