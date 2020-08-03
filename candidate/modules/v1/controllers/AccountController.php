@@ -179,7 +179,7 @@ class AccountController extends Controller
      * Remove Photo
      */
     public function actionRemovePhoto() {
-        $model = Yii::$app->user->identity;
+        $model = Candidate::findOne(Yii::$app->user->getId());
 
         if ($model->candidate_personal_photo) {
             $model->deleteProfilePhotoFromCloudinary();
@@ -417,7 +417,7 @@ class AccountController extends Controller
                 ])
             ];
         }
-        
+
         if (!$model->updateProfilePhoto()) {
             return [
                 'operation' => 'error',

@@ -24,7 +24,8 @@
         "guzzlehttp/guzzle": "*",
         "php-http/guzzle6-adapter": "^2.0",
         "notamedia/yii2-sentry": "^1.5",
-        "spatie/browsershot": "^3.37"
+        "spatie/browsershot": "^3.37",
+        "cloudinary/cloudinary_php": "^1.8"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
