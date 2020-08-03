@@ -30,4 +30,18 @@ class CountryQuery extends \yii\db\ActiveQuery {
     public function joinCandidate() {
         return $this->leftJoin('candidate', 'candidate.country_id = country.country_id')->andwhere(['{{%candidate}}.deleted' => 0]);
     }
+
+    /**
+     * @param $name
+     * @return CountryQuery
+     */
+    public function filterName($name)
+    {
+        return $this->andWhere(
+            ['or',
+                ['like', 'country_name_en', $name],
+                ['like', 'country_name_ar', $name]
+            ]
+        );
+    }
 }

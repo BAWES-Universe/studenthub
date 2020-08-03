@@ -53,5 +53,18 @@ class UniversityQuery extends \yii\db\ActiveQuery
             ->orderBy('total_candidates DESC, university_name_en')
             ->asArray();
     }
+
+    /**
+    * @param $name
+    * @return CountryQuery
+    */
+    public function filterName($name)
+    {
+        return $this->andWhere(
+            ['or',
+                ['like', 'university_name_en', $name],
+                ['like', 'university_name_ar', $name]
+            ]
+        );
+    }
 }
-	

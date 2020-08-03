@@ -135,6 +135,24 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // CountryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/country',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // UniversityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/university',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
