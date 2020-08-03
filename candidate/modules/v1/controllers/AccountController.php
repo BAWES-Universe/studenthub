@@ -121,7 +121,7 @@ class AccountController extends Controller
         return [
             "operation" => "success",
             "message" => Yii::t('candidate', "Experiences updated successfully"),
-            "skills" => $experienceList
+            "experiences" => $experienceList
         ];
     }
     
