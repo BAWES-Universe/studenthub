@@ -1172,8 +1172,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
-
-
     /**
      * delete old profile photo from cloudinary
      * @return boolean
@@ -1223,9 +1221,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]
             );
 
-            if ($result)
+            if ($result) {
                 $this->candidate_personal_photo = basename($result['url']);
-
+                return true;
+            } 
+            
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
