@@ -185,10 +185,7 @@ class CompanyController extends Controller
             ->one();
 
         if(!$company){
-            return [
-                    "operation" => "error",
-                    "message" => "Company account not found"
-                ];
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
         return $company;
     }

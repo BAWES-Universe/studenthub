@@ -52,12 +52,12 @@ class Bank extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'bank_id' => 'ID',
-            'bank_name' => 'Name',
-            'bank_iban_code' => 'Bank IBAN',
-            'bank_swift_code' => 'Swift Code',
-            'bank_address' => 'Address',
-            'bank_transfer_type' => 'Transfer Type',
+            'bank_id' => Yii::t('candidate','ID'),
+            'bank_name' => Yii::t('candidate','Name'),
+            'bank_iban_code' => Yii::t('candidate','Bank IBAN'),
+            'bank_swift_code' => Yii::t('candidate','Swift Code'),
+            'bank_address' => Yii::t('candidate','Address'),
+            'bank_transfer_type' => Yii::t('candidate','Transfer Type'),
         ];
     }
 

@@ -125,7 +125,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit {
         expect('main transfer is in salary distribution process', Transfer::findOne($TransferCandidate->transfer_id)->transfer_status)->equals(Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS);
 
         // modifying fixture data
-        $response = TransferCandidate::markPaid(22);
+        $response = TransferCandidate::markPaid(22,1122);
         expect('paid candidate transfer', $response['message'])->equals('Candidate Transfer marked as "paid" successfully');
 
         // checking after modifying fixture data
@@ -155,7 +155,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit {
         expect('one unpaid candidate', $count)->equals(1);
 
         // modifying fixture data
-        $response = TransferCandidate::markPaid(34);
+        $response = TransferCandidate::markPaid(34,1122);
         expect('paid candidate transfer', $response['message'])->equals('Candidate Transfer marked as "paid" with transfer status changed to completed successfully');
 
 

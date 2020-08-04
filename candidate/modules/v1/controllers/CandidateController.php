@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
-use common\models\CandidateWorkHistory;
+use candidate\models\CandidateWorkHistory;
 
 
 /**
@@ -72,8 +72,8 @@ class CandidateController extends Controller
     {
         $model = CandidateWorkHistory::find()
             ->filterCandidate(\Yii::$app->user->id)
-            ->with('store')
-            ->asArray()
+//            ->with('store')
+//            ->asArray()
             ->all();
 
         if(!$model)

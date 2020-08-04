@@ -79,13 +79,13 @@ class Store extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'store_id' => 'Store ID',
-            'company_id' => 'Company ID',
-            'store_name' => 'Store Name',
-            'store_status' => 'Store Status',
-            'store_created_at' => 'Store Created At',
-            'store_updated_at' => 'Store Updated At',
-            'deleted' => 'deleted',
+            'store_id' => Yii::t('app','Store ID'),
+            'company_id' => Yii::t('app','Company ID'),
+            'store_name' => Yii::t('app','Store Name'),
+            'store_status' => Yii::t('app','Store Status'),
+            'store_created_at' => Yii::t('app','Store Created At'),
+            'store_updated_at' => Yii::t('app','Store Updated At'),
+            'deleted' => Yii::t('app','deleted'),
         ];
     }
 

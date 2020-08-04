@@ -1,17 +1,20 @@
 <?php
 
-namespace staff\modules\v1\controllers;
+namespace candidate\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\University;
+use common\models\Country;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
+
 
 /**
- * University controller - Manage university as Admin
+ * Country controller - Manage Country as Admin
  */
-class UniversityController extends Controller
+class CountryController extends Controller
 {
     public function behaviors()
     {
@@ -22,7 +25,7 @@ class UniversityController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -40,10 +43,10 @@ class UniversityController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options','list'];
 
         return $behaviors;
     }
@@ -64,41 +67,20 @@ class UniversityController extends Controller
     }
 
     /**
-     * Return a List of University Accounts available.
+     * Return a List of Country Accounts available.
      */
     public function actionList()
     {
-        $query = University::find()
-            ->notDeleted()
-            ->listWithCandidateCount();
-
+        $q = Yii::$app->request->getQueryParam('q');
+        $query = Country::find();
+        if ($q) {
+            $query->filterName($q);
+        }
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 200,
+            ],
         ]);
-    }
-
-    /**
-     * Return a List of University Accounts available
-     * without pagination.
-     */
-    public function actionAll()
-    {
-        return University::find()
-            ->notDeleted()
-            ->all();
-    }
-
-    /**
-     * Return a List of University Accounts available
-     * without pagination.
-     */
-    public function actionView($id)
-    {
-        $data = University::findOne($id);
-
-        if (!$data)
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
-
-        return $data;
     }
 }

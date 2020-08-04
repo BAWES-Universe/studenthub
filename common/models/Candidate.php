@@ -21,6 +21,8 @@ use yii\helpers\ArrayHelper;
  * @property string $candidate_iban
  * @property string $candidate_name
  * @property string $candidate_name_ar
+ * @property string $candidate_gender
+ * @property string $candidate_objective
  * @property string $candidate_personal_photo
  * @property string $candidate_email
  * @property string $candidate_new_email
@@ -33,6 +35,8 @@ use yii\helpers\ArrayHelper;
  * @property string $candidate_civil_expiry_date
  * @property string $candidate_civil_photo_front
  * @property string $candidate_civil_photo_back
+ * @property string $candidate_driving_license
+ * @property string $candidate_resume
  * @property float $candidate_hourly_rate
  * @property string $candidate_auth_key
  * @property string $candidate_password_hash
@@ -63,6 +67,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const EMAIL_VERIFIED = 1;
     const EMAIL_NOT_VERIFIED = 0;
     
+    //Gender values for `gender`
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 3;
+    
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
         'candidate_personal_photo' => 'photos',
@@ -86,7 +95,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             [['university_id', 'country_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
             [['candidate_password_hash'], 'required'],
-            [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id'], 'integer'],
+            [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
@@ -115,7 +124,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
-
+    
+            ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
+                    
+            [['candidate_objective'], 'string', 'max' => 100],
+                    
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -123,17 +136,29 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_personal_photo'], 
                 '\common\components\S3FileExistValidator', 
                 'filePath' => '',
-                'message' => "Please upload a personal photo for the candidate",
+                'message' => Yii::t('candidate',"Please upload a personal photo for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
+                    
+            [
+                ['candidate_resume'], 
+                '\common\components\S3FileExistValidator', 
+                'filePath' => '',
+                'message' => "Please upload resume",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+                    
             [
                 ['candidate_civil_photo_front'], 
                 '\common\components\S3FileExistValidator', 
                 'filePath' => '',
-                'message' => "Please upload a civil id photo (front) for the candidate",
+                'message' => Yii::t('candidate',"Please upload a civil id photo (front) for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
@@ -143,7 +168,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_civil_photo_back'], 
                 '\common\components\S3FileExistValidator', 
                 'filePath' => '',
-                'message' => "Please upload a civil id photo (back) for the candidate",
+                'message' => Yii::t('candidate',"Please upload a civil id photo (back) for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
@@ -158,10 +183,34 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function scenarios() {
         $scenarios = parent::scenarios();
  
+        $scenarios['updateName'] = ['candidate_name'];
+        
+        $scenarios['updateNameAr'] = ['candidate_name_ar'];
+        
+        $scenarios['candidate_personal_photo'] = ['candidate_personal_photo'];
+        
+        $scenarios['updateCivilId'] = ['candidate_civil_id'];
+        
         $scenarios["updateLanguagePref"] = ["candidate_language_pref"];
         
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
+        $scenarios['changeProfilePhoto'] = ['profile_photo'];
+
+        $scenarios['updateNationality'] = ['country_id'];
+        
+        $scenarios['updateDrivingLicense'] = ['candidate_driving_license'];
+        
+        $scenarios['updateObjective'] = ['candidate_objective'];
+        
+        $scenarios['updateGender'] = ['candidate_gender'];
+        
+        $scenarios['updateUniversity'] = ['university_id'];
+        
+        $scenarios['updateResume'] = ['candidate_resume'];
+        
+        $scenarios['updateBirthDate'] = ['candidate_birth_date'];
+        
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
         
         return $scenarios;
@@ -205,9 +254,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if (!$found) {
-            $this->addError($attribute, 'We do not support transfers to this bank.');
+            $this->addError($attribute, Yii::t('candidate','We do not support transfers to this bank.'));
         } else if (!preg_match('/^[a-zA-Z0-9]{30}$/', $this->$attribute)) {
-            $this->addError($attribute, 'Bank IBAN must contain exactly 30 digits.');
+            $this->addError($attribute, Yii::t('candidate','Bank IBAN must contain exactly 30 digits.'));
         }
     }
 
@@ -218,7 +267,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if($this->candidate_hourly_rate <= 0)
         {
-            $this->addError('candidate_hourly_rate', 'Candidate hourly rate should be greater than 0.');
+            $this->addError('candidate_hourly_rate', Yii::t('candidate','Candidate hourly rate should be greater than 0.'));
             return null;
         }
         
@@ -235,7 +284,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         if($max && $this->candidate_hourly_rate > $max)
         {
-            $this->addError('candidate_hourly_rate', 'Candidate hourly rate should be less than or equal to ' . $max . '.');
+
+            $this->addError('candidate_hourly_rate', Yii::t('candidate', "Candidate hourly rate should be less than or equal to {max}.", ['max' => $max]));
         }
     }
     
@@ -246,7 +296,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
         {
-            $this->addError('candidate_civil_expiry_date', 'Candidate have expired civil id.');
+            $this->addError('candidate_civil_expiry_date', Yii::t('candidate','Candidate have expired civil id.'));
         }
     }
 
@@ -256,7 +306,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function validateAge()
     {
         if($this->age < 18 || $this->age > 24) {
-            $this->addError('candidate_birth_date', 'Candidate age should be between 18 to 24.');
+            $this->addError('candidate_birth_date', Yii::t('candidate','Candidate age should be between 18 to 24.'));
         }
     }
 
@@ -280,34 +330,38 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function attributeLabels()
     {
         return [
-            'candidate_id' => 'Candidate ID',
-            'store_id' => 'Store ID',
-            'bank_id' => 'Bank ID',
-            'bank_account_name' => 'Bank account name',
-            'candidate_iban' => 'IBAN',
-            'candidate_name' => 'Name [English]',
-            'candidate_name_ar' => 'Name [Arabic]',
-            'candidate_personal_photo' => 'Personal Photo',
-            'candidate_email' => 'Email',
-            'candidate_new_email' => 'New Email',
-            'candidate_email_verification' => 'Email Verification',
-            'candidate_limit_email' => 'Limit Email',
-            'candidate_phone' => 'Phone',
-            'candidate_address_line1' => 'Candidate Address',
-            'candidate_birth_date' => 'Birth Date',
-            'candidate_civil_id' => 'Civil ID',
-            'candidate_civil_expiry_date' => 'Civil Expiry Date',
-            'candidate_civil_photo_front' => 'Civil Photo Front',
-            'candidate_civil_photo_back' => 'Civil Photo Back',
-            'candidate_hourly_rate' => 'Hourly Rate',
-            'candidate_auth_key' => 'Auth Key',
-            'candidate_password_hash' => 'Password',
-            'candidate_password_reset_token' => 'Password Reset Token',
-            'candidate_language_pref' => 'Language preference',
-            'candidate_status' => 'Status',
-            'candidate_created_at' => 'Created At',
-            'candidate_updated_at' => 'Updated At',
-            'employee_id' => 'Employee ID',
+            'candidate_id' => Yii::t('candidate','Candidate ID'),
+            'store_id' => Yii::t('candidate','Store ID'),
+            'bank_id' => Yii::t('candidate','Bank ID'),
+            'bank_account_name' => Yii::t('candidate','Bank account name'),
+            'candidate_iban' => Yii::t('candidate','IBAN'),
+            'candidate_name' => Yii::t('candidate','Name [English]'),
+            'candidate_name_ar' => Yii::t('candidate','Name [Arabic]'),
+            'candidate_gender' => Yii::t('candidate','Gender'),
+            'candidate_objective' => Yii::t('candidate','Objective'),
+            'candidate_personal_photo' => Yii::t('candidate','Personal Photo'),
+            'candidate_email' => Yii::t('candidate','Email'),
+            'candidate_new_email' => Yii::t('candidate','New Email'),
+            'candidate_email_verification' => Yii::t('candidate','Email Verification'),
+            'candidate_limit_email' => Yii::t('candidate','Limit Email'),
+            'candidate_phone' => Yii::t('candidate','Phone'),
+            'candidate_address_line1' => Yii::t('candidate','Candidate Address'),
+            'candidate_birth_date' => Yii::t('candidate','Birth Date'),
+            'candidate_civil_id' => Yii::t('candidate','Civil ID'),
+            'candidate_civil_expiry_date' => Yii::t('candidate','Civil Expiry Date'),
+            'candidate_civil_photo_front' => Yii::t('candidate','Civil Photo Front'),
+            'candidate_civil_photo_back' => Yii::t('candidate','Civil Photo Back'),
+            'candidate_driving_license' => Yii::t('candidate','Driving License'),
+            'candidate_resume' => Yii::t('candidate','Resume'),
+            'candidate_hourly_rate' => Yii::t('candidate','Hourly Rate'),
+            'candidate_auth_key' => Yii::t('candidate','Auth Key'),
+            'candidate_password_hash' => Yii::t('candidate','Password'),
+            'candidate_password_reset_token' => Yii::t('candidate','Password Reset Token'),
+            'candidate_language_pref' => Yii::t('candidate','Language preference'),
+            'candidate_status' => Yii::t('candidate','Status'),
+            'candidate_created_at' => Yii::t('candidate','Created At'),
+            'candidate_updated_at' => Yii::t('candidate','Updated At'),
+            'employee_id' => Yii::t('candidate','Employee ID')
         ];
     }
 
@@ -383,6 +437,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ]);
         
         unset($fields['deleted']);
+        unset($fields['candidate_uid']);
 
         return $fields;
     }
@@ -397,7 +452,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'company',
             'university',
             'country',
-            'bank'
+            'bank',
+            'candidateSkills',
+            'candidateExperiences'
         ];
     }
 
@@ -478,13 +535,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!parent::beforeSave($insert)) 
             return false; 
 
-        // Move uploaded files to permanent bucket
-        $this->_moveTemporaryFilesToPermanentBucket();
+        // Move uploaded files to permanent bucket // as we are only going to use cloudinary
+//        $this->_moveTemporaryFilesToPermanentBucket();
 
         if (!$this->candidate_uid) {
             $this->candidate_uid = $this->generateUid();
         } 
         
+        $this->bank_id = null; 
+            
         $banks = Bank::find()->all();
 
         foreach($banks as $bank) {
@@ -532,7 +591,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getUniversity($modelClass = "\common\models\University")
     {
-        return $this->hasOne($modelClass::className(), ['university_id' => 'university_id'])->andWhere(['{{%university}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['university_id' => 'university_id'])
+            ->andWhere(['{{%university}}.deleted'=>0]);
 
     }
 
@@ -549,7 +609,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getBank($modelClass = "\common\models\Bank")
     {
-        return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id'])->andWhere(['{{%bank}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id'])
+            ->andWhere(['{{%bank}}.deleted'=>0]);
     }
 
     /**
@@ -557,7 +618,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getStore($modelClass = "\common\models\Store")
     {
-        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id'])->andWhere(['{{%store}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id'])
+            ->andWhere(['{{%store}}.deleted'=>0]);
     }
 
     /**
@@ -565,7 +627,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->via('store')->andWhere(['{{%company}}.deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('store')
+            ->andWhere(['{{%company}}.deleted'=>0]);
     }
 
     /**
@@ -607,6 +671,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return \yii\db\ActiveQuery
      */
     public function getWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateSkills($modelClass = "\common\models\CandidateSkill")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateExperiences($modelClass = "\common\models\CandidateExperience")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
@@ -979,6 +1059,166 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return $candidate;
         } else {
+            return false;
+        }
+    }
+    
+    /**
+     * delete resume
+     * @return boolean
+     */
+    public function deleteResume() {
+        
+        try {
+
+            Yii::$app->resourceManager->delete("candidate-resume/" . $this->candidate_resume);  
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to delete.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to delete.'));
+
+            return false;
+        }   
+    }
+    
+    /**
+     * save resume to permanent bucket
+     * @return boolean
+     */
+    public function updateResume() {
+
+        $fileName = $this->candidate_resume;
+
+        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+        $targetPath = "candidate-resume/" . $fileName;
+
+        // Copy using S3ResourceManager Component
+
+        try {
+
+            Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+
+        } catch (Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+        }
+        
+        return $this->save();
+    }
+    
+    /**
+     * Update profile photo from temp s3 bucket
+     * @return type
+     */
+    public function updateProfilePhoto() {
+
+        try {
+            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_personal_photo);
+
+            $this->setProfileByUrl($url);
+
+            $this->scenario = 'changeProfilePhoto';
+
+            return $this->save();
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+    }
+
+
+
+    /**
+     * delete old profile photo from cloudinary
+     * @return boolean
+     */
+    public function deleteProfilePhotoFromCloudinary() {
+        
+        try {
+            
+            Yii::$app->cloudinaryManager->delete("candidate-photo/" . $this->candidate_personal_photo);
+        
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            //$this->addError('profile_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+            
+        } catch (\Exception $e) {
+            
+            Yii::error($e->getMessage(), 'candidate');
+            
+            //$this->addError('profile_photo', Yii::t('app', 'Image not available to save.'));
+            
+            return false;
+        }
+    }
+    
+    /**
+     * Set profile photo by url
+     * @param string $url
+     */
+    public function setProfileByUrl($url) {
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+        
+        if ($this->candidate_personal_photo) {
+            $this->deleteProfilePhotoFromCloudinary();
+        }
+
+        try {
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url, [
+                    'public_id' => "candidate-photo/" . $filename
+                ]
+            );
+
+            if ($result)
+                $this->candidate_personal_photo = basename($result['url']);
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
+
             return false;
         }
     }

@@ -64,16 +64,6 @@ class AccountController extends Controller
         $password = Yii::$app->request->getBodyParam("password");
         $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
-        //validate current password 
-        
-        /*if(!$staff->validatePassword($password)) 
-        {
-            return [
-                'operation' => 'error',
-                'message' => 'Invalid current password provided'
-            ];
-        }*/
-        
         //update password 
         
         $staff->setPassword($newPassword);

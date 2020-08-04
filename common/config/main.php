@@ -16,6 +16,17 @@ return [
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
+        'cloudinaryManager' => [
+            'class' => 'common\components\CloudinaryManager',
+            'cloud_name' => 'studenthub',
+            'api_key' => '251218449868375',
+            'api_secret' => 'FILAex7q93GUB-q1bEe1pAKOIvY'
+            /**
+             * You can access the bucket with:
+             * http://res.cloudinary.com/bawes/
+             * http://res.cloudinary.com/bawes/image/upload/candidate-photo/fileName.jpg
+             */
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],

@@ -43,10 +43,10 @@ class Invoice extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'invoice_id' => 'Invoice ID',
-            'transfer_id' => 'Transfer ID',
-            'invoice_date' => 'Invoice Date',
-            'invoice_status' => 'Invoice Status',
+            'invoice_id' => Yii::t('app','Invoice ID'),
+            'transfer_id' =>Yii::t('app', 'Transfer ID'),
+            'invoice_date' => Yii::t('app','Invoice Date'),
+            'invoice_status' => Yii::t('app','Invoice Status'),
         ];
     }
 

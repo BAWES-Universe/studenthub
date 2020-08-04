@@ -137,12 +137,14 @@ class TransferCest
         $I->sendPATCH('v1/transfers/mark-paid-all', [
             'candidates' => [
                 [
-                    'candidate_id' => 6,
-                    'transfer_id' => 17
+                    'transfer_id' => 6,
+                    'transfer_confirmation_id' => 6,
+                    'tc_id' => 17
                 ],
                 [
-                    'candidate_id' => 7,
-                    'transfer_id' => 17
+                    'transfer_id' => 7,
+                    'transfer_confirmation_id' => 7,
+                    'tc_id' => 17
                 ]
             ]
         ]);

@@ -81,7 +81,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
     public function validateStatus($attribute, $params, $validator)
     {
-        //on mark as paid clear out the name/iban/bankid/transfer_confirmation_id
+        //on mark as paid clear out the name/iban/bank id/transfer_confirmation_id
         
         if($this->getOldAttribute('paid') && !$this->paid) {
             $this->bank_id = null; 
@@ -134,26 +134,26 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'tc_id' => 'TC ID',
-            'transfer_id' => 'Transfer ID',
-            'candidate_id' => 'Candidate ID',
-            'store_id' => 'Store ID',
-            'store_name' => 'Store Name',
-            'company_id' => 'Company ID',
-            'company_name' => 'Company Name',
-            'company_email' => 'Company Email',
-            'bank_id' => 'Bank ID',
-            'transfer_confirmation_id' => 'Transfer confirmation ID',
-            'transfer_benef_name' => 'Transfer Benef Name',
-            'transfer_benef_iban' => 'Transfer Benef IBAN',
-            'hours' => 'Hours',
-            'candidate_hourly_rate' => 'Candidate Hourly Rate',
-            'company_hourly_rate' => 'Company Hourly Rate',
-            'transfer_cost' => 'Transfer cost',
-            'bonus' => 'Bonus',
-            'bonus_commission' => 'Bonus Commission (KWD)',
-            'tc_created_at' => 'Tc Created At',
-            'tc_updated_at' => 'Tc Updated At',
+            'tc_id' => Yii::t('app','TC ID'),
+            'transfer_id' => Yii::t('app','Transfer ID'),
+            'candidate_id' => Yii::t('app','Candidate ID'),
+            'store_id' => Yii::t('app','Store ID'),
+            'store_name' => Yii::t('app','Store Name'),
+            'company_id' => Yii::t('app','Company ID'),
+            'company_name' => Yii::t('app','Company Name'),
+            'company_email' => Yii::t('app','Company Email'),
+            'bank_id' => Yii::t('app','Bank ID'),
+            'transfer_confirmation_id' => Yii::t('app','Transfer confirmation ID'),
+            'transfer_benef_name' => Yii::t('app','Transfer Benef Name'),
+            'transfer_benef_iban' => Yii::t('app','Transfer Benef IBAN'),
+            'hours' => Yii::t('app','Hours'),
+            'candidate_hourly_rate' => Yii::t('app','Candidate Hourly Rate'),
+            'company_hourly_rate' => Yii::t('app','Company Hourly Rate'),
+            'transfer_cost' => Yii::t('app','Transfer cost'),
+            'bonus' => Yii::t('app','Bonus'),
+            'bonus_commission' => Yii::t('app','Bonus Commission (KWD)'),
+            'tc_created_at' => Yii::t('app','Tc Created At'),
+            'tc_updated_at' => Yii::t('app','Tc Updated At'),
         ];
     }
 
@@ -314,11 +314,13 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         $candidates = TransferCandidate::find()
             ->payable()
+            ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))    
             ->all();
 
         if (!$candidates) {
             return false;
         }
+        
         $list = [];
         
         foreach ($candidates as $detail) {

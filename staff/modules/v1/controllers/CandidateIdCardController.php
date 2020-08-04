@@ -292,7 +292,16 @@ class CandidateIdCardController extends Controller
             }
 
             $ID->expiry_date = date('Y-m-d', strtotime('+3 months'));
-            $ID->save();
+            
+            if(!$ID->save()) {
+                
+                $transaction->rollBack();
+                
+                return [
+                    'operation' => 'error',
+                    'message' => $ID->errors
+                ];
+            }
         }
 
         if(empty(Yii::$app->params['inCodeception']))

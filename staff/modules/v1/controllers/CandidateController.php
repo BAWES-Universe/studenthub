@@ -7,6 +7,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use common\models\CandidateWorkHistory;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -142,15 +143,7 @@ class CandidateController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Candidate not found",
-                "code" => 1
-            ];
-        }
+        $model = $this->findModel($id);
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
@@ -210,15 +203,7 @@ class CandidateController extends Controller
     public function actionAssign($id)
     {
         // Attempt to create new account
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Candidate not found",
-                "code" => 1
-            ];
-        }
+        $model = $this->findModel($id);
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
 
@@ -281,14 +266,7 @@ class CandidateController extends Controller
     public function actionUnassign($id)
     {
         // Attempt to create new account
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Candidate not found"
-            ];
-        }
+        $model = $this->findModel($id);
 
         $model->store_id = null;
 
@@ -390,15 +368,7 @@ class CandidateController extends Controller
      */
     public function actionResetPassword($id)
     {
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Candidate not found",
-                "code" => 1
-            ];
-        }
+        $model = $this->findModel($id);
 
         $password = Yii::$app->security->generateRandomString(5);
 
@@ -422,14 +392,7 @@ class CandidateController extends Controller
     public function actionDelete($id)
     {
         // Attempt to create new account
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Candidate not found"
-            ];
-        }
+        $model = $this->findModel($id);
 
         if ($model->store_id) {
             return [
@@ -466,11 +429,7 @@ class CandidateController extends Controller
      */
     public function actionTransfers($id)
     {
-        $model = Candidate::findOne((int) $id);
-
-        if(!$model)
-            return [];
-
+        $model = $this->findModel($id);
         return $model->paidTransferCandidate;
     }
 
@@ -488,7 +447,7 @@ class CandidateController extends Controller
             ->all();
 
         if(!$model)
-            return [];
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
 
         return $model;
     }
@@ -499,11 +458,21 @@ class CandidateController extends Controller
      */
     public function actionView($id)
     {
-        $model = Candidate::findOne($id);
-        
-        if(!$model)
-            return [];
+        return $this->findModel($id);
+    }
 
-        return $model;
+    /**
+     * Finds the Candidate model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Candidate::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

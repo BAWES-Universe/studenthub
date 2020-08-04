@@ -81,7 +81,12 @@ class CompanyController extends Controller
      */
     public function actionView($id)
     {
-        return Yii::$app->user->identity->getSubCompanies()
+        $data = Yii::$app->user->identity->getSubCompanies()
             ->filterCompany($id)->one();
+
+        if (!$data)
+            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+
+        return $data;
     }
 }

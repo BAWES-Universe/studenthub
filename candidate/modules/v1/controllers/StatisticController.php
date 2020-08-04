@@ -2,6 +2,7 @@
 
 namespace candidate\modules\v1\controllers;
 
+use candidate\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;

@@ -1,12 +1,13 @@
 <?php
 
-namespace staff\modules\v1\controllers;
+namespace candidate\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use common\models\University;
+use yii\web\NotFoundHttpException;
+
 
 /**
  * University controller - Manage university as Admin
@@ -43,8 +44,8 @@ class UniversityController extends Controller
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
-
+        $behaviors['authenticator']['except'] = ['options','list'];
+        
         return $behaviors;
     }
 
@@ -68,37 +69,17 @@ class UniversityController extends Controller
      */
     public function actionList()
     {
-        $query = University::find()
-            ->notDeleted()
-            ->listWithCandidateCount();
+        $q = Yii::$app->request->getQueryParam('q');
+        $query = University::find();
+        if ($q) {
+            $query->filterName($q);
+        }
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 200,
+            ],
         ]);
-    }
-
-    /**
-     * Return a List of University Accounts available
-     * without pagination.
-     */
-    public function actionAll()
-    {
-        return University::find()
-            ->notDeleted()
-            ->all();
-    }
-
-    /**
-     * Return a List of University Accounts available
-     * without pagination.
-     */
-    public function actionView($id)
-    {
-        $data = University::findOne($id);
-
-        if (!$data)
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
-
-        return $data;
     }
 }

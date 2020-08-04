@@ -75,15 +75,45 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET salary' => 'salary',
+                        'GET profile' => 'profile',
                         'POST change-password' => 'change-password',
                         'POST update-email' => 'update-email',      
                         'POST language-pref' => 'language-pref', 
+                        'POST update-name' => 'update-name',
+                        'POST update-name-ar' => 'update-name-ar',
+                        'POST update-civil-id' => 'update-civil-id',
+                        'POST update-nationality' => 'update-nationality',
+                        'POST update-university' => 'update-university',
+                        'POST update-driving-license' => 'update-driving-license',
+                        'POST update-gender' => 'update-gender',
+                        'POST update-objective' => 'update-objective',
+                        'POST update-resume' => 'update-resume',
+                        'POST update-birth-date' => 'update-birth-date',
+                        'POST profile-photo' => 'profile-photo',
+                        'POST update-skills' => 'update-skills',
+                        'POST update-experiences' => 'update-experiences',
+                        'DELETE remove-photo' => 'remove-photo',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS update-experiences' => 'options',
+                        'OPTIONS update-skills' => 'options',
+                        'OPTIONS profile' => 'options',
                         'OPTIONS salary' => 'options',
                         'OPTIONS update-email' => 'options', 
                         'OPTIONS change-password' => 'options',
                         'OPTIONS language-pref' => 'options', 
+                        'OPTIONS update-name' => 'options',
+                        'OPTIONS update-name-ar' => 'options',
+                        'OPTIONS update-civil-id' => 'options',
+                        'OPTIONS update-nationality' => 'options',
+                        'OPTIONS update-university' => 'options',
+                        'OPTIONS update-driving-license' => 'options',
+                        'OPTIONS update-objective' => 'options',
+                        'OPTIONS update-gender' => 'options',
+                        'OPTIONS update-resume' => 'options',
+                        'OPTIONS update-birth-date' => 'options',
+                        'OPTIONS profile-photo' => 'options',
+                        'OPTIONS remove-photo' => 'options'
                     ]
                 ],
                 [ // CandidateController
@@ -99,6 +129,24 @@ return [
                 [ // StatisticController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/statistic',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // CountryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/country',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // UniversityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/university',
                     'patterns' => [
                         'GET' => 'list',
                         // OPTIONS VERBS
