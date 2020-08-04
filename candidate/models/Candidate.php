@@ -2,6 +2,8 @@
 namespace candidate\models;
 
 use Yii;
+
+
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module

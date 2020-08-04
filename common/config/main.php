@@ -16,6 +16,12 @@ return [
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
+        'algolia' => [
+            'class' => 'common\components\Algolia',
+            'appId' => 'VQF0F2SG4Y',
+            'apiKey' => 'bce91c65c212d2bb20c079eb15c2283b', 
+            'publicKey' => '381f91f1c08f4d2788a6821cad1ccbbb'
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
