@@ -107,6 +107,12 @@ class CandidateController extends Controller
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->candidate_password_hash = $password;
         $model->password = $password; // temp password to send in mail
+
+        $model->candidate_driving_license = Yii::$app->request->getBodyParam("license");
+//        $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("skills");
+        $model->candidate_gender = Yii::$app->request->getBodyParam("gender");
+        $model->candidate_objective = Yii::$app->request->getBodyParam("objective");
+
         //candidate_auth_key
 
         if (!$model->signup())
@@ -160,7 +166,13 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
- 
+
+
+        $model->candidate_driving_license = Yii::$app->request->getBodyParam("license");
+//        $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("skills");
+        $model->candidate_gender = Yii::$app->request->getBodyParam("gender");
+        $model->candidate_objective = Yii::$app->request->getBodyParam("objective");
+
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("birth_date"))): null;
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("expiry_date"))): null;
        
