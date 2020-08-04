@@ -2,13 +2,9 @@
 
 namespace console\controllers;
 
-use common\models\Company;
-use Yii;
-use yii\helpers\Url;
-use yii\helpers\Console;
-use yii\helpers\ArrayHelper;
+use common\models\Company; 
+use yii\helpers\Console; 
 use common\models\Candidate;
-use common\models\Invoice;
 
 
 /**
