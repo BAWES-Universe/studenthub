@@ -440,16 +440,11 @@ class CandidateController extends Controller
      */
     public function actionWorkHistory($id)
     {
-        $model = CandidateWorkHistory::find()
+        return CandidateWorkHistory::find()
             ->filterCandidate($id)
             ->with('store')
             ->asArray()
             ->all();
-
-        if(!$model)
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
-
-        return $model;
     }
 
     /**
