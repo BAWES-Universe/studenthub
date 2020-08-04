@@ -1151,6 +1151,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+
+
     /**
      * delete old profile photo from cloudinary
      * @return boolean
