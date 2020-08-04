@@ -106,7 +106,7 @@ class CandidateController extends Controller
         $data = Yii::$app->user->identity->getCandidates()->filterById($id)->one();
 
         if (!$data)
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
 
         return $data;
 

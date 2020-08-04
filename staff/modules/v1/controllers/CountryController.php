@@ -96,7 +96,7 @@ class CountryController extends Controller
         $data = Country::findOne($id);
 
         if (!$data)
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
 
         return $data;
     }

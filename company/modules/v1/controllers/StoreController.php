@@ -86,7 +86,7 @@ class StoreController extends Controller
             ->one();
 
         if (!$store)
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
 
         return $store;
     }
