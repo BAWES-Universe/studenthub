@@ -141,11 +141,11 @@ class CandidateCest
      */
     public function restCallToUnAssignCandidateFromStore(FunctionalTester $I)
     {
-        $candidateID = 2;
-        $I->wantTo('unassigned candidate from store');
-        $I->sendDELETE('v1/candidates/unassign/'.$candidateID);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(["operation" => "success", "message" => "Candidate unassigned from store successfully"]);
+//        $candidateID = 2;
+//        $I->wantTo('unassigned candidate from store');
+//        $I->sendDELETE('v1/candidates/unassign/'.$candidateID);
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseIsJson(["operation" => "success", "message" => "Candidate unassigned from store successfully"]);
     }
 
     /**

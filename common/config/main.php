@@ -22,6 +22,17 @@ return [
             'apiKey' => 'bce91c65c212d2bb20c079eb15c2283b', 
             'publicKey' => '381f91f1c08f4d2788a6821cad1ccbbb'
         ],
+        'cloudinaryManager' => [
+            'class' => 'common\components\CloudinaryManager',
+            'cloud_name' => 'studenthub',
+            'api_key' => '251218449868375',
+            'api_secret' => 'FILAex7q93GUB-q1bEe1pAKOIvY'
+            /**
+             * You can access the bucket with:
+             * http://res.cloudinary.com/bawes/
+             * http://res.cloudinary.com/bawes/image/upload/candidate-photo/fileName.jpg
+             */ 
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],

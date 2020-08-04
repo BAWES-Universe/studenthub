@@ -195,7 +195,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios["updateLanguagePref"] = ["candidate_language_pref"];
         
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
-        
+
+        $scenarios['changeProfilePhoto'] = ['profile_photo'];
+
         $scenarios['updateNationality'] = ['country_id'];
         
         $scenarios['updateDrivingLicense'] = ['candidate_driving_license'];
@@ -554,8 +556,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!parent::beforeSave($insert)) 
             return false; 
 
-        // Move uploaded files to permanent bucket
-        $this->_moveTemporaryFilesToPermanentBucket();
+        // Move uploaded files to permanent bucket // as we are only going to use cloudinary
+//        $this->_moveTemporaryFilesToPermanentBucket();
 
         if (!$this->candidate_uid) {
             $this->candidate_uid = $this->generateUid();
@@ -1100,7 +1102,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return false;
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
@@ -1162,13 +1164,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return $this->save();
         } catch (\Exception $e) {
-            
+
             Yii::error($e->getMessage(), 'candidate');
-                    
+
             $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
             return false;
         }
     }
+
+
 
     /**
      * delete old profile photo from cloudinary
@@ -1188,7 +1192,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return false;
             
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             
             Yii::error($e->getMessage(), 'candidate');
             
@@ -1221,7 +1225,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             if ($result)
                 $this->candidate_personal_photo = basename($result['url']);
-            
+
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1229,13 +1233,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->addError('candidate_personal_photo', Yii::t('app', 'Please try again.'));
 
             return false;
-            
-        } catch (Exception $e) {
-            
+
+        } catch (\Exception $e) {
+
             Yii::error($e->getMessage(), 'candidate');
-            
+
             $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
-            
+
             return false;
         }
     }
