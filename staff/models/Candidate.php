@@ -35,10 +35,6 @@ class Candidate extends \common\models\Candidate {
     {
         if (parent::beforeSave($insert)) {
 
-            if (!$this->updateUserImages()) {
-                return false;
-            }
-
             $this->approved = false; //mark as dirty to send to admin for review
 
             return true;
