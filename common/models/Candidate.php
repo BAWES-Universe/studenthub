@@ -62,7 +62,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     // Candidate Status
     const STATUS_READY = 1;
     const STATUS_PENDING = 0;
-
+    const STATUS_ACTIVE = 10;//default status
+    
     //Email verification values for `candidate_email_verification`
     const EMAIL_VERIFIED = 1;
     const EMAIL_NOT_VERIFIED = 0;
@@ -104,7 +105,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_email','candidate_phone'], 'unique'],
             [['candidate_email', 'candidate_new_email'], 'email'],
-            ['approved', 'default', 'value'=> false],
+            //['approved', 'default', 'value'=> false],
             [['candidate_new_email'], 'validateNewEmail'],
             ['candidate_limit_email', 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
@@ -390,6 +391,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'paid' => 0,
                 'candidate_id' => $this->candidate_id
             ]);
+        }
+        
+        if (
+            $this->candidate_status == self::STATUS_ACTIVE && 
+            //$this->approved &&
+            !in_array(
+                $this->scenario, [
+                    'updateLanguagePref', //as not saving language preference in algolia  
+                    'signup', //as will have incomplete profile
+                    'updateEmail'//as not saving email in algolia 
+                ]
+            )
+        ) { 
+            return $this->updateAlgoliaIndex($insert);
+        }  
+
+        //on soft delete remove 
+        
+        if (isset($changedAttributes['deleted']) && $this->deleted) {
+            Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
         
         return true;
@@ -1243,5 +1264,303 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo($email)
             ->setSubject('Please confirm your email address')
             ->send();
+    }
+    
+    /**
+     * is candidate profile complete?
+     * @return boolean
+     */
+    public function isProfileCompleted() {
+        return $this->isInCompleteProfile() ? false : true;
+    }
+
+    /**
+     * Checks is candidate have incomplete profile 
+     * @return void|string
+     */
+    public function isInCompleteProfile() {
+        if (!$this->candidate_uid) {
+            return 'candidate_uid';
+        }
+
+        if (!$this->store) {
+            return 'store_id';
+        }
+        
+        if (!$this->bank) {
+            return 'bank_id';
+        }
+        
+        if (!$this->university) {
+            return 'university_id';
+        }
+        
+        if (!$this->country) {
+            return 'country_id';
+        }
+        
+        if (!$this->bank_account_name) {
+            return 'bank_account_name';
+        }
+        
+        if (!$this->candidate_iban) {
+            return 'candidate_iban';
+        }
+        
+        if (!$this->candidate_name) {
+            return 'name';
+        }
+        
+        if (!$this->candidate_name_ar) {
+            return 'name_ar';
+        }
+
+        if (!in_array($this->candidate_gender, [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER])) {
+            return 'gender';
+        }
+        
+        if (!$this->candidate_objective) {
+            return 'objective';
+        }
+        
+        if (!$this->candidate_personal_photo) {
+            return 'personal_photo';
+        }
+        
+        if (!$this->candidate_email) {
+            return 'email';
+        }
+        
+        if (!$this->candidate_phone) {
+            return 'phone';
+        }
+        
+        if (!$this->candidate_address_line1) {
+            return 'address_line1';
+        }
+        
+        if (!$this->candidate_birth_date) {
+            return 'birth_date';
+        }
+        
+        if (!$this->candidate_civil_id) {
+            return 'civil_id';
+        } 
+        
+        if (!$this->candidate_civil_expiry_date) {
+            return 'civil_expiry_date';
+        } 
+        
+        if (!$this->candidate_civil_photo_front) {
+            return 'civil_photo_front';
+        } 
+        
+        if (!$this->candidate_civil_photo_back) {
+            return 'civil_photo_back';
+        } 
+        
+        if (!$this->candidate_driving_license) {
+            return 'driving_license';
+        }
+        
+        if (!$this->candidate_resume) {
+            return 'resume';
+        }
+
+        if (!$this->candidate_hourly_rate) {
+            return 'hourly_rate';
+        }
+
+        if ($this->getCandidateExperiences()->count() == 0) {
+            return 'experience';
+        }
+        
+        if ($this->getCandidateSkills()->count() == 0) {
+            return 'skill';
+        }
+    } 
+    
+    /**
+     * Update/Insert data on algolia index
+     * @param bool $insert
+     */
+    public function updateAlgoliaIndex($insert = false) {
+        
+        $data = $this->prepareAlgoliaData($insert);
+
+        //if profile incomplete
+
+        if (!$data) {
+            return false;
+        }
+
+        if ($insert) { // candidate registered
+            Yii::$app->algolia->add(Yii::$app->params['algolia_candidate_index'], $data);
+        } else { // candidate data updated
+            Yii::$app->algolia->partialUpdate(Yii::$app->params['algolia_candidate_index'], $data);
+        }
+    }
+
+    /**
+     * Return array of job detail to update in algolia index
+     */
+    public function prepareAlgoliaData($insert = false) {
+
+        if (
+            $this->deleted || 
+            !$this->candidate_email_verification || 
+            $this->candidate_status != self::STATUS_ACTIVE
+        ) {
+            return false;
+        }
+
+        $isProfileCompleted = $this->isProfileCompleted();
+ 
+        if (!$isProfileCompleted) {
+
+            //delete from algolia 
+
+            Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
+
+            return false;
+        }
+
+        $data = [
+            'objectID' => $this->candidate_id,
+            'candidate_id' => $this->candidate_id,
+            'bank_account_name' => $this->bank_account_name,
+            'candidate_iban' => $this->candidate_iban,
+            'candidate_name' => $this->candidate_name,
+            'candidate_name_ar' => $this->candidate_name_ar,
+            'candidate_objective' => $this->candidate_objective,
+            'candidate_personal_photo' => $this->candidate_personal_photo,
+            'candidate_birth_date' => $this->candidate_birth_date,
+            'candidate_driving_license' => $this->candidate_driving_license,
+            'university' => [
+                'university_id' => $this->university_id,
+                'university_name_en' => $this->university->university_name_en,
+                'university_name_ar' => $this->university->university_name_ar
+            ],
+            'country' => [
+                'country_id' => $this->country_id,
+                'country_name_en' => $this->country->country_name_en,
+                'country_name_ar' => $this->country->country_name_ar
+            ],
+        ];
+                  
+        if($this->store) {
+            $data['store'] = [
+                'store_name' => $this->store->store_name,
+                'store_total_candidate' => $this->store->store_total_candidates,
+                'company' => [
+                    'company_name' => $this->store->company->company_name
+                ]
+            ];
+        }
+        
+        if($this->bank) {
+            $data['bank'] = [
+                'bank_id' => $this->bank_id,
+                'bank_name' => $this->bank->bank_name
+            ];
+        }   
+                
+        //to make gender label visible to filter instead of 1,0 
+
+        if ($this->candidate_gender == self::GENDER_FEMALE) {
+            $data['candidate_gender'] = 'Female';
+        } elseif ($this->candidate_gender == self::GENDER_MALE) {
+            $data['candidate_gender'] = 'Male';
+        } else {
+            $data['candidate_gender'] = 'Other';
+        }
+
+        if ($insert) {
+            $data['candidate_created_at'] = date('Y-m-d H:i:s');
+            $data['candidate_updated_at'] = date('Y-m-d H:i:s');
+            $data['candidate_created_at_timestamp'] = time();
+            $data['candidate_updated_at_timestamp'] = time();
+        } else {
+            $data['candidate_created_at'] = $this->candidate_created_at;
+            //could be `new Expression('NOW()')` on update 
+            $data['candidate_updated_at'] = is_string($this->candidate_updated_at) ? $this->candidate_updated_at : date('Y-m-d H:i:s');
+            $data['candidate_created_at_timestamp'] = strtotime($this->candidate_created_at);
+            $data['candidate_updated_at_timestamp'] = strtotime($data['candidate_updated_at']);
+        }
+
+        //candidate_experience
+
+        $data['candidateExperiences'] = [];
+
+        foreach ($this->getCandidateExperiences()->all() as $experience) {
+            $data['candidateExperiences'][] = [
+                'experience' => $experience->experience
+            ];
+        }
+
+        //candidate_skill
+
+        $data['candidateSkills'] = [];
+
+        foreach ($this->getCandidateSkills()->select('skill')->all() as $candidateSkill) {
+            $data['candidateSkills'][] = [
+                'skill' => $candidateSkill->skill
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Synch with algolia
+     * @return type
+     */
+    public static function synchWithAlgolia() {
+        //delete all objects
+
+        Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
+
+        //call api in batch
+
+        $query = self::find();
+        /* ->joinWith([
+          'city',
+          //'country',
+          'nationality',
+          'candidateEducations',
+          'candidateSkills',
+          'candidateLanguages',
+          'candidateExperiences',
+          'candidateConclusions'
+          ]); */
+
+        $total = $query->count();
+
+        //send 100 in each request 
+
+        Console::startProgress(0, $total);
+
+        $n = 0;
+
+        foreach ($query->batch(100) as $candidates) {
+
+            $data = [];
+
+            foreach ($candidates as $candidate) {
+                $algoliaData = $candidate->prepareAlgoliaData();
+
+                if ($algoliaData)
+                    $data[] = $algoliaData;
+            }
+
+            if ($data)
+                Yii::$app->algolia->updates(Yii::$app->params['algolia_candidate_index'], $data);
+
+            $n += sizeof($data);
+
+            Console::updateProgress($n, $total);
+        }
+
+        return $total;
     }
 }
