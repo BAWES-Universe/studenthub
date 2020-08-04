@@ -25,6 +25,7 @@
         "php-http/guzzle6-adapter": "^2.0",
         "notamedia/yii2-sentry": "^1.5",
         "spatie/browsershot": "^3.37",
+        "algolia/algoliasearch-client-php": "^2.4",
         "cloudinary/cloudinary_php": "^1.8"
     },
     "require-dev": {

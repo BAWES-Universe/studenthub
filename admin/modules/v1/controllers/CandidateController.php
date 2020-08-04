@@ -76,6 +76,7 @@ class CandidateController extends Controller
         $query = Candidate::find();
 
         $by = Yii::$app->request->get('by');
+        
         switch ($by) {
             case 'country_id' :
                 $query->filterCountry(Yii::$app->request->get('country_id'));
