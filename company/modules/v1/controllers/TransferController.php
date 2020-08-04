@@ -107,7 +107,7 @@ class TransferController extends Controller
 
 
         if (!$transfer)
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
 
         return $transfer;
 
@@ -268,7 +268,7 @@ class TransferController extends Controller
             ->one();
 
         if (!$transfer) {
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
         try{
@@ -305,7 +305,7 @@ class TransferController extends Controller
             ->one();
 
         if(!$transfer) {
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
         try{
@@ -345,7 +345,7 @@ class TransferController extends Controller
             ->one();
 
         if(!$model) {
-            throw new yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
         //delete data child transfer
