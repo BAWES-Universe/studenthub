@@ -218,7 +218,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'company',
             'candidate',
             'transfer',
-            'invoice'
+            'invoice',
+            'bank'
         ];
     }
 
