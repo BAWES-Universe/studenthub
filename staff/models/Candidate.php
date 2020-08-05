@@ -1,6 +1,8 @@
 <?php
 namespace staff\models;
 
+use common\models\CandidateExperience;
+use common\models\CandidateSkill;
 use Yii;
 use yii\helpers\Url;
 
@@ -220,5 +222,81 @@ class Candidate extends \common\models\Candidate {
             $attr = 'candidate_civil_photo_back';
         }
         return $attr;
+    }
+
+    /**
+     * update candidate experiences
+     * @param $experiences
+     * @return array|bool
+     */
+    public function updateExperiences($experiences)
+    {
+        $experiences = explode(',', $experiences);
+
+        if (empty($experiences) || count($experiences) == 0)
+        {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Experiences Required")
+            ];
+        }
+
+        CandidateExperience::deleteAll([
+            'candidate_id' => $this->candidate_id
+        ]);
+
+        foreach ($experiences as $experience) {
+            if (!empty($experience)) {
+                $model = new CandidateExperience;
+                $model->candidate_id = $this->candidate_id;
+                $model->experience = $experience;
+
+                if(!$model->save()) {
+                    return [
+                        "operation" => "error",
+                        "message" => $model->getErrors()
+                    ];
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * update candidate skills
+     * @param $skills
+     * @return array|bool
+     */
+    public function updateSkills($skills)
+    {
+        $skills_array = explode(',',$skills);
+
+        if (empty($skills) || count($skills_array) == 0)
+        {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate',"Skills Required")
+            ];
+        }
+
+        CandidateSkill::deleteAll([
+            'candidate_id' => $this->candidate_id
+        ]);
+
+        foreach ($skills_array as $skill) {
+            if (!empty($skill)) {
+                $model = new CandidateSkill;
+                $model->candidate_id = $this->candidate_id;
+                $model->skill = $skill;
+
+                if(!$model->save()) {
+                    return [
+                        "operation" => "error",
+                        "message" => $model->getErrors()
+                    ];
+                }
+            }
+        }
+        return true;
     }
 }

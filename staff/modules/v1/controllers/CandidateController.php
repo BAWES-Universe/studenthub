@@ -109,7 +109,6 @@ class CandidateController extends Controller
         $model->password = $password; // temp password to send in mail
 
         $model->candidate_driving_license = Yii::$app->request->getBodyParam("candidate_driving_license");
-//        $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("skills");
         $model->candidate_gender = Yii::$app->request->getBodyParam("candidate_gender");
         $model->candidate_objective = Yii::$app->request->getBodyParam("candidate_objective");
 
@@ -129,6 +128,8 @@ class CandidateController extends Controller
                 ];
             }
         }
+        $model->updateExperiences(Yii::$app->request->getBodyParam("experience"));
+        $model->updateSkills(Yii::$app->request->getBodyParam("skill"));
 
         Yii::info('['.$model->candidate_name.' Candidate Account Created] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
@@ -168,10 +169,8 @@ class CandidateController extends Controller
         $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
 
         $model->candidate_driving_license = Yii::$app->request->getBodyParam("candidate_driving_license");
-//        $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("skills");
         $model->candidate_gender = Yii::$app->request->getBodyParam("candidate_gender");
         $model->candidate_objective = Yii::$app->request->getBodyParam("candidate_objective");
-
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("birth_date"))): null;
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("expiry_date"))): null;
        
@@ -191,6 +190,8 @@ class CandidateController extends Controller
                 ];
             }
         }
+        $model->updateExperiences(Yii::$app->request->getBodyParam("experience"));
+        $model->updateSkills(Yii::$app->request->getBodyParam("skill"));
 
         Yii::info('['.$model->candidate_name.' Candidate Account Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
