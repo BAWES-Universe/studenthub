@@ -17,8 +17,6 @@ class Company extends \common\models\Company {
         // Whitelisted fields to return
         $field = parent::fields();
         unset(
-            $field['company_hourly_rate'],
-            $field['company_bonus_commission'],
             $field['company_created_at'],
             $field['company_updated_at']
         );
