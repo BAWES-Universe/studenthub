@@ -111,6 +111,7 @@ class CandidateController extends Controller
         $model->candidate_driving_license = Yii::$app->request->getBodyParam("candidate_driving_license");
         $model->candidate_gender = Yii::$app->request->getBodyParam("candidate_gender");
         $model->candidate_objective = Yii::$app->request->getBodyParam("candidate_objective");
+        $model->candidate_resume = Yii::$app->request->getBodyParam("resume");
 
         //candidate_auth_key
 
