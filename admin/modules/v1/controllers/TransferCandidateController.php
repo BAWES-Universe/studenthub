@@ -92,8 +92,7 @@ class TransferCandidateController extends Controller
             $query->andWhere(['transfer_confirmation_id' => $transfer_confirmation_id]);
         }
         
-        // Return as Array as to not create ActiveRecord objects (will eat away at the RAM)
-        return $query->asArray()
+        return $query
             ->all();
     }
 
@@ -121,12 +120,10 @@ class TransferCandidateController extends Controller
      */
     public function actionView($id)
     { 
-        // Return as Array as to not create ActiveRecord objects will eat away at the RAM
         $model =  TransferCandidate::find()
-            ->andWhere(['tc_id' => $id])
             ->with('candidate')
+            ->andWhere(['tc_id' => $id])
             ->payableWithPaid()
-            ->asArray()
             ->one();
          
         if(!$model) {
