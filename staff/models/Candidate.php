@@ -53,6 +53,20 @@ class Candidate extends \common\models\Candidate {
                 return false;
             }
 
+            if (
+                ($this->candidate_civil_photo_front && $this->candidate_civil_photo_front != $this->oldAttributes['candidate_civil_photo_front']) &&
+                !$this->updateCivilId('front')
+            ) {
+                return false;
+            }
+
+            if (
+                ($this->candidate_civil_photo_back && $this->candidate_civil_photo_back != $this->oldAttributes['candidate_civil_photo_back']) &&
+                !$this->updateCivilId('back')
+            ) {
+                return false;
+            }
+
             return true;
         }
 
@@ -354,6 +368,45 @@ class Candidate extends \common\models\Candidate {
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function updateCivilId($side = 'front') {
+
+        $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
+
+        if ($this->oldAttributes[$idSide]) {
+            $this->deleteFile('civil-id', $side);
+        }
+
+        $fileName = $this->$idSide;
+
+        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+        $targetPath = "photos/" . $fileName;
+
+        // Copy using S3ResourceManager Component
+        try {
+
+            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
 
             return false;
         }
