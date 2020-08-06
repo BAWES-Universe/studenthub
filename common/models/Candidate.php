@@ -1128,7 +1128,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         try {
 
             Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
-
+            
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1137,7 +1137,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return false;
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
