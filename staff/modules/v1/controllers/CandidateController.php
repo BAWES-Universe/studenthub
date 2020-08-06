@@ -173,20 +173,21 @@ class CandidateController extends Controller
         $model->candidate_objective = Yii::$app->request->getBodyParam("candidate_objective");
         $model->candidate_birth_date = Yii::$app->request->getBodyParam("birth_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("birth_date"))): null;
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("expiry_date"))): null;
-       
+
+        $model->candidate_resume = Yii::$app->request->getBodyParam("resume");
+
         if (!$model->save())
         {
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
                     "message" => $model->errors,
-                    "code" => 2
+                    "code" => "2",
                 ];
             }else{
                 return [
                     "operation" => "error",
                     "message" => "We've faced a problem updating the account, please contact us for assistance.",
-                    "code" => 3
                 ];
             }
         }

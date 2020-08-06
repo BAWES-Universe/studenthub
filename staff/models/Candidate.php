@@ -39,8 +39,23 @@ class Candidate extends \common\models\Candidate {
 
             $this->approved = false; //mark as dirty to send to admin for review
 
+            if (
+                ($this->candidate_personal_photo && $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo']) &&
+                !$this->changeProfilePhoto()
+            ) {
+                return false;
+            }
+
+            if (
+                ($this->candidate_resume && $this->candidate_resume != $this->oldAttributes['candidate_resume']) &&
+                !$this->updateResume()
+            ) {
+                return false;
+            }
+
             return true;
         }
+
 
         return false;
     }
@@ -111,120 +126,6 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * Update profile photo from temp s3 bucket
-     * @return bool
-     */
-    public function updateUserImages() {
-
-        try {
-            $this->setProfileByUrl(Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_personal_photo), 'profile');
-            $this->setProfileByUrl(Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_civil_photo_front), 'civil-front');
-            $this->setProfileByUrl(Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_civil_photo_back), 'civil-back');
-            return true;
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
-            return false;
-        }
-    }
-
-    /**
-     * Set profile photo by url
-     * @param string $url
-     */
-    public function setProfileByUrl($url, $type = 'profile') {
-
-        $filename = Yii::$app->security->generateRandomString();
-
-        // deleting old pic
-        $this->deleteProfilePhotoFromCloudinary($type);
-
-        try {
-            $result = Yii::$app->cloudinaryManager->upload(
-                $url, [
-                    'public_id' => $this->returnPhotoTypeWithNewName($type, $filename)
-                ]
-            );
-
-            if ($result) {
-                if ($type == 'profile') {
-                    return $this->candidate_personal_photo = basename($result['url']);
-                } else if ($type == 'civil-front') {
-                    return $this->candidate_civil_photo_front = basename($result['url']);
-                } else if ($type == 'civil-back') {
-                    return $this->candidate_civil_photo_back = basename($result['url']);
-                }
-            }
-
-        } catch (\Cloudinary\Error $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-            $this->addError($this->returnPhotoTypeAttr($type), Yii::t('app', 'Please try again.'));
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-            $this->addError($this->returnPhotoTypeAttr($type), Yii::t('app', 'Image not available to save.'));
-
-            return false;
-        }
-    }
-
-    /**
-     * delete old profile photo from cloudinary
-     * @return boolean
-     */
-    public function deleteProfilePhotoFromCloudinary($type = 'profile') {
-
-        try {
-            return Yii::$app->cloudinaryManager->delete($this->returnPhotoTypeWithUrl($type));
-
-        } catch (\Cloudinary\Error $e) {
-            Yii::error($e->getMessage(), 'candidate');
-            return false;
-        } catch (\Exception $e) {
-            Yii::error($e->getMessage(), 'candidate');
-            return false;
-        }
-    }
-
-    private function returnPhotoTypeWithUrl($type){
-        if ($type == 'profile' && $this->candidate_personal_photo) {
-            $url = "candidate-photo/" . $this->candidate_personal_photo;
-        } else if ($type == 'civil-front' && $this->candidate_civil_photo_front) {
-            $url = "candidate-photo/" . $this->candidate_civil_photo_front;
-        } else if ($type == 'civil-back' && $this->candidate_civil_photo_back) {
-            $url = "candidate-photo/" . $this->candidate_civil_photo_back;
-        }
-        return $url;
-    }
-
-    private function returnPhotoTypeWithNewName($type,$name){
-        if ($type == 'profile' && $this->candidate_personal_photo) {
-            $url = "candidate-photo/" . $name;
-        } else if ($type == 'civil-front' && $this->candidate_civil_photo_front) {
-            $url = "candidate-photo/" . $name;
-        } else if ($type == 'civil-back' && $this->candidate_civil_photo_back) {
-            $url = "candidate-photo/" . $name;
-        }
-        return $url;
-    }
-
-    private function returnPhotoTypeAttr($type){
-        if ($type == 'profile') {
-            $attr = 'candidate_personal_photo';
-        } else if ($type == 'civil-front') {
-            $attr = 'candidate_civil_photo_front';
-        } else if ($type == 'civil-back') {
-            $attr = 'candidate_civil_photo_back';
-        }
-        return $attr;
-    }
-
-    /**
      * update candidate experiences
      * @param $experiences
      * @return array|bool
@@ -235,10 +136,7 @@ class Candidate extends \common\models\Candidate {
 
         if (empty($experiences) || count($experiences) == 0)
         {
-            return [
-                "operation" => "error",
-                "message" => Yii::t('candidate', "Experiences Required")
-            ];
+            return ;
         }
 
         CandidateExperience::deleteAll([
@@ -298,5 +196,166 @@ class Candidate extends \common\models\Candidate {
             }
         }
         return true;
+    }
+
+    public function changeProfilePhoto()
+    {
+        try {
+            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_personal_photo);
+
+            return $this->setProfileByUrl($url);
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+    }
+
+    /**
+     * Set profile photo by url
+     * @param string $url
+     */
+    public function setProfileByUrl($url) {
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+
+        if ($this->oldAttributes['candidate_personal_photo']) {
+            $this->deleteProfilePhotoFromCloudinary();
+        }
+
+        try {
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url, [
+                    'public_id' => "candidate-photo/" . $filename
+                ]
+            );
+
+            if ($result) {
+                return $this->candidate_personal_photo = basename($result['url']);
+
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete old profile photo from cloudinary
+     * @return boolean
+     */
+    public function deleteProfilePhotoFromCloudinary() {
+
+        try {
+
+            Yii::$app->cloudinaryManager->delete("candidate-photo/" . $this->oldAttributes['candidate_personal_photo']);
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            //$this->addError('profile_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            //$this->addError('profile_photo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete file from aws
+     * @param string $type
+     * @param string $side
+     * @return false
+     */
+    public function deleteFile($type = 'resume', $side = 'front') {
+
+        try {
+            if ($type == 'resume') {
+                $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
+            } if ($type == 'civil-id' && $side == 'front') {
+                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
+            } else {
+                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
+            }
+            Yii::$app->resourceManager->delete($file);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function updateResume() {
+
+        if ($this->oldAttributes['candidate_resume']) {
+            $this->deleteFile('resume');
+        }
+
+        $fileName = $this->candidate_resume;
+
+        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+        $targetPath = "candidate-resume/" . $fileName;
+
+        // Copy using S3ResourceManager Component
+        try {
+
+            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+        }
     }
 }
