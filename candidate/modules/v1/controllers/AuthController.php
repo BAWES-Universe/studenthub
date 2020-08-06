@@ -501,7 +501,8 @@ class AuthController extends Controller
             "name" => $candidate->candidate_name,
             "email" => $candidate->candidate_email,
             "language_pref" => $candidate->candidate_language_pref,
-            "approved" => $candidate->approved
+            "approved" => $candidate->approved,
+            "isProfileCompleted" => $candidate->isProfileCompleted()
         ];
     }
 
