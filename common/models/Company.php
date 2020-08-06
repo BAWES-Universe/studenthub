@@ -538,4 +538,12 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ->where(['in', 'company_id', $company_ids])
             ->sum('store_total_candidates');
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFiles()
+    {
+        return $this->hasMany(File::className(), ['company_id' => 'company_id']);
+    }
 }

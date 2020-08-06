@@ -53,7 +53,8 @@ class Company extends \common\models\Company {
         return [
             'candidates',
             'subCompanies',
-            'stores'
+            'stores',
+            'files'
         ];
     }
     
