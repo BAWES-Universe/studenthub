@@ -256,7 +256,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getStore($modelClass = "\common\models\Store")
     {
-        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
     }
 
     /**
