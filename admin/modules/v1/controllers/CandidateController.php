@@ -168,7 +168,7 @@ class CandidateController extends Controller
     {
         $model = $this->findModel((int) $id);
 
-        return $model->paidTransferCandidate;
+        return $model->getPaidTransferCandidate();
     }
 
     /**
