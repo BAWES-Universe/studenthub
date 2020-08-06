@@ -1452,7 +1452,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ],
         ];
                   
-        if($this->store) {
+        if($this->store && $this->store->company) {
             $data['store'] = [
                 'store_name' => $this->store->store_name,
                 'store_total_candidate' => $this->store->store_total_candidates,
