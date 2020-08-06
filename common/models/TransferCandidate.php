@@ -285,6 +285,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['transfer_id' => 'transfer_id']);
     }
+    
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\common\models\Bank")
+    {
+        return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id']);
+    }
 
     /**
      * @param string $modelClass
