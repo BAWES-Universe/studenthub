@@ -164,7 +164,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 //            'company',
             'candidates',
             'subCompanies',
-            'stores'
+            'stores',
+            'files'
         ];
     }
 

@@ -40,7 +40,7 @@ class File extends \yii\db\ActiveRecord
     {
         return [
             [['company_id', 'file_size'], 'integer'],
-            [['file_title', 'file_created_datetime'], 'required'],
+            [['file_title'], 'required'],
             [['file_description'], 'string'],
             [['file_created_datetime'], 'safe'],
             [['file_uuid'], 'string', 'max' => 60],
@@ -48,6 +48,19 @@ class File extends \yii\db\ActiveRecord
             [['file_type'], 'string', 'max' => 10],
             [['file_s3_path'], 'string', 'max' => 225],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            /**
+             *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
+             */
+            [
+                ['file_s3_path'],
+                '\common\components\S3FileExistValidator',
+                'filePath' => '',
+                'message' => Yii::t('candidate',"Please upload a document"),
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
         ];
     }
 
@@ -98,5 +111,81 @@ class File extends \yii\db\ActiveRecord
     public function getCompany()
     {
         return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function updateDocument() {
+
+        $fileName = $this->file_s3_path;
+
+        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+        $targetPath = "company-files/" . $fileName;
+        $this->file_s3_path = "company-files/" . $fileName;
+        // Copy using S3ResourceManager Component
+        try {
+
+            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            if (!$this->updateDocument() ) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * delete resume
+     * @return boolean
+     */
+    public function deleteDocument() {
+
+        try {
+            Yii::$app->resourceManager->delete("company-files/" . $this->file_s3_path);
+            return true;
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'file');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Document not available to delete.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'file');
+
+            $this->addError('candidate_resume', Yii::t('app', 'Document not available to delete.'));
+
+            return false;
+        }
     }
 }

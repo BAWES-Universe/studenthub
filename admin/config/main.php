@@ -86,14 +86,18 @@ return [
                         'GET <id>' => 'view',
                         'GET sub-companies/<id>' => 'sub-companies',
                         'POST' => 'create',
+                        'POST file-create/<id>' => 'create-file',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',
+                        'DELETE remove-file/<id>' => 'delete-file',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS sub-companies/<id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
+                        'OPTIONS file-create/<id>' => 'options',
+                        'OPTIONS remove-file/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
