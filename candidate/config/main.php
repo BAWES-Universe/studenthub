@@ -76,6 +76,8 @@ return [
                     'patterns' => [
                         'GET salary' => 'salary',
                         'GET profile' => 'profile',
+                        'GET job-search-status' => 'get-job-search-status',
+                        'POST job-search-status' => 'job-search-status',
                         'POST change-password' => 'change-password',
                         'POST update-email' => 'update-email',      
                         'POST language-pref' => 'language-pref', 
@@ -95,6 +97,7 @@ return [
                         'DELETE remove-photo' => 'remove-photo',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS job-search-status' => 'options',
                         'OPTIONS update-experiences' => 'options',
                         'OPTIONS update-skills' => 'options',
                         'OPTIONS profile' => 'options',

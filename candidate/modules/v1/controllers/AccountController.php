@@ -268,6 +268,44 @@ class AccountController extends Controller
     }
     
     /**
+     * return job status
+     * @return type
+     */
+    public function actionGetJobSearchStatus() 
+    {
+        $model = Yii::$app->user->identity;
+        
+        return [
+            'candidate_job_search_status' => (int) $model->candidate_job_search_status,
+            'isProfileCompleted' => $model->isProfileCompleted()
+        ];
+    }
+    
+    /**
+     * Set job search status
+     */
+    public function actionJobSearchStatus() {
+        
+        $job_search_status = Yii::$app->request->getBodyParam('job_search_status');
+
+        $model = Candidate::findOne(Yii::$app->user->getId());
+        $model->candidate_job_search_status = $job_search_status;
+
+        $model->scenario = 'updateJobSearchStatus';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+    
+    /**
      * Return a List of Salary transfers
      */
     public function actionSalary()
