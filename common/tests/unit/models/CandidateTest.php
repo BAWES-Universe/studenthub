@@ -161,16 +161,6 @@ class CandidateTest extends \Codeception\Test\Unit
             expect('Valid candidate_civil_id passed', $candidate->validate(['candidate_civil_id']))->true();
         });
 
-        $this->specify('Candidate birth date validation', function() {
-            $candidate = new Candidate;
-            $candidate->candidate_birth_date = date('Y-m-d', strtotime('-25 year'));
-            expect('Invalid value passed', $candidate->validate(['candidate_birth_date']))->false();
-            $candidate->candidate_birth_date = date('Y-m-d', strtotime('-18 year'));
-            expect('Lower bound value passed', $candidate->validate(['candidate_birth_date']))->true();
-            $candidate->candidate_birth_date = date('Y-m-d', strtotime('-24 year'));
-            expect('Upper bound value passed', $candidate->validate(['candidate_birth_date']))->true();
-        });
-
         $this->specify('Candidate candidate civil expiry date validation', function() {
             $candidate = new Candidate;
             $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime('-1 day'));
