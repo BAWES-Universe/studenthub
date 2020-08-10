@@ -107,5 +107,10 @@ return [
     'Gender' => '',
     'Objective' => '',
     'Driving License' => '',
-    'Resume' => ''
+    'Resume' => '',
+    'Civil id must be 12 digit number' => '',
+    'Transfer File ID' => '',
+    'Transfer File S3 Path' => '',
+    'Transfer File Created At' => '',
+    'Transfer File Updated At' => ''
 ];
