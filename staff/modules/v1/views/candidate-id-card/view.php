@@ -118,7 +118,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 <span class="code"><?= $model->candidate->employeeId ?></span>
                 <div class="image">
                     <?php if ($model->candidate->candidate_personal_photo) { ?>
-                        <img onerror="this.src='../../../img/no_image.png';"  src="https://<?= Yii::$app->resourceManager->bucket ?>.s3.eu-west-2.amazonaws.com/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
+                        <img onerror="this.src='../../../img/no_image.png';"  src="https://res.cloudinary.com/studenthub/image/upload/w_319,h_319,c_thumb,g_face/v1596453482/candidate-photo/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
                     <?php } else  {
                         echo \yii\helpers\Html::img('@web/img/no_image.png',['style'=>'width: 100%;min-height: : 100%']);
                     } ?>

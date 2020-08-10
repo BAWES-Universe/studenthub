@@ -19,6 +19,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $company_email
  * @property integer $bank_id
  * @property string $transfer_confirmation_id
+ * @property integet $transfer_file_id
  * @property string $transfer_benef_name
  * @property string $transfer_benef_iban
  * @property decimal $candidate_hourly_rate - hourly rate candidate will receive
@@ -60,7 +61,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['transfer_id', 'candidate_id', 'store_id', 'bank_id', 'company_id'], 'integer'],
+            [['transfer_id', 'candidate_id', 'store_id', 'bank_id', 'company_id', 'transfer_file_id'], 'integer'],
             [['store_name', 'company_name'], 'string', 'max' => 100],
             [['company_email'], 'email'],
             [['transfer_confirmation_id'], 'string', 'max' => 128],
@@ -76,6 +77,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
+            [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::className(), 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']]
         ];
     }
 
@@ -144,6 +146,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'company_email' => Yii::t('app','Company Email'),
             'bank_id' => Yii::t('app','Bank ID'),
             'transfer_confirmation_id' => Yii::t('app','Transfer confirmation ID'),
+            'transfer_file_id' => Yii::t('app', 'Transfer File ID'),
             'transfer_benef_name' => Yii::t('app','Transfer Benef Name'),
             'transfer_benef_iban' => Yii::t('app','Transfer Benef IBAN'),
             'hours' => Yii::t('app','Hours'),
@@ -218,7 +221,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'company',
             'candidate',
             'transfer',
-            'invoice'
+            'invoice',
+            'bank',
+            'transferFile'
         ];
     }
 
@@ -255,7 +260,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getStore($modelClass = "\common\models\Store")
     {
-        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
     }
 
     /**
@@ -284,7 +289,24 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['transfer_id' => 'transfer_id']);
     }
+    
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\common\models\Bank")
+    {
+        return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id']);
+    }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFile($modelClass = "\common\models\TransferFile")
+    {
+        return $this->hasOne($modelClass::className(), ['transfer_file_id' => 'transfer_file_id']);
+    }
+    
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery

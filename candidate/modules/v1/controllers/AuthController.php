@@ -97,11 +97,13 @@ class AuthController extends Controller
 
         // Email and password are correct, check if his email has been verified
         // If candidate email has been verified, then allow him to log in
-        if($candidate->candidate_email_verification != Candidate::EMAIL_VERIFIED){
+        if($candidate->candidate_email_verification != Candidate::EMAIL_VERIFIED) {
+            
             return [
                 "operation" => "error",
                 "errorType" => "email-not-verified",
                 "message" => Yii::t('candidate',"Please click the verification link sent to you by email to activate your account"),
+                "unVerifiedToken" => $this->_loginResponse($candidate)
             ];
         }
 
@@ -501,7 +503,8 @@ class AuthController extends Controller
             "name" => $candidate->candidate_name,
             "email" => $candidate->candidate_email,
             "language_pref" => $candidate->candidate_language_pref,
-            "approved" => $candidate->approved
+            "approved" => $candidate->approved,
+            "isProfileCompleted" => $candidate->isProfileCompleted()
         ];
     }
 

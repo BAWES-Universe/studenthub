@@ -360,11 +360,39 @@ class TransferController extends Controller
     {
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
       
+        if(!is_array($candidate_ids) || sizeof($candidate_ids) == 0) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid request'
+            ];
+        }
+        
+        $model = new TranferExcel;        
+        $model->excel = Yii::$app->request->getBodyParam('excel');
+        
+        //validate given excel 
+        
+        if(!$model->validate())
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => $model->getErrors()
+            ];
+        }
+        
+        //save file used to mark transfers as paid 
+         
+        $transfer_file_id = \common\models\TransferFile::saveFile($model->excel);
+        
+        //mark candidates as paid 
+        
         foreach ($candidate_ids as $value)
         {
             TransferCandidate::updateAll(
                 [
                     'paid' => 1,
+                    'transfer_file_id' => $transfer_file_id,
                     'transfer_confirmation_id' => $value['transfer_confirmation_id']
                 ],
                 [

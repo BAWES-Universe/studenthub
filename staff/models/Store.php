@@ -14,13 +14,15 @@ class Store extends \common\models\Store {
      */
     public function fields()
     {
+        return parent::fields();
         // Whitelisted fields to return
-        return [
-            'store_id',
-            'company_id',
-            'store_name',
-            'store_status'
-        ];
+//        return [
+//            'store_id',
+//            'company_id',
+//            'store_name',
+//            'store_status',
+//            'store_total_candidates'
+//        ];
     }
 
     /**

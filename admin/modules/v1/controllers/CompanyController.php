@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\File;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -295,7 +296,50 @@ class CompanyController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
-    
+
+    /**
+     * Delete an account
+     * @param  integer $id
+     * @return array
+     */
+    public function actionDeleteFile($id)
+    {
+        $model = File::findOne(['file_uuid'=>$id]);
+
+            if (!$model) {
+                return [
+                    "operation" => "error",
+                    "message" => "Invalid File"
+                ];
+            }
+
+        if (!$model->deleteDocument()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+        if (!$model->delete()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+        return [
+            "operation" => "success",
+            "message" => "Company Document successfully deleted"
+        ];
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
     /**
      * Reset Company password
      * @param $id
@@ -341,5 +385,44 @@ class CompanyController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * Create a company account
+     * @param $id
+     * @return array
+     */
+    public function actionCreateFile($id)
+    {
+        $model = new File();
+        $model->file_title = Yii::$app->request->getBodyParam("file_title");
+        $model->file_description =Yii::$app->request->getBodyParam("file_description");
+        $model->file_s3_path = Yii::$app->request->getBodyParam("file_s3_path");
+        $model->file_name = $model->file_s3_path;
+        $model->company_id = $id;
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->file_title. ' document upload for company '.$model->company->company_name.'] Company updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company document uploaded successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
     }
 }

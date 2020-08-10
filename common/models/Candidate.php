@@ -42,6 +42,7 @@ use yii\helpers\ArrayHelper;
  * @property string $candidate_password_hash
  * @property string $candidate_password_reset_token
  * @property string $candidate_language_pref 
+ * @property string $candidate_job_search_status
  * @property integer $candidate_status
  * @property integer $approved
  * @property string $candidate_created_at
@@ -67,6 +68,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     //Email verification values for `candidate_email_verification`
     const EMAIL_VERIFIED = 1;
     const EMAIL_NOT_VERIFIED = 0;
+    
+    const ACTIVELY_LOOKING_FOR_JOB = 1;
+    const NOT_LOOKING_FOR_JOB = 0;
     
     //Gender values for `gender`
     const GENDER_MALE = 1;
@@ -110,6 +114,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_limit_email', 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
+            [
+                ['candidate_civil_id'], 
+                'number', 
+                'numberPattern' => '/^\d{12}$/', 
+                'message' => Yii::t('app', "Civil id must be 12 digit number")
+            ],
             [['bank_account_name', 'candidate_iban'], 'trim'],
             [['bank_account_name', 'candidate_iban'], 
                 'match',
@@ -118,7 +128,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ],  
             ['candidate_iban', 'validateIban'],
             ['candidate_hourly_rate', 'validateHourlyRate'],
-            [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
             ['candidate_status', 'default', 'value' => self::STATUS_PENDING],
@@ -128,6 +137,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     
             ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
                     
+            ['candidate_job_search_status', 'in', 'range' => [self::NOT_LOOKING_FOR_JOB, self::ACTIVELY_LOOKING_FOR_JOB]],
+            
             [['candidate_objective'], 'string', 'max' => 100],
                     
             /**
@@ -193,6 +204,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateCivilId'] = ['candidate_civil_id'];
         
         $scenarios["updateLanguagePref"] = ["candidate_language_pref"];
+        
+        $scenarios['updateJobSearchStatus'] = ['candidate_job_search_status'];
         
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
@@ -359,6 +372,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_password_hash' => Yii::t('candidate','Password'),
             'candidate_password_reset_token' => Yii::t('candidate','Password Reset Token'),
             'candidate_language_pref' => Yii::t('candidate','Language preference'),
+            'candidate_job_search_status' => Yii::t('candidate', 'Job search status'),
             'candidate_status' => Yii::t('candidate','Status'),
             'candidate_created_at' => Yii::t('candidate','Created At'),
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
@@ -397,6 +411,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         if (
             $this->candidate_status == self::STATUS_ACTIVE && 
+            $this->candidate_job_search_status &&
             //$this->approved &&
             !in_array(
                 $this->scenario, [
@@ -409,9 +424,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $this->updateAlgoliaIndex($insert);
         }  
 
-        //on soft delete remove 
-        
-        if (isset($changedAttributes['deleted']) && $this->deleted) {
+        if (
+            (isset($changedAttributes['deleted']) && $this->deleted) || //on soft delete remove 
+            (isset($changedAttributes['candidate_job_search_status']) && !$this->candidate_job_search_status) //on status change to not searching 
+        ) {
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
         
@@ -447,6 +463,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return substr_replace($model->candidate_personal_photo, "thumb-100/", 7, 0);
         };
 
+        $fields['isProfileCompleted'] = function($model) {
+            return $model->isProfileCompleted();
+        };
+        
         /**
          * Always Display Related Fields for Candidate model in this app
          * A Candidate is defined by all his relation to enable quick-loading
@@ -1128,7 +1148,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         try {
 
             Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
-
+            
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1137,7 +1157,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return false;
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
@@ -1171,8 +1191,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
     }
-
-
 
     /**
      * delete old profile photo from cloudinary
@@ -1223,9 +1241,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]
             );
 
-            if ($result)
+            if ($result) {
                 $this->candidate_personal_photo = basename($result['url']);
-
+                return true;
+            } 
+            
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1275,6 +1295,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return boolean
      */
     public function isProfileCompleted() {
+        Yii::debug($this->isInCompleteProfile() );
         return $this->isInCompleteProfile() ? false : true;
     }
 
@@ -1392,6 +1413,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         $data = $this->prepareAlgoliaData($insert);
 
+        Yii::debug('update algolia index data', $data);
+        
         //if profile incomplete
 
         if (!$data) {
@@ -1422,6 +1445,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
  
         if (!$isProfileCompleted) {
 
+                Yii::debug($isProfileCompleted);
+        
             //delete from algolia 
 
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
@@ -1452,7 +1477,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ],
         ];
                   
-        if($this->store) {
+        if($this->store && $this->store->company) {
             $data['store'] = [
                 'store_name' => $this->store->store_name,
                 'store_total_candidate' => $this->store->store_total_candidates,

@@ -34,5 +34,6 @@ return [
     'Candidate have expired civil id.' => 'انتهت صلاحية البطاقة الشخصية للمرشح.',
     'Candidate age should be between 18 to 24.' => 'يجب أن يكون عمر المرشح بين 18 إلى 24.',
     'record successfully updated' => 'تم تحديث السجل بنجاح',
-    'error while updating record. Please try again' => 'خطأ أثناء تحديث السجل. حاول مرة اخرى'
+    'error while updating record. Please try again' => 'خطأ أثناء تحديث السجل. حاول مرة اخرى',
+    'Job search status' => 'حالة البحث عن وظيفة'
 ];
