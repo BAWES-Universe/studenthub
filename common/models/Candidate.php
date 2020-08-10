@@ -122,7 +122,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ],  
             ['candidate_iban', 'validateIban'],
             ['candidate_hourly_rate', 'validateHourlyRate'],
-            [['candidate_birth_date'], 'validateAge'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
             ['candidate_status', 'default', 'value' => self::STATUS_PENDING],
