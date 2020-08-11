@@ -316,6 +316,8 @@ class TransferController extends Controller
         
         //remove empty rows 
 
+        $total = 0;
+                
         foreach ($data as $key => $value) 
         {
             if(empty($value['Status'])) {
@@ -332,24 +334,31 @@ class TransferController extends Controller
             
             $candidate = Candidate::find()->where(['candidate_iban' => $value['IBAN']])->one();
             
-            if(!$candidate) {
+            $transferCandidate = TransferCandidate::find()->where(['tc_id' => $value['Credit Narrative']])->one();
+            
+            if(!$candidate || !$transferCandidate) {
                 return [
                     'operation' => 'error',
                     'message' => 'Invalid excel'
                 ];
             }
-            
+                    
             $candidates[] = [
                 'transfer_confirmation_id' => $value['Status Description'], 
                 'transfer_id' => $value['Debit Narrative'],  
                 'tc_id' => $value['Credit Narrative'],  
                 'candidate_id' => $candidate->candidate_id, 
                 'candidate_name' => $candidate->candidate_name, 
-                'total_amount' => $value['Credit Amount']
+                'total_amount' => $transferCandidate->totalPaidToCandidate 
             ];
+            
+            $total += $transferCandidate->totalPaidToCandidate;
         }
         
-        return $candidates;
+        return [
+            'total' => $total,
+            'candidates' => $candidates
+        ];
     }
     
     /**
