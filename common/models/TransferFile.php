@@ -12,6 +12,7 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property int $transfer_file_id
  * @property string $transfer_file_s3_path
+ * @property string $transfer_amount
  * @property string $transfer_file_created_at
  * @property string $transfer_file_updated_at
  *
@@ -34,7 +35,7 @@ class TransferFile extends \yii\db\ActiveRecord
     {
         return [
             [['transfer_file_s3_path'], 'required'],
-            [['transfer_file_created_at', 'transfer_file_updated_at'], 'safe'],
+            [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path'], 'string', 'max' => 255],
         ];
     }
@@ -62,6 +63,7 @@ class TransferFile extends \yii\db\ActiveRecord
         return [
             'transfer_file_id' => Yii::t('app', 'Transfer File ID'),
             'transfer_file_s3_path' => Yii::t('app', 'Transfer File S3 Path'),
+            'transfer_amount' => Yii::t('app', 'Transfer Amount'),
             'transfer_file_created_at' => Yii::t('app', 'Transfer File Created At'),
             'transfer_file_updated_at' => Yii::t('app', 'Transfer File Updated At'),
         ];
@@ -69,9 +71,10 @@ class TransferFile extends \yii\db\ActiveRecord
     
     /**
      * save excel used to mark transfers as paid
-     * @param type $fileName
+     * @param array $tc_ids
+     * @param string $fileName
      */
-    public static function saveFile($fileName) {
+    public static function saveFile($tc_ids, $fileName) {
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
         
@@ -83,11 +86,18 @@ class TransferFile extends \yii\db\ActiveRecord
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
         
+        //get total amount marked as paid by this file 
+        
+        $tf->transfer_amount = TransferCandidate::find()
+           ->select(new Expression('SUM((candidate_hourly_rate * hours) + bonus - bonus_commission)'))
+           ->filterWhere(['in', 'tc_id', $tc_ids])
+           ->scalar();
+             
         if($tf->save()) {
             return $tf->transfer_file_id;
         }
     }
-
+    
     /**
      * @return \yii\db\ActiveQuery
      */

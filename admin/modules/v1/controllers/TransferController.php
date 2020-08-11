@@ -383,7 +383,9 @@ class TransferController extends Controller
         
         //save file used to mark transfers as paid 
          
-        $transfer_file_id = \common\models\TransferFile::saveFile($model->excel);
+        $tc_ids = \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'tc_id');
+        
+        $transfer_file_id = \common\models\TransferFile::saveFile($tc_ids, $model->excel);
         
         //mark candidates as paid 
         
