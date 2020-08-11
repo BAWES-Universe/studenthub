@@ -157,7 +157,7 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate = new Candidate;
             $candidate->candidate_civil_id = '54747771714';
             expect('Duplicate candidate_civil_id passed', $candidate->validate(['candidate_civil_id']))->false();
-            $candidate->candidate_civil_id = 'XIS1212121unique';
+            $candidate->candidate_civil_id = '241397002346';
             expect('Valid candidate_civil_id passed', $candidate->validate(['candidate_civil_id']))->true();
         });
 
@@ -167,6 +167,7 @@ class CandidateTest extends \Codeception\Test\Unit
             expect('Invalid value passed', $candidate->validate(['candidate_civil_expiry_date']))->false();
             $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime('+1 day'));
             expect('Valid value passed', $candidate->validate(['candidate_civil_expiry_date']))->true();
+
         });
 
         $this->specify('Candidate beneficiary name and IBAN validation for special characters', function() {
