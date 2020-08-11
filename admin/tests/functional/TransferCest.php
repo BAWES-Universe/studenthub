@@ -130,27 +130,27 @@ class TransferCest
      * Mark All Candidate as Payment Received
      * @param FunctionalTester $I
      */
-    public function tryToMarkCandidateReceived(FunctionalTester $I)
-    {
-        $I->wantTo('Validate admin > transfer > Mark All Candidate as Payment Received api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendPATCH('v1/transfers/mark-paid-all', [
-            'candidates' => [
-                [
-                    'transfer_id' => 6,
-                    'transfer_confirmation_id' => 6,
-                    'tc_id' => 17
-                ],
-                [
-                    'transfer_id' => 7,
-                    'transfer_confirmation_id' => 7,
-                    'tc_id' => 17
-                ]
-            ]
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }
+//    public function tryToMarkCandidateReceived(FunctionalTester $I)
+//    {
+//        $I->wantTo('Validate admin > transfer > Mark All Candidate as Payment Received api');
+//        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+//        $I->sendPATCH('v1/transfers/mark-paid-all', [
+//            'candidates' => [
+//                [
+//                    'transfer_id' => 6,
+//                    'transfer_confirmation_id' => 6,
+//                    'tc_id' => 17
+//                ],
+//                [
+//                    'transfer_id' => 7,
+//                    'transfer_confirmation_id' => 7,
+//                    'tc_id' => 17
+//                ]
+//            ]
+//        ]);
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseIsJson();
+//    }
 
     /**
      * Download Payable Candidates' Detail
