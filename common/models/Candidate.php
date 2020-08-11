@@ -119,6 +119,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'number', 
                 'numberPattern' => '/^\d{12}$/', 
                 'message' => Yii::t('app', "Civil id must be 12 digit number")
+            ],[
+                ['candidate_phone'],
+                'number',
+                'numberPattern' => '/^\d{10}$/',
+                'message' => Yii::t('app', "Phone must be 10 digit number")
             ],
             [['bank_account_name', 'candidate_iban'], 'trim'],
             [['bank_account_name', 'candidate_iban'], 
