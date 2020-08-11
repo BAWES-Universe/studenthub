@@ -1019,6 +1019,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
             ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
             ->filterCandidate($this->candidate_id)
+            ->orderBy('{{%transfer_candidate}}.tc_id DESC')
             ->all();
     }   
 
