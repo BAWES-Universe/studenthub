@@ -114,6 +114,23 @@ class TransferCandidateController extends Controller
     }
     
     /**
+     * load candidate transfer entries by transfer file id
+     * @param number $id
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function actionByTransferFile($id) 
+    {
+        $transfer = $this->findTransferFile($id);
+        
+        $query = $transfer->getTransferCandidates()
+            ->orderBy('store_id');//to group it by store on infinite scrolling listing 
+        
+        return new \yii\data\ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+    
+    /**
      * view candidate transfer detail
      * @param type $id
      * @return type
@@ -169,6 +186,22 @@ class TransferCandidateController extends Controller
     {
         $transferCandidateIds = Yii::$app->request->getBodyParam('transferCandidate');
         return TransferCandidate::markAllUnpaid($transferCandidateIds);
+    }
+    
+    /**
+     * Finds the Transfer file model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return TransferFile the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findTransferFile($id)
+    {
+        if (($model = \common\models\TransferFile::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
     
     /**
