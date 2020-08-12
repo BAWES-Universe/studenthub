@@ -6,6 +6,7 @@ use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Console;
 
 
 /**
@@ -1314,9 +1315,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return 'candidate_uid';
         }
 
-        if (!$this->store) {
-            return 'store_id';
-        }
+//        if (!$this->store) {
+//            return 'store_id';
+//        }
         
         if (!$this->bank) {
             return 'bank_id';
@@ -1448,7 +1449,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         $isProfileCompleted = $this->isProfileCompleted();
- 
+
         if (!$isProfileCompleted) {
 
                 Yii::debug($isProfileCompleted);
@@ -1482,7 +1483,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'country_name_ar' => $this->country->country_name_ar
             ],
         ];
-                  
+
+        $data['assigned'] = 0;
         if($this->store && $this->store->company) {
             $data['store'] = [
                 'store_name' => $this->store->store_name,
@@ -1491,6 +1493,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     'company_name' => $this->store->company->company_name
                 ]
             ];
+            $data['assigned'] = 1;
         }
         
         if($this->bank) {
@@ -1551,8 +1554,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return type
      */
     public static function synchWithAlgolia() {
-        //delete all objects
 
+        //delete all objects
         Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
 
         //call api in batch
@@ -1587,7 +1590,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 if ($algoliaData)
                     $data[] = $algoliaData;
             }
-
             if ($data)
                 Yii::$app->algolia->updates(Yii::$app->params['algolia_candidate_index'], $data);
 
