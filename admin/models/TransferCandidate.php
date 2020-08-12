@@ -162,6 +162,7 @@ class TransferCandidate extends \common\models\TransferCandidate
         if ($TransferCandidate->save(false)) {
 
             $response = Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
+            
             if ($response) {
                 return $response;
             }
@@ -194,11 +195,20 @@ class TransferCandidate extends \common\models\TransferCandidate
         }
         
         // fetch record of transfer candidate id and update all
+        
         $transferCandidateList = ArrayHelper::getColumn($transferCandidateIds,'tc_id');
         
-        TransferCandidate::updateAll(['paid'=>TransferCandidate::PAID],['in', 'tc_id', $transferCandidateList]);
+        $transferCandidates = TransferCandidate::find()
+            ->filterWhere(['in', 'tc_id', $transferCandidateList])
+            ->all();
+        
+        foreach($transferCandidates as $transferCandidate) {
+            $transferCandidate->paid = TransferCandidate::PAID;
+            $transferCandidate->save();
+        }
 
         // fetch record of transfer list id and update one by one with condition
+        
         $transferList = ArrayHelper::getColumn($transferCandidateIds,'transfer_id');
         
         foreach (array_unique($transferList) as $value)
@@ -234,7 +244,9 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         // fetch record of transfer candidate id and transfer list id
         $transferCandidateList = ArrayHelper::getColumn($transferCandidateIds,'tc_id');
+        
         $transferList = array_unique(array_values(ArrayHelper::getColumn($transferCandidateIds,'transfer_id')));
+        
         $condition = [
             'and',
             [
@@ -245,7 +257,16 @@ class TransferCandidate extends \common\models\TransferCandidate
             ['in', 'tc_id', $transferCandidateList],
         ];
 
-        TransferCandidate::updateAll(['paid'=>TransferCandidate::UNPAID],$condition);
+        
+        $transferCandidates = TransferCandidate::find()
+            ->filterWhere($condition)
+            ->all();
+        
+        foreach($transferCandidates as $transferCandidate) {
+            $transferCandidate->paid = TransferCandidate::UNPAID;
+            $transferCandidate->save();
+        }
+        
         Transfer::updateAll(['transfer_status'=>Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS],['in', 'transfer_id', $transferList]);
 
         Yii::info('[' . count($transferCandidateIds) . ' candidates have been marked as unpaid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);

@@ -4,6 +4,7 @@ namespace admin\models;
 use Yii;
 use yii\base\Exception;
 
+
 /**
  * This is the model class for table "Transfer".
  * It extends from \common\models\Transfer but with custom functionality for this application module
@@ -123,6 +124,7 @@ class Transfer extends \common\models\Transfer
 
         // Mark all invoices belonging to child transfers belonging to this transfer as paid
         $child_transfers = Transfer::findAll(['parent_transfer_id' => $this->transfer_id]);
+        
         foreach ($child_transfers as $key => $value) {
             Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
         }

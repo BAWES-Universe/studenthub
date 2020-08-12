@@ -210,6 +210,32 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         return $fields;
     }
+    
+    /**
+     * after object saved
+     * @param boolean $insert
+     * @param array $changedAttributes
+     * @return boolean
+     */
+    public function afterSave($insert, $changedAttributes) {
+        parent::afterSave($insert, $changedAttributes);
+        
+        if($insert) {
+
+            $this->sendNewTransferNotification();
+           
+        } else if (isset($changedAttributes['paid']) && $this->paid == self::PAID) {
+            
+            $this->sendTransferPaidNotification();
+            
+        } else if (isset($changedAttributes['paid']) && $this->paid == self::UNPAID) {
+            
+            $this->sendTransferUnpaidNotification();
+            
+        }
+        
+        return true;
+    }
 
     /**
      * @inheritdoc
@@ -225,6 +251,78 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'bank',
             'transferFile'
         ];
+    }
+    
+    public function sendTransferPaidNotification() 
+    {
+        $heading = Yii::t('app', 'Transfer paid');
+        $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
+        $content = 'KWD ' . $this->totalPaidToCandidate;
+
+        $filters = [
+            [
+                "field" => "tag",
+                "key" => "candidate_id",
+                "relation" => "=",
+                "value" => $this->candidate_id
+            ]
+        ];
+
+        $data = [
+            'subject' => 'transfer',   
+            'transfer_id' => $this->transfer_id,
+            'tc_id' => $this->tc_id
+        ];
+
+        MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+    }
+    
+    public function sendTransferUnpaidNotification() 
+    {
+        $heading = Yii::t('app', 'Transfer marked as unpaid');
+        $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
+        $content = 'KWD ' . $this->totalPaidToCandidate;
+
+        $filters = [
+            [
+                "field" => "tag",
+                "key" => "candidate_id",
+                "relation" => "=",
+                "value" => $this->candidate_id
+            ]
+        ];
+
+        $data = [
+            'subject' => 'transfer',   
+            'transfer_id' => $this->transfer_id,
+            'tc_id' => $this->tc_id
+        ];
+
+        MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+    }
+    
+    public function sendNewTransferNotification() 
+    {
+        $heading = Yii::t('app', 'New transfer initiated');
+        $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
+        $content = 'KWD ' . $this->totalPaidToCandidate;
+
+        $filters = [
+            [
+                "field" => "tag",
+                "key" => "candidate_id",
+                "relation" => "=",
+                "value" => $this->candidate_id
+            ]
+        ];
+
+        $data = [
+            'subject' => 'transfer',   
+            'transfer_id' => $this->transfer_id,
+            'tc_id' => $this->tc_id
+        ];
+
+        MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
     }
 
     /**
