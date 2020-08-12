@@ -100,6 +100,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             [['university_id', 'country_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
+            [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
