@@ -49,7 +49,8 @@ class CloudinaryManager {
         ));
     
         return \Cloudinary\Uploader::upload(
-            $filePath, $options
+            $filePath, 
+            $options
         );
     }
     

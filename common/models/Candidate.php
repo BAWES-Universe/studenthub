@@ -1243,9 +1243,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         try {
+            
             $result = Yii::$app->cloudinaryManager->upload(
-                $url, [
-                    'public_id' => "candidate-photo/" . $filename
+                $url, 
+                [
+                    'public_id' => "candidate-photo/" . $filename,
+                    "eager" => [
+                        [
+                            //id card thumbnail
+                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
+                        ],
+                        [
+                            //profile pic in apps 
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
                 ]
             );
 
