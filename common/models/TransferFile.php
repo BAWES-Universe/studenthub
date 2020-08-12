@@ -85,6 +85,8 @@ class TransferFile extends \yii\db\ActiveRecord
         // Copy using S3ResourceManager Component
         Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($targetPath);
+
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
         
@@ -96,7 +98,7 @@ class TransferFile extends \yii\db\ActiveRecord
            ->scalar();
              
         if($tf->save()) {
-            TransferFile::transferMail($tf, count($tc_ids));
+            TransferFile::transferMail($tf, count($tc_ids), $fileUrl);
             return $tf->transfer_file_id;
         }
     }
@@ -109,7 +111,7 @@ class TransferFile extends \yii\db\ActiveRecord
      * @param $password
      * @return bool
      */
-    public static function transferMail($transfer, $count)
+    public static function transferMail($transfer, $count, $file)
     {
         $url = "https://studenthub-uploads-dev-server.s3.amazonaws.com/transfer-files/". $transfer->transfer_file_s3_path;
         Yii::$app->mailer->htmlLayout = 'layouts/html';
@@ -123,7 +125,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
             ->setTo(Yii::$app->params['finance_transfer'])
             ->setSubject("[StudentHub] Transferred {$amount} KD to {$count} people")
-            ->attachContent(file_get_contents($url))
+            ->attachContent(file_get_contents($file))
             ->send();
     }
     /**
