@@ -5,4 +5,5 @@ return [
         '*' //remove this once app is live
     ],
     'algolia_candidate_index' => 'krushn_candidate_public',
+    'finance_transfer' => 'finance+fake@bawes.net',
 ];
