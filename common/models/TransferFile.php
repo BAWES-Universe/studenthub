@@ -2,9 +2,11 @@
 
 namespace common\models;
 
+use admin\models\Candidate;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\Url;
 
 
 /**
@@ -83,6 +85,8 @@ class TransferFile extends \yii\db\ActiveRecord
         // Copy using S3ResourceManager Component
         Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($targetPath);
+
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
         
@@ -94,10 +98,36 @@ class TransferFile extends \yii\db\ActiveRecord
            ->scalar();
              
         if($tf->save()) {
+            TransferFile::transferMail($tf, count($tc_ids), $fileUrl);
             return $tf->transfer_file_id;
         }
     }
-    
+
+
+
+    /**
+     * Send new password to customer
+     * @param Candidate $model
+     * @param $password
+     * @return bool
+     */
+    public static function transferMail($transfer, $count, $file)
+    {
+        $url = "https://studenthub-uploads-dev-server.s3.amazonaws.com/transfer-files/". $transfer->transfer_file_s3_path;
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $amount = $transfer->transfer_amount;
+        return Yii::$app->mailer->compose("successfull-transfer",
+            [
+                "transfer" => $transfer,
+                'file' => $url,
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setTo(Yii::$app->params['finance_transfer'])
+            ->setSubject("[StudentHub] Transferred {$amount} KD to {$count} people")
+            ->attachContent(file_get_contents($file))
+            ->send();
+    }
     /**
      * @return \yii\db\ActiveQuery
      */

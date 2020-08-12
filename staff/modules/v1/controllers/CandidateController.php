@@ -319,10 +319,15 @@ class CandidateController extends Controller
     public function actionListNotAssigned()
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
+        $incompleteProfile = Yii::$app->request->get("incomplete_profile");
 
         $query = Candidate::find()
             ->filterNotAssigned()
             ->notDeleted();
+
+        if ($incompleteProfile) {
+            $query->byApprovalStatus(0);
+        }
 
         if($candidate_name)
         {
@@ -340,10 +345,15 @@ class CandidateController extends Controller
     public function actionListAssigned()
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
+        $incompleteProfile = Yii::$app->request->get("incomplete_profile");
 
         $query = Candidate::find()
             ->filterAssigned()
             ->notDeleted();
+
+        if ($incompleteProfile) {
+            $query->byApprovalStatus(0);
+        }
 
         if($candidate_name)
         {
