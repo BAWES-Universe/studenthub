@@ -4,6 +4,7 @@ namespace staff\models;
 
 use Yii;
 
+
 /**
  * Class TransferCandidate
  * @package staff\models

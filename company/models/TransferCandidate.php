@@ -4,6 +4,7 @@ namespace company\models;
 use Yii;
 use company\models\Company;
 
+
 class TransferCandidate extends \common\models\TransferCandidate
 {
     /**

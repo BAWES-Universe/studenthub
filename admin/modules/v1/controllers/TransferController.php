@@ -398,35 +398,47 @@ class TransferController extends Controller
         
         //mark candidates as paid 
         
+        $transferCandidates = TransferCandidate::find()
+            ->filterWhere(['in', 'tc_id', $tc_ids])
+            ->all();
+        
+        $transferCandidatesMapped = \yii\helpers\ArrayHelper::index($transferCandidates, 'tc_id');
+        
         foreach ($candidate_ids as $value)
         {
-            TransferCandidate::updateAll(
-                [
-                    'paid' => 1,
-                    'transfer_file_id' => $transfer_file_id,
-                    'transfer_confirmation_id' => $value['transfer_confirmation_id']
-                ],
-                [
-                    'tc_id' => $value['tc_id']
-                ]
-            );
-
-            // Check if all paid, mark transfer as complete
+            if(empty($transferCandidatesMapped[$value['tc_id']]))
+            {
+                return [
+                    "operation" => "error",
+                    'message' => 'Invalid request'
+                ];
+            }
             
-            $unpaid = TransferCandidate::find()
-                ->where([
-                    'paid' => 0
-                ])
-                ->andWhere(['transfer_id' => $value['transfer_id']])
-                ->count();
-
-            if (!$unpaid) {
-                $transfer = $this->findModel($value['transfer_id']);
-                $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-                $transfer->save();
+            $tc = $transferCandidatesMapped[$value['tc_id']];
+            
+            $tc->paid = 1;
+            $tc->transfer_file_id = $transfer_file_id;
+            $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
+            
+            if(!$tc->save())
+            {
+                return [
+                    "operation" => "error",
+                    "message" => $tc->getErrors()
+                ];
             }
         }
 
+        // Check if all paid, mark transfer as complete
+
+        $transfer_ids = array_unique(
+            \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'transfer_id')
+        );
+        
+        foreach($transfer_ids as $transfer_id) {
+            Transfer::markTransferCompleteOnCandidatePaid($transfer_id);
+        }
+        
         Yii::info('[' . count($candidate_ids) . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
