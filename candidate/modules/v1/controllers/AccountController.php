@@ -277,7 +277,9 @@ class AccountController extends Controller
         
         return [
             'candidate_job_search_status' => (int) $model->candidate_job_search_status,
-            'isProfileCompleted' => $model->isProfileCompleted()
+            'isProfileCompleted' => $model->isProfileCompleted(),
+            'store' => $model->store,
+            'company' => $model->company
         ];
     }
     
