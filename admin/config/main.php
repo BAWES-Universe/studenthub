@@ -169,6 +169,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET by-transfer/<id>' => 'by-transfer',
+                        'GET by-transfer-file/<id>' => 'by-transfer-file',
                         'GET <id>' => 'view',
                         'PATCH unpaid/<id>' => 'unpaid',
                         'PATCH paid/<id>' => 'paid',
@@ -178,10 +179,22 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS by-transfer/<id>' => 'options',
+                        'OPTIONS by-transfer-file/<id>' => 'options',
                         'OPTIONS unpaid/<id>' => 'options',
                         'OPTIONS paid/<id>' => 'options',
                         'OPTIONS mark-paid-all' => 'options',
                         'OPTIONS mark-unpaid-all' => 'options',
+                    ]
+                ],
+                [ // TransferFileController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer-file',
+                    'patterns' => [
+                        'GET' => 'list', 
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // BankController

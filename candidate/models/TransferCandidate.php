@@ -4,11 +4,10 @@ namespace candidate\models;
 
 use Yii;
 
+
 /**
  * Class TransferCandidate
- * @package candidate\models
  */
-
 class TransferCandidate extends \common\models\TransferCandidate
 {
     /**

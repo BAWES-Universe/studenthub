@@ -6,6 +6,7 @@ use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Console;
 
 
 /**
@@ -99,6 +100,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             [['university_id', 'country_id', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
+            [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
@@ -119,6 +121,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'number', 
                 'numberPattern' => '/^\d{12}$/', 
                 'message' => Yii::t('app', "Civil id must be 12 digit number")
+            ],[
+                ['candidate_phone'],
+                'number',
+                'numberPattern' => '/^\d{10}$/',
+                'message' => Yii::t('app', "Phone must be 10 digit number")
             ],
             [['bank_account_name', 'candidate_iban'], 'trim'],
             [['bank_account_name', 'candidate_iban'], 
@@ -465,6 +472,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $fields['isProfileCompleted'] = function($model) {
             return $model->isProfileCompleted();
+        };
+
+        $fields['pendingField'] = function($model) {
+            return $model->isInCompleteProfile();
         };
         
         /**
@@ -1014,6 +1025,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
             ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
             ->filterCandidate($this->candidate_id)
+            ->orderBy('{{%transfer_candidate}}.tc_id DESC')
             ->all();
     }   
 
@@ -1235,9 +1247,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         try {
+            
             $result = Yii::$app->cloudinaryManager->upload(
-                $url, [
-                    'public_id' => "candidate-photo/" . $filename
+                $url, 
+                [
+                    'public_id' => "candidate-photo/" . $filename,
+                    "eager" => [
+                        [
+                            //id card thumbnail
+                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
+                        ],
+                        [
+                            //profile pic in apps 
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
                 ]
             );
 
@@ -1308,9 +1332,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return 'candidate_uid';
         }
 
-        if (!$this->store) {
-            return 'store_id';
-        }
+//        if (!$this->store) {
+//            return 'store_id';
+//        }
         
         if (!$this->bank) {
             return 'bank_id';
@@ -1388,9 +1412,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return 'driving_license';
         }
         
-        if (!$this->candidate_resume) {
-            return 'resume';
-        }
+//        if (!$this->candidate_resume) {
+//            return 'resume';
+//        }
 
         if (!$this->candidate_hourly_rate) {
             return 'hourly_rate';
@@ -1442,7 +1466,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         $isProfileCompleted = $this->isProfileCompleted();
- 
+
         if (!$isProfileCompleted) {
 
                 Yii::debug($isProfileCompleted);
@@ -1476,7 +1500,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'country_name_ar' => $this->country->country_name_ar
             ],
         ];
-                  
+
+        $data['assigned'] = 0;
         if($this->store && $this->store->company) {
             $data['store'] = [
                 'store_name' => $this->store->store_name,
@@ -1485,6 +1510,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     'company_name' => $this->store->company->company_name
                 ]
             ];
+            $data['assigned'] = 1;
         }
         
         if($this->bank) {
@@ -1545,8 +1571,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return type
      */
     public static function synchWithAlgolia() {
-        //delete all objects
 
+        //delete all objects
         Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
 
         //call api in batch
@@ -1581,7 +1607,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 if ($algoliaData)
                     $data[] = $algoliaData;
             }
-
             if ($data)
                 Yii::$app->algolia->updates(Yii::$app->params['algolia_candidate_index'], $data);
 
