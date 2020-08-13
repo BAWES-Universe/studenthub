@@ -473,6 +473,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields['isProfileCompleted'] = function($model) {
             return $model->isProfileCompleted();
         };
+
+        $fields['pendingField'] = function($model) {
+            return $model->isInCompleteProfile();
+        };
         
         /**
          * Always Display Related Fields for Candidate model in this app
@@ -1408,9 +1412,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return 'driving_license';
         }
         
-        if (!$this->candidate_resume) {
-            return 'resume';
-        }
+//        if (!$this->candidate_resume) {
+//            return 'resume';
+//        }
 
         if (!$this->candidate_hourly_rate) {
             return 'hourly_rate';
