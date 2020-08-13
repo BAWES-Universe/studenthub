@@ -140,6 +140,12 @@ class TransferFile extends \yii\db\ActiveRecord
         
         $extension = pathinfo($fileName, PATHINFO_EXTENSION); 
                 
+        $subject = "[StudentHub] Transferred {$amount} KD to {$count} people";
+        
+        if(YII_ENV != 'prod') {
+            $subject = '[Fake] [Ignore] ' . $subject;
+        }
+        
         return Yii::$app->mailer->compose("successfull-transfer",
             [
                 "transfer" => $transfer,
@@ -147,7 +153,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
             ->setTo(Yii::$app->params['finance_transfer'])
-            ->setSubject("[StudentHub] Transferred {$amount} KD to {$count} people")
+            ->setSubject($subject)
             ->attachContent(file_get_contents($url), [
                 'fileName' => $fileName, 
                 'contentType' => $mimeTypes[$extension]
