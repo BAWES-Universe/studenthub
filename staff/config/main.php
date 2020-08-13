@@ -93,9 +93,11 @@ return [
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH assign/<id>' => 'assign',
-                        'DELETE unassign/<id>' => 'unassign',                        
+                        'DELETE unassign/<id>' => 'unassign',
                         'GET not-assigned' => 'list-not-assigned',
                         'GET assigned' => 'list-assigned',                        
+                        'GET assigned-without-bank' => 'list-assigned-without-bank-info',
+                        'GET not-assigned-without-bank' => 'list-not-assigned-without-bank-info',
                         'GET search' => 'search',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',                        
@@ -113,6 +115,8 @@ return [
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        'OPTIONS assigned-without-bank' => 'options',
+                        'OPTIONS not-assigned-without-bank' => 'options',
                     ]
                 ],
                 [ // StoreController
