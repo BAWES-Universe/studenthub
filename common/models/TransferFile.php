@@ -68,6 +68,29 @@ class TransferFile extends \yii\db\ActiveRecord
             'transfer_file_updated_at' => Yii::t('app', 'Transfer File Updated At'),
         ];
     }
+    /**
+     * @return array
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        
+        $fields['totalCandidates'] = function ($model) {
+            return (int) $model->getTransferCandidates()->count();
+        };
+
+        return $fields;
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'transferCandidates'
+        ];
+    }
     
     /**
      * save excel used to mark transfers as paid
