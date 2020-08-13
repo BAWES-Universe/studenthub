@@ -2,13 +2,14 @@
 
 namespace common\components;
 
+use Yii;
 use yii\helpers\Html;
 use Aws\S3\S3Client;
 use GuzzleHttp\Exception\ClientErrorResponseException;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
-use Yii;
+
 
 /**
  * S3ResourceManager handles resources to upload/uploaded to Amazon AWS

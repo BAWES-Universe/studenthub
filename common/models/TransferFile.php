@@ -85,8 +85,6 @@ class TransferFile extends \yii\db\ActiveRecord
         // Copy using S3ResourceManager Component
         Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
-        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($targetPath);
-
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
         
@@ -98,25 +96,29 @@ class TransferFile extends \yii\db\ActiveRecord
            ->scalar();
              
         if($tf->save()) {
-            TransferFile::transferMail($tf, count($tc_ids), $fileUrl);
+            TransferFile::transferMail($tf, count($tc_ids), $fileName);
             return $tf->transfer_file_id;
         }
     }
 
-
-
     /**
-     * Send new password to customer
-     * @param Candidate $model
-     * @param $password
-     * @return bool
+     * Send transfer file to accountant
      */
-    public static function transferMail($transfer, $count, $file)
+    public static function transferMail($transfer, $count, $fileName)
     {
-        $url = "https://studenthub-uploads-dev-server.s3.amazonaws.com/transfer-files/". $transfer->transfer_file_s3_path;
+        $url = "https://studenthub-uploads-dev-server.s3.amazonaws.com/". $transfer->transfer_file_s3_path;
+        
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
         $amount = $transfer->transfer_amount;
+        
+        $mimeTypes = [
+            'xls' => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'        
+        ];
+        
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION); 
+                
         return Yii::$app->mailer->compose("successfull-transfer",
             [
                 "transfer" => $transfer,
@@ -125,9 +127,13 @@ class TransferFile extends \yii\db\ActiveRecord
             ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
             ->setTo(Yii::$app->params['finance_transfer'])
             ->setSubject("[StudentHub] Transferred {$amount} KD to {$count} people")
-            ->attachContent(file_get_contents($file))
+            ->attachContent(file_get_contents($url), [
+                'fileName' => $fileName, 
+                'contentType' => $mimeTypes[$extension]
+            ])
             ->send();
     }
+    
     /**
      * @return \yii\db\ActiveQuery
      */
