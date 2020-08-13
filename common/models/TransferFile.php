@@ -127,7 +127,7 @@ class TransferFile extends \yii\db\ActiveRecord
      */
     public static function transferMail($transfer, $count, $fileName)
     {
-        $url = "https://studenthub-uploads-dev-server.s3.amazonaws.com/". $transfer->transfer_file_s3_path;
+        $url = Yii::$app->resourceManager->getUrl($transfer->transfer_file_s3_path);
         
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
