@@ -2,11 +2,9 @@
 
 namespace common\models;
 
-use admin\models\Candidate;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-use yii\helpers\Url;
 
 
 /**
