@@ -107,29 +107,32 @@ class Transfer extends \common\models\Transfer
      */
     public function paymentReceived()
     {
-        if($this->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
+        if ($this->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
             throw new Exception('Transfer already marked as payment received and distribution in progress.');
         }
-        if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
+        #https://www.pivotaltracker.com/story/show/174315865 adding lock otion also due to this ticket.
+        if (($this->transfer_status == Transfer::STATUS_PAYMENT_SENT) || ($this->transfer_status == Transfer::STATUS_LOCK)) {
+
+
+            // Set payment received date and update transfer status
+            $this->payment_received_on = date('Y-m-d');
+            $this->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+            $this->save(false);
+
+            // Mark invoice as paid for all child transfer and main transfer in case of no child company
+            Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $this->transfer_id]);
+
+            // Mark all invoices belonging to child transfers belonging to this transfer as paid
+            $child_transfers = Transfer::findAll(['parent_transfer_id' => $this->transfer_id]);
+
+            foreach ($child_transfers as $key => $value) {
+                Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
+            }
+
+            return true;
+        } else  {
             throw new Exception('Transfer status need to be "Payment Sent" first before marking as "Payment Received"');
         }
-
-        // Set payment received date and update transfer status
-        $this->payment_received_on = date('Y-m-d');
-        $this->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
-        $this->save(false);
-
-        // Mark invoice as paid for all child transfer and main transfer in case of no child company
-        Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $this->transfer_id]);
-
-        // Mark all invoices belonging to child transfers belonging to this transfer as paid
-        $child_transfers = Transfer::findAll(['parent_transfer_id' => $this->transfer_id]);
-        
-        foreach ($child_transfers as $key => $value) {
-            Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
-        }
-        
-        return true;
     }
 
     /**
