@@ -127,7 +127,7 @@ class TransferFile extends \yii\db\ActiveRecord
      */
     public static function transferMail($transfer, $count, $fileName)
     {
-        $url = "https://studenthub-uploads-dev-server.s3.amazonaws.com/". $transfer->transfer_file_s3_path;
+        $url = Yii::$app->resourceManager->getUrl($transfer->transfer_file_s3_path);
         
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
@@ -140,6 +140,12 @@ class TransferFile extends \yii\db\ActiveRecord
         
         $extension = pathinfo($fileName, PATHINFO_EXTENSION); 
                 
+        $subject = "[StudentHub] Transferred {$amount} KD to {$count} people";
+        
+        if(YII_ENV != 'prod') {
+            $subject = '[Fake] [Ignore] ' . $subject;
+        }
+        
         return Yii::$app->mailer->compose("successfull-transfer",
             [
                 "transfer" => $transfer,
@@ -147,7 +153,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
             ->setTo(Yii::$app->params['finance_transfer'])
-            ->setSubject("[StudentHub] Transferred {$amount} KD to {$count} people")
+            ->setSubject($subject)
             ->attachContent(file_get_contents($url), [
                 'fileName' => $fileName, 
                 'contentType' => $mimeTypes[$extension]

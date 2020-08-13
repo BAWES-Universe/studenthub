@@ -205,4 +205,16 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
             'transfer_id' => $transfer_id
         ]);
     }
+    
+    /**
+     * filter candidate who will get paid
+     * @return this
+     */
+    public function willGetPaid() {
+        return $this->andWhere([
+            'OR',
+            new \yii\db\Expression('{{%transfer_candidate}}.bonus IS NOT NULL AND {{%transfer_candidate}}.bonus > 0'),
+            new \yii\db\Expression('{{%transfer_candidate}}.hours IS NOT NULL AND {{%transfer_candidate}}.hours > 0'),
+        ]);
+    }
 }

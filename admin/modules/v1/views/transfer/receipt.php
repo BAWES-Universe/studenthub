@@ -76,7 +76,9 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <table class="table" >
             <tr>
                 <td align="left" style="text-align: left">
-                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">Amount paid for <?= count($invoice->transfer->transferCandidates) ?> interns</span>
+                    <span class="h5" style="font-size: 1em;line-height: 1.85714286em;">
+                        Amount paid for <?= $invoice->transfer->getTransferCandidates()->willGetPaid()->count() ?> interns
+                    </span>
                 </td>
                 <td align="right" style="text-align: right">
                     <span class="h5">KWD <?= $invoice->transfer->company_total ?></span>
