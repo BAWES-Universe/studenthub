@@ -32,11 +32,11 @@ class CandidateQuery extends \yii\db\ActiveQuery
             ->andWhere(['in', 'company_id', $company_ids])
             ->all();
 
-        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
+        $store_ids = ArrayHelper::map($stores, '{{%candidate}}.store_id', 'store_id');
 
         // return candidate list for given company 
         
-        return $this->andWhere(['in', 'store_id', $store_ids]);
+        return $this->andWhere(['in', '{{%candidate}}.store_id', $store_ids]);
     }
 
     /**
@@ -45,7 +45,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterName($candidate_name)
     {
-        return $this->andWhere(['like', 'candidate_name', $candidate_name]);
+        return $this->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);
     }
 
     /**
@@ -53,7 +53,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterAssigned()
     {
-        return $this->andWhere('store_id > 0');    
+        return $this->andWhere('{{%candidate}}.store_id > 0');
     }
 
     /**
@@ -61,7 +61,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterNotAssigned()
     {
-        return $this->andWhere('store_id IS NULL or store_id = 0');    
+        return $this->andWhere('{{%candidate}}.store_id IS NULL or {{%candidate}}.store_id = 0');
     }
 
     /**
@@ -70,7 +70,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterStore($store_id)
     {
-        return $this->andWhere(['store_id' => $store_id]);
+        return $this->andWhere(['{{%candidate}}.store_id' => $store_id]);
     }
 
     /**
@@ -79,7 +79,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterCountry($country_id)
     {
-        return $this->andWhere(['country_id' => $country_id]);
+        return $this->andWhere(['{{%candidate}}.country_id' => $country_id]);
     }
 
     /**
@@ -88,7 +88,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterUniversity($university_id)
     {
-        return $this->andWhere(['university_id' => $university_id]);
+        return $this->andWhere(['{{%candidate}}.university_id' => $university_id]);
     }
 
     /**
@@ -114,7 +114,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function totalAssigned()
     {
-    	return $this->andWhere('store_id > 0');
+    	return $this->andWhere('{{%candidate}}.store_id > 0');
 	}
 
     /**
@@ -122,7 +122,14 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function totalUnassigned()
     {
-        return $this->andWhere('store_id IS NULL OR store_id = 0');
+        return $this->andWhere('{{%candidate}}.store_id IS NULL OR {{%candidate}}.store_id = 0');
+    }
+ /**
+     * @return int|string
+     */
+    public function withBankInfo()
+    {
+        return $this->andWhere('{{%candidate}}.bank_id IS NULL');
     }
 
     /**
@@ -130,7 +137,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function notDeleted()
     {
-        return $this->andWhere(['deleted'=>0]);
+        return $this->andWhere(['{{%candidate}}.deleted'=>0]);
     }
 
     /**
@@ -138,7 +145,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      * @return $this
      */
     public function byApprovalStatus($status = 0) {
-        return $this->andWhere(['approved' => $status]);
+        return $this->andWhere(['{{%candidate}}.approved' => $status]);
     }
 
     /**

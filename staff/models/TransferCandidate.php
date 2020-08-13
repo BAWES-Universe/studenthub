@@ -30,6 +30,7 @@ class TransferCandidate extends \common\models\TransferCandidate
             return Yii::$app->formatter->asDate($model->tc_created_at, "long");
         };
 
+        unset($fields['profit'],$fields['transfer_cost']);
     	return $fields;
     }
 

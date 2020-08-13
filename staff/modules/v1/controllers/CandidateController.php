@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -320,6 +321,7 @@ class CandidateController extends Controller
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
         $incompleteProfile = Yii::$app->request->get("incomplete_profile");
+        $withoutBank = Yii::$app->request->get("without_bank");
 
         $query = Candidate::find()
             ->filterNotAssigned()
@@ -333,6 +335,12 @@ class CandidateController extends Controller
         {
             $query->filterName($candidate_name);
         }
+
+        if ($withoutBank) {
+            $query->joinWith('transferCandidate');
+            $query->withBankInfo();
+        }
+
 
         return new ActiveDataProvider([
             'query' => $query
@@ -355,10 +363,61 @@ class CandidateController extends Controller
             $query->byApprovalStatus(0);
         }
 
-        if($candidate_name)
-        {
+        if($candidate_name) {
             $query->filterName($candidate_name);
         }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate assigned to store
+     */
+    public function actionListAssignedWithoutBankInfo()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = TransferCandidate::find();
+        $query->joinWith('candidate');
+        $query->filterUnpaid();
+
+        $query->andWhere(['{{%candidate}}.deleted'=>0]);
+        $query->andWhere('{{%candidate}}.store_id > 0');
+
+        if ($candidate_name) {
+            $query->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);
+        }
+
+        $query->groupBy('{{%transfer_candidate}}.candidate_id');
+        $query->andWhere('{{%candidate}}.bank_id IS NULL');
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate assigned to store
+     */
+    public function actionListNotAssignedWithoutBankInfo()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = TransferCandidate::find();
+        $query->joinWith('candidate');
+        $query->filterUnpaid();
+
+        $query->andWhere(['{{%candidate}}.deleted'=>0]);
+        $query->andWhere('{{%candidate}}.store_id IS NULL or {{%candidate}}.store_id = 0');
+
+        if ($candidate_name) {
+            $query->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);
+        }
+
+        $query->groupBy('{{%transfer_candidate}}.candidate_id');
+        $query->andWhere('{{%candidate}}.bank_id IS NULL');
 
         return new ActiveDataProvider([
             'query' => $query
