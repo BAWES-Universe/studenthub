@@ -453,9 +453,9 @@ class CandidateController extends Controller
     {
         $model = $this->findModel($id);
 
-        $password = Yii::$app->security->generateRandomString(5);
+        $password = Yii::$app->security->generateRandomString(6);
 
-        $model->password = $password;
+        $model->setPassword($password);
         $model->save(false);
 
         //Send Email to user
