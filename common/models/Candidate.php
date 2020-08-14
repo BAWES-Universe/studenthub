@@ -234,6 +234,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         $scenarios['updateBirthDate'] = ['candidate_birth_date'];
         
+        $scenarios['changePassword'] = ['candidate_password_hash', 'candidate_password_reset_token'];
+        
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
         
         return $scenarios;
@@ -390,6 +392,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     public function afterSave($insert, $changedAttributes) {
+        
         parent::afterSave($insert, $changedAttributes);
         
         if($insert) 
@@ -417,6 +420,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'candidate_id' => $this->candidate_id
             ]);
         }
+        
+        if(array_key_exists('candidate_password_hash', $changedAttributes)) {
+            $this->sendPasswordUpdatedEmail();  
+        }    
         
         if (
             $this->candidate_status == self::STATUS_ACTIVE && 
@@ -764,6 +771,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * notify candidate for password update
+     */
+    public function sendPasswordUpdatedEmail() 
+    {  
+        Yii::$app->mailer->compose("candidate/password-updated-html",
+            [ 
+                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "email" => $this->candidate_email,
+                "name" => $this->candidate_name
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo($this->candidate_email)
+            ->setSubject('[StudentHub] Password updated')
+            ->send();
+    }
+    
+    /**
      * Send link in email to reset password
      * @param Candidate $model
      * @param $password
@@ -787,7 +811,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ])
             ->setFrom(Yii::$app->params['supportEmail'])
             ->setTo($this->candidate_email)
-            ->setSubject('Password reset token')
+            ->setSubject('[StudentHub] Password reset token')
             ->send();
     }
     
