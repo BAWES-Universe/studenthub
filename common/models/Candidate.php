@@ -1331,39 +1331,39 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function isInCompleteProfile() {
         if (!$this->candidate_uid) {
-            $this->pendingProfile['candidate_uid'] = true;
+            $this->pendingProfile['uid'] = true;
         }
 
 //        if (!$this->store) {
 //            return 'store_id';
 //        }
         
-        if (!$this->bank) {
-            $this->pendingProfile['bank_id'] = true;
-        }
+//        if (!$this->bank) {
+//            $this->pendingProfile['bank'] = true;
+//        }
         
         if (!$this->university) {
-            $this->pendingProfile['university_id'] = true;
+            $this->pendingProfile['university'] = true;
         }
         
         if (!$this->country) {
-            $this->pendingProfile['country_id'] = true;
+            $this->pendingProfile['country'] = true;
         }
         
-        if (!$this->bank_account_name) {
-            $this->pendingProfile['bank_account_name'] = true;
-        }
-        
-        if (!$this->candidate_iban) {
-            $this->pendingProfile['candidate_iban'] = true;
-        }
+//        if (!$this->bank_account_name) {
+//            $this->pendingProfile['bank account Name'] = true;
+//        }
+//
+//        if (!$this->candidate_iban) {
+//            $this->pendingProfile['IBAN'] = true;
+//        }
         
         if (!$this->candidate_name) {
             $this->pendingProfile['name'] = true;
         }
         
         if (!$this->candidate_name_ar) {
-            $this->pendingProfile['name_ar'] = true;
+            $this->pendingProfile['Name Arabic'] = true;
         }
 
         if (!in_array($this->candidate_gender, [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER])) {
@@ -1375,7 +1375,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
         
         if (!$this->candidate_personal_photo) {
-            $this->pendingProfile['personal_photo'] = true;
+            $this->pendingProfile['personal photo'] = true;
         }
         
         if (!$this->candidate_email) {
@@ -1386,41 +1386,41 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['phone'] = true;
         }
         
-        if (!$this->candidate_address_line1) {
-            $this->pendingProfile['address_line1'] = true;
-        }
+//        if (!$this->candidate_address_line1) {
+//            $this->pendingProfile['address line1'] = true;
+//        }
         
         if (!$this->candidate_birth_date) {
-            $this->pendingProfile['birth_date'] = true;
+            $this->pendingProfile['birth date'] = true;
         }
         
         if (!$this->candidate_civil_id) {
-            $this->pendingProfile['civil_id'] = true;
+            $this->pendingProfile['civil id'] = true;
         } 
         
-        if (!$this->candidate_civil_expiry_date) {
-            $this->pendingProfile['civil_expiry_date'] = true;
-        } 
-        
-        if (!$this->candidate_civil_photo_front) {
-            $this->pendingProfile['civil_photo_front'] = true;
-        } 
-        
-        if (!$this->candidate_civil_photo_back) {
-            $this->pendingProfile['civil_photo_back'] = true;
-        } 
+//        if (!$this->candidate_civil_expiry_date) {
+//            $this->pendingProfile['civil expiry date'] = true;
+//        }
+//
+//        if (!$this->candidate_civil_photo_front) {
+//            $this->pendingProfile['civil photo front'] = true;
+//        }
+//
+//        if (!$this->candidate_civil_photo_back) {
+//            $this->pendingProfile['civil photo back'] = true;
+//        }
         
         if (!$this->candidate_driving_license) {
-            $this->pendingProfile['driving_license'] = false;
+            $this->pendingProfile['driving license'] = false;
         }
         
 //        if (!$this->candidate_resume) {
 //            return 'resume';
 //        }
 
-        if (!$this->candidate_hourly_rate) {
-            $this->pendingProfile['hourly_rate'] = false;
-        }
+//        if (!$this->candidate_hourly_rate) {
+//            $this->pendingProfile['hourly rate'] = false;
+//        }
 
         if ($this->getCandidateExperiences()->count() == 0) {
             $this->pendingProfile['experience'] = false;
