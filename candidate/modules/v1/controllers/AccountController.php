@@ -366,14 +366,21 @@ class AccountController extends Controller
             ];
         }
 
-        $candidate = Candidate::findOne($model->getId());
-        $candidate->setPassword($newPassword);        
-        if ($candidate->save(false)) {
+        $model->scenario = 'changePassword';
+        
+        $model->setPassword($newPassword); 
+        
+        if (!$model->save()) {
             return [
-                "operation" => "success",
-                "message" => Yii::t('candidate',"Password changed successfully!")
+                "operation" => "error",
+                "message" => $model->getErrors()
             ];
         }
+        
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate',"Password changed successfully!")
+        ];
     }
     
     /**

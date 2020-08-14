@@ -408,12 +408,21 @@ class AuthController extends Controller
             ];
         }
 
+        $candidate->scenario = 'changePassword';
+        
         $candidate->setPassword($newPassword);
+        
         $candidate->removePasswordResetToken();
-        $candidate->save(false);
-
+        
+        if (!$candidate->save()) {
+            return [
+                "operation" => "error",
+                "message" => $candidate->getErrors()
+            ];
+        }
+        
         return [
-            'operation' => 'success',
+            "operation" => "success",
             'message' => Yii::t('candidate','Your password has been reset')
         ];
     }
