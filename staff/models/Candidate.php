@@ -75,29 +75,6 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * Send new password to customer
-     * @param Candidate $model
-     * @param $password
-     * @return bool
-     */
-    public static function passwordMail($model, $password)
-    {
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        
-        return Yii::$app->mailer->compose("candidate-password",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
-                'logo_2' => ''
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
-            ->setTo($model->candidate_email)
-            ->setSubject('Your internship account password has been reset')
-            ->send();
-    }
-
-    /**
      * @param bool $insert
      * @param array $changedAttributes
      * @return bool

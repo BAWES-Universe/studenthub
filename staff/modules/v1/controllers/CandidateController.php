@@ -453,14 +453,8 @@ class CandidateController extends Controller
     {
         $model = $this->findModel($id);
 
-        $password = Yii::$app->security->generateRandomString(6);
-
-        $model->setPassword($password);
-        $model->save(false);
-
-        //Send Email to user
-        Candidate::passwordMail($model, $password);
-
+        $model->sendPasswordResetEmail();
+        
         return [
             "operation" => "success",
             "message" => "New password sent to registered email successfully"

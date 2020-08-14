@@ -764,6 +764,34 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Send link in email to reset password
+     * @param Candidate $model
+     * @param $password
+     * @return bool
+     */
+    public function sendPasswordResetEmail()
+    {
+        $this->generatePasswordResetToken();
+        $this->save(false);
+        
+        //Yii::$app->mailer->htmlLayout = 'layouts/html';
+        
+        $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
+
+        Yii::$app->mailer->compose("candidate/password-reset-html",
+            [
+                "webUrl" => $webUrl,
+                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "email" => $this->candidate_email,
+                "name" => $this->candidate_name
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo($this->candidate_email)
+            ->setSubject('Password reset token')
+            ->send();
+    }
+    
+    /**
      * Start of IdentityInterface Methods
      */
 
