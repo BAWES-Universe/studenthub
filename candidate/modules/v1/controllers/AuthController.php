@@ -505,7 +505,7 @@ class AuthController extends Controller
             "language_pref" => $candidate->candidate_language_pref,
             "approved" => $candidate->approved,
             "isProfileCompleted" => $candidate->isProfileCompleted(),
-            "pending" => ($candidate->pendingProfile) ? array_keys($this->pendingProfile) : null
+            "pending" => ($candidate->pendingProfile) ? array_keys($candidate->pendingProfile) : null
         ];
     }
 
