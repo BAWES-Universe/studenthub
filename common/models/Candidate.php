@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use Mpdf\Tag\P;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -77,7 +78,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
     const GENDER_OTHER = 3;
-    
+
+    public $pendingProfile = [];
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
         'candidate_personal_photo' => 'photos',
@@ -475,7 +477,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         };
 
         $fields['pendingField'] = function($model) {
-            return $model->isInCompleteProfile();
+            return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
         
         /**
@@ -1329,7 +1331,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function isInCompleteProfile() {
         if (!$this->candidate_uid) {
-            return 'candidate_uid';
+            $this->pendingProfile['candidate_uid'] = true;
         }
 
 //        if (!$this->store) {
@@ -1337,79 +1339,79 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 //        }
         
         if (!$this->bank) {
-            return 'bank_id';
+            $this->pendingProfile['bank_id'] = true;
         }
         
         if (!$this->university) {
-            return 'university_id';
+            $this->pendingProfile['university_id'] = true;
         }
         
         if (!$this->country) {
-            return 'country_id';
+            $this->pendingProfile['country_id'] = true;
         }
         
         if (!$this->bank_account_name) {
-            return 'bank_account_name';
+            $this->pendingProfile['bank_account_name'] = true;
         }
         
         if (!$this->candidate_iban) {
-            return 'candidate_iban';
+            $this->pendingProfile['candidate_iban'] = true;
         }
         
         if (!$this->candidate_name) {
-            return 'name';
+            $this->pendingProfile['name'] = true;
         }
         
         if (!$this->candidate_name_ar) {
-            return 'name_ar';
+            $this->pendingProfile['name_ar'] = true;
         }
 
         if (!in_array($this->candidate_gender, [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER])) {
-            return 'gender';
+            $this->pendingProfile['gender'] = true;
         }
         
         if (!$this->candidate_objective) {
-            return 'objective';
+            $this->pendingProfile['objective'] = true;
         }
         
         if (!$this->candidate_personal_photo) {
-            return 'personal_photo';
+            $this->pendingProfile['personal_photo'] = true;
         }
         
         if (!$this->candidate_email) {
-            return 'email';
+            $this->pendingProfile['email'] = true;
         }
         
         if (!$this->candidate_phone) {
-            return 'phone';
+            $this->pendingProfile['phone'] = true;
         }
         
         if (!$this->candidate_address_line1) {
-            return 'address_line1';
+            $this->pendingProfile['address_line1'] = true;
         }
         
         if (!$this->candidate_birth_date) {
-            return 'birth_date';
+            $this->pendingProfile['birth_date'] = true;
         }
         
         if (!$this->candidate_civil_id) {
-            return 'civil_id';
+            $this->pendingProfile['civil_id'] = true;
         } 
         
         if (!$this->candidate_civil_expiry_date) {
-            return 'civil_expiry_date';
+            $this->pendingProfile['civil_expiry_date'] = true;
         } 
         
         if (!$this->candidate_civil_photo_front) {
-            return 'civil_photo_front';
+            $this->pendingProfile['civil_photo_front'] = true;
         } 
         
         if (!$this->candidate_civil_photo_back) {
-            return 'civil_photo_back';
+            $this->pendingProfile['civil_photo_back'] = true;
         } 
         
         if (!$this->candidate_driving_license) {
-            return 'driving_license';
+            $this->pendingProfile['driving_license'] = false;
         }
         
 //        if (!$this->candidate_resume) {
@@ -1417,15 +1419,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 //        }
 
         if (!$this->candidate_hourly_rate) {
-            return 'hourly_rate';
+            $this->pendingProfile['hourly_rate'] = false;
         }
 
         if ($this->getCandidateExperiences()->count() == 0) {
-            return 'experience';
+            $this->pendingProfile['experience'] = false;
         }
         
         if ($this->getCandidateSkills()->count() == 0) {
-            return 'skill';
+            $this->pendingProfile['skill'] = false;
+        }
+
+        if (count($this->pendingProfile) > 0) {
+            return true;
+        } else {
+            return false;
         }
     } 
     
