@@ -25,29 +25,6 @@ class CandidateTest extends \Codeception\Test\Unit
     }
 
     /**
-     * test case to test password email
-     */
-    public function testPasswordMail() {
-
-        Yii::$app->params['supportEmail'] = 'testing@testing.com';
-
-        $model = Candidate::findOne(1);
-
-        expect_that(Candidate::passwordMail($model,'x12345'));
-
-        // using Yii2 module actions to check email was sent
-        $this->tester->seeEmailIsSent();
-
-        $emailMessage = $this->tester->grabLastSentEmail();
-        expect('valid email is sent', $emailMessage)->isInstanceOf('yii\mail\MessageInterface');
-        expect($emailMessage->getTo())->hasKey($model->candidate_email);
-        expect($emailMessage->getFrom())->hasKey(Yii::$app->params['supportEmail']);
-        expect($emailMessage->getSubject())->equals('Your internship account password has been reset');
-        expect($emailMessage->toString())->contains($model->candidate_name);
-        expect($emailMessage->toString())->contains('x12345');
-    }
-
-    /**
      * test case to test send welcome email
      */
     public function testSendWelcomeEmail() {
