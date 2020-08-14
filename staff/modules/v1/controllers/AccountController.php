@@ -53,7 +53,7 @@ class AccountController extends Controller
         ];
         return $actions;
     }
-
+    
     /**
      * Updates password based on current password
      * @return array

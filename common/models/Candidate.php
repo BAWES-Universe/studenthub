@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use Mpdf\Tag\P;
+
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -392,7 +392,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     public function afterSave($insert, $changedAttributes) {
-        
+          
         parent::afterSave($insert, $changedAttributes);
         
         if($insert) 
@@ -426,7 +426,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }    
         
         if (
-            $this->candidate_status == self::STATUS_ACTIVE && 
+            //$this->candidate_status == self::STATUS_ACTIVE && 
             $this->candidate_job_search_status &&
             //$this->approved &&
             !in_array(
@@ -439,10 +439,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ) { 
             return $this->updateAlgoliaIndex($insert);
         }  
-
+            
         if (
             (isset($changedAttributes['deleted']) && $this->deleted) || //on soft delete remove 
-            (isset($changedAttributes['candidate_job_search_status']) && !$this->candidate_job_search_status) //on status change to not searching 
+            (
+                isset($changedAttributes['candidate_job_search_status']) && 
+                !$this->candidate_job_search_status
+            ) //on status change to not searching 
         ) {
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
@@ -1373,7 +1376,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return boolean
      */
     public function isProfileCompleted() {
-        Yii::debug($this->isInCompleteProfile() );
         return $this->isInCompleteProfile() ? false : true;
     }
 
@@ -1382,6 +1384,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return void|string
      */
     public function isInCompleteProfile() {
+        
         if (!$this->candidate_uid) {
             $this->pendingProfile['uid'] = true;
         }
@@ -1497,8 +1500,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         $data = $this->prepareAlgoliaData($insert);
 
-        Yii::debug('update algolia index data', $data);
-        
         //if profile incomplete
 
         if (!$data) {
@@ -1519,18 +1520,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (
             $this->deleted || 
-            !$this->candidate_email_verification || 
-            $this->candidate_status != self::STATUS_ACTIVE
+            !$this->candidate_email_verification 
+           // $this->candidate_status != self::STATUS_ACTIVE
         ) {
+            //delete 
             return false;
         }
 
         $isProfileCompleted = $this->isProfileCompleted();
 
         if (!$isProfileCompleted) {
-
-                Yii::debug($isProfileCompleted);
-        
+ 
             //delete from algolia 
 
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);

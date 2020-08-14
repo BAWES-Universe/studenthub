@@ -211,6 +211,31 @@ class CandidateController extends Controller
     }
 
     /**
+     * Set job search status
+     */
+    public function actionJobSearchStatus() {
+        
+        $job_search_status = Yii::$app->request->getBodyParam('job_search_status');
+        $candidate_id = Yii::$app->request->getBodyParam('candidate_id');
+
+        $model = $this->findModel($candidate_id);
+        $model->candidate_job_search_status = $job_search_status;
+
+        $model->scenario = 'updateJobSearchStatus';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+    
+    /**
      * Assign Store to Candidate account
      * @param $id
      * @return array
