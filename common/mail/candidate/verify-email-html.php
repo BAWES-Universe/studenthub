@@ -1,3 +1,4 @@
+
 <?php
 /* @var $this yii\web\View */
 /* @var $candidate common\models\Candidate */
@@ -9,9 +10,7 @@ $webUrl = Yii::$app->params['candidateAppUrl'] . 'verify-email/' . urlencode($em
 $mobileUrl = 'studenthub-student://verify-email/' . urlencode($email) . '/' . $candidate->candidate_auth_key;
 
 $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
-
 ?>
-
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
     <head>
@@ -101,7 +100,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                     <tbody>
                                         <tr>
                                             <td
-                                                style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:5px;text-align:center;vertical-align:top;"
+                                                style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
                                                 >
                                                 <!--[if mso | IE]>
                                                   <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -112,14 +111,14 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                               >
                                           
                                       <table
-                                         align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:688px;" width="688"
+                                         align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:668px;" width="668"
                                       >
                                         <tr>
                                           <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
                                       <![endif]-->
 
 
-                                                <div  style="Margin:0px auto;max-width:688px;">
+                                                <div  style="Margin:0px auto;max-width:668px;">
 
                                                     <table
                                                         align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
@@ -135,7 +134,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                             <tr>
                                                           
                                                                 <td
-                                                                   class="" style="vertical-align:top;width:688px;"
+                                                                   class="" style="vertical-align:top;width:668px;"
                                                                 >
                                                               <![endif]-->
 
@@ -157,10 +156,10 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                                                         >
                                                                                         <tbody>
                                                                                             <tr>
-                                                                                                <td  style="width:100px;">
+                                                                                                <td  style="width:190px;">
 
                                                                                                     <img
-                                                                                                        height="auto" src="<?= $logo ?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="100"
+                                                                                                        height="auto" src="<?= $logo ?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="190"
                                                                                                         />
 
                                                                                                 </td>
@@ -173,11 +172,11 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
 
                                                                             <tr>
                                                                                 <td
-                                                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:30px;padding-bottom:15px;word-break:break-word;"
+                                                                                    align="left" style="font-size:0px;padding:10px 25px;padding-top:30px;padding-bottom:15px;word-break:break-word;"
                                                                                     >
 
                                                                                     <div
-                                                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:19px;line-height:24px;text-align:center;color:#000000;"
+                                                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;"
                                                                                         >
                                                                                         Thanks for signing up on StudentHub. Please take a sec to confirm your email.
                                                                                     </div>
@@ -187,7 +186,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
 
                                                                             <tr>
                                                                                 <td
-                                                                                    align="center" vertical-align="middle" style="font-size:0px;padding:10px 25px;padding-top:8px;padding-right:30px;padding-bottom:3px;padding-left:30px;word-break:break-word;"
+                                                                                    align="left" vertical-align="middle" style="font-size:0px;padding:10px 25px;padding-top:8px;padding-right:30px;padding-bottom:30px;padding-left:30px;word-break:break-word;"
                                                                                     >
 
                                                                                     <table
@@ -195,12 +194,12 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                                                         >
                                                                                         <tr>
                                                                                             <td
-                                                                                                align="center" bgcolor="#f24459" role="presentation" style="border:none;border-radius:5px;cursor:auto;padding:10px 25px;background:#f24459;" valign="middle"
+                                                                                                align="center" bgcolor="#4354A4" role="presentation" style="border:none;border-radius:5px;cursor:auto;padding:10px 25px;background:#4354A4;" valign="middle"
                                                                                                 >
                                                                                                 <a
-                                                                                                    href="<?= $webUrl ?>" style="background:#f24459;color:white;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:18px;font-weight:bold;line-height:120%;Margin:0;text-decoration:none;text-transform:none;" target="_blank"
+                                                                                                    href="<?= $webUrl ?>" style="background:#4354A4;color:white;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:120%;Margin:0;text-decoration:none;text-transform:none;" target="_blank"
                                                                                                     >
-                                                                                                    Yep, Confirmed!
+                                                                                                    Confirm my account
                                                                                                 </a>
                                                                                             </td>
                                                                                         </tr>
@@ -211,32 +210,8 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
 
                                                                             <tr>
                                                                                 <td
-                                                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:10px;padding-bottom:5px;word-break:break-word;"
-                                                                                    >
-
-                                                                                    <div
-                                                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:17px;line-height:24px;text-align:center;color:#000000;"
-                                                                                        >
-                                                                                        or use the following activation code
-                                                                                    </div>
-
-                                                                                </td>
-                                                                            </tr>
-
-                                                                            <tr>
-                                                                                <td align="center" style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:15px;word-break:break-word;">
-
-                                                                                    <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:27px;line-height:24px;text-align:center;color:#000000;">
-                                                                                        <?= $candidate->candidate_auth_key ?>
-                                                                                    </div>
-
-                                                                                </td>
-                                                                            </tr>
-
-                                                                            <tr>
-                                                                                <td
                                                                                     style="font-size:0px;padding:10px 25px;word-break:break-word;"
-                                                                                >
+                                                                                    >
 
                                                                                     <p
                                                                                         style="border-top:solid 1px #d8e2e7;font-size:1;margin:0px auto;width:100%;"
@@ -245,7 +220,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
 
                                                                                     <!--[if mso | IE]>
                                                                                       <table
-                                                                                         align="center" border="0" cellpadding="0" cellspacing="0" style="border-top:solid 1px #d8e2e7;font-size:1;margin:0px auto;width:638px;" role="presentation" width="638px"
+                                                                                         align="center" border="0" cellpadding="0" cellspacing="0" style="border-top:solid 1px #d8e2e7;font-size:1;margin:0px auto;width:618px;" role="presentation" width="618px"
                                                                                       >
                                                                                         <tr>
                                                                                           <td style="height:0;line-height:0;">
@@ -265,7 +240,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                                                     >
 
                                                                                     <div
-                                                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#666666;"
+                                                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:left;color:#666666;"
                                                                                         >
                                                                                         <b>Button not working?</b> Copy and paste this link into your browser:
                                                                                     </div>
@@ -274,10 +249,14 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                                             </tr>
 
                                                                             <tr>
-                                                                                <td align="left" style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:20px;word-break:break-word;">
+                                                                                <td
+                                                                                    align="left" style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:20px;word-break:break-word;"
+                                                                                    >
 
-                                                                                    <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#666666;">
-                                                                                        <?= $webUrl ?>
+                                                                                    <div
+                                                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:left;color:#666666;"
+                                                                                        >
+                                                                                            <?= $webUrl ?>
                                                                                     </div>
 
                                                                                 </td>
