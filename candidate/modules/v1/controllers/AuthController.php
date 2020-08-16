@@ -408,12 +408,21 @@ class AuthController extends Controller
             ];
         }
 
+        $candidate->scenario = 'changePassword';
+        
         $candidate->setPassword($newPassword);
+        
         $candidate->removePasswordResetToken();
-        $candidate->save(false);
-
+        
+        if (!$candidate->save()) {
+            return [
+                "operation" => "error",
+                "message" => $candidate->getErrors()
+            ];
+        }
+        
         return [
-            'operation' => 'success',
+            "operation" => "success",
             'message' => Yii::t('candidate','Your password has been reset')
         ];
     }
@@ -504,7 +513,8 @@ class AuthController extends Controller
             "email" => $candidate->candidate_email,
             "language_pref" => $candidate->candidate_language_pref,
             "approved" => $candidate->approved,
-            "isProfileCompleted" => $candidate->isProfileCompleted()
+            "isProfileCompleted" => $candidate->isProfileCompleted(),
+            "pending" => ($candidate->pendingProfile) ? array_keys($candidate->pendingProfile) : null
         ];
     }
 

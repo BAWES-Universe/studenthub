@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -42,7 +43,7 @@ use yii\helpers\Console;
  * @property string $candidate_auth_key
  * @property string $candidate_password_hash
  * @property string $candidate_password_reset_token
- * @property string $candidate_language_pref 
+ * @property string $candidate_language_pref
  * @property string $candidate_job_search_status
  * @property integer $candidate_status
  * @property integer $approved
@@ -65,19 +66,20 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const STATUS_READY = 1;
     const STATUS_PENDING = 0;
     const STATUS_ACTIVE = 10;//default status
-    
+
     //Email verification values for `candidate_email_verification`
     const EMAIL_VERIFIED = 1;
     const EMAIL_NOT_VERIFIED = 0;
-    
+
     const ACTIVELY_LOOKING_FOR_JOB = 1;
     const NOT_LOOKING_FOR_JOB = 0;
-    
+
     //Gender values for `gender`
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
     const GENDER_OTHER = 3;
-    
+
+    public $pendingProfile = [];
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
         'candidate_personal_photo' => 'photos',
@@ -117,22 +119,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
             [
-                ['candidate_civil_id'], 
-                'number', 
-                'numberPattern' => '/^\d{12}$/', 
+                ['candidate_civil_id'],
+                'number',
+                'numberPattern' => '/^\d{12}$/',
                 'message' => Yii::t('app', "Civil id must be 12 digit number")
             ],[
                 ['candidate_phone'],
                 'number',
-                'numberPattern' => '/^\d{10}$/',
-                'message' => Yii::t('app', "Phone must be 10 digit number")
+                'numberPattern' => '/^\d{8}$/',
+                'message' => Yii::t('app', "Phone must be 8 digit number")
             ],
             [['bank_account_name', 'candidate_iban'], 'trim'],
-            [['bank_account_name', 'candidate_iban'], 
+            [['bank_account_name', 'candidate_iban'],
                 'match',
                 'pattern' => '/^[0-9a-zA-Z\s]+$/',
                 'message' => 'Special characters not allowed'
-            ],  
+            ],
             ['candidate_iban', 'validateIban'],
             ['candidate_hourly_rate', 'validateHourlyRate'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
@@ -141,19 +143,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
-    
+
             ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
-                    
+
             ['candidate_job_search_status', 'in', 'range' => [self::NOT_LOOKING_FOR_JOB, self::ACTIVELY_LOOKING_FOR_JOB]],
-            
+
             [['candidate_objective'], 'string', 'max' => 100],
-                    
+
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
             [
-                ['candidate_personal_photo'], 
-                '\common\components\S3FileExistValidator', 
+                ['candidate_personal_photo'],
+                '\common\components\S3FileExistValidator',
                 'filePath' => '',
                 'message' => Yii::t('candidate',"Please upload a personal photo for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
@@ -161,10 +163,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
-                    
+
             [
-                ['candidate_resume'], 
-                '\common\components\S3FileExistValidator', 
+                ['candidate_resume'],
+                '\common\components\S3FileExistValidator',
                 'filePath' => '',
                 'message' => "Please upload resume",
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
@@ -172,10 +174,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
-                    
+
             [
-                ['candidate_civil_photo_front'], 
-                '\common\components\S3FileExistValidator', 
+                ['candidate_civil_photo_front'],
+                '\common\components\S3FileExistValidator',
                 'filePath' => '',
                 'message' => Yii::t('candidate',"Please upload a civil id photo (front) for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
@@ -184,8 +186,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 }
             ],
             [
-                ['candidate_civil_photo_back'], 
-                '\common\components\S3FileExistValidator', 
+                ['candidate_civil_photo_back'],
+                '\common\components\S3FileExistValidator',
                 'filePath' => '',
                 'message' => Yii::t('candidate',"Please upload a civil id photo (back) for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
@@ -201,39 +203,41 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function scenarios() {
         $scenarios = parent::scenarios();
- 
+
         $scenarios['updateName'] = ['candidate_name'];
-        
+
         $scenarios['updateNameAr'] = ['candidate_name_ar'];
-        
+
         $scenarios['candidate_personal_photo'] = ['candidate_personal_photo'];
-        
+
         $scenarios['updateCivilId'] = ['candidate_civil_id'];
-        
+
         $scenarios["updateLanguagePref"] = ["candidate_language_pref"];
-        
+
         $scenarios['updateJobSearchStatus'] = ['candidate_job_search_status'];
-        
+
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
 
         $scenarios['updateNationality'] = ['country_id'];
-        
+
         $scenarios['updateDrivingLicense'] = ['candidate_driving_license'];
-        
+
         $scenarios['updateObjective'] = ['candidate_objective'];
-        
+
         $scenarios['updateGender'] = ['candidate_gender'];
-        
+
         $scenarios['updateUniversity'] = ['university_id'];
-        
+
         $scenarios['updateResume'] = ['candidate_resume'];
-        
+
         $scenarios['updateBirthDate'] = ['candidate_birth_date'];
-        
+
+        $scenarios['changePassword'] = ['candidate_password_hash', 'candidate_password_reset_token'];
+
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
-        
+
         return $scenarios;
     }
 
@@ -254,7 +258,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
         }
     }
-    
+
     /**
      * validate bank IBAN value
      * @param $attribute
@@ -262,11 +266,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param $validator
      */
     public function validateIban($attribute, $params, $validator)
-    {  
+    {
         $banks = Bank::find()->all();
-        
-        $found = false; 
-         
+
+        $found = false;
+
         foreach($banks as $bank) {
             if($bank->bank_iban_code && strpos(strtolower($this->candidate_iban), strtolower($bank->bank_iban_code)) > -1) {
                 $found = true;
@@ -282,7 +286,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * Validate candidate hourly rate 
+     * Validate candidate hourly rate
      */
     public function validateHourlyRate()
     {
@@ -291,9 +295,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->addError('candidate_hourly_rate', Yii::t('candidate','Candidate hourly rate should be greater than 0.'));
             return null;
         }
-        
+
         $max = 0;
-        
+
         if($this->company && $this->company->company_hourly_rate)
         {
             $max = $this->company->company_hourly_rate;
@@ -302,14 +306,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         {
             $max =  $this->company->parentCompany->company_hourly_rate;
         }
-        
+
         if($max && $this->candidate_hourly_rate > $max)
         {
 
             $this->addError('candidate_hourly_rate', Yii::t('candidate', "Candidate hourly rate should be less than or equal to {max}.", ['max' => $max]));
         }
     }
-    
+
     /**
      * Validate Civil ID Expiry Date
      */
@@ -388,24 +392,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     public function afterSave($insert, $changedAttributes) {
+
         parent::afterSave($insert, $changedAttributes);
-        
-        if($insert) 
+
+        if($insert)
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
-        } 
-        else if (array_key_exists('store_id', $changedAttributes)) 
+        }
+        else if (array_key_exists('store_id', $changedAttributes))
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
             Store::updateAllCounters(['store_total_candidates' => -1], ['store_id' => $changedAttributes['store_id']]);
-        } 
+        }
         else if (
             array_key_exists('candidate_iban', $changedAttributes) ||
             array_key_exists('bank_account_name', $changedAttributes) ||
             array_key_exists('bank_id', $changedAttributes)
         ) {
-            //update bank details on all non paid transfers 
-            
+            //update bank details on all non paid transfers
+
             \company\models\TransferCandidate::updateAll([
                 'bank_id' => $this->bank_id,
                 'transfer_benef_name' => $this->bank_account_name,
@@ -415,32 +420,39 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'candidate_id' => $this->candidate_id
             ]);
         }
-        
+
+        if(array_key_exists('candidate_password_hash', $changedAttributes)) {
+            $this->sendPasswordUpdatedEmail();
+        }
+
         if (
-            $this->candidate_status == self::STATUS_ACTIVE && 
+            //$this->candidate_status == self::STATUS_ACTIVE &&
             $this->candidate_job_search_status &&
             //$this->approved &&
             !in_array(
                 $this->scenario, [
-                    'updateLanguagePref', //as not saving language preference in algolia  
+                    'updateLanguagePref', //as not saving language preference in algolia
                     'signup', //as will have incomplete profile
-                    'updateEmail'//as not saving email in algolia 
+                    'updateEmail'//as not saving email in algolia
                 ]
             )
-        ) { 
+        ) {
             return $this->updateAlgoliaIndex($insert);
-        }  
+        }
 
         if (
-            (isset($changedAttributes['deleted']) && $this->deleted) || //on soft delete remove 
-            (isset($changedAttributes['candidate_job_search_status']) && !$this->candidate_job_search_status) //on status change to not searching 
+            (isset($changedAttributes['deleted']) && $this->deleted) || //on soft delete remove
+            (
+                isset($changedAttributes['candidate_job_search_status']) &&
+                !$this->candidate_job_search_status
+            ) //on status change to not searching
         ) {
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
-        
+
         return true;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -475,9 +487,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         };
 
         $fields['pendingField'] = function($model) {
-            return $model->isInCompleteProfile();
+            return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
-        
+
         /**
          * Always Display Related Fields for Candidate model in this app
          * A Candidate is defined by all his relation to enable quick-loading
@@ -487,7 +499,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'store',
             'company'
         ]);
-        
+
         unset($fields['deleted']);
         unset($fields['candidate_uid']);
 
@@ -554,7 +566,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($fileName);
 
         // Create temporary file to store image in
-        $tmpFile = sys_get_temp_dir() . '/' . $fileName;         
+        $tmpFile = sys_get_temp_dir() . '/' . $fileName;
         $tmpHandle = fopen($tmpFile, 'w+');
         //tempnam(sys_get_temp_dir(), "TEMP");
         //rename($tmpFile, $fileName);
@@ -578,24 +590,24 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         fclose($tmpHandle);
         @unlink($tmpFile);
     }
-    
+
     /**
      * @inheritdoc
      */
     public function beforeSave($insert)
     {
-        if (!parent::beforeSave($insert)) 
-            return false; 
+        if (!parent::beforeSave($insert))
+            return false;
 
         // Move uploaded files to permanent bucket // as we are only going to use cloudinary
 //        $this->_moveTemporaryFilesToPermanentBucket();
 
         if (!$this->candidate_uid) {
             $this->candidate_uid = $this->generateUid();
-        } 
-        
-        $this->bank_id = null; 
-            
+        }
+
+        $this->bank_id = null;
+
         $banks = Bank::find()->all();
 
         foreach($banks as $bank) {
@@ -726,7 +738,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
-    
+
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -759,6 +771,51 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         return false;
+    }
+
+    /**
+     * notify candidate for password update
+     */
+    public function sendPasswordUpdatedEmail()
+    {
+        Yii::$app->mailer->compose("candidate/password-updated-html",
+            [
+                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "email" => $this->candidate_email,
+                "name" => $this->candidate_name
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo($this->candidate_email)
+            ->setSubject('[StudentHub] Password updated')
+            ->send();
+    }
+
+    /**
+     * Send link in email to reset password
+     * @param Candidate $model
+     * @param $password
+     * @return bool
+     */
+    public function sendPasswordResetEmail()
+    {
+        $this->generatePasswordResetToken();
+        $this->save(false);
+
+        //Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
+
+        Yii::$app->mailer->compose("candidate/password-reset-html",
+            [
+                "webUrl" => $webUrl,
+                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "email" => $this->candidate_email,
+                "name" => $this->candidate_name
+            ])
+            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setTo($this->candidate_email)
+            ->setSubject('[StudentHub] Password reset token')
+            ->send();
     }
 
     /**
@@ -1027,7 +1084,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->filterCandidate($this->candidate_id)
             ->orderBy('{{%transfer_candidate}}.tc_id DESC')
             ->all();
-    }   
+    }
 
     /**
      * @inheritdoc
@@ -1059,7 +1116,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $totalBonus += $transfer->bonus - $transfer->bonus_commission;
             }
         }
-        
+
         return [
             'hours' => $totalHours,
             'paid' => $totalPaid,
@@ -1079,7 +1136,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $token->candidate;
         }
     }
-    
+
     /**
      * Verifies the candidate email
      */
@@ -1115,16 +1172,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
     }
-    
+
     /**
      * delete resume
      * @return boolean
      */
     public function deleteResume() {
-        
+
         try {
 
-            Yii::$app->resourceManager->delete("candidate-resume/" . $this->candidate_resume);  
+            Yii::$app->resourceManager->delete("candidate-resume/" . $this->candidate_resume);
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
@@ -1141,9 +1198,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->addError('candidate_resume', Yii::t('app', 'Resume not available to delete.'));
 
             return false;
-        }   
+        }
     }
-    
+
     /**
      * save resume to permanent bucket
      * @return boolean
@@ -1160,7 +1217,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         try {
 
             Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
-            
+
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1177,10 +1234,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return false;
         }
-        
+
         return $this->save();
     }
-    
+
     /**
      * Update profile photo from temp s3 bucket
      * @return type
@@ -1209,11 +1266,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return boolean
      */
     public function deleteProfilePhotoFromCloudinary() {
-        
+
         try {
-            
+
             Yii::$app->cloudinaryManager->delete("candidate-photo/" . $this->candidate_personal_photo);
-        
+
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1221,17 +1278,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             //$this->addError('profile_photo', Yii::t('app', 'Please try again.'));
 
             return false;
-            
+
         } catch (\Exception $e) {
-            
+
             Yii::error($e->getMessage(), 'candidate');
-            
+
             //$this->addError('profile_photo', Yii::t('app', 'Image not available to save.'));
-            
+
             return false;
         }
     }
-    
+
     /**
      * Set profile photo by url
      * @param string $url
@@ -1241,15 +1298,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $filename = Yii::$app->security->generateRandomString();
 
         // deleting old pic
-        
+
         if ($this->candidate_personal_photo) {
             $this->deleteProfilePhotoFromCloudinary();
         }
 
         try {
-            
+
             $result = Yii::$app->cloudinaryManager->upload(
-                $url, 
+                $url,
                 [
                     'public_id' => "candidate-photo/" . $filename,
                     "eager" => [
@@ -1258,7 +1315,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
                         ],
                         [
-                            //profile pic in apps 
+                            //profile pic in apps
                             "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
                         ]
                     ]
@@ -1268,8 +1325,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             if ($result) {
                 $this->candidate_personal_photo = basename($result['url']);
                 return true;
-            } 
-            
+            }
+
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1287,7 +1344,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
     }
-    
+
     /**
      * Sends an email requesting a user to verify his email address
      * @return boolean whether the email was sent
@@ -1313,132 +1370,136 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setSubject('Please confirm your email address')
             ->send();
     }
-    
+
     /**
      * is candidate profile complete?
      * @return boolean
      */
     public function isProfileCompleted() {
-        Yii::debug($this->isInCompleteProfile() );
         return $this->isInCompleteProfile() ? false : true;
     }
 
     /**
-     * Checks is candidate have incomplete profile 
+     * Checks is candidate have incomplete profile
      * @return void|string
      */
     public function isInCompleteProfile() {
+
         if (!$this->candidate_uid) {
-            return 'candidate_uid';
+            $this->pendingProfile['uid'] = true;
         }
 
 //        if (!$this->store) {
 //            return 'store_id';
 //        }
-        
-        if (!$this->bank) {
-            return 'bank_id';
-        }
-        
+
+//        if (!$this->bank) {
+//            $this->pendingProfile['bank'] = true;
+//        }
+
         if (!$this->university) {
-            return 'university_id';
+            $this->pendingProfile['university'] = true;
         }
-        
+
         if (!$this->country) {
-            return 'country_id';
+            $this->pendingProfile['country'] = true;
         }
-        
-        if (!$this->bank_account_name) {
-            return 'bank_account_name';
-        }
-        
-        if (!$this->candidate_iban) {
-            return 'candidate_iban';
-        }
-        
+
+//        if (!$this->bank_account_name) {
+//            $this->pendingProfile['bank account Name'] = true;
+//        }
+//
+//        if (!$this->candidate_iban) {
+//            $this->pendingProfile['IBAN'] = true;
+//        }
+
         if (!$this->candidate_name) {
-            return 'name';
+            $this->pendingProfile['name'] = true;
         }
-        
+
         if (!$this->candidate_name_ar) {
-            return 'name_ar';
+            $this->pendingProfile['Name Arabic'] = true;
         }
 
         if (!in_array($this->candidate_gender, [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER])) {
-            return 'gender';
+            $this->pendingProfile['gender'] = true;
         }
-        
+
         if (!$this->candidate_objective) {
-            return 'objective';
+            $this->pendingProfile['objective'] = true;
         }
-        
+
         if (!$this->candidate_personal_photo) {
-            return 'personal_photo';
+            $this->pendingProfile['personal photo'] = true;
         }
-        
+
         if (!$this->candidate_email) {
-            return 'email';
+            $this->pendingProfile['email'] = true;
         }
-        
+
         if (!$this->candidate_phone) {
-            return 'phone';
+            $this->pendingProfile['phone'] = true;
         }
-        
-        if (!$this->candidate_address_line1) {
-            return 'address_line1';
-        }
-        
+
+//        if (!$this->candidate_address_line1) {
+//            $this->pendingProfile['address line1'] = true;
+//        }
+
         if (!$this->candidate_birth_date) {
-            return 'birth_date';
+            $this->pendingProfile['birth date'] = true;
         }
-        
+
         if (!$this->candidate_civil_id) {
-            return 'civil_id';
-        } 
-        
-        if (!$this->candidate_civil_expiry_date) {
-            return 'civil_expiry_date';
-        } 
-        
-        if (!$this->candidate_civil_photo_front) {
-            return 'civil_photo_front';
-        } 
-        
-        if (!$this->candidate_civil_photo_back) {
-            return 'civil_photo_back';
-        } 
-        
-        if (!$this->candidate_driving_license) {
-            return 'driving_license';
+            $this->pendingProfile['civil id'] = true;
         }
-        
+
+//        if (!$this->candidate_civil_expiry_date) {
+//            $this->pendingProfile['civil expiry date'] = true;
+//        }
+//
+//        if (!$this->candidate_civil_photo_front) {
+//            $this->pendingProfile['civil photo front'] = true;
+//        }
+//
+//        if (!$this->candidate_civil_photo_back) {
+//            $this->pendingProfile['civil photo back'] = true;
+//        }
+
+        if (!$this->candidate_driving_license) {
+            $this->pendingProfile['driving license'] = false;
+        }
+
 //        if (!$this->candidate_resume) {
 //            return 'resume';
 //        }
 
-        if (!$this->candidate_hourly_rate) {
-            return 'hourly_rate';
-        }
+//        if (!$this->candidate_hourly_rate) {
+//            $this->pendingProfile['hourly rate'] = false;
+//        }
 
         if ($this->getCandidateExperiences()->count() == 0) {
-            return 'experience';
+            $this->pendingProfile['experience'] = false;
         }
-        
+
         if ($this->getCandidateSkills()->count() == 0) {
-            return 'skill';
+            $this->pendingProfile['skill'] = false;
         }
-    } 
-    
+
+        if (count($this->pendingProfile) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Update/Insert data on algolia index
      * @param bool $insert
      */
     public function updateAlgoliaIndex($insert = false) {
-        
+
         $data = $this->prepareAlgoliaData($insert);
 
-        Yii::debug('update algolia index data', $data);
-        
         //if profile incomplete
 
         if (!$data) {
@@ -1458,10 +1519,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function prepareAlgoliaData($insert = false) {
 
         if (
-            $this->deleted || 
-            !$this->candidate_email_verification || 
-            $this->candidate_status != self::STATUS_ACTIVE
+            $this->deleted ||
+            !$this->candidate_email_verification
+           // $this->candidate_status != self::STATUS_ACTIVE
         ) {
+            //delete
             return false;
         }
 
@@ -1469,9 +1531,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (!$isProfileCompleted) {
 
-                Yii::debug($isProfileCompleted);
-        
-            //delete from algolia 
+            //delete from algolia
 
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
 
@@ -1512,15 +1572,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ];
             $data['assigned'] = 1;
         }
-        
+
         if($this->bank) {
             $data['bank'] = [
                 'bank_id' => $this->bank_id,
                 'bank_name' => $this->bank->bank_name
             ];
-        }   
-                
-        //to make gender label visible to filter instead of 1,0 
+        }
+
+        //to make gender label visible to filter instead of 1,0
 
         if ($this->candidate_gender == self::GENDER_FEMALE) {
             $data['candidate_gender'] = 'Female';
@@ -1537,7 +1597,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data['candidate_updated_at_timestamp'] = time();
         } else {
             $data['candidate_created_at'] = $this->candidate_created_at;
-            //could be `new Expression('NOW()')` on update 
+            //could be `new Expression('NOW()')` on update
             $data['candidate_updated_at'] = is_string($this->candidate_updated_at) ? $this->candidate_updated_at : date('Y-m-d H:i:s');
             $data['candidate_created_at_timestamp'] = strtotime($this->candidate_created_at);
             $data['candidate_updated_at_timestamp'] = strtotime($data['candidate_updated_at']);
@@ -1591,7 +1651,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $total = $query->count();
 
-        //send 100 in each request 
+        //send 100 in each request
 
         Console::startProgress(0, $total);
 

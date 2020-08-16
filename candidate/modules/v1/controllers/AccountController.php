@@ -116,8 +116,8 @@ class AccountController extends Controller
             ->where([
                 'candidate_id' => Yii::$app->user->getId()
             ])    
-            ->all(); 
-
+            ->all();
+        Yii::$app->user->identity->updateAlgoliaIndex(false);
         return [
             "operation" => "success",
             "message" => Yii::t('candidate', "Experiences updated successfully"),
@@ -167,7 +167,7 @@ class AccountController extends Controller
                 'candidate_id' => Yii::$app->user->getId()
             ])    
             ->all(); 
-
+        Yii::$app->user->identity->updateAlgoliaIndex(false);
         return [
             "operation" => "success",
             "message" => Yii::t('candidate',"Skills updated successfully"),
@@ -366,14 +366,21 @@ class AccountController extends Controller
             ];
         }
 
-        $candidate = Candidate::findOne($model->getId());
-        $candidate->setPassword($newPassword);        
-        if ($candidate->save(false)) {
+        $model->scenario = 'changePassword';
+        
+        $model->setPassword($newPassword); 
+        
+        if (!$model->save()) {
             return [
-                "operation" => "success",
-                "message" => Yii::t('candidate',"Password changed successfully!")
+                "operation" => "error",
+                "message" => $model->getErrors()
             ];
         }
+        
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate',"Password changed successfully!")
+        ];
     }
     
     /**
