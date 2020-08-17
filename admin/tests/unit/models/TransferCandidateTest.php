@@ -126,7 +126,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit {
 
         // modifying fixture data
         $response = TransferCandidate::markPaid(22,1122);
-        expect('paid candidate transfer', $response['message'])->equals('Candidate Transfer marked as "paid" successfully');
+        expect('paid candidate transfer', $response['operation'])->equals('success');
 
         // checking after modifying fixture data
         $TransferCandidate = TransferCandidate::findOne(22);
@@ -156,9 +156,8 @@ class TransferCandidateTest extends \Codeception\Test\Unit {
 
         // modifying fixture data
         $response = TransferCandidate::markPaid(34,1122);
-        expect('paid candidate transfer', $response['message'])->equals('Candidate Transfer marked as "paid" with transfer status changed to completed successfully');
-
-
+        expect('paid candidate transfer', $response['operation'])->equals('success');
+       
         $count = TransferCandidate::find()->where(['transfer_id' => 17, 'paid' => 0])->count();
         expect('all candidate paid', $count)->equals(0);
 
