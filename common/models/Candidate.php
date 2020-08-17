@@ -769,8 +769,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $this->generateAuthKey();
 
         if($this->save()) {
-            Yii::info("[New Candidate Account Created] ".$this->candidate_email, __METHOD__);
-
+            Yii::info("[New Student Registration] ".$this->candidate_email. " has signed up. Phone ".$this->candidate_phone.". Email: ".$this->candidate_email, __METHOD__);
             return $this;
         }
 
