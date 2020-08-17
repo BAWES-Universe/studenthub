@@ -94,9 +94,10 @@ class Candidate extends \common\models\Candidate {
      */
     public function sendWelcomeEmail(){
         $model = $this;
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
         $password = $model->password;
         $this->password = null;
+        
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
         
         return Yii::$app->mailer->compose("candidate-register",
             [
