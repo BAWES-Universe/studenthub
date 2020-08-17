@@ -42,7 +42,7 @@ class Staff extends \common\models\Staff {
                 'logo_1' => Url::to('@web/images/studenthub-logo.png', true),
                 'logo_2' => ''
             ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($model->staff_email)
             ->setSubject('Your account password has been reset')
             ->send();

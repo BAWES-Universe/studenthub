@@ -782,11 +782,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         Yii::$app->mailer->compose("candidate/password-updated-html",
             [
-                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "logo" => yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "email" => $this->candidate_email,
                 "name" => $this->candidate_name
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
             ->setSubject('[StudentHub] Password updated')
             ->send();

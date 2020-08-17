@@ -489,7 +489,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
                 'logo_2' => ''
             ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($model->company_email)
             ->setSubject('Your password has been reset')
             ->send();

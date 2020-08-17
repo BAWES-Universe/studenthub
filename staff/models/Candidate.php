@@ -102,7 +102,7 @@ class Candidate extends \common\models\Candidate {
                 "password" => $password,
                 'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
             ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($model->candidate_email)
             ->setSubject('Welcome to the '.Yii::$app->name)
             ->send();
