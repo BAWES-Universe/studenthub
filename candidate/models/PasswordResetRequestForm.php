@@ -42,7 +42,7 @@ class PasswordResetRequestForm extends Model
                 "name" => $candidate->candidate_name,
                 "token" => $candidate->candidate_password_reset_token,
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($candidate->candidate_email)
             ->setSubject('Password reset token')
             ->send();

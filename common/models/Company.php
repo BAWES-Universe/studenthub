@@ -465,7 +465,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                     [
                         "companies" => \common\models\Company::find()->where(['company_id'=>$list])->all(),
                     ])
-                    ->setFrom(Yii::$app->params['supportEmail'])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setTo(Yii::$app->params['adminEmail'])
                     ->setSubject('Company not paid after 35 days')
                     ->send();
