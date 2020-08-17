@@ -812,13 +812,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         Yii::$app->mailer->compose("candidate/password-reset-html",
             [
                 "webUrl" => $webUrl,
-                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "email" => $this->candidate_email,
                 "name" => $this->candidate_name
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
-            ->setSubject('[StudentHub] Password reset token')
+            ->setSubject('Reset your StudentHub password')
             ->send();
     }
 
