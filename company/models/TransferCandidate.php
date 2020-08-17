@@ -63,8 +63,15 @@ class TransferCandidate extends \common\models\TransferCandidate
         return parent::getTransfer($modelClass);
     }
 
+    /**
+     * save transfer candidate for given transfer, candidate, hours and bonus
+     * @param type $candidate
+     * @param type $model
+     * @param type $value
+     * @return type
+     */
     public static function saveCandidateTransfer($candidate, $model, $value) {
-
+ 
         $total = 0;
         $company_total = 0;
 
@@ -128,9 +135,12 @@ class TransferCandidate extends \common\models\TransferCandidate
             $company_total = $value['bonus'] + ($value['hours'] * $company_hourly_rate);
         }
         
-        // in case if amount is less then 0 so that it should not show in payable candidate area
+        // in case if amount is 0 
         if ($total  == 0) {
-            $TCModel->paid = TransferCandidate::PAID;
+            return [
+                "operation" => "error",
+                "message" => "Can not create candidate transfer with 0 amount."
+            ];
         }
 
         if (!$TCModel->save()) {
@@ -147,6 +157,7 @@ class TransferCandidate extends \common\models\TransferCandidate
                 "message" => "We've faced an issue saving your request, please contact us for assistance."
             ];
         }
+        
         return [
             "operation" => "success",
             "total" => $total,
