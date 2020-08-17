@@ -238,6 +238,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
 
+        $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
+
+        $scenarios['candidatePhone'] = ['candidate_phone'];
+
         return $scenarios;
     }
 
@@ -421,7 +425,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ]);
         }
 
-        if(array_key_exists('candidate_password_hash', $changedAttributes)) {
+        if(!$insert && array_key_exists('candidate_password_hash', $changedAttributes)) {
             $this->sendPasswordUpdatedEmail();
         }
 
@@ -780,11 +784,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         Yii::$app->mailer->compose("candidate/password-updated-html",
             [
-                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "email" => $this->candidate_email,
                 "name" => $this->candidate_name
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
             ->setSubject('[StudentHub] Password updated')
             ->send();

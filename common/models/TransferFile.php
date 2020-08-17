@@ -151,7 +151,7 @@ class TransferFile extends \yii\db\ActiveRecord
                 "transfer" => $transfer,
                 'file' => $url,
             ])
-            ->setFrom([Yii::$app->params['supportEmail'] => 'StudentHub'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['finance_transfer'])
             ->setSubject($subject)
             ->attachContent(file_get_contents($url), [

@@ -35,5 +35,9 @@ return [
     'Candidate age should be between 18 to 24.' => 'يجب أن يكون عمر المرشح بين 18 إلى 24.',
     'record successfully updated' => 'تم تحديث السجل بنجاح',
     'error while updating record. Please try again' => 'خطأ أثناء تحديث السجل. حاول مرة اخرى',
-    'Job search status' => 'حالة البحث عن وظيفة'
+    'Job search status' => 'حالة البحث عن وظيفة',
+    'Beneficiary Name is required' => 'اسم المستفيد مطلوب',
+    'IBAN Code is required' => 'مطلوب رمز IBAN',
+    'Bank details updated successfully' => 'تم تحديث التفاصيل المصرفية بنجاح',
+    'Candidate phone number Updated Successfully' => 'تم تحديث رقم هاتف المرشح بنجاح'
 ];
