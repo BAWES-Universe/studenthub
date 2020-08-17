@@ -479,7 +479,9 @@ class CandidateController extends Controller
         $model = $this->findModel($id);
 
         $model->sendPasswordResetEmail();
-        
+
+        Yii::info("[Student Password Reset Request] by Staff, Candidate Email: ".$this->candidate_email, __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "New password sent to registered email successfully"

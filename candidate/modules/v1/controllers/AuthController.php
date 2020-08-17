@@ -376,6 +376,7 @@ class AuthController extends Controller
             ];
         }
 
+        Yii::info("[Student Password Reset Request] by Candidate, Candidate Email: ".$model->candidate_email, __METHOD__);
         // Otherwise return success
         return [
             'operation' => 'success',
