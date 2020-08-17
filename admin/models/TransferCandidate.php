@@ -161,12 +161,8 @@ class TransferCandidate extends \common\models\TransferCandidate
         
         if ($TransferCandidate->save(false)) {
 
-            $response = Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
+            Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
             
-            if ($response) {
-                return $response;
-            }
-
             return [
                 "operation" => "success",
                 "message" => 'Candidate Transfer marked as "paid" successfully'
