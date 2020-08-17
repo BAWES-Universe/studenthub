@@ -245,6 +245,51 @@ class AccountController extends Controller
     }
 
     /**
+     * Update candidate Bank detail
+     * @return array
+     */
+    public function actionUpdateBankDetail() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        $benefName = Yii::$app->request->getBodyParam("benef_name");
+        $iban = Yii::$app->request->getBodyParam("iban");
+
+        if (!$benefName) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Beneficiary Name is required")
+            ];
+        }
+
+        if (!$iban) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "IBAN Code is required")
+            ];
+        }
+
+        $candidate->scenario = "updateBankDetail";
+
+        $candidate->bank_account_name = $benefName;
+        $candidate->candidate_iban = $iban;
+
+        if ($candidate->save()) {
+
+            Yii::$app->user->identity->updateAlgoliaIndex(false);
+            return [
+                "operation" => "success",
+                "message" => Yii::t('candidate',"Bank details updated successfully"),
+            ];
+        } else {
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+    }
+
+    /**
      * Set language preference 
      */
     public function actionLanguagePref() {

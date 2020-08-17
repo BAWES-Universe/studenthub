@@ -94,6 +94,7 @@ return [
                         'POST profile-photo' => 'profile-photo',
                         'POST update-skills' => 'update-skills',
                         'POST update-experiences' => 'update-experiences',
+                        'POST update-bank-detail' => 'update-bank-detail',
                         'DELETE remove-photo' => 'remove-photo',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
@@ -116,7 +117,8 @@ return [
                         'OPTIONS update-resume' => 'options',
                         'OPTIONS update-birth-date' => 'options',
                         'OPTIONS profile-photo' => 'options',
-                        'OPTIONS remove-photo' => 'options'
+                        'OPTIONS remove-photo' => 'options',
+                        'OPTIONS update-bank-detail' => 'options',
                     ]
                 ],
                 [ // CandidateController

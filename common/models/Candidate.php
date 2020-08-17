@@ -238,6 +238,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
 
+        $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
+
         return $scenarios;
     }
 
