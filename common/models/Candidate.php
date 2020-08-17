@@ -240,6 +240,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
 
+        $scenarios['candidatePhone'] = ['candidate_phone'];
+
         return $scenarios;
     }
 

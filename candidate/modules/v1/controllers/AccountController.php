@@ -787,4 +787,34 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Birth Date Info Updated Successfully"),
         ];
     }
+
+    /**
+     * update phone
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdatePhone() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+        $candidate->candidate_phone = Yii::$app->request->getBodyParam('phone');
+
+        $candidate->scenario = "candidatePhone";
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Candidate phone number Updated Successfully"),
+        ];
+    }
 }

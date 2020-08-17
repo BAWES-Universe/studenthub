@@ -38,5 +38,6 @@ return [
     'Job search status' => 'حالة البحث عن وظيفة',
     'Beneficiary Name is required' => 'اسم المستفيد مطلوب',
     'IBAN Code is required' => 'مطلوب رمز IBAN',
-    'Bank details updated successfully' => 'تم تحديث التفاصيل المصرفية بنجاح'
+    'Bank details updated successfully' => 'تم تحديث التفاصيل المصرفية بنجاح',
+    'Candidate phone number Updated Successfully' => 'تم تحديث رقم هاتف المرشح بنجاح'
 ];
