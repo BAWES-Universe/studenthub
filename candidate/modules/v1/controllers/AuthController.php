@@ -43,7 +43,9 @@ class AuthController extends Controller
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
             'auth' => function ($email, $password) {
+                
                 $candidate = Candidate::findByEmail($email);
+                
                 if ($candidate && $candidate->validatePassword($password)) {
                     return $candidate;
                 }
@@ -51,6 +53,7 @@ class AuthController extends Controller
                 return null;
             }
         ];
+        
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [

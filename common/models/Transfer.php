@@ -304,8 +304,10 @@ class Transfer extends ActiveRecord
         Yii::$app->controller->layout = 'pdf';
         $subject = [];
 
-        $message = Yii::$app->mailer->compose($template.'-attachment',['invoices'=>$invoices]);
+        $message = Yii::$app->mailer->compose($template.'-attachment',['invoices' => $invoices]);
+        
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
+        
         $i=1;
         $invoice_id = 0;
 
@@ -335,12 +337,17 @@ class Transfer extends ActiveRecord
                 'options' => [],//['title' => 'Booking #'.$id],
                 // call mPDF methods on the fly
             ]);
+            
             $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
-            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
+            
+            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? 
+                $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
+            
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
+            
             $i++;
+            
             $subject[] = '#'.$invoice_id;
-            $invoice_id = 0; // reinitialize to 0 to store new with new loop
         }
 
         if ( $template == 'invoice' ) {

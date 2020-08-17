@@ -253,6 +253,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
     }
     
+    /**
+     * mobile notification on transfer marked as paid
+     */
     public function sendTransferPaidNotification() 
     {
         $heading = Yii::t('app', 'Transfer paid');
@@ -277,6 +280,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
     }
     
+    /**
+     * mobile notification on transfer marked as unpaid
+     */
     public function sendTransferUnpaidNotification() 
     {
         $heading = Yii::t('app', 'Transfer marked as unpaid');
@@ -301,6 +307,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
     }
     
+    /**
+     * mobile notification on new transfer creation
+     */
     public function sendNewTransferNotification() 
     {
         $heading = Yii::t('app', 'New transfer initiated');
@@ -493,33 +502,27 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
     }
 
-
     /**
-     * get invoice number
+     * get invoice number 
      * @return string
      */
     public function getInvoiceNumber() {
 
-        $invoice = false;
-        
         //check if we have sub invoice/transfer, else return invoice for main company 
         
-        $parentTransfer = Transfer::findOne(
+        $childTransfer = Transfer::findOne(
             [
                 'parent_transfer_id'=> $this->transfer_id,
                 'company_id' => $this->company_id //$this->candidate->company->company_id
             ]
         );
         
-        if ($parentTransfer && isset($parentTransfer->invoices[0])) { //
-            $invoice = $parentTransfer->invoices[0]->invoice_id;
-        } else { 
-            $childTransfer = Transfer::findOne($this->transfer_id);
-            if ($childTransfer && isset($childTransfer->invoices[0])) {
-                $invoice = $childTransfer->invoices[0]->invoice_id;
-            }
-        }
-        
-        return $invoice;
+        if ($childTransfer && isset($childTransfer->invoices[0])) { 
+            return $childTransfer->invoices[0]->invoice_id;
+        } 
+            
+        if ($this->transfer && isset($this->transfer->invoices[0])) {
+            return $this->transfer->invoices[0]->invoice_id;
+        } 
     }
 }
