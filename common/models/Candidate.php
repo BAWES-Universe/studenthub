@@ -423,7 +423,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ]);
         }
 
-        if(array_key_exists('candidate_password_hash', $changedAttributes)) {
+        if(!$insert && array_key_exists('candidate_password_hash', $changedAttributes)) {
             $this->sendPasswordUpdatedEmail();
         }
 
@@ -782,7 +782,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         Yii::$app->mailer->compose("candidate/password-updated-html",
             [
-                "logo" => yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "email" => $this->candidate_email,
                 "name" => $this->candidate_name
             ])

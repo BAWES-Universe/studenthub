@@ -40,28 +40,28 @@ class Candidate extends \common\models\Candidate {
             $this->approved = false; //mark as dirty to send to admin for review
 
             if (
-                ($this->candidate_personal_photo && $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo']) &&
+                ($this->candidate_personal_photo && isset($this->oldAttributes['candidate_personal_photo']) && $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo']) &&
                 !$this->changeProfilePhoto()
             ) {
                 return false;
             }
 
             if (
-                ($this->candidate_resume && $this->candidate_resume != $this->oldAttributes['candidate_resume']) &&
+                ($this->candidate_resume && isset($this->oldAttributes['candidate_resume']) && $this->candidate_resume != $this->oldAttributes['candidate_resume']) &&
                 !$this->updateResume()
             ) {
                 return false;
             }
 
             if (
-                ($this->candidate_civil_photo_front && $this->candidate_civil_photo_front != $this->oldAttributes['candidate_civil_photo_front']) &&
+                ($this->candidate_civil_photo_front && isset($this->oldAttributes['candidate_civil_photo_front']) && $this->candidate_civil_photo_front != $this->oldAttributes['candidate_civil_photo_front']) &&
                 !$this->updateCivilId('front')
             ) {
                 return false;
             }
 
             if (
-                ($this->candidate_civil_photo_back && $this->candidate_civil_photo_back != $this->oldAttributes['candidate_civil_photo_back']) &&
+                ($this->candidate_civil_photo_back && isset($this->oldAttributes['candidate_civil_photo_back']) && $this->candidate_civil_photo_back != $this->oldAttributes['candidate_civil_photo_back']) &&
                 !$this->updateCivilId('back')
             ) {
                 return false;
