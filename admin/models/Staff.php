@@ -39,7 +39,7 @@ class Staff extends \common\models\Staff {
             [
                 "model" => $model,
                 "password" => $password,
-                'logo_1' => Url::to('@web/images/studenthub-logo.png', true),
+                'logo_1' => Url::to('@web/images/logo.png', true),
                 'logo_2' => ''
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])

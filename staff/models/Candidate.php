@@ -6,6 +6,7 @@ use common\models\CandidateSkill;
 use Yii;
 use yii\helpers\Url;
 
+
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -96,11 +97,12 @@ class Candidate extends \common\models\Candidate {
         Yii::$app->mailer->htmlLayout = 'layouts/html';
         $password = $model->password;
         $this->password = null;
+        
         return Yii::$app->mailer->compose("candidate-register",
             [
                 "model" => $model,
                 "password" => $password,
-                'logo_1' => Url::to('@web/img/studenthub-logo.png', true),
+                'logo_1' => Url::to('@web/images/logo.png', true),
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($model->candidate_email)

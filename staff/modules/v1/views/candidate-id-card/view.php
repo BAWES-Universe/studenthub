@@ -120,7 +120,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                     <?php if ($model->candidate->candidate_personal_photo) { ?>
                         <img onerror="this.src='../../../img/no_image.png';"  src="https://res.cloudinary.com/studenthub/image/upload/w_319,h_319,c_thumb,g_face/v1596453482/candidate-photo/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
                     <?php } else  {
-                        echo \yii\helpers\Html::img('@web/img/no_image.png',['style'=>'width: 100%;min-height: : 100%']);
+                        echo \yii\helpers\Html::img('@web/images/no_image.png',['style'=>'width: 100%;min-height: : 100%']);
                     } ?>
                 </div>
                 <span class="name-top">
@@ -131,7 +131,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 <span class="name-bottom">
                     <?=(isset($nameSections[1])) ? $nameSections[1] : '-'?>
                 </span>
-                <?php echo \yii\helpers\Html::img('@web/img/logo.svg',['class'=>'logo-1'])?>
+                <?php echo \yii\helpers\Html::img('@web/images/logo.svg',['class'=>'logo-1'])?>
             </div>
         </div>
 
@@ -162,7 +162,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                     <p>contact@bawes.net</p>
                     <p>+965 98009771</p>
                 </div>
-                <?php echo \yii\helpers\Html::img('@web/img/back-logo.svg',['style'=>'position: absolute;left: 35px;bottom: 30px'])?>
+                <?php echo \yii\helpers\Html::img('@web/images/back-logo.svg',['style'=>'position: absolute;left: 35px;bottom: 30px'])?>
             </div>
         </div>
 
