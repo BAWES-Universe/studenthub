@@ -59,9 +59,20 @@ class File extends \yii\db\ActiveRecord
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
-                }
+                },
             ],
         ];
+    }
+
+    /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+        $scenarios = parent::scenarios();
+
+        $scenarios['create'] = ['company_id','file_title','file_description','file_s3_path','file_name'];
+        $scenarios['update'] = ['file_title','file_description'];
+        return $scenarios;
     }
 
     public function behaviors() {
@@ -153,8 +164,7 @@ class File extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-
-            if (!$this->updateDocument() ) {
+            if ($this->isNewRecord && !$this->updateDocument() ) {
                 return false;
             }
             return true;
@@ -169,7 +179,7 @@ class File extends \yii\db\ActiveRecord
     public function deleteDocument() {
 
         try {
-            Yii::$app->resourceManager->delete("company-files/" . $this->file_s3_path);
+            Yii::$app->resourceManager->delete($this->file_s3_path);
             return true;
         } catch (\Aws\S3\Exception\S3Exception $e) {
 

@@ -87,8 +87,10 @@ return [
                         'GET sub-companies/<id>' => 'sub-companies',
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
+                        'PATCH file-update/<id>' => 'update-file',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
+                        'PATCH change-status/<id>' => 'change-status',
                         'DELETE <id>' => 'delete',
                         'DELETE remove-file/<id>' => 'delete-file',
                         // OPTIONS VERBS
@@ -97,7 +99,9 @@ return [
                         'OPTIONS sub-companies/<id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
+                        'OPTIONS file-update/<id>' => 'options',
                         'OPTIONS remove-file/<id>' => 'options',
+                        'OPTIONS change-status/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController

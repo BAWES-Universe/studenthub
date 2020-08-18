@@ -130,7 +130,7 @@ class Invoice extends ActiveRecord
             [
                 "companies" => $result,
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Company not paid in current month')
             ->send();

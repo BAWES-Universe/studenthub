@@ -5,6 +5,7 @@ use Yii;
 use yii\helpers\ArrayHelper;
 use yii\base\Exception;
 
+
 /**
  * This is the model class for table "Transfer".
  * It extends from \common\models\Transfer but with custom functionality for this application module
@@ -215,6 +216,7 @@ class Transfer extends \common\models\Transfer {
         if ($sub_companies) {
             Transfer::generateSubCompanyTransfer($sub_companies, $this);
         }
+        
         return true;
     }
     
@@ -359,6 +361,10 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if($value['bonus'] == 0 && $value['hours'] == 0) {
+                continue;
+            }
+            
             if(empty($value['candidate_id'])) 
             {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -426,7 +432,7 @@ class Transfer extends \common\models\Transfer {
             "operation" => "success",
             "message" => "Transfer created.",
             "transfer_id" => $transfer->transfer_id,
-            'execution_time'=>Yii::getLogger()->getElapsedTime()
+            'execution_time' => Yii::getLogger()->getElapsedTime()
         ];
     }
 
@@ -506,6 +512,10 @@ class Transfer extends \common\models\Transfer {
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if($value['bonus'] == 0 && $value['hours'] == 0) {
+                continue;
+            }
+            
             if(empty($value['candidate_id'])) 
             {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -707,7 +717,9 @@ class Transfer extends \common\models\Transfer {
     {
         $errors = [];
         $total = 0;
+        
         $company_total = 0;
+        
         if(!is_array($this->candidates)) {
             $this->candidates = [];
         }

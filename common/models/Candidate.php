@@ -769,8 +769,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $this->generateAuthKey();
 
         if($this->save()) {
-            Yii::info("[New Candidate Account Created] ".$this->candidate_email, __METHOD__);
-
+            Yii::info("[New Student Registration] ".$this->candidate_email. " has signed up. Phone ".$this->candidate_phone.". Email: ".$this->candidate_email, __METHOD__);
             return $this;
         }
 
@@ -790,7 +789,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
-            ->setSubject('[StudentHub] Password updated')
+            ->setSubject('Your password reset was a success')
             ->send();
     }
 
@@ -812,13 +811,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         Yii::$app->mailer->compose("candidate/password-reset-html",
             [
                 "webUrl" => $webUrl,
-                "logo" => \yii\helpers\Url::to('@web/img/studenthub-logo.png', 'https'),
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "email" => $this->candidate_email,
                 "name" => $this->candidate_name
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
-            ->setSubject('[StudentHub] Password reset token')
+            ->setSubject('Reset your StudentHub password')
             ->send();
     }
 
@@ -1012,7 +1011,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [
                 "candidates" => $candidates,
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Candidate having birthday today!')
             ->send();
@@ -1034,7 +1033,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [
                 "candidates" => $candidates,
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Candidate hits age 22!')
             ->send();
@@ -1056,7 +1055,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [
                 "candidates" => $candidates,
             ])
-            ->setFrom(Yii::$app->params['supportEmail'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Candidate having invalid civil ID')
             ->send();

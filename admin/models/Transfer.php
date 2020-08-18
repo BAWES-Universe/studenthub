@@ -34,7 +34,6 @@ class Transfer extends \common\models\Transfer
     	return $fields;
     }
 
-
     /**
      * @inheritdoc
      */
@@ -276,20 +275,27 @@ class Transfer extends \common\models\Transfer
             ->andWhere(['transfer_id' => $transferID])
             ->count();
 
-        if (!$unpaid) {
-            $transfer = Transfer::findOne($transferID);
-            $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
-            if (!$transfer->save(false)) {
-                return [
-                    "operation" => "error",
-                    "message" => $transfer->errors
-                ];
-            } else {
-                return [
-                    "operation" => "success",
-                    "message" => 'Candidate Transfer marked as "paid" with transfer status changed to completed successfully'
-                ];
-            }
+        if ($unpaid) {
+            return [
+                "operation" => "error",
+                "message" => "Should not have unpaid candidate to mark transfer as paid"
+            ];
         }
+        
+        $transfer = Transfer::findOne($transferID);
+        
+        $transfer->transfer_status = Transfer::STATUS_TRANSFER_COMPLETE;
+        
+        if (!$transfer->save(false)) {
+            return [
+                "operation" => "error",
+                "message" => $transfer->errors
+            ];
+        } 
+        
+        return [
+            "operation" => "success",
+            "message" => 'Candidate Transfer marked as "paid" with transfer status changed to completed successfully'
+        ];
     }
 }

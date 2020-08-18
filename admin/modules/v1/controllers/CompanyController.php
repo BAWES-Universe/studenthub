@@ -129,17 +129,21 @@ class CompanyController extends Controller
         }
         
         $model->company_name = Yii::$app->request->getBodyParam("name");
-        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");	
+        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->company_bonus_commission = Yii::$app->request->getBodyParam("bonus_commission");
+        $model->company_common_name_en = Yii::$app->request->getBodyParam("common_name_en");
+        $model->company_common_name_ar = Yii::$app->request->getBodyParam("common_name_ar");
+        $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
+        $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
+        $model->company_website = Yii::$app->request->getBodyParam("website");
 
-        if (!$model->signup())
-        {
+        if (!$model->signup()) {
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
                     "message" => $model->errors
                 ];
-            }else{
+            } else {
                 return [
                     "operation" => "error",
                     "message" => "We've faced a problem creating the account, please contact us for assistance."
@@ -210,8 +214,13 @@ class CompanyController extends Controller
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
-        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");	
+        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->company_bonus_commission = Yii::$app->request->getBodyParam("bonus_commission");
+        $model->company_common_name_en = Yii::$app->request->getBodyParam("common_name_en");
+        $model->company_common_name_ar = Yii::$app->request->getBodyParam("common_name_ar");
+        $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
+        $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
+        $model->company_website = Yii::$app->request->getBodyParam("website");
         
         if (!$model->save()) {
             if (isset($model->errors)) {
@@ -306,12 +315,12 @@ class CompanyController extends Controller
     {
         $model = File::findOne(['file_uuid'=>$id]);
 
-            if (!$model) {
-                return [
-                    "operation" => "error",
-                    "message" => "Invalid File"
-                ];
-            }
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid File"
+            ];
+        }
 
         if (!$model->deleteDocument()) {
             return [
@@ -375,7 +384,7 @@ class CompanyController extends Controller
      * Finds the Company model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Transfer the loaded model
+     * @return Company the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
@@ -395,6 +404,7 @@ class CompanyController extends Controller
     public function actionCreateFile($id)
     {
         $model = new File();
+        $model->scenario = 'create';
         $model->file_title = Yii::$app->request->getBodyParam("file_title");
         $model->file_description =Yii::$app->request->getBodyParam("file_description");
         $model->file_s3_path = Yii::$app->request->getBodyParam("file_s3_path");
@@ -420,6 +430,83 @@ class CompanyController extends Controller
         return [
             "operation" => "success",
             "message" => "Company document uploaded successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     */
+    public function actionUpdateFile($id)
+    {
+        $model = File::findOne(['file_uuid'=>$id]);
+
+        if (!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+        $model->scenario = 'update';
+        $model->file_title = Yii::$app->request->getBodyParam("file_title");
+        $model->file_description =Yii::$app->request->getBodyParam("file_description");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->file_title. ' document upload for company '.$model->company->company_name.'] Company updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company document data updated successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    public function actionChangeStatus($id) {
+        $model = $this->findModel((int) $id);
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company account not found"
+            ];
+        }
+
+        $model->company_status = Yii::$app->request->getBodyParam("status");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->company_name.' Company Account Updated] Company status updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account status changed successfully"
         ];
 
         // Check SQL Query Count and Duration
