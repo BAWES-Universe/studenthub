@@ -19,6 +19,11 @@ class Company extends \common\models\Company {
             'company_name',
             'company_email',
             'company_status',
+            'company_common_name_en',
+            'company_common_name_ar',
+            'company_description_en',
+            'company_description_ar',
+            'company_website',
             'company_bonus_commission' => function($model) {
                 if($model->company_bonus_commission)
                     return (double)$model->company_bonus_commission;

@@ -13,6 +13,11 @@ use yii\helpers\Url;
  * @property integer $company_id
  * @property integer $parent_company_id
  * @property string $company_name
+ * @property string $company_common_name_en
+ * @property string $company_common_name_ar
+ * @property string $company_description_en
+ * @property string $company_description_ar
+ * @property string $company_website
  * @property string $company_email
  * @property string $company_auth_key
  * @property string $company_password_hash
@@ -65,7 +70,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar'], 'required'],
             [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
@@ -74,9 +79,10 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
-            [['company_name', 'company_email', 'company_password_reset_token'], 'string', 'max' => 255],
+            [['company_name', 'company_email', 'company_password_reset_token','company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
-            [['company_password_reset_token'], 'unique']
+            [['company_password_reset_token'], 'unique'],
+            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe']
         ];
     }
   
@@ -130,6 +136,11 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_id' => Yii::t('app','Company ID'),
             'parent_company_id' => Yii::t('app','Parent Company'),
             'company_name' => Yii::t('app','Company Name'),
+            'company_common_name_en' => Yii::t('app','Company Common Name English'),
+            'company_common_name_ar' => Yii::t('app','Company Common Name Arabic'),
+            'company_description_en' => Yii::t('app','Company Description English'),
+            'company_description_ar' => Yii::t('app','Company Description Arabic'),
+            'company_website' => Yii::t('app','Company Website'),
             'company_email' => Yii::t('app','Company Email'),
             'company_auth_key' => Yii::t('app','Company Auth Key'),
             'company_password_hash' => Yii::t('app','Password'),
