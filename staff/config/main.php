@@ -141,9 +141,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'POST file-create/<id>' => 'create-file',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS file-create/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

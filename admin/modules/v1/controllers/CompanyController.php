@@ -306,12 +306,12 @@ class CompanyController extends Controller
     {
         $model = File::findOne(['file_uuid'=>$id]);
 
-            if (!$model) {
-                return [
-                    "operation" => "error",
-                    "message" => "Invalid File"
-                ];
-            }
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid File"
+            ];
+        }
 
         if (!$model->deleteDocument()) {
             return [
@@ -395,6 +395,7 @@ class CompanyController extends Controller
     public function actionCreateFile($id)
     {
         $model = new File();
+        $model->scenario = 'create';
         $model->file_title = Yii::$app->request->getBodyParam("file_title");
         $model->file_description =Yii::$app->request->getBodyParam("file_description");
         $model->file_s3_path = Yii::$app->request->getBodyParam("file_s3_path");
@@ -420,6 +421,46 @@ class CompanyController extends Controller
         return [
             "operation" => "success",
             "message" => "Company document uploaded successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     */
+    public function actionUpdateFile($id)
+    {
+        $model = File::findOne(['file_uuid'=>$id]);
+
+        if (!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+        $model->scenario = 'update';
+        $model->file_title = Yii::$app->request->getBodyParam("file_title");
+        $model->file_description =Yii::$app->request->getBodyParam("file_description");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->file_title. ' document upload for company '.$model->company->company_name.'] Company updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company document data updated successfully"
         ];
 
         // Check SQL Query Count and Duration
