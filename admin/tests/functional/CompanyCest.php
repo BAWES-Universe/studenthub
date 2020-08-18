@@ -83,6 +83,11 @@ class CompanyCest
             'v1/companies',
             [
                 'name' => 'davert',
+                'common_name_en' => 'test',
+                'common_name_ar' => 'test',
+                'description_en' => 'test',
+                'description_ar' => 'TEST',
+                'website' => 'test.com',
                 'email' => 'davert@bawes.com',
                 'password' => '12345',
                 'bonus_commission' => 20,
@@ -109,6 +114,11 @@ class CompanyCest
             'v1/companies',
             [
                 'name' => 'davert',
+                'common_name_en' => 'test',
+                'common_name_ar' => 'test',
+                'description_en' => 'test',
+                'description_ar' => 'TEST',
+                'website' => 'test.com',
                 'parent' => 1,
                 'bonus_commission' => 20,
                 'hourly_rate' => 1.5
@@ -134,6 +144,11 @@ class CompanyCest
             'v1/companies/1',
             [
                 'name' => 'davert',
+                'common_name_en' => 'test',
+                'common_name_ar' => 'test',
+                'description_en' => 'test',
+                'description_ar' => 'TEST',
+                'website' => 'test.com',
                 'email' => 'davert@bawes.com',
                 'bonus_commission' => 20,
                 'hourly_rate' => 1.5
