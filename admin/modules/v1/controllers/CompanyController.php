@@ -188,6 +188,7 @@ class CompanyController extends Controller
         if(!$company){
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+        
         return $company;
     }
 

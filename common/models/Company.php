@@ -165,7 +165,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'candidates',
             'subCompanies',
             'stores',
-            'files'
+            'files',
+            'brands'
         ];
     }
 
@@ -525,6 +526,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ->andWhere(['deleted'=>0]);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrands($modelClass = "\common\models\Brand")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+    
     /**
      * @param $company_id
      * @return int|string

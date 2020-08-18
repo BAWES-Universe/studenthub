@@ -44,19 +44,6 @@ class Company extends \common\models\Company {
             }
         ];
     }
-
-     /**
-     * @inheritdoc
-     */
-    public function extraFields()
-    {
-        return [
-            'candidates',
-            'subCompanies',
-            'stores',
-            'files'
-        ];
-    }
     
     /**
      * @param string $modelClass
