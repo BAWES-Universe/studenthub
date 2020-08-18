@@ -602,7 +602,8 @@ class TransferController extends Controller
                     'attribute'=>'Bank Name',
                     'label'=>'Bank Name',
                     'value'=>function($data) {
-                        return $data->candidate->bank->bank_name;
+                        if($data->candidate->bank)
+                            return $data->candidate->bank->bank_name;
                     }
                 ],
                 [
