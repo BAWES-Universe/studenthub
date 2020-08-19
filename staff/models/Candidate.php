@@ -83,6 +83,7 @@ class Candidate extends \common\models\Candidate {
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
         if ($insert) {
             return $this->sendWelcomeEmail();
         }
@@ -92,21 +93,18 @@ class Candidate extends \common\models\Candidate {
      * send welcome mail
      * @return bool
      */
-    public function sendWelcomeEmail(){
-        $model = $this;
-        $password = $model->password;
-        $this->password = null;
+    public function sendWelcomeEmail() {
         
         Yii::$app->mailer->htmlLayout = 'layouts/html';
         
         return Yii::$app->mailer->compose("candidate-register",
             [
-                "model" => $model,
-                "password" => $password,
+                "model" => $this,
+                "password" => $this->password,
                 'logo_1' => Url::to('@web/images/logo.png', true),
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo($model->candidate_email)
+            ->setTo($this->candidate_email)
             ->setSubject('Welcome to the '.Yii::$app->name)
             ->send();
     }
