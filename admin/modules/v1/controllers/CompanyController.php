@@ -136,6 +136,7 @@ class CompanyController extends Controller
         $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
+        $model->company_logo = Yii::$app->request->getBodyParam("logo");
 
         if (!$model->signup()) {
             if(isset($model->errors)){
@@ -222,7 +223,9 @@ class CompanyController extends Controller
         $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
-        
+        $model->company_logo = Yii::$app->request->getBodyParam("logo");
+
+
         if (!$model->save()) {
             if (isset($model->errors)) {
                 return [

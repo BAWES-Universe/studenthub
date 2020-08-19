@@ -18,6 +18,7 @@ use yii\helpers\Url;
  * @property string $company_description_en
  * @property string $company_description_ar
  * @property string $company_website
+ * @property string $company_logo
  * @property string $company_email
  * @property string $company_auth_key
  * @property string $company_password_hash
@@ -55,7 +56,10 @@ use yii\helpers\Url;
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     const STATUS_ACTIVE = 10;
-    
+    /**
+     * @var mixed|null
+     */
+
     /**
      * @inheritdoc
      */
@@ -70,7 +74,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar','company_logo'], 'required'],
             [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
@@ -82,7 +86,20 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_name', 'company_email', 'company_password_reset_token','company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_password_reset_token'], 'unique'],
-            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe']
+            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe'],
+            /**
+             *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
+             */
+            [
+                ['company_logo'],
+                '\common\components\S3FileExistValidator',
+                'filePath' => '',
+                'message' => Yii::t('app',"Please upload a Company Logo"),
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
         ];
     }
   
@@ -142,6 +159,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_description_ar' => Yii::t('app','Company Description Arabic'),
             'company_website' => Yii::t('app','Company Website'),
             'company_email' => Yii::t('app','Company Email'),
+            'company_logo' => Yii::t('app','Company Logo'),
             'company_auth_key' => Yii::t('app','Company Auth Key'),
             'company_password_hash' => Yii::t('app','Password'),
             'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
@@ -567,5 +585,124 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getFiles()
     {
         return $this->hasMany(File::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * Update profile photo from temp s3 bucket
+     * @return type
+     */
+    public function updateCompanyLogo() {
+
+        try {
+            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->company_logo);
+
+            return $this->setCompanyLogo($url);
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+    }
+
+    /**
+     * Set profile photo by url
+     * @param string $url
+     */
+    public function setCompanyLogo($url) {
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+
+        if ($this->company_logo) {
+            $this->deleteProfilePhotoFromCloudinary();
+        }
+
+        try {
+
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url,
+                [
+                    'public_id' => "company-logo/" . $filename,
+                    "eager" => [
+                        [
+                            //id card thumbnail
+                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
+                        ],
+                        [
+                            //profile pic in apps
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
+                ]
+            );
+
+            if ($result) {
+                $this->company_logo = "company-logo/" . basename($result['url']);
+                return true;
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete old profile photo from cloudinary
+     * @return boolean
+     */
+    public function deleteProfilePhotoFromCloudinary() {
+
+        try {
+
+            return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->oldAttributes['company_logo']);
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+            return false;
+        }
+    }
+
+
+    /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            if (
+                ($this->company_logo && isset($this->oldAttributes['company_logo']) && $this->company_logo != $this->oldAttributes['company_logo']) &&
+                !$this->updateCompanyLogo()
+            ) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }
