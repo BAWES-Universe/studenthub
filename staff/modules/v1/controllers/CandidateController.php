@@ -353,7 +353,7 @@ class CandidateController extends Controller
             ->notDeleted();
 
         if ($incompleteProfile) {
-            $query->byApprovalStatus(0);
+        //    $query->byApprovalStatus(0);
         }
 
         if($candidate_name)

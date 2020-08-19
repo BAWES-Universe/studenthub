@@ -481,11 +481,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $prefix . $this->candidate_id;
         };
 
-        // Url to thumb of profile photo
-        $fields['candidate_personal_photo_thumb'] = function($model) {
-            return substr_replace($model->candidate_personal_photo, "thumb-100/", 7, 0);
-        };
-
         $fields['isProfileCompleted'] = function($model) {
             return $model->isProfileCompleted();
         };
@@ -493,16 +488,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fields['pendingField'] = function($model) {
             return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
-
-        /**
-         * Always Display Related Fields for Candidate model in this app
-         * A Candidate is defined by all his relation to enable quick-loading
-         * of candidate profiles on-click from the apps (without pinging server).
-         */
-        $fields = ArrayHelper::merge($fields, [
-            'store',
-            'company'
-        ]);
 
         unset($fields['deleted']);
         unset($fields['candidate_uid']);
