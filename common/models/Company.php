@@ -695,10 +695,16 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         if (parent::beforeSave($insert)) {
 
+            // in case update
             if (
-                ($this->company_logo && isset($this->oldAttributes['company_logo']) && $this->company_logo != $this->oldAttributes['company_logo']) &&
+                (!$this->isNewRecord && $this->company_logo && $this->company_logo != $this->oldAttributes['company_logo']) &&
                 !$this->updateCompanyLogo()
             ) {
+                return false;
+            }
+
+            // in case update
+            if ($this->isNewRecord && $this->company_logo && !$this->updateCompanyLogo()) {
                 return false;
             }
             return true;

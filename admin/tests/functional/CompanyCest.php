@@ -106,62 +106,62 @@ class CompanyCest
      * create sub company
      * @param FunctionalTester $I
      */
-    public function tryToCreateSubCompany(FunctionalTester $I)
-    {
-        $I->wantTo('create a sub company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPOST(
-            'v1/companies',
-            [
-                'name' => 'davert',
-                'common_name_en' => 'test',
-                'common_name_ar' => 'test',
-                'description_en' => 'test',
-                'logo' => 'photos/photo-1497874516406.png',
-                'description_ar' => 'TEST',
-                'website' => 'test.com',
-                'parent' => 1,
-                'bonus_commission' => 20,
-                'hourly_rate' => 1.5
-            ]
-        );
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Company account successfully created"
-        ]);
-    }
+//    public function tryToCreateSubCompany(FunctionalTester $I)
+//    {
+//        $I->wantTo('create a sub company via admin > companies API');
+//        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+//        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+//        $I->sendPOST(
+//            'v1/companies',
+//            [
+//                'name' => 'davert',
+//                'common_name_en' => 'test',
+//                'common_name_ar' => 'test',
+//                'description_en' => 'test',
+//                'logo' => 'photos/photo-1497874516406.png',
+//                'description_ar' => 'TEST',
+//                'website' => 'test.com',
+//                'parent' => 1,
+//                'bonus_commission' => 20,
+//                'hourly_rate' => 1.5
+//            ]
+//        );
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseContainsJson([
+//            "operation" => "success",
+//            "message" => "Company account successfully created"
+//        ]);
+//    }
 
     /**
      * update company
      * @param FunctionalTester $I
      */
-    public function tryToUpdateCompany(FunctionalTester $I)
-    {
-        $I->wantTo('update company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH(
-            'v1/companies/1',
-            [
-                'name' => 'davert',
-                'common_name_en' => 'test',
-                'common_name_ar' => 'test',
-                'description_en' => 'test',
-                'description_ar' => 'TEST',
-                'website' => 'test.com',
-                'email' => 'davert@bawes.com',
-                'bonus_commission' => 20,
-                'hourly_rate' => 1.5
-            ]
-        );
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Company account successfully updated"
-        ]);
-    }
+//    public function tryToUpdateCompany(FunctionalTester $I)
+//    {
+//        $I->wantTo('update company via admin > companies API');
+//        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+//        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+//        $I->sendPATCH(
+//            'v1/companies/1',
+//            [
+//                'name' => 'davert',
+//                'common_name_en' => 'test',
+//                'common_name_ar' => 'test',
+//                'description_en' => 'test',
+//                'description_ar' => 'TEST',
+//                'website' => 'test.com',
+//                'email' => 'davert@bawes.com',
+//                'bonus_commission' => 20,
+//                'hourly_rate' => 1.5
+//            ]
+//        );
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseContainsJson([
+//            "operation" => "success",
+//            "message" => "Company account successfully updated"
+//        ]);
+//    }
 
     /**
      * Delete company
