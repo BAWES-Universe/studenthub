@@ -17,6 +17,7 @@ class Company extends \common\models\Company {
             'company_id',
             'parent_company_id',
             'company_name',
+            'company_logo',
             'company_email',
             'company_status',
             'company_common_name_en',
