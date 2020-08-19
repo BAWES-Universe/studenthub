@@ -103,6 +103,11 @@ class StatisticController extends Controller
             ->totalUnassigned()
             ->count();
 
+        $result['candidate_review_required'] = Candidate::find()
+            ->notDeleted()
+            ->byApprovalStatus(0)
+            ->count();
+
 	    return $result;
     }
 }

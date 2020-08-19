@@ -97,13 +97,15 @@ return [
                         'GET search' => 'search',
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
+                        'GET total-to-review' => 'total-to-review',
                         'POST' => 'create',
                         'PATCH assign/<id>' => 'assign',
                         'PATCH job-search-status' => 'job-search-status',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
+                        'PATCH approve/<id>' => 'approve',
                         'DELETE unassign/<id>' => 'unassign',
-                        'DELETE <id>' => 'delete',                        
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -119,6 +121,8 @@ return [
                         'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS assigned-without-bank' => 'options',
                         'OPTIONS not-assigned-without-bank' => 'options',
+                        'OPTIONS total-to-review' => 'options',
+                        'OPTIONS approve/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
