@@ -260,7 +260,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         $heading = Yii::t('app', 'Transfer paid');
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
-        $content = 'KWD ' . $this->totalPaidToCandidate;
+        $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);
 
         $filters = [
             [
@@ -287,7 +287,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         $heading = Yii::t('app', 'Transfer marked as unpaid');
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
-        $content = 'KWD ' . $this->totalPaidToCandidate;
+        $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);
 
         $filters = [
             [
@@ -314,7 +314,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         $heading = Yii::t('app', 'New transfer initiated');
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
-        $content = 'KWD ' . $this->totalPaidToCandidate;
+        $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);
 
         $filters = [
             [

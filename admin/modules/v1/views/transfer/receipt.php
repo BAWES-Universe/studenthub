@@ -81,7 +81,9 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                     </span>
                 </td>
                 <td align="right" style="text-align: right">
-                    <span class="h5">KWD <?= $invoice->transfer->company_total ?></span>
+                    <span class="h5">
+                        KWD <?= number_format($invoice->transfer->company_total, 3); ?>
+                    </span>
                 </td>
             </tr>
         </table>
