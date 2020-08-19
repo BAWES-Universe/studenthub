@@ -114,26 +114,27 @@ class CandidateController extends Controller
         $model->candidate_objective = Yii::$app->request->getBodyParam("candidate_objective");
         $model->candidate_resume = Yii::$app->request->getBodyParam("resume");
 
+        $model->approved = 1;
+
         //candidate_auth_key
 
-        if (!$model->signup())
+        if (!$model->signup(true))
         {
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
                     "message" => $model->errors
                 ];
-            }else{
+            } else {
                 return [
                     "operation" => "error",
                     "message" => "We've faced a problem creating the account, please contact us for assistance."
                 ];
             }
         }
+
         $model->updateExperiences(Yii::$app->request->getBodyParam("experience"));
         $model->updateSkills(Yii::$app->request->getBodyParam("skill"));
-
-        Yii::info('['.$model->candidate_name.' Candidate Account Created] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",

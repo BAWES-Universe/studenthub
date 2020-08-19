@@ -80,6 +80,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const GENDER_OTHER = 3;
 
     public $pendingProfile = [];
+    
     // Array of attribute names and folder names to store them in the permanent bucket
     public $FILE_ATTRIBUTES = [
         'candidate_personal_photo' => 'photos',
@@ -750,17 +751,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Signs user up.
      * @return static|null the saved model or null if saving fails
      */
-    public function signup()
+    public function signup($byStaff = false)
     {
         $this->setPassword($this->candidate_password_hash);
         $this->generateAuthKey();
 
-        if($this->save()) {
-            Yii::info("[New Student Registration] ".$this->candidate_email. " has signed up. Phone ".$this->candidate_phone.". Email: ".$this->candidate_email, __METHOD__);
-            return $this;
+        if(!$this->save()) {
+            return false;
         }
 
-        return false;
+        if($byStaff) {
+            
+            Yii::info("[New Student Account Created By ".Yii::$app->user->identity->staff_name . "] Name: ".$this->candidate_name. ", Phone: ".$this->candidate_phone.", Email: ".$this->candidate_email, __METHOD__);
+
+        } else {
+            
+            Yii::info("[New Student Registration] ".$this->candidate_name. " has signed up. Phone: ".$this->candidate_phone.", Email: ".$this->candidate_email, __METHOD__);
+        }
+
+        return $this;
     }
 
     /**
