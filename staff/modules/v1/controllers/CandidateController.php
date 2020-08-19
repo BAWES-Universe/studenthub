@@ -350,8 +350,8 @@ class CandidateController extends Controller
 
         $query = Candidate::find()
             ->filterNotAssigned()
-            ->notDeleted();
-
+            ->notDeleted()
+            ->orderByStatus();
         if ($incompleteProfile) {
             $query->byApprovalStatus(0);
         }
@@ -382,7 +382,8 @@ class CandidateController extends Controller
 
         $query = Candidate::find()
             ->filterAssigned()
-            ->notDeleted();
+            ->notDeleted()
+            ->orderByStatus();
 
         if ($incompleteProfile) {
             $query->byApprovalStatus(0);
