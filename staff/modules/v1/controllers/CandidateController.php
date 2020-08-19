@@ -457,9 +457,19 @@ class CandidateController extends Controller
     public function actionSearch()
     {
         $country_id = Yii::$app->request->get('country_id');
+        $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
             ->notDeleted();
+
+        switch ($by) {
+            case 'review' :
+                $query->byApprovalStatus(Yii::$app->request->get('review'));
+                break;
+            default:
+                # nothing
+                break;
+        }
 
         if($country_id) {
             $query->filterCountry($country_id);
@@ -559,6 +569,65 @@ class CandidateController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
+    }
+
+    /**
+     * Return a No of Candidate to review
+     * Return a No of Payable candidate also
+     */
+    public function actionTotalToReview()
+    {
+        $query = \admin\models\Candidate::find()
+            ->notDeleted()
+            ->byApprovalStatus(0);
+
+        return [
+            'total' => $query->count(),
+        ];
+    }
+
+    /**
+     * Approve candidate account
+     * @param $id
+     * @return array
+     */
+    public function actionApprove($id)
+    {
+        $model = $this->findModel((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
+
+        $model->scenario = 'statusChange';
+
+        $model->approved = 1;
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$model->candidate_email.' Account Approved] Candidate account approved by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account approved successfully",
+            "saved" => $model
+        ];
     }
 
     /**

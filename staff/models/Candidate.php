@@ -38,7 +38,7 @@ class Candidate extends \common\models\Candidate {
     {
         if (parent::beforeSave($insert)) {
 
-            $this->approved = false; //mark as dirty to send to admin for review
+//            $this->approved = false; //mark as dirty to send to admin for review
 
             if (
                 ($this->candidate_personal_photo && isset($this->oldAttributes['candidate_personal_photo']) && $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo']) &&

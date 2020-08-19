@@ -242,6 +242,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['candidatePhone'] = ['candidate_phone'];
 
+        $scenarios['statusChange'] = ['approved'];
+
         return $scenarios;
     }
 
