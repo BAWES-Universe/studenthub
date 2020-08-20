@@ -112,5 +112,19 @@ return [
     'Transfer File ID' => '',
     'Transfer File S3 Path' => '',
     'Transfer File Created At' => '',
-    'Transfer File Updated At' => ''
+    'Transfer File Updated At' => '',
+    'Email ID' => '',
+    'Contact ID' => '',
+    'Email Address' => '',
+    'Email Created Datetime' => '',
+    'Email Updated Datetime' => '',
+    'Phone ID' => '', 
+    'Phone Number' => '',
+    'Phone Created Datetime' => '',
+    'Phone Updated Datetime' => '',
+    'Contact Name' => '',
+    'Contact Position' => '',
+    'Contact Note' => '',
+    'Contact Created Datetime' => '',
+    'Contact Updated Datetime' => ''
 ];
