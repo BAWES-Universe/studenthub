@@ -2,7 +2,10 @@
 
 namespace candidate\modules\v1\controllers;
 
+use candidate\models\TransferCandidate;
+use common\models\Transfer;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\data\ArrayDataProvider;
 use yii\filters\Cors;
@@ -357,10 +360,20 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $currentUser = Yii::$app->user->identity;
+        $status = [
+            Transfer::STATUS_TRANSFER_COMPLETE,
+            Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS
+        ];
 
-        return new ArrayDataProvider([
-            'allModels' => array_reverse($currentUser->paidTransferCandidate),
+        $query = TransferCandidate::find()
+            ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
+            ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
+            ->filterCandidate(Yii::$app->user->identity->candidate_id)
+            ->orderBy('{{%transfer_candidate}}.tc_id DESC');
+
+        return new ActiveDataProvider([
+//            'allModels' => array_reverse($currentUser->paidTransferCandidate),
+            'query' => $query,
             'pagination' => [
                 'pageSize' => 10,
             ],

@@ -20,9 +20,7 @@ class TransferCandidate extends \common\models\TransferCandidate
         // remove fields that contain sensitive information
         unset($fields['tc_id'],
             $fields['store_id'],
-            $fields['store_name'],
             $fields['company_id'],
-            $fields['company_name'],
             $fields['company_email'],
             $fields['company_hourly_rate'],
             $fields['bonus'],    
