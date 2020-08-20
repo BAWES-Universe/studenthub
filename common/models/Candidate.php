@@ -221,6 +221,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
 
+        $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back'];
+        
+        $scenarios['updateCivilPhotoFront'] = ['candidate_civil_photo_front'];
+        
         $scenarios['updateNationality'] = ['country_id'];
 
         $scenarios['updateDrivingLicense'] = ['candidate_driving_license'];
@@ -233,6 +237,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateResume'] = ['candidate_resume'];
 
+        $scenarios['updateCivilExpiryDate'] = ['candidate_civil_expiry_date'];
+        
         $scenarios['updateBirthDate'] = ['candidate_birth_date'];
 
         $scenarios['changePassword'] = ['candidate_password_hash', 'candidate_password_reset_token'];
@@ -1339,6 +1345,82 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete file from aws
+     * @param string $type
+     * @param string $side
+     * @return false
+     */
+    public function deleteFile($type = 'resume', $side = 'front') {
+
+        try {
+            if ($type == 'resume') {
+                $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
+            } if ($type == 'civil-id' && $side == 'front') {
+                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
+            } else {
+                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
+            }
+            Yii::$app->resourceManager->delete($file);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function updateCivilId($side = 'front') {
+
+        $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
+
+        if ($this->oldAttributes[$idSide]) {
+            $this->deleteFile('civil-id', $side);
+        }
+
+        $fileName = $this->$idSide;
+
+        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+        $targetPath = "photos/" . $fileName;
+
+        // Copy using S3ResourceManager Component
+        
+        try {
+
+            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
 
             return false;
         }

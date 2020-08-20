@@ -279,42 +279,6 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * delete file from aws
-     * @param string $type
-     * @param string $side
-     * @return false
-     */
-    public function deleteFile($type = 'resume', $side = 'front') {
-
-        try {
-            if ($type == 'resume') {
-                $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
-            } if ($type == 'civil-id' && $side == 'front') {
-                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
-            } else {
-                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
-            }
-            Yii::$app->resourceManager->delete($file);
-
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
-
-            return false;
-        }
-    }
-
-    /**
      * @return bool
      */
     public function updateResume() {
@@ -346,45 +310,6 @@ class Candidate extends \common\models\Candidate {
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
-
-            return false;
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function updateCivilId($side = 'front') {
-
-        $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
-
-        if ($this->oldAttributes[$idSide]) {
-            $this->deleteFile('civil-id', $side);
-        }
-
-        $fileName = $this->$idSide;
-
-        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
-        $targetPath = "photos/" . $fileName;
-
-        // Copy using S3ResourceManager Component
-        try {
-
-            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
-
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
 
             return false;
         }
