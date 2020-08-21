@@ -91,6 +91,8 @@ return [
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH change-status/<id>' => 'change-status',
+                        'PATCH update-followup/<id>' => 'update-followup',
+                        'PATCH update-followup-interval/<id>' => 'update-followup-interval',
                         'DELETE <id>' => 'delete',
                         'DELETE remove-file/<id>' => 'delete-file',
                         // OPTIONS VERBS
@@ -102,6 +104,8 @@ return [
                         'OPTIONS file-update/<id>' => 'options',
                         'OPTIONS remove-file/<id>' => 'options',
                         'OPTIONS change-status/<id>' => 'options',
+                        'OPTIONS update-followup/<id>' => 'options',
+                        'OPTIONS update-followup-interval/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
