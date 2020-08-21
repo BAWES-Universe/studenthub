@@ -1534,17 +1534,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['civil id'] = true;
         }
 
-//        if (!$this->candidate_civil_expiry_date) {
-//            $this->pendingProfile['civil expiry date'] = true;
-//        }
-//
-//        if (!$this->candidate_civil_photo_front) {
-//            $this->pendingProfile['civil photo front'] = true;
-//        }
-//
-//        if (!$this->candidate_civil_photo_back) {
-//            $this->pendingProfile['civil photo back'] = true;
-//        }
+        if (!$this->candidate_civil_expiry_date) {
+            $this->pendingProfile['civil expiry date'] = true;
+        }
+
+        if (!$this->candidate_civil_photo_front) {
+            $this->pendingProfile['civil photo front'] = true;
+        }
+
+        if (!$this->candidate_civil_photo_back) {
+            $this->pendingProfile['civil photo back'] = true;
+        }
 
         if (!$this->candidate_driving_license) {
             $this->pendingProfile['driving license'] = false;
