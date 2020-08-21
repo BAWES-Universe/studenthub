@@ -34,7 +34,7 @@ class CompanyContactPhone extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['phone_number', 'phone_created_datetime', 'phone_updated_datetime'], 'required'],
+            [['phone_number'], 'required'],
             [['phone_created_datetime', 'phone_updated_datetime'], 'safe'],
             [['phone_uuid', 'contact_uuid'], 'string', 'max' => 60],
             [['phone_number'], 'string', 'max' => 255],
@@ -83,7 +83,7 @@ class CompanyContactPhone extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContact($modelClass = "\staff\models\CompanyContact")
+    public function getContact($modelClass = "\common\models\CompanyContact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
