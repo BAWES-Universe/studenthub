@@ -34,7 +34,7 @@ class CompanyContactEmail extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['email_address', 'email_created_datetime', 'email_updated_datetime'], 'required'],
+            [['email_address'], 'required'],
             [['email_created_datetime', 'email_updated_datetime'], 'safe'],
             [['email_uuid', 'contact_uuid'], 'string', 'max' => 60],
             [['email_address'], 'string', 'max' => 255],
@@ -83,7 +83,7 @@ class CompanyContactEmail extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContact($modelClass = "\staff\models\CompanyContact")
+    public function getContact($modelClass = "\common\models\CompanyContact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }

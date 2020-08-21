@@ -38,7 +38,7 @@ class CompanyContact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['contact_name', 'contact_position', 'contact_created_datetime', 'contact_updated_datetime'], 'required'],
+            [['contact_name', 'contact_position'], 'required'],
             [['company_id'], 'integer'],
             [['contact_note'], 'string'],
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
@@ -89,9 +89,20 @@ class CompanyContact extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'companyContactEmails',
+            'companyContactPhones'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany($modelClass = "\staff\models\Company")
+    public function getCompany($modelClass = "\common\models\Company")
     {
         return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
     }
@@ -99,7 +110,7 @@ class CompanyContact extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompanyContactEmails($modelClass = "\staff\models\CompanyContactEmail")
+    public function getCompanyContactEmails($modelClass = "\common\models\CompanyContactEmail")
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
@@ -107,7 +118,7 @@ class CompanyContact extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompanyContactPhones($modelClass = "\staff\models\CompanyContactPhone")
+    public function getCompanyContactPhones($modelClass = "\common\models\CompanyContactPhone")
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
