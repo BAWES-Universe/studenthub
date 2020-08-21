@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
 use staff\models\Candidate;
@@ -113,13 +114,15 @@ class StatisticController extends Controller
             ->totalAssigned()
             ->count();
 
-        $result['assigned_incomplete_candidates'] = Candidate::find()
+        $result['candidates_assigned_incomplete_profile'] = Candidate::find()
             ->filterAssigned()
             ->notDeleted()
             ->byApprovalStatus(0)
             ->count();
 
-	    return $result;
+        $result['candidate_without_bank'] = Candidate::neededBankInfo();
+
+        return $result;
     }
 }
 
