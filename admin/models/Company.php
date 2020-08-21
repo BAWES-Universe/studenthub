@@ -13,18 +13,9 @@ class Company extends \common\models\Company {
     public function fields()
     {                
         // Whitelisted fields to return
-        return [
-            'company_id',
-            'parent_company_id',
-            'company_name',
-            'company_logo',
-            'company_email',
-            'company_status',
-            'company_common_name_en',
-            'company_common_name_ar',
-            'company_description_en',
-            'company_description_ar',
-            'company_website',
+        $fields = parent::fields();
+
+        return array_merge($fields, [
             'company_bonus_commission' => function($model) {
                 if($model->company_bonus_commission)
                     return (double)$model->company_bonus_commission;
@@ -48,7 +39,7 @@ class Company extends \common\models\Company {
             'total_stores' => function($model) {
                 return (int)$model->getStores()->count();
             }
-        ];
+        ]);
     }
     
     /**

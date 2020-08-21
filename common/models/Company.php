@@ -25,6 +25,7 @@ use yii\helpers\Url;
  * @property string $company_password_reset_token
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
+ * @property boolean $company_followup
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
@@ -80,6 +81,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_status'], 'integer'],
+            ['company_followup', 'boolean'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
@@ -145,6 +147,19 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+        $scenarios = parent::scenarios();
+
+        $scenarios['updateFollowup'] = ['company_followup'];
+
+        $scenarios['updateStatus'] = ['company_status'];
+
+        return $scenarios;
+    }
+
+    /**
      * @inheritdoc
      */
     public function attributeLabels()
@@ -163,6 +178,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_auth_key' => Yii::t('app','Company Auth Key'),
             'company_password_hash' => Yii::t('app','Password'),
             'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
+            'company_followup' => Yii::t('app','Company Followup'),
             'company_status' => Yii::t('app','Company Status'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),

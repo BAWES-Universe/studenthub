@@ -481,6 +481,46 @@ class CompanyController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
+    public function actionUpdateFollowup($id) {
+
+        $model = $this->findModel((int) $id);
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company account not found"
+            ];
+        }
+
+        $model->scenario = 'updateFollowup';
+
+        $model->company_followup = Yii::$app->request->getBodyParam("followup");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->company_name.' Company Account Updated] Company followup status updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account followup status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
     public function actionChangeStatus($id) {
         $model = $this->findModel((int) $id);
 
@@ -490,6 +530,8 @@ class CompanyController extends Controller
                 "message" => "Company account not found"
             ];
         }
+
+        $model->scenario = 'updateStatus';
 
         $model->company_status = Yii::$app->request->getBodyParam("status");
 
