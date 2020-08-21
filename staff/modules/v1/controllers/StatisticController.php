@@ -108,6 +108,17 @@ class StatisticController extends Controller
             ->byApprovalStatus(0)
             ->count();
 
+        $result['total_candidates_assigned'] = Candidate::find()
+            ->notDeleted()
+            ->totalAssigned()
+            ->count();
+
+        $result['assigned_incomplete_candidates'] = Candidate::find()
+            ->filterAssigned()
+            ->notDeleted()
+            ->byApprovalStatus(0)
+            ->count();
+
 	    return $result;
     }
 }
