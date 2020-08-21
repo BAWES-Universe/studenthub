@@ -26,7 +26,8 @@ use yii\helpers\Url;
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
  * @property boolean $company_followup
- * @property boolean $last_followup_datetime
+ * @property boolean $company_followup_interval_weeks
+ * @property boolean $company_last_followup_datetime
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
@@ -81,7 +82,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
-            [['parent_company_id', 'company_status'], 'integer'],
+            [['parent_company_id', 'company_followup_interval_weeks', 'company_status'], 'integer'],
             ['company_followup', 'boolean'],
             ['company_last_followup_datetime', 'date'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
@@ -156,6 +157,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
         $scenarios['updateFollowup'] = ['company_followup'];
 
+        $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
+        
         $scenarios['updateStatus'] = ['company_status'];
 
         return $scenarios;
