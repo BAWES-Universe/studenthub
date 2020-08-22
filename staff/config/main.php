@@ -30,13 +30,7 @@ return [
             'loginUrl' => null
         ],
         'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['info', 'error', 'warning'],
-                ],
-            ],
+            'traceLevel' => YII_DEBUG ? 3 : 0
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -84,6 +78,20 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // CompanyContactController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company-contact',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',
@@ -97,13 +105,15 @@ return [
                         'GET search' => 'search',
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
+                        'GET total-to-review' => 'total-to-review',
                         'POST' => 'create',
                         'PATCH assign/<id>' => 'assign',
                         'PATCH job-search-status' => 'job-search-status',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
+                        'PATCH approve/<id>' => 'approve',
                         'DELETE unassign/<id>' => 'unassign',
-                        'DELETE <id>' => 'delete',                        
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -119,6 +129,8 @@ return [
                         'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS assigned-without-bank' => 'options',
                         'OPTIONS not-assigned-without-bank' => 'options',
+                        'OPTIONS total-to-review' => 'options',
+                        'OPTIONS approve/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
@@ -204,6 +216,20 @@ return [
                         'OPTIONS renew' => 'options',                        
                         'OPTIONS total-expired' => 'options',
                         'OPTIONS <id>/<token>' => 'options'
+                    ]
+                ],
+                [ // NoteController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/note',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],

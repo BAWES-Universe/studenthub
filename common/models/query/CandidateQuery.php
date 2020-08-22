@@ -149,6 +149,14 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $status
+     * @return $this
+     */
+    public function orderByStatus() {
+        return $this->addOrderBy('{{%candidate}}.approved DESC');
+    }
+
+    /**
      * @param $id
      * @return CandidateQuery
      */

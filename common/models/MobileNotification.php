@@ -64,6 +64,7 @@ class MobileNotification {
             'contents' => ['en' => strip_tags($content)],
             'headings' => ['en' => strip_tags($heading)],
             'subtitle' => ['en' => strip_tags($subtitle)],
+            'priority' => 10
             //"large_icon" => $comment['comment_by_photo'],
             //"android_group" => $groupId,
             //"collapse_id" => $groupId,

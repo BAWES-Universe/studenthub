@@ -131,7 +131,7 @@ class TransferFile extends \yii\db\ActiveRecord
         
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-        $amount = $transfer->transfer_amount;
+        $amount = number_format($transfer->transfer_amount, 3);
         
         $mimeTypes = [
             'xls' => 'application/vnd.ms-excel',
@@ -140,7 +140,7 @@ class TransferFile extends \yii\db\ActiveRecord
         
         $extension = pathinfo($fileName, PATHINFO_EXTENSION); 
                 
-        $subject = "[StudentHub] Transferred {$amount} KD to {$count} people";
+        $subject = "[StudentHub] Transferred KWD {$amount} to {$count} people";
         
         if(YII_ENV != 'prod') {
             $subject = '[Fake] [Ignore] ' . $subject;

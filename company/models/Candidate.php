@@ -45,8 +45,7 @@ class Candidate extends \common\models\Candidate {
             'store',
             'company',
             'university',
-            'country',
-            'bank'
+            'country'
         ];
     }
         

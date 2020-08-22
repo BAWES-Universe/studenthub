@@ -111,6 +111,14 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes()
+    {
+        return $this->hasMany(\staff\models\Note::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
      * Signs user up.
      * @return static|null the saved model or null if saving fails
      */

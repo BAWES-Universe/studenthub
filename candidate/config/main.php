@@ -30,13 +30,7 @@ return [
             'loginUrl' => null
         ],
         'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
+            'traceLevel' => YII_DEBUG ? 3 : 0
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -96,10 +90,18 @@ return [
                         'POST update-experiences' => 'update-experiences',
                         'POST update-bank-detail' => 'update-bank-detail',
                         'POST update-phone' => 'update-phone',
+                        'POST update-civil-photo-back' => 'update-civil-photo-back',
+                        'POST update-civil-photo-front' => 'update-civil-photo-front',
+                        'POST update-civil-expiry-date' => 'update-civil-expiry-date',
                         'DELETE remove-photo' => 'remove-photo',
+                        'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
+                        'DELETE remove-civil-photo-back' => 'remove-civil-photo-back',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS job-search-status' => 'options',
+                        'OPTIONS update-civil-photo-back' => 'options',
+                        'OPTIONS update-civil-photo-front' => 'options',
+                        'OPTIONS update-civil-expiry-date' => 'options',
                         'OPTIONS update-experiences' => 'options',
                         'OPTIONS update-skills' => 'options',
                         'OPTIONS profile' => 'options',
@@ -121,6 +123,8 @@ return [
                         'OPTIONS remove-photo' => 'options',
                         'OPTIONS update-bank-detail' => 'options',
                         'OPTIONS update-phone' => 'options',
+                        'OPTIONS remove-civil-photo-back' => 'options',
+                        'OPTIONS remove-civil-photo-front' => 'options',
                     ]
                 ],
                 [ // CandidateController

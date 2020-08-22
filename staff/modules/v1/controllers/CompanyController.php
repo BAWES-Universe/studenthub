@@ -74,7 +74,10 @@ class CompanyController extends Controller
             ->filterParent();
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 20,
+            ],
         ]);
     }
 

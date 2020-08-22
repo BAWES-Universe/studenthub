@@ -30,13 +30,7 @@ return [
             'loginUrl' => null
         ],
         'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
-                ],
-            ],
+            'traceLevel' => YII_DEBUG ? 3 : 0
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -91,6 +85,8 @@ return [
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH change-status/<id>' => 'change-status',
+                        'PATCH update-followup/<id>' => 'update-followup',
+                        'PATCH update-followup-interval/<id>' => 'update-followup-interval',
                         'DELETE <id>' => 'delete',
                         'DELETE remove-file/<id>' => 'delete-file',
                         // OPTIONS VERBS
@@ -102,6 +98,8 @@ return [
                         'OPTIONS file-update/<id>' => 'options',
                         'OPTIONS remove-file/<id>' => 'options',
                         'OPTIONS change-status/<id>' => 'options',
+                        'OPTIONS update-followup/<id>' => 'options',
+                        'OPTIONS update-followup-interval/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
@@ -204,6 +202,34 @@ return [
                 [ // BankController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/bank',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // BrandController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/brand',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // CompanyContactController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company-contact',
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',

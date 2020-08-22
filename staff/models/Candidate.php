@@ -38,7 +38,7 @@ class Candidate extends \common\models\Candidate {
     {
         if (parent::beforeSave($insert)) {
 
-            $this->approved = false; //mark as dirty to send to admin for review
+//            $this->approved = false; //mark as dirty to send to admin for review
 
             if (
                 ($this->candidate_personal_photo && isset($this->oldAttributes['candidate_personal_photo']) && $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo']) &&
@@ -83,6 +83,7 @@ class Candidate extends \common\models\Candidate {
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
         if ($insert) {
             return $this->sendWelcomeEmail();
         }
@@ -92,21 +93,18 @@ class Candidate extends \common\models\Candidate {
      * send welcome mail
      * @return bool
      */
-    public function sendWelcomeEmail(){
-        $model = $this;
-        $password = $model->password;
-        $this->password = null;
+    public function sendWelcomeEmail() {
         
         Yii::$app->mailer->htmlLayout = 'layouts/html';
         
         return Yii::$app->mailer->compose("candidate-register",
             [
-                "model" => $model,
-                "password" => $password,
+                "model" => $this,
+                "password" => $this->password,
                 'logo_1' => Url::to('@web/images/logo.png', true),
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo($model->candidate_email)
+            ->setTo($this->candidate_email)
             ->setSubject('Welcome to the '.Yii::$app->name)
             ->send();
     }
@@ -281,42 +279,6 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * delete file from aws
-     * @param string $type
-     * @param string $side
-     * @return false
-     */
-    public function deleteFile($type = 'resume', $side = 'front') {
-
-        try {
-            if ($type == 'resume') {
-                $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
-            } if ($type == 'civil-id' && $side == 'front') {
-                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
-            } else {
-                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
-            }
-            Yii::$app->resourceManager->delete($file);
-
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_resume', Yii::t('app', 'file not available to delete.'));
-
-            return false;
-        }
-    }
-
-    /**
      * @return bool
      */
     public function updateResume() {
@@ -348,45 +310,6 @@ class Candidate extends \common\models\Candidate {
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_resume', Yii::t('app', 'Resume not available to save.'));
-
-            return false;
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function updateCivilId($side = 'front') {
-
-        $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
-
-        if ($this->oldAttributes[$idSide]) {
-            $this->deleteFile('civil-id', $side);
-        }
-
-        $fileName = $this->$idSide;
-
-        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
-        $targetPath = "photos/" . $fileName;
-
-        // Copy using S3ResourceManager Component
-        try {
-
-            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
-
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError($idSide, Yii::t('app', 'file not available to save.'));
 
             return false;
         }

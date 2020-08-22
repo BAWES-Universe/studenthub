@@ -2,7 +2,10 @@
 
 namespace candidate\modules\v1\controllers;
 
+use candidate\models\TransferCandidate;
+use common\models\Transfer;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\data\ArrayDataProvider;
 use yii\filters\Cors;
@@ -201,6 +204,59 @@ class AccountController extends Controller
     }
 
     /**
+     * Remove civil photo back
+     */
+    public function actionRemoveCivilPhotoBack() {
+        
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if ($model->candidate_civil_photo_back) {
+            $model->deleteFile('civil-id', 'back');
+        }
+        
+        $model->candidate_civil_photo_back = null;
+        
+        $model->scenario = 'updateCivilPhotoBack';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+    
+    /**
+     * Remove civil photo front
+     */
+    public function actionRemoveCivilPhotoFront() {
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if ($model->candidate_civil_photo_front) {
+            $model->deleteFile('civil-id', 'front');
+        }
+        
+        $model->candidate_civil_photo_front = null;
+        
+        $model->scenario = 'updateCivilPhotoFront';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+
+    /**
      * Update candidate email address 
      * @return type
      */
@@ -357,10 +413,20 @@ class AccountController extends Controller
      */
     public function actionSalary()
     {
-        $currentUser = Yii::$app->user->identity;
+        $status = [
+            Transfer::STATUS_TRANSFER_COMPLETE,
+            Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS
+        ];
 
-        return new ArrayDataProvider([
-            'allModels' => array_reverse($currentUser->paidTransferCandidate),
+        $query = TransferCandidate::find()
+            ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
+            ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
+            ->filterCandidate(Yii::$app->user->identity->candidate_id)
+            ->orderBy('{{%transfer_candidate}}.tc_id DESC');
+
+        return new ActiveDataProvider([
+//            'allModels' => array_reverse($currentUser->paidTransferCandidate),
+            'query' => $query,
             'pagination' => [
                 'pageSize' => 10,
             ],
@@ -724,7 +790,7 @@ class AccountController extends Controller
         }
          
         if ($model->candidate_resume) {
-            $this->deleteResume();
+            $model->deleteResume();
         }
 
         $model->scenario = "updateResume";
@@ -751,6 +817,125 @@ class AccountController extends Controller
             'operation' => 'success',
             'candidate_resume' => $model->candidate_resume,
             'message' => Yii::t('candidate', 'Resume Uploaded Successfully')
+        ];
+    }
+    
+    /**
+     * update civil photo back
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdateCivilPhotoBack() {
+        
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$model) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $model->scenario = "updateCivilPhotoBack";
+        
+        $model->candidate_civil_photo_back = urldecode(Yii::$app->request->getBodyParam('civil_photo_back'));
+
+        if(!$model->candidate_civil_photo_back || $model->candidate_civil_photo_back == "undefined") {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('app', 'Invalid input for {attribute}', [
+                    'attribute' => 'candidate civil photo back'
+                ])
+            ];
+        }
+        
+        $model->updateCivilId('back');
+        
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'candidate_civil_photo_back' => $model->candidate_civil_photo_back,
+            'message' => Yii::t('candidate', 'Civil Photo Back Uploaded Successfully')
+        ];
+    }
+   
+    /**
+     * update civil photo front
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdateCivilPhotoFront() {
+        
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$model) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $model->scenario = "updateCivilPhotoFront";
+        
+        $model->candidate_civil_photo_front = urldecode(Yii::$app->request->getBodyParam('civil_photo_front'));
+
+        if(!$model->candidate_civil_photo_front || $model->candidate_civil_photo_front == "undefined") {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('app', 'Invalid input for {attribute}', [
+                    'attribute' => 'candidate civil photo front'
+                ])
+            ];
+        }
+        
+        $model->updateCivilId('front');
+                
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'candidate_civil_photo_front' => $model->candidate_civil_photo_front,
+            'message' => Yii::t('candidate', 'Civil Photo Front Uploaded Successfully')
+        ];
+    }
+   
+    /**
+     * update civil id expiry date
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdateCivilExpiryDate() {
+        
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+        
+        $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
+
+        $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+
+        $candidate->scenario = "updateCivilExpiryDate";
+
+        
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "candidate_civil_expiry_date" => $candidate->candidate_civil_expiry_date,
+            "message" => Yii::t('candidate', "Civil ID Expiry Date Updated Successfully"),
         ];
     }
     

@@ -18,12 +18,16 @@ use yii\helpers\Url;
  * @property string $company_description_en
  * @property string $company_description_ar
  * @property string $company_website
+ * @property string $company_logo
  * @property string $company_email
  * @property string $company_auth_key
  * @property string $company_password_hash
  * @property string $company_password_reset_token
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
+ * @property boolean $company_followup
+ * @property boolean $company_followup_interval_weeks
+ * @property boolean $company_last_followup_datetime
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at
@@ -39,7 +43,8 @@ use yii\helpers\Url;
  * @property Transfer[] $parentTransfers 
  * @property CompanyToken $accessToken
  * @property Store[] $subCompanyStores
- * 
+ * @property Note[] $notes
+ *
  * E.g. 
  * company_hourly_rate = 1.5 KWD
  * company_bonus_commission = 20%
@@ -55,7 +60,10 @@ use yii\helpers\Url;
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     const STATUS_ACTIVE = 10;
-    
+    /**
+     * @var mixed|null
+     */
+
     /**
      * @inheritdoc
      */
@@ -70,19 +78,34 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar','company_logo'], 'required'],
             [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
-            [['parent_company_id', 'company_status'], 'integer'],
+            [['parent_company_id', 'company_followup_interval_weeks', 'company_status'], 'integer'],
+            ['company_followup', 'boolean'],
+            ['company_last_followup_datetime', 'date'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_password_reset_token','company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
             [['company_password_reset_token'], 'unique'],
-            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe']
+            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe'],
+            /**
+             *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
+             */
+            [
+                ['company_logo'],
+                '\common\components\S3FileExistValidator',
+                'filePath' => '',
+                'message' => Yii::t('app',"Please upload a Company Logo"),
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
         ];
     }
   
@@ -128,6 +151,21 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+        $scenarios = parent::scenarios();
+
+        $scenarios['updateFollowup'] = ['company_followup'];
+
+        $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
+        
+        $scenarios['updateStatus'] = ['company_status'];
+
+        return $scenarios;
+    }
+
+    /**
      * @inheritdoc
      */
     public function attributeLabels()
@@ -142,9 +180,11 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_description_ar' => Yii::t('app','Company Description Arabic'),
             'company_website' => Yii::t('app','Company Website'),
             'company_email' => Yii::t('app','Company Email'),
+            'company_logo' => Yii::t('app','Company Logo'),
             'company_auth_key' => Yii::t('app','Company Auth Key'),
             'company_password_hash' => Yii::t('app','Password'),
             'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
+            'company_followup' => Yii::t('app','Company Followup'),
             'company_status' => Yii::t('app','Company Status'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),
@@ -176,7 +216,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'candidates',
             'subCompanies',
             'stores',
-            'files'
+            'files',
+            'brands',
+            'notes'
         ];
     }
 
@@ -195,6 +237,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getSubCompanies($modelClass = "\common\models\Company")
     {
         return $this->hasMany($modelClass::className(), ['parent_company_id' => 'company_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
@@ -537,6 +588,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrands($modelClass = "\common\models\Brand")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+    
+    /**
      * @param $company_id
      * @return int|string
      */
@@ -558,5 +617,130 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getFiles()
     {
         return $this->hasMany(File::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * Update profile photo from temp s3 bucket
+     * @return type
+     */
+    public function updateCompanyLogo() {
+
+        try {
+            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->company_logo);
+
+            return $this->setCompanyLogo($url);
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+    }
+
+    /**
+     * Set profile photo by url
+     * @param string $url
+     */
+    public function setCompanyLogo($url) {
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+
+        if ($this->company_logo) {
+            $this->deleteProfilePhotoFromCloudinary();
+        }
+
+        try {
+
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url,
+                [
+                    'public_id' => "company-logo/" . $filename,
+                    "eager" => [
+                        [
+                            //id card thumbnail
+                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
+                        ],
+                        [
+                            //profile pic in apps
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
+                ]
+            );
+
+            if ($result) {
+                $this->company_logo = "company-logo/" . basename($result['url']);
+                return true;
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('candidate_personal_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete old profile photo from cloudinary
+     * @return boolean
+     */
+    public function deleteProfilePhotoFromCloudinary() {
+
+        try {
+
+            return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->oldAttributes['company_logo']);
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+            return false;
+        }
+    }
+
+
+    /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            // in case update
+            if (
+                (!$this->isNewRecord && $this->company_logo && $this->company_logo != $this->oldAttributes['company_logo']) &&
+                !$this->updateCompanyLogo()
+            ) {
+                return false;
+            }
+
+            // in case update
+            if ($this->isNewRecord && $this->company_logo && !$this->updateCompanyLogo()) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 }
