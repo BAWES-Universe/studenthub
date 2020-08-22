@@ -37,5 +37,13 @@ return [
              * https://studenthub-uploads-dev-server.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
+        'log' => [
+            'targets' => [
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error', 'warning'],
+                ],
+            ],
+        ]
     ],
 ];

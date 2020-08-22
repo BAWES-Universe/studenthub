@@ -30,13 +30,7 @@ return [
             'loginUrl' => null
         ],
         'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['info', 'error', 'warning'],
-                ],
-            ],
+            'traceLevel' => YII_DEBUG ? 3 : 0
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
