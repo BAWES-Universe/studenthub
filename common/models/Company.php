@@ -43,7 +43,8 @@ use yii\helpers\Url;
  * @property Transfer[] $parentTransfers 
  * @property CompanyToken $accessToken
  * @property Store[] $subCompanyStores
- * 
+ * @property Note[] $notes
+ *
  * E.g. 
  * company_hourly_rate = 1.5 KWD
  * company_bonus_commission = 20%
@@ -216,7 +217,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'subCompanies',
             'stores',
             'files',
-            'brands'
+            'brands',
+            'notes'
         ];
     }
 
@@ -235,6 +237,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getSubCompanies($modelClass = "\common\models\Company")
     {
         return $this->hasMany($modelClass::className(), ['parent_company_id' => 'company_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
