@@ -457,6 +457,7 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
+
         $country_id = Yii::$app->request->get('country_id');
         $by = Yii::$app->request->get('by');
 
@@ -466,6 +467,7 @@ class CandidateController extends Controller
         switch ($by) {
             case 'review' :
                 $query->byApprovalStatus(Yii::$app->request->get('review'));
+                $query->completedProfileWithoutApproval();
                 break;
             default:
                 # nothing

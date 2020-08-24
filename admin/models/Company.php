@@ -59,4 +59,12 @@ class Company extends \common\models\Company {
     {
         return parent::getStores($modelClass);
     }
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\admin\models\Note")
+    {
+        return parent::getStores($modelClass);
+    }
 }
