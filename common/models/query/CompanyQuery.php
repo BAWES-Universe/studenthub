@@ -10,6 +10,14 @@ use Yii;
  */
 class CompanyQuery extends \yii\db\ActiveQuery {
 
+    public function followups() {
+        return $this->filterWhere([
+            'AND',
+            'company_followup' => true,
+            new \yii\db\Expression('DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK) <= NOW()')
+        ]);
+    }
+    
     /**
      * @return $this
      */
