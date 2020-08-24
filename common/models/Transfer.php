@@ -302,6 +302,7 @@ class Transfer extends ActiveRecord
         }
 
         Yii::$app->controller->layout = 'pdf';
+        
         $subject = [];
 
         $message = Yii::$app->mailer->compose($template.'-attachment',['invoices' => $invoices]);
@@ -355,13 +356,14 @@ class Transfer extends ActiveRecord
         }  else {
             $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
         }
+        
         if(YII_ENV != 'prod') {
-            $subject = '[Fake] [Ignore] ' . $subjectLine;
+            $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
         }
 
         return $message->setTo($email)
             ->setCc(Yii::$app->params['invoiceCC'])
-            ->setSubject($subject)
+            ->setSubject($subjectLine)
             ->send();
     }
 

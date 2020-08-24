@@ -41,7 +41,7 @@ class AuthController extends Controller
             'auth' => function ($email, $password) {
                 $company = Company::findByEmail($email);
                 
-                if (true ||$company && $company->validatePassword($password)) {
+                if ($company && $company->validatePassword($password)) {
                     return $company;
                 }
                 return null;
