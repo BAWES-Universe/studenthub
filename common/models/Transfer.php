@@ -346,7 +346,7 @@ class Transfer extends ActiveRecord
             $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
             
             $i++;
-            
+
             $subject[] = '#'.$invoice_id;
         }
 
@@ -355,10 +355,13 @@ class Transfer extends ActiveRecord
         }  else {
             $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
         }
+        if(YII_ENV != 'prod') {
+            $subject = '[Fake] [Ignore] ' . $subjectLine;
+        }
 
         return $message->setTo($email)
             ->setCc(Yii::$app->params['invoiceCC'])
-            ->setSubject($subjectLine)
+            ->setSubject($subject)
             ->send();
     }
 
