@@ -152,10 +152,12 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET followups' => 'followups',
                         'GET <id>' => 'view',
                         'POST file-create/<id>' => 'create-file',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS followups' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
                     ]
