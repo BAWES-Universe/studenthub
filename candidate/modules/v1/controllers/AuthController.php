@@ -363,7 +363,7 @@ class AuthController extends Controller
                                 'numMinutes' => $minuteDifference,
                                 'numSeconds' => $secondDifference,
                     ]);
-                } else if (!$model->sendEmail($candidate)) {
+                } else if (!$candidate->sendPasswordResetEmail()) {
                     $errors = Yii::t('candidate', 'Sorry, we are unable to reset a password for email provided.');
                 }
             }

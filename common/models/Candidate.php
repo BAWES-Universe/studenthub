@@ -810,7 +810,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
 
-        Yii::$app->mailer->compose("candidate/password-reset-html",
+        return Yii::$app->mailer->compose("candidate/password-reset-html",
             [
                 "webUrl" => $webUrl,
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
