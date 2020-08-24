@@ -107,6 +107,7 @@ class StatisticController extends Controller
         $result['candidate_review_required'] = Candidate::find()
             ->notDeleted()
             ->byApprovalStatus(0)
+            ->completedProfileWithoutApproval()
             ->count();
 
         $result['total_candidates_assigned'] = Candidate::find()

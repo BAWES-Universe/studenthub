@@ -164,4 +164,26 @@ class CandidateQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere(['{{%candidate}}.candidate_id'=>$id]);
     }
+
+    public function completedProfileWithoutApproval() {
+
+//        $this->andWhere('{{%candidate}}.bank IS NOT NULL');
+//        $this->andWhere('{{%candidate}}.bank_account_name IS NOT NULL');
+//        $this->andWhere('{{%candidate}}.candidate_iban IS NOT NULL');
+        return $this->andWhere('{{%candidate}}.candidate_uid IS NOT NULL')
+        ->andWhere('{{%candidate}}.university_id IS NOT NULL')
+        ->andWhere('{{%candidate}}.country_id IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_personal_photo IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_name_ar IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_objective IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_gender IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_birth_date IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_civil_id IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_civil_expiry_date IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_civil_photo_front IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_civil_photo_back IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_driving_license IS NOT NULL')
+        ->groupBy('{{%candidate}}.candidate_id')
+        ->innerJoinWith(['candidateExperiences','candidateSkills']);
+    }
 }

@@ -140,7 +140,6 @@ class NoteController extends Controller
         }
 
         $model->note_text = Yii::$app->request->getBodyParam("note");
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
 
         if (!$model->save())
         {

@@ -181,7 +181,13 @@ class AuthController extends Controller
 
         $candidate->scenario = "updateEmail";
 
-        $candidate->candidate_new_email = $new_email;
+        if ($candidate->candidate_status == Candidate::STATUS_PENDING) {
+            $candidate->candidate_email = $new_email;
+            $candidate->candidate_new_email = null;
+        } else  {
+            $candidate->candidate_new_email = $new_email;
+        }
+
 
         if ($candidate->save()) {
 
@@ -363,7 +369,7 @@ class AuthController extends Controller
                                 'numMinutes' => $minuteDifference,
                                 'numSeconds' => $secondDifference,
                     ]);
-                } else if (!$model->sendEmail($candidate)) {
+                } else if (!$candidate->sendPasswordResetEmail()) {
                     $errors = Yii::t('candidate', 'Sorry, we are unable to reset a password for email provided.');
                 }
             }
