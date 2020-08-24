@@ -87,6 +87,25 @@ class CompanyController extends Controller
     }
 
     /**
+     * Return a List of Company Accounts need followups.
+     * @return ActiveDataProvider
+     */
+    public function actionFollowups()
+    {
+        $query = Company::find()
+            ->with([
+                'subCompanies',
+                'stores',
+            ])   
+            ->followups()
+            ->notDeleted();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Return a List of Sub Company Accounts by company_id
      * @param $id
      * @return ActiveDataProvider
