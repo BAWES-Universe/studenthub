@@ -473,7 +473,7 @@ class AuthController extends Controller
         $firstname = ucfirst(Yii::$app->request->getBodyParam('name'));
 
         $model->candidate_name = $firstname;
-        $model->candidate_name_ar = $firstname;
+        $model->candidate_name_ar = null;
         $model->candidate_email = Yii::$app->request->getBodyParam('email');
         $model->candidate_phone = Yii::$app->request->getBodyParam('phone');
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
