@@ -471,9 +471,22 @@ class AuthController extends Controller
         $model->scenario = "signup";
 
         $firstname = ucfirst(Yii::$app->request->getBodyParam('name'));
+        $lang = Yii::$app->request->getBodyParam('lang');
 
-        $model->candidate_name = $firstname;
-        $model->candidate_name_ar = null;
+        if (!$firstname) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Name is required")
+            ];
+        }
+        if ($lang == 'ar') {
+            $model->candidate_name_ar = $firstname;
+            $model->candidate_name = null;
+        } else  {
+            $model->candidate_name = $firstname;
+            $model->candidate_name_ar = null;
+        }
+
         $model->candidate_email = Yii::$app->request->getBodyParam('email');
         $model->candidate_phone = Yii::$app->request->getBodyParam('phone');
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');

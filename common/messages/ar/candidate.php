@@ -42,5 +42,6 @@ return [
     'Candidate phone number Updated Successfully' => 'تم تحديث رقم هاتف المرشح بنجاح',
     "Civil Photo Back Uploaded Successfully" => "",
     "Civil Photo Front Uploaded Successfully" => "",
-    "Civil ID Expiry Date Updated Successfully" => ""
+    "Civil ID Expiry Date Updated Successfully" => "",
+    "Name is required" => ""
 ];
