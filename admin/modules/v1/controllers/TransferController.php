@@ -273,8 +273,6 @@ class TransferController extends Controller
             ];
         }
         
-        $candidates = [];
-
         $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel); 
 
         //save in temp folder to process 
@@ -318,6 +316,8 @@ class TransferController extends Controller
 
         $total = 0;
                 
+        $candidatesTransfers = [];
+
         foreach ($data as $key => $value) 
         {
             if(empty($value['Status'])) {
@@ -330,25 +330,21 @@ class TransferController extends Controller
             if($value['Status'] == 'FAIL')
                 continue;
 
-            //get candidate by IBAN 
-            
-            $candidate = Candidate::find()->where(['candidate_iban' => $value['IBAN']])->one();
-            
             $transferCandidate = TransferCandidate::find()->where(['tc_id' => $value['Credit Narrative']])->one();
             
-            if(!$candidate || !$transferCandidate) {
+            if(!$transferCandidate || !$transferCandidate->candidate) {
                 return [
                     'operation' => 'error',
                     'message' => 'Invalid excel'
                 ];
             }
                     
-            $candidates[] = [
+            $candidatesTransfers[] = [
                 'transfer_confirmation_id' => $value['Status Description'], 
                 'transfer_id' => $value['Debit Narrative'],  
                 'tc_id' => $value['Credit Narrative'],  
-                'candidate_id' => $candidate->candidate_id, 
-                'candidate_name' => $candidate->candidate_name, 
+                'candidate_id' => $transferCandidate->candidate->candidate_id, 
+                'candidate_name' => $transferCandidate->candidate->candidate_name, 
                 'total_amount' => $transferCandidate->totalPaidToCandidate 
             ];
             
@@ -357,7 +353,7 @@ class TransferController extends Controller
         
         return [
             'total' => $total,
-            'candidates' => $candidates
+            'candidates' => $candidatesTransfers
         ];
     }
     

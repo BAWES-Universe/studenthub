@@ -108,6 +108,7 @@ return [
                         'GET total-to-review' => 'total-to-review',
                         'POST' => 'create',
                         'PATCH assign/<id>' => 'assign',
+                        'PATCH update-hour-rate/<id>' => 'update-candidate-hour-rate',
                         'PATCH job-search-status' => 'job-search-status',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
@@ -131,6 +132,7 @@ return [
                         'OPTIONS not-assigned-without-bank' => 'options',
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
+                        'OPTIONS update-hour-rate/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
@@ -155,11 +157,13 @@ return [
                         'GET followups' => 'followups',
                         'GET <id>' => 'view',
                         'POST file-create/<id>' => 'create-file',
+                        'POST add-followup-note/<id>' => 'add-followup-note',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS followups' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
+                        'OPTIONS add-followup-note/<id>' => 'options'
                     ]
                 ],
                 [ // BankController

@@ -49,40 +49,16 @@ class SiteController extends Controller
             ->where(['candidate_id' => $candidate->candidate_id])
             ->one();
 
-        if(!$id)
+        // don't show if candidate ID is expired or candidate not assigned to store
+
+        if($id && time() > strtotime($id->expiry_date) || !$candidate->store)
         {
-            return $this->redirect('https://studenthub.co');
+            $id = null;
         }
-
-        $store = Store::findOne($candidate->store_id);
-
-        // show 404 if unassigned from store
-
-        if(!$store)
-        {
-            return $this->redirect('https://studenthub.co');
-        }
-
-        // show 404 if candidate ID is expired
-
-        if(time() > strtotime($id->expiry_date))
-        {
-            return $this->redirect('https://studenthub.co');
-        }
-
-        $university = University::findOne($candidate->university_id);
-
-        $company = null;
-
-        if($store)
-            $company = Company::findOne($store->company_id);
 
         return $this->render('index', [
-                'candidate' => $candidate,
-                'university' => $university,
-                'store' => $store,
-                'company' => $company,
-                'id' => $id
-            ]);
+            'candidate' => $candidate,
+            'id' => $id
+        ]);
     }
 }

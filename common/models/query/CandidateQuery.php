@@ -174,6 +174,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
         ->andWhere('{{%candidate}}.university_id IS NOT NULL')
         ->andWhere('{{%candidate}}.country_id IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_personal_photo IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_name IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_name_ar IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_objective IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_gender IS NOT NULL')

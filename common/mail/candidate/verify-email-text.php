@@ -4,7 +4,7 @@
 
 ?>
 
-Hi, <?= $candidate->candidate_name ?>
+Hi, <?= ($candidate->candidate_name) ? $candidate->candidate_name : $candidate->candidate_name_ar ?>
 
 Thanks for joining StudentHub. Your code to verify your email is 
 
