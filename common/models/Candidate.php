@@ -251,6 +251,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['statusChange'] = ['approved'];
 
+        $scenarios['updateHourRate'] = ['candidate_hourly_rate'];
+
         return $scenarios;
     }
 

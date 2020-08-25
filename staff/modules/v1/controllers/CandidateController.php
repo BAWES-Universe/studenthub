@@ -235,7 +235,34 @@ class CandidateController extends Controller
             'operation' => 'success',
         ];
     }
-    
+
+    /**
+     * Set candidate candidate_hourly_rate
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionUpdateCandidateHourRate($id) {
+
+        $candidate_hourly_rate = Yii::$app->request->getBodyParam('hourly_rate');
+
+        $model = $this->findModel($id);
+        $model->candidate_hourly_rate = $candidate_hourly_rate;
+
+        $model->scenario = 'updateHourRate';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+
     /**
      * Assign Store to Candidate account
      * @param $id
