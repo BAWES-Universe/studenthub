@@ -37,3 +37,6 @@ AppAsset::register($this);
 </body>
 </html>
 <?php $this->endPage() ?>
+
+<script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="fbd17f77-0c15-4939-a3f5-5e1a204195de";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+
