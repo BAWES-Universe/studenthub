@@ -155,11 +155,13 @@ return [
                         'GET followups' => 'followups',
                         'GET <id>' => 'view',
                         'POST file-create/<id>' => 'create-file',
+                        'POST add-followup-note/<id>' => 'add-followup-note',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS followups' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
+                        'OPTIONS add-followup-note/<id>' => 'options'
                     ]
                 ],
                 [ // BankController

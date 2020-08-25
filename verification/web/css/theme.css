@@ -71,7 +71,6 @@ body {
   line-height: 1.85714286em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: 'Open Sans', 'Helvetica', 'Arial', sans-serif;
   color: #666666;
   font-weight: 400;
 }
@@ -87,7 +86,6 @@ h6,
 .h4,
 .h5,
 .h6 {
-  font-family: 'Open Sans', 'Helvetica', 'Arial', sans-serif;
   color: #252525;
   font-weight: 300;
   font-variant-ligatures: common-ligatures;
@@ -409,7 +407,6 @@ section.height-auto .pos-vertical-center {
 /**! 05. Images **/
 img {
   max-width: 100%;
-  margin-bottom: 1.85714286em;
 }
 /*p+img, img:last-child{
 	margin-bottom: 0;
@@ -830,7 +827,6 @@ div[data-overlay] ul {
 }
 /**! 06. Buttons **/
 .btn {
-  font-family: 'Open Sans', 'Helvetica', 'Arial', sans-serif;
   transition: 0.1s linear;
   -webkit-transition: 0.1s linear;
   -moz-transition: 0.1s linear;

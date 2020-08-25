@@ -1,1 +1,162 @@
 /*! Place your custom styles here */
+
+@font-face {
+  font-family: 'effra';
+  src: url('../fonts/effra_std_bd-webfont.woff2') format('woff2'),
+       url('../fonts/effra_std_bd-webfont.woff') format('woff'),
+       url('../fonts/effra_std_bd-webfont.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'effra';
+  src: url('../fonts/effra_std_rg-webfont.woff2') format('woff2'),
+       url('../fonts/effra_std_rg-webfont.woff') format('woff'),
+       url('../fonts/effra_std_rg-webfont.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'effra';
+  src: url('../fonts/l') format('woff2'),
+       url('../fonts/d.woff') format('woff'),
+       url('../fonts/a') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Droid Arabic Kufi';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../fonts/Droid-Arabic-Kufi/DroidKufi-Regular.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Droid Arabic Kufi';
+  font-style: normal;
+  font-weight: 700;
+  src: url(../fonts/Droid-Arabic-Kufi/DroidKufi-Bold.ttf) format('truetype');
+}
+
+html,body {
+    font-family: 'Droid Arabic Kufi', 'effra', sans-serif;
+    background: #fff;padding:0;margin:0;
+}
+
+:focus, a:focus {
+    outline: 0
+}
+
+.id-container {
+  max-width: 375px;
+  padding-top: 30px;
+  text-align: center;
+  margin: auto;
+      position: relative;
+}
+
+.sub-title {
+  font-size: 14px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #000000;
+  margin-top: 11px;
+  margin-bottom: 0px;
+}
+
+.logo {
+  width: 176px;
+}
+
+.brand-2 {
+  width: 149px;
+  margin-top: 25px;
+  margin-left: 25px;
+}
+
+.brand-1 {
+  width: 110px;
+  margin-left: 14px;
+}
+
+.txt-id {
+  font-size: 24px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #ffffff;
+  height: 73px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12);
+  margin-top: 29px;
+  line-height: 73px;
+  text-align: center;
+}
+
+.txt-valid-id {
+  background-color: #219653;
+  margin-bottom: 5px;
+}
+
+.txt-invalid-id {
+  background-color: #eb5757;
+  margin-bottom: 5px;
+}
+
+h3 {
+   font-size: 14px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #000000;
+      margin-bottom: 0;
+    margin-top: 0;
+}
+
+.txt-last-name {
+   font-size: 18px;
+   margin-bottom: 14px;
+}
+
+.txt-first-name {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+}
+
+p {
+   font-size: 14px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #000000;
+  margin-bottom: 12px;
+}
+
+.image {
+      width: 94px;
+    height: 94px;
+    position: absolute;
+    left: 30px;
+    top: 40px;
+        border-radius: 100%;
+    overflow: hidden;
+}
+
+.id-detail {
+  padding-right: 47px;
+    text-align: right;
+}
+
+
