@@ -120,6 +120,8 @@ class RequestController extends Controller
                 ];
             }
         }
+        
+        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -165,6 +167,8 @@ class RequestController extends Controller
             }
         }
 
+        Yii::info('[Request updated for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Request successfully updated"
@@ -196,6 +200,8 @@ class RequestController extends Controller
                 ];
             }
         }
+
+        Yii::info('[Request marked as started for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -229,6 +235,8 @@ class RequestController extends Controller
             }
         }
 
+        Yii::info('[Request marked as delivered for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
         return [
             "operation" => "success",
             "message" => "Request successfully updated"
@@ -260,6 +268,8 @@ class RequestController extends Controller
                 ];
             }
         }
+
+        Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
