@@ -104,7 +104,7 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
-        $model->request_status = Request::STATUS_PENDING;
+        $model->request_status = Request::STATUS_STARTED;
         
         if (!$model->save())
         {
@@ -128,7 +128,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Update Request 
+     * Create a Request 
      * @param $id
      * @return array
      */
@@ -170,100 +170,22 @@ class RequestController extends Controller
             "message" => "Request successfully updated"
         ];
     }
-    
+
     /**
-     * Update Request Status to `started`
-     * @param $id
+     * Delete an account
+     * @param  integer $id
      * @return array
      */
-    public function actionStart($id)
+    public function actionDelete($id)
     {
         $model = $this->findModel($id);
-        
-        $model->request_status = Request::STATUS_STARTED;
-        
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
-                ];
-            }
-        }
+
+        // Delete model
+        $model->delete();
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated"
-        ];
-    }
-    
-    /**
-     * Update Request Status to `delivered`
-     * @param $id
-     * @return array
-     */
-    public function actionDeliver($id)
-    {
-        $model = $this->findModel($id);
-        
-        $model->request_status = Request::STATUS_DELIVERED;
-        
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
-                ];
-            }
-        }
-
-        return [
-            "operation" => "success",
-            "message" => "Request successfully updated"
-        ];
-    }
-    
-    /**
-     * Update Request Status to `cancelled`
-     * @param $id
-     * @return array
-     */
-    public function actionCancel($id)
-    {
-        $model = $this->findModel($id);
-        
-        $model->request_status = Request::STATUS_CANCELLED;
-        
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
-                ];
-            }
-        }
-
-        return [
-            "operation" => "success",
-            "message" => "Request successfully updated"
+            "message" => "Request deleted successfully"
         ];
     }
     
