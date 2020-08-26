@@ -375,4 +375,30 @@ class Transfer extends ActiveRecord
     {
         return new query\TransferQuery(get_called_class());
     }
+
+    /**
+     * mobile notification on new transfer creation
+     */
+    public static function sendNewTransferNotification($data = [])
+    {
+        $heading = Yii::t('app', 'New transfer initiated');
+        $subtitle = "@ " . $data['store_name'] . ', ' . $data['company_name'];
+        $content = 'KWD ' . number_format($data['totalPaidToCandidate'], 3);
+
+        $filters = [
+            [
+                "field" => "tag",
+                "key" => "candidate_id",
+                "relation" => "=",
+                "value" => $data['candidate_id']
+            ]
+        ];
+
+        $data = [
+            'subject' => 'transfer',
+            'transfer_id' => $data['transfer_id'],
+        ];
+
+        MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+    }
 }

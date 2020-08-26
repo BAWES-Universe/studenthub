@@ -220,11 +220,12 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes) {
         parent::afterSave($insert, $changedAttributes);
         
-        if($insert) {
-
-            $this->sendNewTransferNotification();
-           
-        } else if (isset($changedAttributes['paid']) && $this->paid == self::PAID) {
+//        if($insert) {
+//
+//            $this->sendNewTransferNotification();
+//
+//        } else
+        if (isset($changedAttributes['paid']) && $this->paid == self::PAID) {
             
             $this->sendTransferPaidNotification();
             
