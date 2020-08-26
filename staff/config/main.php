@@ -246,10 +246,15 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
-                        'DELETE <id>' => 'delete',
+                        'PATCH start/<id>' => 'start',
+                        'PATCH cancel/<id>' => 'cancel',
+                        'PATCH deliver/<id>' => 'deliver',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS start/<id>' => 'options',
+                        'OPTIONS cancel/<id>' => 'options',
+                        'OPTIONS deliver/<id>' => 'options',
                     ]
                 ],
             ],
