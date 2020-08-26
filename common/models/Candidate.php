@@ -1630,10 +1630,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_name_ar' => $this->candidate_name_ar,
             'candidate_objective' => $this->candidate_objective,
             'candidate_personal_photo' => $this->candidate_personal_photo,
+            'candidate_email' => $this->candidate_email,
+            'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
             'candidate_driving_license' => $this->candidate_driving_license,
             'approved' => $this->approved,
-            'isProfileCompleted' => $this->isProfileCompleted(),  // we can ignore this but as we using candidate component so it will keep symmetry.
+            'isProfileCompleted' => true,  // using in candidate card 
             'university' => [
                 'university_id' => $this->university_id,
                 'university_name_en' => $this->university->university_name_en,
