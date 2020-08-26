@@ -2,12 +2,14 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\File;
 use Yii;
 use yii\rest\Controller;
 use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use staff\models\Company;
+use staff\models\Note;
+use common\models\File;
 
 /**
  * Company controller - Manage company accounts as Admin
@@ -114,6 +116,48 @@ class CompanyController extends Controller
 
         return $data;
     }
+
+    /**
+     * add followup note 
+     * @return array
+     */
+    public function actionAddFollowupNote($id)
+    {
+        // Attempt to create new brand
+        $model = new Note();
+
+        $model->note_text = Yii::$app->request->getBodyParam("note");
+        $model->company_id = $id;
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->company->company_last_followup_datetime = new Expression('NOW()');
+        $model->company->save(false);
+
+        //reload to get latest followup time 
+
+        $company = Company::findOne($id);
+
+        return [
+            "operation" => "success",
+            "message" => "Note created successfully",
+            "company_last_followup_datetime" => $company->company_last_followup_datetime
+        ];
+    }
+
     /**
      * Create a company account
      * @param $id
