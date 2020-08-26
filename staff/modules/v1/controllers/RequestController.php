@@ -151,7 +151,7 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -219,7 +219,8 @@ class RequestController extends Controller
         $model = $this->findModel($id);
         
         $model->request_status = Request::STATUS_DELIVERED;
-        
+        $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -253,7 +254,8 @@ class RequestController extends Controller
         $model = $this->findModel($id);
         
         $model->request_status = Request::STATUS_CANCELLED;
-        
+        $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
+
         if (!$model->save())
         {
             if(isset($model->errors)){
