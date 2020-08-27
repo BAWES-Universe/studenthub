@@ -113,6 +113,7 @@ return [
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
                         'PATCH approve/<id>' => 'approve',
+                        'PATCH expire-card/<id>' => 'expire-candidate-card',
                         'DELETE unassign/<id>' => 'unassign',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
@@ -133,6 +134,7 @@ return [
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS update-hour-rate/<id>' => 'options',
+                        'OPTIONS expire-card/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
