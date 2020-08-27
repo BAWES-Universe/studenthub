@@ -114,7 +114,7 @@ class CompanyContactController extends Controller
         
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
-
+       
         if (!$model->save())
         {
             if(isset($model->errors)) {

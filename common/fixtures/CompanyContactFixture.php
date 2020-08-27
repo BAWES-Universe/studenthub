@@ -3,9 +3,9 @@ namespace common\fixtures;
 
 use yii\test\ActiveFixture;
 
-class CandidateTokenFixture extends ActiveFixture
+class CompanyContactFixture extends ActiveFixture
 {
-    public $modelClass = 'common\models\CandidateToken';
+    public $modelClass = 'common\models\CompanyContact';
     
     public $depends = [
         'common\fixtures\CompanyFixture'

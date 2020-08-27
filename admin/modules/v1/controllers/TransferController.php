@@ -7,7 +7,6 @@ use Yii;
 use yii\base\Exception;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use admin\models\Candidate;
 use admin\models\Invoice;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;

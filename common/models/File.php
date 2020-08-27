@@ -134,6 +134,7 @@ class File extends \yii\db\ActiveRecord
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
         $targetPath = "company-files/" . $fileName;
         $this->file_s3_path = "company-files/" . $fileName;
+        
         // Copy using S3ResourceManager Component
         try {
 
