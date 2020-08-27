@@ -12,7 +12,7 @@ use admin\models\Transfer;
 use Codeception\Util\HttpCode;
 
 
-class TransferCest
+class TransferCandidateCest
 {
     public $token;
 
