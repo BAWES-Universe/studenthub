@@ -6,6 +6,7 @@ use admin\tests\FunctionalTester;
 use common\fixtures\CompanyFixture;
 use common\fixtures\AdminTokenFixture;
 use common\models\AdminToken;
+use common\models\File;
 use Codeception\Util\HttpCode;
 
 
@@ -232,10 +233,12 @@ class CompanyCest
      */
     public function tryToUpdateCompanyFile(FunctionalTester $I)
     {
+        $file = File::find()->one();
+        
         $I->wantTo('update company file via admin > companies API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/file-update/1', [
+        $I->sendPATCH('v1/companies/file-update/' . $file->file_uuid, [
             'file_title' => 'some-cripy-file',
             'file_description' => 'la la lalalala llala'
         ]);
@@ -307,10 +310,12 @@ class CompanyCest
      */
     public function tryToDeleteCompanyFile(FunctionalTester $I)
     {
+        $file = File::find()->one();
+        
         $I->wantTo('delete company file via admin > companies API');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDELETE('v1/companies/remove-file/1');
+        $I->sendDELETE('v1/companies/remove-file/' . $file->file_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); 
     }
     
