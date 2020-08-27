@@ -22,6 +22,19 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
         ],
+        //for testing purpose
+        'resourceManager' => [
+            'class' => 'common\components\S3ResourceManager',
+            'region' => 'eu-west-2', // Bucket based in London
+            'key' => 'AKIAJXOMRCDE65WKBPUA',
+            'secret' => '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',
+            'bucket' => 'studenthub-public-anyone-can-upload-24hr-expiry'
+            /**
+             * You can access the Temporary bucket with:
+             * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/
+             * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/folderName/fileName.jpg
+             */
+        ],
         'log' => [
             'targets' => [
                 [
