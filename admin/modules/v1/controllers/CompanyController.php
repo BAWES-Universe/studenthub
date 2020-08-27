@@ -137,6 +137,8 @@ class CompanyController extends Controller
         // Attempt to create new account
         $model = new Company();
 
+        $model->scenario = 'adminCreate';
+        
         if (Yii::$app->request->getBodyParam('parent')) {
             $model->scenario = "newSubAccount";
             $model->parent_company_id =Yii::$app->request->getBodyParam("parent");
@@ -235,6 +237,8 @@ class CompanyController extends Controller
                     "message" => "Company account not found"
                 ];
         }
+        
+        $model->scenario = 'adminUpdate';
 
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
@@ -247,7 +251,6 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
-
 
         if (!$model->save()) {
             if (isset($model->errors)) {
@@ -474,6 +477,7 @@ class CompanyController extends Controller
         if (!$model) {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+        
         $model->scenario = 'update';
         $model->file_title = Yii::$app->request->getBodyParam("file_title");
         $model->file_description =Yii::$app->request->getBodyParam("file_description");

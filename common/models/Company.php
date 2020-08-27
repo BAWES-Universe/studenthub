@@ -60,6 +60,7 @@ use yii\helpers\Url;
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     const STATUS_ACTIVE = 10;
+    
     /**
      * @var mixed|null
      */

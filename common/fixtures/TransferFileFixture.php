@@ -3,9 +3,9 @@ namespace common\fixtures;
 
 use yii\test\ActiveFixture;
 
-class CandidateTokenFixture extends ActiveFixture
+class TransferFileFixture extends ActiveFixture
 {
-    public $modelClass = 'common\models\CandidateToken';
+    public $modelClass = 'common\models\TransferFile';
     
     public $depends = [
         'common\fixtures\CompanyFixture'

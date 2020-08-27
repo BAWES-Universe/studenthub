@@ -232,7 +232,7 @@ class AccountCest
         );
         
         $I->amGoingTo('try to update resume');
-        $I->sendPOST('v1/account/update-resume', array('resume' => $response['Key']));
+        $I->sendPOST('v1/account/update-resume', array('resume' => basename($response['ObjectURL'])));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -256,7 +256,7 @@ class AccountCest
         );
         
         $I->amGoingTo('try to update profile photo');
-        $I->sendPOST('v1/account/profile-photo', array('personal_photo' => $response['Key']));
+        $I->sendPOST('v1/account/profile-photo', array('personal_photo' => basename($response['ObjectURL'])));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -347,7 +347,7 @@ class AccountCest
         );
         
         $I->amGoingTo('try to update civil photo back');
-        $I->sendPOST('v1/account/update-civil-photo-back', array('civil_photo_back' => $response['Key']));
+        $I->sendPOST('v1/account/update-civil-photo-back', array('civil_photo_back' => basename($response['ObjectURL'])));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -363,7 +363,7 @@ class AccountCest
         );
         
         $I->amGoingTo('try to update civil photo front');
-        $I->sendPOST('v1/account/update-civil-photo-front', array('civil_photo_front' => $response['Key']));
+        $I->sendPOST('v1/account/update-civil-photo-front', array('civil_photo_front' => basename($response['ObjectURL'])));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
