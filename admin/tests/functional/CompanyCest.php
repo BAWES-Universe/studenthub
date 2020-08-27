@@ -5,6 +5,7 @@ use Yii;
 use admin\tests\FunctionalTester;
 use common\fixtures\CompanyFixture;
 use common\fixtures\AdminTokenFixture;
+use common\fixtures\FileFixture;
 use common\models\AdminToken;
 use common\models\File;
 use Codeception\Util\HttpCode;
@@ -18,7 +19,8 @@ class CompanyCest
     {
         return [
             'adminToken' => AdminTokenFixture::className(),
-            'company' => CompanyFixture::className()
+            'company' => CompanyFixture::className(),
+            'files' => FileFixture::className()
         ];
     }
 
