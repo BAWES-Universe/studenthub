@@ -4,6 +4,7 @@ namespace staff\modules\v1\controllers;
 
 use staff\models\TransferCandidate;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
@@ -360,6 +361,46 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate unassigned from store successfully",
+            "candidate_detail" => $model,
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Remove Store from Candidate account
+     * @param $id
+     * @return array
+     */
+    public function actionExpireCandidateCard($id)
+    {
+        // Attempt to create new account
+        $model = $this->findModel($id);
+
+        $card  = $model->getCandidateIdCard()->one();
+        $card->expiry_date = new Expression('NOW()');
+
+        if (!$card->save(false))
+        {
+            if(isset($card->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $card->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$model->candidate_name.' ID Card mark as expired] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate card expired successfully",
             "candidate_detail" => $model,
         ];
 

@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\Company;
 use staff\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
@@ -122,6 +123,7 @@ class StatisticController extends Controller
             ->count();
 
         $result['candidate_without_bank'] = Candidate::neededBankInfo();
+        $result['company_follow_up'] = $query = Company::companyFollowupCount();
 
         return $result;
     }
