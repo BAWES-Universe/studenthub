@@ -468,6 +468,42 @@ class CandidateController extends Controller
     }
 
     /**
+     * Return a List of Candidate filter to store
+     */
+    public function actionFilter()
+    {
+        $name = Yii::$app->request->get("name");
+        $email = Yii::$app->request->get("email");
+        $phone = Yii::$app->request->get("phone");
+        $type = Yii::$app->request->get("type");
+
+        $query = Candidate::find()
+            ->notDeleted()
+            ->orderByStatus();
+        if ($type == 'assigned') {
+            $query->filterAssigned();
+        } else  {
+            $query->filterNotAssigned();
+        }
+
+        if($name) {
+            $query->filterName($name);
+        }
+
+        if($email) {
+            $query->filterEmail($name);
+        }
+
+        if($phone) {
+            $query->filterPhone($name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Return a List of Candidate assigned to store
      */
     public function actionListAssignedWithoutBankInfo()

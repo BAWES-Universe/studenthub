@@ -49,6 +49,24 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $candidate_email
+     * @return $this
+     */
+    public function filterEmail($candidate_email)
+    {
+        return $this->andWhere(['like', '{{%candidate}}.candidate_email', $candidate_email]);
+    }
+
+    /**
+     * @param $candidate_phone
+     * @return $this
+     */
+    public function filterPhone($candidate_phone)
+    {
+        return $this->andWhere(['like', '{{%candidate}}.candidate_phone', $candidate_phone]);
+    }
+
+    /**
      * @return $this
      */
     public function filterAssigned()
