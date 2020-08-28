@@ -109,6 +109,7 @@ class Transfer extends \common\models\Transfer
         if ($this->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS) {
             throw new Exception('Transfer already marked as payment received and distribution in progress.');
         }
+
         #https://www.pivotaltracker.com/story/show/174315865 adding lock otion also due to this ticket.
         if (($this->transfer_status == Transfer::STATUS_PAYMENT_SENT) || ($this->transfer_status == Transfer::STATUS_LOCK)) {
 
@@ -128,6 +129,16 @@ class Transfer extends \common\models\Transfer
                 Invoice::updateAll(['invoice_status' => 'paid'], ['transfer_id' => $value->transfer_id]);
             }
 
+            //notify all candidates 
+            
+            $transferCandidates = $this->getTransferCandidates()
+                ->joinWith(['store', 'company'])
+                ->all();
+            
+            foreach($transferCandidates as $tc) {
+                $this->sendNewTransferNotification($tc);
+            }
+            
             return true;
         } else  {
             throw new Exception('Transfer status need to be "Payment Sent" first before marking as "Payment Received"');

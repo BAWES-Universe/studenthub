@@ -379,26 +379,28 @@ class Transfer extends ActiveRecord
     /**
      * mobile notification on new transfer creation
      */
-    public static function sendNewTransferNotification($data = [])
+    public function sendNewTransferNotification($transferCandidate)
     {
+        $total = ($transferCandidate->candidate_hourly_rate * $transferCandidate->hours) + $transferCandidate->bonus - $transferCandidate->bonus_commission;
+        
         $heading = Yii::t('app', 'New transfer initiated');
-        $subtitle = "@ " . $data['store_name'] . ', ' . $data['company_name'];
-        $content = 'KWD ' . number_format($data['totalPaidToCandidate'], 3);
+        $subtitle = "@ " . $transferCandidate->store->store_name . ', ' . $transferCandidate->company->company_name;
+        $content = 'KWD ' . number_format($total, 3);
 
         $filters = [
             [
                 "field" => "tag",
                 "key" => "candidate_id",
                 "relation" => "=",
-                "value" => $data['candidate_id']
+                "value" => $transferCandidate->candidate_id
             ]
         ];
 
-        $data = [
+        $params = [
             'subject' => 'transfer',
-            'transfer_id' => $data['transfer_id'],
+            'transfer_id' => $this->transfer_id
         ];
 
-        MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+        MobileNotification::notifyCandidate($heading, $params, $filters, $subtitle, $content);
     }
 }
