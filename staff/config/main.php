@@ -100,6 +100,7 @@ return [
                         'GET detail/<id>' => 'view',
                         'GET not-assigned' => 'list-not-assigned',
                         'GET assigned' => 'list-assigned',                        
+                        'GET filter' => 'filter',
                         'GET assigned-without-bank' => 'list-assigned-without-bank-info',
                         'GET not-assigned-without-bank' => 'list-not-assigned-without-bank-info',
                         'GET search' => 'search',
@@ -119,6 +120,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS filter' => 'options',
                         'OPTIONS detail/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',                        
