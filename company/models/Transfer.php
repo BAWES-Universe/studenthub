@@ -382,41 +382,6 @@ class Transfer extends \common\models\Transfer {
                 ->asArray()
                 ->one();
 
-            $company_bonus_commission = $company['company_bonus_commission'];
-            $company_hourly_rate = $company['company_hourly_rate'];
-
-            if(($company_bonus_commission + $company_hourly_rate == 0) && $company['parent_company_id'])
-            {
-                $parent = Company::findOne(['company_id' => $company['parent_company_id']]);
-
-                if(!$parent)
-                {
-                    return [
-                        "operation" => "error",
-                        "message" => "Parent not found."
-                    ];
-                }
-            }
-
-            //if bonus commission or hourly rate not set
-
-            if($company_bonus_commission == 0 && $company_hourly_rate == 0) {
-                return [
-                    "operation" => "error",
-                    "message" => "Company hourly rate not set, please contact us for assistance"
-                ];
-            }
-
-            // sending initial transfer notification
-            $bonus_commission = $value['bonus'] * $company['company_bonus_commission'] / 100;
-            self::sendNewTransferNotification([
-                'store_name' => $candidate['store']['store_name'],
-                'company_name' => $candidate['company']['company_name'],
-                'totalPaidToCandidate' =>(($candidate['candidate_hourly_rate'] * $value['hours']) + $value['bonus'] - $bonus_commission),
-                'candidate_id' => $value['candidate_id'],
-                'transfer_id' => $transfer->transfer_id
-            ]);
-
             if (!$candidate) {
                 if(empty(Yii::$app->params['inCodeception']))
                     $transaction->rollBack();
