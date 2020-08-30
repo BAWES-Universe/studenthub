@@ -381,9 +381,8 @@ class Transfer extends \common\models\Transfer {
                 ->where(['candidate_id' => $value['candidate_id']])
                 ->asArray()
                 ->one();
-            
-            if(!$candidate)
-            {
+
+            if (!$candidate) {
                 if(empty(Yii::$app->params['inCodeception']))
                     $transaction->rollBack();
 

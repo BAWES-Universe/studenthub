@@ -57,7 +57,10 @@ class MobileNotification {
      */
     public static function sendNotification($appId, $apiKey, $heading, $data, $filters, $subtitle = '', $content = '')
     {   
-	$fields = [
+        if(!empty(Yii::$app->params['inCodeception']))
+            return true;
+            
+    	$fields = [
             'app_id' => $appId,
             'filters' => $filters,
             'data' => $data,
@@ -69,9 +72,9 @@ class MobileNotification {
             //"android_group" => $groupId,
             //"collapse_id" => $groupId,
             //"android_group_message" => ["en" => "$[notif_count] new jobs"]
-	];
+    	];
 
-	$fields = json_encode($fields);
+    	$fields = json_encode($fields);
     	// print("\nJSON sent:\n");
     	// print($fields);
 

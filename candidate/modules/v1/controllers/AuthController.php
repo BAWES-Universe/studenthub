@@ -345,47 +345,51 @@ class AuthController extends Controller
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->email = $emailInput;
 
-        $errors = false;
-
-        if ($model->validate()) {
-
-            $candidate = Candidate::findOne([
-                'candidate_email' => $model->email,
-            ]);
-
-            if ($candidate) {
-
-                //Check if this user sent an email in past few minutes (to limit email spam)
-                $emailLimitDatetime = new \DateTime($candidate->candidate_limit_email);
-                date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
-                $currentDatetime = new \DateTime('now');
-
-                if ($candidate->candidate_limit_email && $currentDatetime < $emailLimitDatetime) {
-                    $difference = $currentDatetime->diff($emailLimitDatetime);
-                    $minuteDifference = (int) $difference->i;
-                    $secondDifference = (int) $difference->s;
-
-                    $errors = Yii::t('candidate', "Email was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds", [
-                                'numMinutes' => $minuteDifference,
-                                'numSeconds' => $secondDifference,
-                    ]);
-                } else if (!$candidate->sendPasswordResetEmail()) {
-                    $errors = Yii::t('candidate', 'Sorry, we are unable to reset a password for email provided.');
-                }
-            }
-        } else if (isset($model->errors['candidate_email'])) {
-            $errors = $model->errors['candidate_email'];
+        if (!$model->validate()) {
+            return [
+                'operation' => 'error',
+                'message' => isset($model->errors['candidate_email'])?isset($model->errors['candidate_email']): $model->errors
+            ];
         }
 
-        // If errors exist show them
-        if ($errors) {
+        $candidate = Candidate::findOne([
+            'candidate_email' => $model->email,
+        ]);
+
+        if (!$candidate) {
+            return [
+                'operation' => 'error',
+                'message' => 'candidate not found'
+            ];
+        }
+
+        //Check if this user sent an email in past few minutes (to limit email spam)
+        $emailLimitDatetime = new \DateTime($candidate->candidate_limit_email);
+        date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
+        $currentDatetime = new \DateTime('now');
+
+        if ($candidate->candidate_limit_email && $currentDatetime < $emailLimitDatetime) {
+            $difference = $currentDatetime->diff($emailLimitDatetime);
+            $minuteDifference = (int) $difference->i;
+            $secondDifference = (int) $difference->s;
+
+            $errors = Yii::t('candidate', "Email was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds", [
+                        'numMinutes' => $minuteDifference,
+                        'numSeconds' => $secondDifference,
+            ]);
+        } else if (!$candidate->sendPasswordResetEmail()) {
+            $errors = Yii::t('candidate', 'Sorry, we are unable to reset a password for email provided.');
+        }
+
+        if($errors) {
             return [
                 'operation' => 'error',
                 'message' => $errors
             ];
         }
-
+        
         Yii::info("[Student Password Reset Request] by Candidate, Candidate Email: ".$candidate->candidate_email, __METHOD__);
+        
         // Otherwise return success
         return [
             'operation' => 'success',

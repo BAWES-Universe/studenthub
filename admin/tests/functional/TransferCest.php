@@ -6,8 +6,10 @@ use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 use common\fixtures\AdminTokenFixture;
 use common\models\AdminToken;
+use common\components\Excel;
 use admin\models\Transfer;
 use Codeception\Util\HttpCode;
+
 
 class TransferCest
 {
@@ -130,38 +132,72 @@ class TransferCest
      * Mark All Candidate as Payment Received
      * @param FunctionalTester $I
      */
-//    public function tryToMarkCandidateReceived(FunctionalTester $I)
-//    {
-//        $I->wantTo('Validate admin > transfer > Mark All Candidate as Payment Received api');
-//        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-//        $I->sendPATCH('v1/transfers/mark-paid-all', [
-//            'candidates' => [
-//                [
-//                    'transfer_id' => 6,
-//                    'transfer_confirmation_id' => 6,
-//                    'tc_id' => 17
-//                ],
-//                [
-//                    'transfer_id' => 7,
-//                    'transfer_confirmation_id' => 7,
-//                    'tc_id' => 17
-//                ]
-//            ]
-//        ]);
-//        $I->seeResponseCodeIs(HttpCode::OK); // 200
-//        $I->seeResponseIsJson();
-//    }
-
-    /**
-     * Download Payable Candidates' Detail
-     * @param FunctionalTester $I
-    public function tryToDownloadPayable(FunctionalTester $I)
+    public function tryToMarkCandidateReceived(FunctionalTester $I)
     {
-        $I->wantTo('Validate admin > transfer > Download Payable Candidates\' Detail api');
-        $I->amBearerAuthenticated($this->token);
-        $I->sendGET('v1/transfers/export-payable-candidates');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }*/
+        //create excel
+
+        $I->wantTo('Create excel to upload @ ' . sys_get_temp_dir());
+
+        $fileName = 'excelForCompanyWithout.xlsx';
+
+        Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $this->transferWithPaymentReceived->transferCandidates,
+            'savePath' => sys_get_temp_dir(),
+            'fileName' => $fileName,
+            'columns' => [
+                [
+                    'header' => 'Status',
+                    'value' => 'SUCCESS'
+                ],
+                [
+                    'header' => 'Credit Narrative',
+                    'value' => function($data) {
+                        return $data->tc_id;
+                    }
+                ],
+                [
+                    'header' => 'Status Description',
+                    'value' => function() {
+                        return rand(1, 100);
+                    }
+                ],
+                [
+                    'header' => 'Debit Narrative',
+                    'value' => function($data) {
+                        return $data->transfer_id;
+                    }
+                ]
+            ]
+        ]);
+
+        //save in S3 temp bucket
+
+        $response = Yii::$app->temporaryBucketResourceManager->save(
+            null,
+            'temp-' . $fileName,
+            [],
+            sys_get_temp_dir() . '/' . $fileName,
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        
+        @unlink(sys_get_temp_dir() . '/' . $fileName);
+        
+        $I->wantTo('Validate admin > transfer > Mark All Candidate as Payment Received api');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPATCH('v1/transfers/mark-paid-all', [
+            'excel' => basename($response['ObjectURL']),
+            'candidates' => [
+                [
+                    'transfer_id' => $this->transferWithPaymentReceived->transfer_id,
+                    'transfer_confirmation_id' => 6,
+                    'tc_id' => $this->transferWithPaymentReceived->transferCandidates[0]->tc_id
+                ],
+            ]
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);  //200
+        $I->seeResponseIsJson();
+    }
     
     /**
      * List Payable Candidates
@@ -170,19 +206,6 @@ class TransferCest
     public function tryToListPayable(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > List Payable Candidates api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/transfers/payable-candidates');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }
-
-    /**
-     * List Payable Candidates All
-     * @param FunctionalTester $I
-     */
-    public function tryToListAllPayable(FunctionalTester $I)
-    {
-        $I->wantTo('Validate admin > transfer > List Payable Candidates All api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/payable-candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -202,16 +225,29 @@ class TransferCest
     }
     
     /**
+     * Download Payable Candidates' Detail
+     * @param FunctionalTester $I
+     * @param \admin\tests\FunctionalTester $I
+     *
+    public function tryToDownloadPayable(FunctionalTester $I)
+    {
+        $I->wantTo('Validate admin > transfer > Download Payable Candidates\' Detail api');
+        $I->amBearerAuthenticated($this->token);
+        $I->sendGET('v1/transfers/export-payable-candidates');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }*/
+    
+    /**
      * Export Transfer Detail
      * @param FunctionalTester $I
+     *
     public function tryToExport(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Export Transfer Detail api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/export/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }    
-     */
+    } */   
         
     /**
      * List Candidate Transfers
@@ -253,14 +289,106 @@ class TransferCest
     }
 
     /**
-     * Download Transfer
+     * Download Transfer Invoice
      * @param FunctionalTester $I
-     *
-    public function tryToDownload(FunctionalTester $I)
+     */
+    public function tryToDownloadInvoice(FunctionalTester $I)
     {
-        $I->wantTo('Validate admin > transfer > Download Transfer api');
+        $I->wantTo('Validate admin > transfer > Download Transfer invoice api');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/transfers/pdf/' . $this->transferWithPaymentReceived->transfer_id);
+        $I->sendGET('v1/transfers/pdf/invoice/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }*/
+    }
+    
+    /**
+     * Download Transfer Receipt
+     * @param FunctionalTester $I
+     */
+    public function tryToDownloadReceipt(FunctionalTester $I)
+    {
+        $I->wantTo('Validate admin > transfer > Download Transfer receipt api');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/transfers/pdf/receipt/' . $this->transferWithPaymentReceived->transfer_id);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+    
+    /**
+     * List Transfer Invoices
+     * @param FunctionalTester $I
+     */
+    public function tryToListInvoices(FunctionalTester $I)
+    {
+        $I->wantTo('Validate admin > transfer > View Transfer invoices api');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/transfers/invoices/' . $this->transferWithPaymentReceived->transfer_id);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+    
+    /**
+     * Import data from excel provided by bank
+     * @param FunctionalTester $I
+     */
+    public function tryToImportExcel(FunctionalTester $I)
+    {
+        //create excel
+
+        $I->wantTo('Create excel to upload @ ' . sys_get_temp_dir());
+
+        $fileName = 'excelForCompanyWithout.xlsx';
+
+        Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $this->transferWithPaymentReceived->transferCandidates,
+            'savePath' => sys_get_temp_dir(),
+            'fileName' => $fileName,
+            'columns' => [
+                [
+                    'header' => 'Status',
+                    'value' => 'SUCCESS'
+                ],
+                [
+                    'header' => 'Credit Narrative',
+                    'value' => function($data) {
+                        return $data->tc_id;
+                    }
+                ],
+                [
+                    'header' => 'Status Description',
+                    'value' => function() {
+                        return rand(1, 100);
+                    }
+                ],
+                [
+                    'header' => 'Debit Narrative',
+                    'value' => function($data) {
+                        return $data->transfer_id;
+                    }
+                ]
+            ]
+        ]);
+
+        //save in S3 temp bucket
+
+        $response = Yii::$app->temporaryBucketResourceManager->save(
+            null,
+            'temp-' . $fileName,
+            [],
+            sys_get_temp_dir() . '/' . $fileName,
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        
+        $I->wantTo('Validate admin > transfer > import excel api');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPOST('v1/transfers/import-excel', [
+            'excel' => basename($response['ObjectURL'])
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    } 
 }
+
+                    
+                      
+                    
+                      
+                        
+                     

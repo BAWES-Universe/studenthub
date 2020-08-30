@@ -49,6 +49,24 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $candidate_email
+     * @return $this
+     */
+    public function filterEmail($candidate_email)
+    {
+        return $this->andWhere(['like', '{{%candidate}}.candidate_email', $candidate_email]);
+    }
+
+    /**
+     * @param $candidate_phone
+     * @return $this
+     */
+    public function filterPhone($candidate_phone)
+    {
+        return $this->andWhere(['like', '{{%candidate}}.candidate_phone', $candidate_phone]);
+    }
+
+    /**
      * @return $this
      */
     public function filterAssigned()
@@ -173,11 +191,13 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere('{{%candidate}}.candidate_uid IS NOT NULL')
         ->andWhere('{{%candidate}}.university_id IS NOT NULL')
         ->andWhere('{{%candidate}}.country_id IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_personal_photo IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_name IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_name_ar IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_objective IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_gender IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_objective IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_personal_photo IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_email IS NOT NULL')
+        ->andWhere('{{%candidate}}.candidate_phone IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_birth_date IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_civil_id IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_civil_expiry_date IS NOT NULL')

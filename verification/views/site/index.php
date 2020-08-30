@@ -17,7 +17,7 @@ $nameSections = mb_split(' ', $candidate->candidate_name_ar);
 
         <img class="logo" src="images/logo.svg" />
 
-        <p class="sub-title">ﻊﻣ نوﺎﻌﺘﻟﺎﺑ</p>
+        <p class="sub-title">بالتعاون مع</p>
 
         <img class="brand-2" src="images/brand-2.jpg" />
 
@@ -25,9 +25,13 @@ $nameSections = mb_split(' ', $candidate->candidate_name_ar);
     </div>
 
     <?php if($id) { ?>
-        <div class="txt-id txt-valid-id">ةحلاص ةقاطبلا</div>
-    <?php } else { ?>
-        <div class="txt-id txt-invalid-id">ﺔﺤﻟﺎﺻ ﺮﻴﻏ ﺔﻗﺎﻄﺒﻟا</div>
+        <div class="txt-id txt-valid-id">
+            هوية صالحه
+        </div>
+        <?php } else { ?>
+        <div class="txt-id txt-invalid-id">
+            هوية غير صالحه
+        </div>
     <?php } ?>
 
     <div class="id-container id-detail">

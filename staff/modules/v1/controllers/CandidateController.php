@@ -4,6 +4,7 @@ namespace staff\modules\v1\controllers;
 
 use staff\models\TransferCandidate;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
@@ -368,6 +369,46 @@ class CandidateController extends Controller
     }
 
     /**
+     * Remove Store from Candidate account
+     * @param $id
+     * @return array
+     */
+    public function actionExpireCandidateCard($id)
+    {
+        // Attempt to create new account
+        $model = $this->findModel($id);
+
+        $card  = $model->getCandidateIdCard()->one();
+        $card->expiry_date = new Expression('NOW()');
+
+        if (!$card->save(false))
+        {
+            if(isset($card->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $card->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$model->candidate_name.' ID Card mark as expired] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate card expired successfully",
+            "candidate_detail" => $model,
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
      * Return a List of Candidate not assigned to store
      */
     public function actionListNotAssigned()
@@ -419,6 +460,42 @@ class CandidateController extends Controller
 
         if($candidate_name) {
             $query->filterName($candidate_name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate filter to store
+     */
+    public function actionFilter()
+    {
+        $name = Yii::$app->request->get("name");
+        $email = Yii::$app->request->get("email");
+        $phone = Yii::$app->request->get("phone");
+        $type = Yii::$app->request->get("type");
+
+        $query = Candidate::find()
+            ->notDeleted()
+            ->orderByStatus();
+        if ($type == 'assigned') {
+            $query->filterAssigned();
+        } else  {
+            $query->filterNotAssigned();
+        }
+
+        if($name) {
+            $query->filterName($name);
+        }
+
+        if($email) {
+            $query->filterEmail($name);
+        }
+
+        if($phone) {
+            $query->filterPhone($name);
         }
 
         return new ActiveDataProvider([

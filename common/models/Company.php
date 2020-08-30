@@ -60,6 +60,7 @@ use yii\helpers\Url;
 class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     const STATUS_ACTIVE = 10;
+    
     /**
      * @var mixed|null
      */
@@ -218,10 +219,20 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'stores',
             'files',
             'brands',
-            'notes'
+            'notes',
+            'requests'
         ];
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\common\models\Request")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+    
     /**
      * @return \yii\db\ActiveQuery
      */

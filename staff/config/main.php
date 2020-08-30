@@ -100,6 +100,7 @@ return [
                         'GET detail/<id>' => 'view',
                         'GET not-assigned' => 'list-not-assigned',
                         'GET assigned' => 'list-assigned',                        
+                        'GET filter' => 'filter',
                         'GET assigned-without-bank' => 'list-assigned-without-bank-info',
                         'GET not-assigned-without-bank' => 'list-not-assigned-without-bank-info',
                         'GET search' => 'search',
@@ -113,11 +114,13 @@ return [
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
                         'PATCH approve/<id>' => 'approve',
+                        'PATCH expire-card/<id>' => 'expire-candidate-card',
                         'DELETE unassign/<id>' => 'unassign',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS filter' => 'options',
                         'OPTIONS detail/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS unassign/<id>' => 'options',                        
@@ -133,6 +136,7 @@ return [
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS update-hour-rate/<id>' => 'options',
+                        'OPTIONS expire-card/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
@@ -236,6 +240,25 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // RequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'PATCH start/<id>' => 'start',
+                        'PATCH cancel/<id>' => 'cancel',
+                        'PATCH deliver/<id>' => 'deliver',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS start/<id>' => 'options',
+                        'OPTIONS cancel/<id>' => 'options',
+                        'OPTIONS deliver/<id>' => 'options',
                     ]
                 ],
             ],
