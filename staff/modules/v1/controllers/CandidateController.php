@@ -483,7 +483,7 @@ class CandidateController extends Controller
             ->orderByStatus();
         if ($type == 'assigned') {
             $query->filterAssigned();
-        } else  {
+        } else if ($type == 'un-assigned'){
             $query->filterNotAssigned();
         }
 
