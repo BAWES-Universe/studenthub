@@ -492,11 +492,11 @@ class CandidateController extends Controller
         }
 
         if($email) {
-            $query->filterEmail($name);
+            $query->filterEmail($email);
         }
 
         if($phone) {
-            $query->filterPhone($name);
+            $query->filterPhone($phone);
         }
 
         return new ActiveDataProvider([
