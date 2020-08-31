@@ -713,9 +713,13 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
-
-            return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->oldAttributes['company_logo']);
-
+            
+            if(isset($this->oldAttributes['company_logo'])) {
+                return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->oldAttributes['company_logo']);
+            } else {
+                return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->company_logo);
+            }
+            
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
