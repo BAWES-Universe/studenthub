@@ -79,7 +79,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar','company_logo'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar'], 'required'],
             [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
@@ -713,9 +713,13 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
-
-            return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->oldAttributes['company_logo']);
-
+            
+            if(isset($this->oldAttributes['company_logo'])) {
+                return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->oldAttributes['company_logo']);
+            } else {
+                return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->company_logo);
+            }
+            
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'company');

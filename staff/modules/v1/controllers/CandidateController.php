@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use kartik\mpdf\Pdf;
 use staff\models\TransferCandidate;
 use Yii;
 use yii\db\Expression;
@@ -482,7 +483,7 @@ class CandidateController extends Controller
             ->orderByStatus();
         if ($type == 'assigned') {
             $query->filterAssigned();
-        } else  {
+        } else if ($type == 'un-assigned'){
             $query->filterNotAssigned();
         }
 
@@ -491,11 +492,11 @@ class CandidateController extends Controller
         }
 
         if($email) {
-            $query->filterEmail($name);
+            $query->filterEmail($email);
         }
 
         if($phone) {
-            $query->filterPhone($name);
+            $query->filterPhone($phone);
         }
 
         return new ActiveDataProvider([
@@ -738,6 +739,47 @@ class CandidateController extends Controller
             "message" => "Candidate account approved successfully",
             "saved" => $model
         ];
+    }
+
+    /**
+     * Download Transfer as PDF
+     * @param $id
+     * @param $type
+     * @return array|mixed
+     */
+    public function actionCandidateResumePdf($id)
+    {
+        $candidate = $this->findModel($id);
+
+        if(!$candidate) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+
+        $this->layout = 'main';
+        $content = $this->render('candidate-resume-pdf', [
+            'candidate' => $candidate,
+        ]);
+
+        $pdf = new Pdf([
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => '.kv-heading-1{font-size:38px} li {margin-bottom: 12px;}',
+            // set mPDF properties on the fly
+            'options' => ['title' => 'Candidate Resume #'.$candidate->candidate_name],
+        ]);
+
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
     }
 
     /**
