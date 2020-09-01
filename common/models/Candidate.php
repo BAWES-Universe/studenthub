@@ -413,7 +413,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if($insert)
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
-            $this->sendWelcomeEmail();
         }
         else if (array_key_exists('store_id', $changedAttributes))
         {
