@@ -10,6 +10,7 @@ use yii\filters\auth\HttpBasicAuth;
 use candidate\models\Candidate;
 use candidate\models\CandidateToken;
 use common\models\CandidateEmailVerifyAttempt;
+use yii\web\NotFoundHttpException;
 
 
 /**

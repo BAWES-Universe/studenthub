@@ -1161,7 +1161,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             throw new NotFoundHttpException('The requested page does not exist.');
         }
 
-        if ($candidate && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
+        if ($candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
             //If not verified
             if ($candidate->candidate_email_verification == Candidate::EMAIL_NOT_VERIFIED) {
                 //Verify this candidates email

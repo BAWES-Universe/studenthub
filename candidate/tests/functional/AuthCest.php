@@ -138,7 +138,7 @@ class AuthCest {
     public function tryToGetVerificationEmail(FunctionalTester $I) {
         $I->wantTo('Validate auth > resend-verification-email api');
         $I->sendPOST('v1/auth/resend-verification-email', [
-            'email' => 'demo@demo.com'
+            'email' => $this->candidate->candidate_email
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -151,7 +151,7 @@ class AuthCest {
     public function tryToVerifyEmail(FunctionalTester $I) {
         $I->wantTo('Validate auth > verify-email api');
         $I->sendPOST('v1/auth/verify-email', [
-            'email' => 'demo@demo.com',
+            'email' => $this->candidate->candidate_email,
             'code' => $this->candidate->candidate_auth_key
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
