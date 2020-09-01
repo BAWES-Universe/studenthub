@@ -456,13 +456,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $this->updateAlgoliaIndex($insert);
         }
 
-        if (
-            (isset($changedAttributes['deleted']) && $this->deleted) || //on soft delete remove
-            (
-                isset($changedAttributes['candidate_job_search_status']) &&
-                !$this->candidate_job_search_status
-            ) //on status change to not searching
-        ) {
+        //on soft delete remove
+        if (isset($changedAttributes['deleted']) && $this->deleted){
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
 
@@ -1624,7 +1619,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!$isProfileCompleted) {
 
             //delete from algolia
-
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
 
             return false;
@@ -1644,7 +1638,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_birth_date' => $this->candidate_birth_date,
             'candidate_driving_license' => $this->candidate_driving_license,
             'approved' => $this->approved,
-            'isProfileCompleted' => true,  // using in candidate card 
+            'candidate_email_verification' => true,   // using in candidate card
+            'isProfileCompleted' => true,  // using in candidate card
             'university' => [
                 'university_id' => $this->university_id,
                 'university_name_en' => $this->university->university_name_en,
