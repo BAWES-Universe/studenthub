@@ -410,6 +410,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         parent::afterSave($insert, $changedAttributes);
 
+        Yii::info('['.$this->candidate_email.' profile saved in parent] Candidate profile has been saved', __METHOD__);
         if($insert)
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);

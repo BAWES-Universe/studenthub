@@ -84,8 +84,9 @@ class Candidate extends \common\models\Candidate {
     {
         parent::afterSave($insert, $changedAttributes);
 
+        Yii::info('['.$this->candidate_email.' profile saved] Candidate profile has been saved', __METHOD__);
         if ($insert) {
-            return $this->sendWelcomeEmail();
+            $this->sendWelcomeEmail();
         }
     }
 
