@@ -413,6 +413,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if($insert)
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
+            $this->sendWelcomeEmail();
         }
         else if (array_key_exists('store_id', $changedAttributes))
         {
@@ -437,6 +438,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if(!$insert && array_key_exists('candidate_password_hash', $changedAttributes)) {
+            Yii::info('['.$this->candidate_email.' password mail] Candidate update password mail has been sent', __METHOD__);
             $this->sendPasswordUpdatedEmail();
         }
 
@@ -452,6 +454,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]
             )
         ) {
+            Yii::info('['.$this->candidate_email.' update algolia initiated] Candidate account updated on algolia', __METHOD__);
             return $this->updateAlgoliaIndex($insert);
         }
 
@@ -462,6 +465,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 !$this->candidate_job_search_status
             ) //on status change to not searching
         ) {
+            Yii::info('['.$this->candidate_email.' Account removed] Candidate account removed from algolia', __METHOD__);
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
 
@@ -1606,6 +1610,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             !$this->candidate_email_verification
            // $this->candidate_status != self::STATUS_ACTIVE
         ) {
+            Yii::info('['.$this->candidate_email.'] candidate issue with email verification', __METHOD__);
             //delete
             return false;
         }
@@ -1615,7 +1620,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!$isProfileCompleted) {
 
             //delete from algolia
-
+            Yii::info('['.$this->candidate_email.'] candidate profile is not completed', __METHOD__);
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
 
             return false;

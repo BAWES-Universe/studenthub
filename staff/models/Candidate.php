@@ -76,20 +76,6 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @param bool $insert
-     * @param array $changedAttributes
-     * @return bool
-     */
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-
-        if ($insert) {
-            return $this->sendWelcomeEmail();
-        }
-    }
-
-    /**
      * send welcome mail
      * @return bool
      */
