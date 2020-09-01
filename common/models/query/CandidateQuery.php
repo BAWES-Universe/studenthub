@@ -175,6 +175,14 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $status
+     * @return $this
+     */
+    public function verifiedProfile() {
+        return $this->andWhere(['{{%candidate}}.candidate_email_verification' => 1]);
+    }
+
+    /**
      * @param $id
      * @return CandidateQuery
      */

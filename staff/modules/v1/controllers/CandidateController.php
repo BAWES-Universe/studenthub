@@ -567,7 +567,8 @@ class CandidateController extends Controller
         $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
-            ->notDeleted();
+            ->notDeleted()
+            ->verifiedProfile();
 
         switch ($by) {
             case 'review' :
