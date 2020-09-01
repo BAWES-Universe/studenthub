@@ -410,7 +410,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         parent::afterSave($insert, $changedAttributes);
 
-        Yii::info('['.$this->candidate_email.' profile saved in parent] Candidate profile has been saved', __METHOD__);
         if($insert)
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
@@ -438,7 +437,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if(!$insert && array_key_exists('candidate_password_hash', $changedAttributes)) {
-            Yii::info('['.$this->candidate_email.' password mail] Candidate update password mail has been sent', __METHOD__);
             $this->sendPasswordUpdatedEmail();
         }
 
@@ -454,18 +452,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]
             )
         ) {
-            Yii::info('['.$this->candidate_email.' update algolia initiated] Candidate account updated on algolia', __METHOD__);
             return $this->updateAlgoliaIndex($insert);
         }
 
-        if (
-            (isset($changedAttributes['deleted']) && $this->deleted) || //on soft delete remove
-            (
-                isset($changedAttributes['candidate_job_search_status']) &&
-                !$this->candidate_job_search_status
-            ) //on status change to not searching
-        ) {
-            Yii::info('['.$this->candidate_email.' Account removed] Candidate account removed from algolia', __METHOD__);
+        //on soft delete remove
+        if (isset($changedAttributes['deleted']) && $this->deleted){
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
 
