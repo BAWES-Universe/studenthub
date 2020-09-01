@@ -72,10 +72,13 @@ class CountryController extends Controller
     public function actionList()
     {
         $q = Yii::$app->request->getQueryParam('q');
+        
         $query = Country::find();
+        
         if ($q) {
             $query->filterName($q);
         }
+
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => [

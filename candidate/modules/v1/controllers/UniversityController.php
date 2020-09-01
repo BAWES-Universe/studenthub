@@ -70,7 +70,9 @@ class UniversityController extends Controller
     public function actionList()
     {
         $q = Yii::$app->request->getQueryParam('q');
+        
         $query = University::find();
+        
         if ($q) {
             $query->filterName($q);
         }

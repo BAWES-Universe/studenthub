@@ -8,6 +8,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -1147,15 +1148,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * Verifies the candidate email
      */
-    public static function verifyEmail($code) {
-        //Code is his auth key, check if code is valid
-        //        $candidate = Candidate::find()->where("auth_key like binary '{$code}'")->one(); // disable case sensistive
-        // due to #169799637
-        $candidate = Candidate::findOne(['candidate_auth_key' => $code]);
+    public static function verifyEmail($email, $code) {
+       
+        $candidate = Candidate::find()
+            ->where([
+                'AND',
+                ['candidate_auth_key' => $code],
+                [
+                    'OR',
+                    ['candidate_new_email' => $email],
+                    ['candidate_email' => $email]
+                ]
+            ])
+            ->one();
 
-//        $candidate = Candidate::find()
-//            ->where("auth_key like binary '{$code}'")
-//            ->one();
+        if(!$candidate) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
 
         if ($candidate && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
             //If not verified
