@@ -764,6 +764,12 @@ class CandidateController extends Controller
         ]);
 
         $pdf = new Pdf([
+            'options' => [
+                'defaultheaderline' => 0,  //for header
+                'defaulfooterline' => 0,  //for footer
+                'title' => 'Candidate Resume #'.$candidate->candidate_name
+            ],
+            'mode' => Pdf::MODE_UTF8,
             // A4 paper format
             'format' => Pdf::FORMAT_A4,
             // portrait orientation
@@ -772,10 +778,14 @@ class CandidateController extends Controller
             'destination' => Pdf::DEST_BROWSER,
             // your html content input
             'content' => $content,
+            // format content from your own css file if needed or use the
+            // enhanced bootstrap css built by Krajee for mPDF formatting
+            'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
             // any css to be embedded if required
-            'cssInline' => '.kv-heading-1{font-size:38px} li {margin-bottom: 12px;}',
-            // set mPDF properties on the fly
-            'options' => ['title' => 'Candidate Resume #'.$candidate->candidate_name],
+            'cssInline' => '',
+            'methods' => [
+                'SetHeader'=>[$candidate->employeeId .'<br/>'. 'Prepared by '.Yii::$app->user->identity->staff_name],
+            ]
         ]);
 
         header('Access-Control-Allow-Origin: *');

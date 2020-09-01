@@ -1,121 +1,72 @@
-<div style="margin-bottom: 20px;text-align: center">
+
+<div class="row">
     <?=\yii\helpers\Html::img('images/logo.png',['style'=>'width:200px; margin-bottom:0;'])?>
 </div>
-<table class="table">
-    <tr>
-        <td width="32%">
-            <?=\yii\helpers\Html::img(Yii::$app->params['candidate_photo'].'candidate-photo/'.$candidate->candidate_personal_photo)?>
-        </td>
-        <td>
-            <table class="table table-bordered" style="font-size: 14px" cellpadding="4">
-                <tr>
-                    <td width="30%">Name</td>
-                    <td><?=$candidate->candidate_name?></td>
-                </tr>
-                <tr>
-                    <td>Age</td>
-                    <td><?=strtotime($candidate->candidate_birth_date)?></td>
-                </tr>
-                <tr>
-                    <td>Nationality</td>
-                    <td><?=$candidate->country->country_name_en?></td>
-                </tr>
-                <tr>
-                    <td>University</td>
-                    <td><?=$candidate->university->university_name_en?></td>
-                </tr>
-                <tr>
-                    <td>Phone</td>
-                    <td><?=$candidate->candidate_phone?></td>
-                </tr>
-                <tr>
-                    <td>Driving License</td>
-                    <td><?=($candidate->candidate_driving_license) ? 'Yes' : 'no'?></td>
-                </tr>
-                <tr>
-                    <td>Gender</td>
-                    <td>
-                        <?php
-                        if ($candidate->candidate_gender == 1) {
-                            echo "Male";
-                        } else if ($candidate->candidate_gender == 2) {
-                            echo "Female";
-                        } else if ($candidate->candidate_gender == 3) {
-                            echo "Other";
-                        }
-                        ?>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Address</td>
-                    <td><?=$candidate->candidate_address_line1?></td>
-                </tr>
-            </table>
-        </td>
-    </tr>
+<div class="row" style="margin-top: 42px;">
+    <div class="col-lg-4 col-md-4 col-xl-4 col-xs-4">
+        <?=\yii\helpers\Html::img(Yii::$app->params['candidate_photo'].'candidate-photo/'.$candidate->candidate_personal_photo)?>
+    </div>
+    <div class="col-xs-6">
+        <h1 style="padding:0; margin:0; height: 50px;font-size: 36px;font-weight: bold;color: #000000;"><?=$candidate->candidate_name?></h1>
+        <p style="padding:0; margin:0; font-size: 18px;color: #000000;">
+            <?php
+                $from = new DateTime($candidate->candidate_birth_date);
+                $to   = new DateTime('today');
+                echo $from->diff($to)->y.' Years Old';
+            ?>
+        </p>
+        <p style="margin-top:18px;font-size: 24px;font-weight: bold;font-stretch: normal;font-style: normal;line-height: normal;letter-spacing: normal;color: #000000;">
+            "<?=$candidate->candidate_objective ?>"
+        </p>
+        <?php if ($candidate->candidate_phone) { ?>
+            <p style="margin-top:18px;">
+                <?=\yii\helpers\Html::img('images/ic_phone@3x.png',['width'=>'33'])?>&nbsp;&nbsp;&nbsp;&nbsp;
+                <span style=" font-size: 21px;color: #000000;"><?=$candidate->candidate_phone?></span>
+            </p>
+        <?php } ?>
+    </div>
+</div>
 
-    <tr>
-        <td colspan="2">
-            <h5>
-                <?php if (!$candidate->store && $candidate->candidate_job_search_status){ ?>
-                    Current Job Status : Candidate looking for a job actively
-                <?php } else if (!$candidate->store && !$candidate->candidate_job_search_status) { ?>
-                    Current Job Status : Candidate not looking for a job.
-                <?php }?>
-            </h5>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2"><hr></td>
-    </tr>
-    <tr>
-        <td colspan="2"><strong>Objective</strong></td>
-    </tr>
-    <tr>
-        <td><?=$candidate->candidate_objective ?></td>
-    </tr>
+<div class="row" style="margin-top: 47px;">
+    <?php if ($candidate->university) { ?>
+    <div class="col-xs-6" style="background-image: url('<?=yii\helpers\Url::toRoute('../images/university.png')?>');background-size: 163px 160px;background-repeat: no-repeat;">
+        <p style="font-size: 18px;color: #333333;  padding-left: 65px;">
+            <?=$candidate->university->university_name_en?>
+        </p>
+    </div>
+    <?php } if ($candidate->candidate_driving_license) { ?>
+        <div class="col-xs-4" style="background-image: url('<?=yii\helpers\Url::toRoute('../images/car_icons.png')?>');background-size: 163px 160px;background-repeat: no-repeat;">
+            <p style="font-size: 18px;color: #333333;  padding-left: 65px;">
+                Has driving <br/>license
+            </p>
+        </div>
+    <?php } ?>
+</div>
 
-    <tr>
-        <td colspan="2"><hr></td>
-    </tr>
-    <tr>
-        <td colspan="2"><strong>Work Experience</strong></td>
-    </tr>
-    <tr>
-        <td>
+<div class="row" style="margin-top: 40px;">
+    <h1 style="font-size: 24px;font-weight: bold;color: #000000;">Work Experience</h1>
         <?php if ($candidate->getCandidateExperiences()->count() > 0 ) { ?>
-                <ul>
+            <ul>
                 <?php foreach ($candidate->getCandidateExperiences()->all() as $exp) { ?>
-                    <li><?=$exp->experience;?></li>
+                    <li style=" font-size: 18px;color: #000000;"><?=$exp->experience;?></li>
                 <?php } ?>
-                </ul>
-            <?php } else { ?>
+            </ul>
+        <?php } else { ?>
             No working Experience before.
         <?php } ?>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2"><hr></td>
-    </tr>
-    <tr>
-        <td colspan="2" ><strong>Hobbies and Skills</strong></td>
-    </tr>
-    <tr>
-        <td>
-        <?php
+
+</div>
+
+<div class="row">
+    <h1 style="font-size: 24px;font-weight: bold;color: #000000;">Hobbies and Skills</h1>
+    <?php
         if ($candidate->getCandidateSkills()->count() > 0 ) {
             echo "<ul>";
             foreach ($candidate->getCandidateSkills()->all() as $skill) { ?>
-                <li><?=$skill->skill;?></li>
+                <li style=" font-size: 18px;color: #000000;"><?=$skill->skill;?></li>
             <?php }
             echo "</ul>";
         } else { ?>
-            No Skills before
-        <?php } ?>
-        </td>
-    </tr>
-
-
-    </thead>
-</table>
-
+        No Skills before
+    <?php } ?>
+</div>
