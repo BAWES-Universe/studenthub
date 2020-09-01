@@ -148,10 +148,7 @@ class AuthController extends Controller
         $candidate = Candidate::findIdentityByUnVerifiedTokenToken($unVerifiedToken);
 
         if (!$candidate) {
-            return [
-                "operation" => "error",
-                "message" => Yii::t('candidate',"Candidate not found")
-            ];
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         if (!$new_email) {
@@ -302,7 +299,7 @@ class AuthController extends Controller
             ];
         }
 
-        $candidate = Candidate::verifyEmail($code);
+        $candidate = Candidate::verifyEmail($email, $code);
 
         if ($candidate) {
             //remove old email verification attempts
@@ -344,7 +341,9 @@ class AuthController extends Controller
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->email = $emailInput;
+        
         $errors = null;
+
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
