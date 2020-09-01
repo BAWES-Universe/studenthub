@@ -483,6 +483,7 @@ class AuthController extends Controller
                 "message" => Yii::t('candidate', "Name is required")
             ];
         }
+
         if ($lang == 'ar') {
             $model->candidate_name_ar = $firstname;
             $model->candidate_name = null;
@@ -493,6 +494,7 @@ class AuthController extends Controller
 
         $model->candidate_email = Yii::$app->request->getBodyParam('email');
         $model->candidate_phone = Yii::$app->request->getBodyParam('phone');
+        $model->candidate_language_pref = $lang;
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
         $model->candidate_status = \common\models\Candidate::STATUS_PENDING;
         $model->approved = false;
