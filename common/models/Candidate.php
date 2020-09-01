@@ -1601,7 +1601,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             !$this->candidate_email_verification
            // $this->candidate_status != self::STATUS_ACTIVE
         ) {
-            Yii::info('['.$this->candidate_email.'] candidate issue with email verification', __METHOD__);
             //delete
             return false;
         }
@@ -1611,7 +1610,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!$isProfileCompleted) {
 
             //delete from algolia
-            Yii::info('['.$this->candidate_email.'] candidate profile is not completed', __METHOD__);
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
 
             return false;
@@ -1631,7 +1629,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_birth_date' => $this->candidate_birth_date,
             'candidate_driving_license' => $this->candidate_driving_license,
             'approved' => $this->approved,
-            'isProfileCompleted' => true,  // using in candidate card 
+            'candidate_email_verification' => true,   // using in candidate card
+            'isProfileCompleted' => true,  // using in candidate card
             'university' => [
                 'university_id' => $this->university_id,
                 'university_name_en' => $this->university->university_name_en,
