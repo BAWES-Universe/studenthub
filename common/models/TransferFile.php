@@ -166,6 +166,6 @@ class TransferFile extends \yii\db\ActiveRecord
      */
     public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
     {
-        return $this->hasOne($modelClass::className(), ['transfer_file_id' => 'transfer_file_id']);
+        return $this->hasMany($modelClass::className(), ['transfer_file_id' => 'transfer_file_id']);
     }
 }
