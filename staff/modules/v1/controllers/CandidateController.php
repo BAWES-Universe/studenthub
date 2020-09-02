@@ -436,7 +436,6 @@ class CandidateController extends Controller
             $query->withBankInfo();
         }
 
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
