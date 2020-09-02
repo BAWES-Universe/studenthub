@@ -742,6 +742,50 @@ class CandidateController extends Controller
     }
 
     /**
+     * Unapprove candidate account
+     * @param $id
+     * @return array
+     */
+    public function actionUnapprove($id)
+    {
+        $model = $this->findModel((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
+
+        $model->scenario = 'statusChange';
+
+        $model->approved = 0;
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$model->candidate_email.' Account marked as requires approval] Candidate account marked as requires approval by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account marked as requires approval successfully",
+            "saved" => $model
+        ];
+    }
+
+    /**
      * Download Transfer as PDF
      * @param $id
      * @param $type

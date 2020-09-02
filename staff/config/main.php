@@ -115,6 +115,7 @@ return [
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
                         'PATCH approve/<id>' => 'approve',
+                        'PATCH unapprove/<id>' => 'unapprove',
                         'PATCH expire-card/<id>' => 'expire-candidate-card',
                         'DELETE unassign/<id>' => 'unassign',
                         'DELETE <id>' => 'delete',
@@ -137,6 +138,7 @@ return [
                         'OPTIONS not-assigned-without-bank' => 'options',
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
+                        'OPTIONS unapprove/<id>' => 'options',
                         'OPTIONS update-hour-rate/<id>' => 'options',
                         'OPTIONS expire-card/<id>' => 'options',
                     ]

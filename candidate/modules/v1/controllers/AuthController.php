@@ -428,6 +428,13 @@ class AuthController extends Controller
         
         $candidate->removePasswordResetToken();
         
+        /**
+         * as password reset token will be sent to email and user will update password from that link
+         * so if user have token he have valid email
+         */
+        
+        $candidate->candidate_email_verification = Candidate::EMAIL_VERIFIED;
+
         if (!$candidate->save()) {
             return [
                 "operation" => "error",
@@ -437,7 +444,8 @@ class AuthController extends Controller
         
         return [
             "operation" => "success",
-            'message' => Yii::t('candidate','Your password has been reset')
+            'message' => Yii::t('candidate','Your password has been reset'),
+            "accessToken" => $this->_loginResponse($candidate)
         ];
     }
 
