@@ -864,9 +864,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function findByPasswordResetToken($token)
     {
 
-        //if (!static::isPasswordResetTokenValid($token)) {
-        //    return null;
-        //}
+        if (!static::isPasswordResetTokenValid($token)) {
+            return null;
+        }
 
         return static::findOne([
             'candidate_password_reset_token' => $token,
