@@ -391,6 +391,13 @@ class TransferController extends Controller
         
         $transfer_file_id = \common\models\TransferFile::saveFile($tc_ids, $model->excel);
         
+        if(!$transfer_file_id) {
+            return [
+                "operation" => "error",
+                "message" => 'Error on trying to save transfer file'
+            ];
+        }
+
         //mark candidates as paid 
         
         $transferCandidates = TransferCandidate::find()

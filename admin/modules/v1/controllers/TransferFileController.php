@@ -74,7 +74,6 @@ class TransferFileController extends Controller
     public function actionList()
     {
         $query = TransferFile::find()
-            ->joinWith('transferCandidates')
             ->orderBy(new \yii\db\Expression('transfer_file_created_at DESC'));
 
         return new ActiveDataProvider([
