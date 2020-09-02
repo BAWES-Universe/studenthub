@@ -659,7 +659,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $filename = Yii::$app->security->generateRandomString();
 
         // deleting old pic
-
         if ($this->company_logo) {
             $this->deleteProfilePhotoFromCloudinary();
         }
@@ -713,7 +712,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
-            $path = (YII_ENV == 'prod') ? "company-logo/" : "dev/company-logo/";
+            $path = (YII_ENV == 'prod') ? "" : "dev/";
             if(isset($this->oldAttributes['company_logo'])) {
                 return Yii::$app->cloudinaryManager->delete($path . $this->oldAttributes['company_logo']);
             } else {
@@ -743,11 +742,10 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         if (parent::beforeSave($insert)) {
 
             // in case update
-            if (
-                (!$this->isNewRecord && $this->company_logo && $this->company_logo != $this->oldAttributes['company_logo']) &&
-                !$this->updateCompanyLogo()
-            ) {
-                return false;
+            if (!$this->isNewRecord && $this->company_logo && ($this->company_logo != $this->oldAttributes['company_logo'])) {
+                if (!$this->updateCompanyLogo()) {
+                    return false;
+                }
             }
 
             // in case update
