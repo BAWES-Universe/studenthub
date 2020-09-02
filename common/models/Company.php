@@ -665,11 +665,11 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
 
         try {
-
+            $path = (YII_ENV == 'prod') ?  "company-logo/" : "dev/company-logo/";
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
-                    'public_id' => (YII_ENV == 'prod') ?  "company-logo/" : "dev/company-logo/" . $filename,
+                    'public_id' => $path . $filename,
                     "eager" => [
                         [
                             //id card thumbnail
@@ -713,11 +713,11 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
-            
+            $path = (YII_ENV == 'prod') ? "company-logo/" : "dev/company-logo/";
             if(isset($this->oldAttributes['company_logo'])) {
-                return Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/company-logo/" : "company-logo/" . $this->oldAttributes['company_logo']);
+                return Yii::$app->cloudinaryManager->delete($path . $this->oldAttributes['company_logo']);
             } else {
-                return Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/company-logo/" : "company-logo/" . $this->company_logo);
+                return Yii::$app->cloudinaryManager->delete($path . $this->company_logo);
             }
             
         } catch (\Cloudinary\Error $e) {
