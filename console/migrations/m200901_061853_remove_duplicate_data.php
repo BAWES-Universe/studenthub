@@ -15,9 +15,11 @@ class m200901_061853_remove_duplicate_data extends Migration
     {
 
         $allCandidates = Candidate::find()->all();
+
         foreach ($allCandidates as $candidate) {
             $skills = ArrayHelper::map($candidate->getCandidateSkills()->asArray()->all(),'skill','skill');
             $experience = ArrayHelper::map($candidate->getCandidateExperiences()->asArray()->all(),'experience','experience');
+            
             if (
                 $skills && $experience && // to check if we have both values
                 (count($skills) == count($experience)) &&  // in case of same copied to other
