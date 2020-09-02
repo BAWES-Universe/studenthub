@@ -85,7 +85,7 @@ class Candidate extends \common\models\Candidate {
         parent::afterSave($insert, $changedAttributes);
 
         if ($insert) {
-            return $this->sendWelcomeEmail();
+            $this->sendWelcomeEmail();
         }
     }
 
@@ -223,7 +223,7 @@ class Candidate extends \common\models\Candidate {
         try {
             $result = Yii::$app->cloudinaryManager->upload(
                 $url, [
-                    'public_id' => "candidate-photo/" . $filename
+                    'public_id' => (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/" . $filename,
                 ]
             );
 
@@ -257,8 +257,7 @@ class Candidate extends \common\models\Candidate {
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
-
-            Yii::$app->cloudinaryManager->delete("candidate-photo/" . $this->oldAttributes['candidate_personal_photo']);
+            Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/candidate-photo/" : "candidate-photo/" . $this->oldAttributes['candidate_personal_photo']);
 
         } catch (\Cloudinary\Error $e) {
 

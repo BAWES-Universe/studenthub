@@ -175,6 +175,14 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $status
+     * @return $this
+     */
+    public function verifiedProfile() {
+        return $this->andWhere(['{{%candidate}}.candidate_email_verification' => 1]);
+    }
+
+    /**
      * @param $id
      * @return CandidateQuery
      */
@@ -205,6 +213,11 @@ class CandidateQuery extends \yii\db\ActiveQuery
         ->andWhere('{{%candidate}}.candidate_civil_photo_back IS NOT NULL')
         ->andWhere('{{%candidate}}.candidate_driving_license IS NOT NULL')
         ->groupBy('{{%candidate}}.candidate_id')
-        ->innerJoinWith(['candidateExperiences','candidateSkills']);
+        ->innerJoinWith([
+            'candidateExperiences',
+            'candidateSkills',
+            'country',
+            'university'
+        ]);
     }
 }

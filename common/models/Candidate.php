@@ -8,6 +8,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -243,7 +244,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changePassword'] = ['candidate_password_hash', 'candidate_password_reset_token'];
 
-        $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash'];
+        $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref'];
 
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
 
@@ -455,13 +456,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $this->updateAlgoliaIndex($insert);
         }
 
-        if (
-            (isset($changedAttributes['deleted']) && $this->deleted) || //on soft delete remove
-            (
-                isset($changedAttributes['candidate_job_search_status']) &&
-                !$this->candidate_job_search_status
-            ) //on status change to not searching
-        ) {
+        //on soft delete remove
+        if (isset($changedAttributes['deleted']) && $this->deleted){
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
 
@@ -1147,17 +1143,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * Verifies the candidate email
      */
-    public static function verifyEmail($code) {
-        //Code is his auth key, check if code is valid
-        //        $candidate = Candidate::find()->where("auth_key like binary '{$code}'")->one(); // disable case sensistive
-        // due to #169799637
-        $candidate = Candidate::findOne(['candidate_auth_key' => $code]);
+    public static function verifyEmail($email, $code) {
+       
+        $candidate = Candidate::find()
+            ->where([
+                'AND',
+                ['candidate_auth_key' => $code],
+                [
+                    'OR',
+                    ['candidate_new_email' => $email],
+                    ['candidate_email' => $email]
+                ]
+            ])
+            ->one();
 
-//        $candidate = Candidate::find()
-//            ->where("auth_key like binary '{$code}'")
-//            ->one();
+        if(!$candidate) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
 
-        if ($candidate && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
+        if ($candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
             //If not verified
             if ($candidate->candidate_email_verification == Candidate::EMAIL_NOT_VERIFIED) {
                 //Verify this candidates email
@@ -1276,7 +1280,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
 
-            Yii::$app->cloudinaryManager->delete("candidate-photo/" . $this->candidate_personal_photo);
+            Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/candidate-photo/" : "candidate-photo/" . $this->candidate_personal_photo);
 
         } catch (\Cloudinary\Error $e) {
 
@@ -1311,11 +1315,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         try {
-
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
-                    'public_id' => "candidate-photo/" . $filename,
+                    'public_id' => (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/" . $filename,
                     "eager" => [
                         [
                             //id card thumbnail
@@ -1615,7 +1618,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!$isProfileCompleted) {
 
             //delete from algolia
-
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
 
             return false;
@@ -1635,7 +1637,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_birth_date' => $this->candidate_birth_date,
             'candidate_driving_license' => $this->candidate_driving_license,
             'approved' => $this->approved,
-            'isProfileCompleted' => true,  // using in candidate card 
+            'candidate_email_verification' => true,   // using in candidate card
+            'isProfileCompleted' => true,  // using in candidate card
             'university' => [
                 'university_id' => $this->university_id,
                 'university_name_en' => $this->university->university_name_en,

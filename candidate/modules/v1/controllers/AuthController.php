@@ -10,6 +10,7 @@ use yii\filters\auth\HttpBasicAuth;
 use candidate\models\Candidate;
 use candidate\models\CandidateToken;
 use common\models\CandidateEmailVerifyAttempt;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -148,10 +149,7 @@ class AuthController extends Controller
         $candidate = Candidate::findIdentityByUnVerifiedTokenToken($unVerifiedToken);
 
         if (!$candidate) {
-            return [
-                "operation" => "error",
-                "message" => Yii::t('candidate',"Candidate not found")
-            ];
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
 
         if (!$new_email) {
@@ -302,7 +300,7 @@ class AuthController extends Controller
             ];
         }
 
-        $candidate = Candidate::verifyEmail($code);
+        $candidate = Candidate::verifyEmail($email, $code);
 
         if ($candidate) {
             //remove old email verification attempts
@@ -344,7 +342,9 @@ class AuthController extends Controller
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->email = $emailInput;
+        
         $errors = null;
+
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
@@ -483,6 +483,7 @@ class AuthController extends Controller
                 "message" => Yii::t('candidate', "Name is required")
             ];
         }
+
         if ($lang == 'ar') {
             $model->candidate_name_ar = $firstname;
             $model->candidate_name = null;
@@ -493,6 +494,7 @@ class AuthController extends Controller
 
         $model->candidate_email = Yii::$app->request->getBodyParam('email');
         $model->candidate_phone = Yii::$app->request->getBodyParam('phone');
+        $model->candidate_language_pref = $lang;
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
         $model->candidate_status = \common\models\Candidate::STATUS_PENDING;
         $model->approved = false;

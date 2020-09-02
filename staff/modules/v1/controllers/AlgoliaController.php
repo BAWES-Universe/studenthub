@@ -42,7 +42,7 @@ class AlgoliaController extends Controller
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options', 'key'];
+        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }
@@ -67,12 +67,6 @@ class AlgoliaController extends Controller
      */
     public function actionKey() 
     {
-        //to fix : hide jobs already applied if candidate logined
-        $authHeader = Yii::$app->request->getHeaders()->get('Authorization');
-        if ($authHeader !== null && preg_match('/^Bearer\s+(.*?)$/', $authHeader, $matches)) {
-            Yii::$app->user->loginByAccessToken($matches[1]);
-        }
-
         $ttl = 60 * 2; //2 min 
        
         $params = [
