@@ -87,7 +87,8 @@ class Brand extends \yii\db\ActiveRecord
     public function deleteLogoFromCloudinary() {
 
         try {
-            Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/company-brand/" : 'company-brand/' . $this->brand_logo);
+            $path = (YII_ENV == 'prod') ? "company-brand/" : "dev/company-brand/" ;
+            Yii::$app->cloudinaryManager->delete( $path . $this->brand_logo);
 
         } catch (\Cloudinary\Error $e) {
 
@@ -124,11 +125,11 @@ class Brand extends \yii\db\ActiveRecord
         }
 
         try {
-
+            $path = (YII_ENV == 'prod') ?  "company-brand/" : "dev/company-brand/";
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
-                    'public_id' => (YII_ENV == 'prod') ?  "company-brand/" : "dev/company-brand/" . $filename,
+                    'public_id' =>  $path . $filename,
                     "eager" => [
                         [
                             "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
