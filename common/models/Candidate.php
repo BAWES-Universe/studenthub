@@ -242,7 +242,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         
         $scenarios['updateBirthDate'] = ['candidate_birth_date'];
 
-        $scenarios['changePassword'] = ['candidate_password_hash', 'candidate_password_reset_token'];
+        $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
 
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref'];
 
@@ -864,9 +864,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function findByPasswordResetToken($token)
     {
 
-        if (!static::isPasswordResetTokenValid($token)) {
-            return null;
-        }
+        //if (!static::isPasswordResetTokenValid($token)) {
+        //    return null;
+        //}
 
         return static::findOne([
             'candidate_password_reset_token' => $token,
