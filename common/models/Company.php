@@ -669,7 +669,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
-                    'public_id' => "company-logo/" . $filename,
+                    'public_id' => (YII_ENV == 'prod') ?  "company-logo/" : "dev/company-logo/" . $filename,
                     "eager" => [
                         [
                             //id card thumbnail
@@ -715,9 +715,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         try {
             
             if(isset($this->oldAttributes['company_logo'])) {
-                return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->oldAttributes['company_logo']);
+                return Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/company-logo/" : "company-logo/" . $this->oldAttributes['company_logo']);
             } else {
-                return Yii::$app->cloudinaryManager->delete("company-logo/" . $this->company_logo);
+                return Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/company-logo/" : "company-logo/" . $this->company_logo);
             }
             
         } catch (\Cloudinary\Error $e) {

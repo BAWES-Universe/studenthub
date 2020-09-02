@@ -1280,7 +1280,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
 
-            Yii::$app->cloudinaryManager->delete("candidate-photo/" . $this->candidate_personal_photo);
+            Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/candidate-photo/" : "candidate-photo/" . $this->candidate_personal_photo);
 
         } catch (\Cloudinary\Error $e) {
 
@@ -1315,11 +1315,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         try {
-
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
-                    'public_id' => "candidate-photo/" . $filename,
+                    'public_id' => (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/" . $filename,
                     "eager" => [
                         [
                             //id card thumbnail
