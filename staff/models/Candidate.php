@@ -221,9 +221,10 @@ class Candidate extends \common\models\Candidate {
         }
 
         try {
+            $path =  (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
             $result = Yii::$app->cloudinaryManager->upload(
                 $url, [
-                    'public_id' => (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/" . $filename,
+                    'public_id' => $path . $filename,
                 ]
             );
 
@@ -257,7 +258,8 @@ class Candidate extends \common\models\Candidate {
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
-            Yii::$app->cloudinaryManager->delete((YII_ENV != 'prod') ? "dev/candidate-photo/" : "candidate-photo/" . $this->oldAttributes['candidate_personal_photo']);
+            $path = (YII_ENV == 'prod') ? "candidate-photo/" : "dev/candidate-photo/";
+            Yii::$app->cloudinaryManager->delete( $path . $this->oldAttributes['candidate_personal_photo']);
 
         } catch (\Cloudinary\Error $e) {
 
