@@ -76,40 +76,6 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @param bool $insert
-     * @param array $changedAttributes
-     * @return bool
-     */
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-
-        if ($insert) {
-            $this->sendWelcomeEmail();
-        }
-    }
-
-    /**
-     * send welcome mail
-     * @return bool
-     */
-    public function sendWelcomeEmail() {
-        
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        
-        return Yii::$app->mailer->compose("candidate-register",
-            [
-                "model" => $this,
-                "password" => $this->password,
-                'logo_1' => Url::to('@web/images/logo.png', true),
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo($this->candidate_email)
-            ->setSubject('Welcome to the '.Yii::$app->name)
-            ->send();
-    }
-
-    /**
      * @return array|\yii\db\ActiveRecord[]
      */
     public function getPaidTransferCandidate($modelClass = "\staff\models\TransferCandidate")

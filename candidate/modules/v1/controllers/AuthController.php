@@ -429,8 +429,8 @@ class AuthController extends Controller
         $candidate->removePasswordResetToken();
         
         /**
-         * as password reset token will be sent to email and user will update password from that link
-         * so if user have token he have valid email
+         * as password reset token will be sent to email and user will update password
+         * from that link so if user have token he have valid email
          */
         
         $candidate->candidate_email_verification = Candidate::EMAIL_VERIFIED;
@@ -520,8 +520,6 @@ class AuthController extends Controller
                 ];
             }
         }
-        
-        $model->sendVerificationEmail();
         
         return [
             "operation" => "success",
