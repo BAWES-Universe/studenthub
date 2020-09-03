@@ -19,6 +19,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $admin_password_hash write-only password
  * @property string $admin_password_reset_token
  * @property string $admin_status
+ * @property string $admin_limited_access
  * @property string $admin_created_at
  * @property string $admin_updated_at
  *
@@ -27,6 +28,8 @@ use yii\behaviors\TimestampBehavior;
 class Admin extends ActiveRecord implements IdentityInterface {
     //Values for `admin_status`
     const STATUS_ACTIVE = 10;
+    const ACCESS_LIMITED = 1;
+    const ACCESS_FULL = 0;
 
     /**
      * @inheritdoc
@@ -69,6 +72,7 @@ class Admin extends ActiveRecord implements IdentityInterface {
             'admin_password_hash' => Yii::t('app', 'Admin Password'),
             'admin_password_reset_token' => Yii::t('app', 'Admin Password Reset Token'),
             'admin_status' => Yii::t('app','Admin Status'),
+            'admin_limited_access' => Yii::t('app','Admin Status'),
             'admin_created_at' => Yii::t('app','Admin Created At'),
             'admin_updated_at' => Yii::t('app','Admin Updated At'),
         ];
@@ -230,6 +234,23 @@ class Admin extends ActiveRecord implements IdentityInterface {
         $token->save(false);
 
         return $token;
+    }
+
+    /**
+     * Signs user up.
+     * @return static|null the saved model or null if saving fails
+     */
+    public function signup() {
+        if($this->validate()){
+            $this->setPassword($this->admin_password_hash);
+            $this->generateAuthKey();
+            $this->save(false);
+
+            Yii::info("[New Admin Account Created] ".$this->admin_email, __METHOD__);
+
+            return $this;
+        }
+        return null;
     }
 
 }
