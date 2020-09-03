@@ -94,7 +94,8 @@ class AuthController extends Controller
             "token" => $accessToken,
             "id" => $admin->admin_id,
             "name" => $admin->admin_name,
-            "email" => $admin->admin_email
+            "email" => $admin->admin_email,
+            "admin_limited_access" => $admin->admin_limited_access
         ];
     }
 }
