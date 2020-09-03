@@ -75,6 +75,7 @@ class TransferFileController extends Controller
     {
         $query = TransferFile::find()
             ->innerJoinWith(['transferCandidates'])
+            ->groupBy('transfer_file_id')
             ->orderBy(new \yii\db\Expression('transfer_file_created_at DESC'));
 
         return new ActiveDataProvider([
