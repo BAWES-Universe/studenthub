@@ -607,6 +607,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
     
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContacts($modelClass = "\common\models\CompanyContact")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
      * @param $company_id
      * @return int|string
      */
