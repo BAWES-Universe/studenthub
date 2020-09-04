@@ -370,7 +370,7 @@ class CandidateController extends Controller
     }
 
     /**
-     * Remove Store from Candidate account
+     * Expire candidate id by setting expiry as now 
      * @param $id
      * @return array
      */
@@ -380,6 +380,14 @@ class CandidateController extends Controller
         $model = $this->findModel($id);
 
         $card  = $model->getCandidateIdCard()->one();
+        
+        if(!$card) {
+            return [
+                "operation" => "error",
+                "message" => "No card found to mark as expired"
+            ];
+        }
+        
         $card->expiry_date = new Expression('NOW()');
 
         if (!$card->save(false))
@@ -656,6 +664,7 @@ class CandidateController extends Controller
     public function actionTransfers($id)
     {
         $model = $this->findModel($id);
+
         return $model->paidTransferCandidate;
     }
 

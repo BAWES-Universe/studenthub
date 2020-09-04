@@ -6,6 +6,7 @@ use yii;
 use yii\helpers\ArrayHelper;
 use common\models\StaffToken;
 use staff\models\Candidate;
+use common\models\CandidateIdCard;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\CandidateIdCardFixture;
 use Codeception\Util\HttpCode;
@@ -105,4 +106,16 @@ class CandidateIdCardCest {
         $I->seeResponseCodeIs(HttpCode::OK);
     }
 
+    /**
+     * Get ID
+     * @param FunctionalTester $I
+     */
+    public function getID(FunctionalTester $I) {
+
+        $model = CandidateIdCard::find()->one();
+
+        $I->wantTo('View ID');
+        $I->sendGET('v1/candidate-id-cards/' . $model->id .'/'. $this->token);
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
 }
