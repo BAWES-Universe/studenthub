@@ -90,6 +90,16 @@ class StoreCest
         $I->seeResponseIsJson(["operation"=>"success","message"=>"Store successfully created"]);
     }
 
+    /**
+     * try to view store detail
+     * @param FunctionalTester $I
+     */
+    public function restCallToViewStoreDetail(FunctionalTester $I)
+    {
+        $I->wantTo('view store detail');
+        $I->sendGET('v1/stores/1');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
 
     /**
      * try to Update store but showing error
@@ -99,7 +109,7 @@ class StoreCest
     {
         $I->wantTo('update store with invalid id');
         $I->sendPATCH('v1/stores/100',['name'=>'Adidas Store','company_id'=>'2']);
-        $I->seeResponseCodeIs(HttpCode::NOT_FOUND); // 200
+        $I->seeResponseCodeIs(HttpCode::NOT_FOUND); // 404
     }
 
     /**
@@ -149,3 +159,4 @@ class StoreCest
         $I->seeResponseIsJson(["operation"=>"error","message"=>"Store deleted successfully"]);
     }
 }
+

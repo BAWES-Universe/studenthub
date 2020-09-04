@@ -52,4 +52,17 @@ class UniversityCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson(['university_id'=>1]);
     }
+
+    /**
+     * view university by id
+     * @param FunctionalTester $I
+     */
+    public function viewUniversity(FunctionalTester $I)
+    {
+        $I->wantTo('get university listing');
+        $I->sendGET('v1/universities/1');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson(['university_id'=>1]);
+    }
 }
+
