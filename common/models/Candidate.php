@@ -1320,7 +1320,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         try {
+            
             $path = (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
+
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
@@ -1404,13 +1406,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $idSide = ($side == 'front') ? 'candidate_civil_photo_front' : 'candidate_civil_photo_back';
 
-        if ($this->oldAttributes[$idSide]) {
+        if (!empty($this->oldAttributes[$idSide])) {
             $this->deleteFile('civil-id', $side);
         }
 
         $fileName = $this->$idSide;
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+
         $targetPath = "photos/" . $fileName;
 
         // Copy using S3ResourceManager Component

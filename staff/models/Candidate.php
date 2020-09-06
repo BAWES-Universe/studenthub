@@ -36,43 +36,64 @@ class Candidate extends \common\models\Candidate {
      */
     public function beforeSave($insert)
     {
-        if (parent::beforeSave($insert)) {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
 
-//            $this->approved = false; //mark as dirty to send to admin for review
+        if($insert) {
 
+            if ($this->candidate_personal_photo && !$this->changeProfilePhoto()) {
+                return false;
+            }
+
+            if ($this->candidate_resume && !$this->updateResume()) {
+                return false;
+            }
+
+            if ($this->candidate_civil_photo_front && !$this->updateCivilId('front')) {
+                return false;
+            }
+
+            if ($this->candidate_civil_photo_back && !$this->updateCivilId('back')) {
+                return false;
+            }
+        }
+        else 
+        {
             if (
-                ($this->candidate_personal_photo && isset($this->oldAttributes['candidate_personal_photo']) && $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo']) &&
+                isset($this->oldAttributes['candidate_personal_photo']) &&
+                $this->candidate_personal_photo != $this->oldAttributes['candidate_personal_photo'] &&
                 !$this->changeProfilePhoto()
             ) {
                 return false;
             }
 
             if (
-                ($this->candidate_resume && isset($this->oldAttributes['candidate_resume']) && $this->candidate_resume != $this->oldAttributes['candidate_resume']) &&
+                isset($this->oldAttributes['candidate_resume']) && 
+                $this->candidate_resume != $this->oldAttributes['candidate_resume'] &&
                 !$this->updateResume()
             ) {
                 return false;
             }
 
             if (
-                ($this->candidate_civil_photo_front && isset($this->oldAttributes['candidate_civil_photo_front']) && $this->candidate_civil_photo_front != $this->oldAttributes['candidate_civil_photo_front']) &&
+                isset($this->oldAttributes['candidate_civil_photo_front']) && 
+                $this->candidate_civil_photo_front != $this->oldAttributes['candidate_civil_photo_front'] &&
                 !$this->updateCivilId('front')
             ) {
                 return false;
             }
 
             if (
-                ($this->candidate_civil_photo_back && isset($this->oldAttributes['candidate_civil_photo_back']) && $this->candidate_civil_photo_back != $this->oldAttributes['candidate_civil_photo_back']) &&
+                isset($this->oldAttributes['candidate_civil_photo_back']) && 
+                $this->candidate_civil_photo_back != $this->oldAttributes['candidate_civil_photo_back'] &&
                 !$this->updateCivilId('back')
             ) {
                 return false;
             }
-
-            return true;
         }
 
-
-        return false;
+        return true;
     }
 
     /**
@@ -182,12 +203,13 @@ class Candidate extends \common\models\Candidate {
 
         // deleting old pic
 
-        if ($this->oldAttributes['candidate_personal_photo']) {
+        if (!empty($this->oldAttributes['candidate_personal_photo'])) {
             $this->deleteProfilePhotoFromCloudinary();
         }
 
         try {
             $path =  (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
+
             $result = Yii::$app->cloudinaryManager->upload(
                 $url, [
                     'public_id' => $path . $filename,
@@ -250,7 +272,7 @@ class Candidate extends \common\models\Candidate {
      */
     public function updateResume() {
 
-        if ($this->oldAttributes['candidate_resume']) {
+        if (!empty($this->oldAttributes['candidate_resume'])) {
             $this->deleteFile('resume');
         }
 
@@ -260,6 +282,7 @@ class Candidate extends \common\models\Candidate {
         $targetPath = "candidate-resume/" . $fileName;
 
         // Copy using S3ResourceManager Component
+        
         try {
 
             return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);

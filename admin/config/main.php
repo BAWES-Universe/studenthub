@@ -72,6 +72,38 @@ return [
                         'OPTIONS reset-password/<id>' => 'options',
                     ]
                 ],
+                [ // AdminController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/admin',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'PATCH reset-password/<id>' => 'reset-password',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS reset-password/<id>' => 'options',
+                    ]
+                ],
+                [ // InspectorController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/inspector',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'PATCH reset-password/<id>' => 'reset-password',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS reset-password/<id>' => 'options',
+                    ]
+                ],
                 [ // CompanyController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/company',

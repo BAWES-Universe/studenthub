@@ -5,10 +5,10 @@ use Yii;
 use yii\helpers\Url;
 
 /**
- * This is the model class for table "Admin".
- * It extends from \common\models\Admin but with custom functionality for this application module
+ * This is the model class for table "Inspector".
+ * It extends from \common\models\Inspector but with custom functionality for this application module
  */
-class Admin extends \common\models\Admin {
+class Inspector extends \common\models\Inspector {
 
     /**
      * @inheritdoc
@@ -18,16 +18,16 @@ class Admin extends \common\models\Admin {
         $fields = parent::fields();
 
         // remove fields that contain sensitive information
-        unset($fields['admin_auth_key'],
-        $fields['admin_password_hash'],
-        $fields['admin_password_reset_token']);
+        unset($fields['inspector_auth_key'],
+        $fields['inspector_password_hash'],
+        $fields['inspector_password_reset_token']);
 
         return $fields;
     }
 
     /**
      * Send new password to customer
-     * @param Admin $model
+     * @param Inspector $model
      * @param $password
      * @return bool
      */
@@ -35,7 +35,7 @@ class Admin extends \common\models\Admin {
     {
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-        return Yii::$app->mailer->compose("admin-password",
+        return Yii::$app->mailer->compose("inspector-password",
             [
                 "model" => $model,
                 "password" => $password,
@@ -43,7 +43,7 @@ class Admin extends \common\models\Admin {
                 'logo_2' => ''
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo($model->admin_email)
+            ->setTo($model->inspector_email)
             ->setSubject('Your account password has been reset')
             ->send();
     }

@@ -3,18 +3,17 @@ namespace staff\tests;
 
 use yii;
 use common\models\StaffToken;
-use common\fixtures\BankFixture;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
 
-class BankCest
+
+class AlgoliaCest
 {
     public $token;
 
 	public function _fixtures() {
 		return [
-			'bank'       => BankFixture::className(),
 			'staffToken' => StaffTokenFixture::className()
 		];
 	}
@@ -24,32 +23,20 @@ class BankCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I){}
 
     /**
-     * List Bank record
+     * get public key for index reading
      * @param FunctionalTester $I
      */
-    public function listBankByWithPagination(FunctionalTester $I)
+    public function tryToGetAlgoliaKey(FunctionalTester $I)
     {
         $I->wantTo('get Bank listing');
-        $I->sendGET('v1/banks');
+        $I->sendGET('v1/algolia/key');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(['bank_id'=>1]);
-    }
-
-    /**
-     * list all bank
-     * @param FunctionalTester $I
-     */
-    public function listBankByWithoutPagination(FunctionalTester $I)
-    {
-        $I->wantTo('get Bank listing without pagination');
-        $I->sendGET('v1/banks/all');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(['bank_id'=>2]);
     }
 }

@@ -1,35 +1,41 @@
 <?php
 namespace staff\tests;
 
-use staff\models\Candidate;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\TransferCandidateFixture;
+use common\fixtures\CandidateFixture;
 use common\fixtures\InvoiceFixture;
 use common\fixtures\CandidateWorkHistoryFixture;
 use Codeception\Util\HttpCode;
+use staff\models\Candidate;
+
 
 class CandidateCest
 {
     public $token;
 
-	public function _fixtures()
-	{
+    public function _fixtures()
+    {
         return [
             'staffToken' => StaffTokenFixture::className(),
             'invoice' => InvoiceFixture::className(),
+            'candidates' => CandidateFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className(),
             'candidateWorkHistory' => CandidateWorkHistoryFixture::className()
         ];
-	}
+    }
 
-	public function _before(FunctionalTester $I)
-	{
+    public function _before(FunctionalTester $I)
+    {
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+        
         $I->amBearerAuthenticated($this->token);
+        
+        $this->candidate = Candidate::find()->one();
     }
 
     public function _after(FunctionalTester $I){}
@@ -141,11 +147,11 @@ class CandidateCest
      */
     public function restCallToUnAssignCandidateFromStore(FunctionalTester $I)
     {
-//        $candidateID = 2;
-//        $I->wantTo('unassigned candidate from store');
-//        $I->sendDELETE('v1/candidates/unassign/'.$candidateID);
-//        $I->seeResponseCodeIs(HttpCode::OK); // 200
-//        $I->seeResponseIsJson(["operation" => "success", "message" => "Candidate unassigned from store successfully"]);
+        $candidateID = 2;
+        $I->wantTo('unassigned candidate from store');
+        $I->sendDELETE('v1/candidates/unassign/'.$candidateID);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson(["operation" => "success", "message" => "Candidate unassigned from store successfully"]);
     }
 
     /**
@@ -238,6 +244,179 @@ class CandidateCest
     {
         $I->wantTo('List candidate');
         $I->sendGET('v1/candidates');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Candidate List Without Bank Detail
+     * @param FunctionalTester $I
+     */
+    public function restCallToListCandidateWithoutBankDetail(FunctionalTester $I)
+    {
+        $I->wantTo('List assigned candidate without bank');
+        $I->sendGET('v1/candidates/assigned-without-bank');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Candidate List Without Bank Detail
+     * @param FunctionalTester $I
+     */
+    public function restCallToListCandidateNotAssignedWithoutBankDetail(FunctionalTester $I)
+    {
+        $I->wantTo('List not assigned candidate without bank');
+        $I->sendGET('v1/candidates/not-assigned-without-bank');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * View Candidate Detail
+     * @param FunctionalTester $I
+     */
+    public function restCallToViewCandidate(FunctionalTester $I)
+    {
+        $I->wantTo('View candidate detail');
+        $I->sendGET('v1/candidates/detail/' . $this->candidate->candidate_id);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Filter Candidate List
+     * @param FunctionalTester $I
+     */
+    public function restCallToFilterCandidateList(FunctionalTester $I)
+    {
+        $I->wantTo('List candidate');
+        $I->sendGET('v1/candidates/filter?name=a');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Search Candidate 
+     * @param FunctionalTester $I
+     */
+    public function restCallToSearchCandidate(FunctionalTester $I)
+    {
+        $I->wantTo('List candidate');
+        $I->sendGET('v1/candidates/search?country_id=1');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Search Candidate transfers
+     * @param FunctionalTester $I
+     */
+    public function restCallToListCandidateTransfers(FunctionalTester $I)
+    {
+        $I->wantTo('List candidate transfers');
+        $I->sendGET('v1/candidates/transfers/' . $this->candidate->candidate_id);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * View Candidate resume
+     * @param FunctionalTester $I
+     *
+    public function restCallToViewCandidateResume(FunctionalTester $I)
+    {
+        $I->wantTo('View candidate resume');
+        $I->sendGET('v1/candidates/candidate-resume-pdf/' . $this->candidate->candidate_id);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }*/
+
+    /**
+     * View Candidate revuew count
+     * @param FunctionalTester $I
+     */
+    public function restCallToViewCandidateReviewCount(FunctionalTester $I)
+    {
+        $I->wantTo('Get candidate review count');
+        $I->sendGET('v1/candidates/total-to-review');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Update Candidate hourly rate
+     * @param FunctionalTester $I
+     */
+    public function restCallToUpdateCandidateHourlyRate(FunctionalTester $I)
+    {
+        $I->wantTo('Update candidate hourly');
+        $I->sendPATCH('v1/candidates/update-hour-rate/' . $this->candidate->candidate_id, [
+            'hourly_rate' => 1.5
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Update Candidate job search status
+     * @param FunctionalTester $I
+     */
+    public function restCallToUpdateJobSearchStatus(FunctionalTester $I)
+    {
+        $I->wantTo('Update Candidate job search status');
+        $I->sendPATCH('v1/candidates/job-search-status', [
+            'candidate_id' => 1,
+            'job_search_status' => 1
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @param FunctionalTester $I
+     */
+    public function restCallToResetPassword(FunctionalTester $I)
+    {
+        $I->wantTo('Update Candidate password');
+        $I->sendPATCH('v1/candidates/reset-password/' . $this->candidate->candidate_id, [
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @param FunctionalTester $I
+     */
+    public function restCallToUpdateApprove(FunctionalTester $I)
+    {
+        $I->wantTo('Update Candidate approve status');
+        $I->sendPATCH('v1/candidates/approve/' . $this->candidate->candidate_id, [
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @param FunctionalTester $I
+     */
+    public function restCallToUpdateUnapprove(FunctionalTester $I)
+    {
+        $I->wantTo('Update Candidate unapprove status');
+        $I->sendPATCH('v1/candidates/unapprove/' . $this->candidate->candidate_id, [
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * @param FunctionalTester $I
+     */
+    public function restCallToExpireId(FunctionalTester $I)
+    {
+        $I->wantTo('Candidate expire card');
+        $I->sendPATCH('v1/candidates/expire-card/' . $this->candidate->candidate_id, [
+        ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
