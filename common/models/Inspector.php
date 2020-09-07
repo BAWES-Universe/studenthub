@@ -5,7 +5,9 @@ namespace common\models;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "inspector".
@@ -21,7 +23,7 @@ use yii\db\Expression;
  * @property string $inspector_created_at
  * @property string $inspector_updated_at
  */
-class Inspector extends \yii\db\ActiveRecord
+class Inspector extends ActiveRecord implements IdentityInterface
 {
     /**
      * {@inheritdoc}
