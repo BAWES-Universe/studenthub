@@ -142,7 +142,9 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
         <div class="back-card">
             <div class="qr-code">
                 <div class="qr-inner qr">
-                    <?php echo \yii\helpers\Html::img($qrCode->writeDataUri())?>
+                    <?php if ($qrCode) { ?>
+                        <?php echo \yii\helpers\Html::img($qrCode->writeDataUri())?>
+                    <?php } ?>
                 </div>
                 <h3 class="txt-url">https://studenthub.co</h3>
             </div>
