@@ -10,6 +10,7 @@ The platform enables the admin to create `Corporate` accounts and `Studenthub St
 * student.api.dev.studenthub.co
 * admin.api.dev.studenthub.co
 * employer.api.dev.studenthub.co
+* inspector.api.dev.studenthub.co
 * v.dev.studenthub.co
 
 ## Types of Users
@@ -55,7 +56,7 @@ Employees are to also sign a "Tanazol" document forfeiting their rights as a ful
 
 exif, pdo_mysql
 
-### cron set up for admin notifications 
+### cron set up for admin notifications
 
 # Pull from git every minute
 `* * * * * cd ~/www && git pull >> ~/logs/git.log`
@@ -81,6 +82,6 @@ Production ---> `* * * * * cd ~/www && ./init --env=Production --overwrite=All >
 # CRON every minute
 `* * * * * php ~/www/yii cron/every-minute > /dev/null 2>&1`
 
-### make sure to update staff api url 
+### make sure to update staff api url
 
-for `urlManagerStaff` component's `baseUrl` property for files at environments/*/common/config/main-local.php 
+for `urlManagerStaff` component's `baseUrl` property for files at environments/*/common/config/main-local.php
