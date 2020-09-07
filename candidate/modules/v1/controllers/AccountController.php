@@ -556,14 +556,41 @@ class AccountController extends Controller
     }
     
     /**
+     * Update introductory video
+     */
+    public function actionVideo() {
+        $model = Yii::$app->user->identity;
+
+        $model->candidate_video = urldecode(Yii::$app->request->getBodyParam('video'));
+
+        if(!$model->candidate_video || $model->candidate_video == "undefined") {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('app', 'Invalid input for {attribute}', [
+                    'attribute' => 'video'
+                ])
+            ];
+        }
+
+        if (!$model->updateVideo()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'candidate_video' => $model->candidate_video,
+            'message' => Yii::t('job', 'Video Uploaded Successfully')
+        ];
+    }
+    
+    /**
      * Update personal photo 
      */
     public function actionProfilePhoto() {
         $model = Yii::$app->user->identity;
-
-        if ($model->candidate_personal_photo) {
-            $model->deleteProfilePhotoFromCloudinary();
-        }
 
         $model->candidate_personal_photo = urldecode(Yii::$app->request->getBodyParam('personal_photo'));
 

@@ -126,5 +126,6 @@ return [
     'Contact Position' => '',
     'Contact Note' => '',
     'Contact Created Datetime' => '',
-    'Contact Updated Datetime' => ''
+    'Contact Updated Datetime' => '',
+    'Video not available to save.' => ''
 ];
