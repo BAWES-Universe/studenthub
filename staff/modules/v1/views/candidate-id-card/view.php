@@ -4,6 +4,10 @@ mb_internal_encoding("UTF-8");
 
 $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
 
+$path = (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
+
+$candidate_personal_photo = "https://res.cloudinary.com/studenthub/image/upload/w_319,h_319,c_thumb,g_face/v1596453482/" . $path . $model->candidate->candidate_personal_photo; 
+
 ?>
 <html>
     <head>
@@ -118,7 +122,7 @@ $nameSections = mb_split(' ', $model->candidate->candidate_name_ar);
                 <span class="code"><?= $model->candidate->employeeId ?></span>
                 <div class="image">
                     <?php if ($model->candidate->candidate_personal_photo) { ?>
-                        <img onerror="this.src='../../../img/no_image.png';"  src="https://res.cloudinary.com/studenthub/image/upload/w_319,h_319,c_thumb,g_face/v1596453482/candidate-photo/<?=$model->candidate->candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
+                        <img onerror="this.src='../../../images/no_image.png';"  src="<?= $candidate_personal_photo; ?>" style="width: 100%;min-height: : 100%">
                     <?php } else  {
                         echo \yii\helpers\Html::img('@web/images/no_image.png',['style'=>'width: 100%;min-height: : 100%']);
                     } ?>
