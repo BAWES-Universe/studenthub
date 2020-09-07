@@ -815,7 +815,6 @@ class CandidateController extends Controller
         $content = $this->render('candidate-resume-pdf', [
             'candidate' => $candidate,
         ]);
-
         $pdf = new Pdf([
             'options' => [
                 'defaultheaderline' => 0,  //for header
@@ -825,6 +824,7 @@ class CandidateController extends Controller
             'mode' => Pdf::MODE_UTF8,
             // A4 paper format
             'format' => Pdf::FORMAT_A4,
+            'marginTop' => 5,
             // portrait orientation
             'orientation' => Pdf::ORIENT_PORTRAIT,
             // stream to browser inline
@@ -835,10 +835,41 @@ class CandidateController extends Controller
             // enhanced bootstrap css built by Krajee for mPDF formatting
             'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
             // any css to be embedded if required
-            'cssInline' => '',
-            'methods' => [
-                'SetHeader'=>[$candidate->employeeId .'<br/>'. 'Prepared by '.Yii::$app->user->identity->staff_name],
-            ]
+            'cssInline' => "
+            @font-face {
+              font-family: 'effra';
+              src: url('".Yii::getAlias("@web")."/fonts/effra_std_bd-webfont.woff2') format('woff2'),
+                   url('".Yii::getAlias("@web")."/fonts/effra_std_bd-webfont.woff') format('woff'),
+                   url('".Yii::getAlias("@web")."/fonts/effra_std_bd-webfont.ttf') format('truetype');
+              font-weight: 700;
+              font-style: normal;
+            }
+
+            @font-face {
+              font-family: 'effra';
+              src: url('".Yii::getAlias("@web")."/fonts/effra_std_rg-webfont.woff2') format('woff2'),
+                   url('".Yii::getAlias("@web")."/fonts/effra_std_rg-webfont.woff') format('woff'),
+                   url('".Yii::getAlias("@web")."/fonts/effra_std_rg-webfont.ttf') format('truetype');
+              font-weight: 400;
+              font-style: normal;
+            }
+
+            @font-face {
+              font-family: 'effra';
+              src: url('".Yii::getAlias("@web")."/fonts/l') format('woff2'),
+                   url('".Yii::getAlias("@web")."/fonts/d.woff') format('woff'),
+                   url('".Yii::getAlias("@web")."/fonts/a') format('opentype');
+              font-weight: 500;
+              font-style: normal;
+            }
+
+            html, body, h1, p, div {
+                font-family: 'effra', sans-serif;
+            }",
+//            'methods' => [
+//                'SetHeader'=>[$candidate->employeeId .'<br/>'. 'Prepared by '.Yii::$app->user->identity->staff_name],
+//                'SetHeader'=>[$candidate->employeeId .'<br/>'. 'Prepared by Khalid'],
+//            ]
         ]);
 
         header('Access-Control-Allow-Origin: *');

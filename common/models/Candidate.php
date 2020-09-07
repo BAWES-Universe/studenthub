@@ -1257,6 +1257,29 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Update profile photo from temp s3 bucket
      * @return type
      */
+    public function updateVideo() {
+
+        try {
+            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
+
+            $this->setVideoByUrl($url);
+
+            $this->scenario = 'changeVideo';
+
+            return $this->save();
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
+            return false;
+        }
+    }
+
+    /**
+     * Update profile photo from temp s3 bucket
+     * @return type
+     */
     public function updateProfilePhoto() {
 
         try {
@@ -1272,6 +1295,35 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+    }
+
+    /**
+     * delete old video from cloudinary
+     * @return boolean
+     */
+    public function deleteVideoFromCloudinary() {
+
+        try {
+
+            $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
+            Yii::$app->cloudinaryManager->delete($path . $this->candidate_video);
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            //$this->addError('candidate_video', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            //$this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
+
             return false;
         }
     }
@@ -1358,6 +1410,64 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * Set video by url
+     * @param string $url
+     */
+    public function setVideoByUrl($url) {
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+
+        if ($this->candidate_video) {
+            $this->deleteVideoFromCloudinary();
+        }
+
+        try {
+            
+            $path = (YII_ENV == 'prod') ?  "candidate-video/" : "dev/candidate-video/";
+
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url,
+                [
+                    'public_id' => $path . $filename,
+                    "eager" => [
+                        [
+                            //id card thumbnail
+                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
+                        ],
+                        [
+                            //profile pic in apps
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
+                ]
+            );
+
+            if ($result) {
+                $this->candidate_video = basename($result['url']);
+                return true;
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_video', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'candidate');
+
+            $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
 
             return false;
         }

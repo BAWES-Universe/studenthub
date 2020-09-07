@@ -1,10 +1,17 @@
-
+<?php
+$path = (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
+?>
+<div class="row">
+    <p class="pull-right" style="text-align: right;font-size: 14px;font-weight: normal;font-stretch: normal;font-style: normal;line-height: normal;letter-spacing: normal; color: #4f4f4f;">
+        <?=$candidate->employeeId .'<br/>'. 'Prepared by '.Yii::$app->user->identity->staff_name?>
+    </p>
+</div>
 <div class="row">
     <?=\yii\helpers\Html::img('images/logo.png',['style'=>'width:200px; margin-bottom:0;'])?>
 </div>
 <div class="row" style="margin-top: 42px;">
     <div class="col-lg-4 col-md-4 col-xl-4 col-xs-4">
-        <?=\yii\helpers\Html::img(Yii::$app->params['candidate_photo'].'candidate-photo/'.$candidate->candidate_personal_photo)?>
+        <?=\yii\helpers\Html::img(Yii::$app->params['candidate_photo'].$path.$candidate->candidate_personal_photo)?>
     </div>
     <div class="col-xs-6">
         <h1 style="padding:0; margin:0; height: 50px;font-size: 36px;font-weight: bold;color: #000000;"><?=$candidate->candidate_name?></h1>
@@ -29,17 +36,29 @@
 
 <div class="row" style="margin-top: 47px;">
     <?php if ($candidate->university) { ?>
-    <div class="col-xs-6" style="background-image: url('<?=yii\helpers\Url::toRoute('../images/university.png')?>');background-size: 163px 160px;background-repeat: no-repeat;">
-        <p style="font-size: 18px;color: #333333;  padding-left: 65px;">
-            <?=$candidate->university->university_name_en?>
-        </p>
+    <div class="col-xs-6">
+        <div class="pull-left" style="width: 18%">
+            <?=\yii\helpers\Html::img('images/university.png',['style'=>'width:70px'])?>
+
+        </div>
+        <div class="pull-left"  style="width: 70%">
+            <p style="font-size: 18px;color: #333333;  padding-left: 15px;padding-top: 8px">
+                <?=$candidate->university->university_name_en?>
+            </p>
+        </div>
     </div>
     <?php } if ($candidate->candidate_driving_license) { ?>
-        <div class="col-xs-4" style="background-image: url('<?=yii\helpers\Url::toRoute('../images/car_icons.png')?>');background-size: 163px 160px;background-repeat: no-repeat;">
-            <p style="font-size: 18px;color: #333333;  padding-left: 65px;">
+    <div class="col-xs-4">
+        <div class="pull-left" style="width: 28%">
+            <?=\yii\helpers\Html::img('images/car_icons.png')?>
+
+        </div>
+        <div class="pull-left"  style="width: 70%">
+            <p style="font-size: 18px;color: #333333;  padding-left: 15px;">
                 Has driving <br/>license
             </p>
         </div>
+    </div>
     <?php } ?>
 </div>
 
