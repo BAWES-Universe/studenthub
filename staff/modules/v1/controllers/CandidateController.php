@@ -274,8 +274,17 @@ class CandidateController extends Controller
     {
         // Attempt to create new account
         $model = $this->findModel($id);
+        $oldStoreID = $model->store_id;
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
+
+        if ($oldStoreID) {
+            return [
+                "operation" => "error",
+                "message" => "Please remove old Store before assign new store",
+                "code" => 1
+            ];
+        }
 
         if (!$model->store) {
             return [
@@ -295,8 +304,21 @@ class CandidateController extends Controller
             ];
         }
 
-        if (!$model->save())
-        {
+        $query = CandidateWorkHistory::find();
+        $query->andWhere(['candidate_id'=>$model->candidate_id]);
+        $query->andWhere(['store_id'=>$model->store_id]);
+        $query->andWhere(new \yii\db\Expression("start_date = CURDATE()"));
+        $data = $query->count();
+
+        if ($data) {
+            return [
+                "operation" => "error",
+                "message" => "Same Store not possible to assign on same day",
+                "code" => 1
+            ];
+        }
+
+        if (!$model->save()) {
 
             if(isset($model->errors)){
                 return [
