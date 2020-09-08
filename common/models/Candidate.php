@@ -1347,6 +1347,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         try {
 
             $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
+            
             Yii::$app->cloudinaryManager->delete($path . $this->candidate_video);
 
         } catch (\Cloudinary\Error $e) {
@@ -1376,6 +1377,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         try {
 
             $path = (YII_ENV == 'prod') ? "candidate-photo/" : "dev/candidate-photo/";
+            
             Yii::$app->cloudinaryManager->delete($path . $this->candidate_personal_photo);
 
         } catch (\Cloudinary\Error $e) {
