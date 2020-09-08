@@ -314,6 +314,7 @@ class CandidateController extends Controller
         }
 
         // saving candidate work history
+        
         CandidateWorkHistory::saveAssignedHistory($model);
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);

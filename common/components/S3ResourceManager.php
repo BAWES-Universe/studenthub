@@ -218,6 +218,17 @@ class S3ResourceManager extends Component {
         
         return $headers['Content-Length'][0];
     }
+    
+    /**
+     * Gets file duration from meta data 
+     * @param  string $filenameOrUrl The file name or URL of the S3 object
+     * @return integer           the file duration
+     */
+    public function getDuration($filenameOrUrl) {
+        $headers = $this->getHeaders($filenameOrUrl);
+       
+        return isset($headers['x-amz-meta-duration'])? $headers['x-amz-meta-duration'][0]: null;
+    }
 
     /**
      * Returns a S3Client instance
