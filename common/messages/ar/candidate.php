@@ -47,5 +47,7 @@ return [
     "Please upload a video for the candidate" => "",
     "Video" => "",
     "Video Uploaded Successfully" => "",
-    "Profile Photo Uploaded Successfully" => ""
+    "Profile Photo Uploaded Successfully" => "",
+    "Max allowed video duration is {duration}" => "",
+    "Missing video length detail in provided file" => ""
 ];

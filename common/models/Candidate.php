@@ -161,6 +161,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'filePath' => '',
                 'message' => Yii::t('candidate',"Please upload a personal photo for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'on' => 'tmpProfilePhoto',
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
@@ -171,7 +172,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 '\common\components\S3FileExistValidator',
                 'filePath' => '',
                 'message' => Yii::t('candidate',"Please upload a video for the candidate"),
+                'maxDuration' => '30',//in seconds
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'on' => 'tmpVideo',
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
@@ -234,6 +237,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
         
         $scenarios['changeVideo'] = ['candidate_video'];
+        
+        $scenarios['tmpProfilePhoto'] = ['profile_photo'];
+        
+        $scenarios['tmpVideo'] = ['candidate_video'];
 
         $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back'];
         
@@ -1273,6 +1280,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function updateVideo() {
 
+        //validation for temp S3 bucket file 
+        
+        $this->scenario = 'tmpVideo';
+
+        if(!$this->validate()) {
+            return false;
+        }
+        
         try {
             $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
 
@@ -1280,7 +1295,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $this->scenario = 'changeVideo';
 
-            return $this->save(false);
+            return $this->save();
             
         } catch (\Exception $e) {
 
@@ -1297,6 +1312,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function updateProfilePhoto() {
 
+        //validation for temp S3 bucket file 
+        
+        $this->scenario = 'tmpProfilePhoto';
+
+        if(!$this->validate()) {
+            return false;
+        }
+        
         try {
             $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_personal_photo);
 
