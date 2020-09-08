@@ -6,7 +6,6 @@ namespace common\models;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\web\NotFoundHttpException;
 
@@ -27,6 +26,7 @@ use yii\web\NotFoundHttpException;
  * @property string $candidate_gender
  * @property string $candidate_objective
  * @property string $candidate_personal_photo
+ * @property string $candidate_video
  * @property string $candidate_email
  * @property string $candidate_new_email
  * @property string $candidate_email_verification
@@ -107,7 +107,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo'], 'string', 'max' => 255],
+            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
@@ -160,6 +160,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 '\common\components\S3FileExistValidator',
                 'filePath' => '',
                 'message' => Yii::t('candidate',"Please upload a personal photo for the candidate"),
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
+                    
+            [
+                ['candidate_video'],
+                '\common\components\S3FileExistValidator',
+                'filePath' => '',
+                'message' => Yii::t('candidate',"Please upload a video for the candidate"),
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
@@ -221,6 +232,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
+        
+        $scenarios['changeVideo'] = ['candidate_video'];
 
         $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back'];
         
@@ -381,6 +394,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_gender' => Yii::t('candidate','Gender'),
             'candidate_objective' => Yii::t('candidate','Objective'),
             'candidate_personal_photo' => Yii::t('candidate','Personal Photo'),
+            'candidate_video' => Yii::t('candidate', 'Video'),
             'candidate_email' => Yii::t('candidate','Email'),
             'candidate_new_email' => Yii::t('candidate','New Email'),
             'candidate_email_verification' => Yii::t('candidate','Email Verification'),
@@ -1266,7 +1280,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $this->scenario = 'changeVideo';
 
-            return $this->save();
+            return $this->save(false);
+            
         } catch (\Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1290,6 +1305,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->scenario = 'changeProfilePhoto';
 
             return $this->save();
+            
         } catch (\Exception $e) {
 
             Yii::error($e->getMessage(), 'candidate');
@@ -1437,16 +1453,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $url,
                 [
                     'public_id' => $path . $filename,
+                    "resource_type" => "video", 
+                    /*"eager_async" => true,
                     "eager" => [
                         [
-                            //id card thumbnail
-                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
-                        ],
-                        [
-                            //profile pic in apps
-                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                            'format' => "mp4", 
                         ]
-                    ]
+                    ]*/
                 ]
             );
 
@@ -1751,6 +1764,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_name_ar' => $this->candidate_name_ar,
             'candidate_objective' => $this->candidate_objective,
             'candidate_personal_photo' => $this->candidate_personal_photo,
+            'candidate_video' => $this->candidate_video,
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
