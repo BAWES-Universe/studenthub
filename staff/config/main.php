@@ -265,6 +265,20 @@ return [
                         'OPTIONS deliver/<id>' => 'options',
                     ]
                 ],
+                [ // BrandController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/brand',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
