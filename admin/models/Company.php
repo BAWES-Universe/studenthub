@@ -78,6 +78,6 @@ class Company extends \common\models\Company {
      */
     public function getNotes($modelClass = "\admin\models\Note")
     {
-        return parent::getStores($modelClass);
+        return parent::getNotes($modelClass);
     }
 }
