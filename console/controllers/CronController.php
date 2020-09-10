@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use common\models\CandidateWorkHistory;
 use common\models\Company;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
@@ -68,7 +69,25 @@ class CronController extends \yii\console\Controller {
      * coding issue.
      */
     public function actionRemoveDuplicate() {
-        $found = 0;
+        $found = [];
+        // find candidate history with work history more then one.
+//        $data = \Yii::$app->db->createCommand('SELECT candidate_id,count(*) as total FROM `candidate_work_history` GROUP by candidate_id HAVING total > 1')->queryAll();
+//        if ($data) {
+//            // fetch work history of candidate with more then one count
+//            $query = CandidateWorkHistory::find();
+//            $query->andWhere(['candidate_id'=>ArrayHelper::map($data,'candidate_id','candidate_id')]);
+//            $workHistoryData = $query->asArray()->all();
+//            if ($workHistoryData) {
+//                foreach ($workHistoryData as $history)
+//                $found[$history->candidate_id] = [
+//                    $workHistoryData->
+//                ]
+//                echo "<pre>";
+//                print_r($workHistoryData);
+//                exit;
+//            }
+//        }
+
         $allCandidates = Candidate::find()->all();
 
         foreach ($allCandidates as $candidate) {

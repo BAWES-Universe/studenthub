@@ -194,4 +194,12 @@ class Brand extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStores($modelClass = "\common\models\Store")
+    {
+        return $this->hasMany($modelClass::className(), ['brand_uuid' => 'brand_uuid']);
+    }
 }

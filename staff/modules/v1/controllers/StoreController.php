@@ -98,6 +98,7 @@ class StoreController extends Controller
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_name = Yii::$app->request->getBodyParam("name");
+        $model->brand_uuid = Yii::$app->request->getBodyParam("brand_uuid");
 
         if (!$model->save())
         {
@@ -135,8 +136,9 @@ class StoreController extends Controller
         // Attempt to create new account
         $model = $this->findModel($id);
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+//        $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_name = Yii::$app->request->getBodyParam("name");
+        $model->brand_uuid = Yii::$app->request->getBodyParam("brand_uuid");
 
         if (!$model->save())
         {
