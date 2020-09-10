@@ -109,6 +109,18 @@ class Brand extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        return array_merge(parent::fields(), [
+            'candidate_count' => function($data) {
+                return $this->getCandidates()->count();
+            }
+        ]);
+    }
+
+    /**
      * Set logo from S3 temp url
      * @param string $url
      */
@@ -183,7 +195,9 @@ class Brand extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            'company'
+            'company',
+            'candidates',
+            'stores',
         ];
     }
 
@@ -201,5 +215,14 @@ class Brand extends \yii\db\ActiveRecord
     public function getStores($modelClass = "\common\models\Store")
     {
         return $this->hasMany($modelClass::className(), ['brand_uuid' => 'brand_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates($modelClass = "\common\models\Candidate")
+    {
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+            ->via('stores');
     }
 }
