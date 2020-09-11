@@ -43,6 +43,7 @@ class StoreTest extends \Codeception\Test\Unit {
             $model = new Store();
             $model->validate();
             expect('store name is required', $model->errors)->hasKey('store_name');
+            expect('store location is required', $model->errors)->hasKey('store_location');
         });
 
         $this->specify('model Data Type fields test', function () {
@@ -99,6 +100,7 @@ class StoreTest extends \Codeception\Test\Unit {
             $model = new Store();
             $model->company_id = 1; // company id 1 has Sub Company
             $model->store_name = 'New Store';
+            $model->store_location = 'New Store Location';
             $model->store_status = 1;
             $model->store_created_at = '2017-02-23 18:04:42';
             $model->store_updated_at = '2017-02-23 18:04:42';
