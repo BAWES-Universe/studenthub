@@ -278,6 +278,21 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // MallController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/mall',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET all' => 'list-all',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
