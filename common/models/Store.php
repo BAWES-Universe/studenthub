@@ -14,6 +14,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $store_id
  * @property integer $company_id
  * @property string $brand_uuid
+ * @property string $mall_uuid
  * @property string $store_name
  * @property string $store_total_candidates
  * @property integer $store_status
@@ -47,6 +48,7 @@ class Store extends \yii\db\ActiveRecord
             [['company_id'], 'validateCompanyHasSubcompanies'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['brand_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::className(), 'targetAttribute' => ['brand_uuid' => 'brand_uuid']],
+            [['mall_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Mall::className(), 'targetAttribute' => ['mall_uuid' => 'mall_uuid']],
         ];
     }
 
@@ -84,6 +86,7 @@ class Store extends \yii\db\ActiveRecord
             'store_id' => Yii::t('app','Store ID'),
             'company_id' => Yii::t('app','Company ID'),
             'brand_uuid' => Yii::t('app','Brand UUID'),
+            'mall_uuid' => Yii::t('app','Mall UUID'),
             'store_name' => Yii::t('app','Store Name'),
             'store_status' => Yii::t('app','Store Status'),
             'store_created_at' => Yii::t('app','Store Created At'),
@@ -116,7 +119,9 @@ class Store extends \yii\db\ActiveRecord
         return [
             'company',
             'candidates',
-            'brand'
+            'candidatesCount',
+            'brand',
+            'mall'
         ];
     }
 
@@ -162,5 +167,22 @@ class Store extends \yii\db\ActiveRecord
     public function getBrand($modelClass = "\common\models\Brand")
     {
         return $this->hasOne($modelClass::className(), ['brand_uuid' => 'brand_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMall($modelClass = "\common\models\Mall")
+    {
+        return $this->hasOne($modelClass::className(), ['mall_uuid' => 'mall_uuid']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \staff\models\Store
+     */
+    public function getCandidatesCount($modelClass = "\staff\models\Candidate")
+    {
+        return $this->getCandidates()->count();
     }
 }

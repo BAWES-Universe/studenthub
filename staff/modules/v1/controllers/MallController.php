@@ -5,13 +5,16 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use staff\models\Store;
+use common\models\Mall;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
+
 /**
- * Store controller - Manage store as Admin
+ * Mall controller - Manage Mall as Admin
  */
-class StoreController extends Controller
+class MallController extends Controller
 {
     public function behaviors()
     {
@@ -22,7 +25,7 @@ class StoreController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -40,7 +43,7 @@ class StoreController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -64,42 +67,49 @@ class StoreController extends Controller
     }
 
     /**
-     * Return a List of Store Accounts available.
-     * @param null $companyId
+     * Return a List of Mall Accounts available.
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function actionListAll()
+    {
+        return Mall::find()->all();
+    }
+
+    /**
+     * Return a List of Mall Accounts available.
      * @return ActiveDataProvider
      */
-    public function actionList($companyId = null)
+    public function actionList()
     {
-        $query = Store::find()
-            ->with([
-                'candidates', 
-                'candidates.store', 
-                'candidates.company', 
-                'candidates.bank',
-                'candidates.university'
-            ])    
-            ->filterWhere(['company_id' => $companyId])
-            ->notDeleted();
+        $query = Mall::find();
 
         return new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => false
+            'query' => $query
         ]);
     }
 
     /**
-     * Create a store account
+     * load Mall details
+     * @param $id
+     * @return Mall
+     * @throws NotFoundHttpException
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+    
+    /**
+     * Create a Mall account
      * @return array
      */
     public function actionCreate()
     {
-        // Attempt to create new store
-        $model = new Store();
+        // Attempt to create new Mall
+        $model = new Mall();
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
-        $model->store_name = Yii::$app->request->getBodyParam("name");
-        $model->brand_uuid = Yii::$app->request->getBodyParam("brand_uuid");
-        $model->mall_uuid = Yii::$app->request->getBodyParam("mall_uuid");
+        $model->mall_name_en = Yii::$app->request->getBodyParam("name_en");
+        $model->mall_name_ar = Yii::$app->request->getBodyParam("name_ar");
 
         if (!$model->save())
         {
@@ -111,35 +121,36 @@ class StoreController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the store, please contact us for assistance."
+                    "message" => "We've faced a problem creating the Mall, please contact us for assistance."
                 ];
             }
         }
 
-        Yii::info('[Store Created - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
-
         return [
             "operation" => "success",
-            "message" => "Store successfully created"
+            "message" => "Mall created successfully"
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
-     * Create a store account
+     * Create a Mall account
      * @param $id
      * @return array
      */
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel($id);
+        $model = $this->findModel((int) $id);
 
-        $model->store_name = Yii::$app->request->getBodyParam("name");
-        $model->brand_uuid = Yii::$app->request->getBodyParam("brand_uuid");
-        $model->mall_uuid = Yii::$app->request->getBodyParam("mall_uuid");
+        if(!$model){
+            return [
+                    "operation" => "error",
+                    "message" => "Mall not found."
+                ];
+        }
+
+        $model->mall_name_en = Yii::$app->request->getBodyParam("name_en");
+        $model->mall_name_ar = Yii::$app->request->getBodyParam("name_ar");
 
         if (!$model->save())
         {
@@ -151,20 +162,15 @@ class StoreController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the store, please contact us for assistance."
+                    "message" => "We've faced a problem updating the Mall, please contact us for assistance."
                 ];
             }
         }
 
-        Yii::info('[Store Updated - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
-
         return [
             "operation" => "success",
-            "message" => "Store successfully updated"
+            "message" => "Mall successfully updated"
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
@@ -174,50 +180,34 @@ class StoreController extends Controller
      */
     public function actionDelete($id)
     {
-        $store = $this->findModel($id);
+        $mall = $this->findModel((int)$id);
 
-        //Shouldn't be able to delete a store that has candidates assigned to it
-
-        if($store->candidates) {
+        if(!$mall) {
             return [
                 "operation" => "error",
-                "message" => "Store have some candidates assigned to it."
+                "message" => "Mall not found or already deleted"
             ];
         }
 
-        Yii::info('[Store Deleted - '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
-
-        // soft Delete store
-        $store->softDelete();
+        // Delete mall
+        $mall->delete();
 
         return [
             "operation" => "success",
-            "message" => "Store deleted successfully"
+            "message" => "Mall deleted successfully"
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
-
+    
     /**
-     * store View
-     * @param  integer $id
-     * @return array
-     */
-    public function actionView($id)
-    {
-        return $this->findModel($id);
-    }
-
-    /**
-     * Finds the Store model based on its primary key value.
+     * Finds the Mall model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
+     * @return Mall the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Store::findOne($id)) !== null) {
+        if (($model = Mall::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
