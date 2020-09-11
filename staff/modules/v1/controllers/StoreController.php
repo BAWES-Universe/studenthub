@@ -98,6 +98,7 @@ class StoreController extends Controller
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_name = Yii::$app->request->getBodyParam("name");
+        $model->store_location = Yii::$app->request->getBodyParam("location");
         $model->brand_uuid = Yii::$app->request->getBodyParam("brand_uuid");
         $model->mall_uuid = Yii::$app->request->getBodyParam("mall_uuid");
 
@@ -138,6 +139,7 @@ class StoreController extends Controller
         $model = $this->findModel($id);
 
         $model->store_name = Yii::$app->request->getBodyParam("name");
+        $model->store_location = Yii::$app->request->getBodyParam("location");
         $model->brand_uuid = Yii::$app->request->getBodyParam("brand_uuid");
         $model->mall_uuid = Yii::$app->request->getBodyParam("mall_uuid");
 

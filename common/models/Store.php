@@ -16,6 +16,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $brand_uuid
  * @property string $mall_uuid
  * @property string $store_name
+ * @property string $store_location
  * @property string $store_total_candidates
  * @property integer $store_status
  * @property string $store_created_at
@@ -42,7 +43,7 @@ class Store extends \yii\db\ActiveRecord
     {
         return [
             [['company_id', 'store_status', 'store_total_candidates'], 'integer'],
-            [['store_name'], 'required'],
+            [['store_name', 'store_location'], 'required'],
             [['store_created_at', 'store_updated_at','deleted','brand_uuid'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
             [['company_id'], 'validateCompanyHasSubcompanies'],
@@ -88,6 +89,7 @@ class Store extends \yii\db\ActiveRecord
             'brand_uuid' => Yii::t('app','Brand UUID'),
             'mall_uuid' => Yii::t('app','Mall UUID'),
             'store_name' => Yii::t('app','Store Name'),
+            'store_location' => Yii::t('app', 'Store Location'),
             'store_status' => Yii::t('app','Store Status'),
             'store_created_at' => Yii::t('app','Store Created At'),
             'store_updated_at' => Yii::t('app','Store Updated At'),

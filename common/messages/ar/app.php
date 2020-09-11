@@ -77,6 +77,7 @@ return [
     'Staff Status' => 'حالة الموظفين',
     'Staff ID' => 'معرف الموظفين',
     'Store Name' => 'اسم المتجر',
+    'Store Location' => 'موقع المتجر',
     'Store Status' => 'حالة المتجر',
     'Store Created At' => 'تم إنشاء المتجر في',
     'Store Updated At' => 'تم تحديث المتجر في',
