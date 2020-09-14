@@ -218,7 +218,7 @@ class AccountController extends Controller
         
         $model->scenario = 'updateCivilPhotoBack';
 
-        if (!$model->save()) {
+        if (!$model->save(false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->getErrors()
@@ -244,7 +244,7 @@ class AccountController extends Controller
         
         $model->scenario = 'updateCivilPhotoFront';
 
-        if (!$model->save()) {
+        if (!$model->save(false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->getErrors()
