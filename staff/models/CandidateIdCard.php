@@ -154,7 +154,9 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             
             $writer = new \Da\QrCode\Writer\JpgWriter();
             
-            $qrCode = (new QrCode('https://v.studenthub.co/'.$value->candidate_uid, null, $writer))
+            $path = (YII_ENV == 'prod') ? "https://v.studenthub.co/" : "https://v.dev.studenthub.co/";
+            
+            $qrCode = (new QrCode($path . $value->candidate_uid, null, $writer))
                 ->setSize(250)
                 ->setMargin(5);
 

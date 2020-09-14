@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use common\models\CandidateWorkHistory;
 use common\models\Company;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
@@ -51,7 +52,7 @@ class CronController extends \yii\console\Controller {
      */
     public function actionEveryMinute() {
 
-        return self::EXIT_CODE_NORMAL;
+        return 0;
     }
 
     /**
@@ -60,15 +61,15 @@ class CronController extends \yii\console\Controller {
     public function actionWeekly(){
         //Code here
 
-        return self::EXIT_CODE_NORMAL;
+        return 0;
     }
 
     /**
-     * reviewed candidate profiles and remove duplicate experience data which is same as skill arrised due to
+     * reviewed candidate profiles and remove duplicate experience data which is same as skill raised due to
      * coding issue.
      */
     public function actionRemoveDuplicate() {
-        $found = 0;
+        $found = [];
         $allCandidates = Candidate::find()->all();
 
         foreach ($allCandidates as $candidate) {

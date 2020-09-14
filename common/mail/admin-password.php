@@ -74,8 +74,7 @@
                         </span>
                     </div></td></tr><tr><td style="word-break:break-word;font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;" align="center"><div style="cursor:auto;color:#000000;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:15px;line-height:22px;text-align:center;">
                         You may change your password after login.
-                    </div></td></tr><tr><td style="word-break:break-word;font-size:0px;padding:8px 16px 10px;padding-top:0px;padding-bottom:16px;padding-right:30px;padding-left:30px;" align="center"><table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:separate;" align="center" border="0"><tbody><tr><td style="border:none;border-radius:5px;color:white;cursor:auto;padding:10px 25px;" align="center" valign="middle" bgcolor="#00a8ff">
-                                                  </td></tr></tbody></table></td></tr></tbody></table></div><!--[if mso | IE]>
+                    </div></td></tr></tbody></table></div><!--[if mso | IE]>
       </td></tr></table>
       <![endif]--></td></tr></tbody></table></div><!--[if mso | IE]>
       </td></tr></table>

@@ -254,20 +254,8 @@ class CandidateCest
      */
     public function restCallToListCandidateWithoutBankDetail(FunctionalTester $I)
     {
-        $I->wantTo('List assigned candidate without bank');
-        $I->sendGET('v1/candidates/assigned-without-bank');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }
-
-    /**
-     * Candidate List Without Bank Detail
-     * @param FunctionalTester $I
-     */
-    public function restCallToListCandidateNotAssignedWithoutBankDetail(FunctionalTester $I)
-    {
-        $I->wantTo('List not assigned candidate without bank');
-        $I->sendGET('v1/candidates/not-assigned-without-bank');
+        $I->wantTo('List candidate without bank');
+        $I->sendGET('v1/candidates/without-bank');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

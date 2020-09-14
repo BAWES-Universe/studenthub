@@ -13,7 +13,10 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property integer $store_id
  * @property integer $company_id
+ * @property string $brand_uuid
+ * @property string $mall_uuid
  * @property string $store_name
+ * @property string $store_location
  * @property string $store_total_candidates
  * @property integer $store_status
  * @property string $store_created_at
@@ -40,11 +43,13 @@ class Store extends \yii\db\ActiveRecord
     {
         return [
             [['company_id', 'store_status', 'store_total_candidates'], 'integer'],
-            [['store_name'], 'required'],
-            [['store_created_at', 'store_updated_at','deleted'], 'safe'],
+            [['store_name', 'store_location'], 'required'],
+            [['store_created_at', 'store_updated_at','deleted','brand_uuid'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
             [['company_id'], 'validateCompanyHasSubcompanies'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['brand_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::className(), 'targetAttribute' => ['brand_uuid' => 'brand_uuid']],
+            [['mall_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Mall::className(), 'targetAttribute' => ['mall_uuid' => 'mall_uuid']],
         ];
     }
 
@@ -81,7 +86,10 @@ class Store extends \yii\db\ActiveRecord
         return [
             'store_id' => Yii::t('app','Store ID'),
             'company_id' => Yii::t('app','Company ID'),
+            'brand_uuid' => Yii::t('app','Brand UUID'),
+            'mall_uuid' => Yii::t('app','Mall UUID'),
             'store_name' => Yii::t('app','Store Name'),
+            'store_location' => Yii::t('app', 'Store Location'),
             'store_status' => Yii::t('app','Store Status'),
             'store_created_at' => Yii::t('app','Store Created At'),
             'store_updated_at' => Yii::t('app','Store Updated At'),
@@ -112,7 +120,10 @@ class Store extends \yii\db\ActiveRecord
     {
         return [
             'company',
-            'candidates'
+            'candidates',
+            'candidatesCount',
+            'brand',
+            'mall'
         ];
     }
 
@@ -122,7 +133,7 @@ class Store extends \yii\db\ActiveRecord
      */
     public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->where(['deleted'=>0]);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->andWhere(['deleted'=>0]);
     }
 
     /**
@@ -131,7 +142,7 @@ class Store extends \yii\db\ActiveRecord
      */
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])->where(['deleted'=>0]);
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])->andWhere(['deleted'=>0]);
     }
 
     /**
@@ -150,5 +161,30 @@ class Store extends \yii\db\ActiveRecord
     public static function find()
     {
         return new query\StoreQuery(get_called_class());
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrand($modelClass = "\common\models\Brand")
+    {
+        return $this->hasOne($modelClass::className(), ['brand_uuid' => 'brand_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMall($modelClass = "\common\models\Mall")
+    {
+        return $this->hasOne($modelClass::className(), ['mall_uuid' => 'mall_uuid']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \staff\models\Store
+     */
+    public function getCandidatesCount($modelClass = "\staff\models\Candidate")
+    {
+        return $this->getCandidates()->count();
     }
 }

@@ -274,8 +274,17 @@ class CandidateController extends Controller
     {
         // Attempt to create new account
         $model = $this->findModel($id);
+        $oldStoreID = $model->store_id;
 
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
+
+        if ($oldStoreID) {
+            return [
+                "operation" => "error",
+                "message" => "Please remove old Store before assign new store",
+                "code" => 1
+            ];
+        }
 
         if (!$model->store) {
             return [
@@ -295,8 +304,21 @@ class CandidateController extends Controller
             ];
         }
 
-        if (!$model->save())
-        {
+        $query = CandidateWorkHistory::find();
+        $query->andWhere(['candidate_id'=>$model->candidate_id]);
+        $query->andWhere(['store_id'=>$model->store_id]);
+        $query->andWhere(new \yii\db\Expression("start_date = CURDATE()"));
+        $data = $query->count();
+
+        if ($data) {
+            return [
+                "operation" => "error",
+                "message" => "Same Store not possible to assign on same day",
+                "code" => 1
+            ];
+        }
+
+        if (!$model->save()) {
 
             if(isset($model->errors)){
                 return [
@@ -314,6 +336,7 @@ class CandidateController extends Controller
         }
 
         // saving candidate work history
+        
         CandidateWorkHistory::saveAssignedHistory($model);
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
@@ -514,42 +537,22 @@ class CandidateController extends Controller
     /**
      * Return a List of Candidate assigned to store
      */
-    public function actionListAssignedWithoutBankInfo()
+    public function actionListWithoutBankInfo()
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
+        $assigned = Yii::$app->request->get("assigned");
 
         $query = TransferCandidate::find();
         $query->joinWith('candidate');
         $query->filterUnpaid();
 
         $query->andWhere(['{{%candidate}}.deleted'=>0]);
-        $query->andWhere('{{%candidate}}.store_id > 0');
 
-        if ($candidate_name) {
-            $query->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);
+        if($assigned == 'yes') {
+            $query->andWhere('{{%candidate}}.store_id > 0');
+        } else if($assigned == 'no') {
+            $query->andWhere('{{%candidate}}.store_id IS NULL or {{%candidate}}.store_id = 0');
         }
-
-        $query->groupBy('{{%transfer_candidate}}.candidate_id');
-        $query->andWhere('{{%candidate}}.bank_id IS NULL');
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Candidate assigned to store
-     */
-    public function actionListNotAssignedWithoutBankInfo()
-    {
-        $candidate_name = Yii::$app->request->get("candidate_name");
-
-        $query = TransferCandidate::find();
-        $query->joinWith('candidate');
-        $query->filterUnpaid();
-
-        $query->andWhere(['{{%candidate}}.deleted'=>0]);
-        $query->andWhere('{{%candidate}}.store_id IS NULL or {{%candidate}}.store_id = 0');
 
         if ($candidate_name) {
             $query->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);

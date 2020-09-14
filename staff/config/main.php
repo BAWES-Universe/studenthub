@@ -101,8 +101,7 @@ return [
                         'GET not-assigned' => 'list-not-assigned',
                         'GET assigned' => 'list-assigned',                        
                         'GET filter' => 'filter',
-                        'GET assigned-without-bank' => 'list-assigned-without-bank-info',
-                        'GET not-assigned-without-bank' => 'list-not-assigned-without-bank-info',
+                        'GET without-bank' => 'list-without-bank-info',
                         'GET search' => 'search',
                         'GET transfers/<id>' => 'transfers',
                         'GET candidate-resume-pdf/<id>' => 'candidate-resume-pdf',
@@ -263,6 +262,35 @@ return [
                         'OPTIONS start/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
+                    ]
+                ],
+                [ // BrandController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/brand',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // MallController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/mall',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET all' => 'list-all',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],

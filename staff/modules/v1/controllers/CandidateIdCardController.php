@@ -83,11 +83,15 @@ class CandidateIdCardController extends Controller
         $model = $this->findModel($id);
 
         Yii::$app->response->format = yii\web\Response::FORMAT_HTML;
+        
         $qrCode = null;
+        
         if ($model->candidate->candidate_uid) {
             $writer = new \Da\QrCode\Writer\JpgWriter();
 
-            $qrCode = (new QrCode('https://v.studenthub.co/' . $model->candidate->candidate_uid, null, $writer))
+            $path = (YII_ENV == 'prod') ? "https://v.studenthub.co/" : "https://v.dev.studenthub.co/";
+            
+            $qrCode = (new QrCode($path . $model->candidate->candidate_uid, null, $writer))
                 ->setSize(500)
                 ->setMargin(5);
         }

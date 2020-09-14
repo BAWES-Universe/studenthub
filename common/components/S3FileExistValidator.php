@@ -4,6 +4,7 @@ namespace common\components;
 use Yii;
 use yii\validators\Validator;
 
+
 /**
  * S3FileExistValidator will validate if the attribute contains a filename of an object within
  * your bucket
@@ -34,6 +35,8 @@ class S3FileExistValidator extends Validator
      * @var type 
      */
     public $maxSize;
+    
+    public $maxDuration;
     
     /**
      * @var string the error message to be shown if validation fails
@@ -80,6 +83,42 @@ class S3FileExistValidator extends Validator
             {
                 $this->addError($model, $attribute, Yii::t('app', 'Max allowed file size is {size}', [
                     'size' => $this->maxSize
+                ]));
+            }
+        }   
+        
+        if($this->maxDuration) 
+        {
+            $ffprobe = \FFMpeg\FFProbe::create([
+                'ffmpeg.binaries'  => '/usr/local/bin/ffmpeg', // the path to the FFMpeg binary
+                'ffprobe.binaries' =>  '/usr/local/bin/ffprobe',
+                'timeout'          => 3600, // the timeout for the underlying process
+                'ffmpeg.threads'   => 12,   // the number of threads that FFMpeg should use
+            ]);
+
+            $path = $this->resourceManager->getUrl($filename);
+            
+            $duration = $ffprobe
+                ->format($path) // extracts file informations
+                ->get('duration');             // returns the duration property
+
+            /**
+             * in case video missing duration detail 
+             */
+            if(!$duration) {
+                //ffmpeg -i $path -vcodec copy -acodec copy $tmpPath. $filename
+                
+                $duration = $this->resourceManager->getDuration($filename);
+            }
+            
+            if(!$duration) {
+                $this->addError($model, $attribute, Yii::t('app', 'Missing video length detail in provided file'));
+            }
+            
+            if($this->maxDuration < $duration) 
+            {
+                $this->addError($model, $attribute, Yii::t('app', 'Max allowed video duration is {duration}', [
+                    'duration' => $this->maxDuration
                 ]));
             }
         }   

@@ -2,7 +2,7 @@
 
 return [
 	'token_id' => $index + 1, // this token belongs to this admin, needs to match # of admins/their PK
-	'company_id' => $faker->realText($faker->numberBetween(1,3)),
+	'company_id' => $faker->numberBetween(1,3),
 	'token_value' => Yii::$app->getSecurity()->generateRandomString(),
 	'token_device' => null,
 	'token_device_id' => null,

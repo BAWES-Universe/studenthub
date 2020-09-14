@@ -245,7 +245,7 @@ class AdminController extends Controller
 
         $password = Yii::$app->security->generateRandomString(5);
 
-        $model->password = $password;
+        $model->setPassword($password);
         $model->save(false);
 
         //Send Email to user

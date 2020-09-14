@@ -1,6 +1,7 @@
 <?php
 namespace staff\models;
 
+use common\models\StaffToken;
 use Yii;
 
 /**

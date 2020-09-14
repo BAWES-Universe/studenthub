@@ -43,5 +43,11 @@ return [
     "Civil Photo Back Uploaded Successfully" => "",
     "Civil Photo Front Uploaded Successfully" => "",
     "Civil ID Expiry Date Updated Successfully" => "",
-    "Name is required" => ""
+    "Name is required" => "",
+    "Please upload a video for the candidate" => "",
+    "Video" => "",
+    "Video Uploaded Successfully" => "",
+    "Profile Photo Uploaded Successfully" => "",
+    "Max allowed video duration is {duration}" => "",
+    "Missing video length detail in provided file" => ""
 ];

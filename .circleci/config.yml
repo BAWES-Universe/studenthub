@@ -35,7 +35,7 @@ jobs:
           name: Install things we need
           command: |
             sudo apt-get update
-            sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client
+            sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client ffmpeg
 
       - run:
           name: Install PHP exts

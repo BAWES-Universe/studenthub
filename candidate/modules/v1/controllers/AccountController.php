@@ -218,7 +218,7 @@ class AccountController extends Controller
         
         $model->scenario = 'updateCivilPhotoBack';
 
-        if (!$model->save()) {
+        if (!$model->save(false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->getErrors()
@@ -244,7 +244,7 @@ class AccountController extends Controller
         
         $model->scenario = 'updateCivilPhotoFront';
 
-        if (!$model->save()) {
+        if (!$model->save(false)) {
             return [
                 'operation' => 'error',
                 'message' => $model->getErrors()
@@ -582,7 +582,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_video' => $model->candidate_video,
-            'message' => Yii::t('job', 'Video Uploaded Successfully')
+            'message' => Yii::t('candidate', 'Video Uploaded Successfully')
         ];
     }
     
@@ -613,7 +613,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_personal_photo' => $model->candidate_personal_photo,
-            'message' => Yii::t('job', 'Profile Photo Uploaded Successfully')
+            'message' => Yii::t('candidate', 'Profile Photo Uploaded Successfully')
         ];
     }
     
