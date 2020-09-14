@@ -9,7 +9,7 @@ return [
     'token_device' => null,
     'token_device_id' => null,
     'token_status' => 1,
-    'token_last_used_datetime' => $faker->iso8601,
-    'token_expiry_datetime' =>  $faker->iso8601,
-    'token_created_datetime' => $faker->iso8601
+    'token_last_used_datetime' => $faker->date('Y-m-d H:i:s'),
+    'token_expiry_datetime' =>  $faker->date('Y-m-d H:i:s'),
+    'token_created_datetime' => $faker->date('Y-m-d H:i:s')
 ];
