@@ -5,8 +5,7 @@ use yii\helpers\Html;
 ?>
 <div class="row">
     <p class="pull-right" style="text-align: right;font-size: 14px;font-weight: normal;font-stretch: normal;font-style: normal;line-height: normal;letter-spacing: normal; color: #4f4f4f;">
-        <?php //$candidate->employeeId .'<br/>'. 'Prepared by '.Yii::$app->user->identity->staff_name?>
-        <?=$candidate->employeeId .'<br/>'. 'Prepared by Kuwait'?>
+        <?php echo $candidate->employeeId .'<br/>'. 'Prepared by '.Yii::$app->user->identity->staff_name?>
     </p>
 </div>
 <div class="row">
