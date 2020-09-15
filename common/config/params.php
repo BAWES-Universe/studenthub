@@ -10,6 +10,7 @@ return [
     'salaryDay' => 5, //salary should get transfer by 5th day of every month
     'payment_notice_period' => '-35 days',
     'candidate_photo' => 'https://res.cloudinary.com/studenthub/image/upload/v1596525812/',
+    'candidate_video' => 'https://res.cloudinary.com/studenthub/video/upload/v1596525812/',
     'bankInfo' => [ //BAWES Bank Info
         'accountName' => 'BAWES FOR COMPUTER AND OPERATION CO',
         'accountNameArabic' => 'شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت',
