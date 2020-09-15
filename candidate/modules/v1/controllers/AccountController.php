@@ -179,6 +179,31 @@ class AccountController extends Controller
     }
     
     /**
+     * Remove Video
+     */
+    public function actionRemoveVideo() {
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if ($model->candidate_video) {
+            $model->deleteVideoFromCloudinary();
+        }
+        
+        $model->candidate_video = null;
+        $model->scenario = 'changeVideo';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+
+    /**
      * Remove Photo
      */
     public function actionRemovePhoto() {
