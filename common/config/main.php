@@ -3,6 +3,7 @@ return [
     'name' => 'StudentHub Internship Program',
     'timeZone' => 'Asia/Kuwait',
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
+    'language' => 'en', // <- here!
     'components' => [
         'temporaryBucketResourceManager' => [
             'class' => 'common\components\S3ResourceManager',
@@ -56,6 +57,11 @@ return [
                     'sourceLanguage' => 'en',
                 ],
                 'app' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@common/messages',
+                    'sourceLanguage' => 'en',
+                ],
+                'candidate' => [
                     'class' => 'yii\i18n\PhpMessageSource',
                     'basePath' => '@common/messages',
                     'sourceLanguage' => 'en',
