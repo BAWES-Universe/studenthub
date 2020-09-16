@@ -220,7 +220,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'files',
             'brands',
             'notes',
-            'requests'
+            'requests',
+            'parentTransfers'
         ];
     }
 
