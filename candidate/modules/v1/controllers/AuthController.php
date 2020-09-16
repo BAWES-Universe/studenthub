@@ -67,6 +67,7 @@ class AuthController extends Controller
             'resend-verification-email',
             'verify-email',
             'is-email-verified',
+            'name-by-civil-id'
         ];
 
         return $behaviors;
@@ -114,6 +115,14 @@ class AuthController extends Controller
         // Return candidate access token if everything valid
 
         return $this->_loginResponse($candidate);
+    }
+
+    /**
+     * Mock candidate name by civil id api
+     */
+    public function actionNameByCivilId() {
+        Yii::$app->response->format = 'html';
+        echo '<html><input id="#ContentPlaceHolder1_txtName" value="test arabic name" /></html>';
     }
 
     /**
