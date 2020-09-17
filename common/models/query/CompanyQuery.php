@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use common\models\Company;
 use Yii;
 
 /**
@@ -46,5 +47,21 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function filterCompany($id) {
         return $this->andWhere(['{{%company}}.company_id' => $id]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterActive() {
+        return $this->andWhere(['{{%company}}.company_status' => Company::STATUS_ACTIVE]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterInActive() {
+        return $this->andWhere(['{{%company}}.company_status' => Company::STATUS_INACTIVE]);
     }
 }

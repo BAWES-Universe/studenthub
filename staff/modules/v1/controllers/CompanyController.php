@@ -71,9 +71,18 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
+        $status = Yii::$app->request->getQueryParam("status",0);
         $query = Company::find()
             ->notDeleted()
             ->filterParent();
+
+        if ($status == 1) {
+            $query->filterActive();
+        }
+        if ($status == 2) {
+            $query->filterInActive();
+        }
+        // else it will fetch all
 
         return new ActiveDataProvider([
             'query' => $query,
