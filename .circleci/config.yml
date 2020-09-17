@@ -35,7 +35,15 @@ jobs:
           name: Install things we need
           command: |
             sudo apt-get update
-            sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client ffmpeg ffprobe
+            sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client 
+
+      - run: 
+          name: Install FFMPEG 
+          command: | 
+            sudo add-apt-repository ppa:mc3man/trusty-media
+            sudo apt-get update
+            sudo apt-get dist-upgrade
+            sudo apt-get install ffmpeg
 
       - run:
           name: Install PHP exts
