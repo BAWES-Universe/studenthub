@@ -92,6 +92,8 @@ class S3FileExistValidator extends Validator
             $ffprobe = \FFMpeg\FFProbe::create([
                 //'ffmpeg.binaries'  => '/usr/bin/ffmpeg', // the path to the FFMpeg binary
                 //'ffprobe.binaries' =>  '/usr/bin/ffprobe',
+                'ffmpeg.binaries' => exec('which ffmpeg'),
+                'ffprobe.binaries' => exec('which ffprobe'),
                 'timeout'          => 3600, // the timeout for the underlying process
                 'ffmpeg.threads'   => 12,   // the number of threads that FFMpeg should use
             ]);
