@@ -128,5 +128,6 @@ return [
     'Contact Note' => "ملاحظة الاتصال",
     'Contact Created Datetime' => "تاريخ إنشاء جهة الاتصال",
     'Contact Updated Datetime' => "تاريخ تحديث جهة الاتصال",
-    'Video not available to save.' => "الفيديو غير متوفر للحفظ"
+    'Video not available to save.' => "الفيديو غير متوفر للحفظ",
+    "Video must be longer than 1 second": "يجب أن يكون الفيديو أطول من ثانية واحدة"
 ];
