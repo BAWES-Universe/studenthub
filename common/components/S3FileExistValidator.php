@@ -114,7 +114,7 @@ class S3FileExistValidator extends Validator
             }
             
             if(!$duration) {
-                $this->addError($model, $attribute, Yii::t('app', 'Missing video length detail in provided file'));
+                $this->addError($model, $attribute, Yii::t('app', 'Video must be longer than 1 second'));
             }
             
             if($this->maxDuration < $duration) 
