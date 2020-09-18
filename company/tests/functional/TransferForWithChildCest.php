@@ -23,6 +23,7 @@ class TransferForWithChildCest
 
         $this->model = Company::findOne(1);
         $this->token = $this->model->accessToken->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I){}
@@ -43,7 +44,6 @@ class TransferForWithChildCest
     public function tryToListWithRelations(FunctionalTester $I)
     {
         $I->wantTo('List transfers with relations for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers?expand=invoices,transferCandidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -105,7 +105,6 @@ class TransferForWithChildCest
         );
         
         $I->wantTo('Create transfer for company with child by excel upload');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'form-data');
         $I->sendPOST('v1/transfers/create-by-excel', [
             "excel" => basename($response['ObjectURL'])
@@ -213,7 +212,6 @@ class TransferForWithChildCest
         }
 
         $I->wantTo('Create transfer for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPOST('v1/transfers', [
             'candidates' => $arrCandidate
         ]);
@@ -248,7 +246,6 @@ class TransferForWithChildCest
             ->one();
 
         $I->wantTo('Edit transfer for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfers/'. $transfer->transfer_id, [
             'candidates' => $arrCandidate
         ]);
@@ -268,7 +265,6 @@ class TransferForWithChildCest
 			->one();
 
 		$I->wantTo('Mark transfer as "Locked" for company with child');
-		$I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
 		$I->sendPATCH('v1/transfers/lock/' . $transfer->transfer_id);
 		$I->seeResponseCodeIs(HttpCode::OK); // 200
 		$I->seeResponseIsJson();
@@ -285,7 +281,6 @@ class TransferForWithChildCest
             ->where(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
         $I->wantTo( 'Mark transfer as "Payment Sent" for company with child' );
-        $I->haveHttpHeader( 'Authorization', 'Bearer ' . $this->token );
         $I->sendPATCH( 'v1/transfers/payment-sent/' . $transfer->transfer_id );
         $I->seeResponseCodeIs( HttpCode::OK ); // 200
         $I->seeResponseIsJson();
@@ -299,7 +294,6 @@ class TransferForWithChildCest
 	{
 		$transfer = $this->model->getTransfers()->one();
 		$I->wantTo( 'View transfer with relations for company with child' );
-		$I->haveHttpHeader( 'Authorization', 'Bearer ' . $this->token );
 		$I->sendGET( 'v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates' );
 		$I->seeResponseCodeIs( HttpCode::OK ); // 200
 		$I->seeResponseIsJson();
@@ -318,7 +312,6 @@ class TransferForWithChildCest
             ->one();
 
         $I->wantTo('Delete transfer for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendDELETE('v1/transfers/' . $transfer->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -340,7 +333,6 @@ class TransferForWithChildCest
             ->one();
 
         $I->wantTo('Download invoice for company with child');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/pdf/' . $invoice->invoice_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
