@@ -1520,14 +1520,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function deleteFile($type = 'resume', $side = 'front') {
 
         try {
-            if ($type == 'resume') {
-                $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
-            } if ($type == 'civil-id' && $side == 'front') {
-                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
-            } else {
-                $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
+            if (isset($this->oldPrimaryKey)) {
+                if ($type == 'resume' && isset($this->oldPrimaryKey['candidate_resume'])) {
+                    $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
+                } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldPrimaryKey['candidate_civil_photo_front'])) {
+                    $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
+                } else if (isset($this->oldPrimaryKey['candidate_civil_photo_back'])) {
+                    $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
+                }
+                Yii::$app->resourceManager->delete($file);
             }
-            Yii::$app->resourceManager->delete($file);
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
@@ -1632,14 +1634,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['uid'] = true;
         }
 
-//        if (!$this->store) {
-//            return 'store_id';
-//        }
-
-//        if (!$this->bank) {
-//            $this->pendingProfile['bank'] = true;
-//        }
-
         if (!$this->university) {
             $this->pendingProfile['university'] = true;
         }
@@ -1647,14 +1641,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!$this->country) {
             $this->pendingProfile['country'] = true;
         }
-
-//        if (!$this->bank_account_name) {
-//            $this->pendingProfile['bank account Name'] = true;
-//        }
-//
-//        if (!$this->candidate_iban) {
-//            $this->pendingProfile['IBAN'] = true;
-//        }
 
         if (!$this->candidate_name) {
             $this->pendingProfile['name'] = true;
@@ -1683,10 +1669,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!$this->candidate_phone) {
             $this->pendingProfile['phone'] = true;
         }
-
-//        if (!$this->candidate_address_line1) {
-//            $this->pendingProfile['address line1'] = true;
-//        }
 
         if (!$this->candidate_birth_date) {
             $this->pendingProfile['birth date'] = true;

@@ -45,6 +45,7 @@ return [
                         'GET login' => 'login',
                         'POST email-check' => 'email-check',
                         'POST register' => 'signup',
+                        'POST name-by-civil-id' => 'name-by-civil-id',
                         'POST request-reset-password' => 'request-reset-password',
                         'POST is-email-verified' => 'is-email-verified',
                         'POST update-email' => 'update-email',          
@@ -52,6 +53,7 @@ return [
                         'POST verify-email' => 'verify-email',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
+                        'OPTIONS name-by-civil-id' => 'options',
                         'OPTIONS login' => 'options',
                         'OPTIONS register' => 'options',
                         'OPTIONS email-check' => 'options',

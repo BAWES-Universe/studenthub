@@ -7,7 +7,6 @@ use common\models\Transfer;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
-use yii\data\ArrayDataProvider;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use candidate\models\Candidate;
@@ -124,7 +123,8 @@ class AccountController extends Controller
         return [
             "operation" => "success",
             "message" => Yii::t('candidate', "Experiences updated successfully"),
-            "experiences" => $experienceList
+            "experiences" => $experienceList,
+            "lang" => Yii::$app->language
         ];
     }
     
@@ -178,6 +178,31 @@ class AccountController extends Controller
         ];
     }
     
+    /**
+     * Remove Video
+     */
+    public function actionRemoveVideo() {
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if ($model->candidate_video) {
+            $model->deleteVideoFromCloudinary();
+        }
+        
+        $model->candidate_video = null;
+        $model->scenario = 'changeVideo';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+
     /**
      * Remove Photo
      */

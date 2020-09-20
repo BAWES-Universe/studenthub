@@ -1,8 +1,8 @@
 <?php
 namespace company\tests;
 
-use Yii;
 use company\tests\FunctionalTester;
+use Yii;
 use company\models\CompanyToken;
 use common\fixtures\CompanyTokenFixture;
 use Codeception\Util\HttpCode;
@@ -21,6 +21,7 @@ class CompanyCest
         $this->token = CompanyToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -33,8 +34,15 @@ class CompanyCest
      */
     public function listCompanies(FunctionalTester $I)
     {
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/companies');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    public function viewCompany(FunctionalTester $I) {
+        Yii::$app->user->loginByAccessToken($this->token);
+        $data = Yii::$app->user->identity->getSubCompanies()->one();
+        $I->sendGET('v1/companies/'.$data->company_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

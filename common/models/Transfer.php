@@ -151,7 +151,8 @@ class Transfer extends ActiveRecord
         return [
             'company',
             'invoices',
-            'transferCandidates'
+            'transferCandidates',
+            'childTransfers'
         ];
     }
 
