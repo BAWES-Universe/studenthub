@@ -1914,15 +1914,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         return $total;
     }
+    
     public static function neededBankInfo() {
         return TransferCandidate::find()
-        ->joinWith('candidate')
-        ->filterUnpaid()
-        ->andWhere(['{{%candidate}}.deleted'=>0])
-        ->andWhere('{{%candidate}}.store_id > 0')
-        ->groupBy('{{%transfer_candidate}}.candidate_id')
-        ->andWhere('{{%candidate}}.bank_id IS NULL')
-        ->count();
+            ->joinWith('candidate')
+            ->filterUnpaid()
+            ->andWhere(['{{%candidate}}.deleted'=>0])
+            //->andWhere('{{%candidate}}.store_id > 0')
+            ->groupBy('{{%transfer_candidate}}.candidate_id')
+            ->andWhere('{{%candidate}}.bank_id IS NULL')
+            ->count();
     }
-
 }

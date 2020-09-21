@@ -3,11 +3,10 @@
 namespace staff\modules\v1\controllers;
 
 use staff\models\Company;
-use staff\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
 use staff\models\Candidate;
-use staff\models\CandidateIdCard;
+
 
 /**
  * Statistic controller
