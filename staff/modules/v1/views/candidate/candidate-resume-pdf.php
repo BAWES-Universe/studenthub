@@ -61,7 +61,7 @@ use yii\helpers\Html;
             <?php
                 $from = new DateTime($candidate->candidate_birth_date);
                 $to   = new DateTime('today');
-                echo $from->diff($to)->y.' Years Old';
+                echo $from->diff($to)->y.' years old';
             ?>
         </p>
         <p style="margin-top:18px;font-size: 20px;font-weight: bold;color: #000000;">
