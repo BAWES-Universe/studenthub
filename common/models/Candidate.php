@@ -1522,14 +1522,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             if (isset($this->oldPrimaryKey)) {
-                if ($type == 'resume' && isset($this->oldPrimaryKey['candidate_resume'])) {
-                    $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
-                } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldPrimaryKey['candidate_civil_photo_front'])) {
-                    $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
-                } else if (isset($this->oldPrimaryKey['candidate_civil_photo_back'])) {
-                    $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
+                if ($type == 'resume' && isset($this->oldAttributes['candidate_resume'])) {
+                    $file = "candidate-resume/" . $this->oldAttributes['candidate_resume'];
+                } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldAttributes['candidate_civil_photo_front'])) {
+                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_front'];
+                } else if (isset($this->oldAttributes['candidate_civil_photo_back'])) {
+                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_back'];
                 }
-                Yii::$app->resourceManager->delete($file);
+                if ($file) {
+                    Yii::$app->resourceManager->delete($file);
+                }
             }
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
