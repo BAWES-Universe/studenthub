@@ -66,5 +66,6 @@ return [
     "Candidate Gender Info Updated Successfully" => "تم تحديث معلومات جنس المرشح بنجاح",
     "Candidate University Info Updated Successfully" => "تم تحديث معلومات الجامعة المرشح بنجاح",
     "Resume Uploaded Successfully" => "استئناف التحميل بنجاح",
-    "Candidate Birth Date Info Updated Successfully" => "تم تحديث معلومات تاريخ ميلاد المرشح بنجاح"
+    "Candidate Birth Date Info Updated Successfully" => "تم تحديث معلومات تاريخ ميلاد المرشح بنجاح",
+    "This email verification link is no longer valid, please login to send a new one" => "",
 ];

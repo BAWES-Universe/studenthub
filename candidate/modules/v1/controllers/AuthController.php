@@ -310,8 +310,14 @@ class AuthController extends Controller
         }
 
         $candidate = Candidate::verifyEmail($email, $code);
+        if ($candidate['success'] == false) {
+            return [
+                'operation' => 'error',
+                'message' => $candidate['message']
+            ];
+        }
 
-        if ($candidate) {
+        if ($candidate['success'] == true) {
             //remove old email verification attempts
 
             CandidateEmailVerifyAttempt::deleteAll([
@@ -324,7 +330,7 @@ class AuthController extends Controller
             //$candidate->otp = null;
             //$candidate->save(false);
 
-            return $this->_loginResponse($candidate);
+            return $this->_loginResponse($candidate['data']);
         } else {
             //add entry for invalid attempt
 

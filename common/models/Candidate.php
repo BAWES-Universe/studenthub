@@ -1172,13 +1172,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
        
         $candidate = Candidate::find()
             ->where([
-                'AND',
-                ['candidate_auth_key' => $code],
-                [
                     'OR',
                     ['candidate_new_email' => $email],
                     ['candidate_email' => $email]
-                ]
             ])
             ->one();
 
@@ -1186,7 +1182,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             throw new NotFoundHttpException('The requested page does not exist.');
         }
 
-        if ($candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
+        if ($candidate->candidate_auth_key && $code && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
             //If not verified
             if ($candidate->candidate_email_verification == Candidate::EMAIL_NOT_VERIFIED) {
                 //Verify this candidates email
@@ -1202,10 +1198,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $candidate->candidate_auth_key = ''; //remove auth key
             $candidate->save(false);
-
-            return $candidate;
+            return [
+                'success' => true,
+                'data' => $candidate
+            ];
         } else {
-            return false;
+            return [
+                'success' => false,
+                'message' =>Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
+            ];
         }
     }
 
@@ -1521,14 +1522,20 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             if (isset($this->oldPrimaryKey)) {
-                if ($type == 'resume' && isset($this->oldPrimaryKey['candidate_resume'])) {
-                    $file = "candidate-resume/" . $this->oldPrimaryKey['candidate_resume'];
-                } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldPrimaryKey['candidate_civil_photo_front'])) {
-                    $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_front'];
-                } else if (isset($this->oldPrimaryKey['candidate_civil_photo_back'])) {
-                    $file = "candidate-civil-id/" . $this->oldPrimaryKey['candidate_civil_photo_back'];
+                
+                $file = null; 
+                
+                if ($type == 'resume' && isset($this->oldAttributes['candidate_resume'])) {
+                    $file = "candidate-resume/" . $this->oldAttributes['candidate_resume'];
+                } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldAttributes['candidate_civil_photo_front'])) {
+                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_front'];
+                } else if ($type == 'civil-id' && $side == 'back' && isset($this->oldAttributes['candidate_civil_photo_back'])) {
+                    $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_back'];
                 }
-                Yii::$app->resourceManager->delete($file);
+                
+                if ($file) {
+                    Yii::$app->resourceManager->delete($file);
+                }
             }
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
