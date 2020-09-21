@@ -234,7 +234,7 @@ class AccountController extends Controller
     public function actionRemoveCivilPhotoBack() {
         
         $model = Candidate::findOne(Yii::$app->user->getId());
-
+                
         if ($model->candidate_civil_photo_back) {
             $model->deleteFile('civil-id', 'back');
         }
