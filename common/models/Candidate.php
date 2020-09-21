@@ -1522,13 +1522,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             if (isset($this->oldPrimaryKey)) {
+                
+                $file = null; 
+                
                 if ($type == 'resume' && isset($this->oldAttributes['candidate_resume'])) {
                     $file = "candidate-resume/" . $this->oldAttributes['candidate_resume'];
                 } else if ($type == 'civil-id' && $side == 'front' && isset($this->oldAttributes['candidate_civil_photo_front'])) {
                     $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_front'];
-                } else if (isset($this->oldAttributes['candidate_civil_photo_back'])) {
+                } else if ($type == 'civil-id' && $side == 'back' && isset($this->oldAttributes['candidate_civil_photo_back'])) {
                     $file = "candidate-civil-id/" . $this->oldAttributes['candidate_civil_photo_back'];
                 }
+                
                 if ($file) {
                     Yii::$app->resourceManager->delete($file);
                 }
