@@ -1172,13 +1172,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
        
         $candidate = Candidate::find()
             ->where([
-                'AND',
-                ['candidate_auth_key' => $code],
-                [
                     'OR',
                     ['candidate_new_email' => $email],
                     ['candidate_email' => $email]
-                ]
             ])
             ->one();
 
@@ -1186,7 +1182,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             throw new NotFoundHttpException('The requested page does not exist.');
         }
 
-        if ($candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
+        if ($candidate->candidate_auth_key && $code && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
             //If not verified
             if ($candidate->candidate_email_verification == Candidate::EMAIL_NOT_VERIFIED) {
                 //Verify this candidates email
@@ -1202,10 +1198,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $candidate->candidate_auth_key = ''; //remove auth key
             $candidate->save(false);
-
-            return $candidate;
+            return [
+                'success' => true,
+                'data' => $candidate
+            ];
         } else {
-            return false;
+            return [
+                'success' => false,
+                'message' =>Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
+            ];
         }
     }
 
