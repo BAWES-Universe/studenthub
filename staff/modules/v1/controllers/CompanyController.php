@@ -4,7 +4,6 @@ namespace staff\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 use staff\models\Company;

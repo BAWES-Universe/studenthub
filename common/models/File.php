@@ -72,6 +72,7 @@ class File extends \yii\db\ActiveRecord
 
         $scenarios['create'] = ['company_id','file_title','file_description','file_s3_path','file_name'];
         $scenarios['update'] = ['file_title','file_description'];
+        
         return $scenarios;
     }
 
@@ -132,13 +133,15 @@ class File extends \yii\db\ActiveRecord
         $fileName = $this->file_s3_path;
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
-        $targetPath = "company-files/" . $fileName;
-        $this->file_s3_path = "company-files/" . $fileName;
+        
+        $this->file_s3_path = (YII_ENV == 'prod') ? "company-files/". $fileName 
+            : "dev/company-files/". $fileName;
         
         // Copy using S3ResourceManager Component
+        
         try {
 
-            return Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+            return Yii::$app->resourceManager->copy($fileName, $this->file_s3_path, $sourceBucket);
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
@@ -165,11 +168,22 @@ class File extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
+            
             if ($this->isNewRecord && !$this->updateDocument() ) {
                 return false;
             }
+            
+            if(!$this->file_size) {
+                $this->file_size = Yii::$app->resourceManager->getSize($this->file_s3_path);
+            }
+            
+            if(!$this->file_type) {
+                $this->file_type = Yii::$app->resourceManager->getType($this->file_s3_path);
+            }
+            
             return true;
         }
+        
         return false;
     }
 
@@ -179,19 +193,21 @@ class File extends \yii\db\ActiveRecord
      */
     public function deleteDocument() {
 
-        try {
+        try {            
             Yii::$app->resourceManager->delete($this->file_s3_path);
+            
             return true;
-        } catch (\Aws\S3\Exception\S3Exception $e) {
-
+        } 
+        catch (\Aws\S3\Exception\S3Exception $e) 
+        {
             Yii::error($e->getMessage(), 'file');
 
             $this->addError('candidate_resume', Yii::t('app', 'Document not available to delete.'));
 
             return false;
-
-        } catch (\Exception $e) {
-
+        } 
+        catch (\Exception $e) 
+        {
             Yii::error($e->getMessage(), 'file');
 
             $this->addError('candidate_resume', Yii::t('app', 'Document not available to delete.'));
