@@ -9,13 +9,18 @@ use yii\helpers\Html;
     </p>
 </div>
 <div class="row">
-    <?=Html::img('images/logo.png',['style'=>'width:200px; margin-bottom:0;'])?>
+    <?= Html::img('images/logo.png',['style'=>'width:200px; margin-bottom:0;']) ?>
 </div>
 <div class="row" style="margin-top: 42px;">
 
     <div class="col-lg-4 col-md-4 col-xl-4 col-xs-4 text-left" style="padding: 0px;">
-        <?=Html::img(Yii::$app->params['candidate_photo'].$path.$candidate->candidate_personal_photo,['style'=>'width:200px'])?>
-
+        
+        <?php if($candidate->candidate_personal_photo) { ?>
+            <!-- c_thumb,g_face -->
+            <img src="https://res.cloudinary.com/studenthub/image/upload/w_400/v1596525812/<?= $path.$candidate->candidate_personal_photo ?>" 
+            style='width:200px' />
+        <?php } ?>
+        
         <div class="" style="margin-top: 47px;">
             <div style="margin-bottom: 19px;">
                 <div class="pull-left"  style="width: 18%">
