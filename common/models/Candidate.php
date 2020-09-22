@@ -1349,7 +1349,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
             
-            Yii::$app->cloudinaryManager->delete($path . $this->candidate_video);
+            Yii::$app->cloudinaryManager->delete($path . $this->candidate_video, "video");
 
         } catch (\Cloudinary\Error $e) {
 
