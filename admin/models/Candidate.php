@@ -17,9 +17,7 @@ class Candidate extends \common\models\Candidate {
         // remove fields that contain sensitive information
         unset($fields['candidate_auth_key'],
         $fields['candidate_password_hash'],
-        $fields['candidate_password_reset_token'],
-        $fields['candidate_created_at'],
-        $fields['candidate_updated_at']);
+        $fields['candidate_password_reset_token']);
         return $fields;
     }
 

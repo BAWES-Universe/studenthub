@@ -3,9 +3,7 @@
 namespace common\components;
 
 use Yii;
-use yii\helpers\Html;
 use Aws\S3\S3Client;
-use GuzzleHttp\Exception\ClientErrorResponseException;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
@@ -189,6 +187,7 @@ class S3ResourceManager extends Component {
         }
 
         $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
+        
         try {
             $response = $http->request('HEAD');
         } catch (\Exception $e) {
@@ -198,7 +197,7 @@ class S3ResourceManager extends Component {
     }
     
     /**
-     * Gets size of the object in filename or url
+     * Gets type of the object in filename or url
      * @param  string $filenameOrUrl The file name or URL of the S3 object
      * @return string file mime type 
      */

@@ -31,7 +31,7 @@ class CloudinaryManager {
                 ]));
             }
         }
-        parent::init();
+//        parent::init();
     }
 
     /**
@@ -59,7 +59,7 @@ class CloudinaryManager {
      * @param type $path
      * @return type
      */
-    public function delete($path) 
+    public function delete($path, $type = "image")
     {
         \Cloudinary::config(array( 
           "cloud_name" => $this->cloud_name,
@@ -73,7 +73,7 @@ class CloudinaryManager {
         
         $public_id = str_replace(".".$ext, "", $path);
         
-        $result = \Cloudinary\Uploader::destroy($public_id);
+        $result = \Cloudinary\Uploader::destroy($public_id,["resource_type" => $type]);
         
         return $result;
     }
@@ -83,15 +83,14 @@ class CloudinaryManager {
      * @param type $public_id
      * @return type
      */
-    public function getUrl($public_id) 
+    public function getUrl($public_id, $type = "image")
     {   
         \Cloudinary::config(array( 
           "cloud_name" => $this->cloud_name,
           "api_key" => $this->api_key,
           "api_secret" => $this->api_secret
         ));
-        
-        return cloudinary_url($public_id);
+        return cloudinary_url($public_id,["resource_type" => $type]);
     }
 }
 
