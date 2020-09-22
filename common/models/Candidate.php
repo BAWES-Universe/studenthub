@@ -33,6 +33,9 @@ use yii\web\NotFoundHttpException;
  * @property string $candidate_limit_email
  * @property string $candidate_phone
  * @property string $candidate_address_line1
+ * @property string $candidate_area_uuid
+ * @property number $candidate_latitude
+ * @property number $candidate_longitude
  * @property string $candidate_birth_date
  * @property string $candidate_civil_id
  * @property string $candidate_civil_expiry_date
@@ -151,6 +154,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_job_search_status', 'in', 'range' => [self::NOT_LOOKING_FOR_JOB, self::ACTIVELY_LOOKING_FOR_JOB]],
 
             [['candidate_objective'], 'string', 'max' => 100],
+
+            [['candidate_latitude', 'candidate_longitude'], 'number'],
+
+            [['candidate_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['candidate_area_uuid' => 'area_uuid']],
 
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -273,6 +280,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['statusChange'] = ['approved'];
 
         $scenarios['updateHourRate'] = ['candidate_hourly_rate'];
+
+        $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid'];
 
         return $scenarios;
     }
@@ -408,6 +417,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_limit_email' => Yii::t('candidate','Limit Email'),
             'candidate_phone' => Yii::t('candidate','Phone'),
             'candidate_address_line1' => Yii::t('candidate','Candidate Address'),
+            'candidate_latitude' => Yii::t('app', 'Latitude'),
+            'candidate_longitude' => Yii::t('app', 'Longitude'),
+            'candidate_area_uuid' => Yii::t('app', 'Area'),
             'candidate_birth_date' => Yii::t('candidate','Birth Date'),
             'candidate_civil_id' => Yii::t('candidate','Civil ID'),
             'candidate_civil_expiry_date' => Yii::t('candidate','Civil Expiry Date'),
@@ -692,6 +704,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id'])
             ->andWhere(['{{%bank}}.deleted'=>0]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\common\models\Area")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_area_uuid' => 'area_uuid']);
     }
 
     /**

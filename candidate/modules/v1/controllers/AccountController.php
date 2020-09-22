@@ -703,6 +703,57 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Name (Arabic) Info Updated Successfully"),
         ];
     }
+
+    /**
+     * Update candidate location info
+     */
+    public function actionUpdateLocation() {
+        
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $data = [
+            'candidate_latitude' => Yii::$app->request->getBodyParam('latitude'),
+            'candidate_longitude' => Yii::$app->request->getBodyParam('longitude'),
+            'candidate_area_uuid' => Yii::$app->request->getBodyParam('area_uuid'),
+        ];
+
+        $candidate->scenario = "updateLocation";
+
+        $candidate->setAttributes($data);
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Candidate Location Info Updated Successfully"),
+        ];
+    }
+
+    /**
+     * Return area by geolocation 
+     * @return type
+     */
+    public function actionAreaByLocation() 
+    {
+        $latitude = Yii::$app->request->get("latitude");
+        $longitude = Yii::$app->request->get("longitude");
+
+        // call google api to get country name, lat, long 
+        
+        $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $latitude .','. $longitude;
+        
+        return City::addByGoogleAPIResponse($url);
+    }
     
     /**
      * update candidate civil id number
