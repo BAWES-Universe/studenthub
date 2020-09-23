@@ -545,6 +545,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'company',
             'university',
             'country',
+            'area',
             'bank',
             'candidateSkills',
             'candidateExperiences'
@@ -711,7 +712,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getArea($modelClass = "\common\models\Area")
     {
-        return $this->hasOne($modelClass::className(), ['candidate_area_uuid' => 'area_uuid']);
+        return $this->hasOne($modelClass::className(), ['area_uuid' => 'candidate_area_uuid']);
     }
 
     /**

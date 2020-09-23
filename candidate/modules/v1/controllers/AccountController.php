@@ -2,8 +2,6 @@
 
 namespace candidate\modules\v1\controllers;
 
-use candidate\models\TransferCandidate;
-use common\models\Transfer;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
@@ -12,7 +10,9 @@ use yii\filters\auth\HttpBearerAuth;
 use candidate\models\Candidate;
 use common\models\CandidateSkill;
 use common\models\CandidateExperience;
-
+use candidate\models\TransferCandidate;
+use common\models\Transfer;
+use common\models\Area;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -747,12 +747,13 @@ class AccountController extends Controller
     {
         $latitude = Yii::$app->request->get("latitude");
         $longitude = Yii::$app->request->get("longitude");
+        $area_name = Yii::$app->request->get("area");
 
         // call google api to get country name, lat, long 
         
         $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $latitude .','. $longitude;
         
-        return City::addByGoogleAPIResponse($url);
+        return Area::addByGoogleAPIResponse($url, $area_name);
     }
     
     /**

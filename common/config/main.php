@@ -17,6 +17,10 @@ return [
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
+        'googleMap' => [
+            'class' => 'common\components\GoogleMap', 
+            'accessKey' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw'
+        ], 
         'algolia' => [
             'class' => 'common\components\Algolia',
             'appId' => 'VQF0F2SG4Y',

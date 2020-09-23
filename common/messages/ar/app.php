@@ -129,5 +129,18 @@ return [
     'Contact Created Datetime' => "تاريخ إنشاء جهة الاتصال",
     'Contact Updated Datetime' => "تاريخ تحديث جهة الاتصال",
     'Video not available to save.' => "الفيديو غير متوفر للحفظ",
-    "Video must be longer than 1 second" => "يجب أن يكون الفيديو أطول من ثانية واحدة"
+    "Video must be longer than 1 second" => "يجب أن يكون الفيديو أطول من ثانية واحدة",
+    "Area Uuid" => "",
+    'Area Name En' => "",
+    'Area Name Ar' => "",
+    'Area Latitude' => "",
+    'Area Longitude' => "",
+    'Area Created At' => "",
+    'Area Updated At' => "",
+    'Area Created By' => "",
+    'Area Updated By' => "",
+    "Candidate Location Info Updated Successfully" => "تم تحديث معلومات موقع المرشح بنجاح",
+    "Latitude" => "",
+    "Longitude" => "",
+    "Area" => ""
 ];

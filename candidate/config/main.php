@@ -137,6 +137,18 @@ return [
                         'OPTIONS remove-civil-photo-front' => 'options',
                     ]
                 ],
+                [ // GoogleMapController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/google-map',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET place-detail/<place_id>' => 'place-detail',
+                        'GET place-predictions' => 'place-predictions',
+                        // OPTIONS VERBS
+                        'OPTIONS place-detail/<place_id>' => 'options',
+                        'OPTIONS place-predictions' => 'options'
+                    ]
+                ],
                 [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',
