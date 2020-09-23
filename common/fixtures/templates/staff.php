@@ -4,6 +4,7 @@
  * @var $index integer
  */
 return [
+    'staff_id' => $index + 1,
     'staff_name' => $faker->firstName,
     'staff_email' => $faker->email,
     'staff_auth_key' => Yii::$app->getSecurity()->generateRandomString(),

@@ -41,7 +41,7 @@ class Note extends \yii\db\ActiveRecord
             [['company_id','note_text'], 'required'],
             [['note_created_datetime', 'note_updated_datetime','staff_id'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 

@@ -40,10 +40,10 @@ class Brand extends \yii\db\ActiveRecord
             [['company_id','brand_name_en','brand_name_ar'], 'required'],
             [['brand_created_datetime', 'brand_updated_datetime'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            
+
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
-             *
+
             [
                 ['brand_logo'],
                 '\common\components\S3FileExistValidator',
@@ -53,8 +53,12 @@ class Brand extends \yii\db\ActiveRecord
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
-            ],*/
+            ]*/
         ];
+    }
+
+    public function logoCheck(){
+
     }
 
     public function behaviors() {
@@ -88,8 +92,11 @@ class Brand extends \yii\db\ActiveRecord
 
         try {
             $path = (YII_ENV == 'prod') ? "company-brand/" : "dev/company-brand/" ;
-            Yii::$app->cloudinaryManager->delete( $path . $this->brand_logo);
-
+            $response = Yii::$app->cloudinaryManager->delete( $path . $this->brand_logo);
+            if ($response && $response['result'] == 'not found') {
+                $this->addError('brand_logo', Yii::t('app', 'Image not available to save.'));
+                return false;
+            }
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'common');
@@ -126,8 +133,13 @@ class Brand extends \yii\db\ActiveRecord
      */
     public function setLogo($brand_logo) {
 
+        if(!Yii::$app->temporaryBucketResourceManager->fileExists($brand_logo)) {
+            $this->addError('brand_logo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+
         $url = Yii::$app->temporaryBucketResourceManager->getUrl($brand_logo);
-        
+
         $filename = Yii::$app->security->generateRandomString();
 
         // deleting old pic

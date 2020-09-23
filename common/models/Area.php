@@ -13,7 +13,6 @@ use yii\behaviors\BlameableBehavior;
  * @property string $area_uuid
  * @property string $area_name_en
  * @property string $area_name_ar
- * @property string $area_postal_code
  * @property string $area_created_at
  * @property string $area_updated_at
  * @property string $area_created_by
@@ -40,7 +39,7 @@ class Area extends \yii\db\ActiveRecord
             [['area_name_en', 'area_name_ar'], 'required'],
             [['area_created_at', 'area_updated_at'], 'safe'],
             [['area_uuid', 'area_created_by', 'area_updated_by'], 'string', 'max' => 60],
-            [['area_name_en', 'area_name_ar', 'area_postal_code'], 'string', 'max' => 255],
+            [['area_name_en', 'area_name_ar'], 'string', 'max' => 255],
             [['area_uuid'], 'unique'],
         ];
     }
@@ -54,7 +53,6 @@ class Area extends \yii\db\ActiveRecord
             'area_uuid' => Yii::t('app', 'Area Uuid'),
             'area_name_en' => Yii::t('app', 'Area Name En'),
             'area_name_ar' => Yii::t('app', 'Area Name Ar'),
-            'area_postal_code' => Yii::t('app', 'Area Postal Code'),
             'area_created_at' => Yii::t('app', 'Area Created At'),
             'area_updated_at' => Yii::t('app', 'Area Updated At'),
             'area_created_by' => Yii::t('app', 'Area Created By'),
