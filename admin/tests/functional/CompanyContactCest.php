@@ -29,6 +29,7 @@ class CompanyContactCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $this->contact_uuid = CompanyContact::find()->one()->contact_uuid;
     }
 
     /**
