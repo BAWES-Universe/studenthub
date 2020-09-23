@@ -8,6 +8,7 @@ class NoteFixture extends ActiveFixture
     public $modelClass = 'common\models\Note';
     
     public $depends = [
-        'common\fixtures\CompanyFixture'
+        'common\fixtures\CompanyFixture',
+        'common\fixtures\StaffFixture'
     ];
 }

@@ -6,4 +6,8 @@ use yii\test\ActiveFixture;
 class BrandFixture extends ActiveFixture
 {
     public $modelClass = 'common\models\Brand';
+
+    public $depends = [
+        'common\fixtures\CompanyFixture'
+    ];
 }
