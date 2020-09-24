@@ -13,7 +13,8 @@ use yii\behaviors\BlameableBehavior;
  * @property string $area_uuid
  * @property string $area_name_en
  * @property string $area_name_ar
- * @property string $area_postal_code
+ * @property string $area_latitude
+ * @property string $area_longitude
  * @property string $area_created_at
  * @property string $area_updated_at
  * @property string $area_created_by
@@ -40,7 +41,7 @@ class Area extends \yii\db\ActiveRecord
             [['area_name_en', 'area_name_ar'], 'required'],
             [['area_created_at', 'area_updated_at'], 'safe'],
             [['area_uuid', 'area_created_by', 'area_updated_by'], 'string', 'max' => 60],
-            [['area_name_en', 'area_name_ar', 'area_postal_code'], 'string', 'max' => 255],
+            [['area_name_en', 'area_name_ar'], 'string', 'max' => 255],
             [['area_uuid'], 'unique'],
         ];
     }
@@ -54,7 +55,8 @@ class Area extends \yii\db\ActiveRecord
             'area_uuid' => Yii::t('app', 'Area Uuid'),
             'area_name_en' => Yii::t('app', 'Area Name En'),
             'area_name_ar' => Yii::t('app', 'Area Name Ar'),
-            'area_postal_code' => Yii::t('app', 'Area Postal Code'),
+            'area_latitude' => Yii::t('app', 'Area Latitude'),
+            'area_longitude' => Yii::t('app', 'Area Longitude'),
             'area_created_at' => Yii::t('app', 'Area Created At'),
             'area_updated_at' => Yii::t('app', 'Area Updated At'),
             'area_created_by' => Yii::t('app', 'Area Created By'),
@@ -140,7 +142,7 @@ class Area extends \yii\db\ActiveRecord
      * @param type $area_name
      * @return type
      */
-    public static function addByGoogleAPIResponse($url, $area_name = null)
+    public static function addByGoogleAPIResponse($url, $selected_area_name = null)
     {
         $url .= '&key=' . Yii::$app->params['google_api_key'];
         $url .= '&location_type=APPROXIMATE';
@@ -170,7 +172,7 @@ class Area extends \yii\db\ActiveRecord
             ];
         }
 
-        $area_name = $a->long_name;
+        $area_name = $selected_area_name? $selected_area_name : $a->long_name;
 
         $area = Area::find()
             ->andWhere([
@@ -191,13 +193,16 @@ class Area extends \yii\db\ActiveRecord
             ];
         }
 
+        $latitude = $response->results[0]->geometry->location->lat;
+        $longitude = $response->results[0]->geometry->location->lng;
+        
         $area = new Area; 
         $area->area_name_en = $area_name; 
         $area->area_name_ar = $area_name; 
+        $area->area_latitude = $latitude;
+        $area->area_longitude = $longitude;
+
         $area->save();
-        
-        //$latitude = $response->results[0]->geometry->location->lat;
-        //$longitude = $response->results[0]->geometry->location->lng;
         
         return [
             'operation' => 'success',
@@ -246,6 +251,6 @@ class Area extends \yii\db\ActiveRecord
      */
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany($modelClass::className(), ['area_uuid' => 'candidate_area_uuid']);
+        return $this->hasMany($modelClass::className(), ['candidate_area_uuid' => 'area_uuid']);
     }
 }

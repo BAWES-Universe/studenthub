@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'file_uuid' => $index + 1,
+    'file_uuid' => $faker->uuid,
     'company_id' => $index + 1,
     'file_title' => $faker->name,
     'file_description' => $faker->sentence(7, true),

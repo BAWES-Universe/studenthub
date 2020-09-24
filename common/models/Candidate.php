@@ -110,7 +110,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video'], 'string', 'max' => 255],
+            [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
@@ -545,6 +545,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'company',
             'university',
             'country',
+            'area',
             'bank',
             'candidateSkills',
             'candidateExperiences'
@@ -711,7 +712,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getArea($modelClass = "\common\models\Area")
     {
-        return $this->hasOne($modelClass::className(), ['candidate_area_uuid' => 'area_uuid']);
+        return $this->hasOne($modelClass::className(), ['area_uuid' => 'candidate_area_uuid']);
     }
 
     /**
@@ -1819,6 +1820,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ];
 
         $data['assigned'] = 0;
+
         if($this->store && $this->store->company) {
             $data['store'] = [
                 'store_name' => $this->store->store_name,
@@ -1835,6 +1837,30 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'bank_id' => $this->bank_id,
                 'bank_name' => $this->bank->bank_name
             ];
+        }
+
+        //geo location
+
+        if ($this->candidate_latitude && $this->candidate_longitude) {
+            $data["_geoloc"] = [
+                "lat" => (float) $this->candidate_latitude,
+                "lng" => (float) $this->candidate_longitude,
+            ];
+        } elseif ($this->area && $this->area->area_latitude && $this->area->area_longitude) {
+            $data["_geoloc"] = [
+                "lat" => (float) $this->area->area_latitude,
+                "lng" => (float) $this->area->area_longitude
+            ];
+        } else {
+            $data["_geoloc"] = [
+                "lat" => 0,
+                "lng" => 0
+            ];
+        }
+
+        if ($this->area) {
+            $data['currentLocations']['en'] = $this->area->area_name_en;
+            $data['currentLocations']['ar'] = $this->area->area_name_ar;
         }
 
         //to make gender label visible to filter instead of 1,0

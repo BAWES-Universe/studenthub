@@ -45,7 +45,7 @@ class File extends \yii\db\ActiveRecord
             [['file_created_datetime'], 'safe'],
             [['file_uuid'], 'string', 'max' => 60],
             [['file_title', 'file_name'], 'string', 'max' => 255],
-            [['file_type'], 'string', 'max' => 10],
+            [['file_type'], 'string', 'max' => 100],
             [['file_s3_path'], 'string', 'max' => 225],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             /**

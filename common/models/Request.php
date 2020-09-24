@@ -57,9 +57,7 @@ class Request extends \yii\db\ActiveRecord
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_position_title', 'request_additional_info', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
-            [['request_created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['request_created_by' => 'staff_id']],
-            [['request_updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['request_updated_by' => 'staff_id']],
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']]
         ];
     }
 
