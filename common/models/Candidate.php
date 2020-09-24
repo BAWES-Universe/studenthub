@@ -110,7 +110,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_civil_id', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video'], 'string', 'max' => 255],
+            [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
