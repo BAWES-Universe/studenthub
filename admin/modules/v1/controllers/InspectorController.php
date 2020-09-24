@@ -228,7 +228,7 @@ class InspectorController extends Controller
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "admin not found",
+                "message" => "Inspector not found",
                 "code" => 1
             ];
         }
