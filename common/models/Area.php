@@ -5,12 +5,15 @@ namespace common\models;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 
 /**
  * This is the model class for table "area".
  *
  * @property string $area_uuid
+ * @property string $country_id
  * @property string $area_name_en
  * @property string $area_name_ar
  * @property string $area_latitude
@@ -38,11 +41,12 @@ class Area extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['area_name_en', 'area_name_ar'], 'required'],
+            [['area_name_en', 'area_name_ar', 'country_id'], 'required'],
             [['area_created_at', 'area_updated_at'], 'safe'],
             [['area_uuid', 'area_created_by', 'area_updated_by'], 'string', 'max' => 60],
             [['area_name_en', 'area_name_ar'], 'string', 'max' => 255],
             [['area_uuid'], 'unique'],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']]
         ];
     }
 
@@ -53,6 +57,7 @@ class Area extends \yii\db\ActiveRecord
     {
         return [
             'area_uuid' => Yii::t('app', 'Area Uuid'),
+            'country_id' => Yii::t('app', 'Country Uuid'),
             'area_name_en' => Yii::t('app', 'Area Name En'),
             'area_name_ar' => Yii::t('app', 'Area Name Ar'),
             'area_latitude' => Yii::t('app', 'Area Latitude'),
@@ -73,6 +78,12 @@ class Area extends \yii\db\ActiveRecord
                 'class' => BlameableBehavior::className(),
                 'createdByAttribute' => 'area_created_by',
                 'updatedByAttribute' => 'area_updated_by',
+            ],
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'area_created_at',
+                'updatedAtAttribute' => 'area_updated_at',
+                'value' => new Expression('NOW()'),
             ],
             [
                 'class' => AttributeBehavior::className(),
@@ -137,6 +148,20 @@ class Area extends \yii\db\ActiveRecord
     }
 
     /**
+     * Get country object from Google API response 
+     * @param type $response
+     * @return type
+     */
+    public static function getGoogleAPICountryObject($response) 
+    {
+        foreach($response->results[0]->address_components as $component) {
+            if(in_array('country', $component->types)) {
+                return $component;
+            }
+        }
+    }
+
+    /**
      * Add city if not available by Google API response 
      * @param string $url
      * @param type $area_name
@@ -190,60 +215,61 @@ class Area extends \yii\db\ActiveRecord
             return [
                 'operation' => 'success',
                 'area' => $area,
+                'country' => $area->country
             ];
         }
 
+        $objCountry = self::getGoogleAPICountryObject($response);
+
+        if(empty($objCountry->long_name) || empty($response->results[0]->geometry->location->lat)) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('app', 'Sorry not able to find your city!')
+            ];
+        }
+
+        $country_name = $objCountry->long_name;
+        $country_code = $objCountry->short_name;
         $latitude = $response->results[0]->geometry->location->lat;
         $longitude = $response->results[0]->geometry->location->lng;
         
+        //add country if not available 
+
+        $country = Country::find()
+            ->where(['country_name_en' => $country_name])
+            ->one();
+
+        if(!$country)
+        {
+            $countryInfo = json_decode(file_get_contents('https://restcountries.eu/rest/v2/alpha/' . $country_code));
+
+            $country = new Country;
+            $country->country_name_en = $country_name;
+            $country->country_name_ar = $country_name;
+            $country->country_nationality_name_en = $countryInfo->demonym;
+            $country->country_nationality_name_ar = $countryInfo->demonym;
+            $country->save();
+        }
+
         $area = new Area; 
+        $area->country_id = $country->country_id;
         $area->area_name_en = $area_name; 
         $area->area_name_ar = $area_name; 
         $area->area_latitude = $latitude;
         $area->area_longitude = $longitude;
 
-        $area->save();
+        if(!$area->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $area->getErrors()
+            ];
+        }
         
         return [
             'operation' => 'success',
-            'area' => $area
+            'area' => $area,
+            'country' => $country
         ];
-    }
-      
-    /**
-     * Check if it is area the place we getting by place_id from google 
-     * @param type $area_name
-     * @param type $response
-     * @return \common\models\Area
-     */
-    static function _isGooglePlaceIsArea($area_name, $response) {
-        
-        if(
-            $area_name && 
-            !in_array('locality', $response->types) && 
-            !in_array('administrative_area_level_1', $response->types)
-        ) {
-            $area = Area::find()
-                ->andWhere([
-                    'OR',
-                    [
-                        'area_name_en' => $area_name
-                    ],
-                    [
-                        'area_name_ar' => $area_name
-                    ],
-                ])
-                ->one(); 
-            
-            if(!$area) {
-                $area = new Area; 
-                $area->area_name_en = $area_name; 
-                $area->area_name_ar = $area_name; 
-                $area->save();
-            }
-            
-            return $area;
-        }
     }
 
     /**
@@ -252,5 +278,13 @@ class Area extends \yii\db\ActiveRecord
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
         return $this->hasMany($modelClass::className(), ['candidate_area_uuid' => 'area_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\common\models\Country")
+    {
+        return $this->hasOne($modelClass::className(), ['country_id' => 'country_id']);
     }
 }

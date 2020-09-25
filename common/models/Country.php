@@ -70,6 +70,14 @@ class Country extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAreas()
+    {
+        return $this->hasMany(Area::className(), ['country_id' => 'country_id']);
+    }
+
+    /**
      * @inheritdoc
      */
     public function fields()

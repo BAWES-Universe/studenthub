@@ -146,6 +146,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_password_reset_token'], 'unique'],
             ['candidate_status', 'default', 'value' => self::STATUS_PENDING],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
+
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
 
@@ -544,6 +545,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'store',
             'company',
             'university',
+            'nationality',
             'country',
             'area',
             'bank',
@@ -693,9 +695,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCountry($modelClass = "\common\models\Country")
+    public function getNationality($modelClass = "\common\models\Country")
     {
         return $this->hasOne($modelClass::className(), ['country_id' => 'country_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\common\models\Country")
+    {
+        return $this->hasOne($modelClass::className(), ['country_id' => 'country_id'])
+            ->via('area');
     }
 
     /**
@@ -1863,8 +1874,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if ($this->area) {
-            $data['currentLocations']['en'] = $this->area->area_name_en;
-            $data['currentLocations']['ar'] = $this->area->area_name_ar;
+
+            $data['currentLocations']['en'] = [
+                $this->area->country->country_name_en,
+                $this->area->area_name_en . ', ' . $this->area->country->country_name_en,
+            ];
+
+            $data['currentLocations']['ar'] = [
+                $this->area->country->country_name_ar,
+                $this->area->area_name_ar . ', ' . $this->area->country->country_name_ar
+            ];
         }
 
         //to make gender label visible to filter instead of 1,0
