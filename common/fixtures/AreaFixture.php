@@ -6,4 +6,9 @@ use yii\test\ActiveFixture;
 class AreaFixture extends ActiveFixture
 {
     public $modelClass = 'common\models\Area';
+
+
+    public $depends = [
+        'common\fixtures\CountryFixture',
+    ];
 }

@@ -5,6 +5,7 @@
  */
 return [
     'area_uuid' => $faker->uuid,
+    'country_id' => $index + 1,
     'area_name_en' => $faker->citySuffix,
     'area_name_ar' => $faker->citySuffix,
     'area_created_at' => $faker->date('Y-m-d H:i:s'),

@@ -3,6 +3,7 @@
 return [
     'area0' => [
         'area_uuid' => 'd2c9e65e-2098-3113-b370-a3759f4046c8',
+        'country_id' => 1,
         'area_name_en' => 'ville',
         'area_name_ar' => 'chester',
         'area_created_at' => '2017-04-12 02:06:13',
@@ -12,6 +13,7 @@ return [
     ],
     'area1' => [
         'area_uuid' => '509f2793-2064-3e05-8ee3-c24c30078a35',
+        'country_id' => 2,
         'area_name_en' => 'mouth',
         'area_name_ar' => 'chester',
         'area_created_at' => '1982-11-15 18:41:32',
@@ -21,6 +23,7 @@ return [
     ],
     'area2' => [
         'area_uuid' => '663885d1-feab-3d4e-ab78-e412e3cf4497',
+        'country_id' => 3,
         'area_name_en' => 'berg',
         'area_name_ar' => 'furt',
         'area_created_at' => '1976-04-25 16:54:31',
@@ -30,6 +33,7 @@ return [
     ],
     'area3' => [
         'area_uuid' => 'c5687a4e-8371-3a8f-9bf1-0504a4e69ef8',
+        'country_id' => 4,
         'area_name_en' => 'town',
         'area_name_ar' => 'mouth',
         'area_created_at' => '1996-03-03 20:29:19',
@@ -39,6 +43,7 @@ return [
     ],
     'area4' => [
         'area_uuid' => 'a21ba696-abd5-378c-be20-80e4ad922054',
+        'country_id' => 5,
         'area_name_en' => 'furt',
         'area_name_ar' => 'mouth',
         'area_created_at' => '1993-02-19 15:18:57',
@@ -48,6 +53,7 @@ return [
     ],
     'area5' => [
         'area_uuid' => '4aaa807a-bc5d-32e6-9fa6-4714ca9885a0',
+        'country_id' => 5,
         'area_name_en' => 'ton',
         'area_name_ar' => 'bury',
         'area_created_at' => '1986-02-03 09:39:21',
@@ -57,6 +63,7 @@ return [
     ],
     'area6' => [
         'area_uuid' => 'c89da17a-9f18-35d6-800f-845fcb8782e1',
+        'country_id' => 4,
         'area_name_en' => 'stad',
         'area_name_ar' => 'burgh',
         'area_created_at' => '2013-06-01 11:51:54',
@@ -66,6 +73,7 @@ return [
     ],
     'area7' => [
         'area_uuid' => 'a5bc21b2-c76b-39c0-97ec-7b29a5c5a269',
+        'country_id' => 3,
         'area_name_en' => 'town',
         'area_name_ar' => 'furt',
         'area_created_at' => '1996-09-17 15:04:38',
@@ -75,6 +83,7 @@ return [
     ],
     'area8' => [
         'area_uuid' => '37d9cdfd-5684-3c31-a6ac-a6ec7a9bbba5',
+        'country_id' => 2,
         'area_name_en' => 'mouth',
         'area_name_ar' => 'mouth',
         'area_created_at' => '1981-12-07 19:59:10',
@@ -84,6 +93,7 @@ return [
     ],
     'area9' => [
         'area_uuid' => 'f337c61c-cd0e-3177-b01c-6a561620c66d',
+        'country_id' => 1,
         'area_name_en' => 'port',
         'area_name_ar' => 'fort',
         'area_created_at' => '2018-08-04 15:49:40',
