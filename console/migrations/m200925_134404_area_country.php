@@ -29,21 +29,7 @@ class m200925_134404_area_country extends Migration
             'country',
             'country_id'
         );
-
-        $kuwait = $this->db->createCommand('select * from country where country_name_en="Kuwait"')->queryOne();
-
-        if(!$kuwait) {
-
-            $this->db->createCommand('insert into country set country_name_en="Kuwait", country_name_ar="الكويت", 
-                country_nationality_name_en="Kuwaiti", country_nationality_name_ar="كويتي"')->execute();
-
-            $country_id = Yii::$app->db->getLastInsertID();
-        } else {
-            $country_id = $kuwait['country_id'];
-        }
-
-        $this->db->createCommand('UPDATE AREA SET country_id="' . $country_id . '"')->execute();
-
+        
         $this->execute("SET foreign_key_checks = 1;");
     }
 
