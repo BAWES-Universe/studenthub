@@ -21,7 +21,7 @@ class Note extends \common\models\Note {
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany($modelClass = "\staff\models\company")
+    public function getCompany($modelClass = "\staff\models\Company")
     {
         return parent::getCompany($modelClass);
     }
@@ -30,7 +30,7 @@ class Note extends \common\models\Note {
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStaff($modelClass = "\staff\models\staff")
+    public function getStaff($modelClass = "\staff\models\Staff")
     {
         return parent::getStaff($modelClass);
     }
