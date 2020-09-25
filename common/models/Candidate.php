@@ -1722,6 +1722,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['driving license'] = false;
         }
 
+        if (!$this->candidate_latitude && !$this->candidate_longitude && !$this->candidate_area_uuid) {
+            $this->pendingProfile['location'] = false;
+        }
+
 //        if (!$this->candidate_resume) {
 //            return 'resume';
 //        }
