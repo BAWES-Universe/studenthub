@@ -7,6 +7,8 @@ use candidate\models\CandidateToken;
 use common\fixtures\CandidateTokenFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
+use common\fixtures\AreaFixture;
+use common\models\Area;
 use Codeception\Util\HttpCode;
 
 
@@ -19,7 +21,8 @@ class AccountCest
         return [
             'candidateToken' => CandidateTokenFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className(),
-            'invoice' => InvoiceFixture::className()
+            'invoice' => InvoiceFixture::className(),
+            'area' => AreaFixture::className(),
         ];
     }
 
@@ -304,6 +307,14 @@ class AccountCest
         $I->seeResponseIsJson();
     }
     
+    public function tryRemoveVideo(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to remove video');
+        $I->sendDELETE('v1/account/remove-video');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
     public function tryRemoveCivilPhotoFront(FunctionalTester $I)
     {
         $I->amGoingTo('try to remove civil photo front');
@@ -367,4 +378,40 @@ class AccountCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
+
+    public function tryGetAreaByLocation(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to get area by location');
+        $I->sendGET('v1/account/area-by-location?latitude=70&longitude=70');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    public function tryUpdateLocation(FunctionalTester $I)
+    {
+        $area_uuid = Area::find()->one()->area_uuid;
+
+        $I->amGoingTo('try to update location');
+        $I->sendPOST('v1/account/update-location', array('latitude' => '70', 'longitude' => '70', 'area_uuid' => $area_uuid));
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    public function tryUpdateVideo(FunctionalTester $I)
+    {
+        $response = Yii::$app->temporaryBucketResourceManager->save(
+            null,
+            'sample.mp4',
+            [],
+            codecept_data_dir() . 'files/sample.mp4',
+            'video/mp4'
+        );
+
+        $I->amGoingTo('try to update video');
+        $I->sendPOST('v1/account/video', array('video' => basename($response['ObjectURL'])));
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
 }
+
+                       

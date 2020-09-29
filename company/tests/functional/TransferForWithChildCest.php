@@ -253,6 +253,14 @@ class TransferForWithChildCest
         $I->seeResponseIsJson();
     }
 
+
+    /*public function tryToTransferExcelTemplate(FunctionalTester $I)
+    {
+        $I->wantTo('Donwload transfer excel template');
+        $I->sendGET('v1/transfers/transfer-excel-template');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }*/
+
 	/**
 	 * Mark transfers as "Locked" for company with child
 	 * @param FunctionalTester $I
@@ -337,3 +345,6 @@ class TransferForWithChildCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 }
+
+
+                        

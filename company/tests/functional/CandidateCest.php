@@ -36,9 +36,22 @@ class CandidateCest
      */
     public function tryListCandidates(FunctionalTester $I)
     {
-        $I->wantTo('Validate company > candidates api');
+        $I->wantTo('List candidates api');
         $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/candidates');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * view candidates
+     * @param FunctionalTester $I
+     */
+    public function tryViewCandidates(FunctionalTester $I)
+    {
+        $I->wantTo('View candidate api');
+        $I->amBearerAuthenticated($this->token);
+        $I->sendGET('v1/candidates/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
