@@ -1,5 +1,5 @@
 <?php
-namespace staff\tests;
+namespace inspector\tests;
 
 /**
  * Inherited Methods

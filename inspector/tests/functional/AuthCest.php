@@ -1,10 +1,11 @@
 <?php
-namespace staff\tests;
+namespace inspector\tests;
 
-use staff\models\Staff;
 use yii;
-use common\models\StaffToken;
-use common\fixtures\StaffTokenFixture;
+use inspector\models\Inspector;
+use common\models\InspectorToken;
+use common\fixtures\InspectorTokenFixture;
+use common\fixtures\InspectorFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -15,13 +16,14 @@ class AuthCest
 	public function _fixtures()
 	{
         return [
-            'staffToken' => StaffTokenFixture::className()
+            'inspectors' => InspectorFixture::className(),
+            'token' => InspectorTokenFixture::className()
         ];
 	}
 
 	public function _before(FunctionalTester $I)
 	{
-		$this->token = StaffToken::find()
+		$this->token = InspectorToken::find()
                 ->one()
                 ->token_value;
     }
@@ -36,9 +38,10 @@ class AuthCest
      */
     public function tryToLogin(FunctionalTester $I)
     {
-    	$staff = Staff::find()->one();
+    	$inspector = Inspector::find()->one();
+
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated($staff->staff_email, '12345');
+        $I->amHttpAuthenticated($inspector->inspector_email, '12345');
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -47,7 +50,7 @@ class AuthCest
     /**
      * Update password
      * @param FunctionalTester $I
-     */
+     *
     public function tryToUpdatePassword(FunctionalTester $I)
     {
         $I->wantTo('Validate auth > update password api');
@@ -57,5 +60,5 @@ class AuthCest
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-    }
+    }*/
 }

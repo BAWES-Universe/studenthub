@@ -119,4 +119,5 @@ class CandidateIdCardCest {
 //        $I->sendGET('v1/candidate-id-cards/' . $model->id .'/'. $this->token);
 //        $I->seeResponseCodeIs(HttpCode::OK);
 //    }
-}
+}                      
+                   

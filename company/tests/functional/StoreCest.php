@@ -40,6 +40,15 @@ class StoreCest
         $I->seeResponseIsJson();
     }
 
+    public function testViewStore(FunctionalTester $I)
+    {
+        $I->wantTo('View Store');
+        $I->amBearerAuthenticated($this->token);
+        $I->sendGET('v1/stores/1');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
     /**
      * List sub company stores
      * @param FunctionalTester $I
