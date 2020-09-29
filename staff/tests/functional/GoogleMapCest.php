@@ -2,7 +2,6 @@
 namespace staff\tests;
 
 use yii;
-use candidate\tests\FunctionalTester;
 use common\models\StaffToken; 
 use common\fixtures\StaffTokenFixture;
 use Codeception\Util\HttpCode;
