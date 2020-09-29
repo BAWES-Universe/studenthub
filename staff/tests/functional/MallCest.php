@@ -44,6 +44,14 @@ class MallCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
+
+    public function tryToListAll(FunctionalTester $I)
+    {
+        $I->wantTo('Validate mall api response for all listing');
+        $I->sendGET('v1/malls/all');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
     
     /**
      * View mall detail

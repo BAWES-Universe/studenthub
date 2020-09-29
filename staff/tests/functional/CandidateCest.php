@@ -409,3 +409,4 @@ class CandidateCest
         $I->seeResponseIsJson();
     }
 }
+ 

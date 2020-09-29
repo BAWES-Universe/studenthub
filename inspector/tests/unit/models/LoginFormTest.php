@@ -1,5 +1,5 @@
 <?php
-namespace company\tests\unit\models;
+namespace inspector\tests\unit\models;
 
 use Yii;
 use staff\models\Staff;

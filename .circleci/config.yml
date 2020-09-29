@@ -125,6 +125,16 @@ jobs:
          name: Run Candidate app Codeception unit tests and store result output
          command: cd ./candidate && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
+      #---------- inspector app --------------#
+
+      - run:
+          name: Run inspector app Codeception functional tests and store result output
+          command: cd ./inspector && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run inspector app Codeception unit tests and store result output
+         command: cd ./inspector && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
       #---------- common --------------#
 
       - run:
