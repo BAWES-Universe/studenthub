@@ -81,7 +81,6 @@ class GoogleMap {
                     'area_name_ar' => $area_name
                 ]
             ])
-            ->asArray()
             ->one();
     }
 }
