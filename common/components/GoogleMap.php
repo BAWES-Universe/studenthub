@@ -55,7 +55,8 @@ class GoogleMap {
             {
                 return [
                     'operation' => 'success',
-                    'area' => $model
+                    'area' => $model,
+                    'country' => $model->country
                 ];
             }
         }

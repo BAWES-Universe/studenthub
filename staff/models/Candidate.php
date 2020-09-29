@@ -302,4 +302,17 @@ class Candidate extends \common\models\Candidate {
             return false;
         }
     }
+    /**
+     * @param $candidates
+     * @return int
+     */
+    public static function calculateRemainingPaymentTransferTotal($candidates) {
+        $totalAmount = 0;
+        if (count($candidates)>0) {
+            foreach ($candidates as $candidateTransfer) {
+                $totalAmount += $candidateTransfer['bonus'] - $candidateTransfer['bonus_commission'] + ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
+            }
+        }
+        return $totalAmount;
+    }
 }
