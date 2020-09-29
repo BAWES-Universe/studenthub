@@ -124,6 +124,9 @@ class Transfer extends ActiveRecord
     {
         $fields = parent::fields();
 
+        $fields['transfer_updated_at_unix'] = function($model) {
+            return date('Y-m-d',strtotime($model->transfer_updated_at));
+        };
         $fields['transfer_created_at'] = function($model) {
             return Yii::$app->formatter->asDateTime($model->transfer_created_at);
         };
@@ -152,7 +155,8 @@ class Transfer extends ActiveRecord
             'company',
             'invoices',
             'transferCandidates',
-            'childTransfers'
+            'childTransfers',
+            'paidTransferCandidates'
         ];
     }
 
@@ -175,6 +179,18 @@ class Transfer extends ActiveRecord
     {
         return $this->getTransferCandidates($modelClass)
             ->andWhere(['paid' => 0]);
+    }
+
+     /**
+     * Get all paid TransferCandidate related to this transfer or its parent transfer
+     * which include each employees hours worked, hourly rate, etc
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getPaidTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->getTransferCandidates($modelClass)
+            ->andWhere(['paid' => 1]);
     }
 
     /**

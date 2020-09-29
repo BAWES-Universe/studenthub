@@ -51,4 +51,23 @@ class Company extends \common\models\Company {
             ->notDeleted()
             ->count();
     }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\staff\models\Transfer")
+    {
+        return parent::getTransfers($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentTransfers($modelClass = "\staff\models\Transfer")
+    {
+        return parent::getParentTransfers($modelClass);
+    }
+
 }
