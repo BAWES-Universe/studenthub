@@ -24,6 +24,7 @@ use yii\helpers\Html;
         <?php } ?>
         
         <div class="" style="margin-top: 47px;">
+            <?php if (isset($candidate->country)) { ?>
             <div style="margin-bottom: 19px;">
                 <div class="pull-left"  style="width: 18%">
                     <?=Html::img('images/globe.png')?>
@@ -34,8 +35,8 @@ use yii\helpers\Html;
                     </p>
                 </div>
             </div>
-
-            <?php if ($candidate->university) { ?>
+            <?php } ?>
+            <?php if (isset($candidate->university)) { ?>
                 <div style="margin-bottom: 19px;">
                     <div class="pull-left" style="width: 18%">
                         <?=Html::img('images/university.png')?>
