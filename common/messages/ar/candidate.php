@@ -12,7 +12,7 @@ return [
     'Please click the verification link sent to you by email to activate your account' =>'يرجى النقر على رابط التحقق المرسل إليك عبر البريد الإلكتروني لتفعيل حسابك',
     'Candidate not found' =>'لم يتم العثور على المرشح',
     'You have verified your email' =>'لقد تحققت من بريدك الإلكتروني',
-    'Email was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds' =>'تم إرسال بريد إلكتروني سابقًا ، يمكنك طلب رسالة أخرى خلال {nMMinutes ، number} دقيقة و {numSeconds ، number} ثانية',
+    'Email was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds' =>'تم إرسال بريد إلكتروني سابقًا ، يمكنك طلب رسالة أخرى خلال {numMinutes, number} دقيقة و {numSeconds, number} ثانية',
     'Candidate Account not found' =>'لم يتم العثور على حساب المرشح',
     'Please click on the link sent to you by email to verify your account' =>'يرجى النقر على الرابط المرسل إليك عبر البريد الإلكتروني للتحقق من حسابك',
     'You reached your limit to verify email. Please try again after an hour.' =>'لقد وصلت إلى الحد الأقصى للتحقق من البريد الإلكتروني. يرجى المحاولة مرة أخرى بعد ساعة.',
