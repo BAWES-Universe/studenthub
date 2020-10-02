@@ -124,6 +124,9 @@ class Transfer extends ActiveRecord
     {
         $fields = parent::fields();
 
+        $fields['transfer_created_at_unix'] = function($model) {
+            return date('Y-m-d',strtotime($model->transfer_created_at));
+        };
         $fields['transfer_updated_at_unix'] = function($model) {
             return date('Y-m-d',strtotime($model->transfer_updated_at));
         };

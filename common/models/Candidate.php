@@ -1673,11 +1673,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['uid'] = true;
         }
 
-        if (!$this->university) {
+        if (!$this->university_id) {
             $this->pendingProfile['university'] = true;
         }
 
-        if (!$this->country) {
+        if (!$this->country_id) {
             $this->pendingProfile['country'] = true;
         }
 
