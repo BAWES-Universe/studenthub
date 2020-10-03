@@ -51,7 +51,7 @@ class GoogleMap {
         if($name) {
             $model = $this->_isExists($name);
             
-            if($model)
+            if($model && $model->country)
             {
                 return [
                     'operation' => 'success',
