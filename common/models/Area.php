@@ -211,7 +211,7 @@ class Area extends \yii\db\ActiveRecord
             ])
             ->one(); 
 
-        if($area) {
+        if($area && $area->country) {
             return [
                 'operation' => 'success',
                 'area' => $area,
