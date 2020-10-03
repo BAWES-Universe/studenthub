@@ -1822,17 +1822,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'approved' => $this->approved,
             'candidate_email_verification' => true,   // using in candidate card
             'isProfileCompleted' => true,  // using in candidate card
-            'university' => [
+        ];
+
+        if($this->university) {
+            $data['university'] = [
                 'university_id' => $this->university_id,
                 'university_name_en' => $this->university->university_name_en,
                 'university_name_ar' => $this->university->university_name_ar
-            ],
-            'country' => [
+            ];
+        }
+
+        if($this->country) {
+            $data['country'] = [
                 'country_id' => $this->country_id,
                 'country_name_en' => $this->country->country_name_en,
                 'country_name_ar' => $this->country->country_name_ar
-            ],
-        ];
+            ];
+        }
 
         $data['assigned'] = 0;
 
@@ -1873,7 +1879,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ];
         }
 
-        if ($this->area) {
+        if ($this->area && $this->area->country) {
 
             $data['currentLocations']['en'] = [
                 $this->area->country->country_name_en,
