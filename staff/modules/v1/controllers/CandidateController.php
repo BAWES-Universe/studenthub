@@ -678,11 +678,13 @@ class CandidateController extends Controller
      */
     public function actionWorkHistory($id)
     {
-        return CandidateWorkHistory::find()
-            ->filterCandidate($id)
-            ->with('store')
-            ->asArray()
-            ->all();
+        $query = CandidateWorkHistory::find()
+            ->filterCandidate($id);
+
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false
+        ]);
     }
 
     /**
