@@ -23,11 +23,12 @@ class Store extends \common\models\Store {
     public function extraFields()
     {
         return array_merge(
-            parent::extraFields(),[
+            parent::extraFields(),
+            [
                 'candidates',
                 'storeWithCompany' => function($model) {
                     if (isset($model->store_name) && isset($model->company->company_name)) {
-                        return $model->store_name." @ ".(isset($model->company->company_name)) ? $model->company->company_name : '';
+                        return $model->store_name." @ ". $model->company->company_name;
                     }
                 }
             ]
