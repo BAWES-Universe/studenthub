@@ -126,8 +126,17 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            'store'
+            'store',
+            'company'
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($className = '\common\models\Company') {
+        return $this->hasOne($className::className(), ['company_id' => 'company_id'])
+            ->via('store');
     }
 
     /**
@@ -136,6 +145,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     public function getStore($className = '\common\models\Store') {
         return $this->hasOne($className::className(), ['store_id' => 'store_id']);
     }
+
     /**
      * @inheritdoc
      * @return CandidateWorkHistoryQuery the active query used by this AR class.
