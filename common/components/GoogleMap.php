@@ -34,21 +34,24 @@ class GoogleMap {
             'Qatar' => 'QA'
         ];
         
-        if(empty($iosCode[$country_name])) {
-            throw new \yii\web\BadRequestHttpException('This is the reason for your bad request');
-            return [];
+        $data = [
+            'types' => '(regions)',//(cities)
+            'input' => $query,
+            'key' => $this->accessKey
+        ];
+
+        if(isset($iosCode[$country_name])) {
+            $data = array_merge($data, [
+                'components' => 'country:' . $iosCode[$country_name],
+                'componentRestrictions' => [ 'country' => [$iosCode[$country_name]] ],
+                'country' => $iosCode[$country_name],
+            ]);
         }
         
         $response = $this->client->createRequest()
             ->setMethod('GET')
             ->setUrl('place/autocomplete/json')
-            ->setData([
-                'types' => '(regions)',//(cities)
-                'input' => $query,
-                'components' => 'country:' . $iosCode[$country_name],
-                'componentRestrictions' => [ 'country' => [$iosCode[$country_name]] ],
-                'country' => $iosCode[$country_name],
-                'key' => $this->accessKey])
+            ->setData($data)
             ->send();
         
         return $response->getData()['predictions'];
