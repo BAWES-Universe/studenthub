@@ -150,10 +150,12 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'PATCH update-manager/<id>' => 'update-manager',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS update-manager/<id>' => 'options',
                     ]
                 ],
                 [ // CompanyController
