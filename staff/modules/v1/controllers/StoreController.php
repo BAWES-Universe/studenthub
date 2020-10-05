@@ -127,7 +127,41 @@ class StoreController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
+    
+    /**
+     * update store manager
+     * @param type $id
+     * @return type
+     */
+    public function actionUpdateManager($id)
+    {
+        $model = $this->findModel($id);
+        
+        $model->store_manager_uuid = Yii::$app->request->getBodyParam("contact_uuid");
 
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the store, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('[Store Manager Updated - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Store successfully updated"
+        ];
+    }
+    
     /**
      * Create a store account
      * @param $id
@@ -135,7 +169,6 @@ class StoreController extends Controller
      */
     public function actionUpdate($id)
     {
-        // Attempt to create new account
         $model = $this->findModel($id);
 
         $model->store_name = Yii::$app->request->getBodyParam("name");
