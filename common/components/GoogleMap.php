@@ -22,17 +22,32 @@ class GoogleMap {
      * return list of places by keyword 
      * @return type
      */
-    public function getPlacePredictions($query) {
+    public function getPlacePredictions($query, $country_name) {
 
+        $iosCode = [
+            'Kuwait' => 'kw',
+            'Bahrain' => 'BH',
+            'UAE' => 'AE',
+            'United Arab Emirates' => 'AE',
+            'KSA' => 'SA',
+            'Saudi Arabia' => 'SA',
+            'Qatar' => 'QA'
+        ];
+        
+        if(empty($iosCode[$country_name])) {
+            throw new \yii\web\BadRequestHttpException('This is the reason for your bad request');
+            return [];
+        }
+        
         $response = $this->client->createRequest()
             ->setMethod('GET')
             ->setUrl('place/autocomplete/json')
             ->setData([
                 'types' => '(regions)',//(cities)
                 'input' => $query,
-                'componentRestrictions' => [ 'country' => ['kw'] ],
-                'country' => 'kw',
-
+                'components' => 'country:' . $iosCode[$country_name],
+                'componentRestrictions' => [ 'country' => [$iosCode[$country_name]] ],
+                'country' => $iosCode[$country_name],
                 'key' => $this->accessKey])
             ->send();
         
@@ -49,7 +64,7 @@ class GoogleMap {
     public function placeDetail($place_id, $name = null, $country_name = null) {
         
         if($name) {
-            $model = $this->_isExists($name);
+            $model = Area::isExists($name, $country_name);
             
             if($model && $model->country)
             {
@@ -63,24 +78,6 @@ class GoogleMap {
 
         $url = $this->endPoint . 'place/details/json?placeid=' . $place_id;
         
-        return Area::addByGoogleAPIResponse($url, $name);
-    }
-
-    /**
-     * Check if already in DB 
-     */
-    private function _isExists($area_name) {
-
-        return Area::find()   
-            ->andWhere([
-                'OR',
-                [
-                    'area_name_en' => $area_name
-                ],
-                [
-                    'area_name_ar' => $area_name
-                ]
-            ])
-            ->one();
+        return Area::addByGoogleAPIResponse($url, $name, $country_name);
     }
 }

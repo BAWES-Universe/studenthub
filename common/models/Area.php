@@ -167,7 +167,7 @@ class Area extends \yii\db\ActiveRecord
      * @param type $area_name
      * @return type
      */
-    public static function addByGoogleAPIResponse($url, $selected_area_name = null)
+    public static function addByGoogleAPIResponse($url, $selected_area_name = null, $selected_country_name = null)
     {
         $url .= '&key=' . Yii::$app->params['google_api_key'];
         $url .= '&location_type=APPROXIMATE';
@@ -199,17 +199,7 @@ class Area extends \yii\db\ActiveRecord
 
         $area_name = $selected_area_name? $selected_area_name : $a->long_name;
 
-        $area = Area::find()
-            ->andWhere([
-                'OR',
-                [
-                    'area_name_en' => $area_name
-                ],
-                [
-                    'area_name_ar' => $area_name
-                ],
-            ])
-            ->one(); 
+        $area = self::isExists($area_name, $selected_country_name); 
 
         if($area && $area->country) {
             return [
@@ -248,7 +238,14 @@ class Area extends \yii\db\ActiveRecord
             $country->country_name_ar = $country_name;
             $country->country_nationality_name_en = $countryInfo->demonym;
             $country->country_nationality_name_ar = $countryInfo->demonym;
-            $country->save();
+            
+            if(!$country->save()) {
+                
+                return [
+                    'operation' => 'error',
+                    'message' => $country->getErrors()
+                ];
+            }
         }
 
         $area = new Area; 
@@ -270,6 +267,42 @@ class Area extends \yii\db\ActiveRecord
             'area' => $area,
             'country' => $country
         ];
+    }
+    
+    /**
+     * Check if already in DB 
+     */
+    public static function isExists($area_name, $country_name) {
+
+        $query = Area::find()   
+            ->joinWith('country')    
+            ->andWhere([
+                'OR',
+                [
+                    'area_name_en' => $area_name
+                ],
+                [
+                    'area_name_ar' => $area_name
+                ]
+            ]);
+        
+        
+        //can have same area/city name in different country 
+        
+        if($country_name)  
+        {
+            $query->andWhere([
+                'OR',
+                [
+                    'country_name_en' => $country_name
+                ],
+                [
+                    'country_name_ar' => $country_name
+                ],
+            ]);
+        }
+        
+        return $query->one();
     }
 
     /**
