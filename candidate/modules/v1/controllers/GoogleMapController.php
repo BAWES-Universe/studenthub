@@ -68,7 +68,8 @@ class GoogleMapController extends Controller
      */
     public function actionPlacePredictions() {
         $query = Yii::$app->request->get('query');
-        return Yii::$app->googleMap->getPlacePredictions($query);
+        $country_name = Yii::$app->request->get('country_name');
+        return Yii::$app->googleMap->getPlacePredictions($query, urldecode($country_name));
     }
     
     /**
@@ -80,6 +81,6 @@ class GoogleMapController extends Controller
         $name = Yii::$app->request->get('name');
         $country_name = Yii::$app->request->get('country_name');
 
-        return Yii::$app->googleMap->placeDetail($place_id, $name, $country_name);
+        return Yii::$app->googleMap->placeDetail($place_id, $name, urldecode($country_name));
     }
 }
