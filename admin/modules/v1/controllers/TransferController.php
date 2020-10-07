@@ -289,7 +289,7 @@ class TransferController extends Controller
         $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
             'setFirstRecordAsKeys' => false
         ]);
-        
+
         //remove first blank row 
         
         \yii\helpers\ArrayHelper::remove($excelData, '1');
@@ -322,7 +322,8 @@ class TransferController extends Controller
             if(empty($value['Status'])) {
                 return [
                     'operation' => 'error',
-                    'message' => 'Invalid excel'
+                    'message' => 'Invalid excel',
+                    'errorCode' => 1
                 ];
             }
             
@@ -334,7 +335,8 @@ class TransferController extends Controller
             if(!$transferCandidate || !$transferCandidate->candidate) {
                 return [
                     'operation' => 'error',
-                    'message' => 'Invalid excel'
+                    'message' => 'Invalid excel',
+                    'errorCode' => 2
                 ];
             }
                     
