@@ -181,6 +181,7 @@ class Transfer extends \common\models\Transfer {
             $invoice->invoice_status = 'unpaid';
             return $invoice->save();
         }
+
         return false; // in case if invoice exist
     }
 

@@ -321,11 +321,19 @@ class Transfer extends ActiveRecord
             ];
         }
 
-        Yii::$app->controller->layout = 'pdf';
-        
+        Yii::$app->controller->layout = '@common/mail/layouts/pdf';
+
         $subject = [];
 
-        $message = Yii::$app->mailer->compose($template.'-attachment',['invoices' => $invoices]);
+        Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+        $message = Yii::$app->mailer->compose($template.'-attachment',[
+            'invoices' => $invoices,
+            'company' => $this->company,
+            'logo' => Yii::$app->urlManagerStaff->createUrl(
+                '../images/logo.png'
+            )
+        ]);
         
         $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
         
@@ -364,7 +372,10 @@ class Transfer extends ActiveRecord
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? 
                 $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
             
-            $message->attachContent($pdfAttachment,['fileName' => $template.'-#'.$invoice_id.'.pdf', 'contentType' => 'application/pdf']);
+            $message->attachContent($pdfAttachment,[
+                'fileName' => $template.'-#'.$invoice_id.'.pdf',
+                'contentType' => 'application/pdf'
+            ]);
             
             $i++;
 
@@ -374,7 +385,7 @@ class Transfer extends ActiveRecord
         if ( $template == 'invoice' ) {
             $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{invoice} other{Invoices}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
         }  else {
-            $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{Receipt} other{Receipts}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
+            $subjectLine = Yii::t('app','Thank you for your payment');
         }
         
         if(YII_ENV != 'prod') {
