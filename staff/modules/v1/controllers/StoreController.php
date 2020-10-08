@@ -95,7 +95,7 @@ class StoreController extends Controller
     {
         // Attempt to create new store
         $model = new Store();
-
+        $model->scenario = 'create';
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->store_name = Yii::$app->request->getBodyParam("name");
         $model->store_location = Yii::$app->request->getBodyParam("location");
@@ -136,7 +136,8 @@ class StoreController extends Controller
     public function actionUpdateManager($id)
     {
         $model = $this->findModel($id);
-        
+        $model->scenario = 'update_manager';
+
         $model->store_manager_uuid = Yii::$app->request->getBodyParam("contact_uuid");
 
         if (!$model->save())
@@ -170,7 +171,7 @@ class StoreController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
+        $model->scenario = 'update';
         $model->store_name = Yii::$app->request->getBodyParam("name");
         $model->store_location = Yii::$app->request->getBodyParam("location");
         $model->brand_uuid = Yii::$app->request->getBodyParam("brand_uuid");

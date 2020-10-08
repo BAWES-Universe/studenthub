@@ -54,6 +54,22 @@ class Store extends \yii\db\ActiveRecord
         ];
     }
 
+
+    /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+        $scenarios = parent::scenarios();
+
+        $scenarios['create'] = ['company_id','store_name','store_location','brand_uuid','mall_uuid'];
+
+        $scenarios['update'] = ['store_name','store_location','brand_uuid','mall_uuid'];
+
+        $scenarios['update_manager'] = ['store_manager_uuid'];
+        return $scenarios;
+    }
+
+
     /**
      * Find if company linked to store has subcompanies.
      * Parent Company that has subcompanies isn't allowed to have stores.
