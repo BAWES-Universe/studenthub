@@ -14,22 +14,25 @@ class m200925_134404_area_country extends Migration
     {
         $this->execute("SET foreign_key_checks = 0;");
 
-        $this->addColumn('area', 'country_id', $this->integer(11)->notNull()->after('area_uuid'));
+        $table = Yii::$app->db->schema->getTableSchema('area');
+        if (!isset($table->columns['country_id'])) {
+            $this->addColumn('area', 'country_id', $this->integer(11)->notNull()->after('area_uuid'));
 
-        $this->createIndex(
-            'idx-area-country_id',
-            'area',
-            'country_id'
-        );
-        
-        $this->addForeignKey(
-            'fk-area-country_id',
-            'area',
-            'country_id',
-            'country',
-            'country_id'
-        );
-        
+            $this->createIndex(
+                'idx-area-country_id',
+                'area',
+                'country_id'
+            );
+
+            $this->addForeignKey(
+                'fk-area-country_id',
+                'area',
+                'country_id',
+                'country',
+                'country_id'
+            );
+        }
+
         $this->execute("SET foreign_key_checks = 1;");
     }
 
