@@ -12,12 +12,12 @@ class Store extends \common\models\Store {
     public function fields()
     {
         // Whitelisted fields to return
-        return [
-            'store_id',
-            'company_id',
-            'store_name',
-            'store_status',
-        ];
+
+        $fields = parent::fields();
+
+        unset($fields['deleted']);
+
+        return $fields;
     }
     
     /**
@@ -25,11 +25,9 @@ class Store extends \common\models\Store {
      */
     public function extraFields()
     {
-        return [
-            'company',
-            'candidates',
+        return array_merge(parent::extraFields(), [
             'totalCandidates'
-        ];
+        ]);
     }
     
     public function getTotalCandidates() 

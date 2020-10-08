@@ -1,6 +1,8 @@
 <?php
 namespace staff\tests;
 
+use common\models\CompanyContact;
+use staff\models\Store;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StoreFixture;
@@ -157,6 +159,31 @@ class StoreCest
         $I->sendDELETE('v1/stores/4');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson(["operation"=>"error","message"=>"Store deleted successfully"]);
+    }
+
+    /**
+     * Update store manager
+     * @param FunctionalTester $I
+     */
+    public function restCallToUpdateStoreManagerWithInvalidDetail(FunctionalTester $I)
+    {
+        $I->wantTo('update store Manager');
+        $I->sendPATCH('v1/stores/update-manager/3',['contact_uuid'=>1000]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->canSeeResponseContainsJson(["operation"=>"error"]);
+    }
+
+    /**
+     * Update store manager
+     * @param FunctionalTester $I
+     */
+    public function restCallToUpdateStoreManagerWithValidDetail(FunctionalTester $I)
+    {
+        $store = Store::findOne(['company_id'=>'4']);
+        $I->wantTo('update store Manager');
+        $I->sendPATCH('v1/stores/update-manager/'.$store->store_id,['contact_uuid'=>$store->company->companyContacts[0]->contact_uuid]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->canSeeResponseContainsJson(["operation"=>"success","message"=>"Store successfully updated"]);
     }
 }
 
