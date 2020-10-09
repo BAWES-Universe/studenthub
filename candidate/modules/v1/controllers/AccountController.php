@@ -49,7 +49,7 @@ class AccountController extends Controller
             'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options', 'video-by-webhook'];
 
         return $behaviors;
     }
@@ -178,6 +178,51 @@ class AccountController extends Controller
         ];
     }
     
+    /**
+     * send updated candidate video status from db
+     */
+    public function actionVideoStatus() 
+    {
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        return [
+            'candidate_video' => $model->candidate_video,
+            'candidate_video_processed' => $model->candidate_video_processed
+        ];
+    }
+
+    /**
+     * mark video as processed 
+     */
+    public function actionVideoByWebhook($id) {
+         
+        $model = Candidate::findOne($id);
+
+        $data = json_decode(file_get_contents("php://input"));
+
+        $video = explode('.', basename($data->eager[0]->url))[0];
+
+        if($model->candidate_video != $video) {
+            return [
+                'operation' => 'error',
+                'message' => 'Video not found'
+            ];
+        }
+
+        $model->candidate_video_processed = true;
+        
+        if(!$model->save(false)) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ]; 
+    }
+
     /**
      * Remove Video
      */
