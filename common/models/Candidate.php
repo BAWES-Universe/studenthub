@@ -7,6 +7,7 @@ use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\Console;
+use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
 
 
@@ -27,6 +28,7 @@ use yii\web\NotFoundHttpException;
  * @property string $candidate_objective
  * @property string $candidate_personal_photo
  * @property string $candidate_video
+ * @property string $candidate_video_processed
  * @property string $candidate_email
  * @property string $candidate_new_email
  * @property string $candidate_email_verification
@@ -117,6 +119,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_email','candidate_phone'], 'unique'],
+            ['candidate_video_processed', 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
             [['candidate_new_email'], 'validateNewEmail'],
@@ -244,7 +247,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
         
-        $scenarios['changeVideo'] = ['candidate_video'];
+        $scenarios['changeVideo'] = ['candidate_video', 'candidate_video_processed'];
         
         $scenarios['tmpProfilePhoto'] = ['profile_photo'];
         
@@ -412,6 +415,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_objective' => Yii::t('candidate','Objective'),
             'candidate_personal_photo' => Yii::t('candidate','Personal Photo'),
             'candidate_video' => Yii::t('candidate', 'Video'),
+            'candidate_video_processed' => Yii::t('candidate', 'Video Processed?'),
             'candidate_email' => Yii::t('candidate','Email'),
             'candidate_new_email' => Yii::t('candidate','New Email'),
             'candidate_email_verification' => Yii::t('candidate','Email Verification'),
@@ -1329,6 +1333,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $this->scenario = 'changeVideo';
 
+            $this->candidate_video_processed = false;
+
             return $this->save();
             
         } catch (\Exception $e) {
@@ -1546,12 +1552,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             'format' => "ogv", 
                         ],
                     ],
-                    'eager_notification_url' => "https://webhook.site/e8e6df45-01dc-4c30-aef6-512f2f4bc0b0"
+                    'eager_notification_url' => Url::to(['account/video-by-webhook/' . $this->candidate_id], 'https')
+                    //"https://webhook.site/e8e6df45-01dc-4c30-aef6-512f2f4bc0b0"
                 ]
             );
 
             if ($result) {
-                $this->candidate_video = basename($result['url']);//explode('.', basename($result['url']))[0];
+                $this->candidate_video = explode('.', basename($result['url']))[0];
                 return true;
             }
 
