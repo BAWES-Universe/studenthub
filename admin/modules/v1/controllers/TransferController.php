@@ -14,7 +14,6 @@ use company\models\TranferExcel;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
 
-
 /**
  * Transfer controller - Manage Transfer
  */
@@ -642,15 +641,21 @@ class TransferController extends Controller
             ];
         }
 
+        if(
+            $invoice->transfer &&
+            in_array(
+                $invoice->transfer->transfer_status,
+                [Transfer::STATUS_PAYMENT_SENT,Transfer::STATUS_LOCK,Transfer::STATUS_INITIATED]
+            )
+        ) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer Not available for download',
+            ];
+        }
+
         $this->layout = 'pdf';
-
-        if($type == 'receipt')
-//        if($invoice['invoice_status'] == 'paid' || $type == 'receipt')
-            $template = 'receipt';
-        else
-            $template = 'invoice';
-
-        $content = $this->render($template, [
+        $content = $this->render(($type == 'receipt') ? 'receipt' : 'invoice', [
             'invoice' => $invoice,
         ]);
 
