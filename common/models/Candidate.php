@@ -1324,7 +1324,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         try {
             $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
 
-            $this->setVideoByUrl($url);
+            if(!$this->setVideoByUrl($url)) 
+                return false;
 
             $this->scenario = 'changeVideo';
 
@@ -1335,6 +1336,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
+
             return false;
         }
     }
@@ -1512,17 +1514,44 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 [
                     'public_id' => $path . $filename,
                     "resource_type" => "video", 
-                    /*"eager_async" => true,
+                    "eager_async" => true,
                     "eager" => [
                         [
+                            'streaming_profile' => 'hd',
+                            'format' => "m3u8", 
+                        ],
+                        [
+                            'streaming_profile' => 'hd',
+                            'format' => "mpd", 
+                        ],
+                        /*[
+                            'streaming_profile' => 'hd',
+                            'format' => "ts", 
+                        ],
+                        [
+                            'streaming_profile' => 'hd',
+                            'format' => "m2ts", 
+                        ],
+                        [
+                            'streaming_profile' => 'hd',
+                            'format' => "mts", 
+                        ],*/
+                        [
                             'format' => "mp4", 
-                        ]
-                    ]*/
+                        ],
+                        [
+                            'format' => "webm", 
+                        ],
+                        [
+                            'format' => "ogv", 
+                        ],
+                    ],
+                    'eager_notification_url' => "https://webhook.site/e8e6df45-01dc-4c30-aef6-512f2f4bc0b0"
                 ]
             );
 
             if ($result) {
-                $this->candidate_video = basename($result['url']);
+                $this->candidate_video = basename($result['url']);//explode('.', basename($result['url']))[0];
                 return true;
             }
 
