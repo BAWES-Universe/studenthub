@@ -1391,11 +1391,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             
             Yii::$app->cloudinaryManager->delete($path . $this->candidate_video, "video");
 
+            return true;
+            
         } catch (\Cloudinary\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
-            //$this->addError('candidate_video', Yii::t('app', 'Please try again.'));
+            $this->addError('candidate_video', Yii::t('app', 'Please try again.'));
 
             return false;
 
@@ -1403,7 +1405,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             Yii::error($e->getMessage(), 'candidate');
 
-            //$this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
+            $this->addError('candidate_video', Yii::t('app', 'Video not available to delete.'));
 
             return false;
         }
@@ -1420,6 +1422,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $path = (YII_ENV == 'prod') ? "candidate-photo/" : "dev/candidate-photo/";
             
             Yii::$app->cloudinaryManager->delete($path . $this->candidate_personal_photo);
+
+            return true;
 
         } catch (\Cloudinary\Error $e) {
 
@@ -1504,12 +1508,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function setVideoByUrl($url) {
 
         $filename = Yii::$app->security->generateRandomString();
-
-        // deleting old pic
-
-        if ($this->candidate_video) {
-            $this->deleteVideoFromCloudinary();
-        }
 
         try {
             
