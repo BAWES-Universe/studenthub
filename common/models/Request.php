@@ -112,6 +112,17 @@ class Request extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'requestCreatedBy',
+            'requestUpdatedBy'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCompany($modelClass = "\common\models\Company")

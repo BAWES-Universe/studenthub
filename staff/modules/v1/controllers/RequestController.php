@@ -72,7 +72,14 @@ class RequestController extends Controller
      */
     public function actionList()
     {
-        $query = Request::find();
+        $company_id = Yii::$app->request->get("company_id");
+
+        $query = Request::find()
+            ->orderBy('request_created_datetime DESC');
+
+        if($company_id) {
+            $query->andWhere(['company_id' => $company_id]);
+        }
         
         return new ActiveDataProvider([
             'query' => $query
