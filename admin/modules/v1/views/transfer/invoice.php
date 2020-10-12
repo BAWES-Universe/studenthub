@@ -64,7 +64,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
             <?php if($row['totalBonus'] > 0) { ?>
             <tr>
                 <td align="left" style="text-align: left">
-                    <span><b>Bonus to be sent to interns</b></span>
+                    <span><b>Bonus payment</b></span>
                 </td>
                 <td align="right" style="text-align: right">
                     <span>KWD <?= number_format($row['totalBonus'], 3)?></span>
