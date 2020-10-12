@@ -145,7 +145,7 @@ return [
     "Area" => "",
     "Your payment has been successfully received." => "",
     "It’s always a pleasure working with you," => "",
-    "Thank you for your payment" => "",
+    "{name}: Thank you for your payment" => "",
     "Dear {company}," => "Dear {company},",
     "Best Regards," => "",
     "Khalid Al-Mutawa" => "",

@@ -371,7 +371,10 @@ class Transfer extends ActiveRecord
             
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? 
                 $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
-            
+
+            $name = (isset($invoice->transfer->company->parentCompany->common_name_en)) ?
+                $invoice->transfer->company->parentCompany->common_name_en :  $invoice->transfer->company->common_name_en;
+
             $message->attachContent($pdfAttachment,[
                 'fileName' => $template.'-#'.$invoice_id.'.pdf',
                 'contentType' => 'application/pdf'
@@ -385,7 +388,7 @@ class Transfer extends ActiveRecord
         if ( $template == 'invoice' ) {
             $subjectLine = Yii::t('app','StudentHub {numReceipts, plural, =1{invoice} other{Invoices}} {invoicesList} ', ['numReceipts' => count($invoices),'invoicesList'=>implode(', ',$subject)]);
         }  else {
-            $subjectLine = Yii::t('app','Thank you for your payment');
+            $subjectLine = Yii::t('app','{name}: Thank you for your payment',['name'=>$name]);
         }
         
         if(YII_ENV != 'prod') {
