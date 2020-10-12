@@ -154,5 +154,6 @@ return [
     "Please find attached the transfer confirmation file." => "",
     "Please find attached your payment confirmation {numInvoices, plural, =1{receipt} other{receipts}}." => "",
     "<b>Issues with the {numInvoices, plural, =1{invoice} other{invoices}}?</b> Please <a href='https://www.studenthub.co/contact'>contact us</a>, we'll be happy to assist" => "",
-    "Please find the attached {numInvoices, plural, =1{invoice} other{invoices}} for your payment in order to proceed with the transfers." => ""
+    "Please find the attached {numInvoices, plural, =1{invoice} other{invoices}} for your payment in order to proceed with the transfers." => "",
+    "Video not available to delete." => ""
 ];

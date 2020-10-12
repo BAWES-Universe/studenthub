@@ -629,7 +629,17 @@ class AccountController extends Controller
      * Update introductory video
      */
     public function actionVideo() {
+        
         $model = Yii::$app->user->identity;
+
+        // deleting old video
+
+        if ($model->candidate_video && !$model->deleteVideoFromCloudinary()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
 
         $model->candidate_video = urldecode(Yii::$app->request->getBodyParam('video'));
 
