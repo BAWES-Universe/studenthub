@@ -71,6 +71,10 @@ class CompanyController extends Controller
     public function actionList()
     {
         $status = Yii::$app->request->getQueryParam("status",0);
+        $name = Yii::$app->request->getQueryParam("name",0);
+        $common_name_en = Yii::$app->request->getQueryParam("common_name_en",0);
+        $common_name_ar = Yii::$app->request->getQueryParam("common_name_ar",0);
+
         $query = Company::find()
             ->notDeleted()
             ->filterParent();
@@ -78,10 +82,22 @@ class CompanyController extends Controller
         if ($status == 1) {
             $query->filterActive();
         }
+
         if ($status == 2) {
             $query->filterInActive();
         }
-        // else it will fetch all
+
+        if ($name) {
+            $query->filterByName($name);
+        }
+
+        if ($common_name_en) {
+            $query->filterByNameEn($common_name_en);
+        }
+
+        if ($common_name_ar) {
+            $query->filterByNameAr($common_name_ar);
+        }
 
         return new ActiveDataProvider([
             'query' => $query,
