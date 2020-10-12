@@ -481,7 +481,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (
             //$this->candidate_status == self::STATUS_ACTIVE &&
-            $this->candidate_job_search_status &&
+            $this->candidate_job_search_status === self::ACTIVELY_LOOKING_FOR_JOB &&
             //$this->approved &&
             !in_array(
                 $this->scenario, [
@@ -494,8 +494,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $this->updateAlgoliaIndex($insert);
         }
 
-        //on soft delete remove
-        if (isset($changedAttributes['deleted']) && $this->deleted){
+        //on soft delete remove or job status updated to not looking for job
+
+        if (
+            (
+                isset($changedAttributes['candidate_job_search_status']) &&
+                $this->candidate_job_search_status === self::NOT_LOOKING_FOR_JOB
+            ) ||
+            (
+                isset($changedAttributes['deleted']) &&
+                $this->deleted
+            )
+        ) {
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
 
