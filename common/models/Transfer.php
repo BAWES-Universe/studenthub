@@ -372,8 +372,8 @@ class Transfer extends ActiveRecord
             $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? 
                 $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
 
-            $name = (isset($invoice->transfer->company->parentCompany->common_name_en)) ?
-                $invoice->transfer->company->parentCompany->common_name_en :  $invoice->transfer->company->common_name_en;
+            $name = (isset($invoice->transfer->company->parentCompany->company_common_name_en)) ?
+                $invoice->transfer->company->parentCompany->company_common_name_en :  $invoice->transfer->company->company_common_name_en;
 
             $message->attachContent($pdfAttachment,[
                 'fileName' => $template.'-#'.$invoice_id.'.pdf',
