@@ -87,7 +87,21 @@ class Note extends \yii\db\ActiveRecord
             'note_updated_datetime' => Yii::t('candidate', 'Updated At'),
         ];
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['note_text'] = function($model) {
+            return html_entity_decode($model->note_text);
+        };
+
+        return $fields;
+    }
+
     /**
      * @inheritdoc
      */

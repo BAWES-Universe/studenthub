@@ -72,7 +72,8 @@ class NoteController extends Controller
      */
     public function actionList()
     {
-        $query = Note::find();
+        $query = Note::find()
+            ->orderBy('note_created_datetime DESC');
         
         return new ActiveDataProvider([
             'query' => $query
@@ -98,7 +99,7 @@ class NoteController extends Controller
         // Attempt to create new brand
         $model = new Note();
 
-        $model->note_text = Yii::$app->request->getBodyParam("note");
+        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
 
         if (!$model->save())
@@ -139,7 +140,7 @@ class NoteController extends Controller
                 ];
         }
 
-        $model->note_text = Yii::$app->request->getBodyParam("note");
+        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
 
         if (!$model->save())
         {
