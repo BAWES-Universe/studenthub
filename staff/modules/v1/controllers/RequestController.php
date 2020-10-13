@@ -228,6 +228,13 @@ class RequestController extends Controller
         $model->request_status = Request::STATUS_DELIVERED;
         $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
 
+        if (!$model->request_feedback) {
+            return [
+                "operation" => "error",
+                "message" => "Please provide Feedback"
+            ];
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -262,6 +269,13 @@ class RequestController extends Controller
         
         $model->request_status = Request::STATUS_CANCELLED;
         $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
+
+        if (!$model->request_feedback) {
+            return [
+                "operation" => "error",
+                "message" => "Please provide Feedback"
+            ];
+        }
 
         if (!$model->save())
         {
