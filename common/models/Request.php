@@ -118,7 +118,8 @@ class Request extends \yii\db\ActiveRecord
     {
         return [
             'requestCreatedBy',
-            'requestUpdatedBy'
+            'requestUpdatedBy',
+            'contact'
         ];
     }
 
