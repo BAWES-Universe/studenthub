@@ -4,6 +4,7 @@ namespace common\models\query;
 
 use common\models\Company;
 use Yii;
+use yii\db\Expression;
 
 /**
  * This is the ActiveQuery class for [[Company]].
@@ -47,6 +48,30 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function filterCompany($id) {
         return $this->andWhere(['{{%company}}.company_id' => $id]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByName($name) {
+        return $this->andWhere(['like', '{{%company}}.company_name', $name]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByNameAr($name) {
+        return $this->andWhere(['like', '{{%company}}.company_common_name_ar', $name]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByNameEn($name) {
+        return $this->andWhere(['like', '{{%company}}.company_common_name_en', $name]);
     }
 
     /**
