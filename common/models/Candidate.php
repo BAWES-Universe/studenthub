@@ -1538,7 +1538,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             'streaming_profile' => 'hd',
                             'format' => "mpd", 
                         ],
-                        /*[
+                        /*
+                        //not require as using HLS video player (streaming formats)
+                        [
+                            'format' => "mp4", 
+                        ],
+                        [
+                            'format' => "webm", 
+                        ],
+                        [
+                            'format' => "ogv", 
+                        ],
+                        //unsupported format
+                        [
                             'streaming_profile' => 'hd',
                             'format' => "ts", 
                         ],
@@ -1550,15 +1562,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             'streaming_profile' => 'hd',
                             'format' => "mts", 
                         ],*/
-                        [
-                            'format' => "mp4", 
-                        ],
-                        [
-                            'format' => "webm", 
-                        ],
-                        [
-                            'format' => "ogv", 
-                        ],
                     ],
                     'eager_notification_url' => Url::to(['account/video-by-webhook/' . $this->candidate_id], 'https')
                     //"https://webhook.site/e8e6df45-01dc-4c30-aef6-512f2f4bc0b0"
