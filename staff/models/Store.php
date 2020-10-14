@@ -52,4 +52,12 @@ class Store extends \common\models\Store {
     {
         return parent::getCandidates($modelClass);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMall($modelClass = "\staff\models\Mall")
+    {
+        return parent::getMall($modelClass);
+    }
 }
