@@ -170,7 +170,7 @@ class NoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel((int)$id);
+        $brand = $this->findModel($id);
 
         if(!$brand) {
             return [
