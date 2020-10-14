@@ -131,7 +131,7 @@ class NoteController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
         if(!$model){
             return [
