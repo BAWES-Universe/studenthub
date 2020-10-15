@@ -222,7 +222,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'brands',
             'notes',
             'requests',
-            'parentTransfers'
+            'parentTransfers',
+            'malls'
         ];
     }
 
@@ -766,5 +767,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             return true;
         }
         return false;
+    }
+
+    public function getMalls() {
+        return \staff\models\Mall::findAll(['mall_uuid'=>$this->getStores()->all()]);
     }
 }
