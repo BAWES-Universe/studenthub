@@ -223,7 +223,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'notes',
             'requests',
             'parentTransfers',
-            'malls'
+            'malls',
+            'companyContacts'
         ];
     }
 
