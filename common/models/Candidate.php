@@ -28,6 +28,7 @@ use yii\web\NotFoundHttpException;
  * @property string $candidate_objective
  * @property string $candidate_personal_photo
  * @property string $candidate_video
+ * @property string $candidate_video_job_id
  * @property string $candidate_video_processed
  * @property string $candidate_email
  * @property string $candidate_new_email
@@ -112,7 +113,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video'], 'string', 'max' => 255],
+            [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video', 'candidate_video_job_id'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
@@ -178,18 +179,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 }
             ],
                     
-            [
+            /*[
                 ['candidate_video'],
                 '\common\components\S3FileExistValidator',
-                'filePath' => '',
+                'filePath' => 'candidate-video/',
                 'message' => Yii::t('candidate',"Please upload a video for the candidate"),
                 'maxDuration' => '30',//in seconds
-                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
-                'on' => 'tmpVideo',
+                'resourceManager' => Yii::$app->resourceManager,
+                'on' => 'changeVideo',
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
-            ],
+            ],*/
 
             [
                 ['candidate_resume'],
@@ -247,11 +248,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
         
-        $scenarios['changeVideo'] = ['candidate_video', 'candidate_video_processed'];
+        $scenarios['changeVideo'] = ['candidate_video', 'candidate_video_job_id', 'candidate_video_processed'];
         
         $scenarios['tmpProfilePhoto'] = ['profile_photo'];
-        
-        $scenarios['tmpVideo'] = ['candidate_video'];
 
         $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back'];
         
@@ -415,6 +414,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_objective' => Yii::t('candidate','Objective'),
             'candidate_personal_photo' => Yii::t('candidate','Personal Photo'),
             'candidate_video' => Yii::t('candidate', 'Video'),
+            'candidate_video_job_id' => Yii::t('candidate', 'Video Job ID'),
             'candidate_video_processed' => Yii::t('candidate', 'Video Processed?'),
             'candidate_email' => Yii::t('candidate','Email'),
             'candidate_new_email' => Yii::t('candidate','New Email'),
@@ -1327,34 +1327,50 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function updateVideo() {
 
-        //validation for temp S3 bucket file 
-        
-        $this->scenario = 'tmpVideo';
+            $output = Yii::$app->security->generateRandomString();
 
-        if(!$this->validate()) {
-            return false;
-        }
-        
-        try {
-            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
+            $source = Yii::$app->temporaryBucketResourceManager->bucket . '/' . $this->candidate_video;
 
-            if(!$this->setVideoByUrl($url)) 
+            try {
+
+                $response = Yii::$app->mediaConvert->processVideo($source, $output);
+
+                $this->candidate_video_job_id = $response['Job']['Id'];
+
+                $this->candidate_video = $output;//basename($s3Upload["ObjectURL"]);
+
+            } catch (\Aws\S3\Exception\S3Exception $e) {
+
+                Yii::error($e->getMessage(), 'candidate');
+
+                $this->addError('candidate_video', Yii::t('app', 'Please try again.'));
+
                 return false;
+
+            } catch (\Exception $e) {
+
+                Yii::error($e->getMessage(), 'candidate');
+
+                $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
+
+                return false;
+            }
 
             $this->scenario = 'changeVideo';
 
             $this->candidate_video_processed = false;
 
             return $this->save();
-            
-        } catch (\Exception $e) {
+    }
 
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
-
-            return false;
-        }
+    /**
+     * Return file base name
+     * @param string $fileName
+     * @return string file name without extension
+     */
+    public function _getBaseName($fileName) {
+        $pathInfo = pathinfo('_' . $fileName, PATHINFO_FILENAME);
+        return mb_substr($pathInfo, 1, mb_strlen($pathInfo, '8bit'), '8bit');
     }
 
     /**
@@ -1390,30 +1406,28 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * delete old video from cloudinary
+     * delete old video
      * @return boolean
      */
-    public function deleteVideoFromCloudinary() {
+    public function deleteVideo() {
 
         try {
 
-            $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
-            
-            Yii::$app->cloudinaryManager->delete($path . $this->candidate_video, "video");
+            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video);
 
             return true;
-            
-        } catch (\Cloudinary\Error $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
+        }
+        catch (\Aws\S3\Exception\S3Exception $e)
+        {
+            Yii::error($e->getMessage(), 'file');
 
             $this->addError('candidate_video', Yii::t('app', 'Please try again.'));
 
             return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
+        }
+        catch (\Exception $e)
+        {
+            Yii::error($e->getMessage(), 'file');
 
             $this->addError('candidate_video', Yii::t('app', 'Video not available to delete.'));
 
@@ -1506,86 +1520,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Yii::error($e->getMessage(), 'candidate');
 
             $this->addError('candidate_personal_photo', Yii::t('app', 'Image not available to save.'));
-
-            return false;
-        }
-    }
-
-    /**
-     * Set video by url
-     * @param string $url
-     */
-    public function setVideoByUrl($url) {
-
-        $filename = Yii::$app->security->generateRandomString();
-
-        try {
-            
-            $path = (YII_ENV == 'prod') ?  "candidate-video/" : "dev/candidate-video/";
-
-            $result = Yii::$app->cloudinaryManager->upload(
-                $url,
-                [
-                    'public_id' => $path . $filename,
-                    "resource_type" => "video", 
-                    "eager_async" => true,
-                    "eager" => [
-                        [
-                            'streaming_profile' => 'hd',
-                            'format' => "m3u8", 
-                        ],
-                        [
-                            'streaming_profile' => 'hd',
-                            'format' => "mpd", 
-                        ],
-                        /*
-                        //not require as using HLS video player (streaming formats)
-                        [
-                            'format' => "mp4", 
-                        ],
-                        [
-                            'format' => "webm", 
-                        ],
-                        [
-                            'format' => "ogv", 
-                        ],
-                        //unsupported format
-                        [
-                            'streaming_profile' => 'hd',
-                            'format' => "ts", 
-                        ],
-                        [
-                            'streaming_profile' => 'hd',
-                            'format' => "m2ts", 
-                        ],
-                        [
-                            'streaming_profile' => 'hd',
-                            'format' => "mts", 
-                        ],*/
-                    ],
-                    'eager_notification_url' => Url::to(['account/video-by-webhook/' . $this->candidate_id], 'https')
-                    //"https://webhook.site/e8e6df45-01dc-4c30-aef6-512f2f4bc0b0"
-                ]
-            );
-
-            if ($result) {
-                $this->candidate_video = explode('.', basename($result['url']))[0];
-                return true;
-            }
-
-        } catch (\Cloudinary\Error $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_video', Yii::t('app', 'Please try again.'));
-
-            return false;
-
-        } catch (\Exception $e) {
-
-            Yii::error($e->getMessage(), 'candidate');
-
-            $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
 
             return false;
         }

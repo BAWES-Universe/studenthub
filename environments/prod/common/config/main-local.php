@@ -45,6 +45,14 @@ return [
                 'encryption' => 'tls',
             ],
         ],
+        'mediaConvert' => [
+            'class' => 'common\components\MediaConvert',
+            'region' => 'eu-west-2', // based in London
+            'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
+            'role' => "arn:aws:iam::438663597141:user/krushn",//",
+            'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
+        ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,

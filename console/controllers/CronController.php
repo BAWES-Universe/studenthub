@@ -2,7 +2,6 @@
 
 namespace console\controllers;
 
-use common\models\CandidateWorkHistory;
 use common\models\Company;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
