@@ -3,6 +3,8 @@
 namespace common\models\query;
 
 use Yii;
+use common\models\Country;
+
 
 /**
  * This is the ActiveQuery class for [[Country]].
@@ -29,6 +31,14 @@ class CountryQuery extends \yii\db\ActiveQuery {
      */
     public function joinCandidate() {
         return $this->leftJoin('candidate', 'candidate.country_id = country.country_id')->andwhere(['{{%candidate}}.deleted' => 0]);
+    }
+
+    /**
+     * Don't list countries added by google map
+     * @return CountryQuery
+     */
+    public function filterNotFromGoogle() {
+        return $this->andWhere(['country_from_google_map' => Country::NOT_FROM_GOOGLE_MAP]);
     }
 
     /**
