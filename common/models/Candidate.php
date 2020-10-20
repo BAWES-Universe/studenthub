@@ -1337,8 +1337,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 $this->candidate_video_job_id = $response['Job']['Id'];
 
-                $this->candidate_video = $output;//basename($s3Upload["ObjectURL"]);
-
             } catch (\Aws\S3\Exception\S3Exception $e) {
 
                 Yii::error($e->getMessage(), 'candidate');
@@ -1356,11 +1354,49 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 return false;
             }
 
+            //generate video thumbnail
+
+            $tmpVideo = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
+
+            $this->_generateVideoThumbnail($tmpVideo, $this->candidate_id);
+
             $this->scenario = 'changeVideo';
+
+            $this->candidate_video = $output;
 
             $this->candidate_video_processed = false;
 
             return $this->save();
+    }
+
+    /**
+     * generate video thumbnail by video url
+     * @param $source
+     * @param $output
+     */
+    public function _generateVideoThumbnail($source, $output)
+    {
+        $fileName = $output . '.jpg';
+
+        // Create temporary file to store image in
+        $tmpFile = sys_get_temp_dir() . '/' . $fileName;
+        $tmpHandle = fopen($tmpFile, 'w+');
+
+        $ffmpegPath = exec('which ffmpeg');///usr/local/bin/ffmpeg
+
+        exec($ffmpegPath . ' -y -i "'.$source.'" -ss 00:00:01.000 -vframes 1 ' . $tmpFile . ' 2>&1');
+
+        // Save thumbnail to S3
+        Yii::$app->resourceManager->save(
+            null, //file upload object
+            "candidate-video/" . $fileName, // name
+            [], //options
+            $tmpFile, // source file
+            'image/jpeg'
+        );
+
+        fclose($tmpHandle);
+        @unlink($tmpFile);
     }
 
     /**

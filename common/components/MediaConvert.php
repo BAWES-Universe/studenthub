@@ -277,7 +277,7 @@ class MediaConvert extends Component
             ]
         ];
 
-        try {
+        //try {
             return $this->getClient()->createJob([
                 "Role" => $this->role,
                 "Settings" => $jobSetting, //JobSettings structure
@@ -287,11 +287,11 @@ class MediaConvert extends Component
                 ]
             ]);
 
-        } catch (AwsException $e) {
+        /*} catch (AwsException $e) {
 
             // output error message if fails
             echo $e->getMessage();
             echo "\n";
-        }
+        }*/
     }
 }

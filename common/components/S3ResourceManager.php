@@ -94,15 +94,14 @@ class S3ResourceManager extends Component
      */
     public function save($file, $name, $options = [], $source_file = null, $content_type = null)
     {
-
         if ($file) {
             $source_file = $file->tempName;
             $content_type = $file->type;
 
         }
-        else if (strpos($source_file, 'http') > -1) { //if url
-            $source_file = urlencode($source_file);
-        }
+        //else if (gettype($source_file) == 'string' && strpos($source_file, 'http') > -1) { //if url
+            ///$source_file = urlencode($source_file);
+        //}
 
         $options = ArrayHelper::merge([
             'Bucket' => $this->bucket,
