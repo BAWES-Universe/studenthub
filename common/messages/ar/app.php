@@ -151,6 +151,7 @@ return [
     "Khalid Al-Mutawa" => "",
     "Dear team," => "",
     "Video Job ID" => "",
+    "Added by Google API" => "",
     "We've successfully transferred <b>KWD {amount}</b> to <b>{count} people</b>." => "",
     "Please find attached the transfer confirmation file." => "",
     "Please find attached your payment confirmation {numInvoices, plural, =1{receipt} other{receipts}}." => "",

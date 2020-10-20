@@ -73,7 +73,8 @@ class CountryController extends Controller
     {
         $q = Yii::$app->request->getQueryParam('q');
         
-        $query = Country::find();
+        $query = Country::find()
+            ->filterNotFromGoogle();
         
         if ($q) {
             $query->filterName($q);
