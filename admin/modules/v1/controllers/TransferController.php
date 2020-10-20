@@ -8,6 +8,7 @@ use yii\base\Exception;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Invoice;
+use common\models\Admin;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use company\models\TranferExcel;
@@ -641,10 +642,14 @@ class TransferController extends Controller
             ];
         }
 
+        $status = $invoice->transfer->parentTransfer ?
+            $invoice->transfer->parentTransfer->transfer_status: $invoice->transfer->transfer_status;
+
         if(
+            Yii::$app->user->identity->admin_limited_access == Admin::ACCESS_LIMITED &&
             $invoice->transfer &&
             in_array(
-                $invoice->transfer->transfer_status,
+                $status,
                 [Transfer::STATUS_PAYMENT_SENT,Transfer::STATUS_LOCK,Transfer::STATUS_INITIATED]
             )
         ) {
