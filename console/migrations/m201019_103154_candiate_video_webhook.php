@@ -20,7 +20,7 @@ class m201019_103154_candiate_video_webhook extends Migration
 
         $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
 
-        $candidates = $this->db->createCommand('select candidate_video from candidate WHERE candidate_video IS NOT NULL && candidate_video_processed = 1')->queryAll();
+        $candidates = $this->db->createCommand('select candidate_id, candidate_video from candidate WHERE candidate_video IS NOT NULL && candidate_video_processed = 1')->queryAll();
 
         foreach($candidates as $candidate) {
 
@@ -30,7 +30,7 @@ class m201019_103154_candiate_video_webhook extends Migration
 
             //copy to s3
 
-            $key = 'candidate-video/' . $candidate['candidate_video'];
+            $videoKey = 'candidate-video/' . $candidate['candidate_video']  . '.mp4';
 
             $tmpVideo = sys_get_temp_dir() . '/' . $candidate['candidate_video'] . '.mp4';
 
@@ -38,7 +38,7 @@ class m201019_103154_candiate_video_webhook extends Migration
 
                 Yii::$app->resourceManager->save(
                     null,
-                    $key . '.mp4',
+                    $videoKey,
                     [],
                     $tmpVideo,
                     'video/mp4'
@@ -47,13 +47,15 @@ class m201019_103154_candiate_video_webhook extends Migration
 
             @unlink($tmpVideo);
 
+            $imageKey = 'candidate-video/' . $candidate['candidate_id']  . '.jpg';
+
             $tmpImage = sys_get_temp_dir() . '/' . $candidate['candidate_video'] . '.jpg';
 
             if (file_put_contents($tmpImage, file_get_contents($thumbnail))) {
 
                 Yii::$app->resourceManager->save(
                     null,
-                    $key . '.jpg',
+                    $imageKey,
                     [],
                     $tmpImage,
                     'image/jpeg'

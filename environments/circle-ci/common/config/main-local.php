@@ -28,7 +28,7 @@ return [
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
             'key' => 'AKIAWMITDJRKWKGYOFLT',
             'secret' => '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',
-            'role' => "arn:aws:iam::438663597141:user/krushn",//",
+            'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
             'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
         ],
         //for testing purpose
