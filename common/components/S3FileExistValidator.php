@@ -87,7 +87,7 @@ class S3FileExistValidator extends Validator
             }
         }   
         
-        if($this->maxDuration) 
+        if($this->maxDuration)
         {
             $ffprobe = \FFMpeg\FFProbe::create([
                 'ffmpeg.binaries' => exec('which ffmpeg'),//'/usr/local/bin/ffmpeg'
@@ -127,6 +127,6 @@ class S3FileExistValidator extends Validator
                     'duration' => $this->maxDuration
                 ]));
             }
-        }   
+        }
     }
 }

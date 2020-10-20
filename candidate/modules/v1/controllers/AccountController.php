@@ -194,20 +194,55 @@ class AccountController extends Controller
     /**
      * mark video as processed 
      */
-    public function actionVideoByWebhook($id) {
-         
-        $model = Candidate::findOne($id);
+    public function actionVideoByWebhook() {
 
         $data = json_decode(file_get_contents("php://input"));
 
-        $video = explode('.', basename($data->eager[0]->url))[0];
+        if(isset($data->SubscribeURL)) {
+            //log to sentry
 
-        if($model->candidate_video != $video) {
+            Yii::warning("[Confirm Subscription] " . $data->SubscribeURL, 'webhook');
+
             return [
-                'operation' => 'error',
-                'message' => 'Video not found'
+                'operation' => 'success',
             ];
         }
+
+        $jobId = $data->detail->jobId;
+
+        $model = Candidate::find()->where([
+            'candidate_video_job_id' => $jobId
+        ])->one();
+
+        if(!$model) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid Job ID'
+            ];
+        }
+
+        if($data->detail->status == 'ERROR') {
+
+            //log to sentry
+
+            Yii::error($data->detail->errorMessage, 'candidate');
+
+            //remove video
+
+            $model->candidate_video = null;
+            $model->candidate_video_processed = true;
+
+            $model->save(false);
+
+            return [
+                'operation' => 'error',
+                'message' => 'MediaConvert Job Failed'
+            ];
+        }
+
+        $fileName = basename($data->detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0]);
+
+        $model->candidate_video = explode('.', $fileName)[0];
 
         $model->candidate_video_processed = true;
         
@@ -230,7 +265,7 @@ class AccountController extends Controller
         $model = Candidate::findOne(Yii::$app->user->getId());
 
         if ($model->candidate_video) {
-            $model->deleteVideoFromCloudinary();
+            $model->deleteVideo();
         }
         
         $model->candidate_video = null;
@@ -634,7 +669,7 @@ class AccountController extends Controller
 
         // deleting old video
 
-        if ($model->candidate_video && !$model->deleteVideoFromCloudinary()) {
+        if ($model->candidate_video && !$model->deleteVideo()) {
             return [
                 'operation' => 'error',
                 'message' => $model->getErrors()
