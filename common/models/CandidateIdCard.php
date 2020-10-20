@@ -72,6 +72,11 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
+
+        $fields['expired'] = function($model) {
+            return strtotime($model->expiry_date) < strtotime(date('Y-m-d'));
+        };
+
         return $fields;
     }
 

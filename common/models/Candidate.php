@@ -554,7 +554,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'area',
             'bank',
             'candidateSkills',
-            'candidateExperiences'
+            'candidateExperiences',
+            'candidateIdCard'
         ];
     }
 
