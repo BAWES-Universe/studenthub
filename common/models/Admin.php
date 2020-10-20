@@ -26,6 +26,7 @@ use yii\behaviors\TimestampBehavior;
  * @property AdminToken[] $accessTokens
  */
 class Admin extends ActiveRecord implements IdentityInterface {
+
     //Values for `admin_status`
     const STATUS_ACTIVE = 10;
     const ACCESS_LIMITED = 1;
