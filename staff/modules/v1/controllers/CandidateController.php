@@ -411,7 +411,7 @@ class CandidateController extends Controller
             ];
         }
         
-        $card->expiry_date = new Expression('NOW()');
+        $card->expiry_date = date('Y-m-d', strtotime('-1 day'));
 
         if (!$card->save(false))
         {
