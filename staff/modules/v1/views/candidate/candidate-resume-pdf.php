@@ -24,14 +24,14 @@ use yii\helpers\Html;
         <?php } ?>
         
         <div class="" style="margin-top: 47px;">
-            <?php if (isset($candidate->country)) { ?>
+            <?php if (isset($candidate->nationality)) { ?>
             <div style="margin-bottom: 19px;">
                 <div class="pull-left"  style="width: 18%">
                     <?=Html::img('images/globe.png')?>
                 </div>
                 <div class="pull-left"  style="width: 70%">
                     <p style="font-size: 16px;color: #333333;  padding-left: 15px;padding-top: 8px">
-                        <?=$candidate->country->country_name_en?>
+                        <?= $candidate->nationality->country_nationality_name_en ?>
                     </p>
                 </div>
             </div>

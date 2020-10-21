@@ -71,9 +71,12 @@ class CountryController extends Controller
      */
     public function actionList()
     {
-        $query = Country::find()
-            ->listWithCandidateCount()
-            ->asArray();
+        $s = Yii::$app->request->get('query');
+        $query = Country::find()->listWithCandidateCount();
+            if ($s) {
+                $query->filterName($s);
+            }
+        $query->asArray();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -88,6 +91,98 @@ class CountryController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
+    }
+
+    /**
+     * Create a Country account
+     * @return array
+     */
+    public function actionCreate()
+    {
+        // Attempt to create new Country
+        $model = new Country();
+
+        $model->country_name_en = Yii::$app->request->getBodyParam("name_en");
+        $model->country_name_ar = Yii::$app->request->getBodyParam("name_ar");
+        $model->country_nationality_name_en = Yii::$app->request->getBodyParam("nationality_name_en");
+        $model->country_nationality_name_ar = Yii::$app->request->getBodyParam("nationality_name_ar");
+        $model->country_from_google_map = Yii::$app->request->getBodyParam("google_map");
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the country, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('[Country Added: '.$model->country_name_en.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Country created successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Create a Country account
+     * @param $id
+     * @return array
+     */
+    public function actionUpdate($id)
+    {
+        // Attempt to create new account
+        $model = $this->findModel((int) $id);
+
+        if(!$model){
+            return [
+                "operation" => "error",
+                "message" => "Country not found."
+            ];
+        }
+
+        $model->country_name_en = Yii::$app->request->getBodyParam("name_en");
+        $model->country_name_ar = Yii::$app->request->getBodyParam("name_ar");
+        $model->country_nationality_name_en = Yii::$app->request->getBodyParam("nationality_name_en");
+        $model->country_nationality_name_ar = Yii::$app->request->getBodyParam("nationality_name_ar");
+        $model->country_from_google_map = Yii::$app->request->getBodyParam("google_map");
+
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the country, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('[Country Updated: '.$model->country_name_en.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+
+        return [
+            "operation" => "success",
+            "message" => "Country successfully updated"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
     }
     
     /**

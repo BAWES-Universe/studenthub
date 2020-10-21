@@ -79,19 +79,26 @@ class TransferController extends Controller
     {
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
 
         $query = Transfer::find()
             ->notDeleted()
             ->isParentTransfer();
 
-        if($company_name)
-        {
+        if ($company_name) {
             $query->companyJoin()
                 ->filterCompany($company_name);
         }
 
         if($transfer_status)
             $query->filterStatus($transfer_status);
+
+        if($start_date)
+            $query->startDate($start_date);
+
+        if($end_date)
+            $query->endDate($end_date);
 
         $query->groupBy('{{%transfer}}.transfer_id');
         $query->orderBy('{{%transfer}}.transfer_updated_at DESC');

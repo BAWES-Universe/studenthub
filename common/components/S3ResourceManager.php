@@ -2,11 +2,15 @@
 
 namespace common\components;
 
+use Aws\Credentials\CredentialProvider;
 use Yii;
 use Aws\S3\S3Client;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
+use Aws\MediaConvert\MediaConvertClient;
+use Aws\Exception\AwsException;
+use Aws\Credentials\Credentials;
 
 
 /**
@@ -18,8 +22,8 @@ use yii\helpers\ArrayHelper;
  * @author Khalid Al-Mutawa <khalid@bawes.net>
  * @link http://www.bawes.net
  */
-class S3ResourceManager extends Component {
-
+class S3ResourceManager extends Component
+{
     const AUTH_VIA_KEY_AND_SECRET = 1;
     const AUTH_VIA_IAM_ROLE = 2;
 
@@ -56,7 +60,8 @@ class S3ResourceManager extends Component {
     /**
      * @inheritdoc
      */
-    public function init() {
+    public function init()
+    {
         // Fields required by default
         $requiredAttributes = ['region', 'bucket'];
 
@@ -87,15 +92,16 @@ class S3ResourceManager extends Component {
      * [[http://docs.aws.amazon.com/aws-sdk-php/latest/class-Aws.S3.S3Client.html#_putObject]]
      * @return \Guzzle\Service\Resource\Model
      */
-    public function save($file, $name, $options = [], $source_file = null, $content_type = null) {
-
+    public function save($file, $name, $options = [], $source_file = null, $content_type = null)
+    {
         if ($file) {
             $source_file = $file->tempName;
             $content_type = $file->type;
-            
-        } else if(strpos ($source_file, 'http') > -1) { //if url
-            $source_file = urlencode($source_file);
+
         }
+        //else if (gettype($source_file) == 'string' && strpos($source_file, 'http') > -1) { //if url
+            ///$source_file = urlencode($source_file);
+        //}
 
         $options = ArrayHelper::merge([
             'Bucket' => $this->bucket,
@@ -116,15 +122,16 @@ class S3ResourceManager extends Component {
      * @param array $options
      * @return \Guzzle\Service\Resource\Model
      */
-    public function copy($oldFile, $newFile, $sourceBucket = "", $options = []) {
+    public function copy($oldFile, $newFile, $sourceBucket = "", $options = [])
+    {
         // Set Source bucket to the components defined bucket if none specified.
         $sourceBucket = $sourceBucket ? $sourceBucket : $this->bucket;
 
         $options = ArrayHelper::merge([
-                    'Bucket' => $this->bucket,
-                    'Key' => $newFile,
-                    'CopySource' => urlencode($sourceBucket . "/" . $oldFile),
-                    'ACL' => 'public-read', // default to ACL public read - allows public to open file
+            'Bucket' => $this->bucket,
+            'Key' => $newFile,
+            'CopySource' => urlencode($sourceBucket . "/" . $oldFile),
+            'ACL' => 'public-read', // default to ACL public read - allows public to open file
         ], $options);
 
         return $this->getClient()->copyObject($options);
@@ -135,7 +142,8 @@ class S3ResourceManager extends Component {
      * @param string $name the name of the file to remove
      * @return boolean
      */
-    public function delete($name) {
+    public function delete($name)
+    {
         $result = $this->getClient()->deleteObject([
             'Bucket' => $this->bucket,
             'Key' => $name
@@ -150,7 +158,8 @@ class S3ResourceManager extends Component {
      * @param string $filenameOrUrl the name or url of the file
      * @return boolean
      */
-    public function fileExists($filenameOrUrl) {
+    public function fileExists($filenameOrUrl)
+    {
         $isUrl = false;
         if (strpos($filenameOrUrl, 'http') !== false) {
             $isUrl = true;
@@ -171,23 +180,25 @@ class S3ResourceManager extends Component {
      * @param mixed $expires The time at which the URL should expire
      * @return string
      */
-    public function getUrl($name, $expires = NULL) {
+    public function getUrl($name, $expires = NULL)
+    {
         return $this->getClient()->getObjectUrl($this->bucket, $name, $expires);
     }
 
     /**
-     * Return file detail 
-     * @param  string $filenameOrUrl The file name or URL of the S3 object
-     * @return string file mime type 
+     * Return file detail
+     * @param string $filenameOrUrl The file name or URL of the S3 object
+     * @return string file mime type
      */
-    public function getHeaders($filenameOrUrl) {
+    public function getHeaders($filenameOrUrl)
+    {
         $isUrl = false;
         if (strpos($filenameOrUrl, 'http') !== false) {
             $isUrl = true;
         }
 
         $http = new \GuzzleHttp\Client(['base_uri' => $isUrl ? $filenameOrUrl : $this->getUrl($filenameOrUrl)]);
-        
+
         try {
             $response = $http->request('HEAD');
         } catch (\Exception $e) {
@@ -195,45 +206,49 @@ class S3ResourceManager extends Component {
         }
         return $response->getHeaders();
     }
-    
+
     /**
      * Gets type of the object in filename or url
-     * @param  string $filenameOrUrl The file name or URL of the S3 object
-     * @return string file mime type 
+     * @param string $filenameOrUrl The file name or URL of the S3 object
+     * @return string file mime type
      */
-    public function getType($filenameOrUrl) {
+    public function getType($filenameOrUrl)
+    {
         $headers = $this->getHeaders($filenameOrUrl);
-        
+
         return $headers['Content-Type'][0];
     }
-    
+
     /**
      * Gets size of the object in filename or url
-     * @param  string $filenameOrUrl The file name or URL of the S3 object
+     * @param string $filenameOrUrl The file name or URL of the S3 object
      * @return integer           the file size
      */
-    public function getSize($filenameOrUrl) {
+    public function getSize($filenameOrUrl)
+    {
         $headers = $this->getHeaders($filenameOrUrl);
-        
+
         return $headers['Content-Length'][0];
     }
-    
+
     /**
-     * Gets file duration from meta data 
-     * @param  string $filenameOrUrl The file name or URL of the S3 object
+     * Gets file duration from meta data
+     * @param string $filenameOrUrl The file name or URL of the S3 object
      * @return integer           the file duration
      */
-    public function getDuration($filenameOrUrl) {
+    public function getDuration($filenameOrUrl)
+    {
         $headers = $this->getHeaders($filenameOrUrl);
-       
-        return isset($headers['x-amz-meta-duration'])? $headers['x-amz-meta-duration'][0]: null;
+
+        return isset($headers['x-amz-meta-duration']) ? $headers['x-amz-meta-duration'][0] : null;
     }
 
     /**
      * Returns a S3Client instance
      * @return \Aws\S3\S3Client
      */
-    public function getClient() {
+    public function getClient()
+    {
         if ($this->_client === null) {
             $factoryParams = [
                 'version' => 'latest',
@@ -253,5 +268,4 @@ class S3ResourceManager extends Component {
         }
         return $this->_client;
     }
-
 }

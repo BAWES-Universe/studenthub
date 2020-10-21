@@ -37,6 +37,7 @@ class Country extends \yii\db\ActiveRecord
     {
         return [
             ['country_from_google_map', 'in', 'range' => [self::NOT_FROM_GOOGLE_MAP, self::FROM_GOOGLE_MAP]],
+            [['country_name_en'], 'unique'],
             [['country_name_en', 'country_nationality_name_en'], 'required'],
             [['country_name_en', 'country_name_ar', 'country_nationality_name_en', 'country_nationality_name_ar'], 'string', 'max' => 100],
         ];

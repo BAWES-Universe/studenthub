@@ -22,6 +22,15 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
         ],
+        'mediaConvert' => [
+            'class' => 'common\components\MediaConvert',
+            'region' => 'eu-west-2', // based in London
+            'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
+            'key' => 'AKIAWMITDJRKWKGYOFLT',
+            'secret' => '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',
+            'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
+            'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
+        ],
         //for testing purpose
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',

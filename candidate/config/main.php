@@ -75,7 +75,7 @@ return [
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
                         'GET video-status' => 'video-status',
-                        'POST video-by-webhook/<id>' => 'video-by-webhook',
+                        'POST video-by-webhook' => 'video-by-webhook',
                         'POST job-search-status' => 'job-search-status',
                         'POST change-password' => 'change-password',
                         'POST update-email' => 'update-email',      
@@ -107,7 +107,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS video-status' => 'options',
-                        'OPTIONS video-by-webhook/<id>' => 'options',
+                        'OPTIONS video-by-webhook' => 'options',
                         'OPTIONS job-search-status' => 'options',
                         'OPTIONS update-civil-photo-back' => 'options',
                         'OPTIONS update-civil-photo-front' => 'options',

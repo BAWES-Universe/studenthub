@@ -72,7 +72,14 @@ class RequestController extends Controller
      */
     public function actionList()
     {
-        $query = Request::find();
+        $company_id = Yii::$app->request->get("company_id");
+
+        $query = Request::find()
+            ->orderBy('request_created_datetime DESC');
+
+        if($company_id) {
+            $query->andWhere(['company_id' => $company_id]);
+        }
         
         return new ActiveDataProvider([
             'query' => $query
@@ -221,6 +228,13 @@ class RequestController extends Controller
         $model->request_status = Request::STATUS_DELIVERED;
         $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
 
+        if (!$model->request_feedback) {
+            return [
+                "operation" => "error",
+                "message" => "Please provide Feedback"
+            ];
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -255,6 +269,13 @@ class RequestController extends Controller
         
         $model->request_status = Request::STATUS_CANCELLED;
         $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
+
+        if (!$model->request_feedback) {
+            return [
+                "operation" => "error",
+                "message" => "Please provide Feedback"
+            ];
+        }
 
         if (!$model->save())
         {

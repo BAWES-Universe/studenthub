@@ -130,4 +130,14 @@ class TransferQuery extends ActiveQuery
     public function decreasingOrder() {
         return $this->orderBy('transfer_id DESC');
     }
+
+    public function startDate($date)
+    {
+        return $this->andWhere("DATE(transfer_created_at) > '$date'");
+    }
+
+    public function endDate($date)
+    {
+        return $this->andWhere("DATE(transfer_created_at) < '$date'");
+    }
 }
