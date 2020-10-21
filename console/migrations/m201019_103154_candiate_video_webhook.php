@@ -14,7 +14,15 @@ class m201019_103154_candiate_video_webhook extends Migration
     {
         set_time_limit(0); // unlimited max execution time
 
-        $this->addColumn('candidate', 'candidate_video_job_id', $this->string()->after('candidate_video')->null());
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('candidate')
+            ->getColumn('candidate_video_job_id');
+
+        if (!$columnData) {
+            $this->addColumn('candidate', 'candidate_video_job_id', $this->string()->after('candidate_video')->null());
+        }
 
         //move videos from cloudinary to S3
 
@@ -24,15 +32,17 @@ class m201019_103154_candiate_video_webhook extends Migration
 
         foreach($candidates as $candidate) {
 
-            $thumbnail = "https://res.cloudinary.com/studenthub/video/upload/q_auto/v1596453482/" . $path . $candidate['candidate_video'] . ".jpg";
+            $candidateVideo = explode('.', $candidate['candidate_video'])[0];
 
-            $video = "https://res.cloudinary.com/studenthub/video/upload/v1596453482/" . $path . $candidate['candidate_video'] . ".mp4";
+            $thumbnail = "https://res.cloudinary.com/studenthub/video/upload/q_auto/v1596453482/" . $path . $candidateVideo . ".jpg";
+
+            $video = "https://res.cloudinary.com/studenthub/video/upload/v1596453482/" . $path . $candidateVideo . ".mp4";
 
             //copy to s3
 
-            $videoKey = 'candidate-video/' . $candidate['candidate_video']  . '.mp4';
+            $videoKey = 'candidate-video/' . $candidateVideo . '.mp4';
 
-            $tmpVideo = sys_get_temp_dir() . '/' . $candidate['candidate_video'] . '.mp4';
+            $tmpVideo = sys_get_temp_dir() . '/' . $candidateVideo . '.mp4';
 
             if (file_put_contents($tmpVideo, file_get_contents($video))) {
 
@@ -47,9 +57,9 @@ class m201019_103154_candiate_video_webhook extends Migration
 
             @unlink($tmpVideo);
 
-            $imageKey = 'candidate-video/' . $candidate['candidate_id']  . '.jpg';
+            $imageKey = 'candidate-video/' . $candidateVideo  . '.jpg';
 
-            $tmpImage = sys_get_temp_dir() . '/' . $candidate['candidate_video'] . '.jpg';
+            $tmpImage = sys_get_temp_dir() . '/' . $candidateVideo . '.jpg';
 
             if (file_put_contents($tmpImage, file_get_contents($thumbnail))) {
 
@@ -63,6 +73,9 @@ class m201019_103154_candiate_video_webhook extends Migration
             }
 
             @unlink($tmpImage);
+
+            $this->db->createCommand('UPDATE candidate SET candidate_video="'.$candidateVideo.'" WHERE candidate_id = "'.$candidate['candidate_id'].'"')->execute();
+
         }
     }
 
