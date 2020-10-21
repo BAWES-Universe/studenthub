@@ -73,7 +73,10 @@ class CloudinaryManager {
         
         $public_id = str_replace(".".$ext, "", $path);
         
-        $result = \Cloudinary\Uploader::destroy($public_id, ["resource_type" => $type]);
+        $result = \Cloudinary\Uploader::destroy($public_id, [
+            "invalidate" => true,//remove from CDN cache if any
+            "resource_type" => $type
+        ]);
         
         return $result;
     }
