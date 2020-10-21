@@ -14,7 +14,15 @@ class m201020_141924_duplicate_country extends Migration
     {
         //to column to hide duplicate countries in future
 
-        $this->addColumn('country', 'country_from_google_map', $this->boolean()->after('country_nationality_name_ar')->defaultValue(0));
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('country')
+            ->getColumn('country_from_google_map');
+
+        if (!$columnData) {
+            $this->addColumn ('country', 'country_from_google_map', $this->boolean ()->after ('country_nationality_name_ar')->defaultValue (0));
+        }
 
         //original added from migration
 
@@ -53,9 +61,7 @@ class m201020_141924_duplicate_country extends Migration
      */
     public function safeDown()
     {
-        echo "m201020_141924_duplicate_country cannot be reverted.\n";
-
-        return false;
+        $this->removeColumn('country', 'country_from_google_map');
     }
 
     /*
