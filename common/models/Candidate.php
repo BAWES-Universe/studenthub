@@ -179,18 +179,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 }
             ],
                     
-            /*[
+            [
                 ['candidate_video'],
                 '\common\components\S3FileExistValidator',
-                'filePath' => 'candidate-video/',
+                'filePath' => '',
                 'message' => Yii::t('candidate',"Please upload a video for the candidate"),
                 'maxDuration' => '30',//in seconds
-                'resourceManager' => Yii::$app->resourceManager,
-                'on' => 'changeVideo',
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'on' => 'tmpVideo',
                 'when' => function($model, $attribute) {
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
-            ],*/
+            ],
 
             [
                 ['candidate_resume'],
@@ -249,7 +249,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
         
         $scenarios['changeVideo'] = ['candidate_video', 'candidate_video_job_id', 'candidate_video_processed'];
-        
+
+        $scenarios['tmpVideo'] = ['candidate_video'];
+
         $scenarios['tmpProfilePhoto'] = ['profile_photo'];
 
         $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back'];
@@ -1328,46 +1330,52 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function updateVideo() {
 
-            $output = Yii::$app->security->generateRandomString();
+        $this->scenario = 'tmpVideo';
 
-            $source = Yii::$app->temporaryBucketResourceManager->bucket . '/' . $this->candidate_video;
+        if(!$this->validate()) {
+            return false;
+        }
 
-            try {
+        $output = Yii::$app->security->generateRandomString();
 
-                $response = Yii::$app->mediaConvert->processVideo($source, $output);
+        $source = Yii::$app->temporaryBucketResourceManager->bucket . '/' . $this->candidate_video;
 
-                $this->candidate_video_job_id = $response['Job']['Id'];
+        try {
 
-            } catch (\Aws\S3\Exception\S3Exception $e) {
+            $response = Yii::$app->mediaConvert->processVideo($source, $output);
 
-                Yii::error($e->getMessage(), 'candidate');
+            $this->candidate_video_job_id = $response['Job']['Id'];
 
-                $this->addError('candidate_video', Yii::t('app', 'Please try again.'));
+        } catch (\Aws\S3\Exception\S3Exception $e) {
 
-                return false;
+            Yii::error($e->getMessage(), 'candidate');
 
-            } catch (\Exception $e) {
+            $this->addError('candidate_video', Yii::t('app', 'Please try again.'));
 
-                Yii::error($e->getMessage(), 'candidate');
+            return false;
 
-                $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
+        } catch (\Exception $e) {
 
-                return false;
-            }
+            Yii::error($e->getMessage(), 'candidate');
 
-            //generate video thumbnail
+            $this->addError('candidate_video', Yii::t('app', 'Video not available to save.'));
 
-            $tmpVideo = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
+            return false;
+        }
 
-            $this->_generateVideoThumbnail($tmpVideo, $this->candidate_id);
+        //generate video thumbnail
 
-            $this->scenario = 'changeVideo';
+        $tmpVideo = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
 
-            $this->candidate_video = $output;
+        $this->_generateVideoThumbnail($tmpVideo, $output);
 
-            $this->candidate_video_processed = false;
+        $this->scenario = 'changeVideo';
 
-            return $this->save();
+        $this->candidate_video = $output . '_1';//first converted file
+
+        $this->candidate_video_processed = false;
+
+        return $this->save();
     }
 
     /**
@@ -1377,13 +1385,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function _generateVideoThumbnail($source, $output)
     {
-        $fileName = $output . '.jpg';
+        $fileName = $output . '_1.jpg';
 
         // Create temporary file to store image in
         $tmpFile = sys_get_temp_dir() . '/' . $fileName;
         $tmpHandle = fopen($tmpFile, 'w+');
 
-        $ffmpegPath = exec('which ffmpeg');///usr/local/bin/ffmpeg
+        $ffmpegPath = exec('which ffmpeg');// '/usr/local/bin/ffmpeg'
 
         exec($ffmpegPath . ' -y -i "'.$source.'" -ss 00:00:01.000 -vframes 1 ' . $tmpFile . ' 2>&1');
 
