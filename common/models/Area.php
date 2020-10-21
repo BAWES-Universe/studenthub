@@ -238,7 +238,8 @@ class Area extends \yii\db\ActiveRecord
             $country->country_name_ar = $country_name;
             $country->country_nationality_name_en = $countryInfo->demonym;
             $country->country_nationality_name_ar = $countryInfo->demonym;
-            
+            $country->country_from_google_map = 1;
+
             if(!$country->save()) {
                 
                 return [
