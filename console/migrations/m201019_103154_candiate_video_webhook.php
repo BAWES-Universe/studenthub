@@ -32,50 +32,56 @@ class m201019_103154_candiate_video_webhook extends Migration
 
         foreach($candidates as $candidate) {
 
-            $candidateVideo = explode('.', $candidate['candidate_video'])[0];
+            try {
 
-            $thumbnail = "https://res.cloudinary.com/studenthub/video/upload/q_auto/v1596453482/" . $path . $candidateVideo . ".jpg";
+                $candidateVideo = explode ('.', $candidate['candidate_video'])[0];
 
-            $video = "https://res.cloudinary.com/studenthub/video/upload/v1596453482/" . $path . $candidateVideo . ".mp4";
+                $thumbnail = "https://res.cloudinary.com/studenthub/video/upload/q_auto/v1596453482/" . $path . $candidateVideo . ".jpg";
 
-            //copy to s3
+                $video = "https://res.cloudinary.com/studenthub/video/upload/v1596453482/" . $path . $candidateVideo . ".mp4";
 
-            $videoKey = 'candidate-video/' . $candidateVideo . '.mp4';
+                //copy to s3
 
-            $tmpVideo = sys_get_temp_dir() . '/' . $candidateVideo . '.mp4';
+                $videoKey = 'candidate-video/' . $candidateVideo . '.mp4';
 
-            if (file_put_contents($tmpVideo, file_get_contents($video))) {
+                $tmpVideo = sys_get_temp_dir () . '/' . $candidateVideo . '.mp4';
 
-                Yii::$app->resourceManager->save(
-                    null,
-                    $videoKey,
-                    [],
-                    $tmpVideo,
-                    'video/mp4'
-                );
+                if (file_put_contents ($tmpVideo, file_get_contents ($video))) {
+
+                    Yii::$app->resourceManager->save (
+                        null,
+                        $videoKey,
+                        [],
+                        $tmpVideo,
+                        'video/mp4'
+                    );
+                }
+
+                @unlink ($tmpVideo);
+
+                $imageKey = 'candidate-video/' . $candidateVideo . '.jpg';
+
+                $tmpImage = sys_get_temp_dir () . '/' . $candidateVideo . '.jpg';
+
+                if (file_put_contents ($tmpImage, file_get_contents ($thumbnail))) {
+
+                    Yii::$app->resourceManager->save (
+                        null,
+                        $imageKey,
+                        [],
+                        $tmpImage,
+                        'image/jpeg'
+                    );
+                }
+
+                @unlink ($tmpImage);
+
+                $this->db->createCommand ('UPDATE candidate SET candidate_video="' . $candidateVideo . '" WHERE candidate_id = "' . $candidate['candidate_id'] . '"')->execute ();
+
+            } catch(Exception $e) {
+
+                Yii::error('Error moving ' . $candidateVideo, 'candidate');
             }
-
-            @unlink($tmpVideo);
-
-            $imageKey = 'candidate-video/' . $candidateVideo  . '.jpg';
-
-            $tmpImage = sys_get_temp_dir() . '/' . $candidateVideo . '.jpg';
-
-            if (file_put_contents($tmpImage, file_get_contents($thumbnail))) {
-
-                Yii::$app->resourceManager->save(
-                    null,
-                    $imageKey,
-                    [],
-                    $tmpImage,
-                    'image/jpeg'
-                );
-            }
-
-            @unlink($tmpImage);
-
-            $this->db->createCommand('UPDATE candidate SET candidate_video="'.$candidateVideo.'" WHERE candidate_id = "'.$candidate['candidate_id'].'"')->execute();
-
         }
     }
 
