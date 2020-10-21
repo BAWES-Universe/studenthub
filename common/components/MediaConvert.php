@@ -159,6 +159,13 @@ class MediaConvert extends Component
                     "OutputGroupSettings" => [
                         "Type" => "FILE_GROUP_SETTINGS",
                         "FileGroupSettings" => [
+                            "DestinationSettings" => [
+                                "S3Settings" => [
+                                    "AccessControl" => [
+                                        "CannedAcl" => "PUBLIC_READ"
+                                    ]
+                                ]
+                            ],
                             "Destination" => "s3://" . Yii::$app->resourceManager->bucket . "/candidate-video/" . $fileName
                         ]
                     ],
