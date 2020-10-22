@@ -86,7 +86,7 @@ class Transfer extends \common\models\Transfer
      */
     public function getProfit()
     {
-        return Yii::$app->formatter->asDecimal($this->company_total - $this->total,2);
+        return Yii::$app->formatter->asDecimal($this->company_total - $this->total, 3);
     }
 
     /**
