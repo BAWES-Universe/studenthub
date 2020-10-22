@@ -70,7 +70,14 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                     </td>
                 </tr>
                 <?php } ?>
-            <?php } ?>            
+            <?php } ?>
+            <?php if ($invoice->transfer->start_date && $invoice->transfer->end_date) { ?>
+                <tr>
+                    <td align="left" style="text-align: left">
+                        <strong>For Time Period : <?=date('F j, Y',strtotime($invoice->transfer->start_date));?> to <?=date('F j, Y',strtotime($invoice->transfer->end_date));?></strong>
+                    </td>
+                </tr>
+            <?php } ?>
         </table>
         <hr/>
         <table class="table" >
