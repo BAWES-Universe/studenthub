@@ -697,6 +697,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_video' => $model->candidate_video,
+            'candidate_video_processed' => $model->candidate_video_processed,
             'message' => Yii::t('candidate', 'Video Uploaded Successfully')
         ];
     }

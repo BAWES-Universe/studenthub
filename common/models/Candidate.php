@@ -1342,9 +1342,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
 
-            $response = Yii::$app->mediaConvert->processVideo($source, $output);
+            $extension = pathinfo($this->candidate_video, PATHINFO_EXTENSION);
 
-            $this->candidate_video_job_id = $response['Job']['Id'];
+            if($extension != 'mp4') {
+
+                $response = Yii::$app->mediaConvert->processVideo ($source, $output);
+
+                $this->candidate_video_job_id = $response['Job']['Id'];
+
+                $this->candidate_video_processed = false;
+
+            } else {
+
+                $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+
+                $file_s3_path = 'candidate-video/' . $output . '_1.mp4';
+
+                Yii::$app->resourceManager->copy($this->candidate_video, $file_s3_path, $sourceBucket);
+
+                $this->candidate_video_processed = true;
+            }
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
@@ -1369,11 +1386,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $this->_generateVideoThumbnail($tmpVideo, $output);
 
-        $this->scenario = 'changeVideo';
-
         $this->candidate_video = $output . '_1';//first converted file
 
-        $this->candidate_video_processed = false;
+        $this->scenario = 'changeVideo';
 
         return $this->save();
     }
@@ -1391,7 +1406,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $tmpFile = sys_get_temp_dir() . '/' . $fileName;
         $tmpHandle = fopen($tmpFile, 'w+');
 
-        $ffmpegPath = exec('which ffmpeg');// '/usr/local/bin/ffmpeg'
+        $ffmpegPath = exec('which ffmpeg');
 
         exec($ffmpegPath . ' -y -i "'.$source.'" -ss 00:00:01.000 -vframes 1 ' . $tmpFile . ' 2>&1');
 
