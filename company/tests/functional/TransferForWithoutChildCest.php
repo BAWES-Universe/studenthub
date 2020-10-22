@@ -124,7 +124,9 @@ class TransferForWithoutChildCest
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'form-data');
         $I->sendPOST('v1/transfers/create-by-excel', [
-            "excel" => basename($response['ObjectURL'])
+            "excel" => basename($response['ObjectURL']),
+            "start_date" => '2010/10/10',
+            "end_date" => '2010/12/10'
         ]);
         $I->seeResponseMatchesJsonType([
              'transfer_id' => 'integer'
@@ -198,7 +200,9 @@ class TransferForWithoutChildCest
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'form-data');
         $I->sendPATCH('v1/transfers/edit-by-excel/' . $transfer->transfer_id, [
-            "excel" => basename($response['ObjectURL'])
+            "excel" => basename($response['ObjectURL']),
+            "start_date" => '2010/10/10',
+            "end_date" => '2010/12/10'
         ]);
         $I->seeResponseContainsJson([
              'operation' => 'success'
@@ -231,7 +235,9 @@ class TransferForWithoutChildCest
         $I->wantTo('Create transfer for company without child');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPOST('v1/transfers', [
-            'candidates' => $arrCandidate
+            'candidates' => $arrCandidate,
+            "start_date" => '2010/10/10',
+            "end_date" => '2010/12/10'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -266,7 +272,9 @@ class TransferForWithoutChildCest
         $I->wantTo('Edit transfer for company without child');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfers/' . $transfer->transfer_id, [
-            'candidates' => $arrCandidate
+            'candidates' => $arrCandidate,
+            "start_date" => '2010/10/10',
+            "end_date" => '2010/12/10'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
