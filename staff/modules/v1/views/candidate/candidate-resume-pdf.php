@@ -7,7 +7,7 @@ use yii\helpers\Html;
     <p class="pull-right" style="text-align: right;font-size: 14px;font-weight: normal;font-stretch: normal;font-style: normal;line-height: normal;letter-spacing: normal; color: #4f4f4f;">
         <?php echo $candidate->employeeId; ?>
         <?php echo ($candidate->candidate_civil_id)?'<br/>'.$candidate->candidate_civil_id:''; ?>
-        <?php echo '<br/>'. 'Prepared by '.Yii::$app->user->identity->staff_name; ?>
+        <?php echo '<br/>'. 'Prepared by '; //Yii::$app->user->identity->staff_name; ?>
     </p>
 </div>
 <div class="row">
@@ -81,8 +81,12 @@ use yii\helpers\Html;
                 <span style=" font-size: 21px;color: #000000;"><?=$candidate->candidate_phone?></span>
             </p>
         <?php } if ($candidate->candidate_video) { ?>
-        <div class="video" style="margin-top: 36px;">
-            <?=Html::a(Html::img('images/video_img.png',['width'=>302]),Yii::$app->params['candidate_video'].$pathVideo.$candidate->candidate_video,['target'=>'_blank'])?>
+        <div class="video" style="margin-top: 36px;width: 224px;padding:20px 23px;border-radius: 5px;background-color: #6fcf97;">
+            <?=Html::a(Html::img('images/ios-play-circle@3x.png',['width'=>25]). '&nbsp;&nbsp;&nbsp;Watch my intro video',Yii::$app->params['candidate_video'].$pathVideo.$candidate->candidate_video,['target'=>'_blank','style'=>'font-family: Effra;font-size: 14px;font-weight: bold;color: #000000;']); ?>
+        </div>
+        <?php } if ($candidate->candidate_resume) { ?>
+        <div class="video" style="margin-top: 16px;width: 224px;padding:20px 23px;border-radius: 5px;background-color: #56ccf2;">
+            <?=Html::a(Html::img('images/md-download@3x.png',['width'=>25]). '&nbsp;&nbsp;&nbsp;Download my other CV',Yii::$app->resourceManager->getUrl("candidate-resume/" . $candidate->candidate_resume),['target'=>'_blank','style'=>'font-family: Effra;font-size: 14px;font-weight: bold;color: #000000;'])?>
         </div>
         <?php } ?>
         <div class="row" style="margin-top: 40px;">
