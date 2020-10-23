@@ -72,10 +72,15 @@ class CountryController extends Controller
     public function actionList()
     {
         $s = Yii::$app->request->get('query');
-        $query = Country::find()->listWithCandidateCount();
-            if ($s) {
-                $query->filterName($s);
-            }
+        
+        $query = Country::find()
+            ->filterNotFromGoogle()
+            ->listWithCandidateCount();
+            
+        if ($s) {
+            $query->filterName($s);
+        }
+
         $query->asArray();
 
         return new ActiveDataProvider([
