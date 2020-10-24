@@ -19,6 +19,8 @@ use yii\db\ActiveRecord;
  * @property integer $company_total
  * @property date $payment_received_on
  * @property integer $transfer_status
+ * @property date $start_date
+ * @property date $end_date
  * @property string $transfer_created_at
  * @property string $transfer_updated_at
  * @property number deleted
@@ -67,11 +69,19 @@ class Transfer extends ActiveRecord
     {
         return [
             [['company_id', 'transfer_status'], 'integer'],
+            [['start_date','end_date'], 'required'],
             [['transfer_status'], 'validateTransferStatus'],
             [['total', 'company_total'], 'number'],
-            [['transfer_created_at', 'transfer_updated_at', 'payment_received_on'], 'safe'],
+            ['start_date','validateDates'],
+            [['transfer_created_at', 'transfer_updated_at', 'payment_received_on','start_date','end_date'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
+    }
+
+    public function validateDates() {
+        if(strtotime($this->end_date) <= strtotime($this->start_date)){
+            $this->addError('start_date','End date should be greater then start date');
+        }
     }
 
     /**

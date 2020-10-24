@@ -326,7 +326,7 @@ class Transfer extends \common\models\Transfer {
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates) {
+    public static function saveTransfer($company, $candidates, $start_date, $end_date) {
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
@@ -334,6 +334,8 @@ class Transfer extends \common\models\Transfer {
         $transfer = new Transfer;
         $transfer->company_id = $company->company_id;
         $transfer->candidates = $candidates;
+        $transfer->start_date = $start_date;
+        $transfer->end_date   = $end_date;
 
         if(!$transfer->save()) {
             if(isset($transfer->errors)) {
@@ -443,13 +445,16 @@ class Transfer extends \common\models\Transfer {
      * @param $candidates
      * @return array
      */
-    public static function updateTransfer($company, $id, $candidates) {
+    public static function updateTransfer($company, $id, $candidates, $start_date, $end_date) {
 
         $model = Transfer::find()
             ->filterTransfer($id)
             ->filterCurrentCompany($company)
             ->one();
-        
+
+        $model->start_date = $start_date;
+        $model->end_date = $end_date;
+
         if(!$model) {
             return [
                 "operation" => "error",

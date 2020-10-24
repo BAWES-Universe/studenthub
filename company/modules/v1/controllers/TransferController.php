@@ -121,9 +121,11 @@ class TransferController extends Controller
     {
         $company = Yii::$app->user->identity;
         $candidates = Yii::$app->request->getBodyParam("candidates");
+        $start_date = Yii::$app->request->getBodyParam("start_date");
+        $end_date = Yii::$app->request->getBodyParam("end_date");
 
         //save transfer
-        return Transfer::saveTransfer($company, $candidates);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
     }
     
     /**
@@ -136,7 +138,9 @@ class TransferController extends Controller
         
         $model = new TranferExcel;        
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
+
         if(!$model->validate())
         {
             return [
@@ -179,7 +183,7 @@ class TransferController extends Controller
         }
 
         //save transfer
-        return Transfer::saveTransfer($company, $candidates);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
     }
 
     /**
@@ -193,7 +197,9 @@ class TransferController extends Controller
 
         $model = new TranferExcel;    
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
+
         if(!$model->validate())
         {
             return [
@@ -236,7 +242,7 @@ class TransferController extends Controller
         }
 
         //save transfer
-        return Transfer::updateTransfer($company, $id, $candidates);
+        return Transfer::updateTransfer($company, $id, $candidates, $start_date, $end_date);
     }
 
     /**
@@ -249,8 +255,10 @@ class TransferController extends Controller
         $company = Yii::$app->user->identity;
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
 
-        return Transfer::updateTransfer($company, $id, $candidates);
+        return Transfer::updateTransfer($company, $id, $candidates, $start_date, $end_date);
     }
 
     /**
