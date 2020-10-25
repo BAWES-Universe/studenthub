@@ -989,8 +989,14 @@ class AccountController extends Controller
         }
 
         $model->scenario = "updateResume";
-        
-        $model->candidate_resume = urldecode(Yii::$app->request->getBodyParam('resume'));
+
+        $resume = Yii::$app->request->getBodyParam('resume');
+
+        if(strpos($resume, '%20') !== false) {
+            $model->candidate_resume = urldecode($resume);
+        } else {
+            $model->candidate_resume = $resume;
+        }
 
         if(!$model->candidate_resume || $model->candidate_resume == "undefined") {
             return [

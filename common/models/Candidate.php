@@ -1296,6 +1296,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $fileName = $this->candidate_resume;
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+
         $targetPath = "candidate-resume/" . $fileName;
 
         // Copy using S3ResourceManager Component
