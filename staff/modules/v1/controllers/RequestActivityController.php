@@ -2,18 +2,18 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Request;
-use staff\models\Company;
 use Yii;
 use yii\rest\Controller;
-use staff\models\Candidate;
+use yii\data\ActiveDataProvider;
+use staff\models\RequestActivity;
 
 
 /**
- * Statistic controller
+ * RequestActivity controller
  */
-class StatisticController extends Controller
+class RequestActivityController extends Controller
 {
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -43,6 +43,7 @@ class StatisticController extends Controller
         $behaviors['authenticator'] = [
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
+
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
 
@@ -65,50 +66,48 @@ class StatisticController extends Controller
     }
 
     /**
-     * Return Statistic Details
+     * request activity list
+     * @param $id
+     * @return RequestActivity[]
      */
-    public function actionList()
+    public function actionRequestActivities($id)
     {
-        // # of candidates requiring ID card to be renewed
+        $query = RequestActivity::find()
+            ->andWhere(['request_uuid' => $id])
+            ->orderBy('activity_created_datetime desc');
 
-    	$result['totalExpiredCards'] =  Candidate::find()
-            ->idExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->notDeleted()
-            ->count();
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false
+        ]);
+    }
 
-    	// # of candidates that need id generated
 
-	    /*$result['id_need_generated'] = Candidate::find()
-            ->notDeleted()
-            ->filterAssigned()
-            ->idNeedGenerated()
-            ->count();*/
+    /**
+     * return request activity detail
+     * @param $request_uuid
+     *
+     * @return RequestActivity
+     * @throws NotFoundHttpException
+     */
+    public function actionDetail($id)
+    {
+        return $this->findModel($id);
+    }
 
-        $result['profileApprovalRequire'] = Candidate::find()
-            ->notDeleted()
-            ->byApprovalStatus(0)
-            ->completedProfileWithoutApproval()
-            ->count();
-
-        $result['incompleteAssignedToWork'] = Candidate::find()
-            ->filterAssigned()
-            ->notDeleted()
-            ->byApprovalStatus(0)
-            ->count();
-
-        $result['missingBankInfo'] = Candidate::neededBankInfo();
-        $result['requireFollowup'] = Company::companyFollowupCount();
-
-        $result['totalPendingRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_PENDING])
-            ->count();
-
-        $result['activeRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_STARTED])
-            ->count();
-
-        return $result;
+    /**
+     * Finds the Request model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return RequestActivity the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = RequestActivity::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }
-
