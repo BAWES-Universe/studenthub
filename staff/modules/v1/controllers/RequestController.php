@@ -2,10 +2,11 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\RequestActivity;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\Request;
+use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -127,7 +128,9 @@ class RequestController extends Controller
                 ];
             }
         }
-        
+        //save activity
+        $model->createRequestActivity('I have created this request');
+
         Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
@@ -173,6 +176,8 @@ class RequestController extends Controller
                 ];
             }
         }
+        //save activity
+        $model->createRequestActivity('I have updated this request');
 
         Yii::info('[Request updated for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
@@ -207,12 +212,15 @@ class RequestController extends Controller
                 ];
             }
         }
+        $detail = 'I have picked up this request to work on. ';
+        $model->createRequestActivity($detail); // create request
 
         Yii::info('[Request marked as started for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated"
+            "message" => "Request successfully updated",
+            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
     
@@ -249,6 +257,8 @@ class RequestController extends Controller
                 ];
             }
         }
+
+        $model->createRequestActivity('I have completed this request and '. $model->request_feedback);
 
         Yii::info('[Request marked as delivered for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
@@ -298,6 +308,52 @@ class RequestController extends Controller
             "operation" => "success",
             "message" => "Request successfully updated"
         ];
+    }
+
+    /**
+     * Allows staff to add request activity
+     */
+    public function actionAddActivity() {
+
+        $request_uuid = Yii::$app->request->getBodyParam('request_uuid');
+
+        $model = $this->findModel($request_uuid);
+
+        if($model->request_created_by != Yii::$app->user->getId()) {
+            return [
+                "operation" => "error",
+                "message" => "You are not handling this request."
+            ];
+        }
+
+        $modelActivity = new RequestActivity();
+        $modelActivity->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
+        $modelActivity->staff_id = Yii::$app->user->getId();
+        $modelActivity->activity_detail = Yii::$app->request->getBodyParam("detail");
+
+        if (!$modelActivity->save())
+        {
+            if(isset($modelActivity->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $modelActivity->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem adding the request activity, please contact us for assistance."
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request activity successfully added",
+            "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
     }
     
     /**
