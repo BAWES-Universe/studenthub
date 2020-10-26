@@ -252,18 +252,26 @@ return [
                     'controller' => 'v1/request',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET pending' => 'list-pending',
+                        'GET active' => 'list-active',
+                        'GET my' => 'list-my',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH start/<id>' => 'start',
                         'PATCH cancel/<id>' => 'cancel',
                         'PATCH deliver/<id>' => 'deliver',
+                        'POST add-activity' => 'add-activity',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS pending' => 'options',
+                        'OPTIONS active' => 'options',
+                        'OPTIONS my' => 'options',
                         'OPTIONS start/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
+                        'OPTIONS add-activity' => 'options',
                     ]
                 ],
                 [ // BrandController
@@ -305,6 +313,17 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS place-detail/<place_id>' => 'options',
                         'OPTIONS place-predictions' => 'options'
+                    ]
+                ],
+                [ // RequestActivityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-activity',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET request-activities/<id>' => 'request-activities',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS request-activities/<id>' => 'options'
                     ]
                 ],
             ],
