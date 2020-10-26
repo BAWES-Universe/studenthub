@@ -138,7 +138,7 @@ class RequestController extends Controller
         $company_id = Yii::$app->request->get("company_id");
 
         $query = Request::find()
-            ->andWhere(['request_updated_by' => Yii::$app->user->getId()])
+            ->andWhere(['staff_id' => Yii::$app->user->getId()])
             ->orderBy('request_created_datetime DESC');
 
         if($company_id) {
@@ -258,7 +258,7 @@ class RequestController extends Controller
     public function actionStart($id)
     {
         $model = $this->findModel($id);
-        
+        $model->staff_id = Yii::$app->user->getId();
         $model->request_status = Request::STATUS_STARTED;
         
         if (!$model->save())
