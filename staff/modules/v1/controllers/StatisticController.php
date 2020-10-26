@@ -85,19 +85,24 @@ class StatisticController extends Controller
             ->idNeedGenerated()
             ->count();*/
 
+        //Candidates with profile complete requiring their profiles to be reviewed and approved.
+
         $result['profileApprovalRequire'] = Candidate::find()
             ->notDeleted()
             ->byApprovalStatus(0)
             ->completedProfileWithoutApproval()
             ->count();
 
+        //Candidates are assigned to work but have incomplete profiles.
+
         $result['incompleteAssignedToWork'] = Candidate::find()
             ->filterAssigned()
             ->notDeleted()
-            ->byApprovalStatus(0)
+            ->incompletedProfile()
             ->count();
 
         $result['missingBankInfo'] = Candidate::neededBankInfo();
+
         $result['requireFollowup'] = Company::companyFollowupCount();
 
         $result['totalPendingRequests'] = Request::find()

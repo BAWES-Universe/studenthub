@@ -191,33 +191,47 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['{{%candidate}}.candidate_id'=>$id]);
     }
 
+    public function incompletedProfile() {
+        return $this->andWhere('{{%candidate}}.candidate_uid IS NULL OR
+          university.university_id IS NULL OR country.country_id IS NULL OR
+          {{%candidate}}.candidate_name IS NULL OR {{%candidate}}.candidate_name_ar IS NULL OR
+          {{%candidate}}.candidate_gender IS NULL OR {{%candidate}}.candidate_objective IS NULL OR
+          {{%candidate}}.candidate_personal_photo IS NULL OR {{%candidate}}.candidate_email IS NOT NULL OR
+          {{%candidate}}.candidate_phone IS NULL OR {{%candidate}}.candidate_birth_date IS NULL OR
+          {{%candidate}}.candidate_civil_id IS NULL OR {{%candidate}}.candidate_civil_expiry_date IS NULL OR
+          {{%candidate}}.candidate_civil_photo_front IS NULL OR {{%candidate}}.candidate_civil_photo_back IS NULL OR
+          {{%candidate}}.candidate_driving_license IS NULL OR candidate_experience.candidate_experience_id IS NULL OR 
+          candidate_skill.candidate_skill_id IS NULL')
+            ->groupBy('{{%candidate}}.candidate_id')
+            ->joinWith([
+                'candidateExperiences',
+                'candidateSkills',
+                'country',
+                'university'
+            ]);
+    }
+
     public function completedProfileWithoutApproval() {
 
 //        $this->andWhere('{{%candidate}}.bank IS NOT NULL');
 //        $this->andWhere('{{%candidate}}.bank_account_name IS NOT NULL');
 //        $this->andWhere('{{%candidate}}.candidate_iban IS NOT NULL');
         return $this->andWhere('{{%candidate}}.candidate_uid IS NOT NULL')
-        ->andWhere('{{%candidate}}.university_id IS NOT NULL')
-        ->andWhere('{{%candidate}}.country_id IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_name IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_name_ar IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_gender IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_objective IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_personal_photo IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_email IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_phone IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_birth_date IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_civil_id IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_civil_expiry_date IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_civil_photo_front IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_civil_photo_back IS NOT NULL')
-        ->andWhere('{{%candidate}}.candidate_driving_license IS NOT NULL')
-        ->groupBy('{{%candidate}}.candidate_id')
-        ->innerJoinWith([
-            'candidateExperiences',
-            'candidateSkills',
-            'country',
-            'university'
-        ]);
+            ->andWhere('university.university_id IS NOT NULL AND country.country_id IS NOT NULL AND 
+                {{%candidate}}.candidate_name IS NOT NULL AND {{%candidate}}.candidate_name_ar IS NOT NULL AND 
+                {{%candidate}}.candidate_gender IS NOT NULL AND {{%candidate}}.candidate_objective IS NOT NULL AND
+                {{%candidate}}.candidate_personal_photo IS NOT NULL AND {{%candidate}}.candidate_email IS NOT NULL AND 
+                {{%candidate}}.candidate_phone IS NOT NULL AND {{%candidate}}.candidate_birth_date IS NOT NULL AND 
+                {{%candidate}}.candidate_civil_id IS NOT NULL AND {{%candidate}}.candidate_civil_expiry_date IS NOT NULL AND 
+                {{%candidate}}.candidate_civil_photo_front IS NOT NULL AND {{%candidate}}.candidate_civil_photo_back IS NOT NULL AND 
+                {{%candidate}}.candidate_driving_license IS NOT NULL AND candidate_experience.candidate_experience_id IS NOT NULL AND
+                candidate_skill.candidate_skill_id IS NOT NULL')
+            ->groupBy('{{%candidate}}.candidate_id')
+            ->innerJoinWith([
+                'candidateExperiences',
+                'candidateSkills',
+                'country',
+                'university'
+            ]);
     }
 }
