@@ -120,7 +120,8 @@ class Request extends \yii\db\ActiveRecord
             'requestCreatedBy',
             'requestUpdatedBy',
             'contact',
-            'company'
+            'company',
+            'requestActivities'
         ];
     }
 
@@ -154,5 +155,26 @@ class Request extends \yii\db\ActiveRecord
     public function getRequestUpdatedBy($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'request_updated_by']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestActivities($modelClass = "\common\models\RequestActivity")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid']);
+    }
+
+    /**
+     * create activity record for request
+     * @param type $detail
+     * @return type
+     */
+    public function createRequestActivity($detail = null)
+    {
+        $model = new RequestActivity();
+        $model->request_uuid = $this->request_uuid;
+        $model->staff_id = Yii::$app->user->getId();
+        $model->activity_detail = $detail;
+        $model->save(false);
     }
 }

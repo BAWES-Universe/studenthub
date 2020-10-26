@@ -75,7 +75,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <?php if ($invoice->transfer->start_date && $invoice->transfer->end_date) { ?>
             <tr>
                 <td align="left" style="text-align: left">
-                    <strong>For Time Period : <?=date('F j, Y',strtotime($invoice->transfer->start_date));?> to <?=date('F j, Y',strtotime($invoice->transfer->end_date));?></strong>
+                    For time period: <?=date('F j, Y',strtotime($invoice->transfer->start_date));?> to <?=date('F j, Y',strtotime($invoice->transfer->end_date));?>
                 </td>
             </tr>
         <?php } ?>

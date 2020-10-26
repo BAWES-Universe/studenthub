@@ -261,6 +261,7 @@ return [
                         'PATCH start/<id>' => 'start',
                         'PATCH cancel/<id>' => 'cancel',
                         'PATCH deliver/<id>' => 'deliver',
+                        'POST add-activity' => 'add-activity',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -270,6 +271,7 @@ return [
                         'OPTIONS start/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
+                        'OPTIONS add-activity' => 'options',
                     ]
                 ],
                 [ // BrandController
@@ -311,6 +313,17 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS place-detail/<place_id>' => 'options',
                         'OPTIONS place-predictions' => 'options'
+                    ]
+                ],
+                [ // RequestActivityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-activity',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET request-activities/<id>' => 'request-activities',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS request-activities/<id>' => 'options'
                     ]
                 ],
             ],
