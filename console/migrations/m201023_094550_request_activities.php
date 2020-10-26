@@ -19,8 +19,6 @@ class m201023_094550_request_activities extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
-        $this->truncateTable('request');
-
         $this->createTable('request_activity', [
             'activity_uuid' => $this->char(60)->notNull(),
             'request_uuid' => $this->char(60)->notNull(), // Which user made request?
@@ -44,8 +42,7 @@ class m201023_094550_request_activities extends Migration
             'request_activity',
             'staff_id',
             'staff',
-            'staff_id',
-            'CASCADE'
+            'staff_id'
         );
 //
 //        // creates index for column `request_uuid`
@@ -60,8 +57,7 @@ class m201023_094550_request_activities extends Migration
             'request_activity',
             'request_uuid',
             'request',
-            'request_uuid',
-            'CASCADE'
+            'request_uuid'
         );
         Yii::$app->db->createCommand('SET foreign_key_checks = 1')->execute();
     }
