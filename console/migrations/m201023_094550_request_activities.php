@@ -19,7 +19,7 @@ class m201023_094550_request_activities extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
-        $this->truncateTable('request');
+//        $this->truncateTable('request');
 
         $this->createTable('request_activity', [
             'activity_uuid' => $this->char(60)->notNull(),
