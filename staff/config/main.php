@@ -252,6 +252,9 @@ return [
                     'controller' => 'v1/request',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET pending' => 'list-pending',
+                        'GET active' => 'list-active',
+                        'GET my' => 'list-my',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
@@ -262,6 +265,9 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS pending' => 'options',
+                        'OPTIONS active' => 'options',
+                        'OPTIONS my' => 'options',
                         'OPTIONS start/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',

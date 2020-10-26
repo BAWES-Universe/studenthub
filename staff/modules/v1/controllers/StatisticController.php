@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\Request;
 use staff\models\Company;
 use Yii;
 use yii\rest\Controller;
@@ -70,59 +71,42 @@ class StatisticController extends Controller
     {
         // # of candidates requiring ID card to be renewed
 
-    	$result['id_expired'] =  Candidate::find()
+    	$result['totalExpiredCards'] =  Candidate::find()
             ->idExpired()
             ->filterAssigned() // only candidate with assigned work
             ->notDeleted()
             ->count();
 
-	// # of candidates that need id generated
+    	// # of candidates that need id generated
 
-	    $result['id_need_generated'] = Candidate::find()
+	    /*$result['id_need_generated'] = Candidate::find()
             ->notDeleted()
             ->filterAssigned()
             ->idNeedGenerated()
-            ->count();
+            ->count();*/
 
-    	// Total Candidates
-
-        $result['total_candidates'] = Candidate::find()
-            ->notDeleted()
-            ->count();
-
-        // Total assigned
-
-        $result['total_candidates_assigned'] = Candidate::find()
-            ->notDeleted()
-            ->totalAssigned()
-            ->count();
-		
-        // Total unassigned
-
-        $result['total_candidates_unassigned'] = Candidate::find()
-            ->notDeleted()
-            ->totalUnassigned()
-            ->count();
-
-        $result['candidate_review_required'] = Candidate::find()
+        $result['profileApprovalRequire'] = Candidate::find()
             ->notDeleted()
             ->byApprovalStatus(0)
             ->completedProfileWithoutApproval()
             ->count();
 
-        $result['total_candidates_assigned'] = Candidate::find()
-            ->notDeleted()
-            ->totalAssigned()
-            ->count();
-
-        $result['candidates_assigned_incomplete_profile'] = Candidate::find()
+        $result['incompleteAssignedToWork'] = Candidate::find()
             ->filterAssigned()
             ->notDeleted()
             ->byApprovalStatus(0)
             ->count();
 
-        $result['candidate_without_bank'] = Candidate::neededBankInfo();
-        $result['company_follow_up'] = $query = Company::companyFollowupCount();
+        $result['missingBankInfo'] = Candidate::neededBankInfo();
+        $result['requireFollowup'] = Company::companyFollowupCount();
+
+        $result['totalPendingRequests'] = Request::find()
+            ->filterWhere(['request_status' => Request::STATUS_PENDING])
+            ->count();
+
+        $result['activeRequests'] = Request::find()
+            ->filterWhere(['request_status' => Request::STATUS_STARTED])
+            ->count();
 
         return $result;
     }
