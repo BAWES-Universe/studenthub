@@ -80,6 +80,69 @@ class RequestController extends Controller
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
         }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of pending requests available.
+     * @return ActiveDataProvider
+     */
+    public function actionListPending()
+    {
+        $company_id = Yii::$app->request->get("company_id");
+
+        $query = Request::find()
+            ->andWhere(['request_status' => Request::STATUS_PENDING])
+            ->orderBy('request_created_datetime DESC');
+
+        if($company_id) {
+            $query->andWhere(['company_id' => $company_id]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of requests available.
+     * @return ActiveDataProvider
+     */
+    public function actionListActive()
+    {
+        $company_id = Yii::$app->request->get("company_id");
+
+        $query = Request::find()
+            ->andWhere(['request_status' => Request::STATUS_STARTED])
+            ->orderBy('request_created_datetime DESC');
+
+        if($company_id) {
+            $query->andWhere(['company_id' => $company_id]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of requests I'm handling.
+     * @return ActiveDataProvider
+     */
+    public function actionListMy()
+    {
+        $company_id = Yii::$app->request->get("company_id");
+
+        $query = Request::find()
+            ->andWhere(['request_updated_by' => Yii::$app->user->getId()])
+            ->orderBy('request_created_datetime DESC');
+
+        if($company_id) {
+            $query->andWhere(['company_id' => $company_id]);
+        }
         
         return new ActiveDataProvider([
             'query' => $query
