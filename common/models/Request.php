@@ -14,6 +14,7 @@ use yii\behaviors\AttributeBehavior;
  * @property string $request_uuid
  * @property int $company_id Which company is this request for?
  * @property string $contact_uuid Which contact from this company made the request?
+ * @property int staff_id who handling request
  * @property int $request_created_by
  * @property int $request_updated_by
  * @property int $request_position_type 1 - Fulltime, 2 - Partime
@@ -57,6 +58,7 @@ class Request extends \yii\db\ActiveRecord
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_position_title', 'request_additional_info', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']]
         ];
     }
@@ -98,6 +100,7 @@ class Request extends \yii\db\ActiveRecord
             'request_uuid' => Yii::t('app', 'Request Uuid'),
             'company_id' => Yii::t('app', 'Which company is this request for?'),
             'contact_uuid' => Yii::t('app', 'Which contact from this company made the request?'),
+            'staff_id' => Yii::t('app', 'Staff'),
             'request_created_by' => Yii::t('app', 'Request Created By'),
             'request_updated_by' => Yii::t('app', 'Request Updated By'),
             'request_position_type' => Yii::t('app', '1 - Fulltime, 2 - Partime'),
@@ -121,8 +124,18 @@ class Request extends \yii\db\ActiveRecord
             'requestUpdatedBy',
             'contact',
             'company',
+            'staff',
+            'lastActivity',
             'requestActivities'
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaff($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
@@ -156,12 +169,23 @@ class Request extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'request_updated_by']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLastActivity($modelClass = "\common\models\RequestActivity")
+    {
+        return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy('activity_created_datetime DESC');
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getRequestActivities($modelClass = "\common\models\RequestActivity")
     {
-        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid']);
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy('activity_created_datetime DESC');
     }
 
     /**
