@@ -693,6 +693,9 @@ class AccountController extends Controller
                 'message' => $model->getErrors()
             ];
         }
+        $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
+
+        Yii::info('[Video recording uploaded by "'.Yii::$app->user->identity->candidate_name.'" Watch it on: "'.Yii::$app->resourceManager->getUrl($path . $model->candidate_video).'"', __METHOD__);
 
         return [
             'operation' => 'success',
