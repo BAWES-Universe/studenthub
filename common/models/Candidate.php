@@ -1362,6 +1362,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 Yii::$app->resourceManager->copy($this->candidate_video, $file_s3_path, $sourceBucket);
 
                 $this->candidate_video_processed = true;
+
+                //log to slack
+
+                $name = $this->candidate_name? $this->candidate_name: $this->candidate_name_ar;
+
+                $url =  Yii::$app->resourceManager->getUrl($file_s3_path);
+
+                Yii::info("[Video recording uploaded by ".$name."] Watch it on " . $url, __METHOD__);
+
             }
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
