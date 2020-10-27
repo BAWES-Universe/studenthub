@@ -275,7 +275,9 @@ class RequestController extends Controller
                 ];
             }
         }
+
         $detail = 'I have picked up this request to work on. ';
+
         $model->createRequestActivity($detail); // create request
 
         Yii::info('[Request marked as started for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
