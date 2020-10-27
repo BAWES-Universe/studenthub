@@ -38,6 +38,7 @@ class RequestCest
         $this->request = $this->company->getRequests()->one();
 
         $this->contact = $this->company->getCompanyContacts()->one();
+        $I->amBearerAuthenticated($this->token);
     }
 
     /**
@@ -47,7 +48,6 @@ class RequestCest
     public function tryToList(FunctionalTester $I)
     {
         $I->wantTo('Validate request api response for listing');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/requests');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -60,7 +60,6 @@ class RequestCest
     public function tryToView(FunctionalTester $I)
     {
         $I->wantTo('Validate request api to view request detail');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/requests/' . $this->request->request_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -73,7 +72,6 @@ class RequestCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a request via API');
-        $I->amBearerAuthenticated($this->token);
         $I->sendPOST(
             'v1/requests',
             [
@@ -99,7 +97,6 @@ class RequestCest
     public function tryToUpdate(FunctionalTester $I)
     {
         $I->wantTo('update a request via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
             'v1/requests/' . $this->request->request_uuid,
@@ -125,7 +122,6 @@ class RequestCest
     public function tryToStart(FunctionalTester $I)
     {
         $I->wantTo('start request via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH('v1/requests/start/' . $this->request->request_uuid, []);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -138,7 +134,6 @@ class RequestCest
     public function tryToCancel(FunctionalTester $I)
     {
         $I->wantTo('cancel request via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH('v1/requests/cancel/' . $this->request->request_uuid, [
         	'feedback' => 'Lorem isuem...'
@@ -153,7 +148,6 @@ class RequestCest
     public function tryToDeliver(FunctionalTester $I)
     {
         $I->wantTo('deliver request via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH('v1/requests/deliver/' . $this->request->request_uuid, [
         	'feedback' => 'Lorem isuem...'
