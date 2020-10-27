@@ -253,6 +253,14 @@ class AccountController extends Controller
             ];
         }
 
+        //log to slack
+
+        $name = $model->candidate_name? $model->candidate_name: $model->candidate_name_ar;
+
+        $url = Yii::$app->resourceManager->getUrl('candidate-video/' . $model->candidate_video . '_1.mp4');
+
+        Yii::info("[Video recording uploaded by ".$name."] Watch it on " . $url, __METHOD__);
+
         return [
             'operation' => 'success',
         ]; 
