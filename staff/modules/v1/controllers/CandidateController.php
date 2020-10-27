@@ -486,7 +486,8 @@ class CandidateController extends Controller
             ->orderByStatus();
 
         if ($incompleteProfile) {
-            $query->byApprovalStatus(0);
+            $query->incompletedProfile();
+//            $query->byApprovalStatus(0);
         }
 
         if($candidate_name) {
