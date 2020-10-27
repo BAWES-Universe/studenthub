@@ -770,6 +770,13 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return false;
     }
 
+    public static function companyFollowupCount() {
+        return self::find()
+            ->followups()
+            ->notDeleted()
+            ->count();
+    }
+
     public function getMalls() {
         return \staff\models\Mall::findAll(['mall_uuid'=>$this->getStores()->all()]);
     }
