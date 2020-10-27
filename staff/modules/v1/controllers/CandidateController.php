@@ -541,26 +541,16 @@ class CandidateController extends Controller
     public function actionListWithoutBankInfo()
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
-        $assigned = Yii::$app->request->get("assigned");
+//        $assigned = Yii::$app->request->get("assigned");
 
-        $query = TransferCandidate::find();
-        $query->joinWith('candidate');
-        $query->filterUnpaid();
-
-        $query->andWhere(['{{%candidate}}.deleted'=>0]);
-
-        if($assigned == 'yes') {
-            $query->andWhere('{{%candidate}}.store_id > 0');
-        } else if($assigned == 'no') {
-            $query->andWhere('{{%candidate}}.store_id IS NULL or {{%candidate}}.store_id = 0');
-        }
-
+        $query = Candidate::find();
+        $query->notDeleted();
+        $query->joinWith('transferCandidate');
+        $query->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL');
+        $query->orWhere('{{%transfer_candidate}}.paid = 0 && {{%candidate}}.bank_id IS NULL');
         if ($candidate_name) {
-            $query->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);
+            $query->filterName($candidate_name);
         }
-
-        $query->groupBy('{{%transfer_candidate}}.candidate_id');
-        $query->andWhere('{{%candidate}}.bank_id IS NULL');
 
         return new ActiveDataProvider([
             'query' => $query
