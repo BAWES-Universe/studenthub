@@ -45,13 +45,6 @@ class Company extends \common\models\Company {
         return parent::getStores($modelClass)->andWhere(['deleted'=>0]);
     }
 
-    public static function companyFollowupCount() {
-        return Company::find()
-            ->followups()
-            ->notDeleted()
-            ->count();
-    }
-
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
