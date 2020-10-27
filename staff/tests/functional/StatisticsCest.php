@@ -1,6 +1,9 @@
 <?php
 namespace staff\tests;
 
+use common\models\Request;
+use staff\models\Candidate;
+use staff\models\Company;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\CandidateIdCardFixture;
@@ -38,12 +41,36 @@ class StatisticsCest
         $I->wantTo('get statistics');
         $I->sendGET('v1/statistics');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson([
-            'id_expired'=>0,
-            'id_need_generated'=>6,
-            'total_candidates'=>7,
-            'total_candidates_assigned'=>7,
-            'total_candidates_unassigned'=>0,
-        ]);
+        $result['totalExpiredCards'] =  Candidate::find()
+            ->idExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted()
+            ->count();
+
+        // # of candidates that need id generated
+        //Candidates with profile complete requiring their profiles to be reviewed and approved.
+
+        $result['profileApprovalRequire'] = Candidate::find()
+            ->notDeleted()
+            ->byApprovalStatus(0)
+            ->completedProfileWithoutApproval()
+            ->count();
+
+        //Candidates are assigned to work but have incomplete profiles.
+        $result['incompleteAssignedToWork'] = Candidate::find()
+            ->filterAssigned()
+            ->notDeleted()
+            ->incompletedProfile()
+            ->count();
+        $result['missingBankInfo'] = Candidate::neededBankInfo();
+        $result['requireFollowup'] = Company::companyFollowupCount();
+        $result['totalPendingRequests'] = Request::find()
+            ->filterWhere(['request_status' => Request::STATUS_PENDING])
+            ->count();
+
+        $result['activeRequests'] = Request::find()
+            ->filterWhere(['request_status' => Request::STATUS_STARTED])
+            ->count();
+        $I->canSeeResponseContainsJson($result);
     }
 }

@@ -28,7 +28,7 @@ class m201019_103154_candiate_video_webhook extends Migration
 
         $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
 
-        $candidates = $this->db->createCommand('select candidate_id, candidate_video from candidate WHERE candidate_video IS NOT NULL && candidate_video_processed = 1')->queryAll();
+        $candidates = [];//$this->db->createCommand('select candidate_id, candidate_video from candidate WHERE candidate_video IS NOT NULL && candidate_video_processed = 1')->queryAll();
 
         foreach($candidates as $candidate) {
 

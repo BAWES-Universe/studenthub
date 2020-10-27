@@ -253,6 +253,14 @@ class AccountController extends Controller
             ];
         }
 
+        //log to slack
+
+        $name = $model->candidate_name? $model->candidate_name: $model->candidate_name_ar;
+
+        $url = Yii::$app->resourceManager->getUrl('candidate-video/' . $model->candidate_video . '_1.mp4');
+
+        Yii::info("[Video recording uploaded by ".$name."] Watch it on " . $url, __METHOD__);
+
         return [
             'operation' => 'success',
         ]; 
@@ -693,6 +701,9 @@ class AccountController extends Controller
                 'message' => $model->getErrors()
             ];
         }
+        $path = (YII_ENV == 'prod') ? "candidate-video/" : "dev/candidate-video/";
+
+        Yii::info('[Video recording uploaded by "'.Yii::$app->user->identity->candidate_name.'" Watch it on: "'.Yii::$app->resourceManager->getUrl($path . $model->candidate_video).'"', __METHOD__);
 
         return [
             'operation' => 'success',
