@@ -2047,7 +2047,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->filterUnpaid()
             ->andWhere(['{{%candidate}}.deleted'=>0])
             //->andWhere('{{%candidate}}.store_id > 0')
-            ->groupBy('{{%transfer_candidate}}.candidate_id')
+            //->groupBy('{{%transfer_candidate}}.candidate_id')
+            ->select('{{%transfer_candidate}}.candidate_id')
+            ->distinct()
             ->andWhere('{{%candidate}}.bank_id IS NULL')
             ->count();
     }
