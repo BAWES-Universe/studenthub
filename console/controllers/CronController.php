@@ -100,7 +100,7 @@ class CronController extends \yii\console\Controller {
             "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
         ];
 
-        $data['totalExpiredCards'] =  Candidate::find()
+        $data['totalExpiredCards'] = Candidate::find()
             ->idExpired()
             ->filterAssigned() // only candidate with assigned work
             ->notDeleted()
