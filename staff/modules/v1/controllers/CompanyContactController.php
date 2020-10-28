@@ -75,10 +75,21 @@ class CompanyContactController extends Controller
     public function actionList()
     {
         $company_id = Yii::$app->request->get('company_id');
+        $q = Yii::$app->request->get('query');
         
         $query = CompanyContact::find()
             ->orderBy('contact_created_datetime ASC');
-        
+
+        if($q) {
+            $query->joinWith(['companyContactEmails', 'companyContactPhones'])
+                ->andWhere([
+                    'OR',
+                    ['like', 'contact_name', $q],
+                    ['like', 'company_contact_email.email_address', $q],
+                    ['like', 'company_contact_phone.phone_number', $q]
+                ]);
+        }
+
         if($company_id) {
             $query->filterWhere(['company_id' => $company_id]);
         }

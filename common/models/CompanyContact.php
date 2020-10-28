@@ -94,6 +94,7 @@ class CompanyContact extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
+            'company',
             'companyContactEmails',
             'companyContactPhones'
         ];
