@@ -74,7 +74,10 @@ class AccountController extends Controller
      */
     public function actionProfile() {
         
-        return Yii::$app->user->identity;
+        return [
+            'profile' => Candidate::findOne(Yii::$app->user->getId()),
+            'time'=>Yii::getLogger()->getDbProfiling()
+        ];
     }
     
     /**

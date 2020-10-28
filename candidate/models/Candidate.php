@@ -118,7 +118,24 @@ class Candidate extends \common\models\Candidate {
     {
         return parent::getWorkHistory($modelClass);
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateSkills($modelClass = "\candidate\models\CandidateSkill")
+    {
+        return parent::getCandidateSkills($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateExperiences($modelClass = "\candidate\models\CandidateExperience")
+    {
+        return parent::getCandidateExperiences($modelClass);
+    }
+
+
     /**
      * @inheritdoc
      */
