@@ -520,6 +520,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function adminPendingPaymentNotification()
     {
         $list = [];
+
         $data = \common\models\Candidate::find()
             ->select('candidate.candidate_id,candidate.store_id,store.store_id,store.company_id')
             ->leftJoin('store','store.store_id = candidate.store_id ')
@@ -537,6 +538,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                     $list[] = $company->store->company_id;
                 }
             }
+
             if (count($list)>0) {
 
                 return Yii::$app->mailer->compose("company-unpaid-notification-to-admin",
