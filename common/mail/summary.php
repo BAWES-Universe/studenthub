@@ -201,7 +201,10 @@
                     </td>
                     </tr>
                     <![endif]-->
+
                     <!-- Pending Requests -->
+
+                    <?php if($totalPendingRequests > 0) { ?>
                     <!--[if mso | IE]>
                     <tr>
                         <td
@@ -317,6 +320,7 @@
                     </table>
 
                     </td>
+
                     </tr>
 
                     <tr>
@@ -367,7 +371,12 @@
                     </td>
                     </tr>
                     <![endif]-->
-                    <!-- Expired IDs -->
+                <?php } ?>
+
+                <!-- Expired IDs -->
+
+                <?php if($totalExpiredCards > 0) { ?>
+
                     <!--[if mso | IE]>
                     <tr>
                         <td
@@ -533,7 +542,10 @@
                     </td>
                     </tr>
                     <![endif]-->
-                    <!-- Expired IDs -->
+
+                    <?php } if($activeRequests > 0) { ?>
+
+                    <!-- active requests -->
                     <!--[if mso | IE]>
                     <tr>
                         <td
@@ -644,6 +656,7 @@
 
 
                     <!--[if mso | IE]>
+
                     </td>
                     </tr>
                     </table>
@@ -699,6 +712,9 @@
                     </td>
                     </tr>
                     <![endif]-->
+
+                <?php } if($requireFollowup > 0) { ?>
+
                     <!-- Client Followup -->
                     <!--[if mso | IE]>
                     <tr>
@@ -865,6 +881,7 @@
                     </td>
                     </tr>
                     <![endif]-->
+                <?php } if($missingBankInfo) { ?>
                     <!-- Missing Bank Info -->
                     <!--[if mso | IE]>
                     <tr>
@@ -1031,6 +1048,7 @@
                     </td>
                     </tr>
                     <![endif]-->
+                <?php } if($incompleteAssignedToWork) { ?>
                     <!-- Incomplete Profiles -->
                     <!--[if mso | IE]>
                     <tr>
@@ -1198,6 +1216,7 @@
                     </tr>
                     <![endif]-->
                     <!-- Require Approval -->
+                <?php } if($profileApprovalRequire > 0) { ?>
                     <!--[if mso | IE]>
                     <tr>
                         <td
@@ -1362,7 +1381,7 @@
 
                     </td>
                     </tr>
-
+                    <?php } ?>
                     </table>
                     <![endif]-->
                 </td>

@@ -144,7 +144,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'pattern' => '/^[0-9a-zA-Z\s]+$/',
                 'message' => 'Special characters not allowed'
             ],
-            ['candidate_iban', 'validateIban'],
+            [
+                ['bank_account_name', 'candidate_name', 'candidate_name_ar'], 'validateFullName'
+            ],
+           // ['candidate_iban', 'validateIban'],
             ['candidate_hourly_rate', 'validateHourlyRate'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
@@ -289,6 +292,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid'];
 
         return $scenarios;
+    }
+
+    /**
+     * Validate name field contain full name
+     */
+    public function validateFullName($attribute, $params, $validator) {
+
+        $message = '';
+
+        if($attribute == 'candidate_name') {
+            $message = 'Please specify your full name';
+        } else if($attribute == 'candidate_name_ar') {
+            $message = 'Please specify your full arabic name';
+        } else {
+            $message = 'Please specify your full beneficiary name';
+        }
+
+        if(sizeof(explode (' ', $this->$attribute)) == 1) {
+            $this->addError('candidate_name', Yii::t('app', $message));
+        }
     }
 
     /**
@@ -1088,28 +1111,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Candidate having birthday today!')
-            ->send();
-    }
-
-    /**
-     * @return null
-     */
-    public static function ageAlert()
-    {
-        $candidates = Candidate::find()
-            ->where('DATEDIFF(NOW(), candidate_birth_date)/365 >= 22')
-            ->all();
-
-        if(!$candidates)
-            return null;
-
-        Yii::$app->mailer->compose("candidateInvalidAge",
-            [
-                "candidates" => $candidates,
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo(Yii::$app->params['adminEmail'])
-            ->setSubject('Candidate hits age 22!')
             ->send();
     }
 

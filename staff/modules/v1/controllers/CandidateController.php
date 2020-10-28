@@ -3,9 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use kartik\mpdf\Pdf;
-use staff\models\TransferCandidate;
 use Yii;
-use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
@@ -48,7 +46,7 @@ class CandidateController extends Controller
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options','candidate-resume-pdf'];
 
         return $behaviors;
     }

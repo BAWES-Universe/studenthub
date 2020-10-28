@@ -176,7 +176,7 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate->candidate_iban = '???????';
             expect('Bank account name should not contain special characters', $candidate->validate(['bank_account_name']))->false();
             expect('Candidate IBAN should not contain special characters', $candidate->validate(['candidate_iban']))->false();
-            $candidate->bank_account_name = 'Manmohan';
+            $candidate->bank_account_name = 'Manmohan Kumar';
             $candidate->candidate_iban = 'KWKW12345612345612345612345612';
             expect('Bank account name should accept valid value', $candidate->validate(['bank_account_name']))->true();
             expect('Candidate IBAN should accept valid value', $candidate->validate(['candidate_iban']))->true();

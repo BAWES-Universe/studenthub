@@ -79,6 +79,11 @@ Production ---> `* * * * * cd ~/www && ./init --env=Production --overwrite=All >
 * Cron to Check civil ID expiry date : Candidate::civilIdExpire();
 * Cron to send Notification to admin regarding company who didn't created transfer after 35 days : Company::adminPendingPaymentNotification();
 
+# Daily CRON at 8:00 AM Every Day
+`0 8 * * * php ~/www/yii cron/summary > /dev/null 2>&1`
+
+* Sends morning report to staff
+
 # CRON every minute
 `* * * * * php ~/www/yii cron/every-minute > /dev/null 2>&1`
 

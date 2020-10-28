@@ -74,7 +74,10 @@ class AccountController extends Controller
      */
     public function actionProfile() {
         
-        return Yii::$app->user->identity;
+        return [
+            'profile' => Candidate::findOne(Yii::$app->user->getId()),
+            'time'=>Yii::getLogger()->getDbProfiling()
+        ];
     }
     
     /**
@@ -754,7 +757,7 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
         
-        $candidate->candidate_name = Yii::$app->request->getBodyParam('name');
+        $candidate->candidate_name = strtolower(Yii::$app->request->getBodyParam('name'));
 
         $candidate->scenario = "updateName";
 
