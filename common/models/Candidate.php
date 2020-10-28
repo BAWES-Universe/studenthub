@@ -1117,28 +1117,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return null
      */
-    public static function ageAlert()
-    {
-        $candidates = Candidate::find()
-            ->where('DATEDIFF(NOW(), candidate_birth_date)/365 >= 22')
-            ->all();
-
-        if(!$candidates)
-            return null;
-
-        Yii::$app->mailer->compose("candidateInvalidAge",
-            [
-                "candidates" => $candidates,
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo(Yii::$app->params['adminEmail'])
-            ->setSubject('Candidate hits age 22!')
-            ->send();
-    }
-
-    /**
-     * @return null
-     */
     public static function civilIdExpire()
     {
         $candidates = Candidate::find()

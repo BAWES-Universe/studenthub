@@ -32,20 +32,12 @@ class CronController extends \yii\console\Controller {
 
         Candidate::birthdayAlert();
 
-        //check for invalid age
-
-        Candidate::ageAlert();
-
         //check civil ID expiry date
 
         Candidate::civilIdExpire();
 
         //check salary transfer not paid
         //Invoice::unpaidAlert();
-
-        // notification to admin regarding
-        // company who didn't created transfer after 35 days
-        Company::adminPendingPaymentNotification();
 
     }
 
