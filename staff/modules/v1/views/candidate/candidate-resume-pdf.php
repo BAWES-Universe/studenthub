@@ -64,7 +64,7 @@ use yii\helpers\Html;
 
     </div>
     <div class="col-lg-6 col-md-6 col-xl-6 col-xs-6">
-        <h1 style="padding:0; margin:0; height: 50px;font-size: 36px;font-weight: bold;color: #000000;"><?=$candidate->candidate_name?></h1>
+        <h1 style="padding:0; margin:0; height: 50px;font-size: 36px;font-weight: bold;color: #000000;text-transform: capitalize;"><?=strtolower($candidate->candidate_name)?></h1>
         <p style="padding:0; margin:0; font-size: 18px;color: #000000;">
             <?php
                 $from = new DateTime($candidate->candidate_birth_date);

@@ -511,7 +511,7 @@ class AuthController extends Controller
             $model->candidate_name_ar = $firstname;
             $model->candidate_name = null;
         } else  {
-            $model->candidate_name = $firstname;
+            $model->candidate_name = strtolower($firstname);
             $model->candidate_name_ar = null;
         }
 

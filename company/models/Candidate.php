@@ -29,6 +29,9 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_status'],
         $fields['employee_id']
         );
+        $fields['candidate_name'] = function($model){
+            return strtolower($model->candidate_name);
+        };
         
         // Clear bank info from array
         $fields['bank'] = function() {return [];};
