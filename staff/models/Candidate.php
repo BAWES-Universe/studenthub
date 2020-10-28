@@ -25,6 +25,9 @@ class Candidate extends \common\models\Candidate {
         unset($fields['candidate_auth_key'],
         $fields['candidate_password_hash'],
         $fields['candidate_password_reset_token']);
+        $fields['candidate_name'] = function($model){
+            return strtolower($model->candidate_name);
+        };
         return $fields;
     }
 
