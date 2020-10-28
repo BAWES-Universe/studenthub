@@ -82,13 +82,13 @@ use yii\helpers\Html;
             </p>
         <?php } if ($candidate->candidate_video) { ?>
             <div style='margin-top:12px;'>
-                <?=Html::a(Html::img('images/video.png'), Yii::$app->params['candidate_video'].$pathVideo.$candidate->candidate_video,['target'=>'_blank']); ?>
+                <?=Html::a(Html::img('images/video.svg',['width'=>270]), Yii::$app->params['candidate_video'].$pathVideo.$candidate->candidate_video,['target'=>'_blank']); ?>
             </div>
         <?php } if ($candidate->candidate_resume) { ?>
             <div style='margin-top:12px;'>
-                <?=Html::a(Html::img('images/cv.png'), Yii::$app->resourceManager->getUrl("candidate-resume/" . $candidate->candidate_resume),['target'=>'_blank']); ?>
+                <?=Html::a(Html::img('images/cv.svg',['width'=>270]), Yii::$app->resourceManager->getUrl("candidate-resume/" . $candidate->candidate_resume),['target'=>'_blank']); ?>
             </div>
-        <?php } ?>
+        <?php }  ?>
         <div class="row" style="margin-top: 40px;">
             <h1 style="font-size: 24px;font-weight: bold;color: #000000;">Work Experience</h1>
             <?php if ($candidate->getCandidateExperiences()->count() > 0 ) { ?>
