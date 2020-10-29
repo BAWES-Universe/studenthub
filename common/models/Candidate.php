@@ -6,6 +6,7 @@ namespace common\models;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
@@ -1103,15 +1104,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if(!$candidates)
             return null;
+        $allStaff = Staff::find()->all();
+        $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
-        Yii::$app->mailer->compose("candidateBirthday",
-            [
-                "candidates" => $candidates,
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo(Yii::$app->params['adminEmail'])
-            ->setSubject('Candidate having birthday today!')
-            ->send();
+        foreach($candidates as $candidate) {
+            Yii::$app->mailer->compose("birthday",
+                [
+                    "candidate" => $candidate,
+                    "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                    "birthday_img" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/birthday.gif', 'https'),
+                ])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                ->setTo($candidate->candidate_email)
+                ->setBcc($allStaffEmails)
+                ->setSubject('Candidate having birthday today!')
+                ->send();
+        }
+        return count($candidates);
     }
 
     /**
@@ -1126,14 +1135,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if(!$candidates)
             return null;
 
-        Yii::$app->mailer->compose("candidateIdExpire",
-            [
-                "candidates" => $candidates,
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo(Yii::$app->params['adminEmail'])
-            ->setSubject('Candidate having invalid civil ID')
-            ->send();
+        foreach($candidates as $candidate) {
+
+            $f_name = $candidate->candidate_name? $candidate->candidate_name: $candidate->candidate_name_ar;
+
+            $name = explode(' ', $f_name)[0];
+
+            $url = '';
+
+            $isProfileCompleted = $candidate->isProfileCompleted();
+
+            if (!$isProfileCompleted) {
+                $url = Yii::$app->params['candidateAppUrl'];
+            } else {
+                $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
+            }
+
+            Yii::$app->mailer->compose("civil-expired",
+                [
+                    'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                    'url' => $url,
+                    'name' => $name
+                ])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                ->setTo($candidate->candidate_email)
+                ->setSubject('Please update your civil id')
+                ->send();
+        }
     }
 
     /**

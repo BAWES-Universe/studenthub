@@ -47,6 +47,7 @@ class CandidateIdCardController extends Controller
         $behaviors['authenticator'] = [
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
+
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options', 'view'];
 
@@ -250,6 +251,7 @@ class CandidateIdCardController extends Controller
     public function actionListExpired()
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
+        $assigned = Yii::$app->request->get("assigned");
 
         $query = Candidate::find()
             ->idExpired()
@@ -259,8 +261,10 @@ class CandidateIdCardController extends Controller
             $query->filterName($candidate_name);
         }
 
-        $query->filterAssigned(); // only candidate with assigned work
-
+        if($assigned) {
+            $query->filterAssigned(); // only candidate with assigned work
+        }
+        
         return new ActiveDataProvider([
             'query' => $query
         ]);
