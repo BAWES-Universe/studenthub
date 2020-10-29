@@ -73,6 +73,11 @@ class StatisticController extends Controller
 
     	$result['totalExpiredCards'] =  Candidate::find()
             ->idExpired()
+            ->notDeleted()
+            ->count();
+
+        $result['assignedExpiredCivilID'] =  Candidate::find()
+            ->idExpired()
             ->filterAssigned() // only candidate with assigned work
             ->notDeleted()
             ->count();

@@ -95,6 +95,11 @@ class CronController extends \yii\console\Controller {
 
         $data['totalExpiredCards'] = Candidate::find()
             ->idExpired()
+            ->notDeleted()
+            ->count();
+
+        $data['assignedExpiredCivilID'] =  Candidate::find()
+            ->idExpired()
             ->filterAssigned() // only candidate with assigned work
             ->notDeleted()
             ->count();
