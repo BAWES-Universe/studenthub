@@ -82,6 +82,10 @@ Production ---> `* * * * * cd ~/www && ./init --env=Production --overwrite=All >
 # Daily CRON at 8:00 AM Every Day
 `0 8 * * * php ~/www/yii cron/summary > /dev/null 2>&1`
 
+
+# Daily CRON at 8:00 AM Every Day
+`0 8 * * * php ~/www/yii cron/payable-candidate-notification > /dev/null 2>&1`
+
 * Sends morning report to staff
 
 # CRON every minute

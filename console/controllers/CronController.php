@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use admin\models\TransferCandidate;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
@@ -146,5 +147,112 @@ class CronController extends \yii\console\Controller {
             ->setCc($emails)
             ->setSubject('Morning Report for ' . date('F j, Y'))
             ->send();
+    }
+
+    /**
+     * Implement cron function that checks if Payable candidates with bank info avail > 0,
+     * it sends an email to khalid@bawes.net telling to process transfer.
+     *  Confirm values/excel shown are only for those candidates which are payable and bank info avail.
+     */
+    public function actionPayableCandidateNotification()
+    {
+        $amount = 0;
+        $candidates = TransferCandidate::find()
+            ->payable()
+            ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))
+            ->all();
+
+        if ($candidates) {
+            foreach ($candidates as $transfer) {
+                if($transfer->candidate->bank_id && $transfer->transfer_benef_iban && $transfer->transfer_benef_name) {
+                    $amount += $transfer->transfer->getRemainingPaymentTransferTotal();
+                }
+            }
+        }
+
+        if ($candidates && count($candidates) > 0) {
+
+            \moonland\phpexcel\Excel::export([
+                'isMultipleSheet' => false,
+                'fileName'=>'payable_candidate',
+                'savePath' => sys_get_temp_dir() . '/',
+                'asAttachment' => true,
+                'models' => $candidates,
+                'columns' => [
+                    'tc_id',
+                    'transfer_id',
+                    'candidate_id',
+                    'candidate.candidate_name',
+                    [
+                        'attribute'=>'Beneficiary name',
+                        'label'=>'Beneficiary name',
+                        'value'=>function($data) {
+                            return $data->candidate->bank_account_name;
+                        }
+                    ],
+                    'candidate.candidate_email',
+                    'candidate.store.company.company_name',
+                    'candidate.store.store_name',
+                    'hours',
+                    'candidate_hourly_rate',
+                    [
+                        'attribute'=>'bonus',
+                        'label'=>'Candidate Bonus',
+                        'value' => function($data){
+                            return $data->bonus - $data->bonus_commission;
+                        }
+                    ],
+                    'transfer_cost',
+                    [
+                        'attribute'=>'candidate_total',
+                        'value' => function($data){
+                            return $data->totalPaidToCandidate;
+                        }
+                    ],
+                    'candidate.candidate_iban',
+                    'candidate.bank.bank_name'
+                ]
+            ]);
+
+            Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+            $mimeTypes = [
+                'xls' => 'application/vnd.ms-excel',
+                'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
+            $fileName = 'payable_candidate.xlsx';
+
+            $file = sys_get_temp_dir() . '/'.$fileName;
+
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
+
+            $subject = "Payable candidates Detail";
+
+            if (YII_ENV != 'prod') {
+                $subject = '[Fake] [Ignore] ' . $subject;
+            }
+
+            Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+            $send =  Yii::$app->mailer->compose("report-payment-required",
+                [
+                    "amount" => $amount,
+                    "ppl" => count($candidates),
+                    'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
+                ])
+
+                ->setFrom([Yii::$app->params['invoiceFrom'] => Yii::$app->params['appName']])
+                ->setTo(Yii::$app->params['invoiceFrom'])
+                ->setSubject($subject)
+                ->attachContent(file_get_contents($file), [
+                    'fileName' => $fileName,
+                    'contentType' => $mimeTypes[$extension]
+                ])
+                ->send();
+
+            @unlink(sys_get_temp_dir() . '/' . $fileName);
+            return $send;
+        }
+        return true;
     }
 }
