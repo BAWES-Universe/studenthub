@@ -1125,14 +1125,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if(!$candidates)
             return null;
 
-        Yii::$app->mailer->compose("candidateIdExpire",
-            [
-                "candidates" => $candidates,
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo(Yii::$app->params['adminEmail'])
-            ->setSubject('Candidate having invalid civil ID')
-            ->send();
+        foreach($candidates as $candidate) {
+
+            $f_name = $candidate->candidate_name? $candidate->candidate_name: $candidate->candidate_name_ar;
+
+            $name = explode(' ', $f_name)[0];
+
+            $url = '';
+
+            $isProfileCompleted = $candidate->isProfileCompleted();
+
+            if (!$isProfileCompleted) {
+                $url = Yii::$app->params['candidateAppUrl'];
+            } else {
+                $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
+            }
+
+            Yii::$app->mailer->compose("civil-expired",
+                [
+                    'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                    'url' => $url,
+                    'name' => $name
+                ])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                ->setTo($candidate->candidate_email)
+                ->setSubject('Please update your civil id')
+                ->send();
+        }
     }
 
     /**
