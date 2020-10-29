@@ -6,6 +6,7 @@ namespace common\models;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
@@ -1103,15 +1104,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if(!$candidates)
             return null;
+        $allStaff = Staff::find()->all();
+        $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
-        Yii::$app->mailer->compose("candidateBirthday",
-            [
-                "candidates" => $candidates,
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo(Yii::$app->params['adminEmail'])
-            ->setSubject('Candidate having birthday today!')
-            ->send();
+        foreach($candidates as $candidate) {
+            Yii::$app->mailer->compose("birthday",
+                [
+                    "candidate" => $candidate,
+                    "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                    "birthday_img" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/birthday.gif', 'https'),
+                ])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                ->setTo($candidate->candidate_email)
+                ->setBcc($allStaffEmails)
+                ->setSubject('Candidate having birthday today!')
+                ->send();
+        }
+        return count($candidates);
     }
 
     /**
