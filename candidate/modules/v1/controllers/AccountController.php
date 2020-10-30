@@ -757,7 +757,7 @@ class AccountController extends Controller
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
         
-        $candidate->candidate_name = strtolower(Yii::$app->request->getBodyParam('name'));
+        $candidate->candidate_name = Yii::$app->request->getBodyParam('name');
 
         $candidate->scenario = "updateName";
 
