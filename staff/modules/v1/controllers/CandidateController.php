@@ -789,6 +789,29 @@ class CandidateController extends Controller
     }
 
     /**
+     * Merge candidate accounts
+     * @return array
+     */
+    public function actionMerge()
+    {
+        $source_id = Yii::$app->request->getBodyParam ('source');
+        $destination_id = Yii::$app->request->getBodyParam ('destination');
+
+        //validate candidate ids
+        $this->findModel((int) $source_id);
+        $this->findModel((int) $destination_id);
+
+        Candidate::merge($source_id, $destination_id);
+
+        Yii::info('[Candidate account merged] #'.$source_id.' merged to #'. $destination_id.' and #'.$source_id.' removed by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account merged successfully"
+        ];
+    }
+
+    /**
      * List candidates having expired Civil ID Cards
      */
     public function actionListExpiredCivilId()

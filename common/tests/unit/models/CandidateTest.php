@@ -4,11 +4,25 @@ namespace common\tests;
 use Yii;
 use common\models\Store;
 use common\models\Candidate;
+use common\models\CandidateExperience;
+use common\models\CandidateSkill;
+use common\models\CandidateIdCard;
+use common\models\CandidateToken;
+use common\models\CandidateWorkHistory;
+use common\models\TransferCandidate;
 use common\fixtures\CandidateFixture;
 use common\fixtures\CountryFixture;
 use common\fixtures\UniversityFixture;
 use common\fixtures\StoreFixture;
+use common\fixtures\CandidateIdCardFixture;
+use common\fixtures\CandidateSkillFixture;
+use common\fixtures\TransferFixture;
+use common\fixtures\TransferCandidateFixture;
+use common\fixtures\CandidateWorkHistoryFixture;
+use common\fixtures\CandidateTokenFixture;
+use common\fixtures\CandidateExperienceFixture;
 use Codeception\Specify;
+
 
 class CandidateTest extends \Codeception\Test\Unit
 {
@@ -21,12 +35,19 @@ class CandidateTest extends \Codeception\Test\Unit
 
     public function _fixtures()
     {
-	    return [
-		    'candidates' => CandidateFixture::className(),
-		    'country'    => CountryFixture::className(),
-		    'university' => UniversityFixture::className(),
-		    'store'      => StoreFixture::className()
-	    ];
+        return [
+            'candidates' => CandidateFixture::className(),
+            'country'    => CountryFixture::className(),
+            'university' => UniversityFixture::className(),
+            'store'      => StoreFixture::className(),
+            'transfer'      => TransferFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::className(),
+            'workHistory' => CandidateWorkHistoryFixture::className(),
+            'accessToken' => CandidateTokenFixture::className(),
+            'candidateIdCards' => CandidateIdCardFixture::className(),
+            'candidateSkills' => CandidateSkillFixture::className(),
+            'candidateExperience' => CandidateExperienceFixture::className(),
+        ];
     }
 
     protected function _before()
@@ -118,9 +139,9 @@ class CandidateTest extends \Codeception\Test\Unit
 
         $this->specify('Candidate model hourly rate validation', function() {
             $candidate = new Candidate;
-            
+
             // get max allowed value 
-            
+
             $max = 0;
 
             if($candidate->company && $candidate->company->company_hourly_rate)
@@ -131,10 +152,10 @@ class CandidateTest extends \Codeception\Test\Unit
             {
                 $max =  $candidate->company->parentCompany->company_hourly_rate;
             }
-            
+
             if(!$max)
                 return null;
-            
+
             $candidate->candidate_hourly_rate = 0;
             expect('Invalid value passed', $candidate->validate(['candidate_hourly_rate']))->false();
             $candidate->candidate_hourly_rate = $max + 1;
@@ -183,6 +204,94 @@ class CandidateTest extends \Codeception\Test\Unit
         });
     }
 
+    public function testAccountMerge()
+    {
+        $this->specify ('Merge source account to target', function () {
+
+             $destination = new Candidate();
+             $destination->candidate_uid =  '110011001100';
+             $destination->store_id =   1;
+             $destination->university_id =   1;
+             $destination->country_id =   1;
+             $destination->bank_account_name =  '       Akshay Bhatia        ';
+             $destination->candidate_iban =  '        IBAN123400        ';
+             $destination->candidate_name =  'Akshay Bhatia';
+             $destination->candidate_name_ar =  'أكشاي باتيا';
+             $destination->candidate_personal_photo =  'photos/photo-1497874516406.png';
+             $destination->candidate_email =  'candidate111@bawes.net';
+             $destination->candidate_phone =   '989898989898';
+             $destination->candidate_address_line1 =  '106, BHAYLI CANAL RD';
+             $destination->candidate_birth_date =  '1992-11-11';
+             $destination->candidate_civil_id =  'XIS2222121';
+             $destination->candidate_civil_expiry_date =   date('Y-m-d', strtotime('+1 month'));
+             $destination->candidate_civil_photo_front =  'photos/photo-1497874516406.png';
+             $destination->candidate_civil_photo_back =  'photos/photo-1497874516406.png';
+             $destination->candidate_hourly_rate =   1.7;
+             $destination->candidate_auth_key =  'TnO9eI-XGIxeJGH7n57xSMyJfZ-5NKo6';
+             $destination->candidate_password_hash =   \Yii::$app->getSecurity()->generatePasswordHash('123456');
+             $destination->candidate_password_reset_token =   NULL;
+             $destination->candidate_status =   1;
+             $destination->approved =   1;
+             $destination->candidate_created_at =  '2017-02-23 19:53:20';
+             $destination->candidate_updated_at =  '2017-02-23 19:53:20';
+             $destination->save(false);//without validation
+
+             //get candidate with transfer, transfer candidate, work history, candidate_token, candidate_id_card, candidate_skill, candidate_experience
+
+             $source = Candidate::find()->one();
+
+             expect ('Candidate have required data',
+                 $source && sizeof ($source->transfers) > 0 && sizeof ($source->transferCandidate) > 0 && sizeof ($source->workHistory) > 0 &&
+                 sizeof($source->accessTokens) > 0 && sizeof($source->candidateIdCards) > 0 && sizeof($source->candidateSkills) > 0 &&
+                 sizeof($source->candidateExperiences) > 0
+             )->true();
+
+             Candidate::merge($source->candidate_id, $destination->candidate_id);
+
+             //make sure transfer moved
+
+             expect ('Transfer moved from source',
+                 TransferCandidate::findOne (['candidate_id' => $source->candidate_id])
+             )->null();
+
+             expect ('Transfer moved to destination',
+                 TransferCandidate::findOne (['candidate_id' => $destination->candidate_id])
+             )->notNull();
+
+             //make sure work history moved
+
+             expect ('Candidate Work History Removed For Source',
+                 CandidateWorkHistory::findOne (['candidate_id' => $source->candidate_id])
+             )->null();
+
+             expect ('Candidate Work History Added in Destination',
+                 CandidateWorkHistory::findOne (['candidate_id' => $destination->candidate_id])
+             )->notNull();
+
+             //make sure old candidate, candidate_token, candidate_id_card, candidate_skill, candidate_experience deleted
+
+             expect ('Candidate deleted',
+                 Candidate::findOne (['candidate_id' => $source->candidate_id])
+             )->null();
+
+             expect ('Source Candidate Token deleted',
+                 CandidateToken::findOne (['candidate_id' => $source->candidate_id])
+             )->null ();
+
+             expect ('Source Candidate ID card deleted',
+                 CandidateIdCard::findOne (['candidate_id' => $source->candidate_id])
+             )->null ();
+
+             expect ('Source Candidate Skill deleted',
+                 CandidateSkill::findOne (['candidate_id' => $source->candidate_id])
+             )->null ();
+
+             expect ('Source Candidate Experience deleted',
+                 CandidateExperience::findOne (['candidate_id' => $source->candidate_id])
+             )->null ();
+         });
+    }
+
     /**
      * test case to check
      * white space in fields
@@ -215,7 +324,7 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate->approved =   1;
             $candidate->candidate_created_at =  '2017-02-23 19:53:20';
             $candidate->candidate_updated_at =  '2017-02-23 19:53:20';
-            
+
             expect('expect string length of candidate_iban with space',strlen($candidate->candidate_iban))->equals(26);
             expect('expect string length of bank_account_name with space',strlen($candidate->bank_account_name))->equals(28);
 

@@ -20,6 +20,7 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
      */
     public function all($db = null)
     {
+        //$this->andWhere(['{{%candidate_work_history}}.deleted'=>0]);
         return parent::all($db);
     }
 
@@ -29,9 +30,9 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
      */
     public function one($db = null)
     {
+        //$this->andWhere(['{{%candidate_work_history}}.deleted'=>0]);
         return parent::one($db);
     }
-
 
     /**
      * compare candidate id

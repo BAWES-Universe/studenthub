@@ -62,6 +62,7 @@ class m130524_201442_init extends Migration
             'candidate_password_hash' => $this->string()->notNull(),
             'candidate_password_reset_token' => $this->string()->unique(),
             'candidate_status' => $this->smallInteger()->notNull()->defaultValue(10),
+            'deleted' => $this->smallInteger(1)->defaultValue(0)->notNull(),
             'candidate_created_at' => $this->datetime()->notNull(),
             'candidate_updated_at' => $this->datetime()->notNull(),
         ], $tableOptions);

@@ -41,6 +41,22 @@ class CandidateCest
     public function _after(FunctionalTester $I){}
 
     /**
+     * Merge 2 accounts to 1
+     * @param FunctionalTester $I
+     */
+    public function restCallToMergeAccounts(FunctionalTester $I)
+    {
+        $candidateID = 1;
+        $I->wantTo('Merge to account');
+        $I->sendPATCH('v1/candidates/merge', [
+            'source' => 1,
+            'destination' => 2
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson(['operation' => 'success']);
+    }
+
+    /**
      * List candidate Work History
      * @param FunctionalTester $I
      */

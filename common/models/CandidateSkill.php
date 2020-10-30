@@ -13,6 +13,7 @@ use yii\db\Expression;
  * @property string $candidate_skill_id
  * @property string $candidate_id
  * @property string $skill
+ * @property string $deleted
  * @property string $candidate_skill_created_at
  *
  * @property Candidate $candidate
@@ -66,13 +67,34 @@ class CandidateSkill extends \yii\db\ActiveRecord
                 'value' => new Expression('NOW()'),
             ],
         ];
-    } 
-    
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['deleted']);
+
+        return $fields;
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidate($modelClass = "\common\models\Candidate")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\CandidateSkillQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateSkillQuery(get_called_class());
     }
 }

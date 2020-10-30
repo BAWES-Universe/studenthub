@@ -13,6 +13,26 @@ use common\models\Store;
 class CandidateQuery extends \yii\db\ActiveQuery 
 {
     /**
+     * @inheritdoc
+     * @return CandidateWorkHistory[]|array
+     */
+    public function all($db = null)
+    {
+        $this->andWhere(['{{%candidate}}.deleted'=>0]);
+        return parent::all($db);
+    }
+
+    /**
+     * @inheritdoc
+     * @return CandidateWorkHistory|array|null
+     */
+    public function one($db = null)
+    {
+        $this->andWhere(['{{%candidate}}.deleted'=>0]);
+        return parent::one($db);
+    }
+
+    /**
      * @param $company
      * @return $this
      */
