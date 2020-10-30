@@ -21,7 +21,6 @@ class CronController extends \yii\console\Controller {
      * Used for testing only
      */
     public function actionIndex() {
-        Candidate::merge (1, 2);
         $this->stdout("Sample Output \n", Console::FG_RED, Console::BOLD);
     }
     

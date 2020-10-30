@@ -1113,10 +1113,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if(!$candidates)
             return null;
+
         $allStaff = Staff::find()->all();
+
         $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
-        foreach($candidates as $candidate) {
+        foreach($candidates as $candidate)
+        {
             Yii::$app->mailer->compose("birthday",
                 [
                     "candidate" => $candidate,
@@ -1129,6 +1132,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ->setSubject('Candidate having birthday today!')
                 ->send();
         }
+
         return count($candidates);
     }
 
