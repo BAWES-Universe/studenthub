@@ -27,7 +27,8 @@ use yii\behaviors\TimestampBehavior;
  * @property decimal $hours - no of hours candidate have worked
  * @property decimal $bonus - bonus amount company paying 
  * @property decimal $bonus_commission - commission admin will take from bonus in KWD
- * @property decimal $transfer_cost - transfer cost of payment 
+ * @property decimal $transfer_cost - transfer cost of payment
+ * @property decimal $transfer_candidate
  * @property integer $paid
  * @property string $tc_created_at
  * @property string $tc_updated_at
@@ -425,15 +426,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     * @return query\TransferCandidateQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new query\TransferCandidateQuery(get_called_class());
-    }
-
-    /**
      * get list of transferable candidate
      * for text export
      * @return array
@@ -525,5 +517,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
         if ($this->transfer && isset($this->transfer->invoices[0])) {
             return $this->transfer->invoices[0]->invoice_id;
         } 
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\TransferCandidateQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\TransferCandidateQuery(get_called_class());
     }
 }

@@ -36,7 +36,6 @@ class CompanyTokenTest extends \Codeception\Test\Unit
             expect('Staff Token is in the table', CompanyToken::findOne(['company_id'=>'1']))->notNull();
         });
 
-
         $this->specify('Test Validator', function() {
             $model = new CompanyToken();
             $model->validate();

@@ -13,6 +13,7 @@ use yii\db\Expression;
  * @property string $candidate_experience_id
  * @property string $candidate_id
  * @property string $experience
+ * @property string $deleted
  * @property string $candidate_experience_created_at
  *
  * @property Candidate $candidate
@@ -38,6 +39,18 @@ class CandidateExperience extends \yii\db\ActiveRecord
             [['experience'], 'string', 'max' => 128],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['deleted']);
+
+        return $fields;
     }
 
     /**
@@ -74,5 +87,14 @@ class CandidateExperience extends \yii\db\ActiveRecord
     public function getCandidate($modelClass = "\common\models\Candidate")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\CandidateExperienceQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateExperienceQuery(get_called_class());
     }
 }

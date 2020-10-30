@@ -790,10 +790,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
+    public function getTransfers($modelClass = "\common\models\Transfer")
+    {
+        return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id'])
+            ->via('transferCandidate');
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getTransferCandidate($modelClass = "\common\models\TransferCandidate")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
-
     }
 
     /**
@@ -1110,8 +1119,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
-        foreach($candidates as $candidate) {
-
+        foreach($candidates as $candidate)
+        {
             Yii::$app->mailer->compose("birthday",
                 [
                     "candidate" => $candidate,
@@ -1195,15 +1204,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->filterCandidate($this->candidate_id)
             ->orderBy('{{%transfer_candidate}}.tc_id DESC')
             ->all();
-    }
-
-    /**
-     * @inheritdoc
-     * @return query\CandidateQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new query\CandidateQuery(get_called_class());
     }
 
     /**
@@ -1741,6 +1741,34 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * merge source account to target
+     * @param $from
+     * @param $to
+     */
+    public static function merge($from, $to) {
+
+        //move
+
+        TransferCandidate::updateAll (['candidate_id' => $to], ['candidate_id' => $from]);
+
+        CandidateWorkHistory::updateAll(['candidate_id' => $to], ['candidate_id' => $from]);
+
+        //delete source candidate
+
+        Candidate::updateAll(['deleted' => 1], ['candidate_id' => $from]);
+
+        CandidateExperience::updateAll(['deleted' => 1], ['candidate_id' => $from]);
+
+        CandidateIdCard::updateAll(['deleted' => 1], ['candidate_id' => $from]);
+
+        CandidateSkill::updateAll(['deleted' => 1], ['candidate_id' => $from]);
+
+        //logout from source devices for old account
+
+        CandidateToken::deleteAll(['candidate_id' => $from]);
+    }
+
+    /**
      * is candidate profile complete?
      * @return boolean
      */
@@ -2074,8 +2102,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         return $total;
     }
-    
-    public static function neededBankInfo() {
+
+    /**
+     * return number of unpaid candidates, missing bank details
+     * @return bool|int|string|null
+     */
+    public static function neededBankInfo()
+    {
         return TransferCandidate::find()
             ->joinWith('candidate')
             ->filterUnpaid()
@@ -2086,5 +2119,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->distinct()
             ->andWhere('{{%candidate}}.bank_id IS NULL')
             ->count();
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\CandidateQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateQuery(get_called_class());
     }
 }
