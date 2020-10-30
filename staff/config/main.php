@@ -99,7 +99,8 @@ return [
                         'GET' => 'list',
                         'GET detail/<id>' => 'view',
                         'GET not-assigned' => 'list-not-assigned',
-                        'GET assigned' => 'list-assigned',                        
+                        'GET assigned' => 'list-assigned',
+                        'GET expired-civil-id' => 'list-expired-civil-id',
                         'GET filter' => 'filter',
                         'GET without-bank' => 'list-without-bank-info',
                         'GET search' => 'search',
@@ -140,6 +141,7 @@ return [
                         'OPTIONS unapprove/<id>' => 'options',
                         'OPTIONS update-hour-rate/<id>' => 'options',
                         'OPTIONS expire-card/<id>' => 'options',
+                        'OPTIONS list-expired-civil-id' => 'options'
                     ]
                 ],
                 [ // StoreController

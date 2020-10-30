@@ -112,6 +112,14 @@ class CandidateQuery extends \yii\db\ActiveQuery
     /**
      * @return $this
      */
+    public function civilIdExpired()
+    {
+        return $this->andWhere('DATE(candidate_civil_expiry_date) < DATE(NOW())');
+    }
+
+    /**
+     * @return $this
+     */
     public function idExpired()
     {
         return $this

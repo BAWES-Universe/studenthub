@@ -789,6 +789,27 @@ class CandidateController extends Controller
     }
 
     /**
+     * List candidates having expired Civil ID Cards
+     */
+    public function actionListExpiredCivilId()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->civilIdExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
+
+        if($candidate_name) {
+            $query->filterName($candidate_name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Download Transfer as PDF
      * @param $id
      * @param $type
