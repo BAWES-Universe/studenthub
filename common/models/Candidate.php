@@ -1117,9 +1117,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                 ->setTo($candidate->candidate_email)
                 ->setBcc($allStaffEmails)
-                ->setSubject('Candidate having birthday today!')
+                ->setSubject('Happy Birthday from StudentHub')
                 ->send();
         }
+        
         return count($candidates);
     }
 
