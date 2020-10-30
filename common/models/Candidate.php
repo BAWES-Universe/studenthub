@@ -1133,7 +1133,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ->setSubject('Happy Birthday from StudentHub')
                 ->send();
         }
-        
+
         return count($candidates);
     }
 
