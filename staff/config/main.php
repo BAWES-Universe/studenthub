@@ -109,6 +109,7 @@ return [
                         'GET work-history/<id>' => 'work-history',
                         'GET total-to-review' => 'total-to-review',
                         'POST' => 'create',
+                        'PATCH merge' => 'merge',
                         'PATCH assign/<id>' => 'assign',
                         'PATCH update-hour-rate/<id>' => 'update-candidate-hour-rate',
                         'PATCH job-search-status' => 'job-search-status',
@@ -122,6 +123,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS merge' => 'options',
                         'OPTIONS filter' => 'options',
                         'OPTIONS detail/<id>' => 'options',
                         'OPTIONS candidate-resume-pdf/<id>' => 'options',

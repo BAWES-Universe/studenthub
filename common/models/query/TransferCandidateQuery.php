@@ -11,20 +11,25 @@ use common\models\Transfer;
 class TransferCandidateQuery extends \yii\db\ActiveQuery {
 
     /**
-     * @param null $db
-     * @return array|\yii\db\ActiveRecord[]
+     * @inheritdoc
+     * @return CandidateWorkHistory[]|array
      */
-    public function all($db = null) {
+    public function all($db = null)
+    {
+        $this->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
         return parent::all($db);
     }
 
     /**
-     * @param null $db
-     * @return array|null|\yii\db\ActiveRecord
+     * @inheritdoc
+     * @return CandidateWorkHistory|array|null
      */
-    public function one($db = null) {
+    public function one($db = null)
+    {
+        $this->andWhere(['{{%transfer_candidate}}.deleted'=>0]);
         return parent::one($db);
     }
+
 
     /**
      * @return $this

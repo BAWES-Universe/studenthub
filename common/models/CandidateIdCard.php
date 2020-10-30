@@ -12,6 +12,7 @@ use yii\behaviors\TimestampBehavior;
  * @property integer $id
  * @property integer $candidate_id
  * @property string $expiry_date
+ * @property string $deleted
  * @property string $created_at
  * @property string $updated_at
  *
@@ -76,6 +77,8 @@ class CandidateIdCard extends \yii\db\ActiveRecord
         $fields['expired'] = function($model) {
             return strtotime($model->expiry_date) < strtotime(date('Y-m-d'));
         };
+
+        unset($fields['deleted']);
 
         return $fields;
     }
