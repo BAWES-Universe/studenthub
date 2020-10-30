@@ -46,7 +46,7 @@ class CandidateController extends Controller
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options','candidate-resume-pdf'];
+        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }
@@ -786,6 +786,27 @@ class CandidateController extends Controller
             "message" => "Candidate account marked as requires approval successfully",
             "saved" => $model
         ];
+    }
+
+    /**
+     * List candidates having expired Civil ID Cards
+     */
+    public function actionListExpiredCivilId()
+    {
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+            ->civilIdExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
+
+        if($candidate_name) {
+            $query->filterName($candidate_name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**

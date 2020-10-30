@@ -251,20 +251,16 @@ class CandidateIdCardController extends Controller
     public function actionListExpired()
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
-        $assigned = Yii::$app->request->get("assigned");
 
         $query = Candidate::find()
             ->idExpired()
+            ->filterAssigned() // only candidate with assigned work
             ->notDeleted();
         
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
 
-        if($assigned) {
-            $query->filterAssigned(); // only candidate with assigned work
-        }
-        
         return new ActiveDataProvider([
             'query' => $query
         ]);
