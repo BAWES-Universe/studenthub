@@ -1100,14 +1100,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $candidates = Candidate::find()
             ->where('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
+            ->andWhere(['candidate_email_verification' => 1])
             ->all();
 
         if(!$candidates)
             return null;
+
         $allStaff = Staff::find()->all();
+
         $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
         foreach($candidates as $candidate) {
+
             Yii::$app->mailer->compose("birthday",
                 [
                     "candidate" => $candidate,
