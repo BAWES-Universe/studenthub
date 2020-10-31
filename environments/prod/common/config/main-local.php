@@ -73,6 +73,12 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://staff.api.studenthub.co/v1',
         ],
+        'urlManagerVerification' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => 'https://v.studenthub.co/'
+        ],
         'log' => [
             'targets' => [
                 [

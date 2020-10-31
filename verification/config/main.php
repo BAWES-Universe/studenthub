@@ -35,6 +35,8 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'view/video/<candidate_uid>' => 'view/video',
+                'view/resume/<candidate_uid>' => 'view/resume',
                 '<candidate_uid:[A-Za-z0-9\_-]+>' => 'site/index',
             ],
         ],

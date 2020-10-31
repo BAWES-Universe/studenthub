@@ -850,9 +850,11 @@ class CandidateController extends Controller
         }
 
         $this->layout = 'main';
+
         $content = $this->render('candidate-resume-pdf', [
             'candidate' => $candidate,
         ]);
+
         $pdf = new Pdf([
             'options' => [
                 'defaultheaderline' => 0,  //for header
