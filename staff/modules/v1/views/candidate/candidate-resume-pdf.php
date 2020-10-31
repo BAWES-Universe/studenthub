@@ -1,13 +1,19 @@
 <?php
-$path = (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
-$pathVideo = (YII_ENV == 'prod') ?  "candidate-video/" : "dev/candidate-video/";
+
 use yii\helpers\Html;
+
+$path = (YII_ENV == 'prod') ?  "candidate-photo/" : "dev/candidate-photo/";
+
+$resumeUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/resume/'. $candidate->candidate_uid], 'https');
+
+$videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'. $candidate->candidate_uid], 'https');
+
 ?>
 <div class="row">
     <p class="pull-right" style="text-align: right;font-size: 14px;font-weight: normal;font-stretch: normal;font-style: normal;line-height: normal;letter-spacing: normal; color: #4f4f4f;">
         <?php echo $candidate->employeeId; ?>
         <?php echo ($candidate->candidate_civil_id)?'<br/>'.$candidate->candidate_civil_id:''; ?>
-        <?php echo '<br/>'. 'Prepared by '. Yii::$app->user->identity->staff_name; ?>
+
     </p>
 </div>
 <div class="row">
@@ -82,11 +88,11 @@ use yii\helpers\Html;
             </p>
         <?php } if ($candidate->candidate_video) { ?>
             <div style='margin-top:12px;'>
-                <?=Html::a(Html::img('images/video.svg',['width'=>270]), Yii::$app->params['candidate_video'].$pathVideo.$candidate->candidate_video,['target'=>'_blank']); ?>
+                <?=Html::a(Html::img('images/video.svg',['width'=>270]), $videoUrl, ['target'=>'_blank']); ?>
             </div>
         <?php } if ($candidate->candidate_resume) { ?>
             <div style='margin-top:12px;'>
-                <?=Html::a(Html::img('images/cv.svg',['width'=>270]), Yii::$app->resourceManager->getUrl("candidate-resume/" . $candidate->candidate_resume),['target'=>'_blank']); ?>
+                <?=Html::a(Html::img('images/cv.svg',['width'=>270]), $resumeUrl, ['target'=>'_blank']); ?>
             </div>
         <?php }  ?>
         <div class="row" style="margin-top: 40px;">

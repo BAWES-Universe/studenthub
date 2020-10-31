@@ -22,6 +22,12 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
         ],
+        'urlManagerVerification' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => 'http://localhost:8888/studenthub/verification/web/v1'
+        ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
             'region' => 'eu-west-2', // based in London
