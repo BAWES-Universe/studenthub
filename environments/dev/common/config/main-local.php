@@ -22,6 +22,12 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
         ],
+        'urlManagerVerification' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => 'https://v.dev.studenthub.co/'
+        ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
             'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
