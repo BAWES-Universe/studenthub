@@ -1450,7 +1450,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $tmpFile = sys_get_temp_dir() . '/' . $fileName;
         $tmpHandle = fopen($tmpFile, 'w+');
 
-        $ffmpegPath = exec('which ffmpeg');
+        $ffmpegPath = exec('which ffmpeg');//'/usr/local/bin/ffmpeg'
 
         exec($ffmpegPath . ' -y -i "'.$source.'" -ss 00:00:01.000 -vframes 1 ' . $tmpFile . ' 2>&1');
 
@@ -1517,7 +1517,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
 
-            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video);
+            //video
+
+            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.mp4');
+
+            //video thumbnail
+
+            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.jpg');
 
             return true;
         }
