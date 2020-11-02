@@ -73,11 +73,7 @@ class AccountController extends Controller
      * return profile details
      */
     public function actionProfile() {
-        
-        return [
-            'profile' => Candidate::findOne(Yii::$app->user->getId()),
-            'time'=>Yii::getLogger()->getDbProfiling()
-        ];
+        return Candidate::findOne(Yii::$app->user->getId());
     }
     
     /**
