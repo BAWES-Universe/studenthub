@@ -143,7 +143,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['bank_account_name', 'candidate_iban'],
                 'match',
                 'pattern' => '/^[0-9a-zA-Z\s]+$/',
-                'message' => 'Special characters not allowed'
+                'message' => Yii::t('app', "Special characters not allowed")
             ],
             [
                 ['bank_account_name', 'candidate_name', 'candidate_name_ar'], 'validateFullName'
@@ -303,11 +303,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $message = '';
 
         if($attribute == 'candidate_name') {
-            $message = 'Please specify your full name';
+            $message = Yii::t('app', 'Please specify your full name');
         } else if($attribute == 'candidate_name_ar') {
-            $message = 'Please specify your full arabic name';
+            $message = Yii::t('app', 'Please specify your full arabic name');
         } else {
-            $message = 'Please specify your full beneficiary name';
+            $message = Yii::t('app', 'Please specify your full beneficiary name');
         }
 
         if(sizeof(explode (' ', $this->$attribute)) == 1) {
@@ -1450,7 +1450,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $tmpFile = sys_get_temp_dir() . '/' . $fileName;
         $tmpHandle = fopen($tmpFile, 'w+');
 
-        $ffmpegPath = exec('which ffmpeg');
+        $ffmpegPath = exec('which ffmpeg');//'/usr/local/bin/ffmpeg'
 
         exec($ffmpegPath . ' -y -i "'.$source.'" -ss 00:00:01.000 -vframes 1 ' . $tmpFile . ' 2>&1');
 
@@ -1517,7 +1517,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
 
-            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video);
+            //video
+
+            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.mp4');
+
+            //video thumbnail
+
+            Yii::$app->resourceManager->delete("candidate-video/" . $this->candidate_video . '.jpg');
 
             return true;
         }

@@ -260,7 +260,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
      * @return static|null the saved model or null if saving fails
      */
     public function signup() {
-        if($this->validate()){
+        if($this->validate()) {
             $this->setPassword($this->inspector_password_hash);
             $this->generateAuthKey();
             $this->save(false);
@@ -269,6 +269,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
 
             return $this;
         }
+
         return null;
     }
 }
