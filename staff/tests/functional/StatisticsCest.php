@@ -62,7 +62,7 @@ class StatisticsCest
             ->notDeleted()
             ->incompletedProfile()
             ->count();
-        $result['missingBankInfo'] = Candidate::neededBankInfo();
+        $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
         $result['requireFollowup'] = Company::companyFollowupCount();
         $result['totalPendingRequests'] = Request::find()
             ->filterWhere(['request_status' => Request::STATUS_PENDING])

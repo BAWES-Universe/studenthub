@@ -312,11 +312,13 @@ class Transfer extends \common\models\Transfer {
         {
             Invoice::updateAll(['deleted' => 1], ['transfer_id' => $child->transfer_id]);
             Transfer::updateAll(['deleted' => 1], ['transfer_id' => $child->transfer_id]);
+            TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
         }
 
         //delete data for main transfer
         Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
         Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+        TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
         return true;
     }

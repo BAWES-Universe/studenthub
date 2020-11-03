@@ -535,20 +535,13 @@ class CandidateController extends Controller
 
     /**
      * Return a List of Candidate assigned to store
+     * @return ActiveDataProvider
      */
     public function actionListWithoutBankInfo()
     {
         $candidate_name = Yii::$app->request->get("candidate_name");
-//        $assigned = Yii::$app->request->get("assigned");
 
-        $query = Candidate::find();
-        $query->notDeleted();
-        $query->joinWith('transferCandidate');
-        $query->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL');
-        $query->orWhere('{{%transfer_candidate}}.paid = 0 && {{%candidate}}.bank_id IS NULL');
-        if ($candidate_name) {
-            $query->filterName($candidate_name);
-        }
+        $query = Candidate::withoutBankInfoOrWithPayment($candidate_name);
 
         return new ActiveDataProvider([
             'query' => $query
@@ -826,6 +819,23 @@ class CandidateController extends Controller
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Staff: "Assigned Idle Candidates".
+     * This page should list candidates that are assigned to work but
+     * have no TransferCandidate records in past 2 months
+     * @return ActiveDataProvider
+     */
+    public function actionAssignedIdleCandidates() {
+
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::getAssignedIdleCandidate($candidate_name);
 
         return new ActiveDataProvider([
             'query' => $query
