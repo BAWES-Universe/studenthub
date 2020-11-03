@@ -141,6 +141,8 @@ class CronController extends \yii\console\Controller {
             ->filterWhere(['request_status' => Request::STATUS_STARTED])
             ->count();
 
+        $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
+
         $staffs = Staff::find()->notDeleted()->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
