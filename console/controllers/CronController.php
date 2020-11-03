@@ -129,7 +129,7 @@ class CronController extends \yii\console\Controller {
             ->incompletedProfile()
             ->count();
 
-        $data['missingBankInfo'] = Candidate::neededBankInfo();
+        $data['missingBankInfo'] = \staff\models\Candidate::withoutBankInfoOrWithPayment()->count();
 
         $data['requireFollowup'] = Company::companyFollowupCount();
 
