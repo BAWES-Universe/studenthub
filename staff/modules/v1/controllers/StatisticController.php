@@ -119,6 +119,8 @@ class StatisticController extends Controller
             ->filterWhere(['request_status' => Request::STATUS_STARTED])
             ->count();
 
+        $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
+
         return $result;
     }
 }

@@ -842,14 +842,7 @@ class CandidateController extends Controller
 
         $candidate_name = Yii::$app->request->get("candidate_name");
 
-        $query = Candidate::find()
-                ->filterAssigned()
-                ->notDeleted()
-                ->getTwoMonthBeforeTransfers();
-
-        if ($candidate_name) {
-            $query->filterName($candidate_name);
-        }
+        $query = Candidate::getAssignedIdleCandidate($candidate_name);
 
         return new ActiveDataProvider([
             'query' => $query
