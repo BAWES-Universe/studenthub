@@ -107,7 +107,7 @@ class StatisticController extends Controller
             ->incompletedProfile()
             ->count();
 
-        $result['missingBankInfo'] = Candidate::neededBankInfo();
+        $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
 
         $result['requireFollowup'] = Company::companyFollowupCount();
 
