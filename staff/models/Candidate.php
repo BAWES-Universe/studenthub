@@ -318,4 +318,20 @@ class Candidate extends \common\models\Candidate {
         }
         return $totalAmount;
     }
+
+    /**
+     * @param $candidate_name
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function getAssignedIdleCandidate($candidate_name = null) {
+        $query = Candidate::find()
+            ->filterAssigned()
+            ->notDeleted()
+            ->getTwoMonthBeforeTransfers();
+
+        if ($candidate_name) {
+            $query->filterName($candidate_name);
+        }
+        return $query;
+    }
 }
