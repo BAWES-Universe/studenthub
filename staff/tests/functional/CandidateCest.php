@@ -424,5 +424,18 @@ class CandidateCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
+
+    /**
+     * assignedIdleCandidate
+     * @param FunctionalTester $I
+     */
+    public function assignedIdleCandidate(FunctionalTester $I)
+    {
+        $I->wantTo('assigned Idle Candidate');
+        $I->sendGET('v1/candidates/assigned-idle-candidate', [
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
 }
  
