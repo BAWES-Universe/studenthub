@@ -262,4 +262,13 @@ class CandidateQuery extends \yii\db\ActiveQuery
                 'university'
             ]);
     }
+
+    /**
+     * candidates that are assigned to work but
+     * have no TransferCandidate records in past 2 months
+     */
+    public function getTwoMonthBeforeTransfers() {
+        return $this->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `transfer_candidate` where (`transfer_candidate`.tc_created_at > DATE_SUB(NOW(),INTERVAL 2 MONTH)) group by candidate_id)');
+        //last 2 MONTH
+    }
 }

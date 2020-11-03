@@ -108,6 +108,7 @@ return [
                         'GET candidate-resume-pdf/<id>' => 'candidate-resume-pdf',
                         'GET work-history/<id>' => 'work-history',
                         'GET total-to-review' => 'total-to-review',
+                        'GET assigned-idle-candidate' => 'assigned-idle-candidates',
                         'POST' => 'create',
                         'PATCH merge' => 'merge',
                         'PATCH assign/<id>' => 'assign',

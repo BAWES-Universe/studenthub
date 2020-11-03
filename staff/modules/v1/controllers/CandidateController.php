@@ -833,6 +833,30 @@ class CandidateController extends Controller
     }
 
     /**
+     * Staff: "Assigned Idle Candidates".
+     * This page should list candidates that are assigned to work but
+     * have no TransferCandidate records in past 2 months
+     * @return ActiveDataProvider
+     */
+    public function actionAssignedIdleCandidates() {
+
+        $candidate_name = Yii::$app->request->get("candidate_name");
+
+        $query = Candidate::find()
+                ->filterAssigned()
+                ->notDeleted()
+                ->getTwoMonthBeforeTransfers();
+
+        if ($candidate_name) {
+            $query->filterName($candidate_name);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Download Transfer as PDF
      * @param $id
      * @param $type
