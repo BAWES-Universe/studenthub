@@ -92,8 +92,10 @@ class TransferCandidateController extends Controller
             $query->andWhere(['transfer_confirmation_id' => $transfer_confirmation_id]);
         }
         
-        return $query
-            ->all();
+        return new \yii\data\ActiveDataProvider([
+            'pagination' => null,
+            'query' => $query
+        ]);
     }
 
     /**
