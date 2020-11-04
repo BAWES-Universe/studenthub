@@ -293,16 +293,17 @@ class Transfer extends \common\models\Transfer {
     public static function deleteTransfer($model) {
         
         //transfer status should be "Initiated" or "Locked" to delete it
-
         $allowedStatus = [
             Transfer::STATUS_INITIATED,
             Transfer::STATUS_LOCK
         ];
 
+
         if(!in_array($model->transfer_status, $allowedStatus))
         {
             return false;
         }
+
         
         $childrens = Transfer::find()->filterParent($model->transfer_id)->all();
 
