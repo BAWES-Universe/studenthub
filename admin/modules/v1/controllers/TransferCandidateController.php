@@ -81,8 +81,7 @@ class TransferCandidateController extends Controller
             ->with('candidate')
             ->payableWithPaid();
         
-        if($tc_id) 
-        {
+        if($tc_id) {
             $transferCandidateRecords = array_diff(explode(",", $tc_id),[""]);
     
             $query->andWhere(['in', 'tc_id', $transferCandidateRecords]);
@@ -92,8 +91,10 @@ class TransferCandidateController extends Controller
             $query->andWhere(['transfer_confirmation_id' => $transfer_confirmation_id]);
         }
         
-        return $query
-            ->all();
+        return new \yii\data\ActiveDataProvider([
+            'pagination' => false,
+            'query' => $query
+        ]);
     }
 
     /**

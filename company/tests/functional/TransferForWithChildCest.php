@@ -180,7 +180,6 @@ class TransferForWithChildCest
         );
            
         $I->wantTo('Create transfer for company with child by excel upload');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'form-data');
         $I->sendPATCH('v1/transfers/edit-by-excel/' . $transfer->transfer_id, [
             "excel" => basename($response['ObjectURL']),

@@ -293,30 +293,33 @@ class Transfer extends \common\models\Transfer {
     public static function deleteTransfer($model) {
         
         //transfer status should be "Initiated" or "Locked" to delete it
-
         $allowedStatus = [
             Transfer::STATUS_INITIATED,
             Transfer::STATUS_LOCK
         ];
 
+
         if(!in_array($model->transfer_status, $allowedStatus))
         {
             return false;
         }
+
         
-        $children = Transfer::find()->filterParent($model->transfer_id)->all();
+        $childrens = Transfer::find()->filterParent($model->transfer_id)->all();
 
         //delete data for each child
 
-        foreach ($children as $key => $child)
+        foreach ($childrens as $child)
         {
             Invoice::updateAll(['deleted' => 1], ['transfer_id' => $child->transfer_id]);
             Transfer::updateAll(['deleted' => 1], ['transfer_id' => $child->transfer_id]);
+            TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $child->transfer_id]);
         }
 
         //delete data for main transfer
         Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
         Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+        TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
         return true;
     }

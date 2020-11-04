@@ -327,14 +327,14 @@ class CandidateCest
     /**
      * View Candidate resume
      * @param FunctionalTester $I
-     *
+     */
     public function restCallToViewCandidateResume(FunctionalTester $I)
     {
         $I->wantTo('View candidate resume');
         $I->sendGET('v1/candidates/candidate-resume-pdf/' . $this->candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }*/
+        $I->canSeeResponseContains('endstream');
+    }
 
     /**
      * View Candidate revuew count
@@ -420,6 +420,19 @@ class CandidateCest
     {
         $I->wantTo('Candidate expire card');
         $I->sendPATCH('v1/candidates/expire-card/' . $this->candidate->candidate_id, [
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * assignedIdleCandidate
+     * @param FunctionalTester $I
+     */
+    public function assignedIdleCandidate(FunctionalTester $I)
+    {
+        $I->wantTo('assigned Idle Candidate');
+        $I->sendGET('v1/candidates/assigned-idle-candidate', [
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();

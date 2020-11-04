@@ -238,7 +238,8 @@ class Transfer extends ActiveRecord
             return $this->getChildTransferInvoices($modelClass);
 
         // Otherwise return all invoices belonging to it
-        return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id']);
+        return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id'])
+            ->andWhere(['{{%invoice}}.deleted'=>0]);
     }
 
     /**
@@ -268,7 +269,9 @@ class Transfer extends ActiveRecord
      */
     public function getChildTransfers($modelClass = "\common\models\Transfer")
     {
-        return $this->hasMany($modelClass::className(), ['parent_transfer_id'=>'transfer_id']);
+        return $this->hasMany($modelClass::className(), ['parent_transfer_id'=>'transfer_id'])
+            ->andWhere(['{{%transfer}}.deleted'=>0]);
+
     }
 
     /**
@@ -279,6 +282,7 @@ class Transfer extends ActiveRecord
     public function getChildTransferInvoices($modelClass = "\common\models\Invoice")
     {
         return $this->hasMany($modelClass::className(), ['transfer_id'=>'transfer_id'])
+            ->andWhere(['{{%invoice}}.deleted'=>0])
             ->via('childTransfers');
     }
 
@@ -290,6 +294,7 @@ class Transfer extends ActiveRecord
     public function getChildTransferCandidates($modelClass = "\common\models\TransferCandidate")
     {
         return $this->hasMany($modelClass::className(), ['transfer_id'=>'transfer_id'])
+            ->andWhere(['{{%transfer_candidate}}.deleted'=>0])
             ->via('childTransfers');
     }
 

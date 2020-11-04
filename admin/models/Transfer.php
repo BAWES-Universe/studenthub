@@ -253,7 +253,8 @@ class Transfer extends \common\models\Transfer
      * @param int $statusCode
      * @return array|bool|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
-    public static function getTransferStatusRecordDetail($statusCode = 0){
+    public static function getTransferStatusRecordDetail($statusCode = 0) {
+        
         $queryResult = Transfer::find()
             ->select('count(*) as total,transfer_status')
             ->andWhere(['transfer_status'=>$statusCode])

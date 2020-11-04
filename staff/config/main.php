@@ -108,6 +108,7 @@ return [
                         'GET candidate-resume-pdf/<id>' => 'candidate-resume-pdf',
                         'GET work-history/<id>' => 'work-history',
                         'GET total-to-review' => 'total-to-review',
+                        'GET assigned-idle-candidate' => 'assigned-idle-candidates',
                         'POST' => 'create',
                         'PATCH merge' => 'merge',
                         'PATCH assign/<id>' => 'assign',
@@ -169,14 +170,20 @@ return [
                         'GET' => 'list',
                         'GET followups' => 'followups',
                         'GET <id>' => 'view',
+                        'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
                         'POST add-followup-note/<id>' => 'add-followup-note',
+                        'PATCH <id>' => 'update',
+                        'PATCH update-followup/<id>' => 'update-followup',
+                        'PATCH update-followup-interval/<id>' => 'update-followup-interval',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS followups' => 'options',
-                        'OPTIONS <id>' => 'options',
+                        'OPTIONS update-followup/<id>' => 'options',
+                        'OPTIONS update-followup-interval/<id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
-                        'OPTIONS add-followup-note/<id>' => 'options'
+                        'OPTIONS add-followup-note/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // BankController

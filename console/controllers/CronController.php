@@ -129,7 +129,7 @@ class CronController extends \yii\console\Controller {
             ->incompletedProfile()
             ->count();
 
-        $data['missingBankInfo'] = Candidate::neededBankInfo();
+        $data['missingBankInfo'] = \staff\models\Candidate::withoutBankInfoOrWithPayment()->count();
 
         $data['requireFollowup'] = Company::companyFollowupCount();
 
@@ -140,6 +140,8 @@ class CronController extends \yii\console\Controller {
         $data['activeRequests'] = Request::find()
             ->filterWhere(['request_status' => Request::STATUS_STARTED])
             ->count();
+
+        $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
 
         $staffs = Staff::find()->notDeleted()->all();
 

@@ -107,7 +107,7 @@ class StatisticController extends Controller
             ->incompletedProfile()
             ->count();
 
-        $result['missingBankInfo'] = Candidate::neededBankInfo();
+        $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
 
         $result['requireFollowup'] = Company::companyFollowupCount();
 
@@ -118,6 +118,8 @@ class StatisticController extends Controller
         $result['activeRequests'] = Request::find()
             ->filterWhere(['request_status' => Request::STATUS_STARTED])
             ->count();
+
+        $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
 
         return $result;
     }
