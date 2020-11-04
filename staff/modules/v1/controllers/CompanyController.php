@@ -9,6 +9,7 @@ use yii\db\Expression;
 use staff\models\Company;
 use staff\models\Note;
 use common\models\File;
+use yii\web\NotFoundHttpException;
 
 /**
  * Company controller - Manage company accounts as Admin
@@ -216,8 +217,98 @@ class CompanyController extends Controller
             "operation" => "success",
             "message" => "Company document uploaded successfully"
         ];
+    }
+
+    public function actionUpdateFollowup($id) {
+
+        $model = $this->findModel((int) $id);
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company account not found"
+            ];
+        }
+
+        $model->scenario = 'updateFollowup';
+
+        $model->company_followup = Yii::$app->request->getBodyParam("followup");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->company_name.' Company Account Updated] Company followup status updated by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account followup status changed successfully"
+        ];
 
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
+    }
+
+    public function actionUpdateFollowupInterval($id) {
+
+        $model = $this->findModel((int) $id);
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company account not found"
+            ];
+        }
+
+        $model->scenario = 'updateFollowupInterval';
+
+        $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->company_name.' Company Account Updated] Company followup interval updated by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account followup interval changed successfully"
+        ];
+    }
+
+    /**
+     * Finds the Company model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return \admin\models\Company the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Company::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

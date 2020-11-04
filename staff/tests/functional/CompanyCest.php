@@ -101,4 +101,34 @@ class CompanyCest
         ]);
         $I->seeResponseCodeIs(HttpCode::OK);
     }
+
+    /**
+     * Update company followup
+     * @param \admin\tests\FunctionalTester $I
+     */
+    public function tryToUpdateCompanyFollowup(FunctionalTester $I)
+    {
+        $I->wantTo('update company followup via admin > companies API');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH('v1/companies/update-followup/2', [
+            'followup' => true
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+    /**
+     * Update company followup
+     * @param FunctionalTester $I
+     */
+    public function tryToUpdateCompanyFollowupInterval(FunctionalTester $I)
+    {
+        $I->wantTo('update company followup interval in week via admin > companies API');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH('v1/companies/update-followup-interval/2', [
+            'followup_interval_weeks' => 4
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
 }
