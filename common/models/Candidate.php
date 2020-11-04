@@ -1934,10 +1934,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_objective' => $this->candidate_objective,
             'candidate_personal_photo' => $this->candidate_personal_photo,
             'candidate_video' => $this->candidate_video,
+            'candidate_resume' => $this->candidate_resume,
+            'have_video' => $this->candidate_video? 'Yes': 'No',
+            'have_resume' => $this->candidate_resume? 'Yes': 'No',
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
             'candidate_driving_license' => $this->candidate_driving_license,
+            'candidate_language_pref' => $this->candidate_language_pref,
+            'candidate_job_search_status' => $this->candidate_job_search_status,
             'approved' => $this->approved,
             'candidate_email_verification' => true,   // using in candidate card
             'isProfileCompleted' => true,  // using in candidate card
