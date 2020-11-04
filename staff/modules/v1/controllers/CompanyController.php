@@ -130,16 +130,12 @@ class CompanyController extends Controller
     /**
      * Company Detail
      * @param $id
-     * @return ActiveDataProvider
+     * @return Company
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
-        $data = Company::findOne($id);
-
-        if (!$data)
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
-
-        return $data;
+        return $this->findModel((int)$id);
     }
 
     /**
@@ -253,6 +249,126 @@ class CompanyController extends Controller
         return [
             "operation" => "success",
             "message" => "Company account followup status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+
+    /**
+     * Create a company account
+     * @return array
+     */
+    public function actionCreate()
+    {
+        // Attempt to create new account
+        $model = new Company();
+
+        $model->scenario = 'adminCreate';
+
+        if (Yii::$app->request->getBodyParam('parent')) {
+            $model->scenario = "newSubAccount";
+            $model->parent_company_id =Yii::$app->request->getBodyParam("parent");
+            $model->company_password_hash = rand(11111,99999);
+        } else {
+            $model->scenario = "newAccount";
+            $model->company_email =Yii::$app->request->getBodyParam("email");
+            $model->company_password_hash = Yii::$app->request->getBodyParam("password");
+        }
+
+        $model->company_name = Yii::$app->request->getBodyParam("name");
+        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        $model->company_bonus_commission = Yii::$app->request->getBodyParam("bonus_commission");
+        $model->company_common_name_en = Yii::$app->request->getBodyParam("common_name_en");
+        $model->company_common_name_ar = Yii::$app->request->getBodyParam("common_name_ar");
+        $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
+        $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
+        $model->company_website = Yii::$app->request->getBodyParam("website");
+        $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->company_followup = 0;
+        $model->company_last_followup_datetime = null;
+
+        $model->setPassword($model->company_password_hash);
+
+        $model->generateAuthKey();
+
+        if (!$model->save()) {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the account, please contact us for assistance."
+                ];
+            }
+        }
+        $mail = Company::companyCreateUpdateMail($model);
+        Yii::info('['.$model->company_name.' Company Account Created] Company created by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account successfully created",
+            "mail_status" => $mail
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Create a company account
+     * @param $id
+     * @return array
+     */
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel((int) $id);
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company account not found"
+            ];
+        }
+
+        $model->scenario = 'update';
+
+        $model->company_name = Yii::$app->request->getBodyParam("name");
+        $model->company_email =Yii::$app->request->getBodyParam("email");
+        $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
+        $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        $model->company_bonus_commission = Yii::$app->request->getBodyParam("bonus_commission");
+        $model->company_common_name_en = Yii::$app->request->getBodyParam("common_name_en");
+        $model->company_common_name_ar = Yii::$app->request->getBodyParam("common_name_ar");
+        $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
+        $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
+        $model->company_website = Yii::$app->request->getBodyParam("website");
+        $model->company_logo = Yii::$app->request->getBodyParam("logo");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+        $mail = Company::companyCreateUpdateMail($model,'updated');
+        Yii::info('['.$model->company_name.' Company Account Updated] Company updated by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account successfully updated",
+            "mail_status" => $mail
         ];
 
         // Check SQL Query Count and Duration

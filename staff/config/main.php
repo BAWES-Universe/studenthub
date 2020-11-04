@@ -170,8 +170,10 @@ return [
                         'GET' => 'list',
                         'GET followups' => 'followups',
                         'GET <id>' => 'view',
+                        'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
                         'POST add-followup-note/<id>' => 'add-followup-note',
+                        'PATCH <id>' => 'update',
                         'PATCH update-followup/<id>' => 'update-followup',
                         'PATCH update-followup-interval/<id>' => 'update-followup-interval',
                         // OPTIONS VERBS
