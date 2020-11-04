@@ -375,22 +375,6 @@ class CompanyController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
-    /**
-     * Finds the Company model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return \staff\models\Company the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Company::findOne($id)) !== null) {
-            return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
-    }
-
     public function actionUpdateFollowupInterval($id) {
 
         $model = $this->findModel((int) $id);
