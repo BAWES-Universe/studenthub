@@ -327,14 +327,14 @@ class CandidateCest
     /**
      * View Candidate resume
      * @param FunctionalTester $I
-     *
+     */
     public function restCallToViewCandidateResume(FunctionalTester $I)
     {
         $I->wantTo('View candidate resume');
         $I->sendGET('v1/candidates/candidate-resume-pdf/' . $this->candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }*/
+        $I->canSeeResponseContains('endstream');
+    }
 
     /**
      * View Candidate revuew count
