@@ -1,13 +1,28 @@
 <?php
 namespace staff\models;
 
+use common\models\Candidate;
 use Yii;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "Company".
  * It extends from \common\models\Company but with custom functionality for this application module
  */
 class Company extends \common\models\Company {
+
+    /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+        $scenarios = parent::scenarios();
+
+        $scenarios['update'] = ['company_name', 'company_email', 'parent_company_id', 'company_hourly_rate', 'company_bonus_commission',
+            'company_common_name_en', 'company_common_name_ar', 'company_description_en', 'company_description_ar', 'company_website',
+            'company_logo'];
+
+        return $scenarios;
+    }
 
     /**
      * @inheritdoc
@@ -61,6 +76,31 @@ class Company extends \common\models\Company {
     public function getParentTransfers($modelClass = "\staff\models\Transfer")
     {
         return parent::getParentTransfers($modelClass);
+    }
+
+    /**
+     * Send new password to customer
+     * @param $model
+     * @param string $type
+     * @return bool
+     */
+    public static function companyCreateUpdateMail($model, $type = 'created')
+    {
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $subject = Yii::$app->user->identity->staff_name. ' '.$type.' client account '.$model->company_name;
+        return Yii::$app->mailer->compose("report-company-crud",
+            [
+                "model" => $model,
+                "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                'title' => $subject,
+                'staff_name' => Yii::$app->user->identity->staff_name,
+                'type' => $type
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo(['khalid@bawes.net'=>'Khalid'])
+            ->setSubject($subject)
+            ->send();
     }
 
 }
