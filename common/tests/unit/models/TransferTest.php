@@ -2,13 +2,20 @@
 namespace common\tests;
 
 use Codeception\Specify;
-use common\models\Transfer;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CompanyTokenFixture;
+use common\fixtures\InvoiceFixture;
+use company\models\Transfer;
 use common\fixtures\CompanyFixture;
+use common\models\TransferCandidate;
+use company\models\Company;
+use company\models\Invoice;
 
 class TransferTest extends \Codeception\Test\Unit
 {
     use Specify;
 
+    public $token, $model;
     /**
      * @var \common\tests\UnitTester
      */
@@ -16,10 +23,22 @@ class TransferTest extends \Codeception\Test\Unit
 
     public function _fixtures()
     {
-        return ['company' => CompanyFixture::className()];
+        return [
+            'companyToken' => CompanyTokenFixture::className(),
+            'company'      => CompanyFixture::className(),
+            'candidate'    => CandidateFixture::className(),
+            'invoice'      => InvoiceFixture::className()
+        ];
     }
 
-    protected function _before(){}
+    public function _before()
+    {
+        \Yii::$app->params['inCodeception'] = true;
+        \Yii::$app->params['transfer_cost'] = 0.35;
+
+        $this->model = Company::findOne(1);
+        $this->token = $this->model->accessToken->token_value;
+    }
 
     protected function _after(){}
 
@@ -67,5 +86,46 @@ class TransferTest extends \Codeception\Test\Unit
             $model->company_total = 'test';
             expect('passing invalid transfer company total', $model->validate(['company_total']))->false();
         });
+    }
+
+    public function testSaveTransfer() {
+
+        foreach ($this->model->getCandidates()->all() as $candidate) {
+            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+        }
+
+        $company = $this->model;
+        $start_date = "2020-11-11";
+        $end_date = "2020-12-10";
+        //save transfer
+        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+        expect('expecting true', $response['operation'])->equals('success');
+
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+
+    }
+
+    public function testDeleteTransfer() {
+
+        foreach ($this->model->getCandidates()->all() as $candidate) {
+            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+        }
+
+        $company = $this->model;
+        $start_date = "2020-11-11";
+        $end_date = "2020-12-10";
+        //save transfer
+        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+        expect('expecting true', $response['operation'])->equals('success');
+
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one();
+        expect_that(Transfer::deleteTransfer($model) == true);
+
+        expect_not(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>1])->count() == count($candidates));
     }
 }
