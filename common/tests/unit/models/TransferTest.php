@@ -106,7 +106,7 @@ class TransferTest extends \Codeception\Test\Unit
 
     }
 
-    public function testDeleteTransfer() {
+    public function testDeleteWithDraftTransfer() {
 
         foreach ($this->model->getCandidates()->all() as $candidate) {
             $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
@@ -127,5 +127,53 @@ class TransferTest extends \Codeception\Test\Unit
         expect_not(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
 
         expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>1])->count() == count($candidates));
+    }
+
+    public function testDeleteWithLockTransfer() {
+
+        foreach ($this->model->getCandidates()->all() as $candidate) {
+            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+        }
+
+        $company = $this->model;
+        $start_date = "2020-11-11";
+        $end_date = "2020-12-10";
+        //save transfer
+        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+        expect('expecting true', $response['operation'])->equals('success');
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+
+        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one();
+        expect_that($model->lock() == true);
+
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK,'deleted'=>0])->one());
+        expect_that($model->getInvoices()->count() > 0);
+        $transferLock = Transfer::findOne(['transfer_status'=>Transfer::STATUS_LOCK]);
+        expect_that(Transfer::deleteTransfer($model) == true);
+    }
+
+    public function testDeleteWithPaymentSentTransfer() {
+
+        foreach ($this->model->getCandidates()->all() as $candidate) {
+            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+        }
+
+        $company = $this->model;
+        $start_date = "2020-11-11";
+        $end_date = "2020-12-10";
+        //save transfer
+        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+        expect('expecting true', $response['operation'])->equals('success');
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+
+        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one();
+        expect_that($model->lock() == true);
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK,'deleted'=>0])->one());
+        expect_that($model->getInvoices()->count() > 0);
+        expect_that($model->paymentSent() == true);
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_PAYMENT_SENT,'deleted'=>0])->one());
+        expect_that(Transfer::deleteTransfer($model) == false);
     }
 }
