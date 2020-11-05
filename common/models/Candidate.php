@@ -2161,4 +2161,20 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
+
+    /**
+     * notify candidate for password update
+     */
+    public function commitmentWarningEmail()
+    {
+        Yii::$app->mailer->compose("candidate/commitment-warning",
+            [
+                "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                "name" => $this->candidate_name
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->candidate_email)
+            ->setSubject("We'll stop recommending your profile to companies")
+            ->send();
+    }
 }

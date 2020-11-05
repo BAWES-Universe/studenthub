@@ -141,7 +141,7 @@ class CandidateNoteController extends Controller
         }
 
         $transaction->commit();
-
+        $model->candidate->commitmentWarningEmail();
         return [
             "operation" => "success",
             "candidate_committed" => $model->candidate->candidate_committed,
