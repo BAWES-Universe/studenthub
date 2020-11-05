@@ -344,10 +344,12 @@ return [
                         'GET' => 'list',
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS toggle-committed' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ]
