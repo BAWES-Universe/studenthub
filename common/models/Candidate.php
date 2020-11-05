@@ -1435,6 +1435,36 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
 
+        //add video upload log
+
+        $videoLog = new CandidateVideoLog;
+        $videoLog->candidate_id = $this->candidate_id;
+        $videoLog->ip_address = Yii::$app->getRequest()->getUserIP();
+
+        if(!$videoLog->save()) {
+
+            $this->addError('candidate_video_log', $videoLog->errors);
+
+            return false;
+        }
+
+        //notify admin for abuse
+
+        $totalUploads = CandidateVideoLog::find()
+            ->where([
+                'candidate_id' => $this->candidate_id,
+                'ip_address' => Yii::$app->getRequest()->getUserIP()
+            ])
+            ->andWhere(new \yii\db\Expression("created_at >= DATE_SUB(NOW(),INTERVAL 1 MONTH)"))//last 1 month
+            ->count();
+
+        if($totalUploads > 3)
+        {
+            $candidate = $this->candidate_name? $this->candidate_name: $this->candidate_name_ar;
+
+            Yii::warning("[Candidate video uploads] ".$totalUploads." video uploaded by " . $candidate ." in last 1 month", 'candidate');
+        }
+
         //generate video thumbnail
 
         $tmpVideo = Yii::$app->temporaryBucketResourceManager->getUrl($this->candidate_video);
