@@ -349,6 +349,7 @@ class Candidate extends \common\models\Candidate {
         $query->joinWith('transfers');
         $query->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL');
         $query->orWhere('{{%transfer_candidate}}.deleted = 0 && {{%transfer_candidate}}.paid = 0 && {{%candidate}}.bank_id IS NULL && {{%transfer}}.transfer_status in ('.Transfer::STATUS_TRANSFER_COMPLETE.','.Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS.')');
+        $query->groupBy('{{%candidate}}.candidate_id');
 
         if ($candidate_name) {
             $query->filterName($candidate_name);

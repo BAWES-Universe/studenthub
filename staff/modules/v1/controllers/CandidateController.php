@@ -544,7 +544,10 @@ class CandidateController extends Controller
         $query = Candidate::withoutBankInfoOrWithPayment($candidate_name);
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 200,
+            ],
         ]);
     }
 
