@@ -337,6 +337,20 @@ return [
                         'OPTIONS request-activities/<id>' => 'options'
                     ]
                 ],
+                [ // CandidateNoteController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-note',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ]
             ],
         ],
     ],
