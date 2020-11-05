@@ -53,6 +53,7 @@ use yii\web\NotFoundHttpException;
  * @property string $candidate_password_reset_token
  * @property string $candidate_language_pref
  * @property string $candidate_job_search_status
+ * @property integer $candidate_committed
  * @property integer $candidate_status
  * @property integer $approved
  * @property string $candidate_created_at
@@ -81,6 +82,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     const ACTIVELY_LOOKING_FOR_JOB = 1;
     const NOT_LOOKING_FOR_JOB = 0;
+
+    const COMMITTED = 1;
+    const NOT_COMMITTED = 0;
 
     //Gender values for `gender`
     const GENDER_MALE = 1;
@@ -161,6 +165,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
 
             ['candidate_job_search_status', 'in', 'range' => [self::NOT_LOOKING_FOR_JOB, self::ACTIVELY_LOOKING_FOR_JOB]],
+
+            ['candidate_committed', 'in', 'range' => [self::COMMITTED, self::NOT_COMMITTED]],
 
             [['candidate_objective'], 'string', 'max' => 100],
 
@@ -247,6 +253,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios["updateLanguagePref"] = ["candidate_language_pref"];
 
         $scenarios['updateJobSearchStatus'] = ['candidate_job_search_status'];
+
+        $scenarios['updateCommitted'] = ['candidate_committed'];
 
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
@@ -464,6 +472,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_password_reset_token' => Yii::t('candidate','Password Reset Token'),
             'candidate_language_pref' => Yii::t('candidate','Language preference'),
             'candidate_job_search_status' => Yii::t('candidate', 'Job search status'),
+            'candidate_committed' => Yii::t('candidate', 'Committed'),
             'candidate_status' => Yii::t('candidate','Status'),
             'candidate_created_at' => Yii::t('candidate','Created At'),
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
@@ -1937,6 +1946,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_resume' => $this->candidate_resume,
             'have_video' => $this->candidate_video? 'Yes': 'No',
             'have_resume' => $this->candidate_resume? 'Yes': 'No',
+            'candidate_committed' => $this->candidate_committed? 'Yes': 'No',
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
