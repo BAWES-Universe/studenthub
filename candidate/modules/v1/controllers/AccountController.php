@@ -216,7 +216,7 @@ class AccountController extends Controller
         if(!$model) {
             return [
                 'operation' => 'error',
-                'message' => 'Invalid Job ID'
+                'message' => Yii::t('candidate', "Invalid Job ID")
             ];
         }
 
@@ -235,7 +235,7 @@ class AccountController extends Controller
 
             return [
                 'operation' => 'error',
-                'message' => 'MediaConvert Job Failed'
+                'message' => Yii::t('candidate', "MediaConvert Job Failed")
             ];
         }
 
