@@ -223,7 +223,8 @@ class AuthController extends Controller
      * Re-send manual verification email to candidate
      * @return array
      */
-    public function actionResendVerificationEmail() {
+    public function actionResendVerificationEmail()
+    {
         $emailInput = Yii::$app->request->getBodyParam("email");
 
         $candidate = Candidate::findOne([
@@ -234,6 +235,7 @@ class AuthController extends Controller
         $errorCode = null; //error code
 
         if ($candidate) {
+
             if ($candidate->candidate_email_verification == Candidate::EMAIL_VERIFIED) {
                 return [
                     'operation' => 'error',
