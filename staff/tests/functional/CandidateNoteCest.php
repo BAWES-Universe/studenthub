@@ -5,8 +5,10 @@ namespace staff\tests;
 use staff\tests\FunctionalTester;
 use common\models\CandidateNote;
 use common\models\StaffToken;
+use common\models\Candidate;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\CandidateNoteFixture;
+use common\fixtures\CandidateFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -19,6 +21,7 @@ class CandidateNoteCest
         return [
         	'staffToken' => StaffTokenFixture::className(),
             'candidateNote' => CandidateNoteFixture::className(),
+            'candidate' => CandidateFixture::className(),
         ];
     }
 
@@ -29,6 +32,7 @@ class CandidateNoteCest
             ->token_value;
 
         $this->candidate_note_uuid = CandidateNote::find()->one()->candidate_note_uuid;
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -75,6 +79,27 @@ class CandidateNoteCest
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson(["message" => "Candidate Note created successfully"]);
+    }
+
+    /**
+     * Try to update
+     * @param FunctionalTester $I
+     */
+    public function tryToToggleCommitted(FunctionalTester $I)
+    {
+        $candidate_id = Candidate::find()->one()->candidate_id;
+
+        $I->wantTo('toggle candidate committed status via API');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH(
+            'v1/candidate-notes/toggle-committed',
+            [
+                'candidate_id' => $candidate_id,
+                'note' => 'Spring specialist'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson(["message" => "Candidate committed status updated successfully"]);
     }
 
     /**
