@@ -162,5 +162,6 @@ return [
     "Please specify your full arabic name" => "يرجى تحديد اسمك العربي بالكامل",
     "Please specify your full beneficiary name" => "يرجى تحديد اسم المستفيد بالكامل",
     "Phone must be 8 digit number" => "يجب أن يتكون الهاتف من 8 أرقام",
-    "Special characters not allowed" => "الأحرف الخاصة غير مسموح بها"
+    "Special characters not allowed" => "الأحرف الخاصة غير مسموح بها",
+    "Video Log Uuid" => "Uuid سجل الفيديو"
 ];

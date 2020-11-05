@@ -1382,6 +1382,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
 
+        //add video upload log
+
+        $videoLog = new CandidateVideoLog;
+        $videoLog->candidate_id = $this->candidate_id;
+        $videoLog->ip_address = Yii::$app->getRequest()->getUserIP();
+
+        if(!$videoLog->save()) {
+
+            $this->addError('candidate_video_log', $videoLog->errors);
+
+            return false;
+        }
+
         $output = Yii::$app->security->generateRandomString();
 
         $source = Yii::$app->temporaryBucketResourceManager->bucket . '/' . $this->candidate_video;
@@ -1435,19 +1448,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
 
-        //add video upload log
-
-        $videoLog = new CandidateVideoLog;
-        $videoLog->candidate_id = $this->candidate_id;
-        $videoLog->ip_address = Yii::$app->getRequest()->getUserIP();
-
-        if(!$videoLog->save()) {
-
-            $this->addError('candidate_video_log', $videoLog->errors);
-
-            return false;
-        }
-
         //notify admin for abuse
 
         $totalUploads = CandidateVideoLog::find()
@@ -1471,6 +1471,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $this->_generateVideoThumbnail($tmpVideo, $output);
 
+        //save video
+        
         $this->candidate_video = $output . '_1';//first converted file
 
         $this->scenario = 'changeVideo';
