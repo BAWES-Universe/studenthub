@@ -30,8 +30,17 @@ class Note extends \common\models\Note {
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getStaff($modelClass = "\staff\models\Staff")
+    public function getCreatedBy($modelClass = "\staff\models\Staff")
     {
-        return parent::getStaff($modelClass);
+        return parent::getCreatedBy($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\staff\models\Staff")
+    {
+        return parent::getUpdatedBy($modelClass);
     }
 }

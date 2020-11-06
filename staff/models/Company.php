@@ -103,4 +103,13 @@ class Company extends \common\models\Company {
             ->send();
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\staff\models\Note")
+    {
+        return parent::getNotes($modelClass);
+    }
+
 }
