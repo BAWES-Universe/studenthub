@@ -56,6 +56,7 @@ use yii\web\NotFoundHttpException;
  * @property integer $candidate_committed
  * @property integer $candidate_status
  * @property integer $approved
+ * @property integer $candidate_mom_kuwaiti
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
  * @property integer $deleted
@@ -118,7 +119,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
-            [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
+            [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license','candidate_mom_kuwaiti'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video', 'candidate_video_job_id'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
@@ -477,7 +478,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_status' => Yii::t('candidate','Status'),
             'candidate_created_at' => Yii::t('candidate','Created At'),
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
-            'employee_id' => Yii::t('candidate','Employee ID')
+            'employee_id' => Yii::t('candidate','Employee ID'),
+            'candidate_mom_kuwaiti' => Yii::t('candidate','Candidate Mom Kuwaiti')
         ];
     }
 
@@ -1988,6 +1990,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_language_pref' => $this->candidate_language_pref,
             'candidate_job_search_status' => $this->candidate_job_search_status,
             'approved' => $this->approved,
+            'candidate_mom_kuwaiti' => $this->candidate_mom_kuwaiti,
             'candidate_email_verification' => true,   // using in candidate card
             'isProfileCompleted' => true,  // using in candidate card
         ];
