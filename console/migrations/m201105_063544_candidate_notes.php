@@ -17,6 +17,7 @@ class m201105_063544_candidate_notes extends Migration
             // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
+
         $this->createTable('candidate_note', [
             "candidate_note_uuid" => $this->char(60),
             'candidate_id' => $this->integer(),
