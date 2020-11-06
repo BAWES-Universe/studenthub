@@ -1154,7 +1154,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function civilIdExpire()
     {
         $candidates = Candidate::find()
-            ->where('MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND DAY(candidate_civil_expiry_date) = DAY(NOW())')
+            ->where('YEAR(candidate_civil_expiry_date) = YEAR(NOW()) AND MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND DAY(candidate_civil_expiry_date) = DAY(NOW())')
             ->all();
 
         if(!$candidates)
