@@ -87,6 +87,7 @@ return [
                         'POST update-nationality' => 'update-nationality',
                         'POST update-university' => 'update-university',
                         'POST update-driving-license' => 'update-driving-license',
+                        'POST update-kuwaiti-national' => 'update-kuwaiti-national',
                         'POST update-gender' => 'update-gender',
                         'POST update-objective' => 'update-objective',
                         'POST update-resume' => 'update-resume',
@@ -139,6 +140,7 @@ return [
                         'OPTIONS update-phone' => 'options',
                         'OPTIONS remove-civil-photo-back' => 'options',
                         'OPTIONS remove-civil-photo-front' => 'options',
+                        'OPTIONS update-kuwaiti-national' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
