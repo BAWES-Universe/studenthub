@@ -271,4 +271,12 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `transfer_candidate` where (`transfer_candidate`.tc_created_at > DATE_SUB(NOW(),INTERVAL 2 MONTH)) group by candidate_id)');
         //last 2 MONTH
     }
+
+    /**
+     * @param $status
+     * @return $this
+     */
+    public function candidateMomKuwaitiFieldIsNull() {
+        return $this->andWhere('{{%candidate}}.`candidate_mom_kuwaiti` IS NULL');
+    }
 }
