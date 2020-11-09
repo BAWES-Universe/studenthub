@@ -1210,4 +1210,35 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate phone number Updated Successfully"),
         ];
     }
+
+    /**
+     * update candidate Kuwaiti National
+     * @return array
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdateKuwaitiNational() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $candidate->candidate_mom_kuwaiti = Yii::$app->request->getBodyParam('candidate_mom_kuwaiti');
+
+        $candidate->scenario = "updateKuwaitiNational";
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Candidate kuwaiti National Info Updated Successfully"),
+        ];
+    }
 }

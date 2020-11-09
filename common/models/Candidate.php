@@ -276,6 +276,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateDrivingLicense'] = ['candidate_driving_license'];
 
+        $scenarios['updateKuwaitiNational'] = ['candidate_mom_kuwaiti'];
+
         $scenarios['updateObjective'] = ['candidate_objective'];
 
         $scenarios['updateGender'] = ['candidate_gender'];
@@ -1899,6 +1901,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (!$this->candidate_latitude && !$this->candidate_longitude && !$this->candidate_area_uuid) {
             $this->pendingProfile['location'] = false;
+        }
+
+        if (
+            $this->area && $this->nationality &&
+            $this->area->country->country_nationality_name_en == 'Kuwaiti' &&
+            $this->nationality->country_nationality_name_en != 'Kuwaiti' &&
+            !$this->candidate_mom_kuwaiti
+        ) {
+            #https://www.pivotaltracker.com/story/show/175607833
+            $this->pendingProfile['candidate_mom_kuwaiti'] = false;
         }
 
 //        if (!$this->candidate_resume) {
