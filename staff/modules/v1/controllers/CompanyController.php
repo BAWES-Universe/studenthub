@@ -412,6 +412,45 @@ class CompanyController extends Controller
         ];
     }
 
+    public function actionChangeStatus($id) {
+        $model = $this->findModel((int) $id);
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company account not found"
+            ];
+        }
+
+        $model->scenario = 'updateStatus';
+
+        $model->company_status = Yii::$app->request->getBodyParam("status");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+        Company::companyCreateUpdateMail($model,'updated');
+        Yii::info('['.$model->company_name.' Company Account Updated] Company status updated by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
     /**
      * Finds the Company model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
