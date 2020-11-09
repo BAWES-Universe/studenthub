@@ -138,14 +138,6 @@
                                                     <div
                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;"
                                                     >
-                                                        <?php
-                                                        if ((sizeof(explode (' ', $candidate->candidate_name)) == 1)) {
-                                                            $name = $candidate->candidate_name;
-                                                        } else  {
-                                                            $tmp = explode (' ', $candidate->candidate_name);
-                                                            $name = $tmp[0];
-                                                        }
-                                                        ?>
                                                         Dear <?=$name?>,
                                                     </div>
 

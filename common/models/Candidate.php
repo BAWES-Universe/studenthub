@@ -2214,10 +2214,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function commitmentWarningEmail()
     {
+        $f_name = $this->candidate_name ? $this->candidate_name : $this->candidate_name_ar;
+
+        $name = explode(' ', $f_name)[0];
+
         Yii::$app->mailer->compose("candidate/commitment-warning",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                "name" => $this
+                "name" => $name
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)

@@ -29,6 +29,7 @@ return [
         'candidate_password_reset_token' => null,
         'candidate_status' => 1,
         'approved' => 1,
+        'candidate_mom_kuwaiti' => 1,
         'candidate_created_at' =>  $faker->date('Y-m-d H:i:s'),
         'candidate_updated_at' =>  $faker->date('Y-m-d H:i:s'),
 ];
