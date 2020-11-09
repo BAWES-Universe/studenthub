@@ -2217,11 +2217,63 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         Yii::$app->mailer->compose("candidate/commitment-warning",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                "name" => $this->candidate_name
+                "name" => $this
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
             ->setSubject("We'll stop recommending your profile to companies")
             ->send();
+    }
+
+    /**
+     * notify candidate kuwaiti mom Nationality update
+     */
+    public static function kuwaitiNationalityEmail()
+    {
+        $total = 0;
+        $candidates = Candidate::find()
+            ->verifiedProfile()
+            ->candidateMomKuwaitiFieldIsNull()
+            ->all();
+
+        if (!$candidates)
+            return null;
+
+        foreach ($candidates as $candidate) {
+
+            if (
+                $candidate->area && $candidate->nationality &&
+                $candidate->area->country->country_nationality_name_en == 'Kuwaiti' &&
+                $candidate->nationality->country_nationality_name_en != 'Kuwaiti' &&
+                !$candidate->candidate_mom_kuwaiti
+            ) {
+
+                $f_name = $candidate->candidate_name ? $candidate->candidate_name : $candidate->candidate_name_ar;
+
+                $name = explode(' ', $f_name)[0];
+
+                $url = '';
+
+                $isProfileCompleted = $candidate->isProfileCompleted();
+
+                if (!$isProfileCompleted) {
+                    $url = Yii::$app->params['candidateAppUrl'];
+                } else {
+                    $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
+                }
+                Yii::$app->mailer->compose("candidate/kuwaiti-mom",
+                    [
+                        "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                        "name" => $name,
+                        "url" => $url
+                    ])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setTo($candidate->candidate_email)
+                    ->setSubject("Jobs in restaurants, cafes, and cinemas")
+                    ->send();
+                $total++;
+            }
+        }
+        return $total;
     }
 }
