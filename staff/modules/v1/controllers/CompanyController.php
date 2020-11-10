@@ -88,6 +88,10 @@ class CompanyController extends Controller
             $query->filterInActive();
         }
 
+        if ($status == 3) {
+            $query->filterByActive40DaysPassedWithoutPayment();
+        }
+
         if ($name) {
             $query->filterByName($name);
         }

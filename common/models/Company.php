@@ -756,8 +756,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $q = 'select count(*) as total from transfer ';
         $q .= 'left join company on company.company_id = transfer.company_id ';
         $q .= 'where transfer.transfer_created_at >= DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
-        $q .= 'transfer.transfer_status in(1,3,4) and company.company_status = 10 and company.company_id='.$companyId;
-        $result = Yii::$app->db->createCommand($q)->queryScalar();
-        return $result;
+        $q .= 'transfer.transfer_status in(1,3,4) and transfer.transfer_status NOT IN(5,10) and company.company_status = 10 and company.company_id='.$companyId;
+        return Yii::$app->db->createCommand($q)->queryScalar();
     }
 }
