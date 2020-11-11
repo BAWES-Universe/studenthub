@@ -77,7 +77,6 @@ class CompanyController extends Controller
         $common_name_ar = Yii::$app->request->getQueryParam("common_name_ar",0);
 
         $query = Company::find()
-            ->notDeleted()
             ->filterParent();
 
         if ($status == 1) {
@@ -123,8 +122,7 @@ class CompanyController extends Controller
                 'subCompanies',
                 'stores',
             ])   
-            ->followups()
-            ->notDeleted();
+            ->followups();
 
         return new ActiveDataProvider([
             'query' => $query

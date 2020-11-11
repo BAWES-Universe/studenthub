@@ -14,6 +14,7 @@ class UniversityQuery extends \yii\db\ActiveQuery
      */
     public function all($db = null)
     {
+        $this->andWhere(['{{%university}}.deleted' => 0]);
         return parent::all($db);
     }
 
@@ -23,15 +24,8 @@ class UniversityQuery extends \yii\db\ActiveQuery
      */
     public function one($db = null)
     {
+        $this->andWhere(['{{%university}}.deleted' => 0]);
         return parent::one($db);
-    }
-
-    /**
-     * @return $this
-     */
-    public function notDeleted()
-    {
-        return $this->andWhere(['{{%university}}.deleted'=>0]);
     }
 
     /**

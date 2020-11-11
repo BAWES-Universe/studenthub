@@ -16,6 +16,7 @@ class StaffQuery extends ActiveQuery
      */
     public function all($db = null)
     {
+        $this->andWhere(['{{%staff}}.deleted'=>0]);
         return parent::all($db);
     }
 
@@ -25,15 +26,8 @@ class StaffQuery extends ActiveQuery
      */
     public function one($db = null)
     {
+        $this->andWhere(['{{%staff}}.deleted'=>0]);
         return parent::one($db);
-    }
-
-    /**
-     * @return $this
-     */
-    public function notDeleted()
-    {
-        return $this->andWhere(['deleted'=>0]);
     }
 }
 	

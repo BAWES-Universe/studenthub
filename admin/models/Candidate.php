@@ -65,7 +65,7 @@ class Candidate extends \common\models\Candidate {
                 break;
         }
 
-        return $query->notDeleted()->count();
+        return $query->count();
     }
 
     /**

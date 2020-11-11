@@ -23,7 +23,7 @@ use yii\db\Expression;
  * @property string $area_created_by
  * @property string $area_updated_by
  *
- * @property City $cityUu
+ * @property City $city
  */
 class Area extends \yii\db\ActiveRecord
 {

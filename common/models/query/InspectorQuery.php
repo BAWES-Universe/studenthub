@@ -2,11 +2,14 @@
 
 namespace common\models\query;
 
+use Yii;
+use yii\helpers\ArrayHelper;
+
 /**
- * This is the ActiveQuery class for [[Bank]].
+ * This is the ActiveQuery class for [[Inspector]].
  *
  */
-class BankQuery extends \yii\db\ActiveQuery
+class InspectorQuery extends \yii\db\ActiveQuery
 {
     /**
      * @param null $db
@@ -14,7 +17,7 @@ class BankQuery extends \yii\db\ActiveQuery
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%bank}}.deleted'=>0]);
+        $this->andWhere(['{{%inspector}}.inspector_deleted' => 0]);
         return parent::all($db);
     }
 
@@ -24,8 +27,7 @@ class BankQuery extends \yii\db\ActiveQuery
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%bank}}.deleted'=>0]);
+        $this->andWhere(['{{%inspector}}.inspector_deleted' => 0]);
         return parent::one($db);
     }
 }
-	

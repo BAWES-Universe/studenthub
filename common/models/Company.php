@@ -736,7 +736,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function companyFollowupCount() {
         return self::find()
             ->followups()
-            ->notDeleted()
             ->count();
     }
 

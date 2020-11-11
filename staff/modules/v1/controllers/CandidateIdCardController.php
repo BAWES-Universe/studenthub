@@ -111,8 +111,7 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->joinWith('candidateIdCard', true, 'INNER JOIN')
-            ->notDeleted();
+            ->joinWith('candidateIdCard', true, 'INNER JOIN');
 
         if($candidate_name) {
             $query->filterName($candidate_name);
@@ -131,8 +130,7 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->idNeedGenerated()
-            ->notDeleted();
+            ->idNeedGenerated();
 
         if($candidate_name)
         {
@@ -254,9 +252,8 @@ class CandidateIdCardController extends Controller
 
         $query = Candidate::find()
             ->idExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->notDeleted();
-        
+            ->filterAssigned(); // only candidate with assigned work
+
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
@@ -335,8 +332,7 @@ class CandidateIdCardController extends Controller
     {
         $query = Candidate::find()
             ->idExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->notDeleted();
+            ->filterAssigned(); // only candidate with assigned work
 
         return [
             'total' => $query->count()

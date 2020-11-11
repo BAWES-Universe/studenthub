@@ -83,7 +83,6 @@ class TransferController extends Controller
         $end_date = Yii::$app->request->get('end_date');
 
         $query = Transfer::find()
-            ->notDeleted()
             ->isParentTransfer();
 
         if ($company_name) {
