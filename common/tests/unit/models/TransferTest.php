@@ -104,8 +104,8 @@ class TransferTest extends \Codeception\Test\Unit
         $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
         expect('expecting true', $response['operation'])->equals('success');
 
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
 
     }
 
@@ -130,13 +130,13 @@ class TransferTest extends \Codeception\Test\Unit
 
         //expect transfer got saved
 
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
 
         //expect transfer candidates saved
 
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
 
-        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one();
+        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
 
         //transfer getting delete
 
@@ -189,15 +189,15 @@ class TransferTest extends \Codeception\Test\Unit
         $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
         expect('expecting true', $response['operation'])->equals('success');
 
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
 
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
 
-        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one();
+        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
 
         expect_that($model->lock() == true);
 
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK,'deleted'=>0])->one());
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK])->one());
 
         expect_that($model->getInvoices()->count() > 0);
 
@@ -250,15 +250,15 @@ class TransferTest extends \Codeception\Test\Unit
         //save transfer
         $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
         expect('expecting true', $response['operation'])->equals('success');
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one());
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->count() == count($candidates));
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
+        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
 
-        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'deleted'=>0])->one();
+        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
         expect_that($model->lock() == true);
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK,'deleted'=>0])->one());
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK])->one());
         expect_that($model->getInvoices()->count() > 0);
         expect_that($model->paymentSent() == true);
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_PAYMENT_SENT,'deleted'=>0])->one());
+        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_PAYMENT_SENT])->one());
         expect_that(Transfer::deleteTransfer($model) == false);
     }
 }

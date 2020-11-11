@@ -74,16 +74,15 @@ class UniversityTest extends \Codeception\Test\Unit
     {
         $this->specify('University check record exist', function () {
             expect('Staff testing-staff is in the table',
-                University::findOne(['university_name_en'=>'Kuwait University','deleted' => '0'])
+                University::findOne(['university_name_en'=>'Kuwait University'])
             )->notNull();
         });
 
         $this->specify('University test soft delete', function () {
-            $model = University::findOne(['university_name_en'=>'Kuwait University','deleted' => '0']);
+            $model = University::findOne(['university_name_en'=>'Kuwait University']);
             $model->deleted = '1';
             expect('updated successfully', $model->save())->true();
-            expect('checking is soft delete Record updated in database', $model->findOne(['university_name_en'=>'Kuwait University','deleted' => '0']))->null();
-            expect('checking is soft delete Record updated in database', $model->findOne(['university_name_en'=>'Kuwait University','deleted' => '1']))->notNull();
+            expect('checking is soft delete Record updated in database', $model->findOne(['university_name_en'=>'Kuwait University']))->null();
         });
     }
 }

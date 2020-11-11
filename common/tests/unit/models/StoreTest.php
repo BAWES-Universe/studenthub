@@ -78,16 +78,15 @@ class StoreTest extends \Codeception\Test\Unit {
      */
     public function testSoftDelete() {
         $this->specify('Store check record exist', function () {
-            expect('store record is in the table', Store::findOne(['store_id' => 2, 'deleted' => '0'])
+            expect('store record is in the table', Store::findOne(['store_id' => 2])
             )->notNull();
         });
 
         $this->specify('Soft delete Testing', function () {
-            $model = Store::findOne(['store_id' => 2, 'deleted' => '0']);
+            $model = Store::findOne(['store_id' => 2]);
             $model->deleted = 1;
             expect('updated successfully', $model->save())->true();
-            expect('checking is soft delete Record updated in database', $model->findOne(['store_id' => 2, 'deleted' => '0']))->null();
-            expect('checking is soft delete Record updated in database', $model->findOne(['store_id' => 2, 'deleted' => '1']))->notNull();
+            expect('checking is soft delete Record updated in database', $model->findOne(['store_id' => 2]))->null();
         });
     }
 
