@@ -326,7 +326,6 @@ class Candidate extends \common\models\Candidate {
     public static function getAssignedIdleCandidate($candidate_name = null) {
         $query = Candidate::find()
             ->filterAssigned()
-            ->notDeleted()
             ->getTwoMonthBeforeTransfers();
 
         if ($candidate_name) {
@@ -343,17 +342,17 @@ class Candidate extends \common\models\Candidate {
      */
     public static function withoutBankInfoOrWithPayment($candidate_name = null)
     {
-        $query = Candidate::find();
-        $query->notDeleted();
-        $query->joinWith('transferCandidate');
-        $query->joinWith('transfers');
-        $query->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL');
-        $query->orWhere('{{%transfer_candidate}}.deleted = 0 && {{%transfer_candidate}}.paid = 0 && {{%candidate}}.bank_id IS NULL && {{%transfer}}.transfer_status in ('.Transfer::STATUS_TRANSFER_COMPLETE.','.Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS.')');
-        $query->groupBy('{{%candidate}}.candidate_id');
+        $query = Candidate::find()
+            ->joinWith('transferCandidate')
+            ->joinWith('transfers')
+            ->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL')
+            ->orWhere('{{%transfer_candidate}}.deleted = 0 && {{%transfer_candidate}}.paid = 0 && {{%candidate}}.bank_id IS NULL && {{%transfer}}.transfer_status in ('.Transfer::STATUS_TRANSFER_COMPLETE.','.Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS.')')
+            ->groupBy('{{%candidate}}.candidate_id');
 
         if ($candidate_name) {
             $query->filterName($candidate_name);
         }
+
         return $query;
     }
 }

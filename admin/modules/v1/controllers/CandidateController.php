@@ -95,8 +95,6 @@ class CandidateController extends Controller
                 break;
         }
 
-        $query->notDeleted();
-        
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -109,7 +107,6 @@ class CandidateController extends Controller
     public function actionTotalToReview()
     {
         $query = Candidate::find()
-            ->notDeleted()
             ->byApprovalStatus(0);
 
         $payable = Candidate::getTotalPayableCandidate();

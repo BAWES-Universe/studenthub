@@ -52,7 +52,6 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['start_date'=>$date]);
     }
 
-
     /**
      * filter by null end date
      * @return $this

@@ -78,8 +78,7 @@ class CompanyController extends Controller
                 'subCompanies',
                 'stores',
             ])    
-            ->filterParent()                
-            ->notDeleted();
+            ->filterParent();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -97,8 +96,7 @@ class CompanyController extends Controller
                 'subCompanies',
                 'stores',
             ])   
-            ->followups()
-            ->notDeleted();
+            ->followups();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -120,8 +118,7 @@ class CompanyController extends Controller
                 'stores.candidates.bank',
                 'stores.candidates.university'
             ])    
-            ->childCompany($id)
-            ->notDeleted();
+            ->childCompany($id);
 
         return new ActiveDataProvider([
             'query' => $query
@@ -212,7 +209,6 @@ class CompanyController extends Controller
                 'stores.candidates.university'
             ])    
             ->filterCompany($id)
-            ->notDeleted()
             ->one();
 
         if(!$company){

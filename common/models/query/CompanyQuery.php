@@ -12,6 +12,30 @@ use yii\db\Expression;
  */
 class CompanyQuery extends \yii\db\ActiveQuery {
 
+    /**
+     * @param null $db
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function all($db = null)
+    {
+        $this->andWhere(['{{%company}}.inspector_deleted' => 0]);
+        return parent::all($db);
+    }
+
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function one($db = null)
+    {
+        $this->andWhere(['{{%company}}.inspector_deleted' => 0]);
+        return parent::one($db);
+    }
+
+    /**
+     * company need followups
+     * @return CompanyQuery
+     */
     public function followups() {
         return $this->filterWhere([
             'AND',
@@ -25,13 +49,6 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function filterParent() {
         return $this->andWhere(['parent_company_id' => null]);        
-    }
-
-    /**
-     * @return $this
-     */
-    public function notDeleted() {
-        return $this->andWhere(['{{%company}}.deleted' => 0]);
     }
 
     /**
