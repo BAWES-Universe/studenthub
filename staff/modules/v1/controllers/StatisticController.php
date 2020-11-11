@@ -74,19 +74,16 @@ class StatisticController extends Controller
     	$result['totalExpiredCards'] =  Candidate::find()
             ->idExpired()
             ->filterAssigned() // only candidate with assigned work
-            ->notDeleted()
             ->count();
 
         $result['assignedExpiredCivilID'] =  Candidate::find()
             ->civilIdExpired()
             ->filterAssigned() // only candidate with assigned work
-            ->notDeleted()
             ->count();
 
     	// # of candidates that need id generated
 
 	    /*$result['id_need_generated'] = Candidate::find()
-            ->notDeleted()
             ->filterAssigned()
             ->idNeedGenerated()
             ->count();*/
@@ -94,7 +91,6 @@ class StatisticController extends Controller
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
         $result['profileApprovalRequire'] = Candidate::find()
-            ->notDeleted()
             ->byApprovalStatus(0)
             ->completedProfileWithoutApproval()
             ->count();
@@ -103,7 +99,6 @@ class StatisticController extends Controller
 
         $result['incompleteAssignedToWork'] = Candidate::find()
             ->filterAssigned()
-            ->notDeleted()
             ->incompletedProfile()
             ->count();
 

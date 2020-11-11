@@ -10,20 +10,32 @@ use yii\db\ActiveQuery;
 class StoreQuery extends ActiveQuery
 {
     /**
+     * @inheritdoc
+     * @return Store[]|array
+     */
+    public function all($db = null)
+    {
+        $this->andWhere(['{{%store}}.deleted'=>0]);
+        return parent::all($db);
+    }
+
+    /**
+     * @inheritdoc
+     * @return Store|array|null
+     */
+    public function one($db = null)
+    {
+        $this->andWhere(['{{%store}}.deleted'=>0]);
+        return parent::one($db);
+    }
+
+    /**
      * @param $companyId
      * @return $this
      */
     public function filterCompany($companyId)
     {
-            return $this->andWhere(['{{%store}}.company_id' => $companyId]);
-    }
-
-    /**
-     * @return $this
-     */
-    public function notDeleted()
-    {
-        return $this->andWhere(['{{%store}}.deleted'=>0]);
+        return $this->andWhere(['{{%store}}.company_id' => $companyId]);
     }
 
     /**

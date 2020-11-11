@@ -71,8 +71,7 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $query = Candidate::find()
-            ->notDeleted();
+        $query = Candidate::find();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -449,8 +448,8 @@ class CandidateController extends Controller
 
         $query = Candidate::find()
             ->filterNotAssigned()
-            ->notDeleted()
             ->orderByStatus();
+
         if ($incompleteProfile) {
         //    $query->byApprovalStatus(0);
         }
@@ -480,7 +479,6 @@ class CandidateController extends Controller
 
         $query = Candidate::find()
             ->filterAssigned()
-            ->notDeleted()
             ->orderByStatus();
 
         if ($incompleteProfile) {
@@ -508,8 +506,8 @@ class CandidateController extends Controller
         $type = Yii::$app->request->get("type");
 
         $query = Candidate::find()
-            ->notDeleted()
             ->orderByStatus();
+
         if ($type == 'assigned') {
             $query->filterAssigned();
         } else if ($type == 'un-assigned'){
@@ -562,7 +560,6 @@ class CandidateController extends Controller
         $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
-            ->notDeleted()
             ->verifiedProfile();
 
         switch ($by) {
@@ -688,7 +685,6 @@ class CandidateController extends Controller
     public function actionTotalToReview()
     {
         $query = \admin\models\Candidate::find()
-            ->notDeleted()
             ->byApprovalStatus(0);
 
         return [
@@ -816,8 +812,7 @@ class CandidateController extends Controller
 
         $query = Candidate::find()
             ->civilIdExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->notDeleted();
+            ->filterAssigned(); // only candidate with assigned work
 
         if($candidate_name) {
             $query->filterName($candidate_name);

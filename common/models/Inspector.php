@@ -272,4 +272,13 @@ class Inspector extends ActiveRecord implements IdentityInterface
 
         return null;
     }
+
+    /**
+     * @inheritdoc
+     * @return query\InspectorQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\InspectorQuery(get_called_class());
+    }
 }

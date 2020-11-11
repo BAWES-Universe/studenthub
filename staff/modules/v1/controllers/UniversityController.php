@@ -69,7 +69,6 @@ class UniversityController extends Controller
     public function actionList()
     {
         $query = University::find()
-            ->notDeleted()
             ->listWithCandidateCount();
 
         return new ActiveDataProvider([
@@ -84,7 +83,6 @@ class UniversityController extends Controller
     public function actionAll()
     {
         return University::find()
-            ->notDeleted()
             ->all();
     }
 
