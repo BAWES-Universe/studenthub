@@ -19,7 +19,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%company}}.inspector_deleted' => 0]);
+        $this->andWhere(['{{%company}}.deleted' => 0]);
         return parent::all($db);
     }
 
@@ -29,7 +29,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%company}}.inspector_deleted' => 0]);
+        $this->andWhere(['{{%company}}.deleted' => 0]);
         return parent::one($db);
     }
 
