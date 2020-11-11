@@ -1775,7 +1775,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $this->candidate_limit_email = new Expression('NOW()');
         $this->save(false);
 
-        $email = $this->candidate_email;
+        if ($this->candidate_new_email) {
+            $email = $this->candidate_new_email;
+        } else {
+            $email = $this->candidate_email;
+        }
 
         return Yii::$app->mailer->compose([
             'html' => 'candidate/verify-email-html',
