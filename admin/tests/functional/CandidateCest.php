@@ -33,6 +33,7 @@ class CandidateCest
         $this->candidate_id = Candidate::find()
             ->one()
             ->candidate_id;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -45,11 +46,13 @@ class CandidateCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $candidate = Candidate::findOne(['approved'=>'1']);
         $I->wantTo('Validate admin > candidates api response for review listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/candidates/search?by=review&review=0&expand=store,university,country,company,bank');
+        $I->sendGET('v1/candidates/search?by=review&review=1&expand=store,university,country,company,bank');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'candidate_id' => $candidate->candidate_id
+        ]);
     }
 
     /**
@@ -58,11 +61,13 @@ class CandidateCest
      */
     public function tryToApprove(FunctionalTester $I)
     {
+        $candidate = Candidate::findOne(['approved'=>'0']);
         $I->wantTo('Validate admin > candidates api to approve candidate');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendPATCH('v1/candidates/approve/2');
+        $I->sendPATCH('v1/candidates/approve/'.$candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'candidate_id' => $candidate->candidate_id
+        ]);
     }
     
     /**
@@ -74,10 +79,11 @@ class CandidateCest
         $candidate = Candidate::find()->one();
         
         $I->wantTo('Validate admin > candidates api to view candidate detail');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/candidates/' . $candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'candidate_id' => $candidate->candidate_id
+        ]);
     }
 
     /**
@@ -86,11 +92,13 @@ class CandidateCest
      */
     public function tryToListByCountry(FunctionalTester $I)
     {
+        $candidate = Candidate::find()->one();
         $I->wantTo('Validate admin > candidates api to list candidates by country');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/candidates/search?by=country_id&country_id=168');
+        $I->sendGET('v1/candidates/search?by=country_id&country_id='.$candidate->country_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'candidate_id' => $candidate->candidate_id
+        ]);
     }
 
     /**
@@ -99,11 +107,13 @@ class CandidateCest
      */
     public function tryToListByStore(FunctionalTester $I)
     {
+        $candidate = Candidate::find()->one();
         $I->wantTo('Validate admin > candidates api to list candidates by store');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/candidates/search?by=store_id&store_id=5');
+        $I->sendGET('v1/candidates/search?by=store_id&store_id='.$candidate->store_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'candidate_id' => $candidate->candidate_id
+        ]);
     }
 
     /**
@@ -112,11 +122,13 @@ class CandidateCest
      */
     public function tryToListByUniversity(FunctionalTester $I)
     {
+        $candidate = Candidate::findOne(['university_id'=>1]);
         $I->wantTo('Validate admin > candidates api to list candidates by university');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/candidates/search?by=university_id&university_id=1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'candidate_id' => $candidate->candidate_id
+        ]);
     }
 
     /**
@@ -126,10 +138,12 @@ class CandidateCest
     public function getTotalCandidates(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > candidates api to list candidates by university');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/candidates/total-to-review');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Brand deleted successfully"
+        ]);
     }
 
     /**
@@ -139,10 +153,12 @@ class CandidateCest
     public function getSalaryTransfers(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > candidates api to list candidates\' salary transfer');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/candidates/transfers/' . $this->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Brand deleted successfully"
+        ]);
     }
 
     /**
@@ -152,10 +168,11 @@ class CandidateCest
     public function getWorkHistory(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > candidates api to list candidates\' salary transfer');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/candidates/work-history/' . $this->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Brand deleted successfully"
+        ]);
     }
 }
- 

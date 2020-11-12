@@ -29,6 +29,8 @@ class TransferFileCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
+
     }
 
     /**
@@ -38,7 +40,6 @@ class TransferFileCest
     public function tryToList(FunctionalTester $I)
     {
         $I->wantTo('Validate transfer file api response for listing');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/transfer-files');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -53,7 +54,6 @@ class TransferFileCest
         $model = TransferFile::find()->one();
         
         $I->wantTo('Validate transfer file api to view transfer file detail');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/transfer-files/' . $model->transfer_file_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();

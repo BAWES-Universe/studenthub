@@ -25,6 +25,7 @@ class CountryCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -37,11 +38,13 @@ class CountryCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $country = Country::find()->one();
         $I->wantTo('Validate admin > countries api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/countries');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'country_id' => $country->country_id
+        ]);
     }
     
     /**
@@ -53,9 +56,10 @@ class CountryCest
         $country = Country::find()->one(); 
         
         $I->wantTo('Validate admin > countries api response for view');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/countries/' . $country->country_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'country_id' => $country->country_id
+        ]);
     }
 }

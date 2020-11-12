@@ -27,6 +27,7 @@ class StoreCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -40,10 +41,11 @@ class StoreCest
     public function tryToListStores(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > stores api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/stores');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "store_id" => Store::find()->one()->store_id
+        ]);
     }
     
     /**
@@ -55,9 +57,10 @@ class StoreCest
         $store = Store::find()->one(); 
         
         $I->wantTo('Validate admin > stores api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/stores/' . $store->store_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "store_id" => $store->store_id
+        ]);
     }
 }

@@ -41,7 +41,9 @@ class AdminCest
         $I->wantTo('Validate Inspector api response');
         $I->sendGET('v1/admins');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "admin_id" => "1"
+        ]);
     }
     
     /**
@@ -55,7 +57,9 @@ class AdminCest
         $I->wantTo('Validate admin api response for listing');
         $I->sendGET('v1/admins/' . $inspector->admin_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'admin_id' => 1
+        ]);
     }
 
     /**

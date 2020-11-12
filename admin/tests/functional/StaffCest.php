@@ -1,6 +1,8 @@
 <?php
 namespace admin\tests;
 
+use common\models\Request;
+use staff\models\CandidateNote;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
@@ -25,6 +27,7 @@ class StaffCest
     {
         $this->token = AdminToken::find()
              ->one()->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -37,11 +40,13 @@ class StaffCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $staff =  Staff::find()->one();
         $I->wantTo('Validate staff api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/staff');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "staff_id" => $staff->staff_id,
+        ]);
     }
     
     /**
@@ -53,10 +58,11 @@ class StaffCest
         $staff = Staff::find()->one(); 
         
         $I->wantTo('Validate staff api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/staff/' . $staff->staff_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "staff_id" => $staff->staff_id,
+        ]);
     }
 
     /**
@@ -66,7 +72,6 @@ class StaffCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a staff via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
             'v1/staff',
@@ -89,11 +94,11 @@ class StaffCest
      */
     public function tryToUpdate(FunctionalTester $I)
     {
+        $staff = Staff::find()->one();
         $I->wantTo('update a staff via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'v1/staff/1',
+            'v1/staff/'.$staff->staff_id,
             [
                 "name" => "Mohammed Kanso",
                 "email" => "unique@staff.com",
@@ -112,10 +117,15 @@ class StaffCest
      */
     public function tryToDelete(FunctionalTester $I)
     {
+        $staff = new Staff();
+        $staff->staff_name = 'testing';
+        $staff->staff_email = 'testing@gmail.com';
+        $staff->generateAuthKey();
+        $staff->setPassword('12345');
+        $staff->save(false);
         $I->wantTo('delete staff via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('v1/staff/1');
+        $I->sendDelete('v1/staff/'.$staff->staff_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",
@@ -131,7 +141,6 @@ class StaffCest
     {
         $staffID = 1;
         $I->wantTo('reset staff password');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/staff/reset-password/' . $staffID);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson([

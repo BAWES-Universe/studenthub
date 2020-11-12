@@ -1,6 +1,7 @@
 <?php
 namespace admin\tests;
 
+use common\models\TransferCandidate;
 use Yii;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
@@ -50,6 +51,7 @@ class TransferCest
                 ])
                 ->isParentTransfer()
                 ->one();
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -62,11 +64,16 @@ class TransferCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $query = Transfer::find()
+            ->notDeleted()
+            ->isParentTransfer()
+            ->one();
         $I->wantTo('Validate admin > transfer api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "transfer_id" => $query->transfer_id
+        ]);
     }
 
     /**
@@ -76,10 +83,11 @@ class TransferCest
     public function tryToView(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > view transfer api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/' . $this->transferWithPaymentSent->transfer_id . '?expand=invoices,transferCandidates,totalPaid,totalUnpaid,profit ');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "transfer_id" => $this->transferWithPaymentSent->transfer_id
+        ]);
     }
 
     /**
@@ -89,10 +97,12 @@ class TransferCest
     public function tryToMarkReceived(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Mark Received & Distributing Salary api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfers/payment-received-distributing/' . $this->transferWithPaymentSent->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => 'Transfer marked as "Payment Received" successfully'
+        ]);
     }
 
     /**
@@ -102,10 +112,12 @@ class TransferCest
     public function tryToUnlock(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Unlock Transfer api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfers/unlock/' . $this->lockedTransfer->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => 'Transfer unlocked successfully'
+        ]);
     }
 
     /**
@@ -122,10 +134,12 @@ class TransferCest
                 ->one();
 
         $I->wantTo('Validate admin > transfer > Lock Transfer api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfers/lock/' . $transferWithPaymentSent2->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => 'Transfer status reverted to locked as requested.'
+        ]);
     }
 
     /**
@@ -184,7 +198,6 @@ class TransferCest
         @unlink(sys_get_temp_dir() . '/' . $fileName);
         
         $I->wantTo('Validate admin > transfer > Mark All Candidate as Payment Received api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfers/mark-paid-all', [
             'excel' => basename($response['ObjectURL']),
             'candidates' => [
@@ -196,7 +209,10 @@ class TransferCest
             ]
         ]);
         $I->seeResponseCodeIs(HttpCode::OK);  //200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => '1 candidates have been marked as paid'
+        ]);
     }
     
     /**
@@ -205,11 +221,16 @@ class TransferCest
      */
     public function tryToListPayable(FunctionalTester $I)
     {
+        $query = Transfer::find()
+            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->isParentTransfer()
+            ->one();
         $I->wantTo('Validate admin > transfer > List Payable Candidates api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/payable-candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "transfer_id" => $query->transfer_id
+        ]);
     }
 
     /**
@@ -218,10 +239,12 @@ class TransferCest
     */
     public function tryToAsText(FunctionalTester $I)
     {
+        $candidates = \admin\models\TransferCandidate::getPayableCandidateListFormat();
+
         $I->wantTo('Validate admin > transfer > Download Invoice as TEXT api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/text');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContains($candidates['candidate_list'][0]['bank_account_name']);
     }
     
     /**
@@ -256,10 +279,8 @@ class TransferCest
     public function tryToListCandidateTransfers(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > List Candidate Transfers api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfer-candidates?tc_id=6');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
     }
 
     /**
@@ -269,10 +290,12 @@ class TransferCest
     public function tryToMarkCandidateTransferUnpaid(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Mark Candidate Transfers as unpaid');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfer-candidates/unpaid/6');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => 'Candidate Transfer marked as "unpaid" successfully'
+        ]);
     }
 
     /**
@@ -282,7 +305,6 @@ class TransferCest
     public function tryToMarkCandidateTransferPaid(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Mark Candidate Transfers as Paid');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/transfer-candidates/paid/6');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -295,7 +317,6 @@ class TransferCest
     public function tryToDownloadInvoice(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Download Transfer invoice api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/pdf/invoice/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
@@ -307,7 +328,6 @@ class TransferCest
     public function tryToDownloadReceipt(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > Download Transfer receipt api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/pdf/receipt/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
@@ -319,7 +339,6 @@ class TransferCest
     public function tryToListInvoices(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > transfer > View Transfer invoices api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/transfers/invoices/' . $this->transferWithPaymentReceived->transfer_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
@@ -378,7 +397,6 @@ class TransferCest
         );
         
         $I->wantTo('Validate admin > transfer > import excel api');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPOST('v1/transfers/import-excel', [
             'excel' => basename($response['ObjectURL'])
         ]);
@@ -389,4 +407,3 @@ class TransferCest
                     
                       
                         
-                     
