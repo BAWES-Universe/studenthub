@@ -1,6 +1,7 @@
 <?php
 namespace candidate\tests;
 
+use common\models\Country;
 use yii;
 use candidate\tests\FunctionalTester;
 use common\models\CandidateToken;
@@ -26,6 +27,7 @@ class CountryCest
         $this->token = CandidateToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -34,10 +36,12 @@ class CountryCest
 
     public function tryToTest(FunctionalTester $I)
     {
+        $country = Country::find()->one();
         $I->wantTo('Validate country > list api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/countries');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'country_id'=>$country->country_id
+        ]);
     }
 }

@@ -13,6 +13,7 @@ use Codeception\Util\HttpCode;
 class AuthCest {
 
     public $token;
+    public $candidate;
 
     public function _fixtures() {
         return [
@@ -22,9 +23,8 @@ class AuthCest {
     }
 
     public function _before(FunctionalTester $I) {
-        
-        $this->candidate = Candidate::find()
-            ->one();
+
+        $this->candidate = Candidate::findOne(['candidate_email_verification'=>1]);
         
         $this->token = $this->candidate->getAccessToken()->token_value;
         
@@ -40,11 +40,18 @@ class AuthCest {
      * @param FunctionalTester $I
      */
     public function tryToLogin(FunctionalTester $I) {
+        $candidate = Candidate::findOne(['candidate_email_verification'=>1]);
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated('jennie50@gmail.com', '12345');
+        $I->amHttpAuthenticated($candidate->candidate_email, '12345');
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'id' => $candidate->candidate_id,
+            'name' => $candidate->candidate_name,
+            'email' => $candidate->candidate_email,
+            'language_pref' => $candidate->candidate_language_pref,
+            'approved' => $candidate->approved
+        ]);
     }
     
     /**
@@ -52,13 +59,19 @@ class AuthCest {
      * @param FunctionalTester $I
      */
     public function tryToUpdatePassword(FunctionalTester $I) {
+        $candidate =  Candidate::findOne(['candidate_id'=>$this->candidate->candidate_id]);
+        $candidate->candidate_password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+        $candidate->save(false);
+
         $I->wantTo('Validate auth > update-password api');
         $I->sendPATCH('v1/auth/update-password', [
             'newPassword' => 'demo1admin',
-            'token' => $this->token
+            'token' => $candidate->candidate_password_reset_token
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'message' => 'Your password has been reset'
+        ]);
     }
     
     /**
@@ -68,10 +81,12 @@ class AuthCest {
     public function tryToValidateEmail(FunctionalTester $I) {
         $I->wantTo('Validate auth > email-check api');
         $I->sendPOST('v1/auth/email-check', [
-            'email' => 'demo@demo.com'
+            'email' => $this->candidate->candidate_email
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "candidate_id"=>$this->candidate->candidate_id
+        ]);
     }
     
     /**
@@ -81,14 +96,16 @@ class AuthCest {
     public function tryToRegister(FunctionalTester $I) {
         $I->wantTo('Validate auth > register api');
         $I->sendPOST('v1/auth/register', [
-            'name' => 'demo@demo.com',
+            'name' => 'demo com',
             'lang' => 'en',
             'email' => 'demo@demo.com',
             'phone' => 12345678,
             'password' => 'demo1admin'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'message' => 'Please click on the link sent to you by email to verify your account',
+        ]);
     }
     
     /**
@@ -98,10 +115,13 @@ class AuthCest {
     public function tryToResetPassword(FunctionalTester $I) {
         $I->wantTo('Validate auth > request-reset-password api');
         $I->sendPOST('v1/auth/request-reset-password', [
-            'email' => 'demo@demo.com',
+            'email' => $this->candidate->candidate_email,
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'operation' => 'success',
+            'message' => 'Please check the link sent to you on your email to set new password.'
+        ]);
     }
     
     /**
@@ -109,12 +129,15 @@ class AuthCest {
      * @param FunctionalTester $I
      */
     public function tryToCheckIfEmailVerified(FunctionalTester $I) {
+        $candidate = Candidate::findOne(['candidate_email_verification'=>0]);
         $I->wantTo('Validate auth > is-email-verified api');
         $I->sendPOST('v1/auth/is-email-verified', [
-            'email' => 'demo@demo.com',
+            'email' => $candidate->candidate_email,
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'status' => 0
+        ]);
     }
     
     /**
@@ -124,11 +147,13 @@ class AuthCest {
     public function tryToUpdateEmail(FunctionalTester $I) {
         $I->wantTo('Validate auth > update-email api');
         $I->sendPOST('v1/auth/update-email', [
-            'newEmail' => 'demo@demo.com',
+            'newEmail' => 'abc@test.com',
             'unVerifiedToken' => $this->token
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'message' => 'Candidate Account Info Updated Successfully, please check email to verify new email address'
+        ]);
     }
     
     /**
@@ -141,7 +166,11 @@ class AuthCest {
             'email' => $this->candidate->candidate_email
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation"=>"error",
+            "errorCode"=>1,
+            "message"=>"You have verified your email"
+        ]);
     }
     
     /**
@@ -155,7 +184,9 @@ class AuthCest {
             'code' => $this->candidate->candidate_auth_key
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'email' => $this->candidate->candidate_email
+        ]);
     }
 }
 

@@ -62,11 +62,19 @@ class CandidateCest
     public function tryToApprove(FunctionalTester $I)
     {
         $candidate = Candidate::findOne(['approved'=>'0']);
+        $candidate->candidate_civil_id = '121212121200';
+        $candidate->candidate_phone = '11221122';
+        $candidate->candidate_name = 'abc kumar';
+        $candidate->candidate_name_ar = 'abc kumar';
+        $candidate->bank_account_name = 'abc kumar';
+        $candidate->candidate_civil_expiry_date = date('Y-m-d',strtotime('+1 year'));
+        $candidate->save(false);
         $I->wantTo('Validate admin > candidates api to approve candidate');
         $I->sendPATCH('v1/candidates/approve/'.$candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
-            'candidate_id' => $candidate->candidate_id
+            "operation"=>"success",
+            "message"=>"Candidate account approved successfully"
         ]);
     }
     
@@ -137,12 +145,17 @@ class CandidateCest
      */
     public function getTotalCandidates(FunctionalTester $I)
     {
+        $query = Candidate::find()
+            ->byApprovalStatus(0);
+
+        $payable = Candidate::getTotalPayableCandidate();
+
         $I->wantTo('Validate admin > candidates api to list candidates by university');
         $I->sendGET('v1/candidates/total-to-review');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Brand deleted successfully"
+            'total' => $query->count(),
+            'payable' => $payable['payable']
         ]);
     }
 
@@ -156,8 +169,7 @@ class CandidateCest
         $I->sendGET('v1/candidates/transfers/' . $this->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Brand deleted successfully"
+            "candidate_id" => $this->candidate_id
         ]);
     }
 
@@ -171,8 +183,7 @@ class CandidateCest
         $I->sendGET('v1/candidates/work-history/' . $this->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Brand deleted successfully"
+            "candidate_id" => $this->candidate_id
         ]);
     }
 }

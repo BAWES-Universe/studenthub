@@ -24,8 +24,7 @@ class CandidateCest
     public function _before(FunctionalTester $I)
     {
         $this->token = CandidateToken::find()
-            ->one()
-            ->token_value;
+            ->one();
     }
 
     public function _after(FunctionalTester $I)
@@ -35,9 +34,11 @@ class CandidateCest
     public function tryToTest(FunctionalTester $I)
     {
         $I->wantTo('Validate candidate > work-history api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token->token_value);
         $I->sendGET('v1/candidates/work-history');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'candidate_id' => $this->token->candidate_id
+        ]);
     }
 }
