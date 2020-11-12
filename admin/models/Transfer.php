@@ -258,7 +258,6 @@ class Transfer extends \common\models\Transfer
         $queryResult = Transfer::find()
             ->select('count(*) as total,transfer_status')
             ->andWhere(['transfer_status'=>$statusCode])
-            ->notDeleted()
             ->isParentTransfer()
             ->groupBy('transfer_status')
             ->asArray()

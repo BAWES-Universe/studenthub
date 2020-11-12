@@ -32,14 +32,6 @@ class TransferQuery extends ActiveQuery
     }
 
     /**
-     * @return $this
-     */
-    public function notDeleted()
-    {
-        return $this->andWhere(['{{%transfer}}.deleted' => 0]);
-    }
-
-    /**
      * @param $transfer_id
      * @return $this
      */

@@ -170,20 +170,13 @@ class CandidateQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere('{{%candidate}}.store_id IS NULL OR {{%candidate}}.store_id = 0');
     }
- /**
+
+    /**
      * @return int|string
      */
     public function withBankInfo()
     {
         return $this->andWhere('{{%candidate}}.bank_id IS NULL');
-    }
-
-    /**
-     * @return $this
-     */
-    public function notDeleted()
-    {
-        return $this->andWhere(['{{%candidate}}.deleted'=>0]);
     }
 
     /**

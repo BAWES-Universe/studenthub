@@ -96,19 +96,16 @@ class CronController extends \yii\console\Controller {
         $data['totalExpiredCards'] = Candidate::find()
             ->idExpired()
             ->filterAssigned() // only candidate with assigned work
-            ->notDeleted()
             ->count();
 
         $data['assignedExpiredCivilID'] =  Candidate::find()
             ->civilIdExpired()
             ->filterAssigned() // only candidate with assigned work
-            ->notDeleted()
             ->count();
 
         // # of candidates that need id generated
 
         /*$result['id_need_generated'] = Candidate::find()
-            ->notDeleted()
             ->filterAssigned()
             ->idNeedGenerated()
             ->count();*/
@@ -116,7 +113,6 @@ class CronController extends \yii\console\Controller {
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
         $data['profileApprovalRequire'] = Candidate::find()
-            ->notDeleted()
             ->byApprovalStatus(0)
             ->completedProfileWithoutApproval()
             ->count();
@@ -125,7 +121,6 @@ class CronController extends \yii\console\Controller {
 
         $data['incompleteAssignedToWork'] = Candidate::find()
             ->filterAssigned()
-            ->notDeleted()
             ->incompletedProfile()
             ->count();
 
@@ -143,7 +138,7 @@ class CronController extends \yii\console\Controller {
 
         $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
 
-        $staffs = Staff::find()->notDeleted()->all();
+        $staffs = Staff::find()->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
