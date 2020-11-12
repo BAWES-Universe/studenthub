@@ -65,7 +65,6 @@ class TransferCest
     public function tryToList(FunctionalTester $I)
     {
         $query = Transfer::find()
-            ->notDeleted()
             ->isParentTransfer()
             ->one();
         $I->wantTo('Validate admin > transfer api response for listing');
