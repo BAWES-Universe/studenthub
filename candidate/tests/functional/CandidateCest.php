@@ -37,8 +37,5 @@ class CandidateCest
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token->token_value);
         $I->sendGET('v1/candidates/work-history');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            'candidate_id' => $this->token->candidate_id
-        ]);
     }
 }
