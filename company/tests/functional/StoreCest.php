@@ -1,6 +1,8 @@
 <?php
 namespace company\tests;
 
+use company\models\Company;
+use company\models\Store;
 use Yii;
 use company\tests\FunctionalTester;
 use company\models\CompanyToken;
@@ -21,8 +23,8 @@ class StoreCest
     public function _before(FunctionalTester $I)
     {
         $this->token = CompanyToken::find()
-            ->one()
-            ->token_value;
+            ->one();
+        $I->amBearerAuthenticated($this->token->token_value);
     }
 
     public function _after(FunctionalTester $I){}
@@ -33,17 +35,16 @@ class StoreCest
      */
     public function testListing(FunctionalTester $I)
     {
+        $store = Store::findOne(['company_id'=>$this->token->company_id]);
         $I->wantTo('Validate company > stores api');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/stores');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson();
     }
 
     public function testViewStore(FunctionalTester $I)
     {
         $I->wantTo('View Store');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/stores/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -55,7 +56,6 @@ class StoreCest
      */
     public function testStores(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list sub company\'s stores');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/stores/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -67,7 +67,6 @@ class StoreCest
      */
     public function testSubCompanies(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list stores and sub company');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/stores/company-store');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();

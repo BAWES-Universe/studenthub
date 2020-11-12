@@ -12,7 +12,6 @@ class AccountCest
 {
 	public function _fixtures() {
 		return [
-			'company'      => CompanyFixture::className(),
 			'companyToken' => CompanyTokenFixture::className()
 		];
 	}
@@ -22,6 +21,7 @@ class AccountCest
         $this->token = CompanyToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I){}
@@ -30,7 +30,7 @@ class AccountCest
     public function testChangePassword(FunctionalTester $I)
     {
         $I->wantTo('trying to change password');
-        $I->amBearerAuthenticated($this->token);
+
         $I->sendPOST('v1/account/change-password', [
             'old_password' => '12345',
             'new_password' => 'newPassword'
