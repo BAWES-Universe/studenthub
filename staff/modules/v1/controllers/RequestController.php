@@ -74,6 +74,10 @@ class RequestController extends Controller
     public function actionList()
     {
         $company_id = Yii::$app->request->get("company_id");
+        $company_name = Yii::$app->request->get("company_name");
+        $request_status = Yii::$app->request->get("request_status");
+        $start_date = Yii::$app->request->get("start_date");
+        $end_date = Yii::$app->request->get("end_date");
 
         $query = Request::find()
             ->orderBy('request_created_datetime DESC');
@@ -81,6 +85,28 @@ class RequestController extends Controller
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
         }
+
+        if($company_name) {
+            $query->joinWith('company')
+                ->andWhere([
+                    'OR',
+                    ['like', 'company_common_name_en', $company_name],
+                    ['like', 'company_common_name_ar', $company_name],
+                    ['like', 'company_name', $company_name]
+                ]);
+        } 
+
+        if($request_status) {
+            $query->andWhere(['request_status' => $request_status]);
+        } 
+        
+        if($start_date) {
+            $query->startDate($start_date);
+        } 
+
+        if($end_date) {
+            $query->endDate($end_date);
+        } 
 
         return new ActiveDataProvider([
             'query' => $query
