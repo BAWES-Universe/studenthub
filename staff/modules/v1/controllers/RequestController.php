@@ -144,6 +144,7 @@ class RequestController extends Controller
 
         $query = Request::find()
             ->andWhere(['request_status' => Request::STATUS_STARTED])
+            ->andWhere(['!=', 'staff_id', Yii::$app->user->getId()])
             ->orderBy('request_created_datetime DESC');
 
         if($company_id) {

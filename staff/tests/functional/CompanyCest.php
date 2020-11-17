@@ -1,6 +1,10 @@
 <?php
 namespace staff\tests;
 
+use candidate\models\Candidate;
+use common\fixtures\CandidateFixture;
+use common\fixtures\StoreFixture;
+use company\models\Company;
 use yii;
 use staff\tests\FunctionalTester;
 use common\models\StaffToken;
@@ -15,8 +19,10 @@ class CompanyCest
 	public function _fixtures()
 	{
 		return [
-                    'company' => CompanyFixture::className(),
-			'staffToken' => StaffTokenFixture::className()
+                'company' => CompanyFixture::className(),
+                'staffToken' => StaffTokenFixture::className(),
+                'store' => StoreFixture::className(),
+                'candidate' => CandidateFixture::className(),
 		];
 	}
 
@@ -130,5 +136,30 @@ class CompanyCest
             'followup_interval_weeks' => 4
         ]);
         $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+    /**
+     * try to change status
+     * @param FunctionalTester $I
+     */
+    public function tryToChangeCompanyStatus(FunctionalTester $I)
+    {
+        $candidate = Candidate::find()->where('candidate.store_id IS NOT NULL')->joinWith('company')->asArray()->one();
+        if (isset($candidate['company']['company_id'])) {
+            $company = Company::findOne(['company_id'=>$candidate['company']['company_id']]);
+            $company->company_status = Company::STATUS_ACTIVE;
+            $company->save(false);
+        }
+        $I->wantTo('try to inactive to active company with existing staff');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH('v1/companies/change-status/'.$candidate['company']['company_id'], [
+            'status' => 0
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation"=>"error",
+            "message"=>"Please unassign all staff from this company before making client inactive"
+        ]);
     }
 }
