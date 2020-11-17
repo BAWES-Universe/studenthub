@@ -1277,7 +1277,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->one();
 
         if(!$candidate) {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return [
+                'success' => false,
+                'message' =>Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
+            ];
         }
 
         if ($candidate->candidate_auth_key && $code && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
