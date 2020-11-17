@@ -423,10 +423,15 @@ class CompanyController extends Controller
                 "message" => "Company account not found"
             ];
         }
-
-        $model->scenario = 'updateStatus';
-
         $model->company_status = Yii::$app->request->getBodyParam("status");
+
+        if ($model->candidates && !$model->company_status) {
+            return [
+                "operation" => "error",
+                "message" => "Please unassign all staff from this company before making client inactive"
+            ];
+        }
+        $model->scenario = 'updateStatus';
 
         if (!$model->save()) {
             if (isset($model->errors)) {
