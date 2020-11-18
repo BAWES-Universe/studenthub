@@ -1146,6 +1146,43 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Civil ID Expiry Date Updated Successfully"),
         ];
     }
+
+    /**
+     * update civil id expiry date and expiry date
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdateCivilIdExpiryDate() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
+        $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
+
+        $candidate->candidate_civil_id = $candidate_civil_id;
+        $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+
+        $candidate->scenario = "updateCivilExpiryDateAndCivilID";
+
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "candidate_civil_expiry_date" => $candidate->candidate_civil_expiry_date,
+            "message" => Yii::t('candidate', "Civil ID And Expiry Date Updated Successfully"),
+        ];
+    }
     
     /**
      * update birth date 

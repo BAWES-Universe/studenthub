@@ -288,7 +288,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateResume'] = ['candidate_resume'];
 
         $scenarios['updateCivilExpiryDate'] = ['candidate_civil_expiry_date'];
-        
+
+        $scenarios['updateCivilExpiryDateAndCivilID'] = ['candidate_civil_expiry_date','candidate_civil_id'];
+
         $scenarios['updateBirthDate'] = ['candidate_birth_date'];
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
