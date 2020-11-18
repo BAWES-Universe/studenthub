@@ -50,10 +50,10 @@ class CandidateTest extends \Codeception\Test\Unit
         ];
     }
 
-    protected function _before()
+   public function _before()
     {
+        \Yii::$app->params['algolia_candidate_index'] = 'test_candidate_public';
     }
-
     protected function _after()
     {
     }
@@ -165,9 +165,7 @@ class CandidateTest extends \Codeception\Test\Unit
         });
 
         $this->specify('Candidate email validation', function() {
-            $candidateData = Candidate::findOne(['deleted'=>0]);
-            $candidateData->candidate_status = 1;
-            $candidateData->save(false);
+            $candidateData = Candidate::findOne(['deleted'=>'0']);
             $candidate = new Candidate;
             $candidate->candidate_email = $candidateData->candidate_email;
             expect('Duplicate email passed', $candidate->validate(['candidate_email']))->true();
