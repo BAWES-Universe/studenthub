@@ -126,7 +126,7 @@ class StoreController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
-    
+
     /**
      * update store manager
      * @param type $id
@@ -155,6 +155,42 @@ class StoreController extends Controller
         }
 
         Yii::info('[Store Manager Updated - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Store successfully updated"
+        ];
+    }
+
+    /**
+     * remove store manager
+     * @param type $id
+     * @return type
+     */
+    public function actionRemoveManager($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->scenario = 'update_manager';
+
+        $model->store_manager_uuid = null;
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the store, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('[Store Manager Removed - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",

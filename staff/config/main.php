@@ -156,11 +156,13 @@ return [
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH update-manager/<id>' => 'update-manager',
+                        'DELETE remove-manager/<id>' => 'remove-manager',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-manager/<id>' => 'options',
+                        'OPTIONS remove-manager/<id>' => 'options',
                     ]
                 ],
                 [ // CompanyController
