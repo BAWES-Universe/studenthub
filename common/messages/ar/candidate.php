@@ -69,5 +69,7 @@ return [
     "Candidate Birth Date Info Updated Successfully" => "تم تحديث معلومات تاريخ ميلاد المرشح بنجاح",
     "This email verification link is no longer valid, please login to send a new one" => "لم يعد رابط التحقق من البريد الإلكتروني هذا صالحًا ، يرجى تسجيل الدخول لإرسال رابط جديد",
     'Invalid Job ID' => "معرف الوظيفة غير صالح",
-    'MediaConvert Job Failed' => "فشلت مهمة MediaConvert"
+    'MediaConvert Job Failed' => "فشلت مهمة MediaConvert",
+    "Candidate kuwaiti National Info Updated Successfully" => "تحديث المعلومات الوطنية للمرشح الكويتي بنجاح",
+    "Civil ID And Expiry Date Updated Successfully" => "تم تحديث البطاقة المدنية وتاريخ انتهاء الصلاحية بنجاح"
 ];

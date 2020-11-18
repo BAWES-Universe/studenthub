@@ -1,6 +1,7 @@
 <?php
 namespace admin\tests;
 
+use common\models\Company;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\fixtures\CompanyFixture;
@@ -29,6 +30,7 @@ class CompanyCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -41,11 +43,13 @@ class CompanyCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('Validate admin > companies api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/companies');
-        $I->seeResponseCodeIs(HttpCode::OK);  
-        $I->seeResponseIsJson();
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "company_id" => $company->company_id
+        ]);
     }
     
     /**
@@ -55,10 +59,8 @@ class CompanyCest
     public function tryToListFollowups(FunctionalTester $I)
     {
         $I->wantTo('Validate admin > companies api response for followups listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/companies/followups');
-        $I->seeResponseCodeIs(HttpCode::OK);  
-        $I->seeResponseIsJson();
+        $I->seeResponseCodeIs(HttpCode::OK);
     }
 
     /**
@@ -67,11 +69,13 @@ class CompanyCest
      */
     public function tryToView(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('Validate admin > companies api response for company detail');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/companies/1');
+        $I->sendGET('v1/companies/'.$company->company_id);
         $I->seeResponseCodeIs(HttpCode::OK);  
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "company_id" => $company->company_id
+        ]);
     }
 
     /**
@@ -80,11 +84,10 @@ class CompanyCest
      */
     public function tryToListSubCompanies(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('Validate admin > companies api to list sub companies for a given company');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/companies/sub-companies/2');
-        $I->seeResponseCodeIs(HttpCode::OK);  
-        $I->seeResponseIsJson();
+        $I->sendGET('v1/companies/sub-companies/'.$company->company_id);
+        $I->seeResponseCodeIs(HttpCode::OK);
     }
 
     /**
@@ -102,7 +105,7 @@ class CompanyCest
         );
         
         $I->wantTo('create a company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        
         $I->sendPOST(
             'v1/companies',
             [
@@ -141,7 +144,6 @@ class CompanyCest
         );
         
         $I->wantTo('create a sub company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
             'v1/companies',
@@ -180,7 +182,6 @@ class CompanyCest
         );
         
         $I->wantTo('update company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
             'v1/companies/1',
@@ -219,14 +220,17 @@ class CompanyCest
         );
         
         $I->wantTo('add company file via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST('v1/companies/file-create/1', [
             'file_title' => 'some-cripy-file',
             'file_description' => 'la la lalalala llala',
             'file_s3_path' => basename($response['ObjectURL'])
         ]);
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Company document uploaded successfully"
+        ]);
     }
     
     /**
@@ -238,13 +242,16 @@ class CompanyCest
         $file = File::find()->one();
         
         $I->wantTo('update company file via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH('v1/companies/file-update/' . $file->file_uuid, [
             'file_title' => 'some-cripy-file',
             'file_description' => 'la la lalalala llala'
         ]);
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Company document data updated successfully"
+        ]);
     }
     
     /**
@@ -253,12 +260,16 @@ class CompanyCest
      */
     public function tryToResetCompanyPassword(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('reset company password via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/reset-password/2', [
+        $I->sendPATCH('v1/companies/reset-password/'.$company->company_id, [
         ]);
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
+        ]);
     }
     
     /**
@@ -267,13 +278,17 @@ class CompanyCest
      */
     public function tryToUpdateCompanyStatus(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('update company status via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/change-status/2', [
+        $I->sendPATCH('v1/companies/change-status/'.$company->company_id, [
             'status' => 10
         ]);
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Company account status changed successfully"
+        ]);
     }
     
     /**
@@ -282,13 +297,17 @@ class CompanyCest
      */
     public function tryToUpdateCompanyFollowup(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('update company followup via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/update-followup/2', [
+        $I->sendPATCH('v1/companies/update-followup/'.$company->company_id, [
             'followup' => true
         ]);
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Company account followup status changed successfully"
+        ]);
     }
     
     /**
@@ -297,13 +316,17 @@ class CompanyCest
      */
     public function tryToUpdateCompanyFollowupInterval(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('update company followup interval in week via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/update-followup-interval/2', [
+        $I->sendPATCH('v1/companies/update-followup-interval/'.$company->company_id, [
             'followup_interval_weeks' => 4
         ]);
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Company account followup interval changed successfully"
+        ]);
     }
     
     /**
@@ -315,10 +338,13 @@ class CompanyCest
         $file = File::find()->one();
         
         $I->wantTo('delete company file via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDELETE('v1/companies/remove-file/' . $file->file_uuid);
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Company Document successfully deleted"
+        ]);
     }
     
     /**
@@ -327,10 +353,10 @@ class CompanyCest
      */
     public function tryToDeleteCompany(FunctionalTester $I)
     {
+        $company = Company::find()->one();
         $I->wantTo('delete company via admin > companies API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDELETE('v1/companies/2');
-        $I->seeResponseCodeIs(HttpCode::OK); 
+        $I->sendDELETE('v1/companies/'.$company->company_id);
+        $I->seeResponseCodeIs(HttpCode::OK);
     }
 }

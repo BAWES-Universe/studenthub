@@ -156,11 +156,13 @@ return [
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH update-manager/<id>' => 'update-manager',
+                        'DELETE remove-manager/<id>' => 'remove-manager',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-manager/<id>' => 'options',
+                        'OPTIONS remove-manager/<id>' => 'options',
                     ]
                 ],
                 [ // CompanyController
@@ -173,6 +175,7 @@ return [
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
                         'POST add-followup-note/<id>' => 'add-followup-note',
+                        'PATCH change-status/<id>' => 'change-status',
                         'PATCH <id>' => 'update',
                         'PATCH update-followup/<id>' => 'update-followup',
                         'PATCH update-followup-interval/<id>' => 'update-followup-interval',
@@ -183,6 +186,7 @@ return [
                         'OPTIONS update-followup-interval/<id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
                         'OPTIONS add-followup-note/<id>' => 'options',
+                        'OPTIONS change-status/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],

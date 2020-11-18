@@ -56,6 +56,7 @@ use yii\web\NotFoundHttpException;
  * @property integer $candidate_committed
  * @property integer $candidate_status
  * @property integer $approved
+ * @property integer $candidate_mom_kuwaiti
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
  * @property integer $deleted
@@ -118,14 +119,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
-            [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license'], 'integer'],
+            [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license','candidate_mom_kuwaiti'], 'integer'],
             [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video', 'candidate_video_job_id'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
-            [['candidate_email','candidate_phone'], 'unique'],
+            [['candidate_phone'], 'unique'],
+            [['candidate_email'], 'uniqueCheckWithCondition'],
             ['candidate_video_processed', 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
@@ -275,6 +277,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateDrivingLicense'] = ['candidate_driving_license'];
 
+        $scenarios['updateKuwaitiNational'] = ['candidate_mom_kuwaiti'];
+
         $scenarios['updateObjective'] = ['candidate_objective'];
 
         $scenarios['updateGender'] = ['candidate_gender'];
@@ -284,7 +288,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateResume'] = ['candidate_resume'];
 
         $scenarios['updateCivilExpiryDate'] = ['candidate_civil_expiry_date'];
-        
+
+        $scenarios['updateCivilExpiryDateAndCivilID'] = ['candidate_civil_expiry_date','candidate_civil_id'];
+
         $scenarios['updateBirthDate'] = ['candidate_birth_date'];
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
@@ -335,6 +341,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_new_email' => $this->candidate_new_email],
                 ['candidate_email' => $this->candidate_new_email]
             ])
+            ->count();
+
+        if ($count) {
+            $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
+        }
+    }
+
+    /**
+     * Validate Email with validation
+     */
+    public function uniqueCheckWithCondition() {
+        $count = self::find()
+            ->andWhere(['candidate_email' => $this->candidate_new_email,'deleted'=>'0'])
             ->count();
 
         if ($count) {
@@ -477,7 +496,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_status' => Yii::t('candidate','Status'),
             'candidate_created_at' => Yii::t('candidate','Created At'),
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
-            'employee_id' => Yii::t('candidate','Employee ID')
+            'employee_id' => Yii::t('candidate','Employee ID'),
+            'candidate_mom_kuwaiti' => Yii::t('candidate','Candidate Mom Kuwaiti')
         ];
     }
 
@@ -1154,7 +1174,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function civilIdExpire()
     {
         $candidates = Candidate::find()
-            ->where('candidate_civil_expiry_date < DATE(NOW())')
+            ->where('YEAR(candidate_civil_expiry_date) = YEAR(NOW()) AND MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND DAY(candidate_civil_expiry_date) = DAY(NOW())')
             ->all();
 
         if(!$candidates)
@@ -1273,7 +1293,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->one();
 
         if(!$candidate) {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return [
+                'success' => false,
+                'message' =>Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
+            ];
         }
 
         if ($candidate->candidate_auth_key && $code && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
@@ -1903,6 +1926,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['location'] = false;
         }
 
+        if (
+            $this->area && $this->nationality &&
+            $this->area->country->country_nationality_name_en == 'Kuwaiti' &&
+            $this->nationality->country_nationality_name_en != 'Kuwaiti' &&
+            !$this->candidate_mom_kuwaiti
+        ) {
+            #https://www.pivotaltracker.com/story/show/175607833
+            $this->pendingProfile['candidate_mom_kuwaiti'] = false;
+        }
+
 //        if (!$this->candidate_resume) {
 //            return 'resume';
 //        }
@@ -1992,6 +2025,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_language_pref' => $this->candidate_language_pref,
             'candidate_job_search_status' => $this->candidate_job_search_status,
             'approved' => $this->approved,
+            'candidate_mom_kuwaiti' => $this->candidate_mom_kuwaiti,
             'candidate_email_verification' => true,   // using in candidate card
             'isProfileCompleted' => true,  // using in candidate card
         ];
@@ -2203,14 +2237,70 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function commitmentWarningEmail()
     {
+        $f_name = $this->candidate_name ? $this->candidate_name : $this->candidate_name_ar;
+
+        $name = explode(' ', $f_name)[0];
+
         Yii::$app->mailer->compose("candidate/commitment-warning",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                "name" => $this->candidate_name
+                "name" => $name
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
             ->setSubject("We'll stop recommending your profile to companies")
             ->send();
+    }
+
+    /**
+     * notify candidate kuwaiti mom Nationality update
+     */
+    public static function kuwaitiNationalityEmail()
+    {
+        $total = 0;
+        $candidates = Candidate::find()
+            ->verifiedProfile()
+            ->candidateMomKuwaitiFieldIsNull()
+            ->all();
+
+        if (!$candidates)
+            return null;
+
+        foreach ($candidates as $candidate) {
+
+            if (
+                $candidate->area && $candidate->nationality &&
+                $candidate->area->country->country_nationality_name_en == 'Kuwaiti' &&
+                $candidate->nationality->country_nationality_name_en != 'Kuwaiti' &&
+                !$candidate->candidate_mom_kuwaiti
+            ) {
+
+                $f_name = $candidate->candidate_name ? $candidate->candidate_name : $candidate->candidate_name_ar;
+
+                $name = explode(' ', $f_name)[0];
+
+                $url = '';
+
+                $isProfileCompleted = $candidate->isProfileCompleted();
+
+                if (!$isProfileCompleted) {
+                    $url = Yii::$app->params['candidateAppUrl'];
+                } else {
+                    $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
+                }
+                Yii::$app->mailer->compose("candidate/kuwaiti-mom",
+                    [
+                        "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                        "name" => $name,
+                        "url" => $url
+                    ])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setTo($candidate->candidate_email)
+                    ->setSubject("Jobs in restaurants, cafes, and cinemas")
+                    ->send();
+                $total++;
+            }
+        }
+        return $total;
     }
 }

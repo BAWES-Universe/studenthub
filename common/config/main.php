@@ -34,8 +34,8 @@ return [
             'api_secret' => 'FILAex7q93GUB-q1bEe1pAKOIvY'
             /**
              * You can access the bucket with:
-             * http://res.cloudinary.com/bawes/
-             * http://res.cloudinary.com/bawes/image/upload/candidate-photo/fileName.jpg
+             * http://res.cloudinary.com/studenthub/
+             * http://res.cloudinary.com/studenthub/image/upload/candidate-photo/fileName.jpg
              */ 
         ],
         'cache' => [

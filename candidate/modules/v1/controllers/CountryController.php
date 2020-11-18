@@ -82,9 +82,7 @@ class CountryController extends Controller
 
         return new ActiveDataProvider([
             'query' => $query,
-            'pagination' => [
-                'pageSize' => 200,
-            ],
+            'pagination' => false
         ]);
     }
 }

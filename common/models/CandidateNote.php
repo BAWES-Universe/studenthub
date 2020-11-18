@@ -14,8 +14,9 @@ use yii\behaviors\AttributeBehavior;
  *
  * @property string $candidate_note_uuid
  * @property integer $candidate_id
- * @property integer $staff_id
  * @property string $note_text
+ * @property integer $created_by
+ * @property integer $updated_by
  * @property string $note_created_datetime
  * @property string $note_updated_datetime
  * 
@@ -41,7 +42,8 @@ class CandidateNote extends \yii\db\ActiveRecord
             [['candidate_id','note_text'], 'required'],
             [['note_created_datetime', 'note_updated_datetime','staff_id'], 'safe'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
+            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
         ];
     }
 
@@ -67,8 +69,8 @@ class CandidateNote extends \yii\db\ActiveRecord
             ],
             [
                 'class' => BlameableBehavior::className(),
-                'createdByAttribute' => 'staff_id',
-                'updatedByAttribute' => false,
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by',
             ],
         ];
     }
@@ -81,10 +83,11 @@ class CandidateNote extends \yii\db\ActiveRecord
         return [
             'candidate_note_uuid' => Yii::t('candidate', 'ID'),
             'candidate_id' => Yii::t('candidate', 'Candidate ID'),
-            'staff_id' => Yii::t('candidate', 'Staff ID'),
             'note_text' => Yii::t('candidate', 'Note'),
             'note_created_datetime' => Yii::t('candidate', 'Created At'),
             'note_updated_datetime' => Yii::t('candidate', 'Updated At'),
+            'created_by' => Yii::t('candidate', 'Created by'),
+            'updated_by' => Yii::t('candidate', 'Updated by'),
         ];
     }
 
@@ -109,7 +112,8 @@ class CandidateNote extends \yii\db\ActiveRecord
     {
         return [
             'candidate',
-            'staff'
+            'createdBy',
+            'updatedBy'
         ];
     }
 
@@ -124,8 +128,16 @@ class CandidateNote extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStaff($modelClass = "\common\models\Staff")
+    public function getCreatedBy($modelClass = "\common\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
     }
 }

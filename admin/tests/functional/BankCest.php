@@ -29,6 +29,7 @@ class BankCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     /**
@@ -38,10 +39,11 @@ class BankCest
     public function tryToList(FunctionalTester $I)
     {
         $I->wantTo('Validate bank api response for listing');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/banks');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'bank_id' => 1
+        ]);
     }
     
     /**
@@ -51,12 +53,12 @@ class BankCest
     public function tryToView(FunctionalTester $I)
     {
         $bank = Bank::find()->one();
-        
         $I->wantTo('Validate bank api to view bank detail');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/banks/' . $bank->bank_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'bank_id' => $bank->bank_id
+        ]);
     }
 
     /**
@@ -66,7 +68,6 @@ class BankCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a bank via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
             'v1/banks',
@@ -93,7 +94,6 @@ class BankCest
     public function tryToUpdate(FunctionalTester $I)
     {
         $I->wantTo('update a bank via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
             'v1/banks/' . $this->bank_id,
@@ -119,9 +119,12 @@ class BankCest
     public function tryToDelete(FunctionalTester $I)
     {
         $I->wantTo('delete bank via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('v1/banks/' . $this->bank_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Bank deleted successfully"
+        ]);
     }
 }

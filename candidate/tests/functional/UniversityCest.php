@@ -1,6 +1,7 @@
 <?php
 namespace candidate\tests;
 
+use candidate\models\University;
 use yii;
 use candidate\tests\FunctionalTester;
 use common\models\CandidateToken;
@@ -26,6 +27,7 @@ class UniversityCest
         $this->token = CandidateToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -34,10 +36,12 @@ class UniversityCest
 
     public function tryToTest(FunctionalTester $I)
     {
+        $university = University::find()->one();
         $I->wantTo('Validate university > list api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/universities');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'university_id'=>$university->university_id
+        ]);
     }
 }

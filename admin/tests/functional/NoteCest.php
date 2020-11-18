@@ -31,6 +31,7 @@ class NoteCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -40,13 +41,15 @@ class NoteCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('Validate note > create api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPOST('v1/notes', [
         	'note' => 'lorem isum',
         	'company_id' => 1
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Note created successfully"
+        ]);
     }
 
     public function tryToUpdate(FunctionalTester $I)
@@ -54,12 +57,14 @@ class NoteCest
         $note = Note::find()->one();
 
         $I->wantTo('Validate note > update api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendPATCH('v1/notes/' . $note->note_uuid, [
         	'note' => 'lorem isum'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Note successfully updated"
+        ]);
     }
 
     public function tryToView(FunctionalTester $I)
@@ -67,19 +72,22 @@ class NoteCest
         $note = Note::find()->one();
 
         $I->wantTo('Validate note > view api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/notes/' . $note->note_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "note_uuid" => $note->note_uuid
+        ]);
     }
 
     public function tryToList(FunctionalTester $I)
     {
+        $note = Note::find()->one();
         $I->wantTo('Validate note > list api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/notes');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "note_uuid" => $note->note_uuid
+        ]);
     }
 
     public function tryToDelete(FunctionalTester $I)
@@ -87,10 +95,12 @@ class NoteCest
         $note = Note::find()->one();
 
         $I->wantTo('Validate note > delete api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendDELETE('v1/notes/' . $note->note_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Note deleted successfully"
+        ]);
     }
 
 }

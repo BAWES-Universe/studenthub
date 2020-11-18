@@ -742,4 +742,20 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getMalls() {
         return \staff\models\Mall::findAll(['mall_uuid'=>$this->getStores()->all()]);
     }
+
+    /**
+     * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
+     * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
+     * "40 days passed without payment"
+     * @param $companyId
+     * @return mixed
+     * @throws \yii\db\Exception
+     */
+    public static function transferInLast40Days($companyId) {
+        $q = 'select count(*) as total from transfer ';
+        $q .= 'left join company on company.company_id = transfer.company_id ';
+        $q .= 'where transfer.transfer_created_at >= DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
+        $q .= 'transfer.transfer_status in(1,3,4) and transfer.transfer_status NOT IN(5,10) and company.company_status = 10 and company.company_id='.$companyId;
+        return Yii::$app->db->createCommand($q)->queryScalar();
+    }
 }

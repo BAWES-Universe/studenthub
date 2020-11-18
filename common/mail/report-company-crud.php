@@ -71,13 +71,13 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
 
 <div
-    style="background-color:#ffffff;"
+        style="background-color:#ffffff;"
 >
 
 
     <!--[if mso | IE]>
     <table
-        align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:700px;" width="700"
+            align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:700px;" width="700"
     >
         <tr>
             <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -87,23 +87,23 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
     <div  style="Margin:0px auto;max-width:700px;">
 
         <table
-            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
         >
             <tbody>
             <tr>
                 <td
-                    style="direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
+                        style="direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
                 >
                     <!--[if mso | IE]>
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
 
                         <tr>
                             <td
-                                class="" width="700px"
+                                    class="" width="700px"
                             >
 
                                 <table
-                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                        align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                                 >
                                     <tr>
                                         <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -113,12 +113,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="direction:ltr;font-size:0px;padding:0px;text-align:center;vertical-align:top;"
+                                        style="direction:ltr;font-size:0px;padding:0px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -126,25 +126,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                         <tr>
 
                                             <td
-                                                class="" style="vertical-align:top;width:670px;"
+                                                    class="" style="vertical-align:top;width:670px;"
                                             >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-100 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+                                            class="mj-column-per-100 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%"
                                         >
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;"
                                                 >
 
                                                     <table
-                                                        border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;"
+                                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;"
                                                     >
                                                         <tbody>
                                                         <tr>
@@ -162,22 +162,36 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:24px;text-align:center;color:#000000;"
                                                     >
-                                                        <?=$staff_name?> has <?=$type?> the following client account
+                                                        <?=$title?>
                                                     </div>
 
                                                 </td>
                                             </tr>
-
+                                            <?php if ($model->company_status == \common\models\Company::STATUS_ACTIVE) { ?>
+                                                <tr>
+                                                    <td align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;">
+                                                        <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:24px;text-align:center;color:green;">
+                                                            Active Account
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php } else  { ?>
+                                                <tr>
+                                                    <td align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;">
+                                                        <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:24px;text-align:center;color:red;">
+                                                            Inactive Account
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php } ?>
                                         </table>
-
                                     </div>
-
                                     <!--[if mso | IE]>
                                     </td>
 
@@ -205,11 +219,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <!--[if mso | IE]>
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -219,12 +233,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="background:white;background-color:white;Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
+                                        style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -232,31 +246,32 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                         <tr>
 
                                             <td
-                                                class="" style="vertical-align:middle;width:212.66666666666669px;"
+                                                    class="" style="vertical-align:middle;width:212.66666666666669px;"
                                             >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-33 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-33 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;"
                                                 >
 
                                                     <table
-                                                        border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;"
+                                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;"
                                                     >
                                                         <tbody>
                                                         <tr>
                                                             <td  style="width:100px;">
+
                                                                 <img
-                                                                    height="auto" src="<?=Yii::$app->params['candidate_photo'].$path.$model->company_logo?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="100"
+                                                                        height="auto" src="<?=Yii::$app->params['candidate_photo'].$path.$model->company_logo?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="100"
                                                                 />
 
                                                             </td>
@@ -275,25 +290,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                     </td>
 
                                     <td
-                                        class="" style="vertical-align:middle;width:212.66666666666669px;"
+                                            class="" style="vertical-align:middle;width:212.66666666666669px;"
                                     >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-33 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-33 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Official Name
                                                     </div>
@@ -303,11 +318,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_name?>
                                                     </div>
@@ -323,25 +338,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                     </td>
 
                                     <td
-                                        class="" style="vertical-align:middle;width:212.66666666666669px;"
+                                            class="" style="vertical-align:middle;width:212.66666666666669px;"
                                     >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-33 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-33 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Followup
                                                     </div>
@@ -351,24 +366,23 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?php
-                                                            if ($model->company_followup) {
-                                                                if ($model->company_followup_interval_weeks == 1) {
-                                                                    echo 'Every '.$model->company_followup_interval_weeks.' week';
-                                                                } else  {
-                                                                    echo 'Every '.$model->company_followup_interval_weeks.' weeks';
-                                                                }
-                                                            } else {
-                                                                echo 'No';
+                                                        if ($model->company_followup) {
+                                                            if ($model->company_followup_interval_weeks == 1) {
+                                                                echo 'Every '.$model->company_followup_interval_weeks.' week';
+                                                            } else  {
+                                                                echo 'Every '.$model->company_followup_interval_weeks.' weeks';
                                                             }
+                                                        } else {
+                                                            echo 'No';
+                                                        }
                                                         ?>
-
                                                     </div>
 
                                                 </td>
@@ -403,11 +417,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -417,12 +431,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
+                                        style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -451,11 +465,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -465,12 +479,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="background:white;background-color:white;Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
+                                        style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -478,25 +492,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                         <tr>
 
                                             <td
-                                                class="" style="vertical-align:middle;width:319px;"
+                                                    class="" style="vertical-align:middle;width:319px;"
                                             >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block --><!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Common Name [English]
                                                     </div>
@@ -506,11 +520,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_common_name_en?>
                                                     </div>
@@ -526,25 +540,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                     </td>
 
                                     <td
-                                        class="" style="vertical-align:middle;width:319px;"
+                                            class="" style="vertical-align:middle;width:319px;"
                                     >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Common Name [Arabic]
                                                     </div>
@@ -554,11 +568,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_common_name_ar?>
                                                     </div>
@@ -595,11 +609,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -609,12 +623,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
+                                        style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -643,11 +657,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -657,12 +671,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="background:white;background-color:white;Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
+                                        style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -670,25 +684,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                         <tr>
 
                                             <td
-                                                class="" style="vertical-align:middle;width:319px;"
+                                                    class="" style="vertical-align:middle;width:319px;"
                                             >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block --><!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Hourly Rate
                                                     </div>
@@ -698,11 +712,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_hourly_rate?> KWD
                                                     </div>
@@ -718,25 +732,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                     </td>
 
                                     <td
-                                        class="" style="vertical-align:middle;width:319px;"
+                                            class="" style="vertical-align:middle;width:319px;"
                                     >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Bonus Commission
                                                     </div>
@@ -746,11 +760,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_bonus_commission?>%
                                                     </div>
@@ -787,11 +801,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -801,12 +815,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
+                                        style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -835,11 +849,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -849,12 +863,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="background:white;background-color:white;Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
+                                        style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -862,25 +876,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                         <tr>
 
                                             <td
-                                                class="" style="vertical-align:middle;width:319px;"
+                                                    class="" style="vertical-align:middle;width:319px;"
                                             >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block --><!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Email
                                                     </div>
@@ -890,11 +904,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_email?>
                                                     </div>
@@ -910,25 +924,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                     </td>
 
                                     <td
-                                        class="" style="vertical-align:middle;width:319px;"
+                                            class="" style="vertical-align:middle;width:319px;"
                                     >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Website
                                                     </div>
@@ -938,11 +952,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_website?>
                                                     </div>
@@ -979,11 +993,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -993,12 +1007,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
+                                        style="direction:ltr;font-size:0px;padding:4px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -1027,11 +1041,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                     <tr>
                         <td
-                            class="" width="700px"
+                                class="" width="700px"
                         >
 
                             <table
-                                align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
+                                    align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:670px;" width="670"
                             >
                                 <tr>
                                     <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -1041,12 +1055,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                     <div  style="background:white;background-color:white;Margin:0px auto;max-width:670px;">
 
                         <table
-                            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
+                                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:white;background-color:white;width:100%;"
                         >
                             <tbody>
                             <tr>
                                 <td
-                                    style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
+                                        style="border:1px solid #d8e2e7;direction:ltr;font-size:0px;padding:15px;text-align:center;vertical-align:top;"
                                 >
                                     <!--[if mso | IE]>
                                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -1054,25 +1068,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                         <tr>
 
                                             <td
-                                                class="" style="vertical-align:middle;width:319px;"
+                                                    class="" style="vertical-align:middle;width:319px;"
                                             >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block --><!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Description [English]
                                                     </div>
@@ -1082,11 +1096,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_description_en?>
                                                     </div>
@@ -1102,25 +1116,25 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                     </td>
 
                                     <td
-                                        class="" style="vertical-align:middle;width:319px;"
+                                            class="" style="vertical-align:middle;width:319px;"
                                     >
                                     <![endif]-->
 
                                     <div
-                                        class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
+                                            class="mj-column-per-50 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:middle;width:100%;"
                                     >
 
                                         <table
-                                            border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
+                                                border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:middle;" width="100%"
                                         >
                                             <!-- Block -->
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:center;color:#828585;"
                                                     >
                                                         Description [Arabic]
                                                     </div>
@@ -1130,11 +1144,11 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                             <tr>
                                                 <td
-                                                    align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
+                                                        align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;"
                                                 >
 
                                                     <div
-                                                        style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
+                                                            style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
                                                         <?=$model->company_description_ar?>
                                                     </div>
@@ -1185,7 +1199,7 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
     </table>
 
     <table
-        align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:700px;" width="700"
+            align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:700px;" width="700"
     >
         <tr>
             <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
@@ -1195,12 +1209,12 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
     <div  style="Margin:0px auto;max-width:700px;">
 
         <table
-            align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+                align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
         >
             <tbody>
             <tr>
                 <td
-                    style="direction:ltr;font-size:0px;padding:0px;padding-bottom:24px;padding-top:0;text-align:center;vertical-align:top;"
+                        style="direction:ltr;font-size:0px;padding:0px;padding-bottom:24px;padding-top:0;text-align:center;vertical-align:top;"
                 >
                     <!--[if mso | IE]>
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0">
@@ -1224,6 +1238,9 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
     </tr>
     </table>
     <![endif]-->
+
+
 </div>
+
 </body>
 </html>

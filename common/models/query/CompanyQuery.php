@@ -3,6 +3,7 @@
 namespace common\models\query;
 
 use common\models\Company;
+use common\models\Transfer;
 use Yii;
 use yii\db\Expression;
 
@@ -105,5 +106,14 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function filterInActive() {
         return $this->andWhere(['{{%company}}.company_status' => Company::STATUS_INACTIVE]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByActive40DaysPassedWithoutPayment() {
+        return $this->andWhere('{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where transfer_status in (1,3,4) and transfer_created_at >= DATE_SUB(NOW(),INTERVAL 40 DAY))')
+        ->andWhere(['{{%company}}.company_status' => Company::STATUS_ACTIVE]);
     }
 }

@@ -30,6 +30,7 @@ class CompanyContactCest
             ->one()
             ->token_value;
         $this->contact_uuid = CompanyContact::find()->one()->contact_uuid;
+        $I->amBearerAuthenticated($this->token);
     }
 
     /**
@@ -38,11 +39,14 @@ class CompanyContactCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $model = CompanyContact ::find()->one();
         $I->wantTo('Validate company contact api response for listing');
         $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/company-contacts');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'contact_uuid' => $model->contact_uuid
+        ]);
     }
     
     /**
@@ -54,10 +58,11 @@ class CompanyContactCest
         $model = CompanyContact ::find()->one();
         
         $I->wantTo('Validate company contact api to view company contact detail');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/company-contacts/' . $model->contact_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'contact_uuid' => $model->contact_uuid
+        ]);
     }
 
     /**
@@ -67,7 +72,6 @@ class CompanyContactCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a company contact via API');
-        $I->amBearerAuthenticated($this->token);
         $I->sendPOST(
             'v1/company-contacts',
             [
@@ -101,7 +105,6 @@ class CompanyContactCest
     public function tryToUpdate(FunctionalTester $I)
     {
         $I->wantTo('update a company contact via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
             'v1/company-contacts/' . $this->contact_uuid,
@@ -135,9 +138,12 @@ class CompanyContactCest
     public function tryToDelete(FunctionalTester $I)
     {
         $I->wantTo('delete company contact via API');
-        $I->amBearerAuthenticated($this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('v1/company-contacts/' . $this->contact_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Company Contact deleted successfully"
+        ]);
     }
 }

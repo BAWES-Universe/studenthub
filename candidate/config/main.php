@@ -87,6 +87,7 @@ return [
                         'POST update-nationality' => 'update-nationality',
                         'POST update-university' => 'update-university',
                         'POST update-driving-license' => 'update-driving-license',
+                        'POST update-kuwaiti-national' => 'update-kuwaiti-national',
                         'POST update-gender' => 'update-gender',
                         'POST update-objective' => 'update-objective',
                         'POST update-resume' => 'update-resume',
@@ -100,6 +101,7 @@ return [
                         'POST update-civil-photo-back' => 'update-civil-photo-back',
                         'POST update-civil-photo-front' => 'update-civil-photo-front',
                         'POST update-civil-expiry-date' => 'update-civil-expiry-date',
+                        'POST update-civil-id-expiry-date' => 'update-civil-id-expiry-date',
                         'DELETE remove-photo' => 'remove-photo',
                         'DELETE remove-video' => 'remove-video',
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
@@ -139,6 +141,8 @@ return [
                         'OPTIONS update-phone' => 'options',
                         'OPTIONS remove-civil-photo-back' => 'options',
                         'OPTIONS remove-civil-photo-front' => 'options',
+                        'OPTIONS update-kuwaiti-national' => 'options',
+                        'OPTIONS update-civil-id-expiry-date' => 'options',
                     ]
                 ],
                 [ // GoogleMapController

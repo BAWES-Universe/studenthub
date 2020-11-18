@@ -38,8 +38,11 @@ class CandidateNoteTest extends \Codeception\Test\Unit
         expect('note note_text should be required field', $data->validate(['note_text']))->false();
 
         $data->candidate_id = '123123123';
-        $data->staff_id = '123123123';
-        expect('Invalid candidate id', $data->validate(['candidate_id']))->false();
+        $data->created_by = '123123123';
+        $data->updated_by = '123123123';
+        expect('Invalid Candidate id', $data->validate(['candidate_id']))->false();
+        expect('Invalid staff id', $data->validate(['created_by']))->false();
+        expect('Invalid staff id', $data->validate(['updated_by']))->false();
     }
 
 }

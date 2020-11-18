@@ -258,4 +258,19 @@ class CronController extends \yii\console\Controller {
         }
         return true;
     }
+
+    /**
+     * @return bool
+     * command to all candidates that have emailed verified,
+     * home location of Kuwait, and nationality is NOT Kuwaiti.
+     * Email will tell them to update their profile.
+     */
+    public function actionKuwaitMomCheck() {
+        // can use below query also
+        // kuwait id is 84
+        // SELECT * FROM `candidate` where candidate_email_verification = 1 and country_id != 84 and candidate_area_uuid IN
+        // (SELECT `area_uuid` FROM `area` WHERE `country_id` = 84)
+        $total = Candidate::kuwaitiNationalityEmail();
+        return true;
+    }
 }

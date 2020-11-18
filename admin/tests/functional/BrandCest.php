@@ -34,6 +34,7 @@ class BrandCest
             ->token_value;
         
         $this->company = Company::find()->one();
+        $I->amBearerAuthenticated($this->token);
     }
 
     /**
@@ -42,11 +43,13 @@ class BrandCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $brand = Brand::find()->one();
         $I->wantTo('Validate brand api response for listing');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/brands');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "brand_uuid" => $brand->brand_uuid
+        ]);
     }
     
     /**
@@ -58,10 +61,11 @@ class BrandCest
         $brand = Brand::find()->one();
         
         $I->wantTo('Validate brand api to view brand detail');
-        $I->amBearerAuthenticated($this->token);
         $I->sendGET('v1/brands/' . $brand->brand_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "brand_uuid" => $brand->brand_uuid
+        ]);
     }
 
     /**
@@ -71,7 +75,6 @@ class BrandCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a brand via API');
-        $I->amBearerAuthenticated($this->token);
         $I->sendPOST(
             'v1/brands',
             [
@@ -95,7 +98,6 @@ class BrandCest
     public function tryToUpdate(FunctionalTester $I)
     {
         $I->wantTo('update a brand via API');
-        $I->amBearerAuthenticated($this->token);
         $I->sendPATCH(
             'v1/brands/' . $this->brand_uuid,
             [
@@ -118,8 +120,11 @@ class BrandCest
     public function tryToDelete(FunctionalTester $I)
     {
         $I->wantTo('delete brand via API');
-        $I->amBearerAuthenticated($this->token);
         $I->sendDelete('v1/brands/' . $this->brand_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+            "message" => "Brand deleted successfully"
+        ]);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace admin\tests;
 
+use common\models\University;
 use Yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
@@ -26,6 +27,8 @@ class UniversityCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
+
     }
 
     public function _after(FunctionalTester $I)
@@ -38,11 +41,13 @@ class UniversityCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $university = University::find()->one();
         $I->wantTo('Validate university api response for listing');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/universities');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "university_id" => $university->university_id,
+        ]);
     }
     
     /**
@@ -51,11 +56,13 @@ class UniversityCest
      */
     public function tryToView(FunctionalTester $I)
     {
+        $university = University::find()->one();
         $I->wantTo('Validate university api response for detail');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/universities/1');
+        $I->sendGET('v1/universities/'.$university->university_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "university_id" => $university->university_id,
+        ]);
     }
 
     /**
@@ -65,7 +72,6 @@ class UniversityCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
             'v1/universities',
@@ -88,7 +94,6 @@ class UniversityCest
     public function tryToUpdate(FunctionalTester $I)
     {
         $I->wantTo('update a university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
             'v1/universities/1',
@@ -111,7 +116,6 @@ class UniversityCest
     public function tryToDelete(FunctionalTester $I)
     {
         $I->wantTo('delete university via API');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('v1/universities/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200

@@ -26,6 +26,7 @@ class GoogleMapCest
         $this->token = CandidateToken::find()
             ->one()
             ->token_value;
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -35,7 +36,6 @@ class GoogleMapCest
     public function tryToPlaceDetail(FunctionalTester $I)
     {
         $I->wantTo('Validate google-map > place detail api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/google-map/place-detail/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
@@ -44,10 +44,11 @@ class GoogleMapCest
     public function tryToPlacePrediction(FunctionalTester $I)
     {
         $I->wantTo('Validate google-map > place predictions api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
         $I->sendGET('v1/google-map/place-predictions?query=kuwait');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            "description"=>"Kuwait City, Kuwait"
+        ]);
     }
 
 }

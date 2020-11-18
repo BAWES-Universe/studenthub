@@ -38,10 +38,13 @@ class InspectorCest
      */
     public function tryToList(FunctionalTester $I)
     {
+        $inspector = Inspector::find()->one();
         $I->wantTo('Validate Inspector api response');
         $I->sendGET('v1/inspectors');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'inspector_uuid'=>$inspector->inspector_uuid
+        ]);
     }
     
     /**
@@ -55,7 +58,9 @@ class InspectorCest
         $I->wantTo('Validate Inspector api response for listing');
         $I->sendGET('v1/inspectors/' . $inspector->inspector_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson([
+            'inspector_uuid'=>$inspector->inspector_uuid
+        ]);
     }
 
     /**

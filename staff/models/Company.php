@@ -38,6 +38,9 @@ class Company extends \common\models\Company {
         $field['total_candidates'] = function($model) {
             return self::getTotalCandidateCount($model->company_id);
         };
+        $field['last_40_days_transfer_count'] = function($model) {
+            return (int)self::transferInLast40Days($model->company_id);
+        };
         return $field;
     }
 
@@ -101,6 +104,15 @@ class Company extends \common\models\Company {
             ->setTo(['khalid@bawes.net'=>'Khalid'])
             ->setSubject($subject)
             ->send();
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\staff\models\Note")
+    {
+        return parent::getNotes($modelClass);
     }
 
 }
