@@ -61,7 +61,8 @@ class CandidateCest
      */
     public function tryToApprove(FunctionalTester $I)
     {
-        $candidate = Candidate::findOne(['approved'=>'0']);
+        $candidate = Candidate::findOne(['approved'=>0]);
+
         $candidate->candidate_civil_id = '121212121200';
         $candidate->candidate_phone = '11221122';
         $candidate->candidate_name = 'abc kumar';
