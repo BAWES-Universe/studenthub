@@ -101,6 +101,7 @@ return [
                         'POST update-civil-photo-back' => 'update-civil-photo-back',
                         'POST update-civil-photo-front' => 'update-civil-photo-front',
                         'POST update-civil-expiry-date' => 'update-civil-expiry-date',
+                        'POST update-civil-id-expiry-date' => 'update-civil-id-expiry-date',
                         'DELETE remove-photo' => 'remove-photo',
                         'DELETE remove-video' => 'remove-video',
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
@@ -141,6 +142,7 @@ return [
                         'OPTIONS remove-civil-photo-back' => 'options',
                         'OPTIONS remove-civil-photo-front' => 'options',
                         'OPTIONS update-kuwaiti-national' => 'options',
+                        'OPTIONS update-civil-id-expiry-date' => 'options',
                     ]
                 ],
                 [ // GoogleMapController

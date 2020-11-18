@@ -126,7 +126,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
-            [['candidate_email','candidate_phone'], 'unique'],
+            [['candidate_phone'], 'unique'],
+            [['candidate_email'], 'uniqueCheckWithCondition'],
             ['candidate_video_processed', 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
@@ -287,7 +288,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateResume'] = ['candidate_resume'];
 
         $scenarios['updateCivilExpiryDate'] = ['candidate_civil_expiry_date'];
-        
+
+        $scenarios['updateCivilExpiryDateAndCivilID'] = ['candidate_civil_expiry_date','candidate_civil_id'];
+
         $scenarios['updateBirthDate'] = ['candidate_birth_date'];
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
@@ -338,6 +341,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_new_email' => $this->candidate_new_email],
                 ['candidate_email' => $this->candidate_new_email]
             ])
+            ->count();
+
+        if ($count) {
+            $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
+        }
+    }
+
+    /**
+     * Validate Email with validation
+     */
+    public function uniqueCheckWithCondition() {
+        $count = self::find()
+            ->andWhere(['candidate_email' => $this->candidate_new_email,'deleted'=>'0'])
             ->count();
 
         if ($count) {

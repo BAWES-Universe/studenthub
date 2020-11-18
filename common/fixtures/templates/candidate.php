@@ -33,4 +33,5 @@ return [
         'candidate_mom_kuwaiti' => 1,
         'candidate_created_at' =>  $faker->date('Y-m-d H:i:s'),
         'candidate_updated_at' =>  $faker->date('Y-m-d H:i:s'),
+        'deleted' =>  $faker->numberBetween(0,1),
 ];
