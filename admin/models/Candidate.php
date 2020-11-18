@@ -64,7 +64,7 @@ class Candidate extends \common\models\Candidate {
                 $query->byApprovalStatus(1);
                 break;
         }
-
+        $query->andWhere(['deleted' => 0]);
         return $query->count();
     }
 
