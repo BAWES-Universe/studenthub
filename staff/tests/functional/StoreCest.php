@@ -185,5 +185,19 @@ class StoreCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->canSeeResponseContainsJson(["operation"=>"success","message"=>"Store successfully updated"]);
     }
+
+    /**
+     * Remove store manager
+     * @param FunctionalTester $I
+     */
+    public function restCallToRemoveStoreManagerWithInvalidDetail(FunctionalTester $I)
+    {
+        $store = Store::findOne(['company_id'=>'4']);
+
+        $I->wantTo('remove store Manager');
+        $I->sendDELETE('v1/stores/remove-manager/'.$store->store_id);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->canSeeResponseContainsJson(["operation"=>"success"]);
+    }
 }
 
