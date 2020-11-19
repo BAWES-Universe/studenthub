@@ -40,9 +40,9 @@ class AuthController extends Controller
             'except' => ['options'],
             'auth' => function ($email, $password) {
 
-                $user = Inspector::findByEmail($email);
+                $user = Inspector::findByEmail(trim($email));
                 
-                if ($user && $user->validatePassword($password)) {
+                if ($user && $user->validatePassword(trim($password))) {
                     return $user;
                 }
 
