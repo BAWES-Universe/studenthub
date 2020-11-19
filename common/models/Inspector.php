@@ -8,6 +8,8 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\web\IdentityInterface;
+use yii\helpers\Url;
+
 
 /**
  * This is the model class for table "inspector".
@@ -95,6 +97,61 @@ class Inspector extends ActiveRecord implements IdentityInterface
             'inspector_created_at' => 'Inspector Created At',
             'inspector_updated_at' => 'Inspector Updated At',
         ];
+    }
+
+    /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+        $scenarios = parent::scenarios();
+
+        $scenarios['updatePassword'] = ['inspector_password_hash'];
+
+        return $scenarios;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert))
+            return false;
+
+        if($this->scenario == 'updatePassword') {
+        
+            //Send Email to inspector if staff/admin reset password 
+
+            if(empty(Yii::$app->user->identity->inspector_uuid))
+                $this->passwordMail($this->inspector_password_hash);
+
+            $this->setPassword($this->inspector_password_hash);
+        }
+
+        return true;
+    }
+
+    /**
+     * Send new password to customer
+     * @param Inspector $model
+     * @param $password
+     * @return bool
+     */
+    public function passwordMail($password)
+    {
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        return Yii::$app->mailer->compose("inspector-password",
+            [
+                "model" => $this,
+                "password" => $password,
+                'logo_1' => Url::to('@web/images/logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->inspector_email)
+            ->setSubject('Your account password has been reset')
+            ->send();
     }
 
     /**

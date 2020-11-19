@@ -7,7 +7,7 @@ $params = array_merge(
 );
 
 return [
-    'id' => 'app-staff',
+    'id' => 'app-inspector',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'inspector\controllers',
     'bootstrap' => ['log'],

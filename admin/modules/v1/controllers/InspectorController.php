@@ -223,36 +223,37 @@ class InspectorController extends Controller
      */
     public function actionResetPassword($id)
     {
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Inspector not found",
-                "code" => 1
-            ];
+        $model->setScenario('updatePassword');
+
+        $model->inspector_password_hash = Yii::$app->security->generateRandomString(5);
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
         }
-
-        $password = Yii::$app->security->generateRandomString(5);
-
-        $model->setPassword ($password);
-
-        $model->save(false);
-
-        //Send Email to user
-        
-        Inspector::passwordMail($model, $password);
 
         return [
             "operation" => "success",
             "message" => "New password sent to registered email successfully"
         ];
     }
-    
+
     /**
      * Finds the admin model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
+     * @param string $id
      * @return Inspector the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
