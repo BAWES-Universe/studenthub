@@ -11,9 +11,16 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
 ?>
 <div class="row">
     <p class="pull-right" style="text-align: right;font-size: 14px;font-weight: normal;font-stretch: normal;font-style: normal;line-height: normal;letter-spacing: normal; color: #4f4f4f;">
-        <?php echo $candidate->employeeId; ?>
-        <?php echo ($candidate->candidate_civil_id)?'<br/>'.$candidate->candidate_civil_id:''; ?>
+        <?php 
+            echo $candidate->employeeId; 
 
+            if($candidate->candidate_civil_id)
+                echo '<br/>'.$candidate->candidate_civil_id; 
+
+            if(Yii::$app->user->identity) 
+                echo '<br/>'. 'Prepared by '. Yii::$app->user->identity->staff_name; 
+
+        ?>
     </p>
 </div>
 <div class="row">
