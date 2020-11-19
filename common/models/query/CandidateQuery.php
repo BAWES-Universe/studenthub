@@ -214,15 +214,15 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
     public function incompletedProfile() {
         return $this->andWhere('{{%candidate}}.candidate_uid IS NULL OR
-          university.university_id IS NULL OR country.country_id IS NULL OR
+          {{%university}}.university_id IS NULL OR {{%country}}.country_id IS NULL OR
           {{%candidate}}.candidate_name IS NULL OR {{%candidate}}.candidate_name_ar IS NULL OR
           {{%candidate}}.candidate_gender IS NULL OR {{%candidate}}.candidate_objective IS NULL OR
-          {{%candidate}}.candidate_personal_photo IS NULL OR {{%candidate}}.candidate_email IS NOT NULL OR
+          {{%candidate}}.candidate_personal_photo IS NULL OR {{%candidate}}.candidate_email IS NULL OR
           {{%candidate}}.candidate_phone IS NULL OR {{%candidate}}.candidate_birth_date IS NULL OR
           {{%candidate}}.candidate_civil_id IS NULL OR {{%candidate}}.candidate_civil_expiry_date IS NULL OR
           {{%candidate}}.candidate_civil_photo_front IS NULL OR {{%candidate}}.candidate_civil_photo_back IS NULL OR
-          {{%candidate}}.candidate_driving_license IS NULL OR candidate_experience.candidate_experience_id IS NULL OR 
-          candidate_skill.candidate_skill_id IS NULL')
+          {{%candidate}}.candidate_driving_license IS NULL OR {{%candidate_experience}}.candidate_experience_id IS NULL OR 
+          {{%candidate_skill}}.candidate_skill_id IS NULL')
             ->groupBy('{{%candidate}}.candidate_id')
             ->joinWith([
                 'candidateExperiences',
@@ -230,6 +230,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
                 'country',
                 'university'
             ]);
+//            ->asArray();
     }
 
     public function completedProfileWithoutApproval() {

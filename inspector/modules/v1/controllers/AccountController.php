@@ -53,25 +53,47 @@ class AccountController extends Controller
         ];
         return $actions;
     }
-    
+
     /**
      * Updates password based on current password
      * @return array
      */
     public function actionUpdatePassword()
     {
-        $staff = Yii::$app->user->identity;
-        
         $password = Yii::$app->request->getBodyParam("password");
         $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
-        //update password 
+        if(!$password || !$newPassword) {
+            return [
+                'operation' => 'error',
+                'message' => 'Password field required'
+            ];
+        }
+
+        $model = Yii::$app->user->identity;
         
-        $staff->setPassword($newPassword);
-        $staff->save(false);
+        //validate current password 
+
+        if(!$model->validatePassword($password)) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid Password'
+            ];
+        }
+
+        $model->scenario = 'updatePassword';
+        
+        $model->inspector_password_hash = $newPassword;
+        
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->getErrors()
+            ];
+        }
         
         return [
-            'operation' => 'success',
+            "operation" => "success",
             'message' => 'Your password has been reset'
         ];
     }
