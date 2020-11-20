@@ -59,6 +59,11 @@ class University extends \yii\db\ActiveRecord
                 'createdByAttribute' => 'university_created_by',
                 'updatedByAttribute' => 'university_updated_by',
                 'value' => function() {
+
+                    if(Yii::$app->user->isGuest) {
+                        return false;
+                    }
+
                     if(isset(Yii::$app->user->identity->candidate_id))
                         return Yii::$app->user->identity->candidate_id;
                     
