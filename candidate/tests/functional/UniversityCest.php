@@ -2,6 +2,7 @@
 namespace candidate\tests;
 
 use candidate\models\University;
+use common\fixtures\CandidateFixture;
 use yii;
 use candidate\tests\FunctionalTester;
 use common\models\CandidateToken;
@@ -17,6 +18,7 @@ class UniversityCest
     public function _fixtures()
     {
         return [
+            'candidate' => CandidateFixture::className(),
             'candidateToken' => CandidateTokenFixture::className(),
             'university' => UniversityFixture::className()
         ];
@@ -27,6 +29,7 @@ class UniversityCest
         $this->token = CandidateToken::find()
             ->one()
             ->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -53,7 +56,7 @@ class UniversityCest
     {
         $I->wantTo('Add new university');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendPOST('v1/Universities', [
+        $I->sendPOST('v1/universities', [
             'name' => 'new university'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -69,11 +72,10 @@ class UniversityCest
     {
         $I->wantTo('Check if university exists');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendPOST('v1/Universities/is-exists', [
+        $I->sendPOST('v1/universities/is-exists', [
             'keyword' => 'Abu Dhabi University'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        $I->seeResponseContainsJson(["operation" => "success"]);
     } 
 }
