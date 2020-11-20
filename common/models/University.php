@@ -60,18 +60,10 @@ class University extends \yii\db\ActiveRecord
                 'updatedByAttribute' => 'university_updated_by',
                 'value' => function() {
 
-                    if(Yii::$app->user->isGuest) {
-                        return false;
-                    }
-
-                    if(isset(Yii::$app->user->identity->candidate_id))
-                        return Yii::$app->user->identity->candidate_id;
+                    //if user available
                     
-                    if(isset(Yii::$app->user->identity->admin_uuid))
-                        return Yii::$app->user->identity->admin_id;            
-
-                    if(isset(Yii::$app->user->identity->staff_uuid))
-                        return Yii::$app->user->identity->staff_id;                    
+                    if(isset(Yii::$app->components['user']['identityClass']))
+                        return Yii::$app->user->getId();
                 }
             ],
             [
