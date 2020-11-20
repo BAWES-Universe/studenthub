@@ -71,5 +71,9 @@ return [
     'Invalid Job ID' => "معرف الوظيفة غير صالح",
     'MediaConvert Job Failed' => "فشلت مهمة MediaConvert",
     "Candidate kuwaiti National Info Updated Successfully" => "تحديث المعلومات الوطنية للمرشح الكويتي بنجاح",
-    "Civil ID And Expiry Date Updated Successfully" => "تم تحديث البطاقة المدنية وتاريخ انتهاء الصلاحية بنجاح"
+    "Civil ID And Expiry Date Updated Successfully" => "تم تحديث البطاقة المدنية وتاريخ انتهاء الصلاحية بنجاح",
+    "We've faced a problem creating the university, please contact us for assistance." => "",
+    "University created successfully" => "",
+    "No record found" => "",
+    "Record found" => ""
 ];

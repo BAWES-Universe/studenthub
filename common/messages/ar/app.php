@@ -163,5 +163,10 @@ return [
     "Please specify your full beneficiary name" => "يرجى تحديد اسم المستفيد بالكامل",
     "Phone must be 8 digit number" => "يجب أن يتكون الهاتف من 8 أرقام",
     "Special characters not allowed" => "الأحرف الخاصة غير مسموح بها",
-    "Video Log Uuid" => "Uuid سجل الفيديو"
+    "Video Log Uuid" => "Uuid سجل الفيديو",
+    "Data Source" => "",
+    "Updated At" => "",
+    "Created At" => "",
+    "Created By" => "",
+    "Updated By" => "",
 ];

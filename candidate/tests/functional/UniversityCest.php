@@ -44,4 +44,36 @@ class UniversityCest
             'university_id'=>$university->university_id
         ]);
     }
+
+    /**
+     * Try to add university 
+     * @param FunctionalTester $I
+     */
+    public function tryToCreate(FunctionalTester $I)
+    {
+        $I->wantTo('Add new university');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPOST('v1/Universities', [
+            'name' => 'new university'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(["operation" => "success"]);
+    }
+        
+    /**
+     * Try to check if university exist with given name 
+     * @param FunctionalTester $I
+     */
+    public function tryToCheckExists(FunctionalTester $I)
+    {
+        $I->wantTo('Check if university exists');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPOST('v1/Universities/is-exists', [
+            'keyword' => 'Abu Dhabi University'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(["operation" => "success"]);
+    } 
 }

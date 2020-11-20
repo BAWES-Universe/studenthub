@@ -190,8 +190,11 @@ return [
                     'controller' => 'v1/university',
                     'patterns' => [
                         'GET' => 'list',
+                        'POST' => 'create',
+                        'POST is-exists' => 'is-exists',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS is-exists' => 'options',
                     ]
                 ],
             ],
