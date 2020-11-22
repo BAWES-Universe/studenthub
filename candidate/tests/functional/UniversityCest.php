@@ -2,6 +2,7 @@
 namespace candidate\tests;
 
 use candidate\models\University;
+use common\fixtures\CandidateFixture;
 use yii;
 use candidate\tests\FunctionalTester;
 use common\models\CandidateToken;
@@ -17,6 +18,7 @@ class UniversityCest
     public function _fixtures()
     {
         return [
+            'candidate' => CandidateFixture::className(),
             'candidateToken' => CandidateTokenFixture::className(),
             'university' => UniversityFixture::className()
         ];
@@ -27,6 +29,7 @@ class UniversityCest
         $this->token = CandidateToken::find()
             ->one()
             ->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -44,4 +47,35 @@ class UniversityCest
             'university_id'=>$university->university_id
         ]);
     }
+
+    /**
+     * Try to add university 
+     * @param FunctionalTester $I
+     */
+    public function tryToCreate(FunctionalTester $I)
+    {
+        $I->wantTo('Add new university');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPOST('v1/universities', [
+            'name' => 'new university'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(["operation" => "success"]);
+    }
+        
+    /**
+     * Try to check if university exist with given name 
+     * @param FunctionalTester $I
+     */
+    public function tryToCheckExists(FunctionalTester $I)
+    {
+        $I->wantTo('Check if university exists');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendPOST('v1/universities/is-exists', [
+            'keyword' => 'Abu Dhabi University'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    } 
 }

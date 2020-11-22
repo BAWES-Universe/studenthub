@@ -85,4 +85,70 @@ class UniversityController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Create a University if it isnt exists
+     */
+    public function actionCreate()
+    {
+        // Attempt to create new University
+        $model = new University();
+
+        if(Yii::$app->language == 'ar') {
+            $model->university_name_ar = Yii::$app->request->getBodyParam("name");
+        } else {
+            $model->university_name_en = Yii::$app->request->getBodyParam("name");
+        }
+
+        $model->university_data_source = University::FROM_CANDIDATE;
+
+        if (!$model->save())
+        {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => Yii::t('candidate',"We've faced a problem creating the university, please contact us for assistance.")
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate',"University created successfully"),
+            "university" => $model
+        ];
+    }
+
+    /**
+     * Check if typed university is exists
+     */
+    public function actionIsExists()
+    {
+        // Attempt to find typed university
+
+        $keyword = Yii::$app->request->getBodyParam("keyword");
+
+        $model = University::findOne([
+            'or',
+            'university_name_en' => $keyword,
+            'university_name_ar' => $keyword
+        ]);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "No record found")
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Record found")
+        ];
+    }
 }
