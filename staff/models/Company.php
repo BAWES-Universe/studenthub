@@ -60,7 +60,7 @@ class Company extends \common\models\Company {
      */
     public function getStores($modelClass = "\staff\models\Store")
     {
-        return parent::getStores($modelClass)->andWhere(['deleted'=>0]);
+        return parent::getStores($modelClass)->andWhere(['{{%store}}.deleted'=>0]);
     }
 
     /**

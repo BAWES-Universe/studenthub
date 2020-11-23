@@ -49,7 +49,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterParent() {
-        return $this->andWhere(['parent_company_id' => null]);        
+        return $this->andWhere(['{{%company}}.parent_company_id' => null]);
     }
 
     /**
@@ -57,7 +57,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function childCompany($id) {
-        return $this->andWhere(['parent_company_id' => $id]);
+        return $this->andWhere(['{{%company}}.parent_company_id' => $id]);
     }
 
     /**
@@ -97,15 +97,29 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterActive() {
-        return $this->andWhere(['{{%company}}.company_status' => Company::STATUS_ACTIVE]);
+        $q = 'SELECT company_id FROM `company` WHERE  (`parent_company_id` IS NULL) AND ';
+        $q .= '((( select count(*) from `request` where `request`.`company_id` = `company`.`company_id` and `request`.`request_status` = "active" OR `request`.`request_updated_datetime` > DATE_SUB(NOW(),INTERVAL 30 DAY)) > 0) OR ';
+        $q .= '(( select sum(`store`.`store_total_candidates`) as total from `store` where `store`.`company_id` = `company`.`company_id` AND (`store`.`deleted`=0)) > 0))';
+        $q .= ' union ';
+        $q .= 'SELECT parent_company_id FROM `company` WHERE  (`parent_company_id` IS NOT NULL) ';
+        $q .= 'AND (( select count(*) from `request` where `request`.`company_id` = `company`.`company_id` and `request`.`request_status` = "active" OR `request`.`request_updated_datetime` > DATE_SUB(NOW(),INTERVAL 30 DAY)) > 0) ';
+        $q .= 'AND  (( select sum(`store`.`store_total_candidates`) as total from `store` where `store`.`company_id` = `company`.`company_id` AND (`store`.`deleted`=0)) > 0) group by parent_company_id';
+        return $this->andWhere('{{%company}}.company_id IN ('.$q.')');
     }
 
     /**
      * @param $id
      * @return $this
+     * store_total_candidates
      */
     public function filterInActive() {
-        return $this->andWhere(['{{%company}}.company_status' => Company::STATUS_INACTIVE]);
+        $q = 'SELECT company_id FROM `company` WHERE  (`parent_company_id` IS NULL) AND ';
+        $q .= '(( select count(*) from `request` where `request`.`company_id` = `company`.`company_id` and `request`.`request_status` != "active" and `request`.`request_updated_datetime` > DATE_SUB(NOW(),INTERVAL 30 DAY)) = 0) AND ';
+        $q .= '(( select sum(`store`.`store_total_candidates`) as total from `store` where `store`.`company_id` = `company`.`company_id` AND (`store`.`deleted`=0)) = 0) AND ';
+        $q .= '(SELECT count(*) FROM `company` as `sub` WHERE  (`sub`.`parent_company_id` IS NULL) AND `sub`.`parent_company_id`= `company`.`company_id` AND ';
+        $q .= '((( select count(*) from `request` where `request`.`company_id` = `sub`.`company_id` and `request`.`request_status` = "active" OR `request`.`request_updated_datetime` > DATE_SUB(NOW(),INTERVAL 30 DAY)) > 0) OR ';
+        $q .= '(( select sum(`store`.`store_total_candidates`) as total from `store` where `store`.`company_id` = `sub`.`company_id` AND (`store`.`deleted`=0)) > 0))) = 0 ';
+        return $this->andWhere('{{%company}}.company_id IN ('.$q.')');
     }
 
     /**
