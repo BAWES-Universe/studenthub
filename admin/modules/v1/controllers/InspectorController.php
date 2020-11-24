@@ -136,7 +136,7 @@ class InspectorController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
         if(!$model){
             return [
@@ -184,7 +184,7 @@ class InspectorController extends Controller
      */
     public function actionDelete($id)
     {
-        $member = $this->findModel((int)$id);
+        $member = $this->findModel($id);
 
         if($member)
         {

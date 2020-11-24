@@ -136,7 +136,7 @@ class BrandController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
         if(!$model){
             return [
@@ -182,7 +182,7 @@ class BrandController extends Controller
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel((int)$id);
+        $brand = $this->findModel($id);
 
         if(!$brand) {
             return [
