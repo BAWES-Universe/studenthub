@@ -67,7 +67,9 @@ class CandidateCest
         $candidate->candidate_phone = '11221122';
         $candidate->candidate_name = 'abc kumar';
         $candidate->candidate_name_ar = 'abc kumar';
+        $candidate->bank_id = '4';
         $candidate->bank_account_name = 'abc kumar';
+        $candidate->candidate_iban = 'KW29GULB0000000000000091392002';
         $candidate->candidate_civil_expiry_date = date('Y-m-d',strtotime('+1 year'));
         $candidate->save(false);
         $I->wantTo('Validate admin > candidates api to approve candidate');
