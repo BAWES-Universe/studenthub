@@ -284,7 +284,7 @@ class AccountCest
             'v1/account/update-bank-detail', 
             array(
                 'benef_name' => 'Karasandas Khan',
-                'iban' => '123456789012345678901234567890'
+                'iban' => 'KWKWGULB0000000000000091392002'
             )
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
