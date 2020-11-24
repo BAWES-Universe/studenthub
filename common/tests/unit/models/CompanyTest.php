@@ -58,12 +58,6 @@ class CompanyTest extends \Codeception\Test\Unit
             expect('company email should be unique', $model->validate(['company_email']))->true();
 
             // company_status should integer
-
-            $model->company_status = '1';
-            expect('company status field should accept only integer', $model->validate(['company_status']))->true();
-
-            $model->company_status = NULL;
-            expect('company status field should not accept other than integer', $model->validate(['company_status']))->true();
         });
 
         $this->specify('Company model fields validation on scenario : newSubAccount', function () {

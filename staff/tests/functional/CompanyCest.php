@@ -147,7 +147,6 @@ class CompanyCest
         $candidate = Candidate::find()->where('candidate.store_id IS NOT NULL')->joinWith('company')->asArray()->one();
         if (isset($candidate['company']['company_id'])) {
             $company = Company::findOne(['company_id'=>$candidate['company']['company_id']]);
-            $company->company_status = Company::STATUS_ACTIVE;
             $company->save(false);
         }
         $I->wantTo('try to inactive to active company with existing staff');

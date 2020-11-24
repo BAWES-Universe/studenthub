@@ -593,7 +593,6 @@ class CompanyController extends Controller
 
         $model->scenario = 'updateStatus';
 
-        $model->company_status = Yii::$app->request->getBodyParam("status");
 
         if (!$model->save()) {
             if (isset($model->errors)) {

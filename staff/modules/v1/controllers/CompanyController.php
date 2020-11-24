@@ -136,7 +136,7 @@ class CompanyController extends Controller
      */
     public function actionView($id)
     {
-        return $this->findModel((int)$id);
+        return $model = $this->findModel((int)$id);
     }
 
     /**

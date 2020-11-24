@@ -88,7 +88,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
-            [['parent_company_id', 'company_followup_interval_weeks', 'company_status','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
+            [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
             ['company_followup', 'boolean'],
             ['company_last_followup_datetime', 'date'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
@@ -164,8 +164,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $scenarios['updateFollowup'] = ['company_followup'];
 
         $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
-        
-        $scenarios['updateStatus'] = ['company_status'];
 
         return $scenarios;
     }
@@ -190,7 +188,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_password_hash' => Yii::t('app','Password'),
             'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
             'company_followup' => Yii::t('app','Company Followup'),
-            'company_status' => Yii::t('app','Company Status'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),
         ];
@@ -209,7 +206,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             $fields['company_auth_key']);
 
         $fields['company_status'] = function($model) {
-            return $this->getStatus();
+            return $this->getCompany_status();
         };
         return $fields;
     }
@@ -765,11 +762,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return Yii::$app->db->createCommand($q)->queryScalar();
     }
 
-    public function getStatus() {
-        $result = Yii::$app->db->createCommand('select EXISTS(SELECT * FROM company where (`total_candidate` > 0 OR is_request_updates_in_30_days > 0 OR no_of_active_requests > 0) and company_id = '.$this->company_id.') as exist')->queryOne();
-        return ($result['exist'] == 1) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
-    }
-
     /**
      * https://www.pivotaltracker.com/story/show/175798834
      * method is used to find active company dynamically
@@ -815,5 +807,10 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 ['company_id' => ($company->parent_company_id) ? $company->parent_company_id : $company->company_id]
             );
         }
+    }
+
+    public function getCompany_status() {
+        $result = Yii::$app->db->createCommand('select EXISTS(SELECT * FROM company where (`total_candidate` > 0 OR is_request_updates_in_30_days > 0 OR no_of_active_requests > 0) and company_id = '.$this->company_id.') as exist')->queryOne();
+        return ($result['exist'] == 1) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
     }
 }
