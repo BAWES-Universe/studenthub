@@ -137,28 +137,4 @@ class CompanyCest
         ]);
         $I->seeResponseCodeIs(HttpCode::OK);
     }
-
-    /**
-     * try to change status
-     * @param FunctionalTester $I
-     */
-    public function tryToChangeCompanyStatus(FunctionalTester $I)
-    {
-        $candidate = Candidate::find()->where('candidate.store_id IS NOT NULL')->joinWith('company')->asArray()->one();
-        if (isset($candidate['company']['company_id'])) {
-            $company = Company::findOne(['company_id'=>$candidate['company']['company_id']]);
-            $company->save(false);
-        }
-        $I->wantTo('try to inactive to active company with existing staff');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/change-status/'.$candidate['company']['company_id'], [
-            'status' => 0
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseContainsJson([
-            "operation"=>"error",
-            "message"=>"Please unassign all staff from this company before making client inactive"
-        ]);
-    }
 }
