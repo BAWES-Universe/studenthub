@@ -15,7 +15,7 @@ use Codeception\Util\HttpCode;
 
 class BrandCest
 {
-    public $token, $brand_uuid = 1;
+    public $token;
 
     public function _fixtures()
     {
@@ -34,6 +34,7 @@ class BrandCest
             ->token_value;
         
         $this->company = Company::find()->one();
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -75,6 +76,7 @@ class BrandCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a brand via API');
+
         $I->sendPOST(
             'v1/brands',
             [
@@ -97,9 +99,12 @@ class BrandCest
      */
     public function tryToUpdate(FunctionalTester $I)
     {
+        $brand = Brand::find()->one();
+
         $I->wantTo('update a brand via API');
+
         $I->sendPATCH(
-            'v1/brands/' . $this->brand_uuid,
+            'v1/brands/' . $brand->brand_uuid,
             [
                 'name_en' => 'davert',
                 'name_ar' => 'asdas',
@@ -119,8 +124,10 @@ class BrandCest
      */
     public function tryToDelete(FunctionalTester $I)
     {
+        $brand = Brand::find()->one();
+
         $I->wantTo('delete brand via API');
-        $I->sendDelete('v1/brands/' . $this->brand_uuid);
+        $I->sendDelete('v1/brands/' . $brand->brand_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation" => "success",
