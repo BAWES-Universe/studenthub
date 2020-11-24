@@ -139,8 +139,7 @@ class MallController extends Controller
      */
     public function actionUpdate($id)
     {
-        // Attempt to create new account
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
         if(!$model){
             return [
@@ -180,7 +179,7 @@ class MallController extends Controller
      */
     public function actionDelete($id)
     {
-        $mall = $this->findModel((int)$id);
+        $mall = $this->findModel($id);
 
         if(!$mall) {
             return [

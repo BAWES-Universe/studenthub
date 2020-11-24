@@ -104,8 +104,20 @@ class BrandController extends Controller
         
         $brand_logo = Yii::$app->request->getBodyParam('logo');
         
-        if($brand_logo)
-            $model->setLogo($brand_logo);
+        if($brand_logo && !$model->setLogo($brand_logo)) {
+
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the brand, please contact us for assistance."
+                ];
+            }
+        }
         
         if (!$model->save())
         {
@@ -136,7 +148,8 @@ class BrandController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel((int) $id);
+
+        $model = $this->findModel($id);
 
         if(!$model){
             return [
@@ -151,8 +164,20 @@ class BrandController extends Controller
         
         $brand_logo = Yii::$app->request->getBodyParam('logo');
         
-        if($brand_logo)
-            $model->setLogo($brand_logo);
+        if($brand_logo && !$model->setLogo($brand_logo)) {
+            
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the brand, please contact us for assistance."
+                ];
+            }
+        }
         
         if (!$model->save())
         {
@@ -182,7 +207,7 @@ class BrandController extends Controller
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel((int)$id);
+        $brand = $this->findModel($id);
 
         if(!$brand) {
             return [
