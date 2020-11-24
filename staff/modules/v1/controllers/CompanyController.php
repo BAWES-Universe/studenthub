@@ -76,7 +76,8 @@ class CompanyController extends Controller
         $common_name_en = Yii::$app->request->getQueryParam("common_name_en",0);
         $common_name_ar = Yii::$app->request->getQueryParam("common_name_ar",0);
 
-        $query = Company::find();
+        $query = Company::find()
+        ->filterParent();
         if ($status == 1) {
             $query->filterActive();
         }

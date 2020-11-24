@@ -26,6 +26,9 @@ use yii\helpers\Url;
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
  * @property boolean $company_followup
+ * @property integer $total_candidate
+ * @property integer $no_of_active_requests
+ * @property integer $is_request_updates_in_30_days
  * @property boolean $company_followup_interval_weeks
  * @property boolean $company_last_followup_datetime
  * @property integer $company_status
@@ -85,7 +88,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
-            [['parent_company_id', 'company_followup_interval_weeks', 'company_status'], 'integer'],
+            [['parent_company_id', 'company_followup_interval_weeks', 'company_status','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
             ['company_followup', 'boolean'],
             ['company_last_followup_datetime', 'date'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
@@ -205,6 +208,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             $fields['company_password_reset_token'],
             $fields['company_auth_key']);
 
+        $fields['company_status'] = function($model) {
+            return $this->getStatus();
+        };
         return $fields;
     }
 
@@ -755,7 +761,59 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $q = 'select count(*) as total from transfer ';
         $q .= 'left join company on company.company_id = transfer.company_id ';
         $q .= 'where transfer.transfer_created_at >= DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
-        $q .= 'transfer.transfer_status in(1,3,4) and transfer.transfer_status NOT IN(5,10) and company.company_status = 10 and company.company_id='.$companyId;
+        $q .= 'transfer.transfer_status in(1,3,4) and transfer.transfer_status NOT IN(5,10) AND (company.`total_candidate` > 0 OR company.is_request_updates_in_30_days > 0 OR company.no_of_active_requests > 0) AND company.company_id='.$companyId;
         return Yii::$app->db->createCommand($q)->queryScalar();
+    }
+
+    public function getStatus() {
+        $result = Yii::$app->db->createCommand('select EXISTS(SELECT * FROM company where (`total_candidate` > 0 OR is_request_updates_in_30_days > 0 OR no_of_active_requests > 0) and company_id = '.$this->company_id.') as exist')->queryOne();
+        return ($result['exist'] == 1) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
+    }
+
+    /**
+     * https://www.pivotaltracker.com/story/show/175798834
+     * method is used to find active company dynamically
+     * update company table no_of_active_requests /is_request_updates_in_30_days
+     * on every request create, update and delete
+     * @param $rid
+     * @throws \yii\db\Exception
+     */
+    public static function updateRequest($company_id = 0) {
+        $company = Company::findOne($company_id);
+        $ID = ($company->parent_company_id) ? $company->parent_company_id : $company_id;
+        if ($company_id) {
+            // check total request for parent company and child company.
+            // to update no_of_active_requests everytime request updated
+            $q = 'SELECT count(*) FROM request left join company on request.company_id = company.company_id ';
+            $q .= "where (company.company_id = $company_id or company.parent_company_id =$company_id) AND request.request_status = 'started'";
+            $requestQuery = Yii::$app->db->createCommand($q)->queryScalar();
+            Yii::$app->db->createCommand()->update('company', ['no_of_active_requests' => $requestQuery], 'company_id = ' . $ID)->execute();
+
+            // check total request for parent company and child company.in last 30 days
+            // to update is_request_updates_in_30_days everytime request updated
+            $q30Days = 'SELECT count(*) FROM request left join company on request.company_id = company.company_id ';
+            $q30Days .= "where (company.company_id = $company_id or company.parent_company_id =$company_id) AND ";
+            $q30Days .= "request.`request_updated_datetime` >= DATE_SUB(NOW(),INTERVAL 30 DAY)";
+            $request30daysQuery = Yii::$app->db->createCommand($q30Days)->queryScalar();
+            Yii::$app->db->createCommand()->update('company', ['is_request_updates_in_30_days' => ($request30daysQuery) ? 1 : 0], 'company_id = ' . $ID)->execute();
+        }
+    }
+
+    /**
+     * https://www.pivotaltracker.com/story/show/175798834
+     * method is used to find active company dynamically
+     * update student counter
+     * @param $store_id
+     * @param $counter
+     */
+    public static function updateCandidate($store_id, $counter) {
+        $store = Store::findOne($store_id);
+        if ($store) {
+            $company = $store->company;
+            Company::updateAllCounters(
+                ['total_candidate' => $counter],
+                ['company_id' => ($company->parent_company_id) ? $company->parent_company_id : $company->company_id]
+            );
+        }
     }
 }

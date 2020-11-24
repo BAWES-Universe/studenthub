@@ -508,11 +508,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if($insert)
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
+            Company::updateCandidate($this->store_id, 1);
         }
         else if (array_key_exists('store_id', $changedAttributes))
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
             Store::updateAllCounters(['store_total_candidates' => -1], ['store_id' => $changedAttributes['store_id']]);
+            Company::updateCandidate($this->store_id, 1);
+            Company::updateCandidate($changedAttributes['store_id'], -1);
         }
         else if (
             array_key_exists('candidate_iban', $changedAttributes) ||

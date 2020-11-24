@@ -152,38 +152,12 @@ class RequestActivity extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes) {
         parent::afterSave($insert, $changedAttributes);
         
-//        if($insert && $this->request) {
+        if($insert && $this->request) {
 
-            //update `request_updated_at` field 
-
-//            $this->request->request_updated_datetime = '';
-//            $this->request->update(false);
-//
-//            $heading = Yii::t('app', 'New activity');
-//            $subtitle = "@" . $this->request->request_detail;
-//            $content = $this->activity_detail;
-//
-//            $filters = [
-//                [
-//                    "field" => "tag",
-//                    "key" => "user_uuid",
-//                    "relation" => "=",
-//                    "value" => $this->request->user_uuid
-//                ]
-//            ];
-//
-//            $data = [
-//                'subject' => 'request_activity',
-//                'request_uuid' => $this->request_uuid
-//            ];
-            
-//            MobileNotification::notifyUser(
-//                $heading,
-//                $data,
-//                $filters,
-//                $subtitle,
-//                $content
-//            );
-//        }
+//            update `request_updated_at` field
+            $this->request->request_updated_datetime = '';
+            $this->request->update(false);
+            Company::updateRequest($this->request->company_id);
+        }
     }
 }
