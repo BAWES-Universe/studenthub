@@ -98,10 +98,18 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function filterActive() {
         return $this->andWhere(['or',
-            ['>','total_candidate',0],
-            ['>','no_of_active_requests',0],
-            ['>','is_request_updates_in_30_days',0],
+            ['>','{{%company}}.total_candidate',0],
+            ['>','{{%company}}.no_of_active_requests',0],
+            ['>','{{%company}}.is_request_updates_in_30_days',0],
         ]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterActiveWithOnlyStaff() {
+        return $this->andWhere(['>','{{%company}}.total_candidate',0]);
     }
 
     /**
@@ -111,9 +119,9 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function filterInActive() {
         return $this->andWhere(['AND',
-            ['total_candidate'=>0],
-            ['no_of_active_requests'=>0],
-            ['is_request_updates_in_30_days'=>0],
+            ['{{%company}}.total_candidate'=>0],
+            ['{{%company}}.no_of_active_requests'=>0],
+            ['{{%company}}.is_request_updates_in_30_days'=>0],
         ]);
     }
 
@@ -123,6 +131,15 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      */
     public function filterByActive40DaysPassedWithoutPayment() {
         return $this->andWhere('{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where transfer_status in (1,3,4) and transfer_created_at >= DATE_SUB(NOW(),INTERVAL 40 DAY))')
-        ->andWhere('(company.`total_candidate` > 0 OR company.is_request_updates_in_30_days > 0 OR company.no_of_active_requests > 0)');
+        ->andWhere('(company.`total_candidate` > 0)');
+    }
+
+    /**
+     * find company having more then 40 days
+     * @return CompanyQuery
+     */
+    public function moreThen40DayTransfer() {
+        return $this->joinWith('transfers')
+        ->andWhere(['>=','{{%transfer}}.transfer_created_at',new \yii\db\Expression('DATE_SUB(NOW(),INTERVAL 40 DAY)')]);
     }
 }

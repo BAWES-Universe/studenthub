@@ -813,4 +813,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $result = Yii::$app->db->createCommand('select EXISTS(SELECT * FROM company where (`total_candidate` > 0 OR is_request_updates_in_30_days > 0 OR no_of_active_requests > 0) and company_id = '.$this->company_id.') as exist')->queryOne();
         return ($result['exist'] == 1) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
     }
+
+    /*
+     *  Add card to the top that should show when we have
+     *  active client with staff assigned and hasn't made payment in 40 days
+     */
+    public static function companiesCountWithNoPaymentIn40Days() {
+        return Company::find()
+            ->filterParent()
+            ->filterByActive40DaysPassedWithoutPayment()
+            ->count();
+    }
 }
