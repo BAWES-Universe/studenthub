@@ -2,10 +2,10 @@
 
 namespace inspector\modules\v1\controllers;
 
-use inspector\models\Inspector;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
+use inspector\models\Inspector;
 
 
 /**
@@ -18,10 +18,10 @@ class AuthController extends Controller
     {
         $behaviors = parent::behaviors();
 
-        // remove authentication filter for cors to work
+        //remove authentication filter for cors to work
         unset($behaviors['authenticator']);
 
-        // Allow XHR Requests from our different subdomains and dev machines
+        //Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
             'class' => \yii\filters\Cors::className(),
             'cors' => [
@@ -34,7 +34,7 @@ class AuthController extends Controller
             ],
         ];
 
-        // Basic Auth accepts Base64 encoded username/password and decodes it for you
+        //Basic Auth accepts Base64 encoded username/password and decodes it for you
         $behaviors['authenticator'] = [
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
@@ -49,11 +49,15 @@ class AuthController extends Controller
                 return null;
             }
         ];
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        // also avoid for public actions like registration and password reset
+
+        /**
+         * avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
+         * also avoid for public actions like registration and password reset
+         */
         $behaviors['authenticator']['except'] = [
             'options',            
-            'update-password'
+            'update-password',
+            'request-reset-password'
         ];
 
         return $behaviors;
@@ -67,10 +71,10 @@ class AuthController extends Controller
     {
         $actions = parent::actions();
 
-        // Return Header explaining what options are available for next request
+        //Return Header explaining what options are available for next request
         $actions['options'] = [
             'class' => 'yii\rest\OptionsAction',
-            // optional:
+            //optional:
             'collectionOptions' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
@@ -88,9 +92,90 @@ class AuthController extends Controller
     {
         $user = Yii::$app->user->identity;
 
-        // Return Staff access token if everything valid
+        return $this->_loginResponse($user);
+    }
+
+    /**
+     * Sends password reset email to user
+     * @return array
+     */
+    public function actionRequestResetPassword()
+    {
+        $emailInput = Yii::$app->request->getBodyParam("email");
+
+        $model = new \inspector\models\PasswordResetRequestForm();
+        $model->email = $emailInput;
+
+        if ($model->validate()) {
+
+            $inspector = Inspector::findOne([
+                'inspector_email' => $model->email,
+            ]);
+
+            $inspector->sendPasswordResetEmail();
+
+        } else {
+            return [
+                'operation' => 'error',
+                'message' => $model->errors
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => 'Reset password token sent on your email address.'
+        ];
+    }
+    
+    /**
+     * Updates password based on passed token
+     * @return array
+     */
+    public function actionUpdatePassword()
+    {
+        $token = Yii::$app->request->getBodyParam("token");
+        $newPassword = Yii::$app->request->getBodyParam("newPassword");
+
+        $model =  Inspector::findByPasswordResetToken($token);
+
+        if(!$model) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid password reset token. Please request another password reset email'
+            ];
+        }
+
+        if(!$newPassword) {
+            return [
+                'operation' => 'error',
+                'message' => 'Password field required'
+            ];
+        }
+
+        $model->scenario = 'updatePassword';
+
+        $model->setPassword($newPassword);
+
+        $model->removePasswordResetToken();
+
+        if(!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->errors
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => 'Your password has been reset',
+            "accessToken" => $this->_loginResponse($model)
+        ];
+    }
+
+    private function _loginResponse($user) {
+
         $accessToken = $user->accessToken->token_value;
-        
+
         return [
             "operation" => "success",
             "token" => $accessToken,
@@ -99,81 +184,4 @@ class AuthController extends Controller
             "email" => $user->inspector_email
         ];
     }
-
-    /**
-     * Sends password reset email to user
-     * @return array
-     */
-//    public function actionRequestResetPassword()
-//    {
-//        $emailInput = Yii::$app->request->getBodyParam("email");
-//
-//        $model = new \staff\models\PasswordResetRequestForm();
-//        $model->email = $emailInput;
-//
-//        $errors = false;
-//
-//        if ($model->validate()) {
-//
-//            $staff = Inspector::findOne([
-//                'email' => $model->email,
-//            ]);
-//
-//            if ($staff && !$model->sendEmail($staff)) {
-//                $errors = Yii::t('app', 'Sorry, we are unable to reset password for email provided.');
-//            }
-//
-//        } else if (isset($model->errors['email'])) {
-//            $errors = $model->errors['email'];
-//        }
-//
-//        // If errors exist show them
-//        if ($errors) {
-//            return [
-//                'operation' => 'error',
-//                'message' => $errors
-//            ];
-//        }
-//
-//        // Otherwise return success
-//        return [
-//            'operation' => 'success',
-//            'message' => 'Reset password token sent on your email address.'
-//        ];
-//    }
-    
-    /**
-     * Updates password based on passed token
-     * @return array
-     */
-//    public function actionUpdatePassword()
-//    {
-//        $token = Yii::$app->request->getBodyParam("token");
-//        $newPassword = Yii::$app->request->getBodyParam("newPassword");
-//
-//        $staff =  Staff::findByPasswordResetToken($token);
-//
-//        if(!$staff){
-//            return [
-//                'operation' => 'error',
-//                'message' => 'Invalid password reset token. Please request another password reset email'
-//            ];
-//        }
-//
-//        if(!$newPassword) {
-//            return [
-//                'operation' => 'error',
-//                'message' => 'Password field required'
-//            ];
-//        }
-//
-//        $staff->setPassword($newPassword);
-//        $staff->removePasswordResetToken();
-//        $staff->save(false);
-//
-//        return [
-//            'operation' => 'success',
-//            'message' => 'Your password has been reset'
-//        ];
-//    }
 }
