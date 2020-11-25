@@ -105,7 +105,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
     public function scenarios() {
         $scenarios = parent::scenarios();
 
-        $scenarios['updatePassword'] = ['inspector_password_hash'];
+        $scenarios['updatePassword'] = ['inspector_password_hash', 'inspector_password_reset_token'];
 
         return $scenarios;
     }
@@ -118,39 +118,60 @@ class Inspector extends ActiveRecord implements IdentityInterface
         if (!parent::beforeSave($insert))
             return false;
 
-        if($this->scenario == 'updatePassword') {
-        
-            //Send Email to inspector if staff/admin reset password 
-
-            if(empty(Yii::$app->user->identity->inspector_uuid))
-                $this->passwordMail($this->inspector_password_hash);
-
-            $this->setPassword($this->inspector_password_hash);
-        }
-
         return true;
     }
 
-    /**
-     * Send new password to customer
-     * @param Inspector $model
-     * @param $password
-     * @return bool
-     */
-    public function passwordMail($password)
+    public function afterSave($insert, $changedAttributes)
     {
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        parent::afterSave ($insert, $changedAttributes);
 
-        return Yii::$app->mailer->compose("inspector-password",
+        //Send Email to inspector if password updated
+
+        if($this->scenario == 'updatePassword') {
+            $this->sendPasswordUpdatedEmail ();
+        }
+    }
+
+    /**
+     * notify inspector for password update
+     */
+    public function sendPasswordUpdatedEmail()
+    {
+        Yii::$app->mailer->compose("inspector/password-updated-html",
             [
-                "model" => $this,
-                "password" => $password,
-                'logo_1' => Url::to('@web/images/logo.png', true),
-                'logo_2' => ''
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "email" => $this->inspector_email,
+                "name" => $this->inspector_name
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->inspector_email)
-            ->setSubject('Your account password has been reset')
+            ->setSubject('Your password reset was a success')
+            ->send();
+    }
+
+    /**
+     * Send link in email to reset password
+     * @return bool
+     */
+    public function sendPasswordResetEmail()
+    {
+        $this->generatePasswordResetToken();
+        $this->save(false);
+
+        //Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $webUrl = Yii::$app->params['inspectorAppUrl'] . 'update-password/' . $this->inspector_password_reset_token;
+
+        return Yii::$app->mailer->compose("inspector/password-reset-html",
+            [
+                "webUrl" => $webUrl,
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "email" => $this->inspector_email,
+                "name" => $this->inspector_name
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->inspector_email)
+            ->setSubject('Reset your StudentHub password')
             ->send();
     }
 
@@ -201,9 +222,9 @@ class Inspector extends ActiveRecord implements IdentityInterface
      * @return static|null
      */
     public static function findByPasswordResetToken($token) {
-        if (!static::isPasswordResetTokenValid($token)) {
+        /*if (!static::isPasswordResetTokenValid($token)) {
             return null;
-        }
+        }*/
 
         return static::findOne([
             'inspector_password_reset_token' => $token,
@@ -318,7 +339,10 @@ class Inspector extends ActiveRecord implements IdentityInterface
      */
     public function signup() {
         if($this->validate()) {
-            $this->setPassword($this->inspector_password_hash);
+
+            if($this->inspector_password_hash)
+                $this->setPassword($this->inspector_password_hash);
+
             $this->generateAuthKey();
             $this->save(false);
 

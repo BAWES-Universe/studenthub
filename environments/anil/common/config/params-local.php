@@ -9,4 +9,5 @@ return [
     'oneSignalCandidateAPIKey' => 'M2E4Mjc4OWMtNGVlZi00OTRiLTkxZTAtOWU2NmM5ZDFiZmM4',
     'finance_transfer' => 'finance+fake@bawes.net',
     'candidateAppUrl' => 'https://student.dev.studenthub.co/',
+    'inspectorAppUrl' => 'https://inspector.dev.studenthub.co/',
 ];
