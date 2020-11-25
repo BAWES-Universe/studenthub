@@ -8,5 +8,6 @@ return [
     'oneSignalCandidateAPPID' => 'fe766231-6156-4537-8037-84e3fe1be5da',
     'oneSignalCandidateAPIKey' => 'YTBkODdlMjctOGQ0Ny00NDgwLTkyMmYtOWQ1NTI5ODlmZjY1',
     'finance_transfer' => 'finance+fake@bawes.net',
-    'candidateAppUrl' => 'https://student.dev.studenthub.co/'
+    'candidateAppUrl' => 'https://student.dev.studenthub.co/',
+    'inspectorAppUrl' => 'https://inspector.dev.studenthub.co/',
 ];
