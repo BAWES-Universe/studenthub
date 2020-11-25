@@ -114,5 +114,4 @@ class Company extends \common\models\Company {
     {
         return parent::getNotes($modelClass);
     }
-
 }
