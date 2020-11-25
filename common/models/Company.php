@@ -83,7 +83,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
             [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
