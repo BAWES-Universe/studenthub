@@ -133,13 +133,4 @@ class CompanyQuery extends \yii\db\ActiveQuery {
         return $this->andWhere('{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where transfer_status in (1,3,4) and DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY))')
         ->andWhere('(company.`total_candidate` > 0)');
     }
-
-    /**
-     * find company having more then 40 days
-     * @return CompanyQuery
-     */
-    public function moreThen40DayTransfer() {
-        return $this->joinWith('transfers')
-        ->andWhere(['>=','{{%transfer}}.transfer_created_at',new \yii\db\Expression('DATE_SUB(NOW(),INTERVAL 40 DAY)')]);
-    }
 }

@@ -757,7 +757,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public static function transferInLast40Days($companyId) {
         $q = 'select count(*) as total from transfer ';
         $q .= 'left join company on company.company_id = transfer.company_id ';
-        $q .= 'where transfer.DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
+        $q .= 'where DATE(transfer.transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
         $q .= 'transfer.transfer_status in(1,3,4) and transfer.transfer_status NOT IN(5,10) AND (company.`total_candidate` > 0 OR company.is_request_updates_in_30_days > 0 OR company.no_of_active_requests > 0) AND company.company_id='.$companyId;
         return Yii::$app->db->createCommand($q)->queryScalar();
     }
@@ -785,7 +785,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             // to update is_request_updates_in_30_days everytime request updated
             $q30Days = 'SELECT count(*) FROM request left join company on request.company_id = company.company_id ';
             $q30Days .= "where (company.company_id = $company_id or company.parent_company_id =$company_id) AND ";
-            $q30Days .= "request.DATE(request_updated_datetime) > DATE_SUB(NOW(),INTERVAL 30 DAY)";
+            $q30Days .= "DATE(request.request_updated_datetime) > DATE_SUB(NOW(),INTERVAL 30 DAY)";
             $request30daysQuery = Yii::$app->db->createCommand($q30Days)->queryScalar();
             Yii::$app->db->createCommand()->update('company', ['is_request_updates_in_30_days' => ($request30daysQuery) ? 1 : 0], 'company_id = ' . $ID)->execute();
         }
