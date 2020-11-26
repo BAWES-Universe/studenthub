@@ -9,6 +9,8 @@ class NoteFixture extends ActiveFixture
     
     public $depends = [
         'common\fixtures\CompanyFixture',
+        'common\fixtures\CandidateFixture',
+        'common\fixtures\RequestFixture',
         'common\fixtures\StaffFixture'
     ];
 }
