@@ -72,9 +72,25 @@ class NoteController extends Controller
      */
     public function actionList()
     {
+        $candidate_id = Yii::$app->request->get('candidate_id');
+        $request_uuid = Yii::$app->request->get('request_uuid');
+        $company_id = Yii::$app->request->get('company_id');
+
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
-        
+
+        if($company_id) {
+            $query->filterCompany($company_id);
+        }
+
+        if($request_uuid) {
+            $query->filterRequest($request_uuid);
+        }
+
+        if($candidate_id) {
+            $query->filterCandidate($candidate_id);
+        }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
