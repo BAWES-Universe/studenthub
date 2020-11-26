@@ -76,7 +76,7 @@ class Note extends \yii\db\ActiveRecord
      */
     public function validateRequest($attribute, $params, $validator)
     {
-        if(in_array($this->request->request_status, [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED])) {
+        if($this->request && in_array($this->request->request_status, [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED])) {
             $this->addError($attribute, Yii::t('app', "Can't update for cancelled/completed request."));
         }
     }
