@@ -81,6 +81,21 @@ class NoteController extends Controller
     }
 
     /**
+     * Return a List of Notes By staff Accounts available.
+     * @return ActiveDataProvider
+     */
+    public function actionListByStaff($id)
+    {
+        $query = Note::find()
+            ->orderBy('note_created_datetime DESC')
+            ->andWhere(['created_by'=>$id]);
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * @param $id
      * @return Note
      * @throws NotFoundHttpException
