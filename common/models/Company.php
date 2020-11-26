@@ -206,8 +206,18 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             $fields['company_auth_key']);
 
         $fields['company_status'] = function($model) {
-            return $this->getCompany_status();
+
+            if(
+                $this->total_candidate > 0 ||
+                $this->is_request_updates_in_30_days > 0 ||
+                $this->no_of_active_requests > 0
+            ) {
+                return self::STATUS_ACTIVE;
+            }
+
+            return self::STATUS_INACTIVE;
         };
+
         return $fields;
     }
 
@@ -227,7 +237,30 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'requests',
             'parentTransfers',
             'malls',
-            'companyContacts'
+            'companyContacts',
+            /**
+             * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
+             * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
+             * "40 days passed without payment"
+             */
+            'transferInLast40Days' => function($model) {
+
+                return (int) $model->getTransfers()
+                    ->andWhere([
+                        'AND',
+                        [
+                            'in',
+                            'transfer_status',
+                            [
+                                Transfer::STATUS_PAYMENT_SENT,
+                                Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                                Transfer::STATUS_TRANSFER_COMPLETE
+                            ]
+                        ],
+                        new Expression("DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY)")
+                    ])
+                    ->count();
+            }
         ];
     }
 
@@ -747,22 +780,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
-     * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
-     * "40 days passed without payment"
-     * @param $companyId
-     * @return mixed
-     * @throws \yii\db\Exception
-     */
-    public static function transferInLast40Days($companyId) {
-        $q = 'select count(*) as total from transfer ';
-        $q .= 'left join company on company.company_id = transfer.company_id ';
-        $q .= 'where DATE(transfer.transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
-        $q .= 'transfer.transfer_status in(1,3,4) and transfer.transfer_status NOT IN(5,10) AND (company.`total_candidate` > 0 OR company.is_request_updates_in_30_days > 0 OR company.no_of_active_requests > 0) AND company.company_id='.$companyId;
-        return Yii::$app->db->createCommand($q)->queryScalar();
-    }
-
-    /**
      * https://www.pivotaltracker.com/story/show/175798834
      * method is used to find active company dynamically
      * update company table no_of_active_requests /is_request_updates_in_30_days
@@ -810,11 +827,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
                 ['company_id' => ($company->parent_company_id) ? $company->parent_company_id : $company->company_id]
             );
         }
-    }
-
-    public function getCompany_status() {
-        $result = Yii::$app->db->createCommand('select EXISTS(SELECT * FROM company where (`total_candidate` > 0 OR is_request_updates_in_30_days > 0 OR no_of_active_requests > 0) and company_id = '.$this->company_id.') as exist')->queryOne();
-        return ($result['exist'] == 1) ? self::STATUS_ACTIVE : self::STATUS_INACTIVE;
     }
 
     /*
