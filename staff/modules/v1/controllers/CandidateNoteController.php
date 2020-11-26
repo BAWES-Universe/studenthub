@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use staff\models\CandidateNote;
+use staff\models\Note;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -72,7 +72,7 @@ class CandidateNoteController extends Controller
      */
     public function actionList()
     {
-        $query = CandidateNote::find()
+        $query = Note::find()
             ->orderBy('note_created_datetime DESC');
         
         return new ActiveDataProvider([
@@ -82,7 +82,7 @@ class CandidateNoteController extends Controller
 
     /**
      * @param $id
-     * @return CandidateNote
+     * @return Note
      * @throws NotFoundHttpException
      */
     public function actionView($id)
@@ -98,7 +98,7 @@ class CandidateNoteController extends Controller
     {
         $transaction = Yii::$app->db->beginTransaction();
 
-        $model = new CandidateNote();
+        $model = new Note();
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
@@ -160,7 +160,7 @@ class CandidateNoteController extends Controller
     public function actionCreate()
     {
         // Attempt to create new brand
-        $model = new CandidateNote();
+        $model = new Note();
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
@@ -196,13 +196,6 @@ class CandidateNoteController extends Controller
         // Attempt to create new account
         $model = $this->findModel($id);
 
-        if(!$model){
-            return [
-                    "operation" => "error",
-                    "message" => "Note not found."
-                ];
-        }
-
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
 
         if (!$model->save())
@@ -233,17 +226,17 @@ class CandidateNoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel($id);
+        $model = $this->findModel($id);
 
-        if(!$brand) {
+        if(!$model) {
             return [
                 "operation" => "error",
                 "message" => "Candidate Note not found or already deleted"
             ];
         }
 
-        // Delete brand
-        $brand->delete();
+        // Delete
+        $model->delete();
 
         return [
             "operation" => "success",
@@ -252,15 +245,15 @@ class CandidateNoteController extends Controller
     }
     
     /**
-     * Finds the CandidateNote model based on its primary key value.
+     * Finds the Note model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return CandidateNote the loaded model
+     * @return Note the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = CandidateNote::findOne($id)) !== null) {
+        if (($model = Note::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

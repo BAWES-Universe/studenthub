@@ -169,4 +169,5 @@ return [
     "Created At" => "",
     "Created By" => "",
     "Updated By" => "",
+    "Note type" => ""
 ];

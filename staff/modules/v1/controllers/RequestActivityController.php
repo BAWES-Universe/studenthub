@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use staff\models\RequestActivity;
+use staff\models\Note;
 
 
 /**
@@ -72,9 +72,9 @@ class RequestActivityController extends Controller
      */
     public function actionRequestActivities($id)
     {
-        $query = RequestActivity::find()
+        $query = Note::find()
             ->andWhere(['request_uuid' => $id])
-            ->orderBy('activity_created_datetime desc');
+            ->orderBy('note_created_datetime desc');
 
         return new ActiveDataProvider([
             'query' => $query,
@@ -104,7 +104,7 @@ class RequestActivityController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = RequestActivity::findOne($id)) !== null) {
+        if (($model = Note::findOne($id)) !== null) {
             return $model;
         } else {
             throw new \yii\web\NotFoundHttpException('The requested page does not exist.');

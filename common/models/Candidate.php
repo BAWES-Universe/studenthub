@@ -2323,7 +2323,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getNotes($modelClass = "\common\models\CandidateNote")
+    public function getNotes($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }

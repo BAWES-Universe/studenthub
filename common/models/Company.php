@@ -771,8 +771,11 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @throws \yii\db\Exception
      */
     public static function updateRequest($company_id = 0) {
+
         $company = Company::findOne($company_id);
+
         $ID = ($company->parent_company_id) ? $company->parent_company_id : $company_id;
+
         if ($company_id) {
             // check total request for parent company and child company.
             // to update no_of_active_requests everytime request updated
