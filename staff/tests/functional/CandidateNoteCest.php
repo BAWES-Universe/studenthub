@@ -2,7 +2,6 @@
 
 namespace staff\tests;
 
-use PhpParser\Node\Stmt\Expression;
 use common\models\Note;
 use common\models\StaffToken;
 use common\models\Candidate;
@@ -10,6 +9,7 @@ use common\fixtures\StaffTokenFixture;
 use common\fixtures\NoteFixture;
 use common\fixtures\CandidateFixture;
 use Codeception\Util\HttpCode;
+use yii\db\Expression;
 
 
 class CandidateNoteCest
