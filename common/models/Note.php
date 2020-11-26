@@ -163,7 +163,7 @@ class Note extends \yii\db\ActiveRecord
             $message = Yii::t ('staff', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
                 'name' => $this->request->company->company_name,
                 'email' => $this->request->company->company_email,
-                'staffName' => $this->staff->staff_name,
+                'staffName' => $this->createdBy->staff_name,
                 'activityDetail' => $this->note_text
             ]);
 

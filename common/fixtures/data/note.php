@@ -4,6 +4,7 @@ return [
     'note0' => [
         'note_uuid' => '3832fdd1-0161-360f-8d6e-75e370a6e417',
         'company_id' => 2,
+        'candidate_id' => 1,
         'note_text' => 'qui',
         'note_created_datetime' => '1986-02-27 21:42:46',
         'note_updated_datetime' => '2007-06-29 23:35:52',

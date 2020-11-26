@@ -38,6 +38,7 @@ class RequestCest
         $this->request = $this->company->getRequests()->one();
 
         $this->contact = $this->company->getCompanyContacts()->one();
+        
         $I->amBearerAuthenticated($this->token);
     }
 
