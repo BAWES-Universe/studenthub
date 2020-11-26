@@ -356,6 +356,17 @@ return [
                         'OPTIONS toggle-committed' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
+                ],
+                [ // StaffController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
                 ]
             ],
         ],
