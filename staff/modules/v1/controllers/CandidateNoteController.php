@@ -101,6 +101,7 @@ class CandidateNoteController extends Controller
         $model = new Note();
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->note_type = Yii::$app->request->getBodyParam("type");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
         if (!$model->save())
@@ -163,6 +164,7 @@ class CandidateNoteController extends Controller
         $model = new Note();
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->note_type = Yii::$app->request->getBodyParam("type");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
         if (!$model->save())
@@ -197,6 +199,7 @@ class CandidateNoteController extends Controller
         $model = $this->findModel($id);
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->note_type = Yii::$app->request->getBodyParam("type");
 
         if (!$model->save())
         {

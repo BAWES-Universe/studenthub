@@ -149,6 +149,8 @@ class CompanyController extends Controller
         $model = new Note();
 
         $model->note_text = Yii::$app->request->getBodyParam("note");
+        $model->note_type = Yii::$app->request->getBodyParam("type");
+
         $model->company_id = $id;
 
         if (!$model->save())
