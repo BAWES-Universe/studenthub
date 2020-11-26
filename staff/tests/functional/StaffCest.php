@@ -2,13 +2,12 @@
 namespace staff\tests;
 
 use common\fixtures\StaffFixture;
-use common\models\Staff;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
 use Codeception\Util\HttpCode;
 
-class UniversityCest
+class StaffCest
 {
     public $token;
 
@@ -34,7 +33,7 @@ class UniversityCest
      * list all staff
      * @param FunctionalTester $I
      */
-    public function listUniversity(FunctionalTester $I)
+    public function listStaff(FunctionalTester $I)
     {
         $I->wantTo('get staff listing');
         $I->sendGET('v1/staff');
