@@ -173,19 +173,19 @@ class Request extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getLastActivity($modelClass = "\common\models\RequestActivity")
+    public function getLastActivity($modelClass = "\common\models\Note")
     {
         return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
-            ->orderBy('activity_created_datetime DESC');
+            ->orderBy('note_created_datetime DESC');
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getRequestActivities($modelClass = "\common\models\RequestActivity")
+    public function getRequestActivities($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
-            ->orderBy('activity_created_datetime DESC');
+            ->orderBy('note_created_datetime DESC');
     }
 
     /**
@@ -195,13 +195,11 @@ class Request extends \yii\db\ActiveRecord
      */
     public function createRequestActivity($detail = null)
     {
-        $model = new RequestActivity();
+        $model = new Note();
         $model->request_uuid = $this->request_uuid;
-        $model->staff_id = Yii::$app->user->getId();
-        $model->activity_detail = $detail;
+        $model->note_text = $detail;
         $model->save(false);
     }
-
 
     public function afterSave($insert, $changedAttributes)
     {
