@@ -77,7 +77,8 @@ class CompanyController extends Controller
         $common_name_ar = Yii::$app->request->getQueryParam("common_name_ar",0);
 
         $query = Company::find()
-        ->filterParent();
+            ->filterParent();
+
         if ($status == 1) {
             $query->filterActive();
         }
@@ -413,50 +414,6 @@ class CompanyController extends Controller
             "operation" => "success",
             "message" => "Company account followup interval changed successfully"
         ];
-    }
-
-    public function actionChangeStatus($id) {
-        $model = $this->findModel((int) $id);
-
-        if (!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Company account not found"
-            ];
-        }
-        $model->company_status = Yii::$app->request->getBodyParam("status");
-
-        if ($model->candidates && !$model->company_status) {
-            return [
-                "operation" => "error",
-                "message" => "Please unassign all staff from this company before making client inactive"
-            ];
-        }
-        $model->scenario = 'updateStatus';
-
-        if (!$model->save()) {
-            if (isset($model->errors)) {
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            } else {
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance"
-                ];
-            }
-        }
-        Company::companyCreateUpdateMail($model,'updated');
-        Yii::info('['.$model->company_name.' Company Account Updated] Company status updated by '.Yii::$app->user->identity->staff_name, __METHOD__);
-
-        return [
-            "operation" => "success",
-            "message" => "Company account status changed successfully"
-        ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**

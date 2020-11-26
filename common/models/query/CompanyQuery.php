@@ -118,7 +118,8 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * store_total_candidates
      */
     public function filterInActive() {
-        return $this->andWhere(['AND',
+        return $this->andWhere([
+            'OR',
             ['{{%company}}.total_candidate'=>0],
             ['{{%company}}.no_of_active_requests'=>0],
             ['{{%company}}.is_request_updates_in_30_days'=>0],
