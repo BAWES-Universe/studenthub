@@ -2090,13 +2090,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
 
-        $isProfileCompleted = $this->isInCompleteProfileForAlgolia();
+        $isInCompleteProfile = $this->isInCompleteProfileForAlgolia();
 
-        if (!$isProfileCompleted && $this->pendingProfile['']) {
-
-            //delete from algolia
+        /**
+         * delete from algolia when profile incomplete
+         */
+        if ($isInCompleteProfile) {
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
-
             return false;
         }
 
