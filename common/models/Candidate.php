@@ -1964,6 +1964,98 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * Checks is candidate have incomplete profile
+     * creating seperatly so that we can avoid pending field
+     * candidate_mom_kuwaiti check as its required but not
+     * mandatory for algolia upload
+     * @return void|string
+     */
+    public function isInCompleteProfileForAlgolia() {
+
+        if (!$this->candidate_uid) {
+            $this->pendingProfile['uid'] = true;
+        }
+
+        if (!$this->university_id) {
+            $this->pendingProfile['university'] = true;
+        }
+
+        if (!$this->country_id) {
+            $this->pendingProfile['country'] = true;
+        }
+
+        if (!$this->candidate_name) {
+            $this->pendingProfile['name'] = true;
+        }
+
+        if (!$this->candidate_name_ar) {
+            $this->pendingProfile['Name Arabic'] = true;
+        }
+
+        if (!in_array($this->candidate_gender, [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER])) {
+            $this->pendingProfile['gender'] = true;
+        }
+
+        if (!$this->candidate_objective) {
+            $this->pendingProfile['objective'] = true;
+        }
+
+        if (!$this->candidate_personal_photo) {
+            $this->pendingProfile['personal photo'] = true;
+        }
+
+        if (!$this->candidate_email) {
+            $this->pendingProfile['email'] = true;
+        }
+
+        if (!$this->candidate_phone) {
+            $this->pendingProfile['phone'] = true;
+        }
+
+        if (!$this->candidate_birth_date) {
+            $this->pendingProfile['birth date'] = true;
+        }
+
+        if (!$this->candidate_civil_id) {
+            $this->pendingProfile['civil id'] = true;
+        }
+
+        if (!$this->candidate_civil_expiry_date) {
+            $this->pendingProfile['civil expiry date'] = true;
+        }
+
+        if (!$this->candidate_civil_photo_front) {
+            $this->pendingProfile['civil photo front'] = true;
+        }
+
+        if (!$this->candidate_civil_photo_back) {
+            $this->pendingProfile['civil photo back'] = true;
+        }
+
+        if (!$this->candidate_driving_license) {
+            $this->pendingProfile['driving license'] = false;
+        }
+
+        if (!$this->candidate_latitude && !$this->candidate_longitude && !$this->candidate_area_uuid) {
+            $this->pendingProfile['location'] = false;
+        }
+
+        if ($this->getCandidateExperiences()->count() == 0) {
+            $this->pendingProfile['experience'] = false;
+        }
+
+        if ($this->getCandidateSkills()->count() == 0) {
+            $this->pendingProfile['skill'] = false;
+        }
+
+        if (count($this->pendingProfile) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Update/Insert data on algolia index
      * @param bool $insert
      */
@@ -1998,9 +2090,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
 
-        $isProfileCompleted = $this->isProfileCompleted();
+        $isProfileCompleted = $this->isInCompleteProfileForAlgolia();
 
-        if (!$isProfileCompleted) {
+        if (!$isProfileCompleted && $this->pendingProfile['']) {
 
             //delete from algolia
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
