@@ -2,8 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
-use staff\models\RequestActivity;
 use Yii;
+use staff\models\Note;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
@@ -419,10 +419,9 @@ class RequestController extends Controller
             ];
         }
 
-        $modelActivity = new RequestActivity();
+        $modelActivity = new Note();
         $modelActivity->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
-        $modelActivity->staff_id = Yii::$app->user->getId();
-        $modelActivity->activity_detail = Yii::$app->request->getBodyParam("detail");
+        $modelActivity->note_text = Yii::$app->request->getBodyParam("detail");
 
         if (!$modelActivity->save())
         {

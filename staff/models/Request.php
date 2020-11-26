@@ -3,7 +3,7 @@
 namespace staff\models;
 
 
-use common\models\RequestActivity;
+use common\models\Note;
 
 /**
  * This is the model class for table "Request".
