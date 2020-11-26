@@ -244,4 +244,13 @@ class Note extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
     }
+
+    /**
+     * @inheritdoc
+     * @return query\NoteQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\NoteQuery(get_called_class());
+    }
 }
