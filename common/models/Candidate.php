@@ -626,6 +626,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidateExperiences',
             'candidateIdCard',
             'notes',
+            'workHistory'
         ];
     }
 
