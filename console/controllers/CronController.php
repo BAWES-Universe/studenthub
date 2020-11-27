@@ -137,7 +137,7 @@ class CronController extends \yii\console\Controller {
             ->count();
 
         $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
-
+        $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
         $staffs = Staff::find()->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
@@ -156,6 +156,7 @@ class CronController extends \yii\console\Controller {
      * Implement cron function that checks if Payable candidates with bank info avail > 0,
      * it sends an email to khalid@bawes.net telling to process transfer.
      *  Confirm values/excel shown are only for those candidates which are payable and bank info avail.
+     * php yii cron/payable-candidate-notification
      */
     public function actionPayableCandidateNotification()
     {
@@ -172,6 +173,7 @@ class CronController extends \yii\console\Controller {
                 }
             }
         }
+        $amount = number_format($amount, 3);
 
         if ($candidates && count($candidates) > 0) {
 
@@ -229,7 +231,7 @@ class CronController extends \yii\console\Controller {
 
             $extension = pathinfo($file, PATHINFO_EXTENSION);
 
-            $subject = "Payable candidates Detail";
+            $subject = "We need to process KWD $amount to ".count($candidates)." people";
 
             if (YII_ENV != 'prod') {
                 $subject = '[Fake] [Ignore] ' . $subject;

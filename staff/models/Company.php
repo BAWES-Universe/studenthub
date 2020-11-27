@@ -31,16 +31,12 @@ class Company extends \common\models\Company {
     {
         // Whitelisted fields to return
         $field = parent::fields();
+
         unset(
             $field['company_created_at'],
             $field['company_updated_at']
         );
-        $field['total_candidates'] = function($model) {
-            return self::getTotalCandidateCount($model->company_id);
-        };
-        $field['last_40_days_transfer_count'] = function($model) {
-            return (int)self::transferInLast40Days($model->company_id);
-        };
+
         return $field;
     }
 
@@ -60,7 +56,7 @@ class Company extends \common\models\Company {
      */
     public function getStores($modelClass = "\staff\models\Store")
     {
-        return parent::getStores($modelClass)->andWhere(['deleted'=>0]);
+        return parent::getStores($modelClass)->andWhere(['{{%store}}.deleted'=>0]);
     }
 
     /**
@@ -114,5 +110,4 @@ class Company extends \common\models\Company {
     {
         return parent::getNotes($modelClass);
     }
-
 }

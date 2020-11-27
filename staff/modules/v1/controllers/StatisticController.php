@@ -115,6 +115,7 @@ class StatisticController extends Controller
             ->count();
 
         $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
+        $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();
 
         return $result;
     }

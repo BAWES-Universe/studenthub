@@ -1,10 +1,6 @@
 <?php
 namespace admin\tests;
 
-use common\models\Request;
-use staff\models\CandidateNote;
-use Yii;
-use admin\tests\FunctionalTester;
 use common\models\AdminToken;
 use common\models\Staff;
 use common\fixtures\AdminTokenFixture;

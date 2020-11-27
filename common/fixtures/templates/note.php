@@ -6,6 +6,11 @@
 return [
     'note_uuid' => $faker->uuid,
     'company_id' => $faker->numberBetween(1,10),
+    'candidate_id' => $faker->numberBetween(1,10),
+    'request_uuid' => $faker->numberBetween(1,10),
+    'note_type' => $faker->randomElement([
+        "Internal Note", "Phone Call", "Email", "Meeting", "Interview", "Task"
+    ]),
     'note_text' => $faker->word,
     'note_created_datetime' => $faker->date('Y-m-d H:i:s'),
     'note_updated_datetime' => $faker->date('Y-m-d H:i:s'),

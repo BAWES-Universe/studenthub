@@ -101,13 +101,13 @@ class StaffTest extends \Codeception\Test\Unit {
     /**
      * Tests Delete for the staff model
      */
-    public function testCrudForDelete() {
-        $this->specify('Delete Staff', function() {
-            $model = Staff::find()->one();
-            $staff_id = $model->staff_id;
-            expect('Deletes record', $model->delete())->equals(1);
-            expect('Record no longer exists', $model->findOne($staff_id))->null();
-        });
-    }
+//    public function testCrudForDelete() {
+//        $this->specify('Delete Staff', function() {
+//            $model = Staff::find()->one();
+//            $staff_id = $model->staff_id;
+//            expect('Deletes record', $model->delete())->equals(1);
+//            expect('Record no longer exists', $model->findOne($staff_id))->null();
+//        });
+//    }
 
 }

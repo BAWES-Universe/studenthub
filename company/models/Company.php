@@ -17,7 +17,18 @@ class Company extends \common\models\Company {
             'parent_company_id',
             'company_name',
             'company_email',
-            'company_status',
+            'company_status'=> function($model) {
+
+                if(
+                    $this->total_candidate > 0 ||
+                    $this->is_request_updates_in_30_days > 0 ||
+                    $this->no_of_active_requests > 0
+                ) {
+                    return self::STATUS_ACTIVE;
+                }
+
+                return self::STATUS_INACTIVE;
+            },
             'company_hourly_rate' => function($model) {
                 if($model->company_hourly_rate)
                     return (double)$model->company_hourly_rate;

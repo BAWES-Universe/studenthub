@@ -2,14 +2,14 @@
 
 namespace staff\tests;
 
-use staff\tests\FunctionalTester;
-use common\models\CandidateNote;
+use common\models\Note;
 use common\models\StaffToken;
 use common\models\Candidate;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\CandidateNoteFixture;
+use common\fixtures\NoteFixture;
 use common\fixtures\CandidateFixture;
 use Codeception\Util\HttpCode;
+use yii\db\Expression;
 
 
 class CandidateNoteCest
@@ -20,7 +20,7 @@ class CandidateNoteCest
     {
         return [
         	'staffToken' => StaffTokenFixture::className(),
-            'candidateNote' => CandidateNoteFixture::className(),
+            'candidateNote' => NoteFixture::className(),
             'candidate' => CandidateFixture::className(),
         ];
     }
@@ -31,7 +31,10 @@ class CandidateNoteCest
             ->one()
             ->token_value;
 
-        $this->candidate_note_uuid = CandidateNote::find()->one()->candidate_note_uuid;
+        $this->note_uuid = Note::find()
+            ->where(new Expression('candidate_id IS NOT NULL'))
+            ->one()
+            ->note_uuid;
 
         $I->amBearerAuthenticated($this->token);
     }
@@ -54,12 +57,12 @@ class CandidateNoteCest
      */
     public function tryToView(FunctionalTester $I)
     {
-        $model = CandidateNote::find()->one();
+        $model = Note::find()->one();
         
         $I->wantTo('Validate note api to view candidate note detail');
-        $I->sendGET('v1/candidate-notes/' . $model->candidate_note_uuid);
+        $I->sendGET('v1/candidate-notes/' . $model->note_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson(["candidate_note_uuid" => $model->candidate_note_uuid]);
+        $I->seeResponseContainsJson(["note_uuid" => $model->note_uuid]);
     }
 
     /**
@@ -111,7 +114,7 @@ class CandidateNoteCest
         $I->wantTo('update a candidate note via API');
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'v1/candidate-notes/' . $this->candidate_note_uuid,
+            'v1/candidate-notes/' . $this->note_uuid,
             [
                 'note' => 'Spring specialist'
             ]
@@ -128,7 +131,7 @@ class CandidateNoteCest
     {
         $I->wantTo('delete candidate note via API');
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('v1/candidate-notes/' . $this->candidate_note_uuid);
+        $I->sendDelete('v1/candidate-notes/' . $this->note_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson(["message" => "Note deleted successfully"]);
     }

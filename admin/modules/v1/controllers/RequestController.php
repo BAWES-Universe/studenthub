@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\Company;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -179,10 +180,10 @@ class RequestController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
-
+        $company_id = $model->company_id;
         // Delete model
         $model->delete();
-
+        Company::updateRequest($company_id);
         return [
             "operation" => "success",
             "message" => "Request deleted successfully"

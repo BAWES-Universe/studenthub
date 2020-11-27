@@ -73,12 +73,37 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
+        $status = Yii::$app->request->getQueryParam("status",0);
+        $name = Yii::$app->request->getQueryParam("name",0);
+        $common_name_en = Yii::$app->request->getQueryParam("common_name_en",0);
+        $common_name_ar = Yii::$app->request->getQueryParam("common_name_ar",0);
+
         $query = Company::find()
-            ->with([
-                'subCompanies',
-                'stores',
-            ])    
             ->filterParent();
+        if ($status == 1) {
+            $query->filterActive();
+        }
+
+        if ($status == 2) {
+            $query->filterInActive();
+        }
+
+        if ($status == 3) {
+            $query->filterByActive40DaysPassedWithoutPayment();
+        }
+
+        if ($name) {
+            $query->filterByName($name);
+        }
+
+        if ($common_name_en) {
+            $query->filterByNameEn($common_name_en);
+        }
+
+        if ($common_name_ar) {
+            $query->filterByNameAr($common_name_ar);
+        }
+
 
         return new ActiveDataProvider([
             'query' => $query
@@ -593,7 +618,6 @@ class CompanyController extends Controller
 
         $model->scenario = 'updateStatus';
 
-        $model->company_status = Yii::$app->request->getBodyParam("status");
 
         if (!$model->save()) {
             if (isset($model->errors)) {

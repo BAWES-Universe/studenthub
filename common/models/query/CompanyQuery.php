@@ -49,7 +49,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterParent() {
-        return $this->andWhere(['parent_company_id' => null]);        
+        return $this->andWhere(['{{%company}}.parent_company_id' => null]);
     }
 
     /**
@@ -57,7 +57,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function childCompany($id) {
-        return $this->andWhere(['parent_company_id' => $id]);
+        return $this->andWhere(['{{%company}}.parent_company_id' => $id]);
     }
 
     /**
@@ -97,15 +97,33 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterActive() {
-        return $this->andWhere(['{{%company}}.company_status' => Company::STATUS_ACTIVE]);
+        return $this->andWhere(['or',
+            ['>','{{%company}}.total_candidate',0],
+            ['>','{{%company}}.no_of_active_requests',0],
+            ['>','{{%company}}.is_request_updates_in_30_days',0],
+        ]);
     }
 
     /**
      * @param $id
      * @return $this
      */
+    public function filterActiveWithOnlyStaff() {
+        return $this->andWhere(['>','{{%company}}.total_candidate',0]);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     * store_total_candidates
+     */
     public function filterInActive() {
-        return $this->andWhere(['{{%company}}.company_status' => Company::STATUS_INACTIVE]);
+        return $this->andWhere([
+            'AND',
+            ['{{%company}}.total_candidate'=>0],
+            ['{{%company}}.no_of_active_requests'=>0],
+            ['{{%company}}.is_request_updates_in_30_days'=>0],
+        ]);
     }
 
     /**
@@ -113,7 +131,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterByActive40DaysPassedWithoutPayment() {
-        return $this->andWhere('{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where transfer_status in (1,3,4) and transfer_created_at >= DATE_SUB(NOW(),INTERVAL 40 DAY))')
-        ->andWhere(['{{%company}}.company_status' => Company::STATUS_ACTIVE]);
+        return $this->andWhere('{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where transfer_status in (1,3,4) and DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY))')
+        ->andWhere('(company.`total_candidate` > 0)');
     }
 }

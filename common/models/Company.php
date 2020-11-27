@@ -26,6 +26,9 @@ use yii\helpers\Url;
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
  * @property boolean $company_followup
+ * @property integer $total_candidate
+ * @property integer $no_of_active_requests
+ * @property integer $is_request_updates_in_30_days
  * @property boolean $company_followup_interval_weeks
  * @property boolean $company_last_followup_datetime
  * @property integer $company_status
@@ -80,12 +83,12 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
             [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
-            [['parent_company_id', 'company_followup_interval_weeks', 'company_status'], 'integer'],
+            [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
             ['company_followup', 'boolean'],
             ['company_last_followup_datetime', 'date'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
@@ -161,8 +164,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $scenarios['updateFollowup'] = ['company_followup'];
 
         $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
-        
-        $scenarios['updateStatus'] = ['company_status'];
 
         return $scenarios;
     }
@@ -187,7 +188,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_password_hash' => Yii::t('app','Password'),
             'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
             'company_followup' => Yii::t('app','Company Followup'),
-            'company_status' => Yii::t('app','Company Status'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),
         ];
@@ -204,6 +204,19 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             $fields['company_password_hash'],
             $fields['company_password_reset_token'],
             $fields['company_auth_key']);
+
+        $fields['company_status'] = function($model) {
+
+            if(
+                $this->total_candidate > 0 ||
+                $this->is_request_updates_in_30_days > 0 ||
+                $this->no_of_active_requests > 0
+            ) {
+                return self::STATUS_ACTIVE;
+            }
+
+            return self::STATUS_INACTIVE;
+        };
 
         return $fields;
     }
@@ -224,7 +237,30 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'requests',
             'parentTransfers',
             'malls',
-            'companyContacts'
+            'companyContacts',
+            /**
+             * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
+             * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
+             * "40 days passed without payment"
+             */
+            'transferInLast40Days' => function($model) {
+
+                return (int) $model->getTransfers()
+                    ->andWhere([
+                        'AND',
+                        [
+                            'in',
+                            'transfer_status',
+                            [
+                                Transfer::STATUS_PAYMENT_SENT,
+                                Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                                Transfer::STATUS_TRANSFER_COMPLETE
+                            ]
+                        ],
+                        new Expression("DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY)")
+                    ])
+                    ->count();
+            }
         ];
     }
 
@@ -744,18 +780,63 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
-     * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
-     * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
-     * "40 days passed without payment"
-     * @param $companyId
-     * @return mixed
+     * https://www.pivotaltracker.com/story/show/175798834
+     * method is used to find active company dynamically
+     * update company table no_of_active_requests /is_request_updates_in_30_days
+     * on every request create, update and delete
+     * @param $rid
      * @throws \yii\db\Exception
      */
-    public static function transferInLast40Days($companyId) {
-        $q = 'select count(*) as total from transfer ';
-        $q .= 'left join company on company.company_id = transfer.company_id ';
-        $q .= 'where transfer.transfer_created_at >= DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
-        $q .= 'transfer.transfer_status in(1,3,4) and transfer.transfer_status NOT IN(5,10) and company.company_status = 10 and company.company_id='.$companyId;
-        return Yii::$app->db->createCommand($q)->queryScalar();
+    public static function updateRequest($company_id = 0) {
+
+        $company = Company::findOne($company_id);
+
+        $ID = ($company->parent_company_id) ? $company->parent_company_id : $company_id;
+
+        if ($company_id) {
+            // check total request for parent company and child company.
+            // to update no_of_active_requests everytime request updated
+            $q = 'SELECT count(*) FROM request left join company on request.company_id = company.company_id ';
+            $q .= "where (company.company_id = $company_id or company.parent_company_id =$company_id) AND request.request_status = 'started'";
+            $requestQuery = Yii::$app->db->createCommand($q)->queryScalar();
+            Yii::$app->db->createCommand()->update('company', ['no_of_active_requests' => $requestQuery], 'company_id = ' . $ID)->execute();
+
+            // check total request for parent company and child company.in last 30 days
+            // to update is_request_updates_in_30_days everytime request updated
+            $q30Days = 'SELECT count(*) FROM request left join company on request.company_id = company.company_id ';
+            $q30Days .= "where (company.company_id = $company_id or company.parent_company_id =$company_id) AND ";
+            $q30Days .= "DATE(request.request_updated_datetime) > DATE_SUB(NOW(),INTERVAL 30 DAY)";
+            $request30daysQuery = Yii::$app->db->createCommand($q30Days)->queryScalar();
+            Yii::$app->db->createCommand()->update('company', ['is_request_updates_in_30_days' => ($request30daysQuery) ? 1 : 0], 'company_id = ' . $ID)->execute();
+        }
+    }
+
+    /**
+     * https://www.pivotaltracker.com/story/show/175798834
+     * method is used to find active company dynamically
+     * update student counter
+     * @param $store_id
+     * @param $counter
+     */
+    public static function updateCandidate($store_id, $counter) {
+        $store = Store::findOne($store_id);
+        if ($store) {
+            $company = $store->company;
+            Company::updateAllCounters(
+                ['total_candidate' => $counter],
+                ['company_id' => ($company->parent_company_id) ? $company->parent_company_id : $company->company_id]
+            );
+        }
+    }
+
+    /*
+     *  Add card to the top that should show when we have
+     *  active client with staff assigned and hasn't made payment in 40 days
+     */
+    public static function companiesCountWithNoPaymentIn40Days() {
+        return Company::find()
+            ->filterParent()
+            ->filterByActive40DaysPassedWithoutPayment()
+            ->count();
     }
 }

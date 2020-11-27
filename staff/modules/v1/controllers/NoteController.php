@@ -72,9 +72,40 @@ class NoteController extends Controller
      */
     public function actionList()
     {
+        $candidate_id = Yii::$app->request->get('candidate_id');
+        $request_uuid = Yii::$app->request->get('request_uuid');
+        $company_id = Yii::$app->request->get('company_id');
+
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
-        
+
+        if($company_id) {
+            $query->filterCompany($company_id);
+        }
+
+        if($request_uuid) {
+            $query->filterRequest($request_uuid);
+        }
+
+        if($candidate_id) {
+            $query->filterCandidate($candidate_id);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Notes By staff Accounts available.
+     * @return ActiveDataProvider
+     */
+    public function actionListByStaff($id)
+    {
+        $query = Note::find()
+            ->orderBy('note_created_datetime DESC')
+            ->andWhere(['created_by'=>$id]);
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -100,6 +131,7 @@ class NoteController extends Controller
         $model = new Note();
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->note_type = Yii::$app->request->getBodyParam("type");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
 
         if (!$model->save())
@@ -141,6 +173,7 @@ class NoteController extends Controller
         }
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->note_type = Yii::$app->request->getBodyParam("type");
 
         if (!$model->save())
         {

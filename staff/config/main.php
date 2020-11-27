@@ -254,12 +254,14 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'GET staff/<id>' => 'list-by-staff',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS staff/<id>' => 'options',
                     ]
                 ],
                 [ // RequestController
@@ -354,6 +356,17 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS toggle-committed' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // StaffController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ]

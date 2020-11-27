@@ -2,18 +2,19 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\Staff;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use staff\models\Note;
-
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
 
 /**
- * RequestActivity controller
+ * Staff controller
  */
-class RequestActivityController extends Controller
+class StaffController extends Controller
 {
-
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -23,7 +24,7 @@ class RequestActivityController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -41,9 +42,8 @@ class RequestActivityController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::className(),
         ];
-
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
 
@@ -66,48 +66,42 @@ class RequestActivityController extends Controller
     }
 
     /**
-     * request activity list
-     * @param $id
-     * @return RequestActivity[]
+     * Return a List of staff Accounts available.
+     * @return ActiveDataProvider
      */
-    public function actionRequestActivities($id)
+    public function actionList()
     {
-        $query = Note::find()
-            ->andWhere(['request_uuid' => $id])
-            ->orderBy('note_created_datetime desc');
-
+        $query = Staff::find()
+            ->withoutCurrentUser();
+        
         return new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => false
+            'query' => $query
         ]);
     }
 
-
     /**
-     * return request activity detail
-     * @param $request_uuid
-     *
-     * @return RequestActivity
+     * @param $id
+     * @return Staff
      * @throws NotFoundHttpException
      */
-    public function actionDetail($id)
+    public function actionView($id)
     {
         return $this->findModel($id);
     }
 
     /**
-     * Finds the Request model based on its primary key value.
+     * Finds the Brand model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return RequestActivity the loaded model
+     * @return Staff the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Note::findOne($id)) !== null) {
+        if (($model = Staff::findOne($id)) !== null) {
             return $model;
         } else {
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
 }

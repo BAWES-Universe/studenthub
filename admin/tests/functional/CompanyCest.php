@@ -273,25 +273,6 @@ class CompanyCest
     }
     
     /**
-     * Update company status
-     * @param FunctionalTester $I
-     */
-    public function tryToUpdateCompanyStatus(FunctionalTester $I)
-    {
-        $company = Company::find()->one();
-        $I->wantTo('update company status via admin > companies API');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/change-status/'.$company->company_id, [
-            'status' => 10
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Company account status changed successfully"
-        ]);
-    }
-    
-    /**
      * Update company followup
      * @param FunctionalTester $I
      */

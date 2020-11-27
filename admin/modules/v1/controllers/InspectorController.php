@@ -99,7 +99,8 @@ class InspectorController extends Controller
 
         $model->inspector_name = Yii::$app->request->getBodyParam("name");
         $model->inspector_email = Yii::$app->request->getBodyParam("email");
-        $model->inspector_password_hash = Yii::$app->request->getBodyParam("password");
+
+        $model->setPassword (Yii::$app->security->generateRandomString());
 
         if (!$model->signup())
         {
@@ -115,6 +116,12 @@ class InspectorController extends Controller
                 ];
             }
         }
+
+        //send email to set password
+
+        $model->sendPasswordResetEmail();
+
+        //log to slack
 
         Yii::info('[Inspector Account Created] Inspector "'.$model->inspector_email.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
@@ -136,7 +143,7 @@ class InspectorController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
         if(!$model){
             return [
@@ -184,7 +191,7 @@ class InspectorController extends Controller
      */
     public function actionDelete($id)
     {
-        $member = $this->findModel((int)$id);
+        $member = $this->findModel($id);
 
         if($member)
         {
@@ -225,28 +232,11 @@ class InspectorController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->setScenario('updatePassword');
-
-        $model->inspector_password_hash = Yii::$app->security->generateRandomString(5);
-
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance."
-                ];
-            }
-        }
+        $model->sendPasswordResetEmail();
 
         return [
             "operation" => "success",
-            "message" => "New password sent to registered email successfully"
+            "message" => "Email has been sent to update password"
         ];
     }
 

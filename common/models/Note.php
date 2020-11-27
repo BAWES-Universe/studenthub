@@ -14,6 +14,9 @@ use yii\behaviors\AttributeBehavior;
  *
  * @property string $note_uuid
  * @property integer $company_id
+ * @property integer $candidate_id
+ * @property string $request_uuid
+ * @property string $note_type
  * @property string $note_text
  * @property integer $created_by
  * @property integer $updated_by
@@ -24,7 +27,14 @@ use yii\behaviors\AttributeBehavior;
  * @property staff[] $Staff
  */
 class Note extends \yii\db\ActiveRecord
-{ 
+{
+    const TYPE_INTERNAL_NOTE = "Internal Note";
+    const TYPE_PHONE_CALL = "Phone Call";
+    const TYPE_EMAIL = "Email";
+    const TYPE_MEETING = "Meeting";
+    const TYPE_INTERVIEW = "Interview";
+    const TYPE_TASK = "Task";
+
     /**
      * @inheritdoc
      */
@@ -39,12 +49,36 @@ class Note extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id','note_text'], 'required'],
-            [['note_created_datetime', 'note_updated_datetime','created_by','updated_by'], 'safe'],
+            [['note_text'], 'required'],
+            ['note_type', 'in', 'range' => [
+                self::TYPE_INTERNAL_NOTE,
+                self::TYPE_PHONE_CALL,
+                self::TYPE_EMAIL,
+                self::TYPE_MEETING,
+                self::TYPE_INTERVIEW,
+                self::TYPE_TASK
+            ]],
+            ['request_uuid', 'validateRequest'],
+            [['note_created_datetime', 'note_updated_datetime'], 'safe'],//,'created_by','updated_by'
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
         ];
+    }
+
+    /**
+     * can't update for cancelled/completed request
+     * @param type $attribute
+     * @param type $params
+     * @param type $validator
+     */
+    public function validateRequest($attribute, $params, $validator)
+    {
+        if($this->request && in_array($this->request->request_status, [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED])) {
+            $this->addError($attribute, Yii::t('app', "Can't update for cancelled/completed request."));
+        }
     }
 
     public function behaviors() {
@@ -70,7 +104,16 @@ class Note extends \yii\db\ActiveRecord
             [
                 'class' => BlameableBehavior::className(),
                 'createdByAttribute' => 'created_by',
+                'defaultValue' => function() {
+                    return $this->created_by;//for guest user
+                }
+            ],
+            [
+                'class' => BlameableBehavior::className(),
                 'updatedByAttribute' => 'updated_by',
+                'defaultValue' => function() {
+                    return $this->updated_by;//for guest user
+                }
             ],
         ];
     }
@@ -82,6 +125,9 @@ class Note extends \yii\db\ActiveRecord
     {
         return [
             'note_uuid' => Yii::t('candidate', 'ID'),
+            'candidate_id' => Yii::t('candidate', 'Candidate ID'),
+            'request_uuid' => Yii::t('candidate', 'Request ID'),
+            'note_type' => Yii::t('app', 'Note type'),
             'company_id' => Yii::t('candidate', 'Company ID'),
             'note_text' => Yii::t('candidate', 'Note'),
             'note_created_datetime' => Yii::t('candidate', 'Created At'),
@@ -106,15 +152,73 @@ class Note extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        parent::beforeSave($insert);
+
+        if($this->request) {
+            $message = Yii::t ('staff', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
+                'name' => $this->request->company->company_name,
+                'email' => $this->request->company->company_email,
+                'staffName' => $this->createdBy->staff_name,
+                'activityDetail' => $this->note_text
+            ]);
+
+            Yii::info ($message, __METHOD__);
+        }
+
+        return true;
+    }
+
+    public function afterSave($insert, $changedAttributes) {
+        parent::afterSave($insert, $changedAttributes);
+
+        if($insert && $this->request) {
+
+            //update `request_updated_at` field
+            $this->request->request_updated_datetime = '';
+            $this->request->update(false);
+            Company::updateRequest($this->request->company_id);
+        }
+
+        return true;
+    }
+
+    /**
      * @inheritdoc
      */
     public function extraFields()
     {
         return [
+            'candidate',
+            'request',
             'company',
             'createdBy',
             'updatedBy'
         ];
+    }
+
+    /**
+     * Gets query for [[Request]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($modelName = '\common\models\Candidate')
+    {
+        return $this->hasOne($modelName::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * Gets query for [[Request]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequest($modelName = '\common\models\Request')
+    {
+        return $this->hasOne($modelName::className(), ['request_uuid' => 'request_uuid']);
     }
 
     /**
@@ -139,5 +243,14 @@ class Note extends \yii\db\ActiveRecord
     public function getUpdatedBy($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\NoteQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\NoteQuery(get_called_class());
     }
 }
