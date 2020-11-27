@@ -169,5 +169,19 @@ return [
     "Created At" => "",
     "Created By" => "",
     "Updated By" => "",
-    "Note type" => ""
+    "Note type" => "",
+    "Fulltimer Tags ID" => "",
+    "Fulltimer Uuid" => "",
+    "Tag" => "",
+    "Nationality ID" => "",
+    "Country ID" => "",
+    "Fulltimer Area Uuid" => "",
+    "Fulltimer Latitude" => "",
+    "Fulltimer Longitude" => "",
+    "Fulltimer Name" => "",
+    "Fulltimer Phone" => "",
+    "Fulltimer Email" => "",
+    "Fulltimer Pdf Cv" => "",
+    "Fulltimer Created Datetime" => "",
+    "Fulltimer Updated Datetime" => ""
 ];
