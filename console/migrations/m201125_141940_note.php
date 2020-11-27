@@ -13,39 +13,65 @@ class m201125_141940_note extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('note','candidate_id',$this->integer(11)->null()->after('company_id'));
+        //to column to hide duplicate countries in future
 
-        $this->addColumn('note','request_uuid',$this->char(60)->null()->after('candidate_id'));
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('note')
+            ->getColumn('candidate_id');
 
-        $this->addColumn('note','note_type', "Enum('Internal Note', 'Phone Call', 'Email', 'Meeting', 'Interview', 'Task') DEFAULT 'Internal Note' AFTER `request_uuid`");
+        if (!$columnData) {
+            $this->addColumn('note','candidate_id',$this->integer(11)->null()->after('company_id'));
 
-        $this->createIndex(
-            'idx-note-candidate_id',
-            'note',
-            'candidate_id'
-        );
+            $this->createIndex(
+                'idx-note-candidate_id',
+                'note',
+                'candidate_id'
+            );
 
-        $this->createIndex(
-            'idx-note-request_uuid',
-            'note',
-            'request_uuid'
-        );
+            $this->addForeignKey(
+                'fk-note-candidate_id',
+                'note',
+                'candidate_id',
+                'candidate',
+                'candidate_id'
+            );
+        }
 
-        $this->addForeignKey(
-            'fk-note-candidate_id',
-            'note',
-            'candidate_id',
-            'candidate',
-            'candidate_id'
-        );
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('note')
+            ->getColumn('request_uuid');
 
-        $this->addForeignKey(
-            'fk-note-request_uuid',
-            'note',
-            'request_uuid',
-            'request',
-            'request_uuid'
-        );
+        if (!$columnData) {
+            $this->addColumn('note','request_uuid',$this->char(60)->null()->after('candidate_id'));
+
+            $this->createIndex(
+                'idx-note-request_uuid',
+                'note',
+                'request_uuid'
+            );
+
+            $this->addForeignKey(
+                'fk-note-request_uuid',
+                'note',
+                'request_uuid',
+                'request',
+                'request_uuid'
+            );
+        }
+
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('note')
+            ->getColumn('note_type');
+
+        if (!$columnData) {
+            $this->addColumn ('note', 'note_type', "Enum('Internal Note', 'Phone Call', 'Email', 'Meeting', 'Interview', 'Task') DEFAULT 'Internal Note' AFTER `request_uuid`");
+        }
 
         //Move to final note
 
