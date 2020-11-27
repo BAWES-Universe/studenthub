@@ -51,9 +51,6 @@ class Company extends \common\models\Company {
             },
             'total_stores' => function($model) {
                 return (int)$model->getStores()->count();
-            },
-            'last_40_days_transfer_count' => function($model) {
-                return (int)self::transferInLast40Days($model->company_id);
             }
         ]);
     }
