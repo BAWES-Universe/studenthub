@@ -132,6 +132,7 @@ class NoteController extends Controller
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->note_type = Yii::$app->request->getBodyParam("type");
+        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
 
         if (!$model->save())
@@ -174,6 +175,7 @@ class NoteController extends Controller
 
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->note_type = Yii::$app->request->getBodyParam("type");
+        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
 
         if (!$model->save())
         {

@@ -16,6 +16,7 @@ use yii\behaviors\AttributeBehavior;
  * @property integer $company_id
  * @property integer $candidate_id
  * @property string $request_uuid
+ * @property string $contact_uuid
  * @property string $note_type
  * @property string $note_text
  * @property integer $created_by
@@ -59,6 +60,7 @@ class Note extends \yii\db\ActiveRecord
                 self::TYPE_TASK
             ]],
             ['request_uuid', 'validateRequest'],
+            ['contact_uuid', 'validateContact'],
             [['note_created_datetime', 'note_updated_datetime'], 'safe'],//,'created_by','updated_by'
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
@@ -78,6 +80,22 @@ class Note extends \yii\db\ActiveRecord
     {
         if($this->request && in_array($this->request->request_status, [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED])) {
             $this->addError($attribute, Yii::t('app', "Can't update for cancelled/completed request."));
+        }
+    }
+
+    /**
+     * exist to check in same company
+     * @param type $attribute
+     * @param type $params
+     * @param type $validator
+     */
+    public function validateContact($attribute, $params, $validator)
+    {
+        if ($this->company_id && $this->contact_uuid) {
+            $exist = CompanyContact::find()->andWhere(['company_id'=>$this->company_id,'contact_uuid'=>$this->contact_uuid])->exists();
+            if (!$exist) {
+                $this->addError($attribute, Yii::t('app', "Invalid contact request"));
+            }
         }
     }
 
@@ -127,6 +145,7 @@ class Note extends \yii\db\ActiveRecord
             'note_uuid' => Yii::t('candidate', 'ID'),
             'candidate_id' => Yii::t('candidate', 'Candidate ID'),
             'request_uuid' => Yii::t('candidate', 'Request ID'),
+            'contact_uuid' => Yii::t('candidate', 'Contact ID'),
             'note_type' => Yii::t('app', 'Note type'),
             'company_id' => Yii::t('candidate', 'Company ID'),
             'note_text' => Yii::t('candidate', 'Note'),
@@ -197,7 +216,8 @@ class Note extends \yii\db\ActiveRecord
             'request',
             'company',
             'createdBy',
-            'updatedBy'
+            'updatedBy',
+            'companyContact',
         ];
     }
 
@@ -219,6 +239,16 @@ class Note extends \yii\db\ActiveRecord
     public function getRequest($modelName = '\common\models\Request')
     {
         return $this->hasOne($modelName::className(), ['request_uuid' => 'request_uuid']);
+    }
+
+    /**
+     * Gets query for [[CompanyContact]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContact($modelName = '\common\models\CompanyContact')
+    {
+        return $this->hasOne($modelName::className(), ['contact_uuid' => 'contact_uuid']);
     }
 
     /**
