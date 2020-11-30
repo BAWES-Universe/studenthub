@@ -32,6 +32,8 @@ use yii\helpers\Console;
  */
 class Fulltimer extends \yii\db\ActiveRecord
 {
+    public $tags;
+
     /**
      * {@inheritdoc}
      */
@@ -46,12 +48,24 @@ class Fulltimer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['fulltimer_name', 'fulltimer_email'], 'required'],
+            [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv'], 'required'],
             [['nationality_id', 'country_id'], 'integer'],
             [['fulltimer_latitude', 'fulltimer_longitude'], 'number'],
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
             [['fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv'], 'string', 'max' => 255],
+
+            [
+                ['fulltimer_pdf_cv'],
+                '\common\components\S3FileExistValidator',
+                'filePath' => '',
+                'message' => "Please upload pdf resume",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'extensions' => 'pdf',
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
             [['fulltimer_email'], 'unique'],
             [['fulltimer_uuid'], 'unique'],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
@@ -106,6 +120,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_updated_datetime' => Yii::t('app', 'Fulltimer Updated Datetime'),
         ];
     }
+
     /**
      * @inheritdoc
      */
@@ -117,6 +132,73 @@ class Fulltimer extends \yii\db\ActiveRecord
             'area',
             'fulltimerTags',
         ];
+    }
+
+    public function afterSave($insert, $changedAttributes) {
+
+
+        if(!$this->tags) {
+            return true;
+        }
+
+        //remove old 
+
+        FulltimerTags::deleteAll(['fulltimer_uuid' => $this->fulltimer_uuid]);
+
+        if(!is_array($this->tags)) {
+            $this->tags = json_decode($this->tags);
+        }
+
+        //add tags 
+    
+        foreach($this->tags as $flltimerTag) {
+         
+            $model = new FulltimerTags;
+            $model->fulltimer_uuid = $this->fulltimer_uuid;
+            $model->tag = is_object($flltimerTag)? $flltimerTag->tag: $flltimerTag['tag'];
+            if(!$model->save()) {
+                print_r($model->errors);
+                die();
+            }
+        }
+
+        $this->updateAlgoliaIndex($insert);
+
+        return true;
+    }
+
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave ($insert)) {
+            return false;
+        }
+
+        //on resume uploaded
+
+        if($insert && $this->fulltimer_pdf_cv) {
+            return $this->updateResume();
+        }
+
+        //on resume updated
+
+        if(!$insert && $this->fulltimer_pdf_cv && $this->fulltimer_pdf_cv != $this->oldAttributes['fulltimer_pdf_cv']) {
+
+            //remove old resume 
+
+            if($this->oldAttributes['fulltimer_pdf_cv']) {
+                Yii::$app->resourceManager->delete("fulltimer-resume/" . $this->oldAttributes['fulltimer_pdf_cv']);
+            }
+
+            return $this->updateResume();
+        }
+
+        //on resume removed
+
+        if(!$insert && !$this->fulltimer_pdf_cv && $this->oldAttributes['fulltimer_pdf_cv']) {
+            return $this->deleteResume ();
+        }
+
+        return true;
     }
 
     /**
@@ -152,14 +234,22 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_email' => $this->fulltimer_email,
             'fulltimer_pdf_cv' => $this->fulltimer_pdf_cv,
             'fulltimer_created_datetime' => $this->fulltimer_created_datetime,
-            'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime
+            'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime,
+            'have_resume' => $this->fulltimer_pdf_cv? 'Yes': 'No',
         ];
 
         if($this->nationality) {
             $data['nationality'] = [
                 'nationality_id' => $this->nationality_id,
-                'nationality_name_en' => $this->nationality->country_name_en,
-                'nationality_name_ar' => $this->nationality->country_name_ar
+                'nationality_name_en' => $this->nationality->country_nationality_name_en,
+                'nationality_name_ar' => $this->nationality->country_nationality_name_ar
+            ];
+        }
+
+        if($this->area) {
+            $data['area'] = [
+                'area_name_en' => $this->area->area_name_en,
+                'area_name_ar' => $this->area->area_name_ar
             ];
         }
 
@@ -275,6 +365,78 @@ class Fulltimer extends \yii\db\ActiveRecord
         }
 
         return $total;
+    }
+
+    /**
+     * save resume to permanent bucket
+     * @return boolean
+     */
+    public function updateResume() {
+
+        $fileName = $this->fulltimer_pdf_cv;
+
+        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+
+        $targetPath = "fulltimer-resume/" . $fileName;
+
+        // Copy using S3ResourceManager Component
+
+        try {
+
+            $result = Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+            Yii::error($result, 'staff');
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'staff');
+
+            $this->addError('fulltimer_pdf_cv', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'staff');
+
+            $this->addError('fulltimer_pdf_cv', Yii::t('app', 'Resume not available to save.'));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * delete resume from permanent bucket
+     * @return boolean
+     */
+    public function deleteResume() {
+
+        try {
+
+            Yii::$app->resourceManager->delete("fulltimer-resume/" . $this->fulltimer_pdf_cv);
+
+            $this->fulltimer_pdf_cv = null;
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'staff');
+
+            $this->addError('fulltimer_pdf_cv', Yii::t('app', 'Resume not available to delete.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'staff');
+
+            $this->addError('fulltimer_pdf_cv', Yii::t('app', 'Resume not available to delete.'));
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

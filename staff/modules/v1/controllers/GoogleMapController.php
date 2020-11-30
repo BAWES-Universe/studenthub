@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\Area;
 use Yii;
 use yii\rest\Controller;  
 
@@ -82,5 +83,22 @@ class GoogleMapController extends Controller
         $country_name = Yii::$app->request->get('country_name');
 
         return Yii::$app->googleMap->placeDetail($place_id, $name, $country_name);
+    }
+
+    /**
+     * Return area by geolocation
+     * @return type
+     */
+    public function actionAreaByLocation()
+    {
+        $latitude = Yii::$app->request->get("latitude");
+        $longitude = Yii::$app->request->get("longitude");
+        $area_name = Yii::$app->request->get("area");
+
+        // call google api to get country name, lat, long
+
+        $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $latitude .','. $longitude;
+
+        return Area::addByGoogleAPIResponse($url, $area_name);
     }
 }

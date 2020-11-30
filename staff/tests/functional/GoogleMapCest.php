@@ -29,6 +29,14 @@ class GoogleMapCest
     {
     }
 
+    public function tryGetAreaByLocation(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to get area by location');
+        $I->sendGET('v1/google-map/area-by-location?latitude=70&longitude=70');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([ 'operation' => 'success']);
+    }
+
     public function tryToPlaceDetail(FunctionalTester $I)
     {
         $I->wantTo('Validate google-map > place detail api response');

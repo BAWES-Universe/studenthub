@@ -21,6 +21,10 @@ class AlgoliaController extends \yii\console\Controller {
                 $count = Candidate::synchWithAlgolia();
                 $this->stdout(PHP_EOL . $count . " Candidate synchronized. \n", Console::FG_RED, Console::BOLD);
                 break;
+            case 'fulltimer':
+                $count = Fulltimer::synchWithAlgolia();
+                $this->stdout(PHP_EOL . $count . " Fulltimer synchronized. \n", Console::FG_RED, Console::BOLD);
+                break;
             default:
                 break;
         }
