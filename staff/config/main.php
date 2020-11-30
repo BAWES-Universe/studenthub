@@ -349,6 +349,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'GET list-by-id/<id>' => 'list-by-id',
                         'POST' => 'create',
                         'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH <id>' => 'update',
@@ -357,6 +358,7 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS toggle-committed' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS list-by-id/<id>' => 'options',
                     ]
                 ],
                 [ // StaffController

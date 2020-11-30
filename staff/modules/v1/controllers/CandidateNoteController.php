@@ -81,6 +81,21 @@ class CandidateNoteController extends Controller
     }
 
     /**
+     * Return a List of Brand Accounts available.
+     * @return ActiveDataProvider
+     */
+    public function actionListById($id)
+    {
+        $query = Note::find()
+            ->orderBy('note_created_datetime DESC')
+            ->andWhere(['candidate_id'=>$id]);
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * @param $id
      * @return Note
      * @throws NotFoundHttpException
