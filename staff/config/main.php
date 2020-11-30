@@ -305,6 +305,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // FulltimerController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/fulltimer',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // MallController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/mall',
@@ -327,9 +341,11 @@ return [
                     'patterns' => [
                         'GET place-detail/<place_id>' => 'place-detail',
                         'GET place-predictions' => 'place-predictions',
+                        'GET area-by-location' => 'area-by-location',
                         // OPTIONS VERBS
                         'OPTIONS place-detail/<place_id>' => 'options',
-                        'OPTIONS place-predictions' => 'options'
+                        'OPTIONS place-predictions' => 'options',
+                        'OPTIONS area-by-location' => 'options',
                     ]
                 ],
                 [ // RequestActivityController

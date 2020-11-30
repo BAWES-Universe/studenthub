@@ -72,6 +72,7 @@ class AlgoliaController extends Controller
         $params = [
             'restrictIndices' => [
                 Yii::$app->params['algolia_candidate_index'],
+                Yii::$app->params['algolia_fulltimer_index'],
             ],
             'filters' => '',
             'validUntil' => time() + $ttl,
