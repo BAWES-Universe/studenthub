@@ -112,6 +112,27 @@ class NoteController extends Controller
     }
 
     /**
+     * @param $type
+     * @param $id
+     * @return ActiveDataProvider
+     */
+    public function actionListByTypeAndId($type,$id)
+    {
+        $query = Note::find()->orderBy('note_created_datetime DESC');
+        switch($type) {
+            case 'fulltimer' :
+                $query->andWhere(['fulltimer_uuid'=>$id]);
+                break;
+            default :
+                $query->andWhere(['created_by'=>$id]);
+                break;
+        }
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * @param $id
      * @return Note
      * @throws NotFoundHttpException
@@ -133,7 +154,9 @@ class NoteController extends Controller
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->note_type = Yii::$app->request->getBodyParam("type");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
+        $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
 
         if (!$model->save())
         {
@@ -176,6 +199,9 @@ class NoteController extends Controller
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->note_type = Yii::$app->request->getBodyParam("type");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
+        $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
+        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
 
         if (!$model->save())
         {

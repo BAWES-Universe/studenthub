@@ -81,8 +81,9 @@ class FulltimerController extends Controller
 
     /**
      * load fulltimer details
-     * @param type $id
-     * @return type
+     * @param $id
+     * @return Fulltimer
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
