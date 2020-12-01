@@ -36,6 +36,10 @@ class Note extends \yii\db\ActiveRecord
     const TYPE_INTERVIEW = "Interview";
     const TYPE_TASK = "Task";
 
+    const TYPE_SUGGESTED = "suggested";
+    const TYPE_ACCEPTED = "accepted";
+    const TYPE_REJECTED = "rejected";
+
     /**
      * @inheritdoc
      */
@@ -57,7 +61,10 @@ class Note extends \yii\db\ActiveRecord
                 self::TYPE_EMAIL,
                 self::TYPE_MEETING,
                 self::TYPE_INTERVIEW,
-                self::TYPE_TASK
+                self::TYPE_TASK,
+                self::TYPE_SUGGESTED,
+                self::TYPE_ACCEPTED,
+                self::TYPE_REJECTED
             ]],
             ['request_uuid', 'validateRequest'],
             ['contact_uuid', 'validateContact'],
