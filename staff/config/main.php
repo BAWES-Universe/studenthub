@@ -254,6 +254,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'GET <type>/<id>' => 'list-by-type-and-id',
                         'GET staff/<id>' => 'list-by-staff',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
@@ -262,6 +263,7 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS staff/<id>' => 'options',
+                        'OPTIONS <type>/<id>' => 'options',
                     ]
                 ],
                 [ // RequestController
