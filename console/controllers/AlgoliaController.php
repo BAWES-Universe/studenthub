@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use common\models\Fulltimer;
 use Yii;
 use yii\helpers\Console;
 use common\models\Candidate;
