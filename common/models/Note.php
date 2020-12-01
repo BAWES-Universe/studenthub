@@ -16,6 +16,8 @@ use yii\behaviors\AttributeBehavior;
  * @property integer $company_id
  * @property integer $candidate_id
  * @property string $request_uuid
+ * @property string $contact_uuid
+ * @property string $fulltimer_uuid
  * @property string $note_type
  * @property string $note_text
  * @property integer $created_by
@@ -59,10 +61,12 @@ class Note extends \yii\db\ActiveRecord
                 self::TYPE_TASK
             ]],
             ['request_uuid', 'validateRequest'],
+            ['contact_uuid', 'validateContact'],
             [['note_created_datetime', 'note_updated_datetime'], 'safe'],//,'created_by','updated_by'
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
         ];
@@ -78,6 +82,22 @@ class Note extends \yii\db\ActiveRecord
     {
         if($this->request && in_array($this->request->request_status, [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED])) {
             $this->addError($attribute, Yii::t('app', "Can't update for cancelled/completed request."));
+        }
+    }
+
+    /**
+     * exist to check in same company
+     * @param type $attribute
+     * @param type $params
+     * @param type $validator
+     */
+    public function validateContact($attribute, $params, $validator)
+    {
+        if ($this->company_id && $this->contact_uuid) {
+            $exist = CompanyContact::find()->andWhere(['company_id'=>$this->company_id,'contact_uuid'=>$this->contact_uuid])->exists();
+            if (!$exist) {
+                $this->addError($attribute, Yii::t('app', "Invalid contact request"));
+            }
         }
     }
 
@@ -127,6 +147,8 @@ class Note extends \yii\db\ActiveRecord
             'note_uuid' => Yii::t('candidate', 'ID'),
             'candidate_id' => Yii::t('candidate', 'Candidate ID'),
             'request_uuid' => Yii::t('candidate', 'Request ID'),
+            'contact_uuid' => Yii::t('candidate', 'Contact ID'),
+            'fulltimer_uuid' => Yii::t('candidate', 'FullTimer ID'),
             'note_type' => Yii::t('app', 'Note type'),
             'company_id' => Yii::t('candidate', 'Company ID'),
             'note_text' => Yii::t('candidate', 'Note'),
@@ -197,7 +219,8 @@ class Note extends \yii\db\ActiveRecord
             'request',
             'company',
             'createdBy',
-            'updatedBy'
+            'updatedBy',
+            'companyContact',
         ];
     }
 
@@ -222,6 +245,16 @@ class Note extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[CompanyContact]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContact($modelName = '\common\models\CompanyContact')
+    {
+        return $this->hasOne($modelName::className(), ['contact_uuid' => 'contact_uuid']);
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCompany($modelClass = "\common\models\Company")
@@ -243,6 +276,14 @@ class Note extends \yii\db\ActiveRecord
     public function getUpdatedBy($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimer($modelClass = "\common\models\Fulltimer")
+    {
+        return $this->hasOne($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
     }
 
     /**

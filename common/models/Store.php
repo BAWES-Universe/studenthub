@@ -142,7 +142,9 @@ class Store extends \yii\db\ActiveRecord
             'candidates',
             'candidatesCount',
             'brand',
-            'mall'
+            'mall',
+            'candidateWorkHistory',
+            'candidateWorkHistoryByLast40Days'
         ];
     }
 
@@ -205,6 +207,25 @@ class Store extends \yii\db\ActiveRecord
     public function getMall($modelClass = "\common\models\Mall")
     {
         return $this->hasOne($modelClass::className(), ['mall_uuid' => 'mall_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistoryByLast40Days($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->getCandidateWorkHistory()
+            ->andWhere('DATE(start_date) > DATE_SUB(NOW(),INTERVAL 40 DAY)')
+            ->orderBy('start_date ASC')
+            ->exists();
     }
 
     /**

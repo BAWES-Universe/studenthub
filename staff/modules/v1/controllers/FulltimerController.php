@@ -5,16 +5,16 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use staff\models\Note;
+use common\models\Fulltimer;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
 
 /**
- * Note controller - Manage brand as Admin
+ * Fulltimer controller - Manage fulltimer as Admin
  */
-class NoteController extends Controller
+class FulltimerController extends Controller
 {
     public function behaviors()
     {
@@ -67,29 +67,12 @@ class NoteController extends Controller
     }
 
     /**
-     * Return a List of Brand Accounts available.
+     * Return a List of Fulltimer Accounts available.
      * @return ActiveDataProvider
      */
     public function actionList()
     {
-        $candidate_id = Yii::$app->request->get('candidate_id');
-        $request_uuid = Yii::$app->request->get('request_uuid');
-        $company_id = Yii::$app->request->get('company_id');
-
-        $query = Note::find()
-            ->orderBy('note_created_datetime DESC');
-
-        if($company_id) {
-            $query->filterCompany($company_id);
-        }
-
-        if($request_uuid) {
-            $query->filterRequest($request_uuid);
-        }
-
-        if($candidate_id) {
-            $query->filterCandidate($candidate_id);
-        }
+        $query = Fulltimer::find();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -97,65 +80,35 @@ class NoteController extends Controller
     }
 
     /**
-     * Return a List of Notes By staff Accounts available.
-     * @return ActiveDataProvider
-     */
-    public function actionListByStaff($id)
-    {
-        $query = Note::find()
-            ->orderBy('note_created_datetime DESC')
-            ->andWhere(['created_by'=>$id]);
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * @param $type
+     * load fulltimer details
      * @param $id
-     * @return ActiveDataProvider
-     */
-    public function actionListByTypeAndId($type,$id)
-    {
-        $query = Note::find()->orderBy('note_created_datetime DESC');
-        switch($type) {
-            case 'fulltimer' :
-                $query->andWhere(['fulltimer_uuid'=>$id]);
-                break;
-            default :
-                $query->andWhere(['created_by'=>$id]);
-                break;
-        }
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * @param $id
-     * @return Note
+     * @return Fulltimer
      * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
         return $this->findModel($id);
     }
-    
+
     /**
-     * Create a Note account
+     * Create a fulltimer account
      * @return array
      */
     public function actionCreate()
     {
-        // Attempt to create new brand
-        $model = new Note();
+        $model = new Fulltimer();
 
-        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
-        $model->note_type = Yii::$app->request->getBodyParam("type");
-        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
-        $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
+        $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
+        $model->fulltimer_area_uuid = Yii::$app->request->getBodyParam("area_uuid");
+        $model->country_id = Yii::$app->request->getBodyParam("country_id");
+        $model->fulltimer_latitude = Yii::$app->request->getBodyParam("latitude");
+        $model->fulltimer_longitude = Yii::$app->request->getBodyParam("longitude");
+        $model->fulltimer_name = Yii::$app->request->getBodyParam("name");
+        $model->fulltimer_phone = Yii::$app->request->getBodyParam("phone");
+        $model->fulltimer_email = Yii::$app->request->getBodyParam("email");
+        $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
+
+        $model->tags = Yii::$app->request->getBodyParam("tags");
 
         if (!$model->save())
         {
@@ -167,39 +120,38 @@ class NoteController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => "We've faced a problem creating the fulltimer, please contact us for assistance."
                 ];
             }
         }
 
         return [
             "operation" => "success",
-            "message" => "Note created successfully"
+            "message" => "Fulltimer created successfully"
         ];
     }
 
     /**
-     * Create a Note account
+     * Create a fulltimer account
      * @param $id
      * @return array
      */
     public function actionUpdate($id)
     {
-        // Attempt to create new account
         $model = $this->findModel($id);
 
-        if(!$model){
-            return [
-                    "operation" => "error",
-                    "message" => "Note not found."
-                ];
-        }
-
-        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
-        $model->note_type = Yii::$app->request->getBodyParam("type");
-        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
-        $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
-
+        $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
+        $model->fulltimer_area_uuid = Yii::$app->request->getBodyParam("area_uuid");
+        $model->country_id = Yii::$app->request->getBodyParam("country_id");
+        $model->fulltimer_latitude = Yii::$app->request->getBodyParam("latitude");
+        $model->fulltimer_longitude = Yii::$app->request->getBodyParam("longitude");
+        $model->fulltimer_name = Yii::$app->request->getBodyParam("name");
+        $model->fulltimer_phone = Yii::$app->request->getBodyParam("phone");
+        $model->fulltimer_email = Yii::$app->request->getBodyParam("email");
+        $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
+        
+        $model->tags = Yii::$app->request->getBodyParam("tags");
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -210,52 +162,44 @@ class NoteController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Note, please contact us for assistance."
+                    "message" => "We've faced a problem updating the fulltimer, please contact us for assistance."
                 ];
             }
         }
 
         return [
             "operation" => "success",
-            "message" => "Note successfully updated"
+            "message" => "Fulltimer successfully updated"
         ];
     }
 
     /**
-     * Delete an account
+     * Delete an fulltimer
      * @param  integer $id
      * @return array
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel($id);
+        $fulltimer = $this->findModel($id);
 
-        if(!$brand) {
-            return [
-                "operation" => "error",
-                "message" => "Note not found or already deleted"
-            ];
-        }
-
-        // Delete brand
-        $brand->delete();
+        $fulltimer->delete();
 
         return [
             "operation" => "success",
-            "message" => "Note deleted successfully"
+            "message" => "Fulltimer deleted successfully"
         ];
     }
-    
+
     /**
-     * Finds the Brand model based on its primary key value.
+     * Finds the Fulltimer model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Note the loaded model
+     * @return Fulltimer the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Note::findOne($id)) !== null) {
+        if (($model = Fulltimer::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

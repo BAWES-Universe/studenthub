@@ -2137,8 +2137,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if($this->country) {
             $data['country'] = [
                 'country_id' => $this->country_id,
-                'country_name_en' => $this->country->country_name_en,
-                'country_name_ar' => $this->country->country_name_ar
+                'country_name_en' => $this->nationality->country_name_en,
+                'country_name_ar' => $this->nationality->country_name_ar
             ];
         }
 
