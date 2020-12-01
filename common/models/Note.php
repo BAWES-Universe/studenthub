@@ -17,6 +17,7 @@ use yii\behaviors\AttributeBehavior;
  * @property integer $candidate_id
  * @property string $request_uuid
  * @property string $contact_uuid
+ * @property string $fulltimer_uuid
  * @property string $note_type
  * @property string $note_text
  * @property integer $created_by
@@ -65,6 +66,7 @@ class Note extends \yii\db\ActiveRecord
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
         ];
@@ -146,6 +148,7 @@ class Note extends \yii\db\ActiveRecord
             'candidate_id' => Yii::t('candidate', 'Candidate ID'),
             'request_uuid' => Yii::t('candidate', 'Request ID'),
             'contact_uuid' => Yii::t('candidate', 'Contact ID'),
+            'fulltimer_uuid' => Yii::t('candidate', 'FullTimer ID'),
             'note_type' => Yii::t('app', 'Note type'),
             'company_id' => Yii::t('candidate', 'Company ID'),
             'note_text' => Yii::t('candidate', 'Note'),
@@ -273,6 +276,14 @@ class Note extends \yii\db\ActiveRecord
     public function getUpdatedBy($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimer($modelClass = "\common\models\Fulltimer")
+    {
+        return $this->hasOne($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
     }
 
     /**

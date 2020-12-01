@@ -131,6 +131,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             'country',
             'area',
             'fulltimerTags',
+            'notes',
         ];
     }
 
@@ -467,6 +468,14 @@ class Fulltimer extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      */
     public function getFulltimerTags($modelClass = "\common\models\FulltimerTags")
+    {
+        return $this->hasMany($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
     }
