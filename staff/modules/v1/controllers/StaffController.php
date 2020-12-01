@@ -71,8 +71,7 @@ class StaffController extends Controller
      */
     public function actionList()
     {
-        $query = Staff::find()
-            ->withoutCurrentUser();
+        $query = Staff::find();
         
         return new ActiveDataProvider([
             'query' => $query
