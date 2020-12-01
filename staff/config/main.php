@@ -273,6 +273,7 @@ return [
                         'GET' => 'list',
                         'GET pending' => 'list-pending',
                         'GET active' => 'list-active',
+                        'GET all-active' => 'list-all-active',
                         'GET my' => 'list-my',
                         'GET <id>' => 'view',
                         'POST' => 'create',
@@ -291,6 +292,7 @@ return [
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
+                        'OPTIONS all-active' => 'options',
                     ]
                 ],
                 [ // BrandController
