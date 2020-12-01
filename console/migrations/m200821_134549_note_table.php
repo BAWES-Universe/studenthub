@@ -17,9 +17,11 @@ class m200821_134549_note_table extends Migration
             // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
+
         $this->createTable('note', [
             "note_uuid" => $this->char(60),
             'company_id' => $this->integer(),
+            'contact_uuid' => $this->char(60)->null(),
             'staff_id' => $this->integer()->comment("which staff made the note"),
             'note_text' => $this->text(),
             'note_created_datetime' => $this->datetime()->notNull(),
@@ -27,6 +29,20 @@ class m200821_134549_note_table extends Migration
         ], $tableOptions);
 
         $this->addPrimaryKey('PK', 'note', 'note_uuid');
+
+        $this->createIndex(
+            'idx-note-contact_uuid',
+            'note',
+            'contact_uuid'
+        );
+
+        $this->addForeignKey(
+            'fk-note-contact_uuid',
+            'note',
+            'contact_uuid',
+            'company_contact',
+            'contact_uuid'
+        );
 
         // creates index for column `company_id`
         $this->createIndex(
