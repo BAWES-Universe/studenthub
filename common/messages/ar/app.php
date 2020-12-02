@@ -183,5 +183,12 @@ return [
     "Fulltimer Email" => "",
     "Fulltimer Pdf Cv" => "",
     "Fulltimer Created Datetime" => "",
-    "Fulltimer Updated Datetime" => ""
+    "Fulltimer Updated Datetime" => "",
+    "Missing candidate" => "",
+    "Suggestion Uuid" => "",
+    "Request Uuid" => "",
+    "Note Uuid" => "",
+    "Suggestion Status" => "",
+    "Suggestion Datetime" => "",
+    "Missing {value}" => "" 
 ];
