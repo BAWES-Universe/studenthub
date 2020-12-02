@@ -94,12 +94,9 @@ class UniversityController extends Controller
         // Attempt to create new University
         $model = new University();
 
-        if(Yii::$app->language == 'ar') {
-            $model->university_name_ar = Yii::$app->request->getBodyParam("name");
-        } else {
-            $model->university_name_en = Yii::$app->request->getBodyParam("name");
-        }
-
+        $model->university_name_ar = Yii::$app->request->getBodyParam("name");
+        $model->university_name_en = Yii::$app->request->getBodyParam("name");
+        
         $model->university_data_source = University::FROM_CANDIDATE;
 
         if (!$model->save())
