@@ -338,6 +338,19 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // SuggestionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/suggestion',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // GoogleMapController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/google-map',
