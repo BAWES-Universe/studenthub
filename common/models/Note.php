@@ -37,9 +37,9 @@ class Note extends \yii\db\ActiveRecord
     const TYPE_INTERVIEW = "Interview";
     const TYPE_TASK = "Task";
 
-    const TYPE_SUGGESTED = "suggested";
-    const TYPE_ACCEPTED = "accepted";
-    const TYPE_REJECTED = "rejected";
+    const TYPE_SUGGESTED = "Suggested";
+    const TYPE_ACCEPTED = "Accepted";
+    const TYPE_REJECTED = "Rejected";
 
     /**
      * @inheritdoc
