@@ -59,6 +59,9 @@ class m201201_065229_add_fulltimer_in_note extends Migration
      */
     public function safeDown()
     {
+        $this->dropForeignKey('fk-note-contact_uuid','note');
+        $this->dropColumn('note','contact_uuid');
+
         $this->dropForeignKey('fk-note-fulltimer_uuid','note');
         $this->dropColumn('note','fulltimer_uuid');
     }
