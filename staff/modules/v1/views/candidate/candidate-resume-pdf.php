@@ -57,7 +57,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                     </div>
                     <div class="pull-left"  style="width: 70%">
                         <p style="font-size: 16px;color: #333333;  padding-left: 15px;padding-top: 8px">
-                            <?=$candidate->university->university_name_en?>
+                            <?= $candidate->university->university_name_en? $candidate->university->university_name_en: $candidate->university->university_name_ar ?>
                         </p>
                     </div>
                 </div>

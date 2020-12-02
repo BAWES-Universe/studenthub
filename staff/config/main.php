@@ -277,6 +277,7 @@ return [
                         'GET my' => 'list-my',
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        'PATCH pick-up/<id>' => 'pick-up',
                         'PATCH <id>' => 'update',
                         'PATCH start/<id>' => 'start',
                         'PATCH cancel/<id>' => 'cancel',
@@ -288,6 +289,7 @@ return [
                         'OPTIONS pending' => 'options',
                         'OPTIONS active' => 'options',
                         'OPTIONS my' => 'options',
+                        'OPTIONS pick-up/<id>' => 'options',
                         'OPTIONS start/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
@@ -332,6 +334,19 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // SuggestionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/suggestion',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
