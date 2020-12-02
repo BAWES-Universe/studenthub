@@ -412,13 +412,6 @@ class RequestController extends Controller
 
         $model = $this->findModel($request_uuid);
 
-        if($model->request_created_by != Yii::$app->user->getId()) {
-            return [
-                "operation" => "error",
-                "message" => "You are not handling this request."
-            ];
-        }
-
         $modelActivity = new Note();
         $modelActivity->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $modelActivity->note_text = Yii::$app->request->getBodyParam("detail");
@@ -441,6 +434,51 @@ class RequestController extends Controller
         return [
             "operation" => "success",
             "message" => "Request activity successfully added",
+            "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Allows staff to pickup the request
+     */
+    public function actionPickUp($id) {
+
+        $model = $this->findModel($id);
+
+        if ($model->staff_id == Yii::$app->user->getId()) {
+            return [
+                "operation" => "error",
+                "message" => "you are already owner of this ticket"
+            ];
+        }
+        $model->staff_id = Yii::$app->user->getId();;
+        $staff_name = Yii::$app->user->identity->staff_name;
+        if ($model->save(false)) {
+            $modelActivity = new Note();
+            $modelActivity->request_uuid = $id;
+            $modelActivity->note_text = $staff_name.' has picked up this request to work on.';
+
+            if (!$modelActivity->save()) {
+                if (isset($modelActivity->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $modelActivity->errors
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem adding the request activity, please contact us for assistance."
+                    ];
+                }
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request Picked up successfully",
             "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
         ];
 
