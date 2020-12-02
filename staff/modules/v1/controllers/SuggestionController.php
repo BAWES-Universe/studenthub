@@ -74,10 +74,28 @@ class SuggestionController extends Controller
      */
     public function actionList()
     {
-        $query = Suggestion::find();
+        $request_uuid = Yii::$app->request->get("request_uuid");
+        $fulltimer_uuid = Yii::$app->request->get("fulltimer_uuid");
+        $candidate_id = Yii::$app->request->get("candidate_id");
+
+        $query = Suggestion::find()
+            ->orderBy('suggestion_datetime DESC');
+
+        if($request_uuid) {
+            $query->andWhere(['request_uuid' => $request_uuid]);
+        }
+
+        if($fulltimer_uuid) {
+            $query->andWhere(['fulltimer_uuid' => $fulltimer_uuid]);
+        }
+
+        if($candidate_id) {
+            $query->andWhere(['candidate_id' => $candidate_id]);
+        }
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => false
         ]);
     }
 

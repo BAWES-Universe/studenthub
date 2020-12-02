@@ -54,6 +54,19 @@ class Suggestion extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'request',
+            'candidate',
+            'fulltimer',
+            'note'
+        ];
+    }
+
+    /**
      * Need candidate or fulltimer
      */
     public function validateCandidate($attribute)
