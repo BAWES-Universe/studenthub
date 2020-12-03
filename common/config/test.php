@@ -6,11 +6,8 @@ return [
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'components' => [
     	//to fix error for BlamableBehaviour in unit testing
-        'user' => [
-            'identityClass' => 'common\models\Staff',
-            'enableAutoLogin' => false,
-            'enableSession' => false,
-            'loginUrl' => null
-        ],
-    ]
+	    'user' => [
+	        'class' => 'common\models\Staff'
+	    ],
+	]
 ];
