@@ -69,7 +69,7 @@ class SuggestionController extends Controller
     }
 
     /**
-     * Return a List of Suggestion Accounts available.
+     * Return a List of Suggestion s available.
      * @return ActiveDataProvider
      */
     public function actionList()
@@ -111,7 +111,7 @@ class SuggestionController extends Controller
     }
     
     /**
-     * Create a Suggestion account
+     * Create a Suggestion 
      * @return array
      */
     public function actionCreate()
@@ -193,7 +193,133 @@ class SuggestionController extends Controller
     }
 
     /**
-     * Delete an account
+     * accept a Suggestion 
+     * @return array
+     */
+    public function actionAccept($id)
+    {   
+        $reason = Yii::$app->request->getBodyParam("reason");
+        
+        $model = $this->findModel($id);
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $note = new Note;
+        $note->company_id = $model->request->company_id;
+        $note->candidate_id = $model->candidate_id;
+        $note->fulltimer_uuid = $model->fulltimer_uuid;
+        $note->note_type = Note::TYPE_ACCEPTED;
+        $note->note_text = $reason;
+
+        if(!$note->save()) 
+        {
+            $transaction->rollBack();
+
+            if(isset($note->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $note->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->suggestion_status = Suggestion::TYPE_ACCEPTED;
+
+        if (!$model->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
+                ];
+            }
+        }
+
+        $transaction->commit();
+
+        return [
+            "operation" => "success",
+            "message" => "Suggestion marked as accepted successfully"
+        ];
+    }
+
+    /**
+     * reject a Suggestion 
+     * @return array
+     */
+    public function actionReject($id)
+    {   
+        $reason = Yii::$app->request->getBodyParam("reason");
+        
+        $model = $this->findModel($id);
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $note = new Note;
+        $note->company_id = $model->request->company_id;
+        $note->candidate_id = $model->candidate_id;
+        $note->fulltimer_uuid = $model->fulltimer_uuid;
+        $note->note_type = Note::TYPE_ACCEPTED;
+        $note->note_text = $reason;
+
+        if(!$note->save()) 
+        {
+            $transaction->rollBack();
+
+            if(isset($note->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $note->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->suggestion_status = Suggestion::TYPE_REJECTED;
+
+        if (!$model->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
+                ];
+            }
+        }
+
+        $transaction->commit();
+
+        return [
+            "operation" => "success",
+            "message" => "Suggestion marked as rejected successfully"
+        ];
+    }
+
+    /**
+     * Delete an 
      * @param  integer $id
      * @return array
      */
