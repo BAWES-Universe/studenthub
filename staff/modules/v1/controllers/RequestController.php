@@ -141,11 +141,17 @@ class RequestController extends Controller
     public function actionListActive()
     {
         $company_id = Yii::$app->request->get("company_id");
+        $excludeMyRequests = Yii::$app->request->get("excludeMyRequests");
 
         $query = Request::find()
             ->andWhere(['request_status' => Request::STATUS_STARTED])
-            ->andWhere(['!=', 'staff_id', Yii::$app->user->getId()])
             ->orderBy('request_created_datetime DESC');
+
+        if($excludeMyRequests) {
+            $query->andWhere(['!=', 'staff_id', Yii::$app->user->getId()]);
+        } else {
+            $query->andWhere('staff_id IS NOT NULL');//only active requests
+        }
 
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
@@ -413,6 +419,9 @@ class RequestController extends Controller
         $model = $this->findModel($request_uuid);
 
         $modelActivity = new Note();
+        $modelActivity->contact_uuid = Yii::$app->request->getBodyParam('contact_uuid');
+        $modelActivity->note_type = Yii::$app->request->getBodyParam('note_type');
+        $modelActivity->company_id = $model->company_id;
         $modelActivity->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $modelActivity->note_text = Yii::$app->request->getBodyParam("detail");
 

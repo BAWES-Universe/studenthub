@@ -16,7 +16,6 @@ class StaffQuery extends ActiveQuery
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%staff}}.deleted'=>0]);
         return parent::all($db);
     }
 
@@ -26,11 +25,14 @@ class StaffQuery extends ActiveQuery
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%staff}}.deleted'=>0]);
         return parent::one($db);
     }
 
     public function withoutCurrentUser() {
         return $this->andWhere(['!=','staff_id',Yii::$app->user->id]);
+    }
+
+    public function active() {
+        $this->andWhere(['{{%staff}}.deleted'=>0]);
     }
 }

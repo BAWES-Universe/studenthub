@@ -6,6 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Note;
+use common\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -157,6 +158,7 @@ class NoteController extends Controller
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
         if (!$model->save())
         {
@@ -173,9 +175,16 @@ class NoteController extends Controller
             }
         }
 
+        $request_updated_at = '';
+
+        if($model->request_uuid) {
+            $request_updated_at = Request::findOne($model->request_uuid)->request_updated_datetime;
+        }
+
         return [
             "operation" => "success",
-            "message" => "Note created successfully"
+            "message" => "Note created successfully",
+            "request_updated_at" => $request_updated_at
         ];
     }
 

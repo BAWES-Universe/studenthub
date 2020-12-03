@@ -3,7 +3,7 @@
 return [
     'suggestion0' => [
         'suggestion_uuid' => '24aee3f9-ee1b-3c60-a9b9-9f81a56ee677',
-        'request_uuid' => 1,
+        'request_uuid' => '658e3c99-4f8e-3dc0-b938-e0e3335e0dfb',
         'fulltimer_uuid' => 1,
         'candidate_id' => 1,
         'note_uuid' => 1,
@@ -12,7 +12,7 @@ return [
     ],
     'suggestion1' => [
         'suggestion_uuid' => '3349e47f-34eb-3f26-9012-2fc5c4b91914',
-        'request_uuid' => 2,
+        'request_uuid' => '585cbe25-dc97-333e-8c35-4c61c5794b4b',
         'fulltimer_uuid' => 2,
         'candidate_id' => 2,
         'note_uuid' => 2,
@@ -21,7 +21,7 @@ return [
     ],
     'suggestion2' => [
         'suggestion_uuid' => 'e86088d3-1831-3b69-8abd-836f262b49c6',
-        'request_uuid' => 3,
+        'request_uuid' => 'ed341597-b77a-3b55-8747-eed0e58627f7',
         'fulltimer_uuid' => 3,
         'candidate_id' => 3,
         'note_uuid' => 3,
@@ -30,7 +30,7 @@ return [
     ],
     'suggestion3' => [
         'suggestion_uuid' => '64863751-b5e6-3bb3-9b26-9a1a032de800',
-        'request_uuid' => 4,
+        'request_uuid' => '24eac5be-1caf-38d3-94fd-8413d310bd2c',
         'fulltimer_uuid' => 4,
         'candidate_id' => 4,
         'note_uuid' => 4,
@@ -39,7 +39,7 @@ return [
     ],
     'suggestion4' => [
         'suggestion_uuid' => 'd510b78c-24a5-374f-8006-d0b4aa245604',
-        'request_uuid' => 5,
+        'request_uuid' => '321c07b5-75ee-37dc-b180-df946829b867',
         'fulltimer_uuid' => 5,
         'candidate_id' => 5,
         'note_uuid' => 5,
@@ -48,7 +48,7 @@ return [
     ],
     'suggestion5' => [
         'suggestion_uuid' => 'b53c631a-56c8-3b55-8993-da6fd508f84b',
-        'request_uuid' => 6,
+        'request_uuid' => '48b47693-a34d-3359-9f66-b23420692820',
         'fulltimer_uuid' => 6,
         'candidate_id' => 6,
         'note_uuid' => 6,
@@ -57,7 +57,7 @@ return [
     ],
     'suggestion6' => [
         'suggestion_uuid' => 'e751ee82-d6d5-396d-b7af-9946cb674409',
-        'request_uuid' => 7,
+        'request_uuid' => '924a3209-5ced-381e-9ac0-c882581a9cb3',
         'fulltimer_uuid' => 7,
         'candidate_id' => 7,
         'note_uuid' => 7,
@@ -66,7 +66,7 @@ return [
     ],
     'suggestion7' => [
         'suggestion_uuid' => '2cd76cbd-c779-3710-b08d-c1413728e511',
-        'request_uuid' => 8,
+        'request_uuid' => '67f70232-6aaa-3295-b56f-690ff0eafb21',
         'fulltimer_uuid' => 8,
         'candidate_id' => 8,
         'note_uuid' => 8,
@@ -75,7 +75,7 @@ return [
     ],
     'suggestion8' => [
         'suggestion_uuid' => '0d2757e6-14f5-3262-bb05-63dcdf7471ba',
-        'request_uuid' => 9,
+        'request_uuid' => '67f70232-6aaa-3295-b56f-690ff0eafb21',
         'fulltimer_uuid' => 9,
         'candidate_id' => 9,
         'note_uuid' => 9,
@@ -84,7 +84,7 @@ return [
     ],
     'suggestion9' => [
         'suggestion_uuid' => '4c524efa-e944-3a3d-8e2e-f67e07e5bc7f',
-        'request_uuid' => 10,
+        'request_uuid' => '67f70232-6aaa-3295-b56f-690ff0eafb21',
         'fulltimer_uuid' => 10,
         'candidate_id' => 10,
         'note_uuid' => 10,

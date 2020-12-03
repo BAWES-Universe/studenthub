@@ -347,10 +347,14 @@ return [
                         'GET' => 'list',
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        'PATCH accept/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'reject',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS accept/<id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
                     ]
                 ],
                 [ // GoogleMapController

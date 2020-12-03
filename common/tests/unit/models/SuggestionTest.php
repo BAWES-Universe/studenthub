@@ -1,10 +1,12 @@
 <?php
 namespace common\tests\models;
 
+use Yii;
 use common\models\Suggestion;
 use common\fixtures\SuggestionFixture;
 use Codeception\Specify;
 use common\models\Request;
+use common\models\Staff;
 use common\models\Fulltimer;
 use common\models\Note;
 
@@ -55,8 +57,8 @@ class SuggestionTest extends \Codeception\Test\Unit
     {
         $this->specify('Create New', function () {
 
-            $request = Request::find()->one();
-
+            $request = Request::find()->where(['request_status' => Request::STATUS_STARTED])->one();
+        
             $fulltimer = Fulltimer::find()->one();
 
             //create note 
@@ -69,9 +71,13 @@ class SuggestionTest extends \Codeception\Test\Unit
             $note->note_text = 'Test model';
             $note->save();
 
+            expect('Note created successfully', $note->save())->true();
+
             $model = new Suggestion();
             $model->request_uuid = $request->request_uuid;
             $model->fulltimer_uuid = $fulltimer->fulltimer_uuid;
+            $model->note_uuid = $note->note_uuid;
+          
             expect('Created successfully', $model->save())->true();
             expect('Record is in database', $model->findOne(['note_uuid' => $note->note_uuid]))->notNull();
         });

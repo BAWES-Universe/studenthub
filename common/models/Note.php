@@ -186,13 +186,15 @@ class Note extends \yii\db\ActiveRecord
      */
     public function beforeSave($insert)
     {
-        parent::beforeSave($insert);
+        if(!parent::beforeSave($insert)) {
+            return false;
+        }
 
         if($this->request) {
             $message = Yii::t ('staff', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
                 'name' => $this->request->company->company_name,
                 'email' => $this->request->company->company_email,
-                'staffName' => $this->createdBy->staff_name,
+                'staffName' => $this->createdBy? $this->createdBy->staff_name: 'Guest',
                 'activityDetail' => $this->note_text
             ]);
 
