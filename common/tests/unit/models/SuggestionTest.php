@@ -1,10 +1,12 @@
 <?php
 namespace common\tests\models;
 
+use Yii;
 use common\models\Suggestion;
 use common\fixtures\SuggestionFixture;
 use Codeception\Specify;
 use common\models\Request;
+use common\models\Staff;
 use common\models\Fulltimer;
 use common\models\Note;
 
