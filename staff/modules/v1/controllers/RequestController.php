@@ -141,11 +141,17 @@ class RequestController extends Controller
     public function actionListActive()
     {
         $company_id = Yii::$app->request->get("company_id");
+        $excludeMyRequests = Yii::$app->request->get("excludeMyRequests");
 
         $query = Request::find()
             ->andWhere(['request_status' => Request::STATUS_STARTED])
-            ->andWhere(['!=', 'staff_id', Yii::$app->user->getId()])
             ->orderBy('request_created_datetime DESC');
+
+        if($excludeMyRequests) {
+            $query->andWhere(['!=', 'staff_id', Yii::$app->user->getId()]);
+        } else {
+            $query->andWhere('staff_id IS NOT NULL');//only active requests
+        }
 
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
