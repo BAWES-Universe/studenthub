@@ -442,19 +442,20 @@ class AccountController extends Controller
         $candidate->bank_account_name = $benefName;
         $candidate->candidate_iban = $iban;
 
-        if ($candidate->save()) {
-
-            Yii::$app->user->identity->updateAlgoliaIndex(false);
-            return [
-                "operation" => "success",
-                "message" => Yii::t('candidate',"Bank details updated successfully"),
-            ];
-        } else {
+        if (!$candidate->save()) {
             return [
                 "operation" => "error",
                 "message" => $candidate->errors
             ];
         }
+
+        Yii::$app->user->identity->updateAlgoliaIndex(false);
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Bank details updated successfully"),
+            "bank" => $candidate->bank
+        ];
     }
 
     /**
