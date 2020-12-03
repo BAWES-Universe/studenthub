@@ -10,7 +10,6 @@ use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
-
 /**
  * Staff controller - Manage staff accounts as Admin
  */
@@ -72,6 +71,7 @@ class StaffController extends Controller
     public function actionList()
     {
         $query = Staff::find();
+        $query->active();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -185,7 +185,7 @@ class StaffController extends Controller
             Yii::info('[Staff Account Soft Deleted] Staff "'.$staffMember->staff_email.'" soft deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
             // Delete the account
-            $staffMember->delete();
+            $staffMember->softDelete();
 
             return [
                 "operation" => "success",
@@ -243,7 +243,7 @@ class StaffController extends Controller
      * Finds the Staff model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Transfer the loaded model
+     * @return Staff the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
