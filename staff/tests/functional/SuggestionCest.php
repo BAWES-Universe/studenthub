@@ -9,7 +9,10 @@ use common\models\Request;
 use common\models\Candidate;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
+use common\fixtures\RequestFixture;
 use common\fixtures\SuggestionFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\CandidateFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -23,6 +26,9 @@ class SuggestionCest
         return [
         	'staffToken' => StaffTokenFixture::className(),
             'suggestion' => SuggestionFixture::className(),
+            'request' => RequestFixture::className(),
+            'candidate' => CandidateFixture::className(),
+            'company' => CompanyFixture::className(),
         ];
     }
 
@@ -31,7 +37,9 @@ class SuggestionCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+        
         $this->suggestion = Suggestion::find()->one();
+   
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -75,7 +83,7 @@ class SuggestionCest
             [
                 'suggestion' => 'big bazar',
                 'request_uuid' => $request->request_uuid,
-                'candidate' => $candidate->candidate_id
+                'candidate_id' => $candidate->candidate_id
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -92,6 +100,32 @@ class SuggestionCest
     {
         $I->wantTo('delete suggestion via API');
         $I->sendDelete('v1/suggestions/' . $this->suggestion->suggestion_uuid);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
+     * Try to accept suggestion
+     * @param FunctionalTester $I
+     */
+    public function tryToAccept(FunctionalTester $I)
+    {
+        $I->wantTo('accept suggestion via API');
+        $I->sendPATCH('v1/suggestions/accept/' . $this->suggestion->suggestion_uuid, [
+            'reason' => 'Okay can go with this'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
+     * Try to reject suggestion
+     * @param FunctionalTester $I
+     */
+    public function tryToReject(FunctionalTester $I)
+    {
+        $I->wantTo('reject suggestion via API');
+        $I->sendPATCH('v1/suggestions/reject/' . $this->suggestion->suggestion_uuid, [
+            'reason' => 'Nah can not go with this'
+        ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 }

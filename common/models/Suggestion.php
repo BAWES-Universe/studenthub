@@ -26,6 +26,11 @@ use yii\behaviors\AttributeBehavior;
  */
 class Suggestion extends \yii\db\ActiveRecord
 {
+    const TYPE_PENDING = 0;
+    const TYPE_SUGGESTED = 1;
+    const TYPE_ACCEPTED = 3;
+    const TYPE_REJECTED = 2;
+
     /**
      * {@inheritdoc}
      */
