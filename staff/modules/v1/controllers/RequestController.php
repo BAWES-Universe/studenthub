@@ -413,6 +413,9 @@ class RequestController extends Controller
         $model = $this->findModel($request_uuid);
 
         $modelActivity = new Note();
+        $modelActivity->contact_uuid = Yii::$app->request->getBodyParam('contact_uuid');
+        $modelActivity->note_type = Yii::$app->request->getBodyParam('note_type');
+        $modelActivity->company_id = $model->company_id;
         $modelActivity->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $modelActivity->note_text = Yii::$app->request->getBodyParam("detail");
 
