@@ -164,7 +164,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @return static|null
      */
     public static function findByEmail($email) {
-        return static::findOne(['staff_email' => $email]);
+        return static::findOne(['staff_email' => $email,'deleted'=>0]);
     }
 
     /**
