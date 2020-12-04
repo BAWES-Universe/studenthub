@@ -166,6 +166,7 @@ class SuggestionController extends Controller
         $model->fulltimer_uuid = $fulltimer_uuid;
         $model->candidate_id = $candidate_id;
         $model->note_uuid = $note->note_uuid;
+        $model->suggestion_status = Suggestion::TYPE_SUGGESTED;
 
         if (!$model->save())
         {

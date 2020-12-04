@@ -28,9 +28,9 @@ class Suggestion extends \yii\db\ActiveRecord
 {
     const TYPE_PENDING = 0;
     const TYPE_SUGGESTED = 1;
-    const TYPE_ACCEPTED = 3;
     const TYPE_REJECTED = 2;
-
+    const TYPE_ACCEPTED = 3;
+    
     /**
      * {@inheritdoc}
      */
@@ -46,7 +46,10 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         return [
             [['request_uuid', 'note_uuid'], 'required'],
-            [['candidate_id', 'suggestion_status'], 'integer'],
+            [['candidate_id'], 'integer'],
+
+            ['suggestion_status', 'in', 'range' => [self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED]],
+
             [['suggestion_datetime'], 'safe'],
             [['candidate_id', 'fulltimer_uuid'], 'validateCandidate', 'skipOnEmpty' => false],
             [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid'], 'string', 'max' => 60],
