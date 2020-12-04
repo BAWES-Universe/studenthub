@@ -124,6 +124,12 @@ class NoteController extends Controller
             case 'fulltimer' :
                 $query->andWhere(['fulltimer_uuid'=>$id]);
                 break;
+            case 'company' :
+                $query->andWhere(['company_id'=>$id]);
+                break;
+            case 'candidate' :
+                $query->andWhere(['candidate_id'=>$id]);
+                break;
             default :
                 $query->andWhere(['created_by'=>$id]);
                 break;
