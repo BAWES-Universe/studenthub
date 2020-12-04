@@ -76,6 +76,7 @@ class NoteController extends Controller
         $candidate_id = Yii::$app->request->get('candidate_id');
         $request_uuid = Yii::$app->request->get('request_uuid');
         $company_id = Yii::$app->request->get('company_id');
+        $contact_uuid = Yii::$app->request->get('contact_uuid');
 
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
@@ -90,6 +91,10 @@ class NoteController extends Controller
 
         if($candidate_id) {
             $query->filterCandidate($candidate_id);
+        }
+
+        if($contact_uuid) {
+            $query->filterContact($contact_uuid);
         }
 
         return new ActiveDataProvider([
