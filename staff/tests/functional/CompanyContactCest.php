@@ -27,9 +27,10 @@ class CompanyContactCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
-        $this->contact_uuid = CompanyContact::find()->one()->contact_uuid;
-        $I->amBearerAuthenticated($this->token);
 
+        $this->contact_uuid = CompanyContact::find()->one()->contact_uuid;
+        
+        $I->amBearerAuthenticated($this->token);
     }
 
     /**
@@ -70,7 +71,6 @@ class CompanyContactCest
             [
                 'name' => 'davert',
                 'position' => 'Java developer',
-                'note' => 'Spring specialist',
                 'company_id' => '1',
                 'emails' => [
                     [
@@ -104,7 +104,6 @@ class CompanyContactCest
             [
                 'name' => 'davert',
                 'position' => 'Java developer',
-                'note' => 'Spring specialist',
                 'company_id' => '1',
                 'emails' => [
                     [

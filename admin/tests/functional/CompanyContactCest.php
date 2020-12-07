@@ -77,7 +77,6 @@ class CompanyContactCest
             [
                 'name' => 'davert',
                 'position' => 'Java developer',
-                'note' => 'Spring specialist',
                 'company_id' => '1',
                 'emails' => [
                     [
@@ -111,7 +110,6 @@ class CompanyContactCest
             [
                 'name' => 'davert',
                 'position' => 'Java developer',
-                'note' => 'Spring specialist',
                 'company_id' => '1',
                 'emails' => [
                     [
