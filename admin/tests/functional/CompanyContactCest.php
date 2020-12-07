@@ -7,7 +7,7 @@ use common\models\CompanyContact ;
 use common\models\AdminToken;
 use common\fixtures\AdminFixture;
 use common\fixtures\AdminTokenFixture;
-use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -20,7 +20,7 @@ class CompanyContactCest
         return [
             'admin' => AdminFixture::className(),
             'adminToken' => AdminTokenFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
+            'company' => CompanyFixture::className(),
         ];
     }
 

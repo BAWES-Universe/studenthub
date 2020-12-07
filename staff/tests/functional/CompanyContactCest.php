@@ -6,7 +6,7 @@ use staff\tests\FunctionalTester;
 use common\models\CompanyContact;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
-use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -18,7 +18,7 @@ class CompanyContactCest
     {
         return [
         	'staffToken' => StaffTokenFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
+            'company' => CompanyFixture::className(),
         ];
     }
 

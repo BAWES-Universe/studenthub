@@ -1,7 +1,7 @@
 <?php
 namespace common\tests;
 
-use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
 
 class CompanyContactTest extends \Codeception\Test\Unit
 {
@@ -13,7 +13,7 @@ class CompanyContactTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'companyContact' => CompanyContactFixture::className()
+            'companyContact' => CompanyFixture::className()
         ];
     }
 
