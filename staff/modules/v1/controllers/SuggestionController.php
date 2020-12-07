@@ -206,6 +206,7 @@ class SuggestionController extends Controller
         $transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
+        $note->request_uuid = $model->request_uuid;
         $note->company_id = $model->request->company_id;
         $note->candidate_id = $model->candidate_id;
         $note->fulltimer_uuid = $model->fulltimer_uuid;
@@ -269,6 +270,7 @@ class SuggestionController extends Controller
         $transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
+        $note->request_uuid = $model->request_uuid;
         $note->company_id = $model->request->company_id;
         $note->candidate_id = $model->candidate_id;
         $note->fulltimer_uuid = $model->fulltimer_uuid;
