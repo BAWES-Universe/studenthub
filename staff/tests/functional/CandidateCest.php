@@ -83,32 +83,6 @@ class CandidateCest
     }
 
     /**
-     * try to delete candidate while working will show error
-     * @param FunctionalTester $I
-     */
-    public function restCallToDeleteCandidateWhileWorkingWillShowError(FunctionalTester $I)
-    {
-        $candidateID = 1;
-        $I->wantTo('show error while deleting candidate while working');
-        $I->sendDELETE('v1/candidates/'.$candidateID);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(["operation"=>"error","message"=>"Can not delete as assigned to store."]);
-    }
-
-    /**
-     * try to delete candidate Successfully
-     * @param FunctionalTester $I
-     */
-    public function restCallToDeleteCandidateSuccessfully(FunctionalTester $I)
-    {
-        $candidateID = 8;
-        $I->wantTo('delete candidate successfully');
-        $I->sendDELETE('v1/candidates/'.$candidateID);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(["operation"=>"success","message"=>"Candidate removed successfully"]);
-    }
-
-    /**
      * try to reset candidate password
      * @param FunctionalTester $I
      */

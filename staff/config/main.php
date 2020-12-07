@@ -120,7 +120,6 @@ return [
                         'PATCH unapprove/<id>' => 'unapprove',
                         'PATCH expire-card/<id>' => 'expire-candidate-card',
                         'DELETE unassign/<id>' => 'unassign',
-                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
