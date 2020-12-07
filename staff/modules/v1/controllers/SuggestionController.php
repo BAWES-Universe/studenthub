@@ -272,7 +272,7 @@ class SuggestionController extends Controller
         $note->company_id = $model->request->company_id;
         $note->candidate_id = $model->candidate_id;
         $note->fulltimer_uuid = $model->fulltimer_uuid;
-        $note->note_type = Note::TYPE_ACCEPTED;
+        $note->note_type = Note::TYPE_REJECTED;
         $note->note_text = $reason;
 
         if(!$note->save()) 
