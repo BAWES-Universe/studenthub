@@ -626,7 +626,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidateExperiences',
             'candidateIdCard',
             'notes',
-            'workHistory'
+            'workHistory',
+            'acceptanceRatio',
+            'rejectionRatio'
         ];
     }
 
@@ -2398,5 +2400,34 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
         }
         return $total;
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\common\models\Suggestion")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * get user accepted suggestion ratio
+     * @return float|int
+     */
+    public function getAcceptanceRatio() {
+        $total = $this->getSuggestion()->count();
+        $accepted = $this->getSuggestion()->andWhere(['suggestion_status'=>Suggestion::TYPE_ACCEPTED])->count();
+
+        return ($total && $accepted) ? round(($accepted/$total)  * 100): null;
+    }
+    /**
+     * get user rejected suggestion ratio
+     * @return float|int
+     */
+    public function getRejectionRatio() {
+        $total = $this->getSuggestion()->count();
+        $rejected = $this->getSuggestion()->andWhere(['suggestion_status'=>Suggestion::TYPE_REJECTED])->count();
+        return ($total && $rejected) ? round(($rejected/$total) * 100): null;
     }
 }
