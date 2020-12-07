@@ -22,7 +22,6 @@ class RequestCest
         return [
             'staffToken' => StaffTokenFixture::className(),
             'request' => RequestFixture::className(),
-            'contact' => CompanyContactFixture::className(),
             'company' => CompanyFixture::className(),
         ];
     }
