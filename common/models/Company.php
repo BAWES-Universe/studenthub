@@ -221,6 +221,18 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $fields;
     }
 
+    public function getCompany_status() {
+        if(
+            $this->total_candidate > 0 ||
+            $this->is_request_updates_in_30_days > 0 ||
+            $this->no_of_active_requests > 0
+        ) {
+            return self::STATUS_ACTIVE;
+        }
+
+        return self::STATUS_INACTIVE;
+    }
+
     /**
      * @inheritdoc
      */
