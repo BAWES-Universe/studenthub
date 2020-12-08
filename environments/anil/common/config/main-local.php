@@ -5,7 +5,7 @@ return [
             'class' => 'yii\db\Connection',
             'dsn' => 'mysql:host=localhost;dbname=payroll',
             'username' => 'root',
-            'password' => '12345678',
+            'password' => 'root',
             'charset' => 'utf8',
         ],
         'mailer' => [
