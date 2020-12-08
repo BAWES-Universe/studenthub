@@ -222,6 +222,7 @@ class NoteController extends Controller
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
         if (!$model->save())
         {
