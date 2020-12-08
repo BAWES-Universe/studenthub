@@ -70,7 +70,9 @@ class Suggestion extends \yii\db\ActiveRecord
             'request',
             'candidate',
             'fulltimer',
-            'note'
+            'note',
+            'createdBy',
+            'updatedBy'
         ];
     }
 
@@ -158,4 +160,21 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by'])->via('note');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by'])->via('note');
+    }
+
 }
