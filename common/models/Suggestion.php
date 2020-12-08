@@ -52,6 +52,7 @@ class Suggestion extends \yii\db\ActiveRecord
 
             [['suggestion_datetime'], 'safe'],
             [['candidate_id', 'fulltimer_uuid'], 'validateCandidate', 'skipOnEmpty' => false],
+            [['request_uuid'], 'validateDuplicateRequest'],
             [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid'], 'string', 'max' => 60],
             [['suggestion_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -84,6 +85,30 @@ class Suggestion extends \yii\db\ActiveRecord
         if(!$this->candidate_id && !$this->fulltimer_uuid)
         {
             $this->addError($attribute, Yii::t('app', 'Missing {value}', ['value' => $attribute]));
+        }
+    }
+
+    /**
+     * Validate duplicate request if one is already exist
+     */
+    public function validateDuplicateRequest($attribute)
+    {
+        if(
+            ($this->candidate_id || $this->fulltimer_uuid)  &&
+            $this->request_uuid && $this->suggestion_status == Suggestion::TYPE_SUGGESTED
+        ) {
+            $query = Suggestion::find();
+            $query->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED, 'request_uuid'=>$this->request_uuid]);
+
+            if($this->candidate_id) {
+                $query->andWhere(['candidate_id'=>$this->candidate_id]);
+            }
+            if($this->fulltimer_uuid) {
+                $query->andWhere(['fulltimer_uuid'=>$this->fulltimer_uuid]);
+            }
+            if ($query->exists()) {
+                $this->addError('candidate_id', Yii::t('app', 'Suggestion already suggested'));
+            }
         }
     }
 

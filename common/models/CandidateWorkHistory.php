@@ -10,6 +10,8 @@ use Yii;
  * @property integer $id
  * @property integer $candidate_id
  * @property integer $store_id
+ * @property integer $company_id
+ * @property integer $parent_company_id
  * @property string $start_date
  * @property string $end_date
  * @property string $candidate_hourly_rate
@@ -30,7 +32,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_id', 'store_id'], 'integer'],
+            [['candidate_id', 'store_id','parent_company_id','company_id'], 'integer'],
             [['start_date', 'end_date'], 'safe'],
             [['candidate_hourly_rate'], 'number'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -47,6 +49,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'store_id' => Yii::t('app', 'Store ID'),
+            'parent_company_id' => Yii::t('app', 'parent company ID'),
+            'company_id' => Yii::t('app', 'company ID'),
             'start_date' => Yii::t('app', 'Start Date'),
             'end_date' => Yii::t('app', 'End Date'),
             'candidate_hourly_rate' => Yii::t('app', 'Candidate Hourly Rate'),
@@ -62,6 +66,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
         $model->store_id = $candidate->store_id;
+        $model->company_id = (isset($candidate->company->company_id)) ? $candidate->company->company_id : null;
+        $model->parent_company_id = (isset($candidate->company->parent_company_id)) ? $candidate->company->parent_company_id : $candidate->company->company_id;
         $model->start_date  = new \yii\db\Expression('NOW()');
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
         if ($model->save()) {
@@ -135,8 +141,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      */
     public function getCompany($className = '\common\models\Company') {
-        return $this->hasOne($className::className(), ['company_id' => 'company_id'])
-            ->via('store');
+        return $this->hasOne($className::className(), ['company_id' => 'company_id']);
     }
 
     /**

@@ -1836,6 +1836,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         CandidateWorkHistory::updateAll(['candidate_id' => $to], ['candidate_id' => $from]);
 
         Note::updateAll(['candidate_id' => $to], ['candidate_id' => $from]);
+        Suggestion::updateAll(['candidate_id' => $to], ['candidate_id' => $from]);
 
         //delete source candidate
 
