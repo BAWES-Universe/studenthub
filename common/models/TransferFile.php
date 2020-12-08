@@ -156,7 +156,7 @@ class TransferFile extends \yii\db\ActiveRecord
                     '../images/logo.png'
                 )
             ])
-            ->setFrom([Yii::$app->params['invoiceFrom'] => Yii::$app->params['appName']])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['finance_transfer'])
             ->setSubject($subject)
             ->attachContent(file_get_contents($url), [
