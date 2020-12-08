@@ -246,7 +246,7 @@ class CronController extends \yii\console\Controller {
                     'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
                 ])
 
-                ->setFrom([Yii::$app->params['invoiceFrom'] => Yii::$app->params['appName']])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                 ->setTo(Yii::$app->params['invoiceFrom'])
                 ->setSubject($subject)
                 ->attachContent(file_get_contents($file), [

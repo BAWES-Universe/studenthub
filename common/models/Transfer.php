@@ -350,7 +350,7 @@ class Transfer extends ActiveRecord
             )
         ]);
         
-        $message->setFrom([Yii::$app->params['invoiceFrom'] => 'Khalid Al-Mutawa']);
+        $message->setFrom([Yii::$app->params['supportEmail'] => 'Khalid Al-Mutawa']);
         
         $i=1;
         $invoice_id = 0;

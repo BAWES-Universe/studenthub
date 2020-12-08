@@ -173,6 +173,8 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
 
                                                 </td>
                                             </tr>
+                                            <!--  $model->total_candidate > 0 || $model->is_request_updates_in_30_days > 0 || 
+                                                    $model->no_of_active_requests > 0 -->
                                             <?php if ($model->company_status == \common\models\Company::STATUS_ACTIVE) { ?>
                                                 <tr>
                                                     <td align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:15px;word-break:break-word;">

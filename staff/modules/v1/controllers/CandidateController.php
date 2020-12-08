@@ -604,44 +604,6 @@ class CandidateController extends Controller
     }
 
     /**
-     * Delete candidate
-     * @param $id
-     * @return array
-     */
-    public function actionDelete($id)
-    {
-        // Attempt to create new account
-        $model = $this->findModel($id);
-
-        if ($model->store_id) {
-            return [
-                "operation" => "error",
-                "message" => "Can not delete as assigned to store."
-            ];
-        }
-
-        //check if in invoice
-        $transfers = $model->transferCandidate;
-
-        if($transfers)
-        {
-            return [
-                "operation" => "error",
-                "message" => "Can not delete as Candidate mansioned in Invoice"
-            ];
-        }
-
-        Yii::info('[Candidate '.$model->candidate_name.' Deleted] By '.Yii::$app->user->identity->staff_name, __METHOD__);
-
-        $model->softDelete();
-
-        return [
-            "operation" => "success",
-            "message" => "Candidate removed successfully"
-        ];
-    }
-
-    /**
      * Return candidate's salary transfer with status
      * @param $id
      * @return array|mixed

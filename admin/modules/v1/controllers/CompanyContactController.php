@@ -109,7 +109,6 @@ class CompanyContactController extends Controller
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         $model->contact_position = Yii::$app->request->getBodyParam("position");
-        $model->contact_note = Yii::$app->request->getBodyParam("note");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         
         $emails = Yii::$app->request->getBodyParam("emails");
@@ -177,7 +176,6 @@ class CompanyContactController extends Controller
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         $model->contact_position = Yii::$app->request->getBodyParam("position");
-        $model->contact_note = Yii::$app->request->getBodyParam("note");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         
         $emails = Yii::$app->request->getBodyParam("emails");
