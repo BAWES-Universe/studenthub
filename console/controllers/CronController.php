@@ -136,6 +136,7 @@ class CronController extends \yii\console\Controller {
 
         $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
+        $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
         $staffs = Staff::find()->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');

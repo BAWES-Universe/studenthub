@@ -139,4 +139,15 @@ class CompanyQuery extends \yii\db\ActiveQuery {
             $this
                 ->andWhere($q);
     }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByActive40DaysPassedWithoutRequest() {
+        $q = '{{%company}}.company_id NOT IN (select company_id from request where request_created_datetime > DATE_SUB(NOW(),INTERVAL 40 DAY))';
+        return
+            $this
+                ->andWhere($q);
+    }
 }
