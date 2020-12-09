@@ -197,6 +197,8 @@ class Request extends \yii\db\ActiveRecord
     {
         $model = new Note();
         $model->request_uuid = $this->request_uuid;
+        $model->contact_uuid = $this->contact_uuid;
+        $model->company_id = $this->company_id;
         $model->note_text = $detail;
         $model->save(false);
     }

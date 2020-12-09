@@ -467,6 +467,8 @@ class RequestController extends Controller
         $staff_name = Yii::$app->user->identity->staff_name;
         if ($model->save(false)) {
             $modelActivity = new Note();
+            $modelActivity->contact_uuid = $model->contact_uuid;
+            $modelActivity->company_id = $model->company_id;
             $modelActivity->request_uuid = $id;
             $modelActivity->note_text = $staff_name.' has picked up this request to work on.';
 
