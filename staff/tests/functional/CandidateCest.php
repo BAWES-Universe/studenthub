@@ -2,6 +2,7 @@
 namespace staff\tests;
 
 use yii;
+use common\models\Candidate;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\TransferCandidateFixture;
@@ -39,6 +40,27 @@ class CandidateCest
     }
 
     public function _after(FunctionalTester $I){}
+
+    /**
+     * Try to update
+     * @param FunctionalTester $I
+     */
+    public function tryToToggleCommitted(FunctionalTester $I)
+    {
+        $candidate_id = Candidate::find()->one()->candidate_id;
+
+        $I->wantTo('toggle candidate committed status via API');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH(
+            'v1/candidates/toggle-committed',
+            [
+                'candidate_id' => $candidate_id,
+                'note' => 'Spring specialist'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson(["message" => "Candidate committed status updated successfully"]);
+    }
 
     /**
      * Merge 2 accounts to 1

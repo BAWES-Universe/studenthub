@@ -7,6 +7,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
+use staff\models\Note;
 use common\models\CandidateWorkHistory;
 use yii\web\NotFoundHttpException;
 
@@ -389,6 +390,70 @@ class CandidateController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
+    /**
+     * Toggle Candidate committed and create a note
+     * @return array
+     */
+    public function actionToggleCommitted()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $model = new Note();
+
+        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->note_type = Yii::$app->request->getBodyParam("type");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+
+        if (!$model->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->candidate->candidate_committed = !$model->candidate->candidate_committed;
+        $model->candidate->setScenario ('updateCommitted');
+
+        if (!$model->candidate->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->candidate->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->candidate->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem toggling candidate committed status, please contact us for assistance."
+                ];
+            }
+        }
+
+        $transaction->commit();
+
+        if (!$model->candidate->candidate_committed) {
+            $model->candidate->commitmentWarningEmail();
+        }
+
+        return [
+            "operation" => "success",
+            "candidate_committed" => $model->candidate->candidate_committed,
+            "message" => "Candidate committed status updated successfully"
+        ];
+    }
+    
     /**
      * Expire candidate id by setting expiry as now 
      * @param $id
