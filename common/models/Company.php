@@ -851,4 +851,16 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ->filterByActive40DaysPassedWithoutPayment()
             ->count();
     }
+
+    /*
+     *  Add card to the top that should show when we have
+     *  active client with staff assigned and hasn't made payment in 40 days
+     */
+    public static function last40daysWithoutRequest() {
+        return Company::find()
+            ->filterParent()//last 40 day
+            ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+            ->filterByActive40DaysPassedWithoutRequest()
+            ->count();
+    }
 }

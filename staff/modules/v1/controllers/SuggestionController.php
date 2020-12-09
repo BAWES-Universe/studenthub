@@ -79,7 +79,14 @@ class SuggestionController extends Controller
         $candidate_id = Yii::$app->request->get("candidate_id");
 
         $query = Suggestion::find()
-            ->orderBy('suggestion_datetime DESC');
+            ->joinWith(['fulltimer', 'candidate'])
+            ->andWhere([
+                'or',
+                'candidate.candidate_id is not null',
+                'fulltimer.fulltimer_uuid is not null'
+                ])
+
+        ->orderBy('suggestion_datetime DESC');
 
         if($request_uuid) {
             $query->andWhere(['request_uuid' => $request_uuid]);
