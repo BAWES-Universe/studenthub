@@ -132,12 +132,11 @@ class CronController extends \yii\console\Controller {
             ->filterWhere(['request_status' => Request::STATUS_PENDING])
             ->count();
 
-        $data['activeRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_STARTED])
-            ->count();
+        $data['activeRequests'] = Request::activeRequestCount();
 
         $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
+        $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
         $staffs = Staff::find()->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
@@ -246,7 +245,7 @@ class CronController extends \yii\console\Controller {
                     'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
                 ])
 
-                ->setFrom([Yii::$app->params['invoiceFrom'] => Yii::$app->params['appName']])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                 ->setTo(Yii::$app->params['invoiceFrom'])
                 ->setSubject($subject)
                 ->attachContent(file_get_contents($file), [

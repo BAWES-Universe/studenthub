@@ -74,6 +74,7 @@ class RequestActivityController extends Controller
     {
         $query = Note::find()
             ->andWhere(['request_uuid' => $id])
+            ->andWhere(['NOT IN', 'note_type', [NOTE::TYPE_SUGGESTED, NOTE::TYPE_ACCEPTED, NOTE::TYPE_REJECTED]])
             ->orderBy('note_created_datetime desc');
 
         return new ActiveDataProvider([

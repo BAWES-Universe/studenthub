@@ -221,6 +221,18 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $fields;
     }
 
+    public function getCompany_status() {
+        if(
+            $this->total_candidate > 0 ||
+            $this->is_request_updates_in_30_days > 0 ||
+            $this->no_of_active_requests > 0
+        ) {
+            return self::STATUS_ACTIVE;
+        }
+
+        return self::STATUS_INACTIVE;
+    }
+
     /**
      * @inheritdoc
      */
@@ -837,6 +849,19 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return Company::find()
             ->filterParent()
             ->filterByActive40DaysPassedWithoutPayment()
+            ->count();
+    }
+
+    /*
+     *  Add card to the top that should show when we have
+     *  active client with staff assigned and hasn't made payment in 40 days
+     */
+    public static function last40daysWithoutRequest() {
+        return Company::find()
+            ->filterParent()
+            ->filterActive()
+            ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+            ->filterByActive40DaysPassedWithoutRequest()
             ->count();
     }
 }

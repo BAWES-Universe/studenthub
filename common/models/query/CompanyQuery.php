@@ -131,7 +131,27 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterByActive40DaysPassedWithoutPayment() {
-        return $this->andWhere('{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where transfer_status in (1,3,4) and DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY))')
-        ->andWhere('(company.`total_candidate` > 0)');
+        $q = '{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where ';
+        $q .= 'transfer_status in (1,3,4) and DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY))';
+        $q .= ' AND ({{%company}}.`total_candidate` > 0)';
+        $q .= ' AND {{%company}}.company_id IN (SELECT parent_company_id FROM `candidate_work_history` where DATE(start_date) < DATE_SUB(NOW(),INTERVAL 30 DAY) group by parent_company_id)';
+        return
+            $this
+                ->andWhere($q);
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByActive40DaysPassedWithoutRequest() {
+        $q = '{{%company}}.company_id NOT IN (';
+        $q .= 'SELECT IFNULL(`company`.`parent_company_id`,`company`.`company_id`) as company_id FROM `request` ';
+        $q .= 'left join company on `request`.`company_id` = `company`.`company_id` where ';
+        $q .= '`request`.`request_created_datetime` > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
+        $q .= ' `company`.`company_created_at` < DATE_SUB(NOW(),INTERVAL 40 DAY) GROUP BY `company`.`company_id`)';
+        return
+            $this
+                ->andWhere($q);
     }
 }

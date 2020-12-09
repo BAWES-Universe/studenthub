@@ -79,7 +79,14 @@ class SuggestionController extends Controller
         $candidate_id = Yii::$app->request->get("candidate_id");
 
         $query = Suggestion::find()
-            ->orderBy('suggestion_datetime DESC');
+            ->joinWith(['fulltimer', 'candidate'])
+            ->andWhere([
+                'or',
+                'candidate.candidate_id is not null',
+                'fulltimer.fulltimer_uuid is not null'
+                ])
+
+        ->orderBy('suggestion_datetime DESC');
 
         if($request_uuid) {
             $query->andWhere(['request_uuid' => $request_uuid]);
@@ -166,6 +173,7 @@ class SuggestionController extends Controller
         $model->fulltimer_uuid = $fulltimer_uuid;
         $model->candidate_id = $candidate_id;
         $model->note_uuid = $note->note_uuid;
+        $model->suggestion_status = Suggestion::TYPE_SUGGESTED;
 
         if (!$model->save())
         {
@@ -205,6 +213,7 @@ class SuggestionController extends Controller
         $transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
+        $note->request_uuid = $model->request_uuid;
         $note->company_id = $model->request->company_id;
         $note->candidate_id = $model->candidate_id;
         $note->fulltimer_uuid = $model->fulltimer_uuid;
@@ -268,10 +277,11 @@ class SuggestionController extends Controller
         $transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
+        $note->request_uuid = $model->request_uuid;
         $note->company_id = $model->request->company_id;
         $note->candidate_id = $model->candidate_id;
         $note->fulltimer_uuid = $model->fulltimer_uuid;
-        $note->note_type = Note::TYPE_ACCEPTED;
+        $note->note_type = Note::TYPE_REJECTED;
         $note->note_text = $reason;
 
         if(!$note->save()) 

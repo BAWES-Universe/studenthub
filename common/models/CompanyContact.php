@@ -14,7 +14,6 @@ use yii\db\Expression;
  * @property int $company_id
  * @property string $contact_name
  * @property string $contact_position
- * @property string $contact_note
  * @property string $contact_created_datetime
  * @property string $contact_updated_datetime
  *
@@ -40,7 +39,6 @@ class CompanyContact extends \yii\db\ActiveRecord
         return [
             [['contact_name', 'contact_position'], 'required'],
             [['company_id'], 'integer'],
-            [['contact_note'], 'string'],
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
             [['contact_uuid'], 'string', 'max' => 60],
             [['contact_name', 'contact_position'], 'string', 'max' => 255],
@@ -82,7 +80,6 @@ class CompanyContact extends \yii\db\ActiveRecord
             'company_id' => Yii::t('app', 'Company ID'),
             'contact_name' => Yii::t('app', 'Contact Name'),
             'contact_position' => Yii::t('app', 'Contact Position'),
-            'contact_note' => Yii::t('app', 'Contact Note'),
             'contact_created_datetime' => Yii::t('app', 'Contact Created Datetime'),
             'contact_updated_datetime' => Yii::t('app', 'Contact Updated Datetime'),
         ];

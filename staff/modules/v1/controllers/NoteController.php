@@ -76,6 +76,8 @@ class NoteController extends Controller
         $candidate_id = Yii::$app->request->get('candidate_id');
         $request_uuid = Yii::$app->request->get('request_uuid');
         $company_id = Yii::$app->request->get('company_id');
+        $contact_uuid = Yii::$app->request->get('contact_uuid');
+        $page = Yii::$app->request->get('page');
 
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
@@ -92,42 +94,16 @@ class NoteController extends Controller
             $query->filterCandidate($candidate_id);
         }
 
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of Notes By staff Accounts available.
-     * @return ActiveDataProvider
-     */
-    public function actionListByStaff($id)
-    {
-        $query = Note::find()
-            ->orderBy('note_created_datetime DESC')
-            ->andWhere(['created_by'=>$id]);
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * @param $type
-     * @param $id
-     * @return ActiveDataProvider
-     */
-    public function actionListByTypeAndId($type,$id)
-    {
-        $query = Note::find()->orderBy('note_created_datetime DESC');
-        switch($type) {
-            case 'fulltimer' :
-                $query->andWhere(['fulltimer_uuid'=>$id]);
-                break;
-            default :
-                $query->andWhere(['created_by'=>$id]);
-                break;
+        if($contact_uuid) {
+            $query->filterContact($contact_uuid);
         }
+
+        if(!$page) 
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -142,7 +118,7 @@ class NoteController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
     /**
      * Create a Note account
      * @return array
@@ -211,6 +187,8 @@ class NoteController extends Controller
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+
 
         if (!$model->save())
         {

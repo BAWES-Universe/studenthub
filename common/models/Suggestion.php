@@ -28,9 +28,9 @@ class Suggestion extends \yii\db\ActiveRecord
 {
     const TYPE_PENDING = 0;
     const TYPE_SUGGESTED = 1;
-    const TYPE_ACCEPTED = 3;
     const TYPE_REJECTED = 2;
-
+    const TYPE_ACCEPTED = 3;
+    
     /**
      * {@inheritdoc}
      */
@@ -46,9 +46,13 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         return [
             [['request_uuid', 'note_uuid'], 'required'],
-            [['candidate_id', 'suggestion_status'], 'integer'],
+            [['candidate_id'], 'integer'],
+
+            ['suggestion_status', 'in', 'range' => [self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED]],
+
             [['suggestion_datetime'], 'safe'],
             [['candidate_id', 'fulltimer_uuid'], 'validateCandidate', 'skipOnEmpty' => false],
+            [['request_uuid'], 'validateDuplicateRequest'],
             [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid'], 'string', 'max' => 60],
             [['suggestion_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -67,7 +71,9 @@ class Suggestion extends \yii\db\ActiveRecord
             'request',
             'candidate',
             'fulltimer',
-            'note'
+            'note',
+            'createdBy',
+            'updatedBy'
         ];
     }
 
@@ -79,6 +85,30 @@ class Suggestion extends \yii\db\ActiveRecord
         if(!$this->candidate_id && !$this->fulltimer_uuid)
         {
             $this->addError($attribute, Yii::t('app', 'Missing {value}', ['value' => $attribute]));
+        }
+    }
+
+    /**
+     * Validate duplicate request if one is already exist
+     */
+    public function validateDuplicateRequest($attribute)
+    {
+        if(
+            ($this->candidate_id || $this->fulltimer_uuid)  &&
+            $this->request_uuid && $this->suggestion_status == Suggestion::TYPE_SUGGESTED
+        ) {
+            $query = Suggestion::find();
+            $query->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED, 'request_uuid'=>$this->request_uuid]);
+
+            if($this->candidate_id) {
+                $query->andWhere(['candidate_id'=>$this->candidate_id]);
+            }
+            if($this->fulltimer_uuid) {
+                $query->andWhere(['fulltimer_uuid'=>$this->fulltimer_uuid]);
+            }
+            if ($query->exists()) {
+                $this->addError('candidate_id', Yii::t('app', 'Suggestion already suggested'));
+            }
         }
     }
 
@@ -155,4 +185,21 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by'])->via('note');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by'])->via('note');
+    }
+
 }

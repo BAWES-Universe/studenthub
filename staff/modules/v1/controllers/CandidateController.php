@@ -7,6 +7,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
+use staff\models\Note;
 use common\models\CandidateWorkHistory;
 use yii\web\NotFoundHttpException;
 
@@ -390,6 +391,70 @@ class CandidateController extends Controller
     }
 
     /**
+     * Toggle Candidate committed and create a note
+     * @return array
+     */
+    public function actionToggleCommitted()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $model = new Note();
+
+        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->note_type = Yii::$app->request->getBodyParam("type");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+
+        if (!$model->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->candidate->candidate_committed = !$model->candidate->candidate_committed;
+        $model->candidate->setScenario ('updateCommitted');
+
+        if (!$model->candidate->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->candidate->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->candidate->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem toggling candidate committed status, please contact us for assistance."
+                ];
+            }
+        }
+
+        $transaction->commit();
+
+        if (!$model->candidate->candidate_committed) {
+            $model->candidate->commitmentWarningEmail();
+        }
+
+        return [
+            "operation" => "success",
+            "candidate_committed" => $model->candidate->candidate_committed,
+            "message" => "Candidate committed status updated successfully"
+        ];
+    }
+    
+    /**
      * Expire candidate id by setting expiry as now 
      * @param $id
      * @return array
@@ -600,44 +665,6 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "New password sent to registered email successfully"
-        ];
-    }
-
-    /**
-     * Delete candidate
-     * @param $id
-     * @return array
-     */
-    public function actionDelete($id)
-    {
-        // Attempt to create new account
-        $model = $this->findModel($id);
-
-        if ($model->store_id) {
-            return [
-                "operation" => "error",
-                "message" => "Can not delete as assigned to store."
-            ];
-        }
-
-        //check if in invoice
-        $transfers = $model->transferCandidate;
-
-        if($transfers)
-        {
-            return [
-                "operation" => "error",
-                "message" => "Can not delete as Candidate mansioned in Invoice"
-            ];
-        }
-
-        Yii::info('[Candidate '.$model->candidate_name.' Deleted] By '.Yii::$app->user->identity->staff_name, __METHOD__);
-
-        $model->softDelete();
-
-        return [
-            "operation" => "success",
-            "message" => "Candidate removed successfully"
         ];
     }
 

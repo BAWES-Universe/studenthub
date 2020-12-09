@@ -619,6 +619,7 @@ class AccountController extends Controller
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
+        
         $candidate->country_id = Yii::$app->request->getBodyParam('country_id');
 
         $candidate->scenario = "updateNationality";

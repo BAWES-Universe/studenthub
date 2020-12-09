@@ -41,6 +41,27 @@ class CandidateCest
     public function _after(FunctionalTester $I){}
 
     /**
+     * Try to update
+     * @param FunctionalTester $I
+     */
+    public function tryToToggleCommitted(FunctionalTester $I)
+    {
+        $candidate_id = Candidate::find()->one()->candidate_id;
+
+        $I->wantTo('toggle candidate committed status via API');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH(
+            'v1/candidates/toggle-committed',
+            [
+                'candidate_id' => $candidate_id,
+                'note' => 'Spring specialist'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson(["message" => "Candidate committed status updated successfully"]);
+    }
+
+    /**
      * Merge 2 accounts to 1
      * @param FunctionalTester $I
      */
@@ -80,32 +101,6 @@ class CandidateCest
         $I->sendGET('v1/candidates/transfers/'.$candidateID);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson(['tc_id'=>5,'candidate_id' => 1, 'transfer_id' => 5, 'paid' => '0']);
-    }
-
-    /**
-     * try to delete candidate while working will show error
-     * @param FunctionalTester $I
-     */
-    public function restCallToDeleteCandidateWhileWorkingWillShowError(FunctionalTester $I)
-    {
-        $candidateID = 1;
-        $I->wantTo('show error while deleting candidate while working');
-        $I->sendDELETE('v1/candidates/'.$candidateID);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(["operation"=>"error","message"=>"Can not delete as assigned to store."]);
-    }
-
-    /**
-     * try to delete candidate Successfully
-     * @param FunctionalTester $I
-     */
-    public function restCallToDeleteCandidateSuccessfully(FunctionalTester $I)
-    {
-        $candidateID = 8;
-        $I->wantTo('delete candidate successfully');
-        $I->sendDELETE('v1/candidates/'.$candidateID);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson(["operation"=>"success","message"=>"Candidate removed successfully"]);
     }
 
     /**

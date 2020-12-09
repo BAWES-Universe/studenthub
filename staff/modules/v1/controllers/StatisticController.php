@@ -110,12 +110,12 @@ class StatisticController extends Controller
             ->filterWhere(['request_status' => Request::STATUS_PENDING])
             ->count();
 
-        $result['activeRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_STARTED])
-            ->count();
+        $result['activeRequests'] = Request::activeRequestCount();
 
         $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
         $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();
+        $result['last40daysNoRequest'] = Company::last40daysWithoutRequest();
+
 
         return $result;
     }

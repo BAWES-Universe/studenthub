@@ -110,6 +110,7 @@ return [
                         'GET total-to-review' => 'total-to-review',
                         'GET assigned-idle-candidate' => 'assigned-idle-candidates',
                         'POST' => 'create',
+                        'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH merge' => 'merge',
                         'PATCH assign/<id>' => 'assign',
                         'PATCH update-hour-rate/<id>' => 'update-candidate-hour-rate',
@@ -120,9 +121,9 @@ return [
                         'PATCH unapprove/<id>' => 'unapprove',
                         'PATCH expire-card/<id>' => 'expire-candidate-card',
                         'DELETE unassign/<id>' => 'unassign',
-                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS toggle-committed' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS merge' => 'options',
                         'OPTIONS filter' => 'options',
@@ -254,16 +255,12 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
-                        'GET <type>/<id>' => 'list-by-type-and-id',
-                        'GET staff/<id>' => 'list-by-staff',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
-                        'OPTIONS staff/<id>' => 'options',
-                        'OPTIONS <type>/<id>' => 'options',
                     ]
                 ],
                 [ // RequestController
@@ -380,24 +377,6 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS request-activities/<id>' => 'options'
-                    ]
-                ],
-                [ // CandidateNoteController
-                    'class' => 'yii\rest\UrlRule',
-                    'controller' => 'v1/candidate-note',
-                    'patterns' => [
-                        'GET' => 'list',
-                        'GET <id>' => 'view',
-                        'GET list-by-id/<id>' => 'list-by-id',
-                        'POST' => 'create',
-                        'PATCH toggle-committed' => 'toggle-committed',
-                        'PATCH <id>' => 'update',
-                        'DELETE <id>' => 'delete',
-                        // OPTIONS VERBS
-                        'OPTIONS' => 'options',
-                        'OPTIONS toggle-committed' => 'options',
-                        'OPTIONS <id>' => 'options',
-                        'OPTIONS list-by-id/<id>' => 'options',
                     ]
                 ],
                 [ // StaffController
