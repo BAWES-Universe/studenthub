@@ -2,7 +2,6 @@
 namespace staff\tests;
 
 use yii;
-use common\models\Candidate;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\TransferCandidateFixture;
