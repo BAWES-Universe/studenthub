@@ -132,9 +132,7 @@ class CronController extends \yii\console\Controller {
             ->filterWhere(['request_status' => Request::STATUS_PENDING])
             ->count();
 
-        $data['activeRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_STARTED])
-            ->count();
+        $data['activeRequests'] = Request::activeRequestCount();
 
         $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();

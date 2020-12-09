@@ -799,7 +799,7 @@
                                                     <div
                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:15px;line-height:24px;text-align:left;color:#000000;"
                                                     >
-                                                        <b>Active requests</b> from companies our team is working on.
+                                                        <b>Active requests that need an update.</b> These active requests haven't received an update in a while.
                                                     </div>
 
                                                 </td>
