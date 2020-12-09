@@ -145,7 +145,11 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterByActive40DaysPassedWithoutRequest() {
-        $q = '{{%company}}.company_id NOT IN (select company_id from request where request_created_datetime > DATE_SUB(NOW(),INTERVAL 40 DAY))';
+        $q = '{{%company}}.company_id NOT IN (';
+        $q .= 'SELECT IFNULL(`company`.`parent_company_id`,`company`.`company_id`) as company_id FROM `request` ';
+        $q .= 'left join company on `request`.`company_id` = `company`.`company_id` where ';
+        $q .= '`request`.`request_created_datetime` > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
+        $q .= ' `company`.`company_created_at` < DATE_SUB(NOW(),INTERVAL 40 DAY) GROUP BY `company`.`company_id`)';
         return
             $this
                 ->andWhere($q);

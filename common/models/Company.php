@@ -858,7 +858,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public static function last40daysWithoutRequest() {
         return Company::find()
-            ->filterParent()//last 40 day
+            ->filterParent()
+            ->filterActive()
             ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
             ->filterByActive40DaysPassedWithoutRequest()
             ->count();
