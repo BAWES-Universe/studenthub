@@ -91,7 +91,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
         <?php if ($candidate->candidate_phone) { ?>
             <p style="margin-top:18px;">
                 <?=Html::img('images/ic_phone@3x.png',['width'=>'33'])?>&nbsp;&nbsp;&nbsp;&nbsp;
-                <span style=" font-size: 21px;color: #000000;"><?=$candidate->candidate_phone?></span>
+                <a href="tel:<?=$candidate->candidate_phone?>" style="font-size: 21px;color: #000000;"><?=$candidate->candidate_phone?></a>
             </p>
         <?php } if ($candidate->candidate_video) { ?>
             <div style='margin-top:12px;'>
