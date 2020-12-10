@@ -28,6 +28,10 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://v.dev.studenthub.co/'
         ],
+        'eventManager' => [
+            'class' => 'common\components\EventManager',
+            'key' => 'ac62dbe81767f8871f754c7bdf6669d6'
+        ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
             'region' => 'eu-west-2', // based in London
