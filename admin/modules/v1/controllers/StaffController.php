@@ -116,6 +116,12 @@ class StaffController extends Controller
             }
         }
 
+        if(YII_ENV == 'prod')
+            Yii::$app->eventManager->setUser('staff' .$model->staff_id, [
+                '$first_name' => $model->staff_name,
+                '$email' => $model->staff_email
+            ]);
+
         Yii::info('[Staff Account Created] Staff "'.$model->staff_email.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
@@ -159,6 +165,12 @@ class StaffController extends Controller
                 ];
             }
         }
+
+        if(YII_ENV == 'prod')
+            Yii::$app->eventManager->setUser('staff' .$model->staff_id, [
+                '$first_name' => $model->staff_name,
+                '$email' => $model->staff_email
+            ]);
 
         Yii::info('[Staff Account Updated] Staff "'.$model->staff_email.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
