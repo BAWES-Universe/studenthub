@@ -74,7 +74,8 @@ class Suggestion extends \yii\db\ActiveRecord
             'note',
             'createdBy',
             'updatedBy',
-            'feedback'
+            'feedback',// latest feedback
+            'feedbacks'// all feedbacks
         ];
     }
 
@@ -150,6 +151,7 @@ class Suggestion extends \yii\db\ActiveRecord
             'fulltimer_uuid' => Yii::t('app', 'Fulltimer Uuid'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'note_uuid' => Yii::t('app', 'Note Uuid'),
+            'suggestion_uuid' => Yii::t('app', 'Suggestion Uuid'), 
             'suggestion_status' => Yii::t('app', 'Suggestion Status'),
             'suggestion_datetime' => Yii::t('app', 'Suggestion Datetime'),
         ];
@@ -204,18 +206,22 @@ class Suggestion extends \yii\db\ActiveRecord
     }
 
     /**
+     * Show latest feedback in suggestion 
      * @return \yii\db\ActiveQuery
      */
     public function getFeedback($modelClass = "\common\models\Note")
     {
-        if ($this->suggestion_status == Suggestion::TYPE_ACCEPTED) {
-            return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
-            ->andWhere(['note.note_type'=>'Accepted']);
+        return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid'])
+            ->orderBy('note_created_datetime DESC');
+    }
 
-        }
-        if ($this->suggestion_status == Suggestion::TYPE_REJECTED) {
-            return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
-                ->andWhere(['note.note_type'=>'Rejected']);
-        }
+    /**
+     * Show feedbacks in suggestion 
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFeedbacks($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid'])
+            ->orderBy('note_created_datetime ASC');
     }
 }

@@ -16,6 +16,7 @@ use yii\behaviors\AttributeBehavior;
  * @property integer $company_id
  * @property integer $candidate_id
  * @property string $request_uuid
+ * @property string $suggestion_uuid
  * @property string $contact_uuid
  * @property string $fulltimer_uuid
  * @property string $note_type
@@ -76,6 +77,7 @@ class Note extends \yii\db\ActiveRecord
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
+            [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
     }
 
