@@ -73,7 +73,8 @@ class Suggestion extends \yii\db\ActiveRecord
             'fulltimer',
             'note',
             'createdBy',
-            'updatedBy'
+            'updatedBy',
+            'feedback'
         ];
     }
 
@@ -202,4 +203,19 @@ class Suggestion extends \yii\db\ActiveRecord
         return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by'])->via('note');
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFeedback($modelClass = "\common\models\Note")
+    {
+        if ($this->suggestion_status == Suggestion::TYPE_ACCEPTED) {
+            return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->andWhere(['note.note_type'=>'Accepted']);
+
+        }
+        if ($this->suggestion_status == Suggestion::TYPE_REJECTED) {
+            return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
+                ->andWhere(['note.note_type'=>'Rejected']);
+        }
+    }
 }
