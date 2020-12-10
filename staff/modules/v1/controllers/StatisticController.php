@@ -111,6 +111,7 @@ class StatisticController extends Controller
             ->count();
 
         $result['activeRequests'] = Request::activeRequestCount();
+        $result['totalRequests'] = Request::totalRequestCount();
 
         $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
         $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();

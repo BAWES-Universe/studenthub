@@ -215,4 +215,10 @@ class Request extends \yii\db\ActiveRecord
             ->andWhere(new \yii\db\Expression("request_updated_datetime < DATE_SUB(NOW(),INTERVAL 24 HOUR)"))//last 1 hour
             ->count();
     }
+
+    public static function totalRequestCount() {
+        return Request::find()
+            ->andWhere(['in','request_status',[Request::STATUS_STARTED,Request::STATUS_PENDING]])
+            ->count();
+    }
 }
