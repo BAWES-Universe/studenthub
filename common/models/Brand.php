@@ -123,6 +123,9 @@ class Brand extends \yii\db\ActiveRecord
         return array_merge(parent::fields(), [
             'candidate_count' => function($data) {
                 return $this->getCandidates()->count();
+            },
+            'store_count' => function($data) {
+                return $this->getStores()->count();
             }
         ]);
     }
