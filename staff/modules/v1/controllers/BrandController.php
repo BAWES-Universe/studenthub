@@ -80,6 +80,20 @@ class BrandController extends Controller
     }
 
     /**
+     * Return a List of Brand Accounts available.
+     * @return ActiveDataProvider
+     */
+    public function actionCompanyBrandList($id)
+    {
+        $query = Brand::find();
+        $query->andWhere(['company_id'=>$id]);
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * load brand details
      * @param type $id
      * @return type

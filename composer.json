@@ -20,14 +20,15 @@
         "openbuildings/swiftmailer-css-inliner": "*",
         "moonlandsoft/yii2-phpexcel": "*",
         "kartik-v/yii2-mpdf": "dev-master",
-        "2amigos/yii2-qrcode-helper" : "^1.0",
+        "2amigos/qrcode-library`" : "^1.0",
         "guzzlehttp/guzzle": "*",
         "php-http/guzzle6-adapter": "^2.0",
         "notamedia/yii2-sentry": "^1.5",
         "spatie/browsershot": "^3.37",
         "algolia/algoliasearch-client-php": "^2.4",
         "cloudinary/cloudinary_php": "^1.8",
-        "php-ffmpeg/php-ffmpeg": "^0.16.0"
+        "php-ffmpeg/php-ffmpeg": "^0.16.0",
+        "mixpanel/mixpanel-php": "^2.8"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

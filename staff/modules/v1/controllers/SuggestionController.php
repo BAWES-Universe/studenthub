@@ -5,9 +5,9 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\Suggestion;
-use common\models\Note;
-use common\models\Request;
+use staff\models\Suggestion;
+use staff\models\Note;
+use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -192,6 +192,9 @@ class SuggestionController extends Controller
             }
         }
 
+        $note->suggestion_uuid = $model->suggestion_uuid;
+        $note->save(false);
+        
         $transaction->commit();
 
         return [
@@ -217,6 +220,7 @@ class SuggestionController extends Controller
         $note->company_id = $model->request->company_id;
         $note->candidate_id = $model->candidate_id;
         $note->fulltimer_uuid = $model->fulltimer_uuid;
+        $note->suggestion_uuid = $model->suggestion_uuid;
         $note->note_type = Note::TYPE_ACCEPTED;
         $note->note_text = $reason;
 
@@ -281,6 +285,7 @@ class SuggestionController extends Controller
         $note->company_id = $model->request->company_id;
         $note->candidate_id = $model->candidate_id;
         $note->fulltimer_uuid = $model->fulltimer_uuid;
+        $note->suggestion_uuid = $model->suggestion_uuid;
         $note->note_type = Note::TYPE_REJECTED;
         $note->note_text = $reason;
 
