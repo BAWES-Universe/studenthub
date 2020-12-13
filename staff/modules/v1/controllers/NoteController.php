@@ -188,8 +188,7 @@ class NoteController extends Controller
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
-
-
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -218,17 +217,16 @@ class NoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel($id);
+        $model = $this->findModel($id);
 
-        if(!$brand) {
+        if(!$model) {
             return [
                 "operation" => "error",
                 "message" => "Note not found or already deleted"
             ];
         }
 
-        // Delete brand
-        $brand->delete();
+        $model->delete();
 
         return [
             "operation" => "success",
