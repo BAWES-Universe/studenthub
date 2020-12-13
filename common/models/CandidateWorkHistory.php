@@ -70,6 +70,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->parent_company_id = (isset($candidate->company->parent_company_id)) ? $candidate->company->parent_company_id : $candidate->company->company_id;
         $model->start_date  = new \yii\db\Expression('NOW()');
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
+
         if ($model->save()) {
             return true;
         } else {

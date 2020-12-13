@@ -270,13 +270,11 @@ class CandidateController extends Controller
      */
     public function actionAssign($id)
     {
-        // Attempt to create new account
+        $store_id = Yii::$app->request->getBodyParam("store_id");
+
         $model = $this->findModel($id);
-        $oldStoreID = $model->store_id;
 
-        $model->store_id = Yii::$app->request->getBodyParam("store_id");
-
-        if ($oldStoreID) {
+        if ($model->store_id) {
             return [
                 "operation" => "error",
                 "message" => "Please remove old Store before assign new store",
@@ -284,27 +282,9 @@ class CandidateController extends Controller
             ];
         }
 
-        if (!$model->store) {
-            return [
-                "operation" => "error",
-                "message" => "Store not found",
-                "code" => 1
-            ];
-        }
-
-        $store = $model->store;
-
-        if(!$store) {
-            return [
-                "operation" => "error",
-                "message" => "Store not found",
-                "code" => 1
-            ];
-        }
-
         $query = CandidateWorkHistory::find();
-        $query->andWhere(['candidate_id'=>$model->candidate_id]);
-        $query->andWhere(['store_id'=>$model->store_id]);
+        $query->andWhere(['candidate_id' => $model->candidate_id]);
+        $query->andWhere(['store_id' => $store_id]);
         $query->andWhere(new \yii\db\Expression("start_date = CURDATE()"));
         $data = $query->count();
 
@@ -315,6 +295,8 @@ class CandidateController extends Controller
                 "code" => 1
             ];
         }
+
+        $model->store_id = $store_id;
 
         if (!$model->save()) {
 
@@ -334,8 +316,10 @@ class CandidateController extends Controller
         }
 
         // saving candidate work history
-        
+
         CandidateWorkHistory::saveAssignedHistory($model);
+
+        $store = Store::findOne($model->store_id);
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
@@ -344,9 +328,6 @@ class CandidateController extends Controller
             "message" => "Candidate assigned to store successfully",
             "candidate_detail" => $model
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
