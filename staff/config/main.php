@@ -299,6 +299,7 @@ return [
                     'controller' => 'v1/brand',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET company/<id>' => 'company-brand-list',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
@@ -306,6 +307,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS company/<id>' => 'options',
                     ]
                 ],
                 [ // FulltimerController

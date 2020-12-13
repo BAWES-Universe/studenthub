@@ -98,6 +98,9 @@ class Mall extends \yii\db\ActiveRecord
             'candidate_count' => function($data) {
                 return $this->getCandidates()->count();
             }
+            ,'store_count' => function($data) {
+                return $this->getStores()->count();
+            }
         ]);
     }
 
