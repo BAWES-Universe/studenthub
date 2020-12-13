@@ -8,6 +8,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use staff\models\Note;
+use staff\models\Store;
 use common\models\CandidateWorkHistory;
 use yii\web\NotFoundHttpException;
 
@@ -282,13 +283,15 @@ class CandidateController extends Controller
             ];
         }
 
-        $query = CandidateWorkHistory::find();
-        $query->andWhere(['candidate_id' => $model->candidate_id]);
-        $query->andWhere(['store_id' => $store_id]);
-        $query->andWhere(new \yii\db\Expression("start_date = CURDATE()"));
-        $data = $query->count();
+        $isExists = CandidateWorkHistory::find()
+            ->andWhere([
+                'candidate_id' => $model->candidate_id,
+                'store_id' => $store_id
+            ])
+            ->andWhere(new \yii\db\Expression("start_date = CURDATE()"))
+            ->count();
 
-        if ($data) {
+        if ($isExists) {
             return [
                 "operation" => "error",
                 "message" => "Same Store not possible to assign on same day",
@@ -319,9 +322,7 @@ class CandidateController extends Controller
 
         CandidateWorkHistory::saveAssignedHistory($model);
 
-        $store = Store::findOne($model->store_id);
-
-        Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$model->store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
