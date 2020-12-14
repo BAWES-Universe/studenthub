@@ -1,14 +1,14 @@
 <?php
-namespace company\tests;
+namespace staff\tests;
 
-use common\fixtures\InvoiceFixture;
-use common\models\StaffToken;
+
 use Yii;
 use common\fixtures\CompanyTokenFixture;
 use common\fixtures\CandidateFixture;
-use company\tests\FunctionalTester;
-use company\models\Transfer;
-use company\models\Company;
+use common\fixtures\InvoiceFixture;
+use common\models\StaffToken;
+use staff\models\Transfer;
+use staff\models\Company;
 use common\components\Excel;
 use Codeception\Util\HttpCode;
 

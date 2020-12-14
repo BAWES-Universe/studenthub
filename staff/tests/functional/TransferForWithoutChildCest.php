@@ -1,11 +1,11 @@
 <?php
 namespace staff\tests;
 
-use common\models\StaffToken;
 use Yii;
-use common\fixtures\CompanyTokenFixture;
+use common\fixtures\StaffTokenFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
+use common\models\StaffToken;
 use staff\models\Transfer;
 use staff\models\Company;
 use common\components\Excel;
@@ -18,7 +18,7 @@ class TransferForWithoutChildCest
 
     public function _fixtures() {
             return [
-                    'companyToken' => CompanyTokenFixture::className(),
+                    'staffToken' => StaffTokenFixture::className(),
                     'transferCandidate' => TransferCandidateFixture::className(),
                     'invoice' => InvoiceFixture::className()
             ];
