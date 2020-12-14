@@ -1,17 +1,17 @@
 <?php
 
-namespace company\modules\v1\controllers;
+namespace staff\modules\v1\controllers;
 
+use common\models\Staff;
 use Yii;
 use yii\rest\Controller;
-use yii\data\ActiveDataProvider;
-use company\models\Company;
-use company\models\Transfer;
-use company\models\TranferExcel;
-use common\models\Invoice;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use kartik\mpdf\Pdf;
+use staff\models\Company;
+use staff\models\Invoice;
+use staff\models\Transfer;
+use company\models\TranferExcel;
 use yii\web\NotFoundHttpException;
 
 
@@ -72,39 +72,22 @@ class TransferController extends Controller
     }
 
     /**
-     * Return a List of Transfer.
-     * @return ActiveDataProvider
-     */
-    public function actionList()
-    {
-        $query = Yii::$app->user->identity
-                    ->getParentTransfers();
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
      * Return Transfer detail.
      * @param $id
      * @return array
      */
     public function actionView($id)
     {
-        $company = Yii::$app->user->identity;
-
-        $transfer = $company
-            ->getTransfers()
+        $transfer = Transfer::find()
             ->filterTransfer($id)
             ->with([
-                'transferCandidates', 
-                'transferCandidates.candidate', 
-                'transferCandidates.candidate.store', 
-                'transferCandidates.candidate.company', 
+                'transferCandidates',
+                'transferCandidates.candidate',
+                'transferCandidates.candidate.store',
+                'transferCandidates.candidate.company',
                 'transferCandidates.candidate.bank',
                 'transferCandidates.candidate.university'
-            ])    
+            ])
             ->one();
 
         if (!$transfer)
@@ -119,24 +102,26 @@ class TransferController extends Controller
      */
     public function actionCreate()
     {
-        $company = Yii::$app->user->identity;
+        $company_id = Yii::$app->request->getBodyParam("company_id");
         $candidates = Yii::$app->request->getBodyParam("candidates");
         $start_date = Yii::$app->request->getBodyParam("start_date");
         $end_date = Yii::$app->request->getBodyParam("end_date");
 
+        $company = $this->findCompany($company_id);
+
         //save transfer
         return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
     }
-    
+
     /**
      * Initiate transfer by excel.
      * @return array
      */
     public function actionCreateByExcel()
     {
-        $company = Yii::$app->user->identity;
-        
-        $model = new TranferExcel;        
+        $company_id = Yii::$app->request->getBodyParam("company_id");
+
+        $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
         $start_date = Yii::$app->request->getBodyParam('start_date');
         $end_date = Yii::$app->request->getBodyParam('end_date');
@@ -149,32 +134,32 @@ class TransferController extends Controller
                 "message" => $model->getErrors()
             ];
         }
-        
+
         $candidates = [];
 
-        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel); 
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel);
 
-        //save in temp folder to process 
-        
+        //save in temp folder to process
+
         $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
-                
-        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) { 
+
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) {
             return [
                 "operation" => "error",
                 "type" => "system",
                 "message" => "Error reading file"
             ];
-        } 
+        }
 
         $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
 
-        //no need file anymore 
-        
-        @unlink($tmpFile);
-        
-        //remove empty rows 
+        //no need file anymore
 
-        foreach ($data as $key => $value) 
+        @unlink($tmpFile);
+
+        //remove empty rows
+
+        foreach ($data as $key => $value)
         {
             if(empty($value['candidate_id']))
                 continue;
@@ -183,6 +168,9 @@ class TransferController extends Controller
         }
 
         //save transfer
+
+        $company = $this->findCompany($company_id);
+
         return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
     }
 
@@ -193,7 +181,7 @@ class TransferController extends Controller
      */
     public function actionEditByExcel($id)
     {
-        $model = new TranferExcel;    
+        $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
         $start_date = Yii::$app->request->getBodyParam('start_date');
         $end_date = Yii::$app->request->getBodyParam('end_date');
@@ -206,32 +194,32 @@ class TransferController extends Controller
                 "message" => $model->getErrors()
             ];
         }
-        
+
         $candidates = [];
 
-        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel); 
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel);
 
-        //save in temp folder to process 
+        //save in temp folder to process
 
         $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
 
-        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) { 
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) {
             return [
                 "operation" => "error",
                 "type" => "system",
                 "message" => "Error reading file"
             ];
-        } 
+        }
 
         $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
 
-        //no need file anymore 
+        //no need file anymore
 
         @unlink($tmpFile);
 
-        //remove empty rows 
+        //remove empty rows
 
-        foreach ($data as $key => $value) 
+        foreach ($data as $key => $value)
         {
             if(empty($value['candidate_id']))
                 continue;
@@ -253,6 +241,9 @@ class TransferController extends Controller
      */
     public function actionEdit($id)
     {
+        $company = Yii::$app->user->identity;
+
+        $company_id = Yii::$app->request->getBodyParam("company_id");
         $candidates = Yii::$app->request->getBodyParam("candidates");
         $start_date = Yii::$app->request->getBodyParam('start_date');
         $end_date = Yii::$app->request->getBodyParam('end_date');
@@ -269,7 +260,13 @@ class TransferController extends Controller
      */
     public function actionPaymentSent($id)
     {
-        $transfer = $this->findModel ($id);
+        $transfer = Transfer::find()
+            ->filterTransfer($id)
+            ->one();
+
+        if (!$transfer) {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
 
         try{
             $transfer->paymentSent();
@@ -282,7 +279,7 @@ class TransferController extends Controller
             ];
         }
 
-        Yii::info('[Company '.Yii::$app->user->identity->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
+        Yii::info('[Company '.$transfer->company->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
 
         return [
             "operation" => "success",
@@ -297,7 +294,15 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $transfer = $this->findModel ($id);
+        $company = Yii::$app->user->identity;
+
+        $transfer = Transfer::find()
+            ->filterTransfer($id)
+            ->one();
+
+        if(!$transfer) {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
 
         try{
             $transfer->lock();
@@ -309,11 +314,11 @@ class TransferController extends Controller
                 "message" => $e->getMessage()
             ];
         }
-        
-        // send invoice mail
-        $transfer->notify('invoice'); 
 
-        Yii::info('[Company '.Yii::$app->user->identity->company_name.' has locked transfer #'.$transfer->transfer_id.'] They will be sending payment soon.', __METHOD__);
+        // send invoice mail
+        $transfer->notify('invoice');
+
+        Yii::info('[Company '.$transfer->company->company_name.' has locked transfer #'.$transfer->transfer_id.'] They will be sending payment soon.', __METHOD__);
 
         return [
             "operation" => "success",
@@ -328,25 +333,31 @@ class TransferController extends Controller
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel ($id);
+        $model = Transfer::find()
+            ->filterTransfer($id)
+            ->one();
+
+        if(!$model) {
+            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        }
 
         //delete data child transfer
-        if(Transfer::deleteTransfer($model)) 
+        if(Transfer::deleteTransfer($model))
         {
-            Yii::info('[Company '.Yii::$app->user->identity->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
+            Yii::info('[Company '.$model->company->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
 
             return [
                 "operation" => "success",
                 "message" => 'Transfer deleted as requested.'
             ];
-        } 
-        else 
+        }
+        else
         {
             return [
                 "operation" => "error",
                 "message" => 'Transfer status should be "Initiated" or "Locked" to delete it!'
-            ];            
-        }        
+            ];
+        }
     }
 
     /**
@@ -356,11 +367,8 @@ class TransferController extends Controller
      */
     public function actionPdf($id)
     {
-        $company = Company::findOne(Yii::$app->user->id);
-
         $invoice = Invoice::find()
             ->withTransfer($id)
-            ->filterCurrentCompany($company)
             ->one();
 
         if(!$invoice) {
@@ -401,14 +409,14 @@ class TransferController extends Controller
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
-    
+
     /**
      * Excel template to initiate transfer
      */
-    public function actionTransferExcelTemplate()
+    public function actionTransferExcelTemplate($id)
     {
-        $company = Yii::$app->user->identity;
-        
+        $company = $this->findCompany($id);
+
         header('Access-Control-Allow-Origin: *');
 
         \moonland\phpexcel\Excel::export([
@@ -427,18 +435,18 @@ class TransferController extends Controller
                         return $data->candidate_name;
                     }
                 ],
-	            [
-		            'header' => 'company_name',
-		            'value' => function($data) {
-			            return $data->company->company_name;
-		            }
-	            ],
-	            [
-		            'header' => 'store_name',
-		            'value' => function($data) {
-			            return $data->store->store_name;
-		            }
-	            ],
+                [
+                    'header' => 'company_name',
+                    'value' => function($data) {
+                        return $data->company->company_name;
+                    }
+                ],
+                [
+                    'header' => 'store_name',
+                    'value' => function($data) {
+                        return $data->store->store_name;
+                    }
+                ],
                 [
                     'header' => 'hours',
                     'value' => function() {
@@ -452,19 +460,21 @@ class TransferController extends Controller
                     }
                 ]
             ]
-        ]);        
+        ]);
+    }
+
+    protected function findCompany($id)
+    {
+        if (($model = Company::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 
     protected function findModel($id)
     {
-        $company = Yii::$app->user->identity;
-
-        $model = $company
-            ->getTransfers()
-            ->filterTransfer($id)
-            ->one();
-
-        if ($model !== null) {
+        if (($model = Transfer::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
