@@ -3,7 +3,7 @@ namespace staff\tests;
 
 
 use Yii;
-use common\fixtures\CompanyTokenFixture;
+use common\fixtures\StaffTokenFixture;
 use common\fixtures\CandidateFixture;
 use common\fixtures\InvoiceFixture;
 use common\models\StaffToken;
@@ -36,7 +36,7 @@ class TransferForWithChildCest
     public function _fixtures()
     {
             return [
-                    'companyToken' => CompanyTokenFixture::className(),
+                    'staffToken' => StaffTokenFixture::className(),
                     'candidate'    => CandidateFixture::className(),
                     'invoice'    => InvoiceFixture::className()
             ];
