@@ -4,6 +4,7 @@ namespace common\models;
 
 use Yii;
 use yii\base\Exception;
+use yii\behaviors\BlameableBehavior;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use kartik\mpdf\Pdf;
@@ -23,6 +24,8 @@ use yii\helpers\ArrayHelper;
  * @property integer $transfer_status
  * @property date $start_date
  * @property date $end_date
+ * @property string $transfer_created_by
+ * @property string $transfer_updated_by
  * @property string $transfer_created_at
  * @property string $transfer_updated_at
  * @property number deleted
@@ -36,6 +39,9 @@ use yii\helpers\ArrayHelper;
  */
 class Transfer extends ActiveRecord
 {
+    //for transfer create form
+    public $candidates = [];
+
     const STATUS_PAYMENT_SENT = 1;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
     const STATUS_TRANSFER_COMPLETE = 4;
@@ -104,6 +110,21 @@ class Transfer extends ActiveRecord
     public function behaviors() {
         return [
             [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'transfer_created_by',
+                'updatedByAttribute' => 'transfer_updated_by',
+                'value' => function() {
+
+                    //if user available and it's staff
+
+                    if(
+                        isset(Yii::$app->components['user']['identityClass']) &&
+                        Yii::$app->user->identity instanceof Staff
+                    )
+                        return Yii::$app->user->getId();
+                }
+            ],
+            [
                 'class' => TimestampBehavior::className(),
                 'createdAtAttribute' => 'transfer_created_at',
                 'updatedAtAttribute' => 'transfer_updated_at',
@@ -111,6 +132,7 @@ class Transfer extends ActiveRecord
             ],
         ];
     }
+
 
     /**
      * @inheritdoc
@@ -167,12 +189,33 @@ class Transfer extends ActiveRecord
     public function extraFields()
     {
         return [
+            'createdBy',
+            'updatedBy',
+            'invoices',
             'company',
             'invoices',
             'transferCandidates',
             'childTransfers',
             'paidTransferCandidates'
         ];
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'transfer_created_by']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'transfer_updated_by']);
     }
 
     /**
@@ -626,6 +669,14 @@ class Transfer extends ActiveRecord
         //select distinct company and create transfer for each company
         $this->generateEachCompanyTransfer();
 
+        if(Yii::$app->user->identity instanceof Staff) {
+            $note = new Note;
+            $note->note_type = Note::TYPE_INTERNAL_NOTE;
+            $note->company_id = $this->company_id;
+            $note->note_text = "I have locked a transfer for " . $this->company->company_common_name_en . " with a total of " . $this->company_total . " KD";
+            $note->save();
+        }
+
         return $this->save(false);
     }
 
@@ -641,12 +692,10 @@ class Transfer extends ActiveRecord
             Transfer::STATUS_LOCK
         ];
 
-
         if(!in_array($model->transfer_status, $allowedStatus))
         {
             return false;
         }
-
 
         $childrens = Transfer::find()->filterParent($model->transfer_id)->all();
 
@@ -663,6 +712,14 @@ class Transfer extends ActiveRecord
         Invoice::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
         Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
         TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
+
+        if(Yii::$app->user->identity instanceof Staff) {
+            $note = new Note;
+            $note->note_type = Note::TYPE_INTERNAL_NOTE;
+            $note->company_id = $model->company_id;
+            $note->note_text = "I have deleted a transfer for " . $model->company->company_common_name_en . " with a total of " . $model->company_total . " KD";
+            $note->save();
+        }
 
         return true;
     }
@@ -774,7 +831,15 @@ class Transfer extends ActiveRecord
         if(empty(Yii::$app->params['inCodeception']))
             $transaction->commit();
 
-        Yii::info('['.$company->company_name.' created a new transfer draft] Check if they require assistance on transfer #'.$transfer->transfer_id.'.', __METHOD__);
+        if(Yii::$app->user->identity instanceof Staff) {
+            $note = new Note;
+            $note->note_type = Note::TYPE_INTERNAL_NOTE;
+            $note->company_id = $transfer->company_id;
+            $note->note_text = "I have created a transfer for " . $transfer->company->company_common_name_en . " with a total of " . $transfer->company_total . " KD";
+            $note->save();
+        } else {
+            Yii::info('['.$company->company_name.' created a new transfer draft] Check if they require assistance on transfer #'.$transfer->transfer_id.'.', __METHOD__);
+        }
 
         return [
             "operation" => "success",
@@ -796,14 +861,7 @@ class Transfer extends ActiveRecord
         $this->start_date = $start_date;
         $this->end_date = $end_date;
 
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => 'Transfer not found!'
-            ];
-        }
-
-        if($model->parent_transfer_id > 0) {
+        if($this->parent_transfer_id > 0) {
             return [
                 "operation" => "error",
                 "message" => 'Transfer for sub company can\'t be edited!'
@@ -811,7 +869,8 @@ class Transfer extends ActiveRecord
         }
 
         //transfer status should be "Initiated" to edit it
-        if($model->transfer_status != Transfer::STATUS_INITIATED)
+
+        if($this->transfer_status != Transfer::STATUS_INITIATED)
         {
             return [
                 "operation" => "error",
@@ -819,21 +878,21 @@ class Transfer extends ActiveRecord
             ];
         }
 
-        $model->candidates = $candidates;
+        $this->candidates = $candidates;
 
         $new_transfer_id = $new_invoice_id = [];
 
         //Old Child Transfers
-        $old_child_transfers = $model->childTransfers;
+        $old_child_transfers = $this->childTransfers;
         //Old Invoices
-        $old_invoices = $model->invoices;
+        $old_invoices = $this->invoices;
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
 
         //remove old candidates
 
-        TransferCandidate::deleteAll(['transfer_id' => $model->transfer_id]);
+        TransferCandidate::deleteAll(['transfer_id' => $this->transfer_id]);
 
         //save candidates
 
@@ -891,7 +950,7 @@ class Transfer extends ActiveRecord
             }
 
             // save candidate transfer
-            $response = TransferCandidate::saveCandidateTransfer($candidate, $model, $value);
+            $response = TransferCandidate::saveCandidateTransfer($candidate, $this, $value);
 
             if ($response['operation'] == "error") {
                 if(empty(Yii::$app->params['inCodeception']))
@@ -903,8 +962,8 @@ class Transfer extends ActiveRecord
             }
         }
 
-        $model->company_total = $company_total;
-        $model->total = $total;
+        $this->company_total = $company_total;
+        $this->total = $total;
 
         if($total <= 0)
         {
@@ -917,7 +976,7 @@ class Transfer extends ActiveRecord
             ];
         }
 
-        if(!$model->save())
+        if(!$this->save())
         {
             if(empty(Yii::$app->params['inCodeception']))
                 $transaction->rollBack();
@@ -925,42 +984,43 @@ class Transfer extends ActiveRecord
             return [
                 "operation" => "error",
                 "type" => "system",
-                "message" => $model->getErrors()
+                "message" => $this->getErrors()
             ];
         }
 
-        $new_transfer_id[] = $model->transfer_id;
+        $new_transfer_id[] = $this->transfer_id;
 
         //update child transfers
 
         //select distinct company and update transfer for each company if already added else create new
 
         $sub_companies = TransferCandidate::find()
-            ->candidatesByTransfer($model->transfer_id)
-            ->groupByCompany($model->company_id)
+            ->candidatesByTransfer($this->transfer_id)
+            ->groupByCompany($this->company_id)
             ->all();
 
         /**
          * generate invoice for main transfer if no sub companies else generate
          * invoice for each sub companies
          */
-        if(!$sub_companies && $model->transfer_status != Transfer::STATUS_INITIATED)
+        if(!$sub_companies && $this->transfer_status != Transfer::STATUS_INITIATED)
         {
-            $new_invoice_id[] = $model->generateInvoice();
+            $new_invoice_id[] = $this->generateInvoice();
         }
 
         foreach ($sub_companies as $key => $sub_company) {
 
             //move transfer to transfer
+
             $transfer = Transfer::find()
                 ->filterCompanyId($sub_company['company_id'])
-                ->filterParent($model->transfer_id)
+                ->filterParent($this->transfer_id)
                 ->one();
 
             if(empty($transfer)) {
                 $transfer = new Transfer;
-                $transfer->attributes = $model->attributes;
-                $transfer->parent_transfer_id = $model->transfer_id;
+                $transfer->attributes = $this->attributes;
+                $transfer->parent_transfer_id = $this->transfer_id;
                 $transfer->company_id = $sub_company['company_id'];
             }
 
@@ -982,7 +1042,7 @@ class Transfer extends ActiveRecord
 
             // Transfer candidate for current company
             $candidates = TransferCandidate::find()
-                ->candidatesByTransfer($model->transfer_id)
+                ->candidatesByTransfer($this->transfer_id)
                 ->filterCompanyId($sub_company['company_id'])
                 ->all();
 
@@ -1011,7 +1071,7 @@ class Transfer extends ActiveRecord
             }
 
             // Generate invoice for each transfer
-            if($model->transfer_status != Transfer::STATUS_INITIATED) {
+            if($this->transfer_status != Transfer::STATUS_INITIATED) {
                 $new_invoice_id[] = $transfer->generateInvoice();
             }
 
@@ -1043,7 +1103,15 @@ class Transfer extends ActiveRecord
         if(empty(Yii::$app->params['inCodeception']))
             $transaction->commit();
 
-        Yii::info('['.$company->company_name.' updated transfer #'.$model->transfer_id.'] Check if they require assistance.', __METHOD__);
+        if(Yii::$app->user->identity instanceof Staff) {
+            $note = new Note;
+            $note->note_type = Note::TYPE_INTERNAL_NOTE;
+            $note->company_id = $this->company_id;
+            $note->note_text = "I have updated a transfer for " . $this->company->company_common_name_en . " with a total of " . $this->company_total . " KD";
+            $note->save();
+        } else {
+            Yii::info('['.$this->company->company_name.' updated transfer #'.$this->transfer_id.'] Check if they require assistance.', __METHOD__);
+        }
 
         return [
             "operation" => "success",

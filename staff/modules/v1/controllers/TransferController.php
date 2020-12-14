@@ -1,14 +1,15 @@
 <?php
 
-namespace stagg\modules\v1\controllers;
+namespace staff\modules\v1\controllers;
 
+use common\models\Staff;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use kartik\mpdf\Pdf;
 use staff\models\Company;
-use common\models\Invoice;
+use staff\models\Invoice;
 use staff\models\Transfer;
 use company\models\TranferExcel;
 use yii\web\NotFoundHttpException;

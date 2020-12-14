@@ -12,8 +12,6 @@ use yii\base\Exception;
  */
 class Transfer extends \common\models\Transfer {
 
-    public $candidates = [];
-
     /**
      * @inheritdoc
      */
@@ -59,6 +57,24 @@ class Transfer extends \common\models\Transfer {
             'childTransferInvoices',
             'childTransferCandidates'
         ];
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($modelClass = "\company\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'transfer_created_by']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\company\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'transfer_updated_by']);
     }
 
     /**
