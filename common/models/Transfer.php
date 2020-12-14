@@ -669,7 +669,7 @@ class Transfer extends ActiveRecord
         //select distinct company and create transfer for each company
         $this->generateEachCompanyTransfer();
 
-        if(Yii::$app->user->identity instanceof Staff) {
+        if(isset(Yii::$app->components['user']['identityClass']) && Yii::$app->user->identity instanceof Staff) {
             $note = new Note;
             $note->note_type = Note::TYPE_INTERNAL_NOTE;
             $note->company_id = $this->company_id;
@@ -713,7 +713,7 @@ class Transfer extends ActiveRecord
         Transfer::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
         TransferCandidate::updateAll(['deleted' => 1], ['transfer_id' => $model->transfer_id]);
 
-        if(Yii::$app->user->identity instanceof Staff) {
+        if(isset(Yii::$app->components['user']['identityClass']) && Yii::$app->user->identity instanceof Staff) {
             $note = new Note;
             $note->note_type = Note::TYPE_INTERNAL_NOTE;
             $note->company_id = $model->company_id;
@@ -831,7 +831,7 @@ class Transfer extends ActiveRecord
         if(empty(Yii::$app->params['inCodeception']))
             $transaction->commit();
 
-        if(Yii::$app->user->identity instanceof Staff) {
+        if(isset(Yii::$app->components['user']['identityClass']) && Yii::$app->user->identity instanceof Staff) {
             $note = new Note;
             $note->note_type = Note::TYPE_INTERNAL_NOTE;
             $note->company_id = $transfer->company_id;
@@ -1103,7 +1103,7 @@ class Transfer extends ActiveRecord
         if(empty(Yii::$app->params['inCodeception']))
             $transaction->commit();
 
-        if(Yii::$app->user->identity instanceof Staff) {
+        if(isset(Yii::$app->components['user']['identityClass']) && Yii::$app->user->identity instanceof Staff) {
             $note = new Note;
             $note->note_type = Note::TYPE_INTERNAL_NOTE;
             $note->company_id = $this->company_id;
