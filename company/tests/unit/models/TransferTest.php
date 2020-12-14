@@ -387,7 +387,10 @@ class TransferTest extends \Codeception\Test\Unit
             }
             $start_date = '2010/10/10';
             $end_date = '2010/12/10';
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate,$start_date,$end_date);
+
+            $transfer = Transfer::findOne($TransferID);
+
+            $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
 
             expect('Transfer should updated', $result['message'])->contains('Your transfer has been updated.');
 
@@ -454,7 +457,10 @@ class TransferTest extends \Codeception\Test\Unit
 
             $start_date = '2010/10/10';
             $end_date = '2010/12/10';
-            $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate,$start_date,$end_date);
+
+            $transfer = Transfer::findOne($TransferID);
+
+            $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
 
             expect('Transfer should updated', $result['message'])->contains('Your transfer has been updated.');
 
@@ -485,11 +491,14 @@ class TransferTest extends \Codeception\Test\Unit
     public function testFailUpdateTransferForEmptyCandidateWhenCompanyWithChild()
     {
         $TransferID = 9;
-        $CompanyID = 1;
-        $company = Company::findOne($CompanyID);
+
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
-        $result = Transfer::updateTransfer($company, $TransferID, [],$start_date,$end_date);
+
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer([], $start_date, $end_date);
+
         expect('Transfer should return error', $result['message'])->contains('Candidate not found');
     }
 
@@ -499,18 +508,21 @@ class TransferTest extends \Codeception\Test\Unit
     public function testFailUpdateTransferForInvalidCandidateWhenCompanyWithChild()
     {
         $TransferID = 9;
-        $CompanyID = 1;
-        $company = Company::findOne($CompanyID);
 
         $data = [
             'bonus' => rand(0, 10),
             'hours' => rand(0, 100),
             'candidate_id' => 205
         ];
+
         $arrCandidate[] = $data;
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
-        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate,$start_date,$end_date);
+
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+
         expect('Transfer should return error', $result['message'])->contains('Candidate not found');
     }
 
@@ -520,19 +532,21 @@ class TransferTest extends \Codeception\Test\Unit
     public function testFailUpdateTransferForTotalZeroWhenCompanyWithChild()
     {
         $TransferID = 9;
-        $CompanyID = 1;
-        $company = Company::findOne($CompanyID);
 
         $data = [
             'bonus' => 0,
             'hours' => 0,
             'candidate_id' => 2
         ];
+
         $arrCandidate[] = $data;
 
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
-        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate, $start_date, $end_date);
+
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
 
         expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
     }
@@ -551,7 +565,11 @@ class TransferTest extends \Codeception\Test\Unit
         ];
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
-        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate, $start_date, $end_date);
+
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+
         expect('Transfer should return error', $result['message'])->hasKey('candidates');
     }
 
@@ -561,13 +579,16 @@ class TransferTest extends \Codeception\Test\Unit
     public function testFailUpdateTransferWithNegativeBonusWhenCompanyWithChild()
     {
         $TransferID = 9;
-        $CompanyID = 1;
-        $company = Company::findOne($CompanyID);
+
         $data = [ 'bonus' => -1, 'hours' => 1, 'candidate_id' => 2 ];
         $arrCandidate[] = $data;
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
-        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate,$start_date,$end_date);
+
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+
         expect('Transfer should return error', $result['message'])->hasKey('candidates');
     }
 
@@ -577,11 +598,14 @@ class TransferTest extends \Codeception\Test\Unit
     public function testFailUpdateTransferWithEmptyCandidatesWhenCompanyWithChild()
     {
         $TransferID = 13;
-        $CompanyID = 3;
-        $company = Company::findOne($CompanyID);
+
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
-        $result = Transfer::updateTransfer($company, $TransferID, [],$start_date,$end_date);
+
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer([], $start_date, $end_date);
+
         expect('Transfer should return error', $result['message'])->contains('Candidate not found');
     }
 
@@ -591,8 +615,6 @@ class TransferTest extends \Codeception\Test\Unit
     public function testFailUpdateTransferWithInvalidCandidatesWhenCompanyWithChild()
     {
         $TransferID = 13;
-        $CompanyID = 3;
-        $company = Company::findOne($CompanyID);
 
         $data = [
             'bonus' => rand(0, 10),
@@ -602,7 +624,10 @@ class TransferTest extends \Codeception\Test\Unit
         $arrCandidate[] = $data;
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
-        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate,$start_date,$end_date);
+
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
 
         expect('Transfer should return error', $result['message'])->contains('Candidate not found');
     }
@@ -613,14 +638,16 @@ class TransferTest extends \Codeception\Test\Unit
     public function testFailUpdateTransferWithZeroTotalWhenCompanyWithChild()
     {
         $TransferID = 13;
-        $CompanyID = 3;
-        $company = Company::findOne($CompanyID);
-        $data = [ 'bonus' => 0, 'hours' => 0, 'candidate_id' => 2];
+
+        $data = ['bonus' => 0, 'hours' => 0, 'candidate_id' => 2];
         $arrCandidate[] = $data;
         $start_date = '2010/10/10';
         $end_date = '2010/12/10';
 
-        $result = Transfer::updateTransfer($company, $TransferID, $arrCandidate,$start_date,$end_date);
+        $transfer = Transfer::findOne($TransferID);
+
+        $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
+
         expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
     }
 }

@@ -356,6 +356,31 @@ return [
                         'OPTIONS reject/<id>' => 'options',
                     ]
                 ],
+                [ // TransferController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer',
+                    'patterns' => [
+                        'GET transfer-excel-template/<id>' => 'transfer-excel-template',
+                        'GET pdf/<id>' => 'pdf',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'POST create-by-excel' => 'create-by-excel',
+                        'PATCH payment-sent/<id>' => 'payment-sent',
+                        'PATCH lock/<id>' => 'lock',
+                        'PATCH edit-by-excel/<id>' => 'edit-by-excel',
+                        'PATCH <id>' => 'edit',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS transfer-excel-template/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS create-by-excel' => 'options',
+                        'OPTIONS payment-sent/<id>' => 'options',
+                        'OPTIONS lock/<id>' => 'options',
+                        'OPTIONS edit-by-excel/<id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options'
+                    ]
+                ],
                 [ // GoogleMapController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/google-map',

@@ -2,7 +2,6 @@
 namespace company\models;
 
 use Yii;
-use company\models\Company;
 
 
 class TransferCandidate extends \common\models\TransferCandidate
@@ -61,107 +60,5 @@ class TransferCandidate extends \common\models\TransferCandidate
     public function getTransfer($modelClass= "\company\models\Transfer")
     {
         return parent::getTransfer($modelClass);
-    }
-
-    /**
-     * save transfer candidate for given transfer, candidate, hours and bonus
-     * @param type $candidate
-     * @param type $model
-     * @param type $value
-     * @return type
-     */
-    public static function saveCandidateTransfer($candidate, $model, $value) {
- 
-        $total = 0;
-        $company_total = 0;
-
-        $hourly_rate = $candidate['candidate_hourly_rate'];
-
-        $store = $candidate['store'];
-        $company = $candidate['company'];
-        
-        $TCModel = new TransferCandidate;
-        $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
-        $TCModel->candidate_hourly_rate = $hourly_rate;
-        $TCModel->attributes = $value;
-        $TCModel->transfer_id = $model->transfer_id;
-        $TCModel->store_id = $candidate['store_id'];
-        $TCModel->store_name = $store['store_name'];
-        $TCModel->company_id = $store['company_id'];
-        $TCModel->company_name = $company['company_name'];
-        $TCModel->company_email = $company['company_email'];
-        $TCModel->bank_id = $candidate['bank_id'];
-        $TCModel->transfer_benef_name = $candidate['bank_account_name'];
-        $TCModel->transfer_benef_iban = $candidate['candidate_iban'];
-        
-        $company_bonus_commission = $company['company_bonus_commission'];
-        $company_hourly_rate = $company['company_hourly_rate'];
-        
-        //if value not set take from parent company 
-        
-        if(($company_bonus_commission + $company_hourly_rate == 0) && $company['parent_company_id'])
-        {
-            $parent = Company::findOne(['company_id' => $company['parent_company_id']]);
-            
-            if(!$parent)
-            {
-                return [
-                    "operation" => "error",
-                    "message" => "Parent not found."
-                ];
-            }
-            
-            $company_bonus_commission = $parent['company_bonus_commission'];
-            $company_hourly_rate = $parent['company_hourly_rate'];
-        }
-        
-        //if bonus commission or hourly rate not set 
-        
-        if($company_bonus_commission == 0 && $company_hourly_rate == 0) {
-            return [
-                "operation" => "error",
-                "message" => "Company hourly rate not set, please contact us for assistance"
-            ];
-        }            
-        
-        //calculate and save bonus_commission 
-        
-        $TCModel->bonus_commission = $value['bonus'] * $company_bonus_commission / 100;
-                
-        $TCModel->company_hourly_rate = $company_hourly_rate;
-        
-        if ((int)$value['hours']>0 || $value['bonus'] > 0) {
-            $total = $value['bonus'] - $TCModel->bonus_commission + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
-            $company_total = $value['bonus'] + ($value['hours'] * $company_hourly_rate);
-        }
-        
-        // in case if amount is 0 
-        if ($total  == 0) {
-            return [
-                "operation" => "error",
-                "message" => "Can not create candidate transfer with 0 amount."
-            ];
-        }
-
-        if (!$TCModel->save()) {
-
-            if(isset($TCModel->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $TCModel->errors
-                ];
-            }
-
-            return [
-                "operation" => "error",
-                "message" => "We've faced an issue saving your request, please contact us for assistance."
-            ];
-        }
-        
-        return [
-            "operation" => "success",
-            "total" => $total,
-            "company_total" => $company_total
-        ];
     }
 }
