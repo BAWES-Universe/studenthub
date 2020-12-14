@@ -166,13 +166,12 @@ class CronController extends \yii\console\Controller {
             ->all();
 
         if ($candidates) {
+
             foreach ($candidates as $transfer) {
-                if($transfer->candidate->bank_id && $transfer->transfer_benef_iban && $transfer->transfer_benef_name) {
-                    $amount += $transfer->transfer->getRemainingPaymentTransferTotal();
-                }
+                 $amount += $transfer->totalPaidToCandidate;
             }
+            $amount = number_format($amount, 3);
         }
-        $amount = number_format($amount, 3);
 
         if ($candidates && count($candidates) > 0) {
 
