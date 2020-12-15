@@ -28,7 +28,8 @@ class Store extends \common\models\Store {
                 'candidates',
                 'storeWithCompany' => function($model) {
                     if (isset($model->store_name) && isset($model->company->company_name)) {
-                        return $model->store_name." @ ". $model->company->company_name;
+                        $name = ($model->company->company_common_name_en) ? $model->company->company_common_name_en : $model->company->company_name;
+                        return $model->store_name." @ ". $name;
                     }
                 }
             ]
