@@ -73,4 +73,29 @@ class ViewController extends Controller
 
         return $this->redirect($url)->send();//302
     }
+
+    /**
+     * redirect to candidate telephone
+     * @param $candidate_uid
+     * @return string
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionTelephone($candidate_uid)
+    {
+        $candidate = Candidate::find()
+            ->where([
+                'candidate_uid' => $candidate_uid
+            ])
+            ->one();
+
+        if(!$candidate || !$candidate->candidate_phone)
+        {
+
+            return $this->redirect('https://studenthub.co');
+        }
+
+        $url = "tel:" . $candidate->candidate_phone;// Yii::$app->resourceManager->getUrl('candidate-video/' . $candidate->candidate_video . '.mp4');
+
+        return $this->redirect($url)->send();//302
+    }
 }
