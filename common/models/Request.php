@@ -126,7 +126,9 @@ class Request extends \yii\db\ActiveRecord
             'company',
             'staff',
             'lastActivity',
-            'requestActivities'
+            'requestActivities',
+            'suggestions',
+            'activeSuggestions'
         ];
     }
 
@@ -186,6 +188,15 @@ class Request extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->orderBy('note_created_datetime DESC');
+    }
+
+    public function getSuggestions($modelClass = "\common\models\Suggestion") {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy('suggestion_datetime DESC');
+    }
+    public function getActiveSuggestions($modelClass = "\common\models\Suggestion") {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED]);
     }
 
     /**
