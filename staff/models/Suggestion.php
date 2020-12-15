@@ -51,4 +51,22 @@ class Suggestion extends \common\models\Suggestion
     {
         return parent::getUpdatedBy($modelClass);
     }
+
+    /**
+     * Show latest feedback in suggestion
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFeedback($modelClass = "\staff\models\Note")
+    {
+        return parent::getFeedback($modelClass);
+    }
+
+    /**
+     * Show feedbacks in suggestion
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFeedbacks($modelClass = "\staff\models\Note")
+    {
+        return parent::getFeedbacks($modelClass);
+    }
 }

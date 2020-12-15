@@ -331,7 +331,14 @@ class RequestController extends Controller
     public function actionDeliver($id)
     {
         $model = $this->findModel($id);
-        
+
+        if ($model->getActiveSuggestions()->count() > 0) {
+            return [
+                "operation" => "error",
+                "message" => "Please clear all suggestions by accepting or rejecting before being able to proceed with mark delivered / cancellation"
+            ];
+        }
+
         $model->request_status = Request::STATUS_DELIVERED;
         $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
 
@@ -375,7 +382,14 @@ class RequestController extends Controller
     public function actionCancel($id)
     {
         $model = $this->findModel($id);
-        
+
+        if ($model->getActiveSuggestions()->count() > 0) {
+            return [
+                "operation" => "error",
+                "message" => "Please clear all suggestions by accepting or rejecting before being able to proceed with mark delivered / cancellation"
+            ];
+        }
+
         $model->request_status = Request::STATUS_CANCELLED;
         $model->request_feedback = Yii::$app->request->getBodyParam("feedback");
 

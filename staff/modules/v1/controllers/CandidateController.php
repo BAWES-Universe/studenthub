@@ -114,6 +114,10 @@ class CandidateController extends Controller
         $model->candidate_gender = Yii::$app->request->getBodyParam("candidate_gender");
         $model->candidate_objective = Yii::$app->request->getBodyParam("candidate_objective");
         $model->candidate_resume = Yii::$app->request->getBodyParam("resume");
+        $model->candidate_latitude = Yii::$app->request->getBodyParam("latitude");
+        $model->candidate_longitude = Yii::$app->request->getBodyParam("longitude");
+        $model->candidate_area_uuid = Yii::$app->request->getBodyParam("area_uuid");
+        $model->candidate_mom_kuwaiti = Yii::$app->request->getBodyParam("mom_kuwait");
 
         $model->approved = 1;
 
@@ -179,6 +183,10 @@ class CandidateController extends Controller
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("expiry_date"))): null;
 
         $model->candidate_resume = Yii::$app->request->getBodyParam("resume");
+        $model->candidate_latitude = Yii::$app->request->getBodyParam("latitude");
+        $model->candidate_longitude = Yii::$app->request->getBodyParam("longitude");
+        $model->candidate_area_uuid = Yii::$app->request->getBodyParam("area_uuid");
+        $model->candidate_mom_kuwaiti = Yii::$app->request->getBodyParam("mom_kuwait");
 
         if (!$model->save())
         {
