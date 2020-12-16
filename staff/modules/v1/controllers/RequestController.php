@@ -415,6 +415,8 @@ class RequestController extends Controller
             }
         }
 
+        $model->createRequestActivity('I have cancelled this request because '. $model->request_feedback);
+
         Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [

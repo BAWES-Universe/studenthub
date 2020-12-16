@@ -59,8 +59,23 @@ class Request extends \yii\db\ActiveRecord
             [['request_position_title', 'request_additional_info', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
-            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']]
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
+            ['contact_uuid', 'validateContact']
         ];
+    }
+
+
+    public function validateContact($attribute, $params, $validator) {
+
+        if ($this->contact_uuid && $this->company_id) {
+            $exist = CompanyContact::find()->andWhere([
+                'contact_uuid' => $this->contact_uuid,
+                'company_id' => $this->company_id
+            ])->exists();
+            if (!$exist) {
+                $this->addError('contact_uuid', "Contact Detail not belongs to this company.");
+            }
+        }
     }
 
     public function behaviors() {
