@@ -73,7 +73,14 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterByName($name) {
-        return $this->andWhere(['like', '{{%company}}.company_name', $name]);
+        return
+            $this->andWhere([
+                'or',
+                ['like', '{{%company}}.company_name', $name],
+                ['like', '{{%company}}.company_common_name_ar', $name],
+                ['like', '{{%company}}.company_common_name_en', $name]
+            ]);
+
     }
 
     /**

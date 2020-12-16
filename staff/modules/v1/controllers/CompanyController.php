@@ -11,6 +11,7 @@ use staff\models\Note;
 use common\models\File;
 use yii\web\NotFoundHttpException;
 
+
 /**
  * Company controller - Manage company accounts as Admin
  */
@@ -73,8 +74,6 @@ class CompanyController extends Controller
     {
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
-        $common_name_en = Yii::$app->request->getQueryParam("common_name_en",0);
-        $common_name_ar = Yii::$app->request->getQueryParam("common_name_ar",0);
         
         $query = Company::find()
             ->filterParent();
@@ -93,14 +92,6 @@ class CompanyController extends Controller
 
         if ($name) {
             $query->filterByName($name);
-        }
-
-        if ($common_name_en) {
-            $query->filterByNameEn($common_name_en);
-        }
-
-        if ($common_name_ar) {
-            $query->filterByNameAr($common_name_ar);
         }
 
         return new ActiveDataProvider([
@@ -290,8 +281,12 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
-        $model->company_followup = 0;
-        $model->company_last_followup_datetime = null;
+        $model->company_followup = Yii::$app->request->getBodyParam("followup");
+        $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+
+        if ($model->company_followup) {
+            $model->company_last_followup_datetime = new Expression('NOW()');
+        }
 
         $model->setPassword($model->company_password_hash);
 
@@ -352,6 +347,12 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->company_followup = Yii::$app->request->getBodyParam("followup");
+        $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+
+        if ($model->oldAttributes['company_followup'] != $model->company_followup) {
+            $model->company_last_followup_datetime = new Expression('NOW()');
+        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {

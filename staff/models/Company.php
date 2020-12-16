@@ -87,7 +87,8 @@ class Company extends \common\models\Company {
     {
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-        $subject = Yii::$app->user->identity->staff_name. ' '.$type.' client account '.$model->company_name;
+        $name = ($model->company_common_name_en) ? $model->company_common_name_en : $model->company_name;
+        $subject = Yii::$app->user->identity->staff_name. ' '.$type.' client account '.$name;
         return Yii::$app->mailer->compose("report-company-crud",
             [
                 "model" => $model,
