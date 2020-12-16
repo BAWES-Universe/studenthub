@@ -281,8 +281,12 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
-        $model->company_followup = 0;
-        $model->company_last_followup_datetime = null;
+        $model->company_followup = Yii::$app->request->getBodyParam("followup");
+        $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+
+        if ($model->company_followup) {
+            $model->company_last_followup_datetime = new Expression('NOW()');
+        }
 
         $model->setPassword($model->company_password_hash);
 
@@ -343,6 +347,12 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->company_followup = Yii::$app->request->getBodyParam("followup");
+        $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+
+        if ($model->oldAttributes['company_followup'] != $model->company_followup) {
+            $model->company_last_followup_datetime = new Expression('NOW()');
+        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {
