@@ -120,4 +120,19 @@ class CompanyContact extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\common\models\Request")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+    }
 }

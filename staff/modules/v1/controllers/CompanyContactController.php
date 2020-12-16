@@ -12,7 +12,6 @@ use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
-
 /**
  * CompanyContact controller - Manage CompanyContact as Staff
  */
@@ -101,8 +100,9 @@ class CompanyContactController extends Controller
 
     /**
      * load company contact details
-     * @param type $id
-     * @return type
+     * @param $id
+     * @return CompanyContact
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
@@ -246,6 +246,15 @@ class CompanyContactController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+        $notes = $model->getNotes()->count();
+        $requests = $model->getRequests()->count();
+
+        if ($notes || $requests) {
+            return [
+                "operation" => "error",
+                "message" => "Company Contact can't be deleted. Its in use"
+            ];
+        }
 
         if(!$model) {
             return [
@@ -269,7 +278,7 @@ class CompanyContactController extends Controller
      * Finds the CompanyContact model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Transfer the loaded model
+     * @return CompanyContact the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
