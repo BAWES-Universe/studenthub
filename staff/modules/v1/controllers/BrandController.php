@@ -89,7 +89,8 @@ class BrandController extends Controller
         $query->andWhere(['company_id'=>$id]);
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => false
         ]);
     }
 
