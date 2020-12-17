@@ -358,7 +358,7 @@ class CompanyController extends Controller
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",
-                    "message" => $model->errors
+                    "message" => $model->getErrors()
                 ];
             } else {
                 return [
@@ -367,7 +367,9 @@ class CompanyController extends Controller
                 ];
             }
         }
+
         $mail = Company::companyCreateUpdateMail($model,'updated');
+
         Yii::info('['.$model->company_name.' Company Account Updated] Company updated by '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [

@@ -17,9 +17,20 @@ class Company extends \common\models\Company {
     public function scenarios() {
         $scenarios = parent::scenarios();
 
-        $scenarios['update'] = ['company_name', 'company_email', 'parent_company_id', 'company_hourly_rate', 'company_bonus_commission',
-            'company_common_name_en', 'company_common_name_ar', 'company_description_en', 'company_description_ar', 'company_website',
-            'company_logo'];
+        $scenarios['update'] = [
+            'company_name',
+            'company_email',
+            'parent_company_id',
+            'company_hourly_rate',
+            'company_bonus_commission',
+            'company_common_name_en',
+            'company_common_name_ar', 'company_description_en', 'company_description_ar',
+            'company_website',
+            'company_logo',
+            'company_followup',
+            'company_followup_interval_weeks',
+            'company_last_followup_datetime'
+        ];
 
         return $scenarios;
     }
@@ -39,7 +50,6 @@ class Company extends \common\models\Company {
 
         return $field;
     }
-
 
     /**
      * @param string $modelClass
