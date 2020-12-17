@@ -386,9 +386,7 @@ class Fulltimer extends \yii\db\ActiveRecord
 
         try {
 
-            $result = Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
-
-            Yii::error($result, 'staff');
+            Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
