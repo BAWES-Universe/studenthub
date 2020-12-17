@@ -151,7 +151,6 @@ class Suggestion extends \yii\db\ActiveRecord
             'fulltimer_uuid' => Yii::t('app', 'Fulltimer Uuid'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'note_uuid' => Yii::t('app', 'Note Uuid'),
-            'suggestion_uuid' => Yii::t('app', 'Suggestion Uuid'), 
             'suggestion_status' => Yii::t('app', 'Suggestion Status'),
             'suggestion_datetime' => Yii::t('app', 'Suggestion Datetime'),
         ];

@@ -45,10 +45,12 @@ return [
                         'GET login' => 'login',
                         'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
+                        'PATCH set-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
+                        'OPTIONS set-password' => 'options',
                     ]
                 ],     
                 [ // AccountController
