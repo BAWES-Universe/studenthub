@@ -90,7 +90,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
             ['company_followup', 'boolean'],
-            ['company_last_followup_datetime', 'date'],
+            ['company_last_followup_datetime', 'safe'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
@@ -661,6 +661,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function updateCompanyLogo() {
 
         try {
+
             $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->company_logo);
 
             return $this->setCompanyLogo($url);
@@ -670,6 +671,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             Yii::error($e->getMessage(), 'company');
 
             $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+
             return false;
         }
     }
@@ -683,12 +685,14 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $filename = Yii::$app->security->generateRandomString();
 
         // deleting old pic
+
         if ($this->company_logo) {
             $this->deleteProfilePhotoFromCloudinary();
         }
 
         try {
             $path = (YII_ENV == 'prod') ?  "company-logo/" : "dev/company-logo/";
+
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
@@ -708,6 +712,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
             if ($result) {
                 $this->company_logo = "company-logo/" . basename($result['url']);
+
                 return true;
             }
 
@@ -763,22 +768,27 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function beforeSave($insert)
     {
-        if (parent::beforeSave($insert)) {
-
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
             // in case update
-            if (!$this->isNewRecord && $this->company_logo && ($this->company_logo != $this->oldAttributes['company_logo'])) {
-                if (!$this->updateCompanyLogo()) {
-                    return false;
-                }
+
+            if (
+                !$this->isNewRecord &&
+                $this->company_logo &&
+                $this->company_logo != $this->oldAttributes['company_logo'] &&
+                !$this->updateCompanyLogo()
+            ) {
+                return false;
             }
 
-            // in case update
+            // in case create
+
             if ($this->isNewRecord && $this->company_logo && !$this->updateCompanyLogo()) {
                 return false;
             }
+
             return true;
-        }
-        return false;
     }
 
     public static function companyFollowupCount() {
