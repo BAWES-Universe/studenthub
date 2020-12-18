@@ -198,7 +198,7 @@ class Fulltimer extends \yii\db\ActiveRecord
         //on resume removed
 
         if(!$insert && !$this->fulltimer_pdf_cv && $this->oldAttributes['fulltimer_pdf_cv']) {
-            return $this->deleteResume ();
+            return $this->deleteResume();
         }
 
         return true;

@@ -3,8 +3,8 @@ namespace staff\models;
 
 use common\models\CandidateExperience;
 use common\models\CandidateSkill;
+use common\models\Suggestion;
 use Yii;
-use yii\helpers\Url;
 
 
 /**
@@ -29,6 +29,29 @@ class Candidate extends \common\models\Candidate {
             return strtolower($model->candidate_name);
         };
         return $fields;
+    }
+
+    public function extraFields()
+    {
+        $fields = parent::extraFields ();
+
+        return array_merge ([
+            'suggested',
+            'suggestionAccepted',
+            'suggestionRejected'
+        ], $fields);
+    }
+
+    public function getSuggested() {
+        return $this->getSuggestion()->count();
+    }
+
+    public function getSuggestionAccepted() {
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_ACCEPTED])->count();
+    }
+
+    public function getSuggestionRejected() {
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_ACCEPTED])->count();
     }
 
     /**
