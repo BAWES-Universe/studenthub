@@ -48,13 +48,12 @@ class Fulltimer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv'], 'required'],
+            [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email'], 'required'],
             [['nationality_id', 'country_id'], 'integer'],
             [['fulltimer_latitude', 'fulltimer_longitude'], 'number'],
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
             [['fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv'], 'string', 'max' => 255],
-
             [
                 ['fulltimer_pdf_cv'],
                 '\common\components\S3FileExistValidator',
@@ -63,7 +62,7 @@ class Fulltimer extends \yii\db\ActiveRecord
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
                 'extensions' => 'pdf',
                 'when' => function($model, $attribute) {
-                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                    return (trim($model->fulltimer_pdf_cv) && $model->{$attribute} !== $model->getOldAttribute($attribute));
                 }
             ],
             [['fulltimer_email'], 'unique'],
