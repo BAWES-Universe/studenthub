@@ -36,7 +36,7 @@ class GoogleMapCest
     public function tryToPlaceDetail(FunctionalTester $I)
     {
         $I->wantTo('Validate google-map > place detail api response');
-        $I->sendGET('v1/google-map/place-detail/1');
+        $I->sendGET('v1/google-map/place-detail/ChIJWZXnT4IIzz8RD-6elZ0eaTQ');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
