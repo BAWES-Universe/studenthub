@@ -116,35 +116,19 @@ class Area extends \yii\db\ActiveRecord
      */
     public static function getGoogleAPICityObject($response) 
     {
-        foreach ($response->results as $key => $address_component) {
-            foreach($address_component->address_components as $component) {
-                if(in_array('locality', $component->types)) {
-                    return $component;
-                }
+        $result = isset($response->results) ? $response->results[0] : $response->result;
+
+        foreach($result->address_components as $component) {
+            if(in_array('locality', $component->types)) {
+                return $component;
             }
         }
-
-        foreach ($response->results as $key => $address_component) {
-            foreach($address_component->address_components as $component) {
-                if(in_array('administrative_area_level_1', $component->types)) {
-                    return $component;
-                }
+    
+        foreach($result->address_components as $component) {
+            if(in_array('administrative_area_level_1', $component->types)) {
+                return $component;
             }
         }
-
-//        foreach($response->results[0]->address_components as $component) {
-//            if(in_array('locality', $component->types)) {
-//                return $component;
-//            }
-//        }
-        
-        //in case not able to find city, return political area 
-        
-//        foreach($response->results[0]->address_components as $component) {
-//            if(in_array('administrative_area_level_1', $component->types)) {
-//                return $component;
-//            }
-//        }
     }
 
     /**
@@ -154,7 +138,9 @@ class Area extends \yii\db\ActiveRecord
      */
     public static function getGoogleAPICountryObject($response) 
     {
-        foreach($response->results[0]->address_components as $component) {
+        $result = isset($response->results) ? $response->results[0] : $response->result;
+
+        foreach($result->address_components as $component) {
             if(in_array('country', $component->types)) {
                 return $component;
             }
