@@ -142,6 +142,7 @@ class RequestController extends Controller
     {
         $company_id = Yii::$app->request->get("company_id");
         $excludeMyRequests = Yii::$app->request->get("excludeMyRequests");
+        $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
             ->andWhere(['request_status' => Request::STATUS_STARTED])
@@ -155,6 +156,10 @@ class RequestController extends Controller
 
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
+        }
+
+        if($position_type) {
+            $query->andWhere(['request_position_type' => $position_type]);
         }
 
         return new ActiveDataProvider([
