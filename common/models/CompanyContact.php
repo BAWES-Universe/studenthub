@@ -92,8 +92,10 @@ class CompanyContact extends \yii\db\ActiveRecord
     {
         return [
             'company',
+            'requests',
             'companyContactEmails',
-            'companyContactPhones'
+            'companyContactPhones',
+            'notes'
         ];
     }
 
@@ -133,6 +135,7 @@ class CompanyContact extends \yii\db\ActiveRecord
      */
     public function getNotes($modelClass = "\common\models\Note")
     {
-        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
+            ->orderBy('note_updated_datetime DESC');
     }
 }
