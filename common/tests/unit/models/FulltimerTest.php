@@ -53,7 +53,7 @@ class FulltimerTest extends \Codeception\Test\Unit
             expect('should not accept empty fulltimer_name', $admin->validate(['fulltimer_name']))->false();
             expect('should not accept empty fulltimer_phone', $admin->validate(['fulltimer_phone']))->false();
             expect('should not accept empty fulltimer_email', $admin->validate(['fulltimer_email']))->false();
-            expect('should not accept empty fulltimer_pdf_cv', $admin->validate(['fulltimer_pdf_cv']))->false();
+            //expect('should not accept empty fulltimer_pdf_cv', $admin->validate(['fulltimer_pdf_cv']))->false();
 
         });
     }
