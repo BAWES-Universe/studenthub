@@ -797,8 +797,9 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ->count();
     }
 
-    public function getMalls() {
-        return \staff\models\Mall::findAll(['mall_uuid'=>$this->getStores()->all()]);
+    public function getMalls($modelClass = "\common\models\Mall") {
+        return $this->hasMany($modelClass::className(), ['mall_uuid' => 'mall_uuid'])
+            ->via('stores');
     }
 
     /**
