@@ -2,7 +2,9 @@
 namespace staff\models;
 
 use common\models\Candidate;
+use common\models\Transfer;
 use Yii;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -51,6 +53,15 @@ class Company extends \common\models\Company {
         return $field;
     }
 
+    public function extraFields()
+    {
+        return array_merge(
+            parent::extraFields(),
+            [
+                'stats',
+            ]
+        );
+    }
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
@@ -62,11 +73,11 @@ class Company extends \common\models\Company {
 
     /**
      * @param string $modelClass
-     * @return $this
+     * @return \yii\db\ActiveQuery
      */
     public function getStores($modelClass = "\staff\models\Store")
     {
-        return parent::getStores($modelClass)->andWhere(['{{%store}}.deleted'=>0]);
+        return parent::getStores($modelClass);
     }
 
     /**
@@ -120,5 +131,21 @@ class Company extends \common\models\Company {
     public function getNotes($modelClass = "\staff\models\Note")
     {
         return parent::getNotes($modelClass);
+    }
+
+    /**
+     * @return array
+     */
+    public function getStats(){
+        return [
+            'requests' => $this->getRequests()->count(),
+            'stores' => $this->getStores()->count(),
+            'contacts' => $this->getCompanyContacts()->count(),
+            'brands' => $this->getBrands()->count(),
+            'malls' => $this->getMalls()->count(),
+            'documents' => $this->getFiles()->count(),
+            'transfers' => $this->getParentTransfers()->count(),
+            'subCompanies' => $this->getSubCompanies()->count(),
+        ];
     }
 }
