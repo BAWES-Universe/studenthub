@@ -95,7 +95,8 @@ class CompanyContact extends \yii\db\ActiveRecord
             'requests',
             'companyContactEmails',
             'companyContactPhones',
-            'notes'
+            'notes',
+            'companyContactStats'
         ];
     }
 
@@ -137,5 +138,18 @@ class CompanyContact extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
             ->orderBy('note_updated_datetime DESC');
+    }
+
+    /**
+     * @return array
+     */
+    public function getCompanyContactStats() {
+        return [
+            'companyContactEmails' => $this->getCompanyContactEmails()->count(),
+            'companyContactPhones' => $this->getCompanyContactPhones()->count(),
+            'requests' => $this->getRequests()->count(),
+            'notes' => $this->getNotes()->count(),
+            'lastNotes' => $this->getNotes()->orderBy('note_updated_datetime DESC')->one(),
+        ];
     }
 }
