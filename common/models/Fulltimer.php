@@ -132,7 +132,10 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimerTags',
             'notes',
             'acceptanceRatio',
-            'rejectionRatio'
+            'rejectionRatio',
+            'suggested',
+            'suggestionAccepted',
+            'suggestionRejected'
         ];
     }
 
@@ -486,6 +489,18 @@ class Fulltimer extends \yii\db\ActiveRecord
     public function getSuggestion($modelClass = "\common\models\Suggestion")
     {
         return $this->hasMany($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
+    }
+
+    public function getSuggested() {
+        return $this->getSuggestion()->count();
+    }
+
+    public function getSuggestionAccepted() {
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_ACCEPTED])->count();
+    }
+
+    public function getSuggestionRejected() {
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_ACCEPTED])->count();
     }
 
     /**
