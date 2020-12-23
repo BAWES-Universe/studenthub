@@ -37,6 +37,10 @@ class NoteQuery extends ActiveQuery
     public function filterCompany($company_id) {
         return $this->andWhere (['company_id' => $company_id]);
     }
+    
+    public function filterFulltimer($fulltimer_uuid) {
+        return $this->andWhere (['fulltimer_uuid' => $fulltimer_uuid]);
+    }
 
     public function filterCandidate($candidate_id) {
         return $this->andWhere (['candidate_id' => $candidate_id]);

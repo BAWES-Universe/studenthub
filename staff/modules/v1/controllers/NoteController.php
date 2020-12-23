@@ -73,6 +73,7 @@ class NoteController extends Controller
      */
     public function actionList()
     {
+        $fulltimer_uuid = Yii::$app->request->get('fulltimer_uuid');
         $candidate_id = Yii::$app->request->get('candidate_id');
         $request_uuid = Yii::$app->request->get('request_uuid');
         $company_id = Yii::$app->request->get('company_id');
@@ -88,6 +89,10 @@ class NoteController extends Controller
 
         if($request_uuid) {
             $query->filterRequest($request_uuid);
+        }
+
+        if($fulltimer_uuid) {
+            $query->filterFulltimer($fulltimer_uuid);
         }
 
         if($candidate_id) {
