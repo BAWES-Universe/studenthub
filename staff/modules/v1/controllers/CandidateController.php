@@ -308,7 +308,7 @@ class CandidateController extends Controller
         }
 
         $model->store_id = $store_id;
-
+        $storeName = $model->store->store_name;
         if (!$model->save()) {
 
             if(isset($model->errors)){
@@ -325,6 +325,13 @@ class CandidateController extends Controller
                 ];
             }
         }
+
+        // save note
+        $noteModel  = new Note();
+        $noteModel->candidate_id  = $id;
+        $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
+        $noteModel->note_text  = "Assigned to {$storeName}";
+        $noteModel->save(false);
 
         // saving candidate work history
 
@@ -348,7 +355,7 @@ class CandidateController extends Controller
     {
         // Attempt to create new account
         $model = $this->findModel($id);
-
+        $storeName = $model->store->store_name;
         $model->store_id = null;
 
         if (!$model->save(false))
@@ -365,6 +372,14 @@ class CandidateController extends Controller
                 ];
             }
         }
+
+        // save note
+        $feedback = Yii::$app->request->get('feedback');
+        $noteModel  = new Note();
+        $noteModel->candidate_id  = $id;
+        $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
+        $noteModel->note_text  = "Unassigned from {$storeName} because {$feedback}";
+        $noteModel->save(false);
 
         CandidateWorkHistory::saveUnAssignedHistory($model);
 
