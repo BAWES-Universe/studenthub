@@ -59,15 +59,14 @@ class StatisticsCest
             ->filterAssigned()
             ->incompletedProfile()
             ->count();
+
         $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
         $result['requireFollowup'] = Company::companyFollowupCount();
-        $result['totalPendingRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_PENDING])
-            ->count();
 
         $result['activeRequests'] = Request::find()
             ->filterWhere(['request_status' => Request::STATUS_STARTED])
             ->count();
+
         $I->canSeeResponseContainsJson($result);
     }
 }

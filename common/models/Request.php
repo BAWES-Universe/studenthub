@@ -14,7 +14,6 @@ use yii\behaviors\AttributeBehavior;
  * @property string $request_uuid
  * @property int $company_id Which company is this request for?
  * @property string $contact_uuid Which contact from this company made the request?
- * @property int staff_id who handling request
  * @property int $request_created_by
  * @property int $request_updated_by
  * @property int $request_position_type 1 - Fulltime, 2 - Partime
@@ -33,7 +32,6 @@ use yii\behaviors\AttributeBehavior;
  */
 class Request extends \yii\db\ActiveRecord
 {
-    const STATUS_PENDING = 'pending';
     const STATUS_STARTED = 'started';
     const STATUS_DELIVERED = 'delivered';
     const STATUS_CANCELLED = 'cancelled';
@@ -54,11 +52,10 @@ class Request extends \yii\db\ActiveRecord
         return [
             [['contact_uuid', 'company_id'], 'required'],
             [['company_id', 'request_created_by', 'request_updated_by', 'request_position_type', 'request_number_of_employees'], 'integer'],
-            ['request_status', 'in', 'range' => [self::STATUS_PENDING, self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
+            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_position_title', 'request_additional_info', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
             ['contact_uuid', 'validateContact']
         ];
@@ -115,7 +112,6 @@ class Request extends \yii\db\ActiveRecord
             'request_uuid' => Yii::t('app', 'Request Uuid'),
             'company_id' => Yii::t('app', 'Which company is this request for?'),
             'contact_uuid' => Yii::t('app', 'Which contact from this company made the request?'),
-            'staff_id' => Yii::t('app', 'Staff'),
             'request_created_by' => Yii::t('app', 'Request Created By'),
             'request_updated_by' => Yii::t('app', 'Request Updated By'),
             'request_position_type' => Yii::t('app', '1 - Fulltime, 2 - Partime'),
@@ -139,20 +135,11 @@ class Request extends \yii\db\ActiveRecord
             'requestUpdatedBy',
             'contact',
             'company',
-            'staff',
             'lastActivity',
             'requestActivities',
             'suggestions',
             'activeSuggestions'
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getStaff($modelClass = "\common\models\Staff")
-    {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
@@ -244,7 +231,7 @@ class Request extends \yii\db\ActiveRecord
 
     public static function totalRequestCount() {
         return Request::find()
-            ->andWhere(['in','request_status',[Request::STATUS_STARTED,Request::STATUS_PENDING]])
+            ->andWhere(['in','request_status',[Request::STATUS_STARTED]])
             ->count();
     }
 }
