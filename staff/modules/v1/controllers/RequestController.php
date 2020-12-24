@@ -236,7 +236,8 @@ class RequestController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated"
+            "message" => "Request successfully updated",
+            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
 
@@ -287,7 +288,8 @@ class RequestController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated"
+            "message" => "Request successfully updated",
+            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
     
@@ -338,7 +340,8 @@ class RequestController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated"
+            "message" => "Request successfully updated",
+            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
 
