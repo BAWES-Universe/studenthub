@@ -106,10 +106,6 @@ class StatisticController extends Controller
 
         $result['requireFollowup'] = Company::companyFollowupCount();
 
-        $result['totalPendingRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_PENDING])
-            ->count();
-
         $result['activeRequests'] = Request::activeRequestCount();
         $result['totalRequests'] = Request::totalRequestCount();
 

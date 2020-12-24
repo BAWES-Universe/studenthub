@@ -114,45 +114,17 @@ class RequestController extends Controller
     }
 
     /**
-     * Return a List of pending requests available.
-     * @return ActiveDataProvider
-     */
-    public function actionListPending()
-    {
-        $company_id = Yii::$app->request->get("company_id");
-
-        $query = Request::find()
-            ->andWhere(['request_status' => Request::STATUS_PENDING])
-            ->orderBy('request_created_datetime DESC');
-
-        if($company_id) {
-            $query->andWhere(['company_id' => $company_id]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
      * Return a List of requests available.
      * @return ActiveDataProvider
      */
     public function actionListActive()
     {
         $company_id = Yii::$app->request->get("company_id");
-        $excludeMyRequests = Yii::$app->request->get("excludeMyRequests");
         $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
             ->andWhere(['request_status' => Request::STATUS_STARTED])
             ->orderBy('request_created_datetime DESC');
-
-        if($excludeMyRequests) {
-            $query->andWhere(['!=', 'staff_id', Yii::$app->user->getId()]);
-        } else {
-            $query->andWhere('staff_id IS NOT NULL');//only active requests
-        }
 
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
@@ -162,28 +134,6 @@ class RequestController extends Controller
             $query->andWhere(['request_position_type' => $position_type]);
         }
 
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of requests I'm handling.
-     * @return ActiveDataProvider
-     */
-    public function actionListMy()
-    {
-        $company_id = Yii::$app->request->get("company_id");
-
-        $query = Request::find()
-            ->andWhere(['request_status' => [Request::STATUS_STARTED]])
-            ->andWhere(['staff_id' => Yii::$app->user->getId()])
-            ->orderBy('request_created_datetime DESC');
-
-        if($company_id) {
-            $query->andWhere(['company_id' => $company_id]);
-        }
-        
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -214,7 +164,7 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
-        $model->request_status = Request::STATUS_PENDING;
+        $model->request_status = Request::STATUS_STARTED;
         
         if (!$model->save())
         {
@@ -230,6 +180,7 @@ class RequestController extends Controller
                 ];
             }
         }
+
         //save activity
         $model->createRequestActivity('I have created this request');
 
@@ -288,46 +239,7 @@ class RequestController extends Controller
             "message" => "Request successfully updated"
         ];
     }
-    
-    /**
-     * Update Request Status to `started`
-     * @param $id
-     * @return array
-     */
-    public function actionStart($id)
-    {
-        $model = $this->findModel($id);
-        $model->staff_id = Yii::$app->user->getId();
-        $model->request_status = Request::STATUS_STARTED;
-        
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
-                ];
-            }
-        }
 
-        $detail = 'I have picked up this request to work on. ';
-
-        $model->createRequestActivity($detail); // create request
-
-        Yii::info('[Request marked as started for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
-
-        return [
-            "operation" => "success",
-            "message" => "Request successfully updated",
-            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
-        ];
-    }
-    
     /**
      * Update Request Status to `delivered`
      * @param $id
@@ -466,58 +378,8 @@ class RequestController extends Controller
             "message" => "Request activity successfully added",
             "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
-    /**
-     * Allows staff to pickup the request
-     */
-    public function actionPickUp($id) {
-
-        $model = $this->findModel($id);
-
-        if ($model->staff_id == Yii::$app->user->getId()) {
-            return [
-                "operation" => "error",
-                "message" => "you are already owner of this ticket"
-            ];
-        }
-        $model->staff_id = Yii::$app->user->getId();;
-        $staff_name = Yii::$app->user->identity->staff_name;
-        if ($model->save(false)) {
-            $modelActivity = new Note();
-            $modelActivity->contact_uuid = $model->contact_uuid;
-            $modelActivity->company_id = $model->company_id;
-            $modelActivity->request_uuid = $id;
-            $modelActivity->note_text = $staff_name.' has picked up this request to work on.';
-
-            if (!$modelActivity->save()) {
-                if (isset($modelActivity->errors)) {
-                    return [
-                        "operation" => "error",
-                        "message" => $modelActivity->errors
-                    ];
-                } else {
-                    return [
-                        "operation" => "error",
-                        "message" => "We've faced a problem adding the request activity, please contact us for assistance."
-                    ];
-                }
-            }
-        }
-
-        return [
-            "operation" => "success",
-            "message" => "Request Picked up successfully",
-            "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
-        ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
-    }
-    
     /**
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

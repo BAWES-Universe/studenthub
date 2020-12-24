@@ -151,7 +151,7 @@ class FulltimerController extends Controller
         $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
         
         $model->tags = Yii::$app->request->getBodyParam("tags");
-        
+ 
         if (!$model->save())
         {
             if(isset($model->errors)){
