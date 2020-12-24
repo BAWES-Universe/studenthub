@@ -116,18 +116,6 @@ class RequestCest
     }
 
     /**
-     * Try to start 
-     * @param FunctionalTester $I
-     */
-    public function tryToStart(FunctionalTester $I)
-    {
-        $I->wantTo('start request via API');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/requests/start/' . $this->request->request_uuid, []);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
-
-    /**
      * Try to cancel 
      * @param FunctionalTester $I
      */
