@@ -73,12 +73,16 @@ class AlgoliaController extends Controller
             'restrictIndices' => [
                 Yii::$app->params['algolia_candidate_index']
             ],
-            'filters' => '',
+            //'filters' => 'assigned=0 AND ',
+            'facetFilters' => [
+                'candidate_committed:Yes',
+                'assigned:0',
+            ],
             'validUntil' => time() + $ttl,
             'userToken' => Yii::$app->user->getId(),
-            //'getRankingInfo' => true,
-            //'aroundLatLngViaIP' => true,
-            'aroundRadius' => 'all'
+           // 'getRankingInfo' => true,
+           // 'aroundLatLngViaIP' => true,
+           // 'aroundRadius' => 'all'
         ];
 
         $securedApiKey = Yii::$app->algolia->getSecureApiKey($params);
