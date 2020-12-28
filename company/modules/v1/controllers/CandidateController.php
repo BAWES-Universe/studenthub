@@ -2,11 +2,13 @@
 
 namespace company\modules\v1\controllers;
 
-use common\models\CandidateWorkHistory;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use common\models\CandidateWorkHistory;
+use company\models\Candidate;
+
 
 /**
  * Candidate controller - Manage Candidate accounts as Admin
@@ -103,12 +105,13 @@ class CandidateController extends Controller
      */
     public function actionView($id)
     {
-        $data = Yii::$app->user->identity->getCandidates()->filterById($id)->one();
+        //$data = Yii::$app->user->identity->getCandidates()->filterById($id)->one();
+
+        $data = Candidate::find()->filterById($id)->one();
 
         if (!$data)
             throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
 
         return $data;
-
     }
 }

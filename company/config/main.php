@@ -29,6 +29,9 @@ return [
             'enableSession' => false,
             'loginUrl' => null
         ],
+        'storeManager' => [ //Component for agent to manage stores
+            'class' => 'company\components\StoreManager',
+        ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0
         ],
