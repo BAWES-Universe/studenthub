@@ -54,7 +54,8 @@ class Request extends \yii\db\ActiveRecord
             [['company_id', 'request_created_by', 'request_updated_by', 'request_position_type', 'request_number_of_employees'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
-            [['request_position_title', 'request_additional_info', 'request_feedback'], 'string', 'max' => 255],
+            [['request_additional_info'], 'string'],
+            [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
             ['contact_uuid', 'validateContact']
