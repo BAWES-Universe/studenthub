@@ -371,7 +371,7 @@
                         </tr>
                         <![endif]-->
                     <?php } ?>
-                    <?php if($totalPendingRequests > 0) { ?>
+                    <?php /*if($totalPendingRequests > 0) { ?>
                     <!--[if mso | IE]>
                     <tr>
                         <td
@@ -538,7 +538,7 @@
                     </td>
                     </tr>
                     <![endif]-->
-                <?php } ?>
+                <?php } */?>
 
                 <!-- Expired IDs -->
 
@@ -1899,7 +1899,7 @@
                     <![endif]-->
                     <!-- Require Approval -->
                 <?php }
-                    if($profileApprovalRequire > 0) { ?>
+                    /*if($profileApprovalRequire > 0) { ?>
                     <!--[if mso | IE]>
                     <tr>
                         <td
@@ -2064,7 +2064,7 @@
 
                     </td>
                     </tr>
-                    <?php } ?>
+                    <?php } */ ?>
                     </table>
                     <![endif]-->
                 </td>
