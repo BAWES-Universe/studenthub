@@ -4,16 +4,12 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\filters\Cors;
-use yii\filters\auth\HttpBearerAuth;
-use common\models\CandidateWorkHistory;
-use company\models\Candidate;
 
 
 /**
- * Candidate controller - Manage Candidate accounts as Admin
+ * Algolia controller
  */
-class CandidateController extends Controller
+class AlgoliaController extends Controller
 {
     public function behaviors()
     {
@@ -24,7 +20,7 @@ class CandidateController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => \yii\filters\Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -42,8 +38,9 @@ class CandidateController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
+
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
 
@@ -59,59 +56,41 @@ class CandidateController extends Controller
         $actions['options'] = [
             'class' => 'yii\rest\OptionsAction',
             // optional:
-            'collectionOptions' => ['GET'],
-            'resourceOptions' => ['GET', 'OPTIONS'],
+            'collectionOptions' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
+            'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
     }
 
     /**
-     * Return a List of Candidate Accounts assigned to work
-     * for current company.
+     * Return auto disposable secure api key
      */
-    public function actionList()
+    public function actionKey()
     {
-        return Yii::$app->user->identity->getCandidates()->all();
-    }
+        $ttl = 60 * 2; //2 min
 
-    /**
-     * Return no of Candidates assigned to work
-     * for current company.
-     */
-    public function actionTotal()
-    {
-        return Yii::$app->user->identity->getCandidates()->count();
-    }
+        $params = [
+            'restrictIndices' => [
+                Yii::$app->params['algolia_candidate_index']
+            ],
+            //'filters' => 'assigned=0 AND ',
+            'facetFilters' => [
+                'candidate_committed:Yes',
+                'assigned:0',
+            ],
+            'validUntil' => time() + $ttl,
+            'userToken' => Yii::$app->user->getId(),
+           // 'getRankingInfo' => true,
+           // 'aroundLatLngViaIP' => true,
+           // 'aroundRadius' => 'all'
+        ];
 
-    /**
-     * get candidate work history
-     * @param $id
-     * @return array|static[]
-     */
-    public function actionWorkHistory($id)
-    {
-        $model = CandidateWorkHistory::find()
-            ->filterCandidate($id)
-            ->all();
+        $securedApiKey = Yii::$app->algolia->getSecureApiKey($params);
 
-        if(!$model)
-            return [];
-
-        return $model;
-    }
-
-    /**
-     * Return no of Candidate detail
-     */
-    public function actionView($id)
-    {
-        //$data = Yii::$app->user->identity->getCandidates()->filterById($id)->one();
-
-        $data = Candidate::find()->filterById($id)->one();
-
-        if (!$data)
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
-
-        return $data;
+        return [
+            'securedApiKey' => $securedApiKey,
+            'securedApiKeyValidUntil' => $params['validUntil'],
+            'appId' => Yii::$app->algolia->appId
+        ];
     }
 }

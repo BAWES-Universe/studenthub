@@ -29,6 +29,9 @@ return [
             'enableSession' => false,
             'loginUrl' => null
         ],
+        'storeManager' => [ //Component for agent to manage stores
+            'class' => 'company\components\StoreManager',
+        ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0
         ],
@@ -37,6 +40,16 @@ return [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
+                [ // AlgoliaController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/algolia',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET key' => 'key',
+                        // OPTIONS VERBS
+                        'OPTIONS key' => 'options'
+                    ]
+                ],
                 [ // AuthController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/auth',
