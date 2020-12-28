@@ -1,10 +1,9 @@
 <?php
-namespace staff\tests;
+namespace company\tests;
 
 use yii;
-use common\models\StaffToken;
-use common\fixtures\StaffTokenFixture;
-use common\fixtures\StaffFixture;
+use common\models\CompanyToken;
+use common\fixtures\CompanyTokenFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -12,15 +11,15 @@ class AlgoliaCest
 {
     public $token;
 
-	public function _fixtures() {
-		return [
-			'staffToken' => StaffTokenFixture::className()
-		];
-	}
+    public function _fixtures() {
+        return [
+            'tokens' => CompanyTokenFixture::className()
+        ];
+    }
 
-	public function _before(FunctionalTester $I)
-	{
-        $this->token = StaffToken::find()
+    public function _before(FunctionalTester $I)
+    {
+        $this->token = CompanyToken::find()
             ->one()
             ->token_value;
 
@@ -35,7 +34,7 @@ class AlgoliaCest
      */
     public function tryToGetAlgoliaKey(FunctionalTester $I)
     {
-        $I->wantTo('get algolia key');
+        $I->wantTo('get algolia secure key');
         $I->sendGET('v1/algolia/key');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
