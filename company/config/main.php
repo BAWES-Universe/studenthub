@@ -127,6 +127,19 @@ return [
                         'OPTIONS change-password' => 'options'
                     ]
                 ],
+                [ // RequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
