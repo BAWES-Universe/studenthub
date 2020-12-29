@@ -153,6 +153,28 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // SuggestionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/suggestion',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // RequestActivityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-activity',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET request-activities/<id>' => 'request-activities',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS request-activities/<id>' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
