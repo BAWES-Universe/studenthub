@@ -127,11 +127,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_phone'], 'unique'],
-            [['candidate_email'], 'uniqueCheckWithCondition'],
             ['candidate_video_processed', 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
-            [['candidate_new_email'], 'validateNewEmail'],
+            [['candidate_new_email', 'candidate_email'], 'validateEmail'],
             ['candidate_limit_email', 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
@@ -333,30 +332,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * Validate email in new_email field
      */
-    public function validateNewEmail() {
-        $count = self::find()
-            ->andWhere(['!=', 'candidate_id', $this->candidate_id])
+    public function validateEmail($attribute) {
+        $query = self::find()
             ->andWhere([
                 'or',
-                ['candidate_new_email' => $this->candidate_new_email],
-                ['candidate_email' => $this->candidate_new_email]
-            ])
-            ->count();
+                ['candidate_new_email' => $this->$attribute],
+                ['candidate_email' => $this->$attribute]
+            ]);
 
-        if ($count) {
-            $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
+        if($this->candidate_id) {
+            $query->andWhere(['!=', 'candidate_id', $this->candidate_id]);
         }
-    }
 
-    /**
-     * Validate Email with validation
-     */
-    public function uniqueCheckWithCondition() {
-        $count = self::find()
-            ->andWhere(['candidate_email' => $this->candidate_new_email,'deleted'=>'0'])
-            ->count();
-
-        if ($count) {
+        if ($query->exists()) {
             $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
         }
     }
