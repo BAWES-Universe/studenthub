@@ -175,6 +175,17 @@ return [
                         'OPTIONS request-activities/<id>' => 'options'
                     ]
                 ],
+                [ // CompanyContactController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company-contact',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],

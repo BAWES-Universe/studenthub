@@ -158,7 +158,7 @@ class RequestController extends Controller
         // Attempt to create new request
         $model = new Request();
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->company_id = Yii::$app->user->getId();
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
@@ -184,7 +184,7 @@ class RequestController extends Controller
         //save activity
         $model->createRequestActivity('I have created this request');
 
-        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->company_name, __METHOD__);
 
         return [
             "operation" => "success",
