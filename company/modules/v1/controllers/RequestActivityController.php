@@ -4,17 +4,16 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\filters\Cors;
-use yii\filters\auth\HttpBearerAuth;
-use common\models\CandidateWorkHistory;
-use company\models\Candidate;
+use yii\data\ActiveDataProvider;
+use staff\models\Note;
 
 
 /**
- * Candidate controller - Manage Candidate accounts as Admin
+ * RequestActivity controller
  */
-class CandidateController extends Controller
+class RequestActivityController extends Controller
 {
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -24,7 +23,7 @@ class CandidateController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => \yii\filters\Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -42,8 +41,9 @@ class CandidateController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
+
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
 
@@ -59,59 +59,57 @@ class CandidateController extends Controller
         $actions['options'] = [
             'class' => 'yii\rest\OptionsAction',
             // optional:
-            'collectionOptions' => ['GET'],
-            'resourceOptions' => ['GET', 'OPTIONS'],
+            'collectionOptions' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
+            'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
     }
 
     /**
-     * Return a List of Candidate Accounts assigned to work
-     * for current company.
-     */
-    public function actionList()
-    {
-        return Yii::$app->user->identity->getCandidates()->all();
-    }
-
-    /**
-     * Return no of Candidates assigned to work
-     * for current company.
-     */
-    public function actionTotal()
-    {
-        return Yii::$app->user->identity->getCandidates()->count();
-    }
-
-    /**
-     * get candidate work history
+     * request activity list
      * @param $id
-     * @return array|static[]
+     * @return RequestActivity[]
      */
-    public function actionWorkHistory($id)
+    public function actionRequestActivities($id)
     {
-        $model = CandidateWorkHistory::find()
-            ->filterCandidate($id)
-            ->all();
+        $query = Note::find()
+            ->andWhere(['request_uuid' => $id])
+            //https://www.pivotaltracker.com/story/show/176153241 looking for all type of activities
+//            ->andWhere(['NOT IN', 'note_type', [NOTE::TYPE_SUGGESTED, NOTE::TYPE_ACCEPTED, NOTE::TYPE_REJECTED]])
+            ->orderBy('note_created_datetime desc');
 
-        if(!$model)
-            return [];
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => false
+        ]);
+    }
 
-        return $model;
+
+    /**
+     * return request activity detail
+     * @param $request_uuid
+     *
+     * @return RequestActivity
+     * @throws NotFoundHttpException
+     */
+    public function actionDetail($id)
+    {
+        return $this->findModel($id);
     }
 
     /**
-     * Return no of Candidate detail
+     * Finds the Request model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return RequestActivity the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    protected function findModel($id)
     {
-        //$data = Yii::$app->user->identity->getCandidates()->filterById($id)->one();
-
-        $data = Candidate::find()->filterById($id)->one();
-
-        if (!$data)
+        if (($model = Note::findOne($id)) !== null) {
+            return $model;
+        } else {
             throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
-
-        return $data;
+        }
     }
 }

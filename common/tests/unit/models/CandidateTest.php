@@ -166,11 +166,14 @@ class CandidateTest extends \Codeception\Test\Unit
 
         $this->specify('Candidate email validation', function() {
             $candidateData = Candidate::findOne(['deleted'=>'0']);
+
             $candidate = new Candidate;
             $candidate->candidate_email = $candidateData->candidate_email;
-            expect('Duplicate email passed', $candidate->validate(['candidate_email']))->true();
+            expect('Duplicate email passed', $candidate->validate(['candidate_email']))->false();
+
             $candidate->candidate_email = 'test';
             expect('Random string passed', $candidate->validate(['candidate_email']))->false();
+
             $candidate->candidate_email = 'candidate1@unique.net';
             expect('Valid email passed', $candidate->validate(['candidate_email']))->true();
         });
@@ -179,6 +182,7 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate = new Candidate;
             $candidate->candidate_civil_id = '54747771714';
             expect('Duplicate candidate_civil_id passed', $candidate->validate(['candidate_civil_id']))->false();
+
             $candidate->candidate_civil_id = '241397002346';
             expect('Valid candidate_civil_id passed', $candidate->validate(['candidate_civil_id']))->true();
         });

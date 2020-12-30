@@ -1133,7 +1133,6 @@ class AccountController extends Controller
 
         $candidate->scenario = "updateCivilExpiryDate";
 
-        
         if (!$candidate->save()) {
 
             return [
@@ -1169,7 +1168,6 @@ class AccountController extends Controller
         $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
 
         $candidate->scenario = "updateCivilExpiryDateAndCivilID";
-
 
         if (!$candidate->save()) {
 

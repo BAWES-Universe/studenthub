@@ -29,6 +29,9 @@ return [
             'enableSession' => false,
             'loginUrl' => null
         ],
+        'storeManager' => [ //Component for agent to manage stores
+            'class' => 'company\components\StoreManager',
+        ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0
         ],
@@ -37,6 +40,16 @@ return [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
+                [ // AlgoliaController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/algolia',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET key' => 'key',
+                        // OPTIONS VERBS
+                        'OPTIONS key' => 'options'
+                    ]
+                ],
                 [ // AuthController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/auth',
@@ -125,6 +138,52 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS change-password' => 'options'
+                    ]
+                ],
+                [ // RequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // SuggestionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/suggestion',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // RequestActivityController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-activity',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET request-activities/<id>' => 'request-activities',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS request-activities/<id>' => 'options'
+                    ]
+                ],
+                [ // CompanyContactController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company-contact',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],

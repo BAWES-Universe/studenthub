@@ -65,8 +65,7 @@ class Fulltimer extends \yii\db\ActiveRecord
                     return (trim($model->fulltimer_pdf_cv) && $model->{$attribute} !== $model->getOldAttribute($attribute));
                 }
             ],
-            [['fulltimer_email'], 'unique'],
-            [['fulltimer_uuid'], 'unique'],
+            [['fulltimer_uuid', 'fulltimer_email'], 'unique'],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['fulltimer_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['fulltimer_area_uuid' => 'area_uuid']],
             [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['nationality_id' => 'country_id']],
@@ -157,10 +156,14 @@ class Fulltimer extends \yii\db\ActiveRecord
         //add tags 
     
         foreach($this->tags as $flltimerTag) {
-         
             $model = new FulltimerTags;
             $model->fulltimer_uuid = $this->fulltimer_uuid;
             $model->tag = is_object($flltimerTag)? $flltimerTag->tag: $flltimerTag['tag'];
+
+            if(!$model->tag) {
+                continue;
+            }
+            
             if(!$model->save()) {
                 print_r($model->errors);
                 die();

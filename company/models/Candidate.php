@@ -1,5 +1,10 @@
 <?php
 namespace company\models;
+
+use Yii;
+use yii\helpers\ArrayHelper;
+
+
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -15,20 +20,40 @@ class Candidate extends \common\models\Candidate {
 
         // remove fields that contain sensitive information
         unset($fields['candidate_auth_key'],
-        $fields['candidate_password_hash'],
-        $fields['candidate_password_reset_token'],
-        $fields['candidate_created_at'],
-        $fields['candidate_updated_at'],
-        $fields['candidate_hourly_rate'],
-        $fields['bank_id'],
-        $fields['candidate_iban'],
-        $fields['candidate_uid'],
-        $fields['bank_account_name'],
-        $fields['approved'],
-        $fields['deleted'],
-        $fields['candidate_status'],
-        $fields['employee_id']
+            $fields['candidate_password_hash'],
+            $fields['candidate_password_reset_token'],
+            $fields['candidate_created_at'],
+            $fields['candidate_updated_at'],
+            $fields['candidate_hourly_rate'],
+            $fields['bank_id'],
+            $fields['candidate_iban'],
+            $fields['candidate_uid'],
+            $fields['bank_account_name'],
+            $fields['approved'],
+            $fields['deleted'],
+            $fields['candidate_status'],
+            $fields['employee_id'],
+            $fields['candidate_email_verification'],
+            $fields['candidate_limit_email'],
+            $fields['candidate_new_email'],
+            $fields['bank_account_name'],
+            $fields['bank_id'],
         );
+
+        /**
+         * hide if not employee of logged in employer
+         */
+        $storeIds = ArrayHelper::getColumn (Yii::$app->storeManager->getManagedStores(), 'store_id');
+
+        if(!in_array ($this->store_id, $storeIds)) {
+            unset(
+                $fields['candidate_phone'],
+                $fields['candidate_email'],
+                $fields['candidate_civil_photo_front'],
+                $fields['candidate_civil_photo_back']
+            );
+        }
+
         $fields['candidate_name'] = function($model){
             return strtolower($model->candidate_name);
         };

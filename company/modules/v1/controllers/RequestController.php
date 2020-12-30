@@ -1,6 +1,6 @@
 <?php
 
-namespace staff\modules\v1\controllers;
+namespace company\modules\v1\controllers;
 
 use Yii;
 use staff\models\Note;
@@ -148,24 +148,24 @@ class RequestController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
     /**
-     * Create a Request 
+     * Create a Request
      * @return array
      */
     public function actionCreate()
     {
         // Attempt to create new request
         $model = new Request();
- 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+
+        $model->company_id = Yii::$app->user->getId();
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_status = Request::STATUS_STARTED;
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -184,7 +184,7 @@ class RequestController extends Controller
         //save activity
         $model->createRequestActivity('I have created this request');
 
-        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->company_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -193,7 +193,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Update Request 
+     * Update Request
      * @param $id
      * @return array
      */
@@ -292,7 +292,7 @@ class RequestController extends Controller
             "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
-    
+
     /**
      * Update Request Status to `cancelled`
      * @param $id
