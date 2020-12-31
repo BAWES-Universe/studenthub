@@ -984,7 +984,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function findByEmail($email)
     {
-        return static::findOne(['candidate_email' => $email,'deleted'=>0]);
+        return static::findOne(['candidate_email' => $email, 'deleted' => 0]);
     }
 
     /**
@@ -1002,6 +1002,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         return static::findOne([
             'candidate_password_reset_token' => $token,
+            'deleted' => 0
         ]);
     }
 
@@ -1016,6 +1017,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (empty($token)) {
             return false;
         }
+        
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         $parts = explode('_', $token);
         $timestamp = (int) end($parts);
@@ -1209,6 +1211,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function softDelete()
     {
         $this->deleted = 1;
+
+        //remove unique fields, so can create new account with same details
+
+        $this->candidate_civil_id = 'deleted at ' . time() . '-' . $this->candidate_civil_id;
+        $this->candidate_password_reset_token = null;
+
         return $this->save(false);
     }
 

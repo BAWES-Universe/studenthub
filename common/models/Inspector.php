@@ -192,7 +192,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
      * @inheritdoc
      */
     public static function findIdentity($id) {
-        return static::findOne(['inspector_uuid' => $id]);
+        return static::findOne(['inspector_uuid' => $id, 'inspector_deleted' => 0]);
     }
 
     /**
@@ -200,6 +200,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = InspectorToken::find()->where(['token_value' => $token])->with('inspector')->one();
+
         if($token){
             return $token->inspector;
         }
@@ -212,7 +213,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
      * @return static|null
      */
     public static function findByEmail($email) {
-        return static::findOne(['inspector_email' => $email]);
+        return static::findOne(['inspector_email' => $email, 'inspector_deleted' => 0]);
     }
 
     /**
@@ -228,6 +229,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
 
         return static::findOne([
             'inspector_password_reset_token' => $token,
+            'inspector_deleted' => 0
         ]);
     }
 

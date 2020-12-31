@@ -181,6 +181,7 @@ class Staff extends ActiveRecord implements IdentityInterface
 
         return static::findOne([
             'staff_password_reset_token' => $token,
+            'deleted' => 0
         ]);
     }
 
@@ -303,6 +304,12 @@ class Staff extends ActiveRecord implements IdentityInterface
      */
     public function softDelete() {
         $this->deleted = 1;
+
+        //remove unique fields, so can create new account with same details
+
+        $this->staff_email = 'deleted at ' . time() . '-' . $this->staff_email;
+        $this->staff_password_reset_token = null;
+
         return $this->save(false);
     }
 

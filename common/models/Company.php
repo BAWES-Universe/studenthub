@@ -429,7 +429,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @return static|null
      */
     public static function findByEmail($email) {
-        return static::findOne(['company_email' => $email,'deleted'=>0]);
+        return static::findOne(['company_email' => $email, 'deleted' => 0]);
     }
 
     /**
@@ -445,6 +445,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
         return static::findOne([
             'company_password_reset_token' => $token,
+            'deleted' => 0
         ]);
     }
 
@@ -591,6 +592,11 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function softDelete()
     {
         $this->deleted = 1;
+
+        //remove unique fields, so can create new account with same details
+
+        $this->company_password_reset_token = null;
+
         return $this->save(false);
     }
 
