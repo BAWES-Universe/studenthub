@@ -5,6 +5,7 @@ namespace common\models\query;
 use Yii;
 use yii\helpers\ArrayHelper;
 
+
 /**
  * This is the ActiveQuery class for [[Inspector]].
  *
