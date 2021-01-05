@@ -7,3 +7,5 @@ Yii::setAlias('@company', dirname(dirname(__DIR__)) . '/company');
 Yii::setAlias('@staff', dirname(dirname(__DIR__)) . '/staff');
 Yii::setAlias('@inspector', dirname(dirname(__DIR__)) . '/inspector');
 Yii::setAlias('@console', dirname(dirname(__DIR__)) . '/console');
+Yii::setAlias('@bower', dirname(dirname(__DIR__)) . '/vendor/bower-asset');
+Yii::setAlias('@npm', dirname(dirname(__DIR__)) . '/vendor/npm-asset');
