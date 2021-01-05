@@ -78,10 +78,16 @@ class NoteController extends Controller
         $request_uuid = Yii::$app->request->get('request_uuid');
         $company_id = Yii::$app->request->get('company_id');
         $contact_uuid = Yii::$app->request->get('contact_uuid');
+        $staff_id = Yii::$app->request->get('staff_id');
+
         $page = Yii::$app->request->get('page');
 
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
+
+        if($staff_id) {
+            $query->filterCreatedBy($staff_id);
+        }
 
         if($company_id) {
             $query->filterCompany($company_id);
