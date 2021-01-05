@@ -29,7 +29,7 @@ class StaffQuery extends ActiveQuery
     }
 
     public function withoutCurrentUser() {
-        return $this->andWhere(['!=','staff_id',Yii::$app->user->id]);
+        return $this->andWhere(['!=','staff_id', Yii::$app->user->id]);
     }
 
     public function active() {

@@ -30,6 +30,14 @@ class NoteQuery extends ActiveQuery
         return parent::one ($db);
     }
 
+    public function filterCreatedBy($staff_id) {
+        return $this->andWhere (['created_by' => $staff_id]);
+    }
+
+    public function filterUpdatedBy($staff_id) {
+        return $this->andWhere (['updated_by' => $staff_id]);
+    }
+
     public function filterContact($contact_uuid) {
         return $this->andWhere (['contact_uuid' => $contact_uuid]);
     }
