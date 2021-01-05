@@ -34,9 +34,15 @@ class AccountController extends Controller
             'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options', 'test'];
 
         return $behaviors;
+    }
+
+    public function actionTest() {
+        return [
+                'operation' => 'success'
+            ];
     }
     
     /**
