@@ -77,6 +77,7 @@ class NoteController extends Controller
         $candidate_id = Yii::$app->request->get('candidate_id');
         $request_uuid = Yii::$app->request->get('request_uuid');
         $company_id = Yii::$app->request->get('company_id');
+        $staff_id = Yii::$app->request->get('staff_id');
         $contact_uuid = Yii::$app->request->get('contact_uuid');
         $page = Yii::$app->request->get('page');
 
@@ -85,6 +86,10 @@ class NoteController extends Controller
 
         if($company_id) {
             $query->filterCompany($company_id);
+        }
+
+        if($staff_id) {
+            $query->filterStaff($staff_id);
         }
 
         if($request_uuid) {
