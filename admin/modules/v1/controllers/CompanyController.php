@@ -273,6 +273,10 @@ class CompanyController extends Controller
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
 
+        if (Yii::$app->request->getBodyParam('password')) {
+            $model->setPassword(Yii::$app->request->getBodyParam("password"));
+        }
+
         if (!$model->save()) {
             if (isset($model->errors)) {
                 return [
