@@ -57,4 +57,8 @@ class NoteQuery extends ActiveQuery
     public function filterRequest($request_uuid) {
         return $this->andWhere (['request_uuid' => $request_uuid]);
     }
+
+    public function filterStaff($request_uuid) {
+        return $this->andWhere (['created_by' => $request_uuid]);
+    }
 }
