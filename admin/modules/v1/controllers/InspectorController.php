@@ -101,7 +101,8 @@ class InspectorController extends Controller
         $model->inspector_name = Yii::$app->request->getBodyParam("name");
         $model->inspector_email = Yii::$app->request->getBodyParam("email");
 
-        $model->setPassword (Yii::$app->security->generateRandomString());
+        $model->inspector_password_hash = Yii::$app->request->getBodyParam("inspector_password_hash");
+//        $model->setPassword (Yii::$app->security->generateRandomString());
 
         if (!$model->signup())
         {
