@@ -58,7 +58,6 @@ return [
                     'controller' => 'v1/account',
                     'pluralize' => false,
                     'patterns' => [
-                        'GET' => 'test',
                         'POST update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
