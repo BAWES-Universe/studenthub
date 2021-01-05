@@ -76,7 +76,7 @@ class InspectorCest
             [
                 "name" => "Mohammed Kanso",
                 "email" => "inspector@inspector.com",
-                "password" => "12345"
+                "inspector_password_hash" => "12345"
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
