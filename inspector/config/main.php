@@ -60,6 +60,7 @@ return [
                     'patterns' => [
                         'POST update-password' => 'update-password',
                         // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
                 ],

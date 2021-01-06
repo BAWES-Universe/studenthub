@@ -788,6 +788,7 @@ class Transfer extends ActiveRecord
                 ->asArray()
                 ->one();
 
+
             if (!$candidate) {
                 if(empty(Yii::$app->params['inCodeception']))
                     $transaction->rollBack();
@@ -795,6 +796,15 @@ class Transfer extends ActiveRecord
                 return [
                     "operation" => "error",
                     "message" => "Candidate not found, please contact us for assistance"
+                ];
+            }
+
+            if (!isset($candidate['store']) || !isset($candidate['company'])) {
+                if(empty(Yii::$app->params['inCodeception']))
+                    $transaction->rollBack();
+                return [
+                    "operation" => "error",
+                    "message" => "Candidate (name : ".$value['candidate_name'].") (id : ".$value['candidate_id'].") not found, please contact us for assistance"
                 ];
             }
 
