@@ -109,6 +109,12 @@ class TransferController extends Controller
 
         $company = $this->findCompany($company_id);
 
+        if ($company->parent_company_id) {
+            return [
+                "operation" => "error",
+                "message" => 'Subcompany transfer not allowed'
+            ];
+        }
         //save transfer
         return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
     }
@@ -120,6 +126,15 @@ class TransferController extends Controller
     public function actionCreateByExcel()
     {
         $company_id = Yii::$app->request->getBodyParam("company_id");
+
+        $company = $this->findCompany($company_id);
+
+        if ($company->parent_company_id) {
+            return [
+                "operation" => "error",
+                "message" => 'Subcompany transfer not allowed'
+            ];
+        }
 
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
@@ -166,11 +181,7 @@ class TransferController extends Controller
 
             $candidates[] = $value;
         }
-
         //save transfer
-
-        $company = $this->findCompany($company_id);
-
         return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
     }
 
