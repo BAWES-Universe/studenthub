@@ -50,6 +50,10 @@ class m210107_091140_missing_transfer extends Migration
 
                 $parentCompany = $this->db->createCommand('select * from company where company_id="'.$transferWithMissingParent['parent_company_id'].'"')->queryOne();
 
+                //move confirmation id 
+
+                $this->db->createCommand('UPDATE transfer_candidate SET transfer_confirmation_id=NULL WHERE tc_id="'.$transfer_candidate['tc_id'].'"')->execute();
+
                 $createTransferCandidateQuery = "INSERT INTO transfer_candidate SET 
                         transfer_id=".$transfer_id.",
                         candidate_id=".$transfer_candidate['candidate_id'].",
