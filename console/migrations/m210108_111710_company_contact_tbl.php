@@ -66,10 +66,15 @@ class m210108_111710_company_contact_tbl extends Migration
         );
 
         // adding contact details of those who don't have contact details
+
         $query = Yii::$app->db->createCommand('SELECT * FROM `contact`')->queryAll();
+        
         foreach($query as $contact) {
+            
             $uuid = Yii::$app->db->createCommand("select CONCAT('comp_cont_',uuid())")->queryScalar();
+            
             $role = ($contact['contact_email'])? 'Owner' : 'Other';
+
             $companyQuery = "INSERT INTO company_contact SET 
                         company_contact_uuid='".$uuid."',
                         contact_uuid='".$contact['contact_uuid']."',
@@ -79,6 +84,7 @@ class m210108_111710_company_contact_tbl extends Migration
                         updated_at='".$contact['contact_updated_at']."',
                         created_by='".$contact['company_id']."',
                         updated_by='".$contact['company_id']."'";
+                        
             Yii::$app->db->createCommand($companyQuery)->execute();
         }
     }

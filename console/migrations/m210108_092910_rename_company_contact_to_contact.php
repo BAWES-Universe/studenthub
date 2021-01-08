@@ -13,6 +13,7 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
     public function safeUp()
     {
         $this->renameTable('company_contact','contact');
+        
         $this->addColumn('contact','contact_email',$this->string()->null()->unique()->after('contact_position'));
         $this->addColumn('contact','contact_password_hash',$this->string()->null()->after('contact_email'));
         $this->addColumn('contact','contact_receive_email',$this->boolean()->defaultValue(true)->after('contact_password_hash'));
@@ -79,6 +80,7 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
 
 //         adding contact detail for those who have contact details
         $queryAll = Yii::$app->db->createCommand('SELECT * FROM `contact` left join `company` on `contact`.`company_id` = `company`.`company_id` group by `contact`.`company_id`')->queryAll();
+
         foreach($queryAll as $contact) {
             $q = "update `contact` set `contact_auth_key`='".$contact['company_auth_key']."', `contact_email`='".$contact['company_email']."', ";
             $q .= "`contact_password_hash`='".$contact['company_password_hash']."' where `contact`.`contact_uuid`='".$contact['contact_uuid']."'";
@@ -88,7 +90,9 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
         Yii::$app->db->createCommand("UPDATE `contact` SET contact_email = CONCAT('deleted_', contact_email) where company_id in (select company_id from company where deleted = 1)")->execute();
 
         // adding contact details of those who don't have contact details
+
         $companyQueryAll = Yii::$app->db->createCommand('SELECT * FROM `company` where `company_id` NOT IN (select `company_id` from `contact` GROUP by `contact`.`company_id`) and parent_company_id is null and deleted = 0')->queryAll();
+
         foreach($companyQueryAll as $company) {
             $uuid = Yii::$app->db->createCommand("select CONCAT('contact_',uuid())")->queryScalar();
 
@@ -106,8 +110,6 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
                         contact_updated_at='".$company['company_updated_at']."'";
             Yii::$app->db->createCommand($companyQuery)->execute();
         }
-
-
     }
 
     /**

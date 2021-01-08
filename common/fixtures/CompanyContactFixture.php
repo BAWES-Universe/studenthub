@@ -7,7 +7,8 @@ class CompanyContactFixture extends ActiveFixture
 {
     public $modelClass = 'common\models\CompanyContact';
     
-//    public $depends = [
-//        'common\fixtures\CompanyFixture'
-//    ];
+    public $depends = [
+        'common\fixtures\CompanyFixture',
+        'common\fixtures\ContactFixture'
+    ];
 }
