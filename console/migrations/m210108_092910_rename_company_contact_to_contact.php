@@ -77,12 +77,37 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
             'CASCADE'
         );
 
-            $queryAll = Yii::$app->db->createCommand('SELECT * FROM `contact` left join `company` on `contact`.`company_id` = `company`.`company_id` group by `contact`.`company_id`')->queryAll();
-            foreach($queryAll as $contact) {
-                $q = "update `contact` set `contact_auth_key`='".$contact['company_auth_key']."', `contact_email`='".$contact['company_email']."', ";
-                $q .= "`contact_password_hash`='".$contact['company_password_hash']."' where `contact`.`contact_uuid`='".$contact['contact_uuid']."'";
-                Yii::$app->db->createCommand($q)->execute();
-            }
+//         adding contact detail for those who have contact details
+        $queryAll = Yii::$app->db->createCommand('SELECT * FROM `contact` left join `company` on `contact`.`company_id` = `company`.`company_id` group by `contact`.`company_id`')->queryAll();
+        foreach($queryAll as $contact) {
+            $q = "update `contact` set `contact_auth_key`='".$contact['company_auth_key']."', `contact_email`='".$contact['company_email']."', ";
+            $q .= "`contact_password_hash`='".$contact['company_password_hash']."' where `contact`.`contact_uuid`='".$contact['contact_uuid']."'";
+            Yii::$app->db->createCommand($q)->execute();
+        }
+
+        Yii::$app->db->createCommand("UPDATE `contact` SET contact_email = CONCAT('deleted_', contact_email) where company_id in (select company_id from company where deleted = 1)")->execute();
+
+        // adding contact details of those who don't have contact details
+        $companyQueryAll = Yii::$app->db->createCommand('SELECT * FROM `company` where `company_id` NOT IN (select `company_id` from `contact` GROUP by `contact`.`company_id`) and parent_company_id is null and deleted = 0')->queryAll();
+        foreach($companyQueryAll as $company) {
+            $uuid = Yii::$app->db->createCommand("select CONCAT('contact_',uuid())")->queryScalar();
+
+            $companyQuery = "INSERT INTO contact SET 
+                        contact_uuid='".$uuid."',
+                        company_id='".$company['company_id']."',
+                        contact_position='Owner',
+                        contact_name='".$company['company_name']."',
+                        contact_email='".$company['company_email']."',
+                        contact_password_hash='".$company['company_password_hash']."',
+                        contact_receive_email=1,
+                        contact_auth_key='".$company['company_auth_key']."',
+                        contact_receive_notification=1,
+                        contact_created_at='".$company['company_created_at']."',
+                        contact_updated_at='".$company['company_updated_at']."'";
+            Yii::$app->db->createCommand($companyQuery)->execute();
+        }
+
+
     }
 
     /**
