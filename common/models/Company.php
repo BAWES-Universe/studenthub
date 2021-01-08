@@ -20,9 +20,6 @@ use yii\helpers\Url;
  * @property string $company_website
  * @property string $company_logo
  * @property string $company_email
- * @property string $company_auth_key
- * @property string $company_password_hash
- * @property string $company_password_reset_token
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
  * @property boolean $company_followup
@@ -84,19 +81,19 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
-            [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
+            [['company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
-            [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
+            [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
             ['company_followup', 'boolean'],
             ['company_last_followup_datetime', 'safe'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
-            [['company_name', 'company_email', 'company_password_reset_token','company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
+            [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
             [['company_auth_key'], 'string', 'max' => 32],
-            [['company_password_reset_token'], 'unique'],
+            
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe'],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -184,9 +181,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_website' => Yii::t('app','Company Website'),
             'company_email' => Yii::t('app','Company Email'),
             'company_logo' => Yii::t('app','Company Logo'),
-            'company_auth_key' => Yii::t('app','Company Auth Key'),
-            'company_password_hash' => Yii::t('app','Password'),
-            'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
             'company_followup' => Yii::t('app','Company Followup'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),
@@ -200,10 +194,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         $fields = parent::fields();
 
-        unset($fields['deleted'],
-            $fields['company_password_hash'],
-            $fields['company_password_reset_token'],
-            $fields['company_auth_key']);
+        unset($fields['deleted']);
 
         $fields['company_status'] = function($model) {
 
@@ -250,6 +241,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'parentTransfers',
             'malls',
             'companyContacts',
+            'contacts',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -634,6 +626,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getCompanyContacts($modelClass = "\common\models\CompanyContact")
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContacts($modelClass = "\common\models\Contact")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
+            ->via('companyContacts');
     }
 
     /**

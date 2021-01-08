@@ -190,5 +190,7 @@ return [
     "Note Uuid" => "",
     "Suggestion Status" => "",
     "Suggestion Datetime" => "",
-    "Missing {value}" => "" 
+    "Missing {value}" => "",
+    'Receive Email?' => "",
+    "Receive Notification?" => ""
 ];
