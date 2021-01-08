@@ -3,11 +3,16 @@
  * @var $faker \Faker\Generator
  * @var $index integer
  */
+
+$index1 = $index % 1000;//faker->unique()->numberBetween(0, 1000);
+
+$contact_uuid = Yii::$app->db->createCommand('SELECT contact_uuid from contact limit ' . $index1 . ',1')->queryScalar();
+
 return [
-    'contact_uuid' => $faker->uuid,
+    'company_contact_uuid' => $faker->uuid,
+    'contact_uuid' => $contact_uuid,
     'company_id' => $faker->numberBetween(1,10),
-    'contact_name' => $faker->firstName,
-    'contact_position' => $faker->jobTitle,
-    'contact_created_datetime' => $faker->date('Y-m-d H:i:s'),
-    'contact_updated_datetime' => $faker->date('Y-m-d H:i:s')
+    'role' => 'Owner',
+    'created_at' => $faker->date('Y-m-d H:i:s'),
+    'updated_at' => $faker->date('Y-m-d H:i:s')
 ];
