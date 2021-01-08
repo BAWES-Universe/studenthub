@@ -2128,10 +2128,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ];
 
         if($this->university) {
+
+            $university_name = [];
+
+            if($this->university->university_name_en) {
+                $university_name[] = $this->university->university_name_en;
+            }
+
+            if($this->university->university_name_ar) {
+                $university_name[] = $this->university->university_name_ar;
+            }
+
             $data['university'] = [
                 'university_id' => $this->university_id,
                 'university_name_en' => $this->university->university_name_en,
-                'university_name_ar' => $this->university->university_name_ar
+                'university_name_ar' => $this->university->university_name_ar,
+                'university_name' => $university_name
             ];
         }
 
