@@ -11,24 +11,30 @@ use yii\db\Expression;
  * This is the model class for table "company_contact".
  *
  * @property string $contact_uuid
- * @property int $company_id
  * @property string $contact_name
  * @property string $contact_position
- * @property string $contact_created_datetime
- * @property string $contact_updated_datetime
+
+ * @property string $contact_email
+ * @property string $contact_password_hash
+ * @property string $contact_auth_key
+ * @property string $contact_receive_email
+ * @property string $contact_receive_notification
+
+ * @property string $contact_created_at
+ * @property string $contact_updated_at
  *
  * @property Company $company
  * @property CompanyContactEmail[] $companyContactEmails
  * @property CompanyContactPhone[] $companyContactPhones
  */
-class CompanyContact extends \yii\db\ActiveRecord
+class Contact extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'company_contact';
+        return 'contact';
     }
 
     /**
@@ -38,12 +44,11 @@ class CompanyContact extends \yii\db\ActiveRecord
     {
         return [
             [['contact_name', 'contact_position'], 'required'],
-            [['company_id'], 'integer'],
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
             [['contact_uuid'], 'string', 'max' => 60],
-            [['contact_name', 'contact_position'], 'string', 'max' => 255],
+            [['contact_name', 'contact_position', 'contact_password_reset_token',], 'string', 'max' => 255],
             [['contact_uuid'], 'unique'],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['contact_password_reset_token'], 'unique'],
         ];
     }
 
@@ -63,8 +68,8 @@ class CompanyContact extends \yii\db\ActiveRecord
             ],
             [
                 'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'contact_created_datetime',
-                'updatedAtAttribute' => 'contact_updated_datetime',
+                'createdAtAttribute' => 'contact_created_at',
+                'updatedAtAttribute' => 'contact_updated_at',
                 'value' => new Expression('NOW()'),
             ],
         ];
@@ -80,6 +85,11 @@ class CompanyContact extends \yii\db\ActiveRecord
             'company_id' => Yii::t('app', 'Company ID'),
             'contact_name' => Yii::t('app', 'Contact Name'),
             'contact_position' => Yii::t('app', 'Contact Position'),
+            'contact_receive_email' => Yii::t('app','Receive Email?'),
+            'contact_receive_notification' => Yii::t('app','Receive Notification?'),
+            'contact_auth_key' => Yii::t('app','Auth Key'),
+            'contact_password_hash' => Yii::t('app','Password'),
+            'contact_password_reset_token' => Yii::t('app','Password Reset Token'),
             'contact_created_datetime' => Yii::t('app', 'Contact Created Datetime'),
             'contact_updated_datetime' => Yii::t('app', 'Contact Updated Datetime'),
         ];
@@ -88,30 +98,37 @@ class CompanyContact extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['deleted'],
+            $fields['contact_password_hash'],
+            $fields['contact_password_reset_token'],
+            $fields['contact_auth_key']);
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function extraFields()
     {
         return [
-            'company',
+            'companies',
             'requests',
-            'companyContactEmails',
-            'companyContactPhones',
+            'contactEmails',
+            'contactPhones',
             'notes',
-            'companyContactStats'
+            'contactStats'
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany($modelClass = "\common\models\Company")
-    {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCompanyContactEmails($modelClass = "\common\models\CompanyContactEmail")
+    public function getCompanyContacts($modelClass = "\common\models\CompanyContact")
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
@@ -119,7 +136,24 @@ class CompanyContact extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompanyContactPhones($modelClass = "\common\models\CompanyContactPhone")
+    public function getCompanies($modelClass = "\common\models\Company")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('companyContacts');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactEmails($modelClass = "\common\models\ContactEmail")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactPhones($modelClass = "\common\models\ContactPhone")
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
@@ -143,10 +177,10 @@ class CompanyContact extends \yii\db\ActiveRecord
     /**
      * @return array
      */
-    public function getCompanyContactStats() {
+    public function getContactStats() {
         return [
-            'companyContactEmails' => $this->getCompanyContactEmails()->count(),
-            'companyContactPhones' => $this->getCompanyContactPhones()->count(),
+            'contactEmails' => $this->getContactEmails()->count(),
+            'contactPhones' => $this->getContactPhones()->count(),
             'requests' => $this->getRequests()->count(),
             'notes' => $this->getNotes()->count(),
             'lastNotes' => $this->getNotes()->orderBy('note_updated_datetime DESC')->one(),

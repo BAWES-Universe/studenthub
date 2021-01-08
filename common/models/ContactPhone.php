@@ -8,7 +8,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\db\Expression;
 
 /**
- * This is the model class for table "company_contact_phone".
+ * This is the model class for table "contact_phone".
  *
  * @property string $phone_uuid
  * @property string $contact_uuid
@@ -16,16 +16,16 @@ use yii\db\Expression;
  * @property string $phone_created_datetime
  * @property string $phone_updated_datetime
  *
- * @property CompanyContact $contactUu
+ * @property Contact $contact
  */
-class CompanyContactPhone extends \yii\db\ActiveRecord
+class ContactPhone extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'company_contact_phone';
+        return 'contact_phone';
     }
 
     /**
@@ -83,7 +83,7 @@ class CompanyContactPhone extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContact($modelClass = "\common\models\CompanyContact")
+    public function getContact($modelClass = "\common\models\Contact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
