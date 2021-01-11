@@ -39,7 +39,7 @@ class ContactPhone extends \yii\db\ActiveRecord
             [['phone_uuid', 'contact_uuid'], 'string', 'max' => 60],
             [['phone_number'], 'string', 'max' => 255],
             [['phone_uuid'], 'unique'],
-            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
         ];
     }
 

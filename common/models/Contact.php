@@ -42,11 +42,12 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['contact_name', 'contact_position'], 'required'],
+            [['contact_name', 'contact_position', 'contact_email', 'contact_password_hash'], 'required'],
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
             [['contact_uuid'], 'string', 'max' => 60],
+            [['contact_email'], 'email'],
             [['contact_name', 'contact_position', 'contact_password_reset_token',], 'string', 'max' => 255],
-            [['contact_uuid'], 'unique'],
+            [['contact_uuid', 'contact_email'], 'unique'],
             [['contact_password_reset_token'], 'unique'],
         ];
     }

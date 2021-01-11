@@ -51,8 +51,8 @@ class ContactTest extends \Codeception\Test\Unit
             $model->contact_email = 'testtets tests';
             expect('company email should not accept random string', $model->validate(['contact_email']))->false();
 
-            $model->contact_email = $this->tester->grabFixture('company', 'company0')->contact_email;
-            expect('company email should not exists in db', $model->validate(['contact_email']))->false();
+            $model->contact_email = $this->tester->grabFixture('contact', 'contact0')->contact_email;
+            expect('company contact_email should not exists in db', $model->validate(['contact_email']))->false();
 
             $model->contact_email = 'comprrrrrr@localhost.com';//new email
             expect('company email should be unique', $model->validate(['contact_email']))->true();

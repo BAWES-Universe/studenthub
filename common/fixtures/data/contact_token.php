@@ -3,7 +3,7 @@
 return [
     [
         'token_id' => 1,
-        'company_id' => 1,
+        'contact_uuid' => '20666f33-b761-35c0-8520-b8a1902f3190',
         'token_value' => 'HDFXJLjeI43y2r9hzHq7pcMnNUE3T2n3',
         'token_device' => null,
         'token_device_id' => null,
