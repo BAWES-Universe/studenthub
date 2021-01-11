@@ -24,7 +24,8 @@ class ContactEmailTest extends \Codeception\Test\Unit
 
     public function testValidate()
     {
-        $data = $this->tester->grabFixture('contactEmail', 'company_contact_email0');
+        $data = $this->tester->grabFixture('contactEmail', 'contact_email0');
+
         expect('model adding new contactEmail', $data->save())->true();
 
         $data->email_address = null;

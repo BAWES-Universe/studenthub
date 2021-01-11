@@ -2,6 +2,7 @@
 namespace common\tests;
 
 use common\fixtures\ContactPhoneFixture;
+use common\fixtures\ContactFixture;
 
 
 class ContactPhoneTest extends \Codeception\Test\Unit
@@ -14,7 +15,8 @@ class ContactPhoneTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'contactPhone' => ContactPhoneFixture::className()
+            'contactPhone' => ContactPhoneFixture::className(),
+            'contact' => ContactFixture::className(),
         ];
     }
 
@@ -24,7 +26,7 @@ class ContactPhoneTest extends \Codeception\Test\Unit
 
     public function testValidate()
     {
-        $data = $this->tester->grabFixture('contactPhone', 'company_contact_phone0');
+        $data = $this->tester->grabFixture('contactPhone', 'contact_phone0');
 
         expect('model adding new contactPhone', $data->save())->true();
 

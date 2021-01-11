@@ -39,7 +39,7 @@ class ContactEmail extends \yii\db\ActiveRecord
             [['email_uuid', 'contact_uuid'], 'string', 'max' => 60],
             [['email_address'], 'string', 'max' => 255],
             [['email_uuid'], 'unique'],
-            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
         ];
     }
 
