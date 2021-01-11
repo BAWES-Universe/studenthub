@@ -14,13 +14,11 @@ use yii\helpers\Url;
  * @property string $contact_uuid
  * @property string $contact_name
  * @property string $contact_position
-
  * @property string $contact_email
  * @property string $contact_password_hash
  * @property string $contact_auth_key
  * @property string $contact_receive_email
  * @property string $contact_receive_notification
-
  * @property string $contact_created_at
  * @property string $contact_updated_at
  *

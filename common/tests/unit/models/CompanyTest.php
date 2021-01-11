@@ -39,7 +39,7 @@ class CompanyTest extends \Codeception\Test\Unit
             //required field validation
 
             expect('company name required', $model->validate(['company_name']))->false();
-            expect('password hash required', $model->validate(['company_password_hash']))->false();
+
             expect('company email', $model->validate(['company_email']))->false();
             expect('company hourly rate', $model->validate(['company_hourly_rate']))->false();
             
