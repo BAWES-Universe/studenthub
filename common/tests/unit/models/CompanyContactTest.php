@@ -1,9 +1,10 @@
 <?php
 namespace common\tests;
 
-use common\fixtures\CompanyFixture;
+use common\fixtures\CompanyContactFixture;
 use common\models\CompanyContact;
 use Codeception\Specify;
+
 
 
 class CompanyContactTest extends \Codeception\Test\Unit
@@ -18,7 +19,7 @@ class CompanyContactTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'companyContact' => CompanyFixture::className()
+            'companyContact' => CompanyContactFixture::className()
         ];
     }
 
@@ -38,15 +39,41 @@ class CompanyContactTest extends \Codeception\Test\Unit
                 
             $model = new CompanyContact;
 
-            $model->contact_name = null;
-            $model->contact_position = null;
-
-            expect('companyContact contact_name should be required field', $model->validate(['contact_name']))->false();
-            expect('companyContact contact_position should be required field', $model->validate(['contact_position']))->false();
-
             $model->company_id = '123123123';
             expect('Invalid Company id', $model->validate(['company_id']))->false();
 
+            $model->contact_uuid = '123123123';
+            expect('Invalid Contact id', $model->validate(['contact_uuid']))->false();
+
+            $model->role = 'OHO!';
+            expect('Invalid role', $model->validate(['role']))->false();
+
+            $model->role = CompanyContact::ROLE_OWNER;
+            expect('Valid role', $model->validate(['role']))->true();
+
+            //company_id + contact_uuid should be unique combo
+
+            //try to add same value
+
+            $companyContact = CompanyContact::find()->one();
+
+            $model->company_id = $companyContact->company_id;
+            $model->contact_uuid = $companyContact->contact_uuid;
+            
+            expect('Invalid Company id', $model->validate(['company_id']))->false();
+            //expect('Invalid Contact id', $model->validate(['contact_uuid']))->false();
+
+            //try to add different value
+
+            $model->company_id = $companyContact->company_id;
+            $model->contact_uuid = $companyContact->contact_uuid;
+
+            CompanyContact::deleteAll ([
+                'company_contact_uuid' => $companyContact->company_contact_uuid
+            ]);
+
+            expect('Valid Company id', $model->validate(['company_id']))->true();
+            expect('Valid Contact id', $model->validate(['contact_uuid']))->true();
         });
     }
 }

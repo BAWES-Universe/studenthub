@@ -31,12 +31,14 @@ class m210111_064411_contact_token_tbl extends Migration
             'token_expiry_datetime' => $this->datetime(),
             'token_created_datetime' => $this->datetime()->notNull(),
         ], $tableOptions);
+
         // creates index for column `admin_id`
         $this->createIndex(
             'idx-contact_token-contact_uuid',
             'contact_token',
             'contact_uuid'
         );
+        
         // add foreign key for table `admin`
         $this->addForeignKey(
             'fk-contact_token-contact_uuid',

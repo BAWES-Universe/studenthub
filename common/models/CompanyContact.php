@@ -47,9 +47,12 @@ class CompanyContact extends \yii\db\ActiveRecord
         return [
             [['company_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
+            ['company_id', 'unique', 'targetAttribute' => ['company_id', 'contact_uuid']],
+            //['contact_uuid', 'unique', 'targetAttribute' => ['contact_uuid', 'company_id']],
             [['contact_uuid', 'created_by', 'updated_by'], 'string', 'max' => 60],
 
-            ['candidate_status', 'default', 'value' => self::ROLE_OWNER],
+            ['role', 'default', 'value' => self::ROLE_OWNER],
+
             ['role', 'in', 'range' => [self::ROLE_OWNER, self::ROLE_HR, self::ROLE_FINANCE, self::ROLE_OTHER]],
 
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],

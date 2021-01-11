@@ -2,12 +2,12 @@
 namespace common\tests;
 
 use Codeception\Specify;
-use common\models\CompanyToken;
-use common\fixtures\CompanyTokenFixture;
-use common\fixtures\CompanyFixture;
-use common\fixtures\StoreFixture;
+use common\models\ContactToken;
+use common\fixtures\ContactTokenFixture;
+use common\fixtures\ContactFixture;
 
-class CompanyTokenTest extends \Codeception\Test\Unit
+
+class ContactTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
 
@@ -19,9 +19,8 @@ class CompanyTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'company' => CompanyFixture::className(),
-            'companyToken' => CompanyTokenFixture::className(),
-            'store' => StoreFixture::className()
+            'contact' => ContactFixture::className(),
+            'contactToken' => ContactTokenFixture::className()
         ];
     }
 
@@ -33,13 +32,13 @@ class CompanyTokenTest extends \Codeception\Test\Unit
     public function testValidation()
     {
         $this->specify('Fixtures should be loaded', function() {
-            expect('Staff Token is in the table', CompanyToken::findOne(['company_id'=>'1']))->notNull();
+            expect('Token is in the table', ContactToken::findOne(['contact_uuid'=>'20666f33-b761-35c0-8520-b8a1902f3190']))->notNull();
         });
 
         $this->specify('Test Validator', function() {
-            $model = new CompanyToken();
+            $model = new ContactToken();
             $model->validate();
-            expect('company_id required error',$model->errors)->hasKey('company_id');
+            expect('contact_uuid required error',$model->errors)->hasKey('contact_uuid');
             expect('token_value required error',$model->errors)->hasKey('token_value');
             expect('token_status required error',$model->errors)->hasKey('token_status');
             expect('total 3 errors',count($model->errors))->equals(3);
@@ -53,16 +52,15 @@ class CompanyTokenTest extends \Codeception\Test\Unit
     public function testGenerateToken()
     {
         $this->specify('Fixtures should be loaded', function() {
-            expect('Company Token is in the table', CompanyToken::findOne(['company_id'=>'1']))->notNull();
+            expect('Contact Token is in the table', ContactToken::findOne(['contact_uuid'=>'20666f33-b761-35c0-8520-b8a1902f3190']))->notNull();
         });
 
-
         $this->specify('Test existing Token', function() {
-            expect('unique token string',strlen(CompanyToken::generateUniqueTokenString()))->greaterThan(31);
+            expect('unique token string',strlen(ContactToken::generateUniqueTokenString()))->greaterThan(31);
         });
 
         $this->specify('relation testing', function() {
-            expect('relative data testing', CompanyToken::findOne(['company_id'=>'1'])->getCompany()->one()->company_email)->equals($this->tester->grabFixture('company', 'company0')->company_email);
+            expect('relative data testing', ContactToken::findOne(['contact_uuid'=>'20666f33-b761-35c0-8520-b8a1902f3190'])->getContact()->one()->contact_email)->equals($this->tester->grabFixture('contact', 'contact0')->contact_email);
         });
     }
 }
