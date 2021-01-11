@@ -24,10 +24,13 @@ return [
             ]
         ],
         'user' => [
-            'identityClass' => 'company\models\Company',
+            'identityClass' => 'company\models\Contact',
             'enableAutoLogin' => false,
             'enableSession' => false,
             'loginUrl' => null
+        ],
+        'companyManager' => [ //Component for agent to manage Employers
+            'class' => 'company\components\CompanyManager',
         ],
         'storeManager' => [ //Component for agent to manage stores
             'class' => 'company\components\StoreManager',

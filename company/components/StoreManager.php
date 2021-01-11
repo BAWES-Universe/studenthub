@@ -45,7 +45,7 @@ class StoreManager
 
         $this->_managedStores = Store::getDb()->cache(function($db) {
 
-            $subCompanies = Yii::$app->user->identity->getSubCompanies()->all();
+            $subCompanies = Yii::$app->companyManager->getCompany()->getSubCompanies()->all();
 
             $companyIds = ArrayHelper::getColumn ($subCompanies, 'company_id');
 
