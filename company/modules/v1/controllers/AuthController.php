@@ -2,6 +2,7 @@
 
 namespace company\modules\v1\controllers;
 
+use common\models\Contact;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
@@ -39,10 +40,10 @@ class AuthController extends Controller
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
             'auth' => function ($email, $password) {
-                $company = Company::findByEmail($email);
+                $contact = Contact::findByEmail($email);
                 
-                if ($company && $company->validatePassword($password)) {
-                    return $company;
+                if ($contact && $contact->validatePassword($password)) {
+                    return $contact;
                 }
                 return null;
             }
@@ -84,14 +85,15 @@ class AuthController extends Controller
      */
     public function actionLogin()
     {  
-        $company = Yii::$app->user->identity;
+        $contact = Yii::$app->user->identity;
         
         // Return Company access token if everything valid
-        $accessToken = $company->accessToken->token_value;
-
+        $accessToken = $contact->accessToken->token_value;
+        $company = $contact->companies[0];
         return [
             "operation" => "success",
             "token" => $accessToken,
+            "contact" => $contact,
             "company_id" => $company->company_id,
             "name" => $company->company_name,
             "email" => $company->company_email

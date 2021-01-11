@@ -19,6 +19,10 @@ class Module extends \yii\base\Module
     {
         parent::init();
 
+//        $company_id = \Yii::$app->request->headers->get('company_id');
+//
+//        \Yii::$app->session->set('company_id', $company_id);
+
         //Can Initialize / add params to this module here
     }
 
