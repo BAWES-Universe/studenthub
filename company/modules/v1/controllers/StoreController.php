@@ -14,7 +14,7 @@ class StoreController extends BaseController
 {
     public function actionView($id)
     {
-        $company = Yii::$app->user->identity;
+        $company = Yii::$app->companyManager->getCompany();
         
         $arr_sub_companies = \yii\helpers\ArrayHelper::getColumn(
             $company->subCompanies, 
@@ -45,7 +45,7 @@ class StoreController extends BaseController
      */
     public function actionList($companyId = null)
     {
-        $company = Yii::$app->user->identity;
+        $company = Yii::$app->companyManager->getCompany();
 
         //validate company id belong to sub company of current company 
         if ($companyId) {
@@ -79,7 +79,7 @@ class StoreController extends BaseController
      */
     public function actionIndex()
     {
-        $company = Company::findOne(Yii::$app->user->id);
+        $company = Yii::$app->companyManager->getCompany();
         
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
 

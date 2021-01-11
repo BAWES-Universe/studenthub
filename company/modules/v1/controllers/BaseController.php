@@ -65,6 +65,12 @@ class BaseController extends Controller
 
     public function beforeAction($action)
     {
-        return parent::beforeAction($action);
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        $company_id = \Yii::$app->request->headers->get('company-id');
+        Yii::$app->companyManager->getManagedCompany($company_id);
+        return true;
     }
 }
