@@ -14,7 +14,6 @@ use yii\filters\auth\HttpBearerAuth;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
 
-
 /**
  * Transfer controller - Manage Transfer
  */
@@ -77,7 +76,7 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $query = Yii::$app->user->identity
+        $query = Yii::$app->companyManager->getCompany()
                     ->getParentTransfers();
 
         return new ActiveDataProvider([
@@ -92,7 +91,7 @@ class TransferController extends Controller
      */
     public function actionView($id)
     {
-        $company = Yii::$app->user->identity;
+        $company = Yii::$app->companyManager->getCompany();
 
         $transfer = $company
             ->getTransfers()

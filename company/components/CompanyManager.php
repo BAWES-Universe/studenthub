@@ -3,9 +3,6 @@ namespace company\components;
 
 use company\models\Company;
 use Yii;
-use company\models\Store;
-use yii\helpers\ArrayHelper;
-
 /**
  * Company management
  */
@@ -15,7 +12,7 @@ class CompanyManager
     /**
      * @var \company\models\Company
      */
-    private $company = null;
+    public $company = null;
 
     /**
      * Sets up the CompanyManager component for use to manage companys
@@ -34,18 +31,16 @@ class CompanyManager
         $cacheDuration = 60*1; //1 minute then delete from cache
 
         $this->company = Company::getDb()->cache(function($db) {
-            $company_id = \Yii::$app->request->headers->get('company_id');
-            $company = Yii::$app->user->identity->getSubCompanies()->all();
-
-//            $companyIds = ArrayHelper::getColumn ($subCompanies, 'company_id');
-
-            $companyIds[] = Yii::$app->user->getId();
-
-            return Store::find()
-                ->filterWhere(['in', 'company_id', $companyIds])
-                ->andWhere(['store.deleted' => 0])
-                ->asArray()
-                ->all();
+            $company_id = \Yii::$app->session->get('company_id',null);
+            if ($company_id) {
+                $company = Yii::$app->user->identity->getCompanies()->andWhere(['company_id'=>$company_id])->one();
+                    if ($company) {
+                        return  $company;
+                    }
+            } else {
+                $company = Yii::$app->user->identity->getCompanies()->one();
+                return $company;
+            }
 
         }, $cacheDuration);//$cacheDependency
     }
