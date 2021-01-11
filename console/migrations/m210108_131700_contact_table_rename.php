@@ -15,15 +15,15 @@ class m210108_131700_contact_table_rename extends Migration
         $this->renameTable('company_contact_email', 'contact_email');
         $this->renameTable('company_contact_phone', 'contact_phone');
 
-        $this->dropColumn('company', 'company_auth_key');
-        $this->dropColumn('company', 'company_password_hash');
-        $this->dropColumn('company', 'company_password_reset_token');
-        
         $this->dropIndex(
             'idx-company-company_password_reset_token',
             'company'
         );
-        
+
+        $this->dropColumn('company', 'company_auth_key');
+        $this->dropColumn('company', 'company_password_hash');
+        $this->dropColumn('company', 'company_password_reset_token');
+
         //contact 
 
         $this->dropForeignKey(
