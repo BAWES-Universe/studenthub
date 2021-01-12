@@ -134,18 +134,22 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContactsHavingAccess($modelClass = "\common\models\CompanyContact")
+    {
+        return $this->getCompanyContacts()
+            ->filterWhere(['in', 'role', [CompanyContact::ROLE_OWNER, CompanyContact::ROLE_HR]]);
+    }
+
+    /**
      * list all parents companies where this contact is owner or HR
      * @return \yii\db\ActiveQuery
      */
     public function getManagedCompanies($modelClass = "\common\models\Company")
     {
-        return $this->getCompanies()
-             ->joinWith (['companyContacts'])
-             ->filterWhere ([
-                 'AND',
-                 ['in', 'role', [CompanyContact::ROLE_OWNER, CompanyContact::ROLE_HR]],
-                 new Expression('parent_company_id IS NULL')
-            ]);
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('companyContactsHavingAccess');
     }
 
     /**
