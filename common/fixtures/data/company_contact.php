@@ -81,4 +81,20 @@ return [
         'created_at' => '1978-02-11 23:52:40',
         'updated_at' => '1971-09-17 03:25:45',
     ],
+    'company_contact10' => [
+        'company_contact_uuid' => '056eb1ba-6a91-376c-b3c7-e29011640249',
+        'contact_uuid' => '16dbd631-9057-3926-bd42-cbac2ccd4246',
+        'company_id' => 1,
+        'role' => 'Owner',
+        'created_at' => '1978-02-11 23:52:40',
+        'updated_at' => '1971-09-17 03:25:45',
+    ],
+    'company_contact11' => [
+        'company_contact_uuid' => '056eb1ba-6a91-376c-b3c7-e29011640269',
+        'contact_uuid' => '20666f33-b761-35c0-8520-b8a1902f3190',
+        'company_id' => 1,
+        'role' => 'Other',
+        'created_at' => '1978-02-11 23:52:40',
+        'updated_at' => '1971-09-17 03:25:45',
+    ],
 ];
