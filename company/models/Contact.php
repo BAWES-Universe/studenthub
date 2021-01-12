@@ -1,5 +1,6 @@
 <?php
 namespace company\models;
+use Yii;
 use common\models\ContactToken;
 
 /**
@@ -24,5 +25,31 @@ class Contact extends \common\models\Contact {
         if($token){
             return $token->contact;
         }
+    }
+
+    /**
+     * Send link in email to reset password
+     * @return bool
+     */
+    public function sendPasswordResetEmail()
+    {
+        $this->generatePasswordResetToken();
+        $this->save(false);
+
+        //Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $webUrl = Yii::$app->params['companyAppUrl'] . 'update-password/' . $this->contact_password_reset_token;
+
+        return Yii::$app->mailer->compose("company/password-reset-html",
+            [
+                "webUrl" => $webUrl,
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "email" => $this->contact_email,
+                "name" => $this->contact_name
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->contact_email)
+            ->setSubject('Reset your StudentHub password')
+            ->send();
     }
 }

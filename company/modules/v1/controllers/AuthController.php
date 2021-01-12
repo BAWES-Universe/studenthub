@@ -2,7 +2,7 @@
 
 namespace company\modules\v1\controllers;
 
-use common\models\Contact;
+use company\models\Contact;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
@@ -54,7 +54,8 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
-            'update-password'
+            'update-password',
+            'request-reset-password'
         ];
 
         return $behaviors;
@@ -88,20 +89,7 @@ class AuthController extends Controller
     public function actionLogin()
     {  
         $contact = Yii::$app->user->identity;
-        
-        // Return Company access token if everything valid
-        $accessToken = $contact->accessToken->token_value;
-
-        $company = Yii::$app->companyManager->getCompany();
-
-        return [
-            "operation" => "success",
-            "token" => $accessToken,
-            "contact" => $contact,
-            "company_id" => $company->company_id,
-            "name" => $company->company_name,
-            "email" => $company->company_email
-        ];
+        return $this->_loginResponse($contact);
     }
 
     /**
@@ -135,7 +123,55 @@ class AuthController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => 'Your password has been reset'
+            'message' => 'Your password has been reset',
+        ];
+    }
+
+    /**
+     * Sends password reset email to user
+     * @return array
+     */
+    public function actionRequestResetPassword()
+    {
+        $emailInput = Yii::$app->request->getBodyParam("email");
+
+        $model = new \company\models\PasswordResetRequestForm();
+        $model->email = $emailInput;
+
+        if ($model->validate()) {
+
+            $contact = Contact::findOne([
+                'contact_email' => $model->email,
+            ]);
+
+            $contact->sendPasswordResetEmail();
+
+        } else {
+            return [
+                'operation' => 'error',
+                'message' => $model->errors
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => 'Reset password token sent on your email address.',
+        ];
+    }
+
+    private function _loginResponse($contact) {
+        // Return Company access token if everything valid
+        $accessToken = $contact->accessToken->token_value;
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        return [
+            "operation" => "success",
+            "token" => $accessToken,
+            "contact" => $contact,
+            "company_id" => $company->company_id,
+            "name" => $company->company_name,
+            "email" => $company->company_email
         ];
     }
 }
