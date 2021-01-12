@@ -101,10 +101,12 @@ class RequestController extends BaseController
      */
     public function actionCreate()
     {
+        $company = Yii::$app->companyManager->getCompany();
+
         // Attempt to create new request
         $model = new Request();
 
-        $model->company_id = Yii::$app->user->getId();
+        $model->company_id = $company->company_id;
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
@@ -130,7 +132,7 @@ class RequestController extends BaseController
         //save activity
         $model->createRequestActivity('I have created this request');
 
-        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->company_name, __METHOD__);
+        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -154,7 +156,6 @@ class RequestController extends BaseController
                 ];
         }
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
@@ -178,7 +179,7 @@ class RequestController extends BaseController
         //save activity
         $model->createRequestActivity('I have updated this request');
 
-        Yii::info('[Request updated for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request updated for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -230,7 +231,7 @@ class RequestController extends BaseController
 
         $model->createRequestActivity('I have completed this request and '. $model->request_feedback);
 
-        Yii::info('[Request marked as delivered for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request marked as delivered for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -282,7 +283,7 @@ class RequestController extends BaseController
 
         $model->createRequestActivity('I have cancelled this request because '. $model->request_feedback);
 
-        Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",

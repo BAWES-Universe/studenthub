@@ -30,8 +30,7 @@ class CompanyController extends BaseController
      */
     public function actionList()
     {
-        $query = Company::find()
-                ->childCompany(Yii::$app->user->identity->company_id);
+        $query = Yii::$app->user->identity->getManagedCompanies();
                 
         return new ActiveDataProvider([
             'query' => $query
@@ -43,7 +42,9 @@ class CompanyController extends BaseController
      */
     public function actionView($id)
     {
-        $data = Yii::$app->user->identity->getSubCompanies()
+        $company = Yii::$app->companyManager->getCompany();
+
+        $data = $company->getSubCompanies()
             ->filterCompany($id)->one();
 
         if (!$data)

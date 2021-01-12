@@ -40,11 +40,13 @@ class AuthController extends Controller
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
             'auth' => function ($email, $password) {
+
                 $contact = Contact::findByEmail($email);
                 
                 if ($contact && $contact->validatePassword($password)) {
                     return $contact;
                 }
+
                 return null;
             }
         ];
@@ -89,7 +91,9 @@ class AuthController extends Controller
         
         // Return Company access token if everything valid
         $accessToken = $contact->accessToken->token_value;
-        $company = $contact->companies[0];
+
+        $company = Yii::$app->companyManager->getCompany();
+
         return [
             "operation" => "success",
             "token" => $accessToken,
@@ -109,9 +113,9 @@ class AuthController extends Controller
         $token = Yii::$app->request->getBodyParam("token");
         $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
-        $company =  Company::findByPasswordResetToken($token);
+        $model = Contact::findByPasswordResetToken($token);
 
-        if(!$company){
+        if(!$model) {
             return [
                 'operation' => 'error',
                 'message' => 'Invalid password reset token. Please request another password reset email'
@@ -125,9 +129,9 @@ class AuthController extends Controller
             ];
         }
 
-        $company->setPassword($newPassword);
-        $company->removePasswordResetToken();
-        $company->save(false);
+        $model->setPassword($newPassword);
+        $model->removePasswordResetToken();
+        $model->save(false);
 
         return [
             'operation' => 'success',

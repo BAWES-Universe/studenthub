@@ -8,6 +8,7 @@ use company\models\CompanyToken;
 use common\fixtures\CompanyTokenFixture;
 use Codeception\Util\HttpCode;
 
+
 class CompanyCest
 {
     public $company;
@@ -21,6 +22,7 @@ class CompanyCest
 	{
         $this->company = CompanyToken::find()
             ->one();
+
         $I->amBearerAuthenticated($this->company->token_value);
     }
 
