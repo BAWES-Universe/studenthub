@@ -5,9 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\CompanyContact;
-use common\models\CompanyContactPhone;
-use common\models\CompanyContactEmail;
+use staff\models\CompanyContact;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -75,9 +73,9 @@ class CompanyContactController extends Controller
     {
         $company_id = Yii::$app->request->get('company_id');
         $q = Yii::$app->request->get('query');
-        
+
         $query = CompanyContact::find()
-            ->orderBy('contact_created_datetime ASC');
+            ->orderBy('created_at ASC');
 
         if($q) {
             $query->joinWith(['companyContactEmails', 'companyContactPhones'])
@@ -92,7 +90,7 @@ class CompanyContactController extends Controller
         if($company_id) {
             $query->filterWhere(['company_id' => $company_id]);
         }
-        
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -283,7 +281,7 @@ class CompanyContactController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = CompanyContact::findOne($id)) !== null) {
+        if (($model = CompanyContact::findOne(['contact_uuid'=>$id])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
