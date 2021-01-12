@@ -1,6 +1,7 @@
 <?php
 namespace company\components;
 
+use common\models\CompanyContact;
 use company\models\Company;
 use Yii;
 
@@ -33,7 +34,7 @@ class CompanyManager
             die("ILLEGAL USAGE OF COMPANY MANAGER, THROW IN JAIL");
         }
 
-        $cacheDuration = 60*1; //1 minute then delete from cache
+        $cacheDuration = 0;//60*1; //1 minute then delete from cache
 
         $this->companies = Company::getDb()->cache(function($db) {
             return Yii::$app->user->identity->getManagedCompanies()->all();
@@ -45,7 +46,7 @@ class CompanyManager
      * @return \company\models\Company
      */
     public function getCompany() {
-        $company_id = \Yii::$app->request->headers->get('company-id');
+        $company_id = \Yii::$app->request->headers->get('Company-Id');
 
         //use first company as selected if not specified
 
@@ -53,7 +54,9 @@ class CompanyManager
             return $this->companies[0];
         }
 
+
         foreach ($this->companies as $company) {
+
             if($company->company_id == $company_id) {
                 return $company;
             }
