@@ -14,20 +14,10 @@ class StoreController extends BaseController
 {
     public function actionView($id)
     {
-        $company = Yii::$app->companyManager->getCompany();
-        
-        $arr_sub_companies = \yii\helpers\ArrayHelper::getColumn(
-            $company->subCompanies, 
-            'company_id'
-        );
-        
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
         $store = Store::find()
-            //store should belong to logged in company or child of logged in company 
-            ->filterWhere([
-                'in', 
-                'company_id', 
-                array_merge($arr_sub_companies, [$company->company_id])
-            ])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->filterByStoreId($id)    
             ->one();
 

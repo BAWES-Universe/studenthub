@@ -19,6 +19,8 @@ class RequestController extends BaseController
      */
     public function actionList()
     {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
         $company_id = Yii::$app->request->get("company_id");
         $company_name = Yii::$app->request->get("company_name");
         $request_status = Yii::$app->request->get("request_status");
@@ -26,6 +28,7 @@ class RequestController extends BaseController
         $end_date = Yii::$app->request->get("end_date");
 
         $query = Request::find()
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->orderBy('request_created_datetime DESC');
 
         if($company_id) {
@@ -65,10 +68,13 @@ class RequestController extends BaseController
      */
     public function actionListActive()
     {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+        
         $company_id = Yii::$app->request->get("company_id");
         $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->andWhere(['request_status' => Request::STATUS_STARTED])
             ->orderBy('request_created_datetime DESC');
 
@@ -339,7 +345,14 @@ class RequestController extends BaseController
      */
     protected function findModel($id)
     {
-        if (($model = Request::findOne($id)) !== null) {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $model = Request::find()
+            ->andWhere(['request_uuid' => $id])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->one();
+            
+        if ($model !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

@@ -18,7 +18,10 @@ class RequestActivityController extends BaseController
      */
     public function actionRequestActivities($id)
     {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
         $query = Note::find()
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->andWhere(['request_uuid' => $id])
             //https://www.pivotaltracker.com/story/show/176153241 looking for all type of activities
 //            ->andWhere(['NOT IN', 'note_type', [NOTE::TYPE_SUGGESTED, NOTE::TYPE_ACCEPTED, NOTE::TYPE_REJECTED]])
@@ -52,7 +55,14 @@ class RequestActivityController extends BaseController
      */
     protected function findModel($id)
     {
-        if (($model = Note::findOne($id)) !== null) {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $model = Note::find()
+            ->andWhere(['note_uuid' => $id])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->one();
+
+        if ($model !== null) {
             return $model;
         } else {
             throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
