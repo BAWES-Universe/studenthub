@@ -246,8 +246,7 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         }
 
         return static::findOne([
-            'contact_password_reset_token' => $token,
-            'deleted' => 0
+            'contact_password_reset_token' => $token
         ]);
     }
 
