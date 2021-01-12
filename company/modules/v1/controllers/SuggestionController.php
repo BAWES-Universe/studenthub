@@ -18,30 +18,34 @@ class SuggestionController extends BaseController
      */
     public function actionList()
     {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
         $request_uuid = Yii::$app->request->get("request_uuid");
         $fulltimer_uuid = Yii::$app->request->get("fulltimer_uuid");
         $candidate_id = Yii::$app->request->get("candidate_id");
 
         $query = Suggestion::find()
-            ->joinWith(['fulltimer', 'candidate'])
+            ->joinWith(['request'])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->andWhere([
                 'or',
                 'candidate.candidate_id is not null',
                 'fulltimer.fulltimer_uuid is not null'
-                ])
-
-        ->orderBy('suggestion_datetime DESC');
+            ])
+            ->orderBy('suggestion_datetime DESC');
 
         if($request_uuid) {
             $query->andWhere(['request_uuid' => $request_uuid]);
         }
 
         if($fulltimer_uuid) {
-            $query->andWhere(['fulltimer_uuid' => $fulltimer_uuid]);
+            $query->joinWith(['fulltimer'])
+                ->andWhere(['fulltimer_uuid' => $fulltimer_uuid]);
         }
 
         if($candidate_id) {
-            $query->andWhere(['candidate_id' => $candidate_id]);
+            $query->joinWith(['candidate'])
+                ->andWhere(['candidate_id' => $candidate_id]);
         }
 
         return new ActiveDataProvider([
@@ -71,7 +75,15 @@ class SuggestionController extends BaseController
      */
     protected function findModel($id)
     {
-        if (($model = Suggestion::findOne($id)) !== null) {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $model = Suggestion::find()
+            ->joinWith(['request'])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->andWhere(['suggestion_uuid' => $id])
+            ->one();
+
+        if ($model !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

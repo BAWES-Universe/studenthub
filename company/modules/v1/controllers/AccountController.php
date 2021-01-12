@@ -3,11 +3,15 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 
+
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
  */
 class AccountController extends BaseController
 {
+    /**
+     * ability to update password after login
+     */
     public function actionChangePassword()
     {
         $model = Yii::$app->user->identity;

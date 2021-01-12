@@ -34,7 +34,9 @@ class CompanyManager
             die("ILLEGAL USAGE OF COMPANY MANAGER, THROW IN JAIL");
         }
 
-        $cacheDuration = 0;//60*1; //1 minute then delete from cache
+        $cacheDuration = 60*1; //1 minute then delete from cache
+
+        //All the parent companies, user can access 
 
         $this->companies = Company::getDb()->cache(function($db) {
             return Yii::$app->user->identity->getManagedCompanies()->all();
@@ -42,7 +44,7 @@ class CompanyManager
     }
 
     /**
-     * Returns the companys managed by this agent
+     * Returns the current selcted company managed by this agent
      * @return \company\models\Company
      */
     public function getCompany() {
@@ -82,4 +84,17 @@ class CompanyManager
         throw new \yii\web\BadRequestHttpException('You do not manage this company.');
     }
 
+    /**
+     * company id of current company and childs 
+     */
+    public function getCompanyIds() {
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        $companyIds = ArrayHelper::getColumnn($company->getSubCompanies()->all(), 'company_id');
+
+        $companyIds[] = $company->company_id;
+
+        return $companyIds;
+    }
 }
