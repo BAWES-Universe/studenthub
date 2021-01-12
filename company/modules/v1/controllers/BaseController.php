@@ -69,8 +69,8 @@ class BaseController extends Controller
             return false;
         }
 
-        $company_id = \Yii::$app->request->headers->get('company-id');
-        Yii::$app->companyManager->getManagedCompany($company_id);
+        //$company_id = \Yii::$app->request->headers->get('company-id');
+        //Yii::$app->companyManager->getManagedCompany($company_id);
         return true;
     }
 }

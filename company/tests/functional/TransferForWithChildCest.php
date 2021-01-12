@@ -23,6 +23,7 @@ class TransferForWithChildCest
 
         $this->model = Company::findOne(1);
         $this->token = $this->model->accessToken->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -312,7 +313,6 @@ class TransferForWithChildCest
 		$I->sendGET( 'v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates' );
 		$I->seeResponseCodeIs( HttpCode::OK ); // 200
 		$I->seeResponseIsJson();
-
 	}
 
 	/**

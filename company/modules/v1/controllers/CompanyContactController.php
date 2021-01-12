@@ -19,21 +19,22 @@ class CompanyContactController extends BaseController
     public function actionList()
     {
         $q = Yii::$app->request->get('query');
-        
-        $query = CompanyContact::find()
-            ->orderBy('contact_created_datetime ASC');
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        $query = $company->getContacts()
+            ->orderBy('contact_created_at ASC');
 
         if($q) {
-            $query->joinWith(['companyContactEmails', 'companyContactPhones'])
+            $query->joinWith(['contactEmails', 'contactPhones'])
                 ->andWhere([
                     'OR',
                     ['like', 'contact_name', $q],
-                    ['like', 'company_contact_email.email_address', $q],
-                    ['like', 'company_contact_phone.phone_number', $q]
+                    ['like', 'contact_email.email_address', $q],
+                    ['like', 'contact_phone.phone_number', $q]
                 ]);
         }
-        $query->filterWhere(['company_id' => Yii::$app->user->getId()]);
-        
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -60,7 +61,11 @@ class CompanyContactController extends BaseController
      */
     protected function findModel($id)
     {
-        if (($model = CompanyContact::findOne($id)) !== null) {
+        $company = Yii::$app->companyManager->getCompany();
+
+        $model = $company->getCompanyContacts()->filterWhere(['contact_uuid' => $id])->one();
+
+        if ($model !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
