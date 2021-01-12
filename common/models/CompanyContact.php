@@ -105,6 +105,14 @@ class CompanyContact extends \yii\db\ActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'contact',
+            'company'
+        ];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
