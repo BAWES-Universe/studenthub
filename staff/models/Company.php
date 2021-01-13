@@ -144,7 +144,7 @@ class Company extends \common\models\Company {
     /**
      * @return array
      */
-    public function getStats(){
+    public function getStats() {
         return [
             'requests' => $this->getRequests()->count(),
             'stores' => $this->getStores()->count(),

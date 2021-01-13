@@ -27,18 +27,18 @@ class PasswordResetRequestForm extends Model
      * @param $company
      * @return bool
      */
-    public function sendEmail($company)
+    public function sendEmail($contact)
     {
-        $company->generatePasswordResetToken();
-        $company->save();
+        $contact->generatePasswordResetToken();
+        $contact->save();
 
         Yii::$app->mailer->compose("passwordResetRequest",
             [
-                "name" => $company->company_name,
-                "token" => $company->company_password_reset_token,
+                "name" => $contact->contact_name,
+                "token" => $contact->contact_password_reset_token,
             ])
             ->setFrom(Yii::$app->params['supportEmail'])
-            ->setTo($company->company_email)
+            ->setTo($contact->contact_email)
             ->setSubject('Password reset token')
             ->send();
 

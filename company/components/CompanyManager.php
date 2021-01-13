@@ -3,6 +3,7 @@ namespace company\components;
 
 use common\models\CompanyContact;
 use company\models\Company;
+use yii\helpers\ArrayHelper;
 use Yii;
 
 

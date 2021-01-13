@@ -6,7 +6,9 @@ use yii\helpers\Html;
 
 ?>
 <div class="password-reset">
+    
     <p>Hello Admin,</p>
+
     <p>Please find list of Companies which didn't created any transfer from last 35 days..</p>
 
     <table class="table table-bordered" style="width: 100%;  max-width: 500px;">

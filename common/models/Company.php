@@ -554,29 +554,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
         return $token;
     }
-
-    /**
-     * Send new password to customer
-     * @param Candidate $model
-     * @param $password
-     * @return bool
-     */
-    public static function passwordMail($model, $password)
-    {
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        
-        return Yii::$app->mailer->compose("company-password",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/images/logo.png', true),
-                'logo_2' => ''
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo($model->company_email)
-            ->setSubject('Your password has been reset')
-            ->send();
-    }
     
     /**
      * @return bool
