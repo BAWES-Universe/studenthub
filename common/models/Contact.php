@@ -206,7 +206,6 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ];
     }
 
-
     /**
      * Start of IdentityInterface Methods
      */

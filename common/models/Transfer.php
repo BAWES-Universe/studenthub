@@ -409,6 +409,8 @@ class Transfer extends ActiveRecord
         $i=1;
         $invoice_id = 0;
 
+        $emails = [];
+
         foreach ($invoices as $invoice)
         {
             $invoice_id = $invoice->invoice_id;
@@ -437,9 +439,6 @@ class Transfer extends ActiveRecord
             ]);
             
             $pdfAttachment = $pdf->output($content, $template.'-'.$invoice_id.'.pdf', 'S');
-            
-            $email = (isset($invoice->transfer->company->parentCompany->company_email)) ? 
-                $invoice->transfer->company->parentCompany->company_email :  $invoice->transfer->company->company_email;
 
             $name = (isset($invoice->transfer->company->parentCompany->company_common_name_en)) ?
                 $invoice->transfer->company->parentCompany->company_common_name_en :  $invoice->transfer->company->company_common_name_en;
@@ -452,6 +451,51 @@ class Transfer extends ActiveRecord
             $i++;
 
             $subject[] = '#'.$invoice_id;
+
+            //emails of all contacts in invoice company 
+
+            $subQuery = CompanyContact::find()
+                ->select('contact_uuid')
+                ->andWhere([
+                    'company_id' => $invoice->transfer->company_id
+                ])
+                ->andWhere(['!=', 'role', CompanyContact::ROLE_OTHER]);
+
+            $contacts = Contact::find()
+                ->andWhere(['contact_receive_email' => 1])
+                ->andWhere(['in', 'contact_uuid', $subQuery])
+                ->all();
+
+            $emails = array_merge($emails, ArrayHelper::getColumn($contacts, 'contact_email'));
+
+            //company's contact email
+
+            if($invoice->transfer->company->company_email)
+                $emails[] = $invoice->transfer->company->company_email;
+        }
+
+        //if parent company, add company contact email if any + parent company's contact persons' email
+
+        if($invoices[0]->transfer->company->parent_company_id) {
+
+            if($invoices[0]->transfer->company->parentCompany->company_email)
+                $emails[] = $invoices[0]->transfer->company->parentCompany->company_email;
+
+            //add parent company contact 
+
+            $subQuery = CompanyContact::find()
+                ->select('contact_uuid')
+                ->andWhere([
+                    'company_id' =>$invoice->transfer->company->parent_company_id
+                ])
+                ->andWhere(['!=', 'role', CompanyContact::ROLE_OTHER]);
+
+            $contacts = Contact::find()
+                ->andWhere(['contact_receive_email' => 1])
+                ->andWhere(['in', 'contact_uuid', $subQuery])
+                ->all();
+
+            $emails = array_merge($emails, ArrayHelper::getColumn($contacts, 'contact_email'));
         }
 
         if ( $template == 'invoice' ) {
@@ -464,7 +508,7 @@ class Transfer extends ActiveRecord
             $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
         }
 
-        return $message->setTo($email)
+        return $message->setTo(array_unique($emails))//remove duplicate 
             ->setCc(Yii::$app->params['invoiceCC'])
             ->setSubject($subjectLine)
             ->send();
