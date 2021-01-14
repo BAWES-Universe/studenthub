@@ -92,7 +92,7 @@ class CompanyManager
 
         $company = Yii::$app->companyManager->getCompany();
 
-        $companyIds = ArrayHelper::getColumnn($company->getSubCompanies()->all(), 'company_id');
+        $companyIds = ArrayHelper::getColumn($company->getSubCompanies()->all(), 'company_id');
 
         $companyIds[] = $company->company_id;
 
