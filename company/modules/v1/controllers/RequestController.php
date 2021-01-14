@@ -113,7 +113,7 @@ class RequestController extends BaseController
         $model = new Request();
 
         $model->company_id = $company->company_id;
-        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
+        $model->contact_uuid = Yii::$app->user->identity->getId();
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
@@ -162,7 +162,7 @@ class RequestController extends BaseController
                 ];
         }
 
-        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
+        $model->contact_uuid = Yii::$app->user->identity->getId();
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");

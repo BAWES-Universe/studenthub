@@ -50,8 +50,8 @@ class Request extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['contact_uuid', 'company_id'], 'required'],
-            [['company_id', 'request_created_by', 'request_updated_by', 'request_position_type', 'request_number_of_employees'], 'integer'],
+            [['company_id'], 'required'],
+            [['company_id', 'request_position_type', 'request_number_of_employees'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info'], 'string'],
