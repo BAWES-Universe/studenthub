@@ -77,6 +77,7 @@ class SuggestionController extends Controller
         $request_uuid = Yii::$app->request->get("request_uuid");
         $fulltimer_uuid = Yii::$app->request->get("fulltimer_uuid");
         $candidate_id = Yii::$app->request->get("candidate_id");
+        $status = Yii::$app->request->get("status");
 
         $query = Suggestion::find()
             ->joinWith(['fulltimer', 'candidate'])
@@ -93,11 +94,15 @@ class SuggestionController extends Controller
         }
 
         if($fulltimer_uuid) {
-            $query->andWhere(['fulltimer_uuid' => $fulltimer_uuid]);
+            $query->andWhere(['fulltimer.fulltimer_uuid' => $fulltimer_uuid]);
         }
 
         if($candidate_id) {
-            $query->andWhere(['candidate_id' => $candidate_id]);
+            $query->andWhere(['candidate.candidate_id' => $candidate_id]);
+        }
+
+        if($status) {
+            $query->andWhere(['suggestion_status' => $status]);
         }
 
         return new ActiveDataProvider([
