@@ -78,7 +78,7 @@ class CompanyContactController extends Controller
             ->orderBy('created_at ASC');
 
         if($q) {
-            $query->joinWith(['companyContactEmails', 'companyContactPhones'])
+            $query->joinWith(['contactEmails', 'contactPhones'])
                 ->andWhere([
                     'OR',
                     ['like', 'contact_name', $q],
