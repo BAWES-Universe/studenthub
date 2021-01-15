@@ -70,6 +70,7 @@ class CompanyContactCest
             'v1/company-contacts',
             [
                 'name' => 'davert',
+                'email' => 'ravan@lanka.com',
                 'position' => 'Java developer',
                 'company_id' => '1',
                 'emails' => [
@@ -103,6 +104,7 @@ class CompanyContactCest
             'v1/company-contacts/' . $this->contact_uuid,
             [
                 'name' => 'davert',
+                'email' => 'ravan@lanka.com',
                 'position' => 'Java developer',
                 'company_id' => '1',
                 'emails' => [
@@ -115,6 +117,52 @@ class CompanyContactCest
                         'phone_number' => '12345678'
                     ]
                 ]
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success"
+        ]);
+    }
+
+    /**
+     * Try to update
+     * @param FunctionalTester $I
+     */
+    public function tryToCheckEmailExists(FunctionalTester $I)
+    {
+        $I->wantTo('check email availability via API');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendGET('v1/is-email-exists?email=ravan@lanka.com');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success"
+        ]);
+    }
+
+    /**
+     * Try to add contact to team
+     * @param FunctionalTester $I
+     */
+    public function tryToAddToTeam(FunctionalTester $I)
+    {
+        $subQuery = CompanyContact::find()
+            ->select('contact_uuid')
+            ->filterWhere(['company_id' => 1])
+            ->all();
+
+        $contact = Contact::find()
+            ->filterWhere(['NOT IN', 'contact_uuid', $subQuery])
+            ->one();
+
+        $I->wantTo('add contact to team via API');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH(
+            'v1/add-to-team',
+            [
+                'role' => 'Owner',
+                'contact_uuid' => $contact->contact_email,
+                'company_id' => '1'
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
