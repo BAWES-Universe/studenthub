@@ -2,6 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\ContactEmail;
+use common\models\ContactPhone;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -84,7 +86,7 @@ class CompanyContactController extends Controller
                     'OR',
                     ['like', 'contact_name', $q],
                     ['like', 'contact_email.email_address', $q],
-                    ['like', 'Yii::$apcontact_phone.phone_number', $q]
+                    ['like', 'contact_phone.phone_number', $q]
                 ]);
         }
 
@@ -150,7 +152,7 @@ class CompanyContactController extends Controller
             if(!$email['email_address'])
                 continue;
 
-            $em = new CompanyContactEmail; 
+            $em = new ContactEmail();
             $em->contact_uuid = $model->contact_uuid;
             $em->email_address = $email['email_address'];
             $em->save();
@@ -161,7 +163,7 @@ class CompanyContactController extends Controller
             if(!$phone['phone_number'])
                 continue;
             
-            $em = new CompanyContactPhone; 
+            $em = new ContactPhone();
             $em->contact_uuid = $model->contact_uuid;
             $em->phone_number = $phone['phone_number'];
             $em->save();
@@ -176,7 +178,7 @@ class CompanyContactController extends Controller
             $companyContact = new CompanyContact();
             $companyContact->contact_uuid = $model->contact_uuid;
             $companyContact->company_id = $company_id;
-            $companyContact->role = Yii::$app->request->getBodyParam ("role");
+            $companyContact->role = Yii::$app->request->getBodyParam("role");
 
             if (!$companyContact->save()) {
                 return [
@@ -244,7 +246,7 @@ class CompanyContactController extends Controller
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel($id);
+        $model = Contact::findOne($id);
 
         if(!$model){
             return [
@@ -255,7 +257,6 @@ class CompanyContactController extends Controller
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         $model->contact_position = Yii::$app->request->getBodyParam("position");
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
         
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
@@ -275,15 +276,20 @@ class CompanyContactController extends Controller
             }
         }
 
-        CompanyContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        CompanyContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        CompanyContact::updateAll(
+            ['role'=>Yii::$app->request->getBodyParam("role")],
+            ['contact_uuid' => $model->contact_uuid]
+        );
+
+        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
 
         foreach($emails as $email) {
 
             if(!$email['email_address'])
                 continue;
 
-            $em = new CompanyContactEmail; 
+            $em = new ContactEmail;
             $em->contact_uuid = $model->contact_uuid;
             $em->email_address = $email['email_address'];
             $em->save();
@@ -294,7 +300,7 @@ class CompanyContactController extends Controller
             if(!$phone['phone_number'])
                 continue;
             
-            $em = new CompanyContactPhone; 
+            $em = new ContactPhone;
             $em->contact_uuid = $model->contact_uuid;
             $em->phone_number = $phone['phone_number'];
             $em->save();
