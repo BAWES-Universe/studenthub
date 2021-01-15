@@ -12,6 +12,7 @@ use Codeception\Util\HttpCode;
 class CompanyCest
 {
     public $company;
+
 	public function _fixtures() {
 		return [
 			'companyToken' => CompanyTokenFixture::className()
@@ -34,16 +35,29 @@ class CompanyCest
      * List sub companies
      * @param FunctionalTester $I
      */
-    public function listCompanies(FunctionalTester $I)
+    public function listChildCompanies(FunctionalTester $I)
     {
         $company = Company::find()
             ->childCompany($this->company->company_id)
             ->one();
 
+        $I->sendGET('v1/companies/list-child');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            'company_id' => $company->company_id
+        ]);
+    }
+
+    /**
+     * List parent companies, user managing
+     * @param FunctionalTester $I
+     */
+    public function listCompanies(FunctionalTester $I)
+    {
         $I->sendGET('v1/companies');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
-            'company_id'=>$company->company_id
+            'company_id' => $this->company->company_id
         ]);
     }
 
