@@ -26,12 +26,25 @@ class CompanyController extends BaseController
     }
 
     /**
-     * Return a List of Company Accounts available.
+     * Return a List of Company available.
      */
     public function actionList()
     {
-        $query = Yii::$app->user->identity->getManagedCompanies();
-                
+        return Yii::$app->user->identity
+            ->getManagedCompanies()
+            ->all();
+    }
+
+    /**
+     * Return a List of Child Companies
+     */
+    public function actionListChild()
+    {
+        $company = Yii::$app->companyManager->getCompany();
+
+        $query = Company::find()
+            ->childCompany($company->company_id);
+
         return new ActiveDataProvider([
             'query' => $query
         ]);

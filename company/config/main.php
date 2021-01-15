@@ -128,9 +128,11 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET list-child' => 'list-child',
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS list-child' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
