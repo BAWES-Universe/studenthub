@@ -1,11 +1,15 @@
 <?php
 namespace company\tests;
 
+use common\fixtures\CandidateFixture;
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
 use company\models\Company;
+use company\models\Contact;
 use company\tests\FunctionalTester;
 use Yii;
-use company\models\CompanyToken;
-use common\fixtures\CompanyTokenFixture;
+use company\models\ContactToken;
+use common\fixtures\ContactTokenFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -15,16 +19,23 @@ class CompanyCest
 
 	public function _fixtures() {
 		return [
-			'companyToken' => CompanyTokenFixture::className()
+            'company' => CompanyFixture::className(),
+            'companyContact' => CompanyContactFixture::className(),
+            'contactToken' => ContactTokenFixture::className(),
+            'candidate'    => CandidateFixture::className()
 		];
 	}
 
 	public function _before(FunctionalTester $I)
 	{
-        $this->company = CompanyToken::find()
-            ->one();
+        $this->contact = Contact::find()->one();
 
-        $I->amBearerAuthenticated($this->company->token_value);
+        $this->token = $this->contact->getAccessToken()
+            ->token_value;
+
+        $this->company = $this->contact->getManagedCompanies()->one();
+
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I)
@@ -62,12 +73,10 @@ class CompanyCest
     }
 
     public function viewCompany(FunctionalTester $I) {
-        Yii::$app->user->loginByAccessToken($this->company->token_value);
-        $data = Yii::$app->user->identity->getSubCompanies()->one();
-        $I->sendGET('v1/companies/'.$data->company_id);
+        $I->sendGET('v1/companies/' . $this->company->company_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
-            'company_id'=>$data->company_id
+            'company_id' => $this->company->company_id
         ]);
     }
 }

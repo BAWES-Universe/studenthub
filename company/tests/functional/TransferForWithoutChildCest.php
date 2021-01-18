@@ -1,8 +1,12 @@
 <?php
 namespace company\tests;
 
-use Yii; 
-use common\fixtures\CompanyTokenFixture;
+use common\fixtures\CandidateFixture;
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
+use common\models\CompanyContact;
+use Yii;
+use common\fixtures\ContactTokenFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
 use company\models\Transfer;
@@ -17,9 +21,12 @@ class TransferForWithoutChildCest
 
     public function _fixtures() {
             return [
-                    'companyToken' => CompanyTokenFixture::className(),
-                    'transferCandidate' => TransferCandidateFixture::className(),
-                    'invoice' => InvoiceFixture::className()
+                'company' => CompanyFixture::className(),
+                'companyContact' => CompanyContactFixture::className(),
+                'contactToken' => ContactTokenFixture::className(),
+                'candidate'    => CandidateFixture::className(),
+                'invoice'    => InvoiceFixture::className(),
+                'transferCandidate' => TransferCandidateFixture::className(),
             ];
     }
 
@@ -30,7 +37,9 @@ class TransferForWithoutChildCest
       
         $this->companyWithoutChild = Company::findOne(3);
 
-        $this->token = $this->companyWithoutChild->accessToken->token_value;
+        $companyContact = CompanyContact::find()->filterWhere (['company_id' => 3])->one();
+
+        $this->token = $companyContact->contact->getAccessToken()->token_value;
     }
 
     public function _after(FunctionalTester $I)

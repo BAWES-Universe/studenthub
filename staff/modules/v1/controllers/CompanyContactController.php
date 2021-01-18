@@ -248,16 +248,19 @@ class CompanyContactController extends Controller
         // Attempt to create new account
         $model = Contact::findOne($id);
 
-        if(!$model){
+        if(!$model) {
             return [
-                    "operation" => "error",
-                    "message" => "Company Contact not found."
-                ];
+                "operation" => "error",
+                "message" => "Company Contact not found."
+            ];
         }
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
         $model->contact_position = Yii::$app->request->getBodyParam("position");
-        
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
 
@@ -337,6 +340,7 @@ class CompanyContactController extends Controller
             ];
         }
 
+        CompanyContact::deleteAll(['contact_uuid' => $model->contact_uuid]);
         CompanyContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
         CompanyContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
         

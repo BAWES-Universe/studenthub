@@ -102,14 +102,4 @@ class Company extends \common\models\Company {
     {
         return parent::getTransfers($modelClass)->andWhere(['deleted'=>0]);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null) {
-        $token = CompanyToken::find()->where(['token_value' => $token])->with('company')->one();
-        if($token){
-            return $token->company;
-        }
-    }
 }

@@ -221,8 +221,9 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = CompanyToken::find()->where(['token_value' => $token])->with('contact')->one();
-        if($token){
+        $token = ContactToken::find()->where(['token_value' => $token])->with('contact')->one();
+
+        if($token) {
             return $token->contact;
         }
     }
@@ -350,7 +351,7 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         // Return existing inactive token if found
         $token = ContactToken::findOne([
             'contact_uuid' => $this->contact_uuid,
-            'token_status' => CompanyToken::STATUS_ACTIVE
+            'token_status' => ContactToken::STATUS_ACTIVE
         ]);
 
         if($token) {

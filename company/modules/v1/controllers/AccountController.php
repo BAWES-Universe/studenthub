@@ -1,6 +1,9 @@
 <?php
 namespace company\modules\v1\controllers;
 
+use company\models\Contact;
+use common\models\ContactEmail;
+use common\models\ContactPhone;
 use Yii;
 
 
@@ -9,6 +12,77 @@ use Yii;
  */
 class AccountController extends BaseController
 {
+    /**
+     * return profile details
+     */
+    public function actionView() {
+        return Contact::findOne(Yii::$app->user->getId());
+    }
+
+    /**
+     * Update account details
+     * @param $id
+     * @return array
+     */
+    public function actionUpdate()
+    {
+        $model = Yii::$app->user->identity;
+
+        $model->contact_name = Yii::$app->request->getBodyParam("name");
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
+        //$model->contact_position = Yii::$app->request->getBodyParam("position");
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+
+        $emails = Yii::$app->request->getBodyParam("emails");
+        $phones = Yii::$app->request->getBodyParam("phones");
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account details, please contact us for assistance."
+                ];
+            }
+        }
+
+        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
+
+        foreach($emails as $email) {
+
+            if(!$email['email_address'])
+                continue;
+
+            $em = new ContactEmail;
+            $em->contact_uuid = $model->contact_uuid;
+            $em->email_address = $email['email_address'];
+            $em->save();
+        }
+
+        foreach($phones as $phone) {
+
+            if(!$phone['phone_number'])
+                continue;
+
+            $em = new ContactPhone;
+            $em->contact_uuid = $model->contact_uuid;
+            $em->phone_number = $phone['phone_number'];
+            $em->save();
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Account details successfully updated"
+        ];
+    }
+
     /**
      * ability to update password after login
      */

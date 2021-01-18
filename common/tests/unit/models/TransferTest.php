@@ -4,7 +4,7 @@ namespace common\tests;
 use Yii;
 use Codeception\Specify;
 use common\fixtures\CandidateFixture;
-use common\fixtures\CompanyTokenFixture;
+use common\fixtures\ContactTokenFixture;
 use common\fixtures\InvoiceFixture;
 use company\models\Transfer;
 use common\fixtures\CompanyFixture;
@@ -26,7 +26,7 @@ class TransferTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'companyToken' => CompanyTokenFixture::className(),
+            'contactToken' => ContactTokenFixture::className(),
             'company'      => CompanyFixture::className(),
             'candidate'    => CandidateFixture::className(),
             'invoice'      => InvoiceFixture::className()

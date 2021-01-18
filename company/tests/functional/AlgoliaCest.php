@@ -2,8 +2,8 @@
 namespace company\tests;
 
 use yii;
-use common\models\CompanyToken;
-use common\fixtures\CompanyTokenFixture;
+use common\models\ContactToken;
+use common\fixtures\ContactTokenFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -13,13 +13,13 @@ class AlgoliaCest
 
     public function _fixtures() {
         return [
-            'tokens' => CompanyTokenFixture::className()
+            'tokens' => ContactTokenFixture::className()
         ];
     }
 
     public function _before(FunctionalTester $I)
     {
-        $this->token = CompanyToken::find()
+        $this->token = ContactToken::find()
             ->one()
             ->token_value;
 

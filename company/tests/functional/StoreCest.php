@@ -1,30 +1,45 @@
 <?php
 namespace company\tests;
 
+use common\fixtures\CandidateFixture;
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
 use company\models\Company;
+use company\models\Contact;
 use company\models\Store;
 use Yii;
 use company\tests\FunctionalTester;
-use company\models\CompanyToken;
-use common\fixtures\CompanyTokenFixture;
+use company\models\ContactToken;
+use common\fixtures\ContactTokenFixture;
 use common\fixtures\StoreFixture;
 use Codeception\Util\HttpCode;
+
 
 class StoreCest
 {
     public $token;
+    public $company;
+
 	public function _fixtures() {
 		return [
-			'companyToken' => CompanyTokenFixture::className(),
+            'company' => CompanyFixture::className(),
+            'companyContact' => CompanyContactFixture::className(),
+            'contactToken' => ContactTokenFixture::className(),
+            'candidate'    => CandidateFixture::className(),
 			'store'        => StoreFixture::className()
 		];
 	}
 
     public function _before(FunctionalTester $I)
     {
-        $this->token = CompanyToken::find()
-            ->one();
-        $I->amBearerAuthenticated($this->token->token_value);
+        $this->contact = Contact::find()->one();
+
+        $this->token = $this->contact->getAccessToken()
+            ->token_value;
+
+        $this->company = $this->contact->getManagedCompanies()->one();
+
+        $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I){}
@@ -35,13 +50,18 @@ class StoreCest
      */
     public function testListing(FunctionalTester $I)
     {
-        $store = Store::findOne(['company_id'=>$this->token->company_id]);
+        $store = Store::findOne(['company_id' => $this->company->company_id]);
+
         $I->wantTo('Validate company > stores api');
         $I->sendGET('v1/stores');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson();
     }
 
+    /**
+     * ability to view store
+     * @param \company\tests\FunctionalTester $I
+     */
     public function testViewStore(FunctionalTester $I)
     {
         $I->wantTo('View Store');
@@ -54,7 +74,7 @@ class StoreCest
      * List sub company stores
      * @param FunctionalTester $I
      */
-    public function testStores(FunctionalTester $I) {
+    public function testViewChildStores(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list sub company\'s stores');
         $I->sendGET('v1/stores/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
