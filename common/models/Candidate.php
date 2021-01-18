@@ -2441,4 +2441,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $rejected = $this->getSuggestion()->andWhere(['suggestion_status'=>Suggestion::TYPE_REJECTED])->count();
         return ($total && $rejected) ? round(($rejected/$total) * 100): null;
     }
+
+    public function getPendingField() {
+        return ($this->pendingProfile) ? array_keys($this->pendingProfile) : null;
+    }
+
+    public function getIsProfileCompleted() {
+        return $this->isInCompleteProfile() ? false : true;
+    }
 }
