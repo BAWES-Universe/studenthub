@@ -448,7 +448,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
         foreach ($candidates as $detail) {
             $totalAmount += $detail->totalPaidToCandidate;
 
-            if (empty($detail->candidate->bank) || !$detail->invoiceNumber) {
+            if (empty($detail->candidate->bank) || !$detail->invoiceNumber || !$detail->candidate->isProfileCompleted) {
                 continue;
             }
 
