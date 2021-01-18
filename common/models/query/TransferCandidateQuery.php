@@ -102,9 +102,9 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      * but his employer have paid to admin
      */
     public function payable() {
-        return $this->joinWith('transfer')
+        return $this->joinWith(['transfer','candidate'])
             ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
-            ->andWhere('parent_transfer_id IS NULL')//only parent transfers 
+            ->andWhere('parent_transfer_id IS NULL')//only parent transfers
             ->filterUnpaid(); //unpaid candidate
     }
 
