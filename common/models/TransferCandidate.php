@@ -445,7 +445,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
         
         $list = [];
 
-
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
         foreach ($candidates as $detail) {

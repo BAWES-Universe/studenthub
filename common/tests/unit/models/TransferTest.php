@@ -1,6 +1,8 @@
 <?php
 namespace common\tests;
 
+use common\fixtures\CompanyContactFixture;
+use common\models\CompanyContact;
 use Yii;
 use Codeception\Specify;
 use common\fixtures\CandidateFixture;
@@ -28,6 +30,7 @@ class TransferTest extends \Codeception\Test\Unit
         return [
             'contactToken' => ContactTokenFixture::className(),
             'company'      => CompanyFixture::className(),
+            'companyContact' => CompanyContactFixture::className(),
             'candidate'    => CandidateFixture::className(),
             'invoice'      => InvoiceFixture::className()
         ];
@@ -40,7 +43,9 @@ class TransferTest extends \Codeception\Test\Unit
 
         $this->model = Company::findOne(1);
 
-        $this->token = $this->model->accessToken->token_value;
+        $companyContact = CompanyContact::find()->filterWhere (['company_id' => 1])->one();
+
+        $this->token = $companyContact->contact->getAccessToken()->token_value;
     }
 
     protected function _after(){}
@@ -254,11 +259,17 @@ class TransferTest extends \Codeception\Test\Unit
         expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
 
         $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
+
         expect_that($model->lock() == true);
+
         expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK])->one());
+
         expect_that($model->getInvoices()->count() > 0);
+
         expect_that($model->paymentSent() == true);
+
         expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_PAYMENT_SENT])->one());
+
         expect_that(Transfer::deleteTransfer($model) == false);
     }
 }
