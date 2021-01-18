@@ -255,24 +255,6 @@ class CompanyCest
     }
     
     /**
-     * Reset company password
-     * @param FunctionalTester $I
-     */
-    public function tryToResetCompanyPassword(FunctionalTester $I)
-    {
-        $company = Company::find()->one();
-        $I->wantTo('reset company password via admin > companies API');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/reset-password/'.$company->company_id, [
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "New password sent to registered email successfully"
-        ]);
-    }
-    
-    /**
      * Update company followup
      * @param FunctionalTester $I
      */

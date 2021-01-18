@@ -97,4 +97,12 @@ return [
         'created_at' => '1978-02-11 23:52:40',
         'updated_at' => '1971-09-17 03:25:45',
     ],
+    'company_contact12' => [
+        'company_contact_uuid' => 'e4619965-bb59-3ba0-b80e-27d5b82b3b58',
+        'contact_uuid' => '8e7bf6f4-5ec1-39ea-b5b2-17f378cd3852',
+        'company_id' => 4,
+        'role' => 'Owner',
+        'created_at' => '1991-08-07 15:05:11',
+        'updated_at' => '1970-11-10 12:45:58',
+    ],
 ];

@@ -328,6 +328,7 @@ class CompanyContactController extends Controller
     public function actionDelete($id)
     {
         $model = $this->findModel($id);
+
         $notes = $model->getNotes()->count();
         $requests = $model->getRequests()->count();
 
@@ -365,7 +366,7 @@ class CompanyContactController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = CompanyContact::findOne(['contact_uuid'=>$id])) !== null) {
+        if (($model = Contact::findOne(['contact_uuid'=>$id])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

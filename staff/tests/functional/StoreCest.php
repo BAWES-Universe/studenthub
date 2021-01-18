@@ -2,12 +2,17 @@
 namespace staff\tests;
 
 use common\models\CompanyContact;
+use common\models\Contact;
 use staff\models\Store;
 use yii;
 use common\models\StaffToken;
 use common\fixtures\StoreFixture;
 use common\fixtures\StaffTokenFixture;
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\ContactFixture;
+use common\fixtures\CompanyFixture;
 use Codeception\Util\HttpCode;
+
 
 class StoreCest
 {
@@ -17,7 +22,10 @@ class StoreCest
 	{
 		return [
 			'staffToken' => StaffTokenFixture::className(),
-			'store'      => StoreFixture::className()
+			'store' => StoreFixture::className(),
+            'contact' => ContactFixture::className(),
+            'company' => CompanyFixture::className(),
+            'companyContact' => CompanyContactFixture::className(),
 		];
 	}
 
@@ -26,6 +34,7 @@ class StoreCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -180,8 +189,15 @@ class StoreCest
     public function restCallToUpdateStoreManagerWithValidDetail(FunctionalTester $I)
     {
         $store = Store::findOne(['company_id'=>'4']);
+
+        $contact = CompanyContact::find()
+            ->filterWhere(['company_id' => 4])
+            ->one();
+
         $I->wantTo('update store Manager');
-        $I->sendPATCH('v1/stores/update-manager/'.$store->store_id,['contact_uuid'=>$store->company->companyContacts[0]->contact_uuid]);
+        $I->sendPATCH('v1/stores/update-manager/'.$store->store_id,[
+            'contact_uuid'=> $contact->contact_uuid
+        ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->canSeeResponseContainsJson(["operation"=>"success","message"=>"Store successfully updated"]);
     }

@@ -90,8 +90,7 @@ class Company extends \yii\db\ActiveRecord
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
-            [['company_auth_key'], 'string', 'max' => 32],
-            
+
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe'],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
