@@ -2,19 +2,21 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Company;
+use staff\models\Contact;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use common\models\CompanyContact;
-use common\models\CompanyContactPhone;
-use common\models\CompanyContactEmail;
+use common\models\ContactPhone;
+use common\models\ContactEmail;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
 
 /**
- * CompanyContact controller - Manage CompanyContact as Admin
+ * Contact controller - Manage CompanyContact as Admin
  */
 class CompanyContactController extends Controller
 {
@@ -76,11 +78,12 @@ class CompanyContactController extends Controller
     {
         $company_id = Yii::$app->request->get('company_id');
         
-        $query = CompanyContact::find()
-            ->orderBy('contact_created_datetime ASC');
+        $query = Contact::find()
+            ->orderBy('contact_created_at DESC');
         
         if($company_id) {
-            $query->filterWhere(['company_id' => $company_id]);
+            $query->jointWith(['companyContacts'])
+                ->filterWhere(['company_id' => $company_id]);
         }
         
         return new ActiveDataProvider([
@@ -97,20 +100,67 @@ class CompanyContactController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
+    /**
+     * check if email available for contact
+     * @return array
+     */
+    public function actionIsEmailExists() {
+        $email = Yii::$app->request->get('email');
+
+        $model = Contact::find()
+            ->filterWhere(['contact_email' => $email])
+            ->one();
+
+        return [
+            'contact' => $model
+        ];
+    }
+
+    /**
+     * add contact to team
+     * @return array|string[]
+     */
+    public function actionAddToTeam() {
+
+        $company_id = Yii::$app->request->getBodyParam("company_id");
+        $role = Yii::$app->request->getBodyParam ("role");
+        $contact_uuid = Yii::$app->request->getBodyParam ("contact_uuid");
+
+        $companyContact = new \staff\models\CompanyContact();
+        $companyContact->contact_uuid = $contact_uuid;
+        $companyContact->company_id = $company_id;
+        $companyContact->role = $role;
+
+        if (!$companyContact->save()) {
+            return [
+                "operation" => "error",
+                "message" => $companyContact->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Contact added to team successfully"
+        ];
+    }
+
     /**
      * Create a brand account
      * @return array
      */
     public function actionCreate()
     {
-        // Attempt to create new 
-        $model = new CompanyContact();
+        $model = new Contact();
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
         $model->contact_position = Yii::$app->request->getBodyParam("position");
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
-        
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+
+        $model->setPassword(Yii::$app->request->getBodyParam("password"));
+
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
        
@@ -134,7 +184,7 @@ class CompanyContactController extends Controller
             if(!$email['email_address'])
                 continue;
 
-            $em = new CompanyContactEmail; 
+            $em = new ContactEmail;
             $em->contact_uuid = $model->contact_uuid;
             $em->email_address = $email['email_address'];
             $em->save();
@@ -145,10 +195,29 @@ class CompanyContactController extends Controller
             if(!$phone['phone_number'])
                 continue;
             
-            $em = new CompanyContactPhone; 
+            $em = new ContactPhone;
             $em->contact_uuid = $model->contact_uuid;
             $em->phone_number = $phone['phone_number'];
             $em->save();
+        }
+
+        //add to team
+
+        $company_id = Yii::$app->request->getBodyParam("company_id");
+
+        if($company_id) {
+
+            $companyContact = new \staff\models\CompanyContact();
+            $companyContact->contact_uuid = $model->contact_uuid;
+            $companyContact->company_id = $company_id;
+            $companyContact->role = Yii::$app->request->getBodyParam("role");
+
+            if (!$companyContact->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $companyContact->errors
+                ];
+            }
         }
 
         return [
@@ -175,9 +244,11 @@ class CompanyContactController extends Controller
         }
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
         $model->contact_position = Yii::$app->request->getBodyParam("position");
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
-        
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
 
@@ -196,15 +267,15 @@ class CompanyContactController extends Controller
             }
         }
 
-        CompanyContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        CompanyContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
 
         foreach($emails as $email) {
 
             if(!$email['email_address'])
                 continue;
 
-            $em = new CompanyContactEmail; 
+            $em = new ContactEmail;
             $em->contact_uuid = $model->contact_uuid;
             $em->email_address = $email['email_address'];
             $em->save();
@@ -215,7 +286,7 @@ class CompanyContactController extends Controller
             if(!$phone['phone_number'])
                 continue;
             
-            $em = new CompanyContactPhone; 
+            $em = new ContactPhone;
             $em->contact_uuid = $model->contact_uuid;
             $em->phone_number = $phone['phone_number'];
             $em->save();
@@ -243,8 +314,8 @@ class CompanyContactController extends Controller
             ];
         }
 
-        CompanyContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        CompanyContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
         
         $model->delete();
 
@@ -253,7 +324,38 @@ class CompanyContactController extends Controller
             "message" => "Company Contact deleted successfully"
         ];
     }
-    
+
+    /**
+     * Reset Company password
+     * @param $id
+     * @return array
+     */
+    public function actionResetPassword($id)
+    {
+        $model = $this->findModel((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company not found",
+                "code" => 1
+            ];
+        }
+
+        $password = Yii::$app->security->generateRandomString(5);
+
+        $model->setPassword($password);
+        $model->save(false);
+
+        //Send Email to user
+        Contact::passwordMail($model, $password);
+
+        return [
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
+        ];
+    }
+
     /**
      * Finds the CompanyContact model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
@@ -263,7 +365,7 @@ class CompanyContactController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = CompanyContact::findOne($id)) !== null) {
+        if (($model = Contact::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

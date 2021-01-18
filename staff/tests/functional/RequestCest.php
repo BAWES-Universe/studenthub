@@ -2,6 +2,7 @@
 
 namespace staff\tests;
 
+use common\fixtures\ContactFixture;
 use staff\tests\FunctionalTester;
 use common\models\Company;
 use common\models\StaffToken;
@@ -23,6 +24,8 @@ class RequestCest
             'staffToken' => StaffTokenFixture::className(),
             'request' => RequestFixture::className(),
             'company' => CompanyFixture::className(),
+            'companyContact' => CompanyContactFixture::className(),
+            'contact' => ContactFixture::className(),
         ];
     }
 
