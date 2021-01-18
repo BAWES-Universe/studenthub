@@ -2,30 +2,38 @@
 namespace company\tests;
 
 use common\models\Company;
-use company\models\CompanyToken;
+use company\models\Contact;
+use company\models\ContactToken;
 use company\tests\FunctionalTester;
-use common\fixtures\CompanyTokenFixture;
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\ContactTokenFixture;
 use Codeception\Util\HttpCode;
+
 
 class AuthCest
 {
     public $token;
     public $company;
+    public $contact;
 
 	public function _fixtures()
 	{
         return [
-            'companyToken' => CompanyTokenFixture::className()
+            'companyContact' => CompanyContactFixture::className(),
+            'company' => CompanyFixture::className(),
+            'contactToken' => ContactTokenFixture::className()
         ];
     }
 
     public function _before(FunctionalTester $I)
     {
-        $this->token = CompanyToken::find()
-            ->one()
+        $this->contact = Contact::find()->one();
+
+        $this->token = $this->contact->getAccessToken()
             ->token_value;
-        $this->company = CompanyToken::find()
-            ->one()->company;
+
+        $this->company = $this->contact->getManagedCompanies()->one();
     }
 
     public function _after(FunctionalTester $I)
@@ -38,14 +46,13 @@ class AuthCest
      */
     public function tryToLogin(FunctionalTester $I)
     {
-        $company = Company::find()->one();
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated($company->company_email, '12345');
+        $I->amHttpAuthenticated($this->contact->contact_email, '12345');
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             "operation"=>"success",
-            "company_id"=>$company->company_id
+            "company_id"=> $this->company->company_id
         ]);
     }
 
@@ -55,13 +62,12 @@ class AuthCest
      */
     public function tryToUpdatePassword(FunctionalTester $I)
     {
-        $company =  Company::findOne(['company_id'=>$this->company->company_id]);
-        $company->company_password_reset_token = \Yii::$app->security->generateRandomString() . '_' . time();
-        $company->save(false);
+        $this->contact->contact_password_reset_token = \Yii::$app->security->generateRandomString() . '_' . time();
+        $this->contact->save(false);
 
         $I->wantTo('Validate auth > update password api');
         $I->sendPATCH('v1/auth/update-password', [
-            'token' => $company->company_password_reset_token,
+            'token' => $this->contact->contact_password_reset_token,
             'newPassword' => '12345'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200

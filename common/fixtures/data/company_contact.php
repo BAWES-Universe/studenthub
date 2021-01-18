@@ -36,7 +36,7 @@ return [
     'company_contact4' => [
         'company_contact_uuid' => 'c2edd670-f1c1-30f7-bf12-342e83f4f50a',
         'contact_uuid' => '00558503-8baf-3556-a405-2f4482ec4547',
-        'company_id' => 4,
+        'company_id' => 3,
         'role' => 'Owner',
         'created_at' => '1978-07-14 13:37:54',
         'updated_at' => '1971-08-07 06:12:47',
@@ -44,7 +44,7 @@ return [
     'company_contact5' => [
         'company_contact_uuid' => 'e4619965-bb59-3ba0-b80e-27d5b82b3b57',
         'contact_uuid' => '8e7bf6f4-5ec1-39ea-b5b2-17f378cd3852',
-        'company_id' => 4,
+        'company_id' => 3,
         'role' => 'Owner',
         'created_at' => '1991-08-07 15:05:11',
         'updated_at' => '1970-11-10 12:45:58',

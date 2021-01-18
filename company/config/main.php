@@ -141,9 +141,12 @@ return [
                     'controller' => 'v1/account',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET view' => 'view',
+                        'PATCH' => 'update',
                         'POST change-password' => 'change-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS View' => 'options',
                         'OPTIONS change-password' => 'options'
                     ]
                 ],

@@ -57,7 +57,6 @@ class CompanyManager
             return $this->companies[0];
         }
 
-
         foreach ($this->companies as $company) {
 
             if($company->company_id == $company_id) {

@@ -57,8 +57,13 @@ class CompanyController extends BaseController
     {
         $company = Yii::$app->companyManager->getCompany();
 
+        if($company->company_id == $id) {
+            return $company;
+        }
+
         $data = $company->getSubCompanies()
-            ->filterCompany($id)->one();
+            ->filterCompany($id)
+            ->one();
 
         if (!$data)
             throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
