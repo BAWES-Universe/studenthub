@@ -502,12 +502,20 @@ class TransferController extends Controller
         
         $candidates = $query
             ->all();
-        
+
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
+        foreach ($candidates as $candidate) {
+            if ($candidate->candidate->isProfileCompleted) {
+                $payableCandidate[] = $candidate;
+            }
+        }
+
         header('Access-Control-Allow-Origin: *');
 
         \moonland\phpexcel\Excel::export([
             'isMultipleSheet' => false,
-            'models' => $candidates,
+            'models' => $payableCandidate,
             'columns' => [
                 'tc_id',
                 'transfer_id',
