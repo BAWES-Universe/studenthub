@@ -176,7 +176,7 @@ class CompanyContactCest
             'v1/company-contacts/add-to-team',
             [
                 'role' => 'Owner',
-                'contact_uuid' => $contact->contact_email,
+                'contact_uuid' => $contact->contact_uuid,
                 'company_id' => '1'
             ]
         );
