@@ -257,7 +257,11 @@ class CompanyContactController extends Controller
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         $model->contact_position = Yii::$app->request->getBodyParam("position");
-        
+        $model->contact_position = Yii::$app->request->getBodyParam("position");
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+
+
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
 
@@ -276,10 +280,15 @@ class CompanyContactController extends Controller
             }
         }
 
-        CompanyContact::updateAll(
-            ['role'=>Yii::$app->request->getBodyParam("role")],
-            ['contact_uuid' => $model->contact_uuid]
-        );
+        if (Yii::$app->request->getBodyParam("company_id")) {
+            CompanyContact::updateAll(
+                ['role' => Yii::$app->request->getBodyParam("role")],
+                [
+                    'contact_uuid' => $model->contact_uuid,
+                    'company_id' => Yii::$app->request->getBodyParam("company_id")
+                ]
+            );
+        }
 
         ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
         ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
@@ -337,8 +346,8 @@ class CompanyContactController extends Controller
             ];
         }
 
-        CompanyContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        CompanyContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
         
         $model->delete();
 
