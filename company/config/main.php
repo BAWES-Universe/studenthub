@@ -196,6 +196,25 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invitation',
+                    'patterns' => [
+                        'GET pending' => 'pending',
+                        'GET by-otp/<otp>' => 'by-otp',
+                        'POST' => 'invite',
+                        'PATCH accept/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'reject',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS pending' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS by-otp/<otp>' => 'options',
+                        'OPTIONS accept/<id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],

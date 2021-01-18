@@ -444,11 +444,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
         }
         
         $list = [];
-        
+
+
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
         foreach ($candidates as $detail) {
             $totalAmount += $detail->totalPaidToCandidate;
 
-            if (empty($detail->candidate->bank) || !$detail->invoiceNumber) {
+            if (empty($detail->candidate->bank) || !$detail->invoiceNumber || !$detail->candidate->isProfileCompleted) {
                 continue;
             }
 
