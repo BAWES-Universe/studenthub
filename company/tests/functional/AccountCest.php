@@ -35,7 +35,7 @@ class AccountCest
         $I->wantTo('update profile via API');
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPATCH(
-            'v1/account',
+            'v1/account/update',
             [
                 'name' => 'davert',
                 'email' => 'ravan@lanka.com',
