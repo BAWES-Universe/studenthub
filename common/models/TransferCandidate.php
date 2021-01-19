@@ -434,12 +434,12 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         $totalAmount = 0;
 
-        $candidates = self::find()
+        $transferCandidates = self::find()
             ->payable()
             ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))    
             ->all();
 
-        if (!$candidates) {
+        if (!$transferCandidates) {
             return false;
         }
         
@@ -447,37 +447,43 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
-        foreach ($candidates as $detail) {
-            $totalAmount += $detail->totalPaidToCandidate;
+        foreach ($transferCandidates as $transferCandidate) {
 
-            if (empty($detail->candidate->bank) || !$detail->invoiceNumber || !$detail->candidate->isProfileCompleted) {
+            $candidate = Candidate::find()
+                ->with(['candidateSkills', 'candidateExperiences'])
+                ->filterWhere(['candidate_id' => $transferCandidate->candidate_id])
+                ->one();
+
+            $totalAmount += $transferCandidate->totalPaidToCandidate;
+
+            if (empty($candidate->bank) || !$transferCandidate->invoiceNumber || !$candidate->isProfileCompleted) {
                 continue;
             }
 
             $list[] = [
                 'transfer' => 'S2',
-                'bank_transfer_type' => $detail->candidate->bank->bank_transfer_type,
-                'amount' => number_format($detail->totalPaidToCandidate, 3, '.', ''),
+                'bank_transfer_type' => $candidate->bank->bank_transfer_type,
+                'amount' => number_format($transferCandidate->totalPaidToCandidate, 3, '.', ''),
                 'currency' => 'KWD',
                 'emptyField1' => '',
                 'emptyField2' => '',
                 'emptyField3' => '',
                 'Field1' => '11622216',
-                'iban' => ltrim(rtrim($detail->candidate->candidate_iban)),
-                'transfer_id' => $detail->transfer_id,
-                'tc_id' => $detail->tc_id,
-                'description' => 'Internship ' . $detail->hours . ' Hours',
+                'iban' => ltrim(rtrim($candidate->candidate_iban)),
+                'transfer_id' => $transferCandidate->transfer_id,
+                'tc_id' => $transferCandidate->tc_id,
+                'description' => 'Internship ' . $transferCandidate->hours . ' Hours',
                 'emptyField4' => '',
                 'emptyField5' => '',
                 'emptyField6' => '',
-                'bank_account_name' => ltrim(rtrim($detail->candidate->bank_account_name)),
-                'bank_name' => $detail->candidate->bank->bank_name,
+                'bank_account_name' => ltrim(rtrim($candidate->bank_account_name)),
+                'bank_name' => $candidate->bank->bank_name,
                 'emptyField7' => '',
-                'bank_name_repeat' => $detail->candidate->bank->bank_name,
-                'bank_address' => $detail->candidate->bank->bank_address,
+                'bank_name_repeat' => $candidate->bank->bank_name,
+                'bank_address' => $candidate->bank->bank_address,
                 'emptyField8' => '',
                 'emptyField9' => '',
-                'bank_swift_code' => $detail->candidate->bank->bank_swift_code,
+                'bank_swift_code' => $candidate->bank->bank_swift_code,
                 'emptyField10' => '',
                 'emptyField11' => '',
                 'emptyField12' => '',
@@ -487,7 +493,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 'Field2' => 'B',
                 'emptyField16' => '',
                 'emptyField17' => '',
-                'candidate_iban' => ltrim(rtrim($detail->candidate->candidate_iban))
+                'candidate_iban' => ltrim(rtrim($candidate->candidate_iban))
             ];
         }
 
