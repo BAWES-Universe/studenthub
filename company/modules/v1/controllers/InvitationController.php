@@ -97,6 +97,39 @@ class InvitationController extends Controller {
         ]);
     }
 
+
+    /**
+     * list sent Invitation
+     */
+
+    /**
+     * @param $id
+     * @return array|ActiveDataProvider
+     */
+    public function actionPendingSentList($id) {
+
+        $query = Yii::$app->request->get('query');
+        $invitedQuery = ContactInvitation::find()
+            ->joinWith(['invitedContact'])
+            ->where([
+                'company_id' => $id
+            ])
+            ->andWhere('accepted IS NULL');
+
+        if($query && strlen($query) > 0) {
+            $invitedQuery->andWhere([
+                'OR',
+                ['like', 'email_to_invite', $query],
+            ]);
+        }
+
+        $invited = new ActiveDataProvider([
+            'query' => $invitedQuery,
+            'pagination' => false
+        ]);
+
+        return $result['invited'] = $invited;
+    }
     /**
      * Invite agent by email 
      */
