@@ -7,9 +7,14 @@ use common\fixtures\StoreFixture;
 use common\fixtures\CandidateFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\TransferFixture;
+use common\fixtures\CountryFixture;
+use common\fixtures\UniversityFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
+use common\fixtures\CandidateExperienceFixture;
+use common\fixtures\CandidateSkillFixture;
 use common\models\TransferCandidate;
+
 
 class TransferCandidateTest extends \Codeception\Test\Unit
 {
@@ -27,6 +32,10 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             'store' => StoreFixture::className(),
             'bank' => BankFixture::className(),
             'candidate' => CandidateFixture::className(),
+            'candidateSkill' => CandidateSkillFixture::className(),
+            'candidateExperience' => CandidateExperienceFixture::className(),
+            'university' => UniversityFixture::className(),
+            'country' => CountryFixture::className(),
             'transfer' => TransferFixture::className(),
             'transferCandidate' => TransferCandidateFixture::className(),
             'invoice' => InvoiceFixture::className(),
@@ -240,7 +249,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
             expect('if data exist', count($transferCandidateData['candidate_list']))->greaterThan(0);
 
-            $testingData = $transferCandidateData['candidate_list'][count($transferCandidateData)-1];
+            $testingData = $transferCandidateData['candidate_list'][0];
 
             // testing for single candidate
             list($whole, $decimal) = explode('.', $testingData['amount']);
