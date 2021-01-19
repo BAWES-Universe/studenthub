@@ -41,10 +41,10 @@ class ContactInvitation extends \yii\db\ActiveRecord {
     public function rules() {
         return [
             [['is_deleted'], 'integer'],
-            [['accepted', 'role'], 'number'],
+            [['accepted'], 'number'],
             [['contact_uuid', 'email_to_invite', 'company_id'], 'required'],
             [['created_at', 'updated_at', 'accepted'], 'safe'],
-            [['email_to_invite'], 'string'],
+            [['email_to_invite','role'], 'string'],
             [
                 ['contact_uuid'],
                 'exist', 
@@ -90,7 +90,7 @@ class ContactInvitation extends \yii\db\ActiveRecord {
      * @param $params
      * @param $validator
      */
-    public function validateEmployer($attribute, $params, $validator) {
+    public function validateCompany($attribute, $params, $validator) {
         $model = CompanyContact::findOne([
             'contact_uuid' => $this->contact_uuid,
             'company_id' => $this->company_id
@@ -188,7 +188,7 @@ class ContactInvitation extends \yii\db\ActiveRecord {
      */
     public function getInvitedContact($modelClass = '\common\models\Contact')
     {
-        return $this->hasOne($modelClass::className(), ['email' => 'email_to_invite']);
+        return $this->hasOne($modelClass::className(), ['contact_email' => 'email_to_invite']);
     }
     
     /**

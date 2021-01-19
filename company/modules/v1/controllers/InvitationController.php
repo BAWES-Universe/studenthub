@@ -115,7 +115,7 @@ class InvitationController extends Controller {
 
         //agent can't send invitation to him self 
 
-        if ($email_to_invite == Yii::$app->user->identity->email) {
+        if ($email_to_invite == Yii::$app->user->identity->contact_email) {
             return [
                 "operation" => "error",
                 "message" => Yii::t('app', 'Contact can\'t send invitation to him self')

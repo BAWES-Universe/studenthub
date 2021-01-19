@@ -23,7 +23,7 @@ class ContactInvitation extends \common\models\ContactInvitation {
                         ])
                         ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
                         ->setTo($this->email_to_invite)
-                        ->setSubject($this->employer->employer_company_name . " has invited you to collaborate in their recruitment process on Pogi")
+                        ->setSubject($this->company->company_name . " has invited you to collaborate in their recruitment process on StudentHub")
                         ->send();
     }
 
@@ -32,8 +32,8 @@ class ContactInvitation extends \common\models\ContactInvitation {
                             'model' => $this
                         ])
                         ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
-                        ->setTo($this->agent->email)
-                        ->setSubject('employer Invitation accepted')
+                        ->setTo($this->contact->contact_email)
+                        ->setSubject('Contact Invitation accepted')
                         ->send();
     }
 
@@ -54,7 +54,7 @@ class ContactInvitation extends \common\models\ContactInvitation {
          * if no account available with invited email, generate otp and 
          * send register page link 
          */
-        if (!$this->invitedAgent) {
+        if (!$this->invitedContact) {
             $this->generateOtp();
             $this->save(false);
         }
