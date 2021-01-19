@@ -202,6 +202,7 @@ return [
                     'controller' => 'v1/invitation',
                     'patterns' => [
                         'GET pending' => 'pending',
+                        'GET pending-sent-list/<id>' => 'pending-sent-list',
                         'GET by-otp/<otp>' => 'by-otp',
                         'POST' => 'invite',
                         'PATCH accept/<id>' => 'accept',
@@ -214,6 +215,7 @@ return [
                         'OPTIONS by-otp/<otp>' => 'options',
                         'OPTIONS accept/<id>' => 'options',
                         'OPTIONS reject/<id>' => 'options',
+                        'OPTIONS pending-sent-list/<id>' => 'options',
                     ]
                 ],
             ],
