@@ -142,11 +142,12 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET view' => 'view',
-                        'PATCH' => 'update',
+                        'PATCH update' => 'update',
                         'POST change-password' => 'change-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS View' => 'options',
+                        'OPTIONS update' => 'options',
+                        'OPTIONS view' => 'options',
                         'OPTIONS change-password' => 'options'
                     ]
                 ],

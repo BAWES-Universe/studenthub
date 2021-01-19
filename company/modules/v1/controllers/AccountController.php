@@ -29,10 +29,14 @@ class AccountController extends BaseController
         $model = Yii::$app->user->identity;
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
-        $model->contact_email = Yii::$app->request->getBodyParam("email");
         //$model->contact_position = Yii::$app->request->getBodyParam("position");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
+
+        /*if ($new_email != $model->contact_email) {
+            $model->contact_new_email = Yii::$app->request->getBodyParam("email");
+        }*/
 
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
@@ -55,6 +59,10 @@ class AccountController extends BaseController
         ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
         ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
 
+        if(!$emails) {
+            $emails = [];
+        }
+
         foreach($emails as $email) {
 
             if(!$email['email_address'])
@@ -64,6 +72,10 @@ class AccountController extends BaseController
             $em->contact_uuid = $model->contact_uuid;
             $em->email_address = $email['email_address'];
             $em->save();
+        }
+
+        if(!$phones) {
+            $phones = [];
         }
 
         foreach($phones as $phone) {
@@ -76,6 +88,10 @@ class AccountController extends BaseController
             $em->phone_number = $phone['phone_number'];
             $em->save();
         }
+
+        /*if($model->contact_new_email) {
+            $model->sendVerificationEmail();
+        }*/
 
         return [
             "operation" => "success",
