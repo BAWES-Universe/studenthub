@@ -52,4 +52,20 @@ class Contact extends \common\models\Contact {
             ->setSubject('Reset your StudentHub password')
             ->send();
     }
+
+    /**
+     * sign up process
+     * @param bool $validate
+     * @return $this|null
+     */
+    public function signUp($validate = false) {
+
+        $this->setPassword($this->contact_password_hash);
+
+        if ($this->save($validate)) {
+            return $this;
+        }
+
+        return null;
+    }
 }

@@ -59,12 +59,14 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'POST create-account' => 'create-account',
                         'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
+                        'OPTIONS create-account' => 'options',
                     ]
                 ],
                 [ // CandidateController

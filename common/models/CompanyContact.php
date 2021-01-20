@@ -78,6 +78,10 @@ class CompanyContact extends \yii\db\ActiveRecord
                 'class' => BlameableBehavior::className(),
                 'createdByAttribute' => 'created_by',
                 'updatedByAttribute' => 'updated_by',
+                'value' => function() {
+                    if(isset(Yii::$app->user->identity->agent_uuid))
+                        return Yii::$app->user->identity->agent_uuid;
+                }
             ],
             [
                 'class' => TimestampBehavior::className(),

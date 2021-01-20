@@ -2,7 +2,9 @@
 
 namespace company\modules\v1\controllers;
 
+use company\models\CompanyContact;
 use company\models\Contact;
+use company\models\ContactInvitation;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
@@ -55,7 +57,8 @@ class AuthController extends Controller
         $behaviors['authenticator']['except'] = [
             'options',
             'update-password',
-            'request-reset-password'
+            'request-reset-password',
+            'create-account',
         ];
 
         return $behaviors;
@@ -173,5 +176,61 @@ class AuthController extends Controller
             "name" => $company->company_name,
             "email" => $company->company_email
         ];
+    }
+
+    /**
+     * Creates new Agent Account
+     * @return array
+     */
+    public function actionCreateAccount() {
+
+        //invitation otp
+
+        $invitationOtp = Yii::$app->request->getBodyParam("otp");
+
+        $model = new Contact();
+
+        $model->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
+        $model->contact_password_hash = Yii::$app->request->getBodyParam("password");
+
+        $invitation = ContactInvitation::find()
+            ->where([
+                'email_to_invite' => $model->contact_email,
+                'otp' => $invitationOtp
+            ])
+            ->one();
+
+        if($invitation) {
+            $model->contact_position = $invitation->role;
+        }
+
+        if (!$model->signUp(true)) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        if($invitation) {
+
+            //accept invitation
+
+            $invitation->accepted = ContactInvitation::ACCEPTED_TRUE;
+            $invitation->save();
+
+            //add agent to team
+
+            $companyContact = new CompanyContact();
+            $companyContact->company_id = $invitation->company_id;
+            $companyContact->contact_uuid = $model->contact_uuid;
+            $companyContact->role = $invitation->role;
+            $companyContact->save(false);
+
+            // to remove "expression": "NOW()", issue with login
+            $contactModel = Contact::findOne(['contact_uuid'=>$model->contact_uuid]);
+            Yii::$app->user->setIdentity($contactModel);
+            return $this->_loginResponse($contactModel);
+        }
     }
 }
