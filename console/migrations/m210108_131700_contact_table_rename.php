@@ -12,6 +12,7 @@ class m210108_131700_contact_table_rename extends Migration
      */
     public function safeUp()
     {
+        Yii::$app->db->createCommand('SET foreign_key_checks = 0')->execute();
         $this->renameTable('company_contact_email', 'contact_email');
         $this->renameTable('company_contact_phone', 'contact_phone');
 
@@ -24,7 +25,7 @@ class m210108_131700_contact_table_rename extends Migration
         $this->dropColumn('company', 'company_password_hash');
         $this->dropColumn('company', 'company_password_reset_token');
 
-        //contact 
+        //contact
 
         $this->dropForeignKey(
             'fk-contact-CASCADE',
@@ -40,19 +41,28 @@ class m210108_131700_contact_table_rename extends Migration
             ->getDb()
             ->getSchema()
             ->getTableSchema('contact');
-        if (isset($contactTableData->foreignKeys['fk-contact-company_id'])) {
+        if (isset($contactTableData->foreignKeys['fk-company_contact-CASCADE'])) {
 
+            $this->dropForeignKey(
+                'fk-company_contact-CASCADE',
+                'contact'
+            );
+        }
+
+        if (isset($contactTableData->foreignKeys['fk-contact-company_id'])) {
             $this->dropForeignKey(
                 'fk-contact-company_id',
                 'contact'
             );
-
-            $this->dropIndex(
-                'idx-contact-company_id',
-                'contact'
-            );
         }
-        $this->dropColumn('contact', 'company_id'); 
+
+//
+//        $this->dropIndex(
+//            'idx-contact-company_id',
+//            'contact'
+//        );
+        $this->dropColumn('contact', 'company_id');
+        Yii::$app->db->createCommand('SET foreign_key_checks = 1')->execute();
     }
 
     /**
