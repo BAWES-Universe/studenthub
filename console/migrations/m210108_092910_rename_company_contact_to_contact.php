@@ -27,7 +27,7 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
             $this->addColumn('contact','contact_password_reset_token',$this->string()->unique()->null()->after('contact_auth_key'));
         }
 
-        if ($tableData && isset($tableData->columns['contact_created_datetime'])) {
+        if (isset($tableData->name) && isset($tableData->columns['contact_created_datetime'])) {
             $this->renameColumn('contact','contact_created_datetime','contact_created_at');
             $this->renameColumn('contact','contact_updated_datetime','contact_updated_at');
         }
