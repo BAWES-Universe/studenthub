@@ -36,11 +36,22 @@ class m210108_131700_contact_table_rename extends Migration
             'contact'
         );
 
-        $this->dropIndex(
-            'idx-contact-company_id',
-            'contact'
-        );
+        $contactTableData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('contact');
+        if (isset($contactTableData->foreignKeys['fk-contact-company_id'])) {
 
+            $this->dropForeignKey(
+                'fk-contact-company_id',
+                'contact'
+            );
+
+            $this->dropIndex(
+                'idx-contact-company_id',
+                'contact'
+            );
+        }
         $this->dropColumn('contact', 'company_id'); 
     }
 
