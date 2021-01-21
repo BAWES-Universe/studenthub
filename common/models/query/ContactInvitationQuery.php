@@ -37,7 +37,7 @@ class ContactInvitationQuery extends \yii\db\ActiveQuery {
      */
     public function filterByCurrentContact()
     {
-        return $this->andWhere(['email_to_invite' => Yii::$app->user->identity->email]);
+        return $this->andWhere(['email_to_invite' => Yii::$app->user->identity->contact_email]);
     }
 
     /**

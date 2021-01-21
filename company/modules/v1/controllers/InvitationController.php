@@ -106,29 +106,33 @@ class InvitationController extends Controller {
      * @param $id
      * @return array|ActiveDataProvider
      */
-    public function actionPendingSentList($id) {
+    public function actionInvitationList($id) {
 
         $query = Yii::$app->request->get('query');
-        $invitedQuery = ContactInvitation::find()
-            ->joinWith(['invitedContact'])
-            ->where([
-                'company_id' => $id
-            ])
-            ->andWhere('accepted IS NULL');
+        // sent invitation
+        $invitedSentQuery = ContactInvitation::find()
+        ->joinWith(['invitedContact'])
+        ->where(['company_id' => $id])
+        ->andWhere('accepted IS NULL');
 
         if($query && strlen($query) > 0) {
-            $invitedQuery->andWhere([
+            $invitedSentQuery->andWhere([
                 'OR',
                 ['like', 'email_to_invite', $query],
             ]);
         }
+        $result['invitationSent'] = $invitedSentQuery->all();
 
-        $invited = new ActiveDataProvider([
-            'query' => $invitedQuery,
-            'pagination' => false
-        ]);
+        // received invitation
+        $receivedInviteQuery = ContactInvitation::find()
+            ->joinWith(['invitedContact'])
+            ->andWhere('accepted IS NULL');
+        $receivedInviteQuery->andWhere(['email_to_invite'=> Yii::$app->user->identity->contact_email]);
 
-        return $result['invited'] = $invited;
+        $result['invitationReceived'] = $receivedInviteQuery->all();
+        $result['email'] = Yii::$app->user->identity->contact_email;
+        $result['uuid'] = Yii::$app->user->identity->getId();
+        return $result;
     }
     /**
      * Invite agent by email 

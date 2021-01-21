@@ -3,16 +3,15 @@
 /* @var $model common\models\Agent */
 
 $agent = Yii::$app->user->identity;
-$employerApiBase = Yii::$app->urlManagerEmployer->getBaseUrl();
 
-$logo = $employerApiBase . '/img/email/logo.png';
+$logo = \yii\helpers\Url::to("/images/logo.png",true);
 ?>
 
     <!doctype html>
     <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
       <head>
         <title>
-          <?= $agent->first_name . ' ' . $agent->last_name ?> has joined your team for <?= $model->employer->employer_company_name ?>
+          <?= $agent->contact_name ?> has joined your team for <?= $model->company->company_name ?>
         </title>
         <!--[if !mso]><!-- -->
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -235,7 +234,7 @@ $logo = $employerApiBase . '/img/email/logo.png';
       <div
          style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:24px;font-weight:bold;line-height:24px;text-align:left;color:#000000;"
       >
-        <?= $agent->first_name . ' ' . $agent->last_name ?> has accepted your invite to join <?= $model->employer->employer_company_name ?> on Pogi
+        <?= $agent->contact_name ?> has accepted your invite to join <?= $model->company->company_name ?> on studenthub
       </div>
     
               </td>
@@ -369,4 +368,3 @@ $logo = $employerApiBase . '/img/email/logo.png';
     
       </body>
     </html>
-  
