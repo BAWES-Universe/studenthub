@@ -299,7 +299,8 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getSubCompanies($modelClass = "\common\models\Company")
     {
-        return $this->hasMany($modelClass::className(), ['parent_company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['parent_company_id' => 'company_id'])
+            ->where(['{{%company}}.deleted' => 0]);
     }
 
     /**
