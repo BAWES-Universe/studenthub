@@ -5,6 +5,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+
 /**
  * Base controller will return the actual Instagram Accounts and all controls associated
  */

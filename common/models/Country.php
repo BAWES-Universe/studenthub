@@ -71,17 +71,17 @@ class Country extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidates()
+    public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['country_id' => 'country_id']);
+        return $this->hasMany($modelClass::className(), ['country_id' => 'country_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAreas()
+    public function getAreas($modelClass = "\common\models\Area")
     {
-        return $this->hasMany(Area::className(), ['country_id' => 'country_id']);
+        return $this->hasMany($modelClass::className(), ['country_id' => 'country_id']);
     }
 
     /**

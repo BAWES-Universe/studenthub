@@ -89,8 +89,8 @@ class ContactToken extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContact()
+    public function getContact($modelClass = "\common\models\Contact")
     {
-        return $this->hasOne(Contact::className(), ['contact_uuid' => 'contact_uuid']);
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
 }

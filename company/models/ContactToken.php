@@ -1,6 +1,7 @@
 <?php
 namespace company\models;
 
+
 /**
  * This is the model class for table "ContactToken".
  * It extends from \common\models\ContactToken but with custom functionality for this application module
