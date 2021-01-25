@@ -106,8 +106,10 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
         }
 
         // adding contact detail for those who have contact details
+
         $queryCompanies = 'SELECT * FROM `contact` left join `company` on `contact`.`company_id` = `company`.`company_id`';
-        $queryCompanies .= ' group by `contact`.`company_id`';
+        $queryCompanies .= ' where company.deleted=0 group by `contact`.`company_id`';
+
         $queryAll = Yii::$app->db->createCommand($queryCompanies)->queryAll();
 
         foreach($queryAll as $contact) {
@@ -132,8 +134,11 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
 
         foreach($companyQueryAll as $company) {
             $uuid = Yii::$app->db->createCommand("select CONCAT('contact_',uuid())")->queryScalar();
+
             $q = 'select * from contact where company_id='.$company['company_id'];
+
             $exist = Yii::$app->db->createCommand($q)->queryOne();
+
             if (!$exist) {
                 $companyQuery = "INSERT INTO contact SET 
                         contact_uuid='" . $uuid . "',
