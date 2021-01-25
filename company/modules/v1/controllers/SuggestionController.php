@@ -29,13 +29,13 @@ class SuggestionController extends BaseController
             ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->andWhere([
                 'or',
-                'candidate.candidate_id is not null',
-                'fulltimer.fulltimer_uuid is not null'
+                'candidate_id is not null',
+                'fulltimer_uuid is not null'
             ])
             ->orderBy('suggestion_datetime DESC');
 
         if($request_uuid) {
-            $query->andWhere(['request_uuid' => $request_uuid]);
+            $query->andWhere(['suggestion.request_uuid' => $request_uuid]);
         }
 
         if($fulltimer_uuid) {
