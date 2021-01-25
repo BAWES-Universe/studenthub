@@ -72,8 +72,8 @@ return [
     'MediaConvert Job Failed' => "فشلت مهمة MediaConvert",
     "Candidate kuwaiti National Info Updated Successfully" => "تحديث المعلومات الوطنية للمرشح الكويتي بنجاح",
     "Civil ID And Expiry Date Updated Successfully" => "تم تحديث البطاقة المدنية وتاريخ انتهاء الصلاحية بنجاح",
-    "We've faced a problem creating the university, please contact us for assistance." => "",
-    "University created successfully" => "",
-    "No record found" => "",
-    "Record found" => ""
+    "We've faced a problem creating the university, please contact us for assistance." => "لقد واجهنا مشكلة في إنشاء الجامعة ، يرجى الاتصال بنا للحصول على المساعدة.",
+    "University created successfully" => "تم إنشاء الجامعة بنجاح",
+    "No record found" => "لم يتم العثور على سجل",
+    "Record found" => "تم العثور على السجل",
 ];
