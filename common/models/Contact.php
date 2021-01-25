@@ -26,7 +26,7 @@ use yii\helpers\Url;
  * @property CompanyContactEmail[] $companyContactEmails
  * @property CompanyContactPhone[] $companyContactPhones
  */
-class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class Contact extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}

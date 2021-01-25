@@ -1,13 +1,16 @@
 <?php
 namespace company\models;
+
 use Yii;
-use common\models\ContactToken;
+use company\models\CompanyContact;
+use company\models\ContactToken;
+
 
 /**
  * This is the model class for table "Contact".
  * It extends from \common\models\Contact but with custom functionality for this application module
  */
-class Contact extends \common\models\Contact {
+class Contact extends \common\models\Contact implements \yii\web\IdentityInterface {
 
     /**
      * @return array
@@ -22,7 +25,8 @@ class Contact extends \common\models\Contact {
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = ContactToken::find()->where(['token_value' => $token])->with('contact')->one();
-        if($token){
+
+        if($token) {
             return $token->contact;
         }
     }
@@ -67,5 +71,107 @@ class Contact extends \common\models\Contact {
         }
 
         return null;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContacts($modelClass = "\company\models\CompanyContact")
+    {
+        return parent::getCompanyContacts($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContactsHavingAccess($modelClass = "\company\models\CompanyContact")
+    {
+        return $this->getCompanyContacts($modelClass)
+            ->filterWhere(['in', 'role', [CompanyContact::ROLE_OWNER, CompanyContact::ROLE_HR]]);
+    }
+
+    /**
+     * list all parents companies where this contact is owner or HR
+     * @return \yii\db\ActiveQuery
+     */
+    public function getManagedCompanies($modelClass = "\company\models\Company")
+    {
+        return parent::getManagedCompanies($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanies($modelClass = "\company\models\Company")
+    {
+        return parent::getCompanies($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactEmails($modelClass = "\company\models\ContactEmail")
+    {
+        return parent::getContactEmails($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactPhones($modelClass = "\company\models\ContactPhone")
+    {
+        return parent::getContactPhones($modelClass);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\company\models\Request")
+    {
+        return parent::getRequests ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\company\models\Note")
+    {
+        return parent::getNotes ($modelClass);
+    }
+
+    /**
+     * Start of IdentityInterface Methods
+     */
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id) {
+        return static::findOne(['contact_id' => $id]);
+    }
+
+    /**
+     * Finds company by email
+     *
+     * @param string $email
+     * @return static|null
+     */
+    public static function findByEmail($email) {
+        return static::findOne(['contact_email' => $email]);
+    }
+
+    /**
+     * Finds user by password reset token
+     *
+     * @param string $token password reset token
+     * @return static|null
+     */
+    public static function findByPasswordResetToken($token) {
+        if (!static::isPasswordResetTokenValid($token)) {
+            return null;
+        }
+
+        return static::findOne([
+            'contact_password_reset_token' => $token
+        ]);
     }
 }
