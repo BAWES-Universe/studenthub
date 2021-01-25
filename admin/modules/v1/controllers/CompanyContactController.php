@@ -82,7 +82,7 @@ class CompanyContactController extends Controller
             ->orderBy('contact_created_at DESC');
         
         if($company_id) {
-            $query->jointWith(['companyContacts'])
+            $query->joinWith(['companyContacts'])
                 ->filterWhere(['company_id' => $company_id]);
         }
         

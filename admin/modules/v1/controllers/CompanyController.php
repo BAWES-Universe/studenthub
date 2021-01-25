@@ -96,15 +96,6 @@ class CompanyController extends Controller
             $query->filterByName($name);
         }
 
-        if ($common_name_en) {
-            $query->filterByNameEn($common_name_en);
-        }
-
-        if ($common_name_ar) {
-            $query->filterByNameAr($common_name_ar);
-        }
-
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -212,28 +203,13 @@ class CompanyController extends Controller
     public function actionView($id)
     {
         $company = Company::find()
-            ->with([
-                'subCompanies',
-                'subCompanies.stores',
-                'subCompanies.stores.candidates', 
-                'subCompanies.stores.candidates.store', 
-                'subCompanies.stores.candidates.company', 
-                'subCompanies.stores.candidates.bank',
-                'subCompanies.stores.candidates.university',
-                'stores',
-                'stores.candidates', 
-                'stores.candidates.store', 
-                'stores.candidates.company', 
-                'stores.candidates.bank',
-                'stores.candidates.university'
-            ])    
             ->filterCompany($id)
             ->one();
 
         if(!$company){
             throw new NotFoundHttpException('The requested page does not exist.');
         }
-        
+
         return $company;
     }
 
