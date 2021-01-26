@@ -51,10 +51,25 @@ class CompanyContactController extends BaseController
         return $this->findModel($id);
     }
 
+    /**
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     */
     public function actionRemoveMember($id) {
-//        return Yii::$app->user->identity->role;
-        return Yii::$app->companyManager->getCompany();
         $contact = $this->findModel($id);
+        $company = \Yii::$app->request->headers->get('Company-Id');
+        if (!$company) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        if (!Yii::$app->user->identity->isOwner($company)) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('app', 'Your are not authorize to perform this action')
+            ];
+        };
+
         if ($contact->role == 'Owner') {
             return [
                 "operation" => "error",
@@ -65,6 +80,12 @@ class CompanyContactController extends BaseController
             return [
                 "operation" => "error",
                 "message" => Yii::t('app', 'Your are not authorize to remove Own')
+            ];
+        }
+        if ($contact->delete()) {
+            return [
+                "operation" => "success",
+                "message" => Yii::t('app', 'Team member removed successfully')
             ];
         }
     }
