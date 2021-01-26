@@ -2,31 +2,77 @@
 namespace company\tests;
 
 use Yii;
-use company\tests\FunctionalTester;
-use company\models\CompanyToken;
+use company\models\ContactToken;
 use common\fixtures\CompanyFixture;
-use common\fixtures\CompanyTokenFixture;
+use common\fixtures\ContactTokenFixture;
 use Codeception\Util\HttpCode;
+
 
 class AccountCest
 {
 	public function _fixtures() {
 		return [
-			'companyToken' => CompanyTokenFixture::className()
+			'contactToken' => ContactTokenFixture::className()
 		];
 	}
 
 	public function _before(FunctionalTester $I)
 	{
-        $this->token = CompanyToken::find()
+        $this->token = ContactToken::find()
             ->one()
             ->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I){}
 
-    // tests
+    /**
+     * Try to update profile
+     */
+    public function tryToUpdate(FunctionalTester $I)
+    {
+        $I->wantTo('update profile via API');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH(
+            'v1/account/update',
+            [
+                'name' => 'davert',
+                'email' => 'ravan@lanka.com',
+                //'position' => 'Java developer',
+                'emails' => [
+                    [
+                        'email_address' => 'demo@demo.com'
+                    ]
+                ],
+                'phones' => [
+                    [
+                        'phone_number' => '12345678'
+                    ]
+                ]
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success"
+        ]);
+    }
+
+    /**
+     * @param \candidate\tests\FunctionalTester $I
+     */
+    public function tryToGetProfile(FunctionalTester $I)
+    {
+        $I->amGoingTo('Validate account > profile api');
+        $I->sendGET('v1/account/view');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        //$I->seeResponseContainsJson(['contact_uuid' => $this->candidate->candidate_id]);
+    }
+
+    /**
+     * try to update password for login user
+     * @param \company\tests\FunctionalTester $I
+     */
     public function testChangePassword(FunctionalTester $I)
     {
         $I->wantTo('trying to change password');

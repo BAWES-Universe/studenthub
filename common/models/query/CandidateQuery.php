@@ -234,10 +234,6 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     public function completedProfileWithoutApproval() {
-
-//        $this->andWhere('{{%candidate}}.bank IS NOT NULL');
-//        $this->andWhere('{{%candidate}}.bank_account_name IS NOT NULL');
-//        $this->andWhere('{{%candidate}}.candidate_iban IS NOT NULL');
         return $this->andWhere('{{%candidate}}.candidate_uid IS NOT NULL')
             ->andWhere('university.university_id IS NOT NULL AND country.country_id IS NOT NULL AND 
                 {{%candidate}}.candidate_name IS NOT NULL AND {{%candidate}}.candidate_name_ar IS NOT NULL AND 

@@ -14,7 +14,6 @@ use yii\filters\auth\HttpBearerAuth;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
 
-
 /**
  * Transfer controller - Manage Transfer
  */
@@ -77,8 +76,8 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $query = Yii::$app->user->identity
-                    ->getParentTransfers();
+        $query = Yii::$app->companyManager->getCompany()
+            ->getParentTransfers();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -92,7 +91,7 @@ class TransferController extends Controller
      */
     public function actionView($id)
     {
-        $company = Yii::$app->user->identity;
+        $company = Yii::$app->companyManager->getCompany();
 
         $transfer = $company
             ->getTransfers()
@@ -119,7 +118,8 @@ class TransferController extends Controller
      */
     public function actionCreate()
     {
-        $company = Yii::$app->user->identity;
+        $company = Yii::$app->companyManager->getCompany();
+
         $candidates = Yii::$app->request->getBodyParam("candidates");
         $start_date = Yii::$app->request->getBodyParam("start_date");
         $end_date = Yii::$app->request->getBodyParam("end_date");
@@ -134,7 +134,7 @@ class TransferController extends Controller
      */
     public function actionCreateByExcel()
     {
-        $company = Yii::$app->user->identity;
+        $company = Yii::$app->companyManager->getCompany();
         
         $model = new TranferExcel;        
         $model->excel = Yii::$app->request->getBodyParam('excel');
@@ -282,7 +282,9 @@ class TransferController extends Controller
             ];
         }
 
-        Yii::info('[Company '.Yii::$app->user->identity->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
+        $company = Yii::$app->companyManager->getCompany();
+
+        Yii::info('[Company '.$company->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
 
         return [
             "operation" => "success",
@@ -311,9 +313,11 @@ class TransferController extends Controller
         }
         
         // send invoice mail
-        $transfer->notify('invoice'); 
+        $transfer->notify('invoice');
 
-        Yii::info('[Company '.Yii::$app->user->identity->company_name.' has locked transfer #'.$transfer->transfer_id.'] They will be sending payment soon.', __METHOD__);
+        $company = Yii::$app->companyManager->getCompany();
+
+        Yii::info('[Company '.$company->company_name.' has locked transfer #'.$transfer->transfer_id.'] They will be sending payment soon.', __METHOD__);
 
         return [
             "operation" => "success",
@@ -333,7 +337,9 @@ class TransferController extends Controller
         //delete data child transfer
         if(Transfer::deleteTransfer($model)) 
         {
-            Yii::info('[Company '.Yii::$app->user->identity->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
+            $company = Yii::$app->companyManager->getCompany();
+
+            Yii::info('[Company '.$company->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
 
             return [
                 "operation" => "success",
@@ -356,7 +362,7 @@ class TransferController extends Controller
      */
     public function actionPdf($id)
     {
-        $company = Company::findOne(Yii::$app->user->id);
+        $company = Yii::$app->companyManager->getCompany();
 
         $invoice = Invoice::find()
             ->withTransfer($id)
@@ -407,8 +413,8 @@ class TransferController extends Controller
      */
     public function actionTransferExcelTemplate()
     {
-        $company = Yii::$app->user->identity;
-        
+        $company = Yii::$app->companyManager->getCompany();
+
         header('Access-Control-Allow-Origin: *');
 
         \moonland\phpexcel\Excel::export([
@@ -457,7 +463,7 @@ class TransferController extends Controller
 
     protected function findModel($id)
     {
-        $company = Yii::$app->user->identity;
+        $company = Yii::$app->companyManager->getCompany();
 
         $model = $company
             ->getTransfers()

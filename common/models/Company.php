@@ -20,9 +20,6 @@ use yii\helpers\Url;
  * @property string $company_website
  * @property string $company_logo
  * @property string $company_email
- * @property string $company_auth_key
- * @property string $company_password_hash
- * @property string $company_password_reset_token
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
  * @property boolean $company_followup
@@ -42,9 +39,7 @@ use yii\helpers\Url;
  * @property Invoice[] $invoices
  * @property Store[] $stores
  * @property Transfer[] $transfers
- * @property CompanyToken[] $accessTokens
- * @property Transfer[] $parentTransfers 
- * @property CompanyToken $accessToken
+ * @property Transfer[] $parentTransfers
  * @property Store[] $subCompanyStores
  * @property Note[] $notes
  *
@@ -60,7 +55,7 @@ use yii\helpers\Url;
  *  = 2.4 KWD + 20 KWD - 4 KWD 
  *  = 18.4 KWD
  */
-class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class Company extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 10;
     const STATUS_INACTIVE = 0;
@@ -84,19 +79,18 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         return [
             [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
-            [['company_password_hash', 'company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
+            [['company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
-            [['company_password_hash', 'company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
+            [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
             ['company_followup', 'boolean'],
             ['company_last_followup_datetime', 'safe'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
-            [['company_name', 'company_email', 'company_password_reset_token','company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
-            [['company_auth_key'], 'string', 'max' => 32],
-            [['company_password_reset_token'], 'unique'],
+            [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
+
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe'],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -184,9 +178,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'company_website' => Yii::t('app','Company Website'),
             'company_email' => Yii::t('app','Company Email'),
             'company_logo' => Yii::t('app','Company Logo'),
-            'company_auth_key' => Yii::t('app','Company Auth Key'),
-            'company_password_hash' => Yii::t('app','Password'),
-            'company_password_reset_token' => Yii::t('app','Company Password Reset Token'),
             'company_followup' => Yii::t('app','Company Followup'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),
@@ -200,10 +191,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         $fields = parent::fields();
 
-        unset($fields['deleted'],
-            $fields['company_password_hash'],
-            $fields['company_password_reset_token'],
-            $fields['company_auth_key']);
+        unset($fields['deleted']);
 
         $fields['company_status'] = function($model) {
 
@@ -250,6 +238,7 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'parentTransfers',
             'malls',
             'companyContacts',
+            'contacts',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -378,214 +367,6 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ->where('parent_transfer_id IS NULL')
             ->orderBy('transfer_id DESC');
     }
-
-    /**
-     * Access tokens used to login on devices
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAccessTokens()
-    {
-        return $this->hasMany(CompanyToken::className(), ['company_id' => 'company_id']);
-    }
-
-    /**
-     * Signs user up.
-     * @return static|null the saved model or null if saving fails
-     */
-    public function signup() {
-        if($this->validate()){
-            $this->setPassword($this->company_password_hash);
-            $this->generateAuthKey();
-            $this->save(false);
-            return $this;
-        }
-        return null;
-    }
-
-    /**
-     * Start of IdentityInterface Methods
-     */
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentity($id) {
-        return static::findOne(['company_id' => $id]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null) {
-        $token = CompanyToken::find()->where(['token_value' => $token])->with('company')->one();
-        if($token){
-            return $token->company;
-        }
-    }
-
-    /**
-     * Finds company by email
-     *
-     * @param string $email
-     * @return static|null
-     */
-    public static function findByEmail($email) {
-        return static::findOne(['company_email' => $email, 'deleted' => 0]);
-    }
-
-    /**
-     * Finds user by password reset token
-     *
-     * @param string $token password reset token
-     * @return static|null
-     */
-    public static function findByPasswordResetToken($token) {
-        if (!static::isPasswordResetTokenValid($token)) {
-            return null;
-        }
-
-        return static::findOne([
-            'company_password_reset_token' => $token,
-            'deleted' => 0
-        ]);
-    }
-
-    /**
-     * Finds out if password reset token is valid
-     *
-     * @param string $token password reset token
-     * @return boolean
-     */
-    public static function isPasswordResetTokenValid($token) {
-        if (empty($token)) {
-            return false;
-        }
-        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
-        $parts = explode('_', $token);
-        $timestamp = (int) end($parts);
-        return $timestamp + $expire >= time();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getId() {
-        return $this->getPrimaryKey();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getAuthKey() {
-        return $this->company_auth_key;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function validateAuthKey($authKey) {
-        return $this->getAuthKey() === $authKey;
-    }
-
-    /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return boolean if password provided is valid for current user
-     */
-    public function validatePassword($password) {
-        return Yii::$app->security->validatePassword($password, $this->company_password_hash);
-    }
-
-    /**
-     * Generates password hash from password and sets it to the model
-     *
-     * @param string $password
-     */
-    public function setPassword($password) {
-        $this->company_password_hash = Yii::$app->security->generatePasswordHash($password);
-    }
-
-    /**
-     * Generates auth key [1 time use token]
-     */
-    public function generateAuthKey() {
-        $this->company_auth_key = Yii::$app->security->generateRandomString();
-    }
-
-    /**
-     * Generate, save, and return an auth key for this account [1 time use token]
-     * @return string
-     */
-    public function generateAuthKeyAndSave() {
-        $this->generateAuthKey();
-        $this->save(false);
-
-        return $this->company_auth_key;
-    }
-
-    /**
-     * Generates new password reset token
-     */
-    public function generatePasswordResetToken() {
-        $this->company_password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
-    }
-
-    /**
-     * Removes password reset token
-     */
-    public function removePasswordResetToken() {
-        $this->company_password_reset_token = null;
-    }
-
-    /**
-     * Create an Access Token Record for this Company
-     * if the company already has one, it will return it instead
-     * @return \common\models\CompanyToken
-     */
-    public function getAccessToken(){
-        // Return existing inactive token if found
-        $token = CompanyToken::findOne([
-            'company_id' => $this->company_id,
-            'token_status' => CompanyToken::STATUS_ACTIVE
-        ]);
-
-        if($token) {
-            return $token;
-        }
-
-        // Create new inactive token
-        $token = new CompanyToken();
-        $token->company_id = $this->company_id;
-        $token->token_value = CompanyToken::generateUniqueTokenString();
-        $token->token_status = CompanyToken::STATUS_ACTIVE;
-        $token->save(false);
-
-        return $token;
-    }
-
-    /**
-     * Send new password to customer
-     * @param Candidate $model
-     * @param $password
-     * @return bool
-     */
-    public static function passwordMail($model, $password)
-    {
-        Yii::$app->mailer->htmlLayout = 'layouts/html';
-        
-        return Yii::$app->mailer->compose("company-password",
-            [
-                "model" => $model,
-                "password" => $password,
-                'logo_1' => Url::to('@web/images/logo.png', true),
-                'logo_2' => ''
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo($model->company_email)
-            ->setSubject('Your password has been reset')
-            ->send();
-    }
     
     /**
      * @return bool
@@ -635,6 +416,15 @@ class Company extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function getCompanyContacts($modelClass = "\common\models\CompanyContact")
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContacts($modelClass = "\common\models\Contact")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
+            ->via('companyContacts');
     }
 
     /**

@@ -70,6 +70,7 @@ class Suggestion extends \yii\db\ActiveRecord
         return [
             'request',
             'candidate',
+            'request',
             'fulltimer',
             'note',
             'createdBy',

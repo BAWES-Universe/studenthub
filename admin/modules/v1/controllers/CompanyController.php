@@ -96,15 +96,6 @@ class CompanyController extends Controller
             $query->filterByName($name);
         }
 
-        if ($common_name_en) {
-            $query->filterByNameEn($common_name_en);
-        }
-
-        if ($common_name_ar) {
-            $query->filterByNameAr($common_name_ar);
-        }
-
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -164,11 +155,9 @@ class CompanyController extends Controller
         if (Yii::$app->request->getBodyParam('parent')) {
             $model->scenario = "newSubAccount";
             $model->parent_company_id =Yii::$app->request->getBodyParam("parent");
-            $model->company_password_hash = rand(11111,99999);
         } else {
             $model->scenario = "newAccount";
             $model->company_email =Yii::$app->request->getBodyParam("email");
-            $model->company_password_hash = Yii::$app->request->getBodyParam("password");
         }
         
         $model->company_name = Yii::$app->request->getBodyParam("name");
@@ -180,11 +169,7 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
-        
-        $model->setPassword($model->company_password_hash);
-        
-        $model->generateAuthKey();
-        
+
         if (!$model->save()) {
             if(isset($model->errors)){
                 return [
@@ -218,28 +203,13 @@ class CompanyController extends Controller
     public function actionView($id)
     {
         $company = Company::find()
-            ->with([
-                'subCompanies',
-                'subCompanies.stores',
-                'subCompanies.stores.candidates', 
-                'subCompanies.stores.candidates.store', 
-                'subCompanies.stores.candidates.company', 
-                'subCompanies.stores.candidates.bank',
-                'subCompanies.stores.candidates.university',
-                'stores',
-                'stores.candidates', 
-                'stores.candidates.store', 
-                'stores.candidates.company', 
-                'stores.candidates.bank',
-                'stores.candidates.university'
-            ])    
             ->filterCompany($id)
             ->one();
 
         if(!$company){
             throw new NotFoundHttpException('The requested page does not exist.');
         }
-        
+
         return $company;
     }
 
@@ -272,10 +242,6 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
-
-        if (Yii::$app->request->getBodyParam('password')) {
-            $model->setPassword(Yii::$app->request->getBodyParam("password"));
-        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {
@@ -402,37 +368,6 @@ class CompanyController extends Controller
         ];
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
-    }
-
-    /**
-     * Reset Company password
-     * @param $id
-     * @return array
-     */
-    public function actionResetPassword($id)
-    {
-        $model = $this->findModel((int) $id);
-
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Company not found",
-                "code" => 1
-            ];
-        }
-
-        $password = Yii::$app->security->generateRandomString(5);
-
-        $model->setPassword($password);
-        $model->save(false);
-
-        //Send Email to user
-        Company::passwordMail($model, $password);
-
-        return [
-            "operation" => "success",
-            "message" => "New password sent to registered email successfully"
-        ];
     }
     
     /**
@@ -611,6 +546,7 @@ class CompanyController extends Controller
     }
     
     public function actionChangeStatus($id) {
+
         $model = $this->findModel((int) $id);
 
         if (!$model) {

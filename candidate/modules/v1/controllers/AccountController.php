@@ -118,7 +118,9 @@ class AccountController extends Controller
                 'candidate_id' => Yii::$app->user->getId()
             ])    
             ->all();
+
         Yii::$app->user->identity->updateAlgoliaIndex(false);
+
         return [
             "operation" => "success",
             "message" => Yii::t('candidate', "Experiences updated successfully"),

@@ -24,10 +24,13 @@ return [
             ]
         ],
         'user' => [
-            'identityClass' => 'company\models\Company',
+            'identityClass' => 'company\models\Contact',
             'enableAutoLogin' => false,
             'enableSession' => false,
             'loginUrl' => null
+        ],
+        'companyManager' => [ //Component for agent to manage Employers
+            'class' => 'company\components\CompanyManager',
         ],
         'storeManager' => [ //Component for agent to manage stores
             'class' => 'company\components\StoreManager',
@@ -56,10 +59,28 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'POST create-account' => 'create-account',
+                        'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
+                        'OPTIONS create-account' => 'options',
+                    ]
+                ],
+                [ // NoteController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/note',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // CandidateController
@@ -123,9 +144,11 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET list-child' => 'list-child',
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS list-child' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -134,9 +157,13 @@ return [
                     'controller' => 'v1/account',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET view' => 'view',
+                        'PATCH update' => 'update',
                         'POST change-password' => 'change-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS update' => 'options',
+                        'OPTIONS view' => 'options',
                         'OPTIONS change-password' => 'options'
                     ]
                 ],
@@ -181,9 +208,31 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'DELETE <id>' => 'remove-member',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invitation',
+                    'patterns' => [
+                        'GET pending' => 'pending',
+                        'GET invitation-list/<id>' => 'invitation-list',
+                        'GET by-otp/<otp>' => 'by-otp',
+                        'POST' => 'invite',
+                        'PATCH accept/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'reject',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS pending' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS by-otp/<otp>' => 'options',
+                        'OPTIONS accept/<id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
+                        'OPTIONS invitation-list/<id>' => 'options',
                     ]
                 ],
             ],

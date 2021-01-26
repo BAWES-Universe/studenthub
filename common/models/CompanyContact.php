@@ -3,26 +3,34 @@
 namespace common\models;
 
 use Yii;
-use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+
 
 /**
  * This is the model class for table "company_contact".
  *
+ * @property string $company_contact_uuid
  * @property string $contact_uuid
  * @property int $company_id
- * @property string $contact_name
- * @property string $contact_position
- * @property string $contact_created_datetime
- * @property string $contact_updated_datetime
+ * @property string $role Owner,HR,Finance,Other
+ * @property string $created_at
+ * @property string $updated_at
+ * @property string $created_by
+ * @property string $updated_by
  *
  * @property Company $company
- * @property CompanyContactEmail[] $companyContactEmails
- * @property CompanyContactPhone[] $companyContactPhones
+ * @property Contact $contact
  */
 class CompanyContact extends \yii\db\ActiveRecord
 {
+    const ROLE_OWNER = 'Owner';
+    const ROLE_HR = 'HR';
+    const ROLE_FINANCE = 'Finance';
+    const ROLE_OTHER = 'Other';
+
     /**
      * {@inheritdoc}
      */
@@ -37,13 +45,18 @@ class CompanyContact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['contact_name', 'contact_position'], 'required'],
             [['company_id'], 'integer'],
-            [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
-            [['contact_uuid'], 'string', 'max' => 60],
-            [['contact_name', 'contact_position'], 'string', 'max' => 255],
-            [['contact_uuid'], 'unique'],
+            [['created_at', 'updated_at'], 'safe'],
+            ['company_id', 'unique', 'targetAttribute' => ['company_id', 'contact_uuid']],
+            //['contact_uuid', 'unique', 'targetAttribute' => ['contact_uuid', 'company_id']],
+            [['contact_uuid', 'created_by', 'updated_by'], 'string', 'max' => 60],
+
+            ['role', 'default', 'value' => self::ROLE_OWNER],
+
+            ['role', 'in', 'range' => [self::ROLE_OWNER, self::ROLE_HR, self::ROLE_FINANCE, self::ROLE_OTHER]],
+
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
         ];
     }
 
@@ -52,51 +65,57 @@ class CompanyContact extends \yii\db\ActiveRecord
             [
                 'class' => AttributeBehavior::className(),
                 'attributes' => [
-                    \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'contact_uuid',
+                    \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'company_contact_uuid',
                 ],
                 'value' => function() {
-                    if(!$this->contact_uuid)
-                        $this->contact_uuid = 'contact_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+                    if(!$this->company_contact_uuid)
+                        $this->company_contact_uuid = 'company_contact_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
 
-                    return $this->contact_uuid;
+                    return $this->company_contact_uuid;
+                }
+            ],
+            [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by',
+                'value' => function() {
+                    if(isset(Yii::$app->user->identity->agent_uuid))
+                        return Yii::$app->user->identity->agent_uuid;
                 }
             ],
             [
                 'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'contact_created_datetime',
-                'updatedAtAttribute' => 'contact_updated_datetime',
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
             ],
         ];
     }
-    
+
     /**
      * {@inheritdoc}
      */
     public function attributeLabels()
     {
         return [
-            'contact_uuid' => Yii::t('app', 'Contact ID'),
+            'company_contact_uuid' => Yii::t('app', 'Company Contact Uuid'),
+            'contact_uuid' => Yii::t('app', 'Contact Uuid'),
             'company_id' => Yii::t('app', 'Company ID'),
-            'contact_name' => Yii::t('app', 'Contact Name'),
-            'contact_position' => Yii::t('app', 'Contact Position'),
-            'contact_created_datetime' => Yii::t('app', 'Contact Created Datetime'),
-            'contact_updated_datetime' => Yii::t('app', 'Contact Updated Datetime'),
+            'role' => Yii::t('app', 'Role'),
+            'created_at' => Yii::t('app', 'Created At'),
+            'updated_at' => Yii::t('app', 'Updated At'),
+            'created_by' => Yii::t('app', 'Created By'),
+            'updated_by' => Yii::t('app', 'Updated By'),
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
     public function extraFields()
     {
         return [
+            'contact',
             'company',
-            'requests',
-            'companyContactEmails',
-            'companyContactPhones',
-            'notes',
-            'companyContactStats'
+            'contactEmails',
+            'contactPhones'
         ];
     }
 
@@ -111,45 +130,26 @@ class CompanyContact extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompanyContactEmails($modelClass = "\common\models\CompanyContactEmail")
+    public function getContact($modelClass = "\common\models\Contact")
     {
-        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompanyContactPhones($modelClass = "\common\models\CompanyContactPhone")
-    {
-        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
-    }
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRequests($modelClass = "\common\models\Request")
-    {
-        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getNotes($modelClass = "\common\models\Note")
+    public function getContactEmails($modelClass = "\common\models\ContactEmail")
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
-            ->orderBy('note_updated_datetime DESC');
+            ->via('contact');
     }
 
     /**
-     * @return array
+     * @return \yii\db\ActiveQuery
      */
-    public function getCompanyContactStats() {
-        return [
-            'companyContactEmails' => $this->getCompanyContactEmails()->count(),
-            'companyContactPhones' => $this->getCompanyContactPhones()->count(),
-            'requests' => $this->getRequests()->count(),
-            'notes' => $this->getNotes()->count(),
-            'lastNotes' => $this->getNotes()->orderBy('note_updated_datetime DESC')->one(),
-        ];
+    public function getContactPhones($modelClass = "\common\models\ContactPhone")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
+            ->via('contact');
     }
 }

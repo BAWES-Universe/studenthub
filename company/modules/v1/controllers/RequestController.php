@@ -4,75 +4,24 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use staff\models\Note;
-use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
-use yii\filters\Cors;
-use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
 
 /**
  * Request controller - Manage brand as Admin
  */
-class RequestController extends Controller
+class RequestController extends BaseController
 {
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-
-        // remove authentication filter for cors to work
-        unset($behaviors['authenticator']);
-
-        // Allow XHR Requests from our different subdomains and dev machines
-        $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
-            'cors' => [
-                'Origin' => Yii::$app->params['allowedOrigins'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => null,
-                'Access-Control-Max-Age' => 86400,
-                'Access-Control-Expose-Headers' => [
-                    'X-Pagination-Current-Page',
-                    'X-Pagination-Page-Count',
-                    'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
-                ],
-            ],
-        ];
-
-        // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
-        $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
-        ];
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
-
-        return $behaviors;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function actions()
-    {
-        $actions = parent::actions();
-        $actions['options'] = [
-            'class' => 'yii\rest\OptionsAction',
-            // optional:
-            'collectionOptions' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
-            'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-        ];
-        return $actions;
-    }
-
     /**
      * Return a List of requests available.
      * @return ActiveDataProvider
      */
     public function actionList()
     {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
         $company_id = Yii::$app->request->get("company_id");
         $company_name = Yii::$app->request->get("company_name");
         $request_status = Yii::$app->request->get("request_status");
@@ -80,6 +29,7 @@ class RequestController extends Controller
         $end_date = Yii::$app->request->get("end_date");
 
         $query = Request::find()
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->orderBy('request_created_datetime DESC');
 
         if($company_id) {
@@ -119,10 +69,13 @@ class RequestController extends Controller
      */
     public function actionListActive()
     {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+        
         $company_id = Yii::$app->request->get("company_id");
         $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
             ->andWhere(['request_status' => Request::STATUS_STARTED])
             ->orderBy('request_created_datetime DESC');
 
@@ -155,11 +108,13 @@ class RequestController extends Controller
      */
     public function actionCreate()
     {
+        $company = Yii::$app->companyManager->getCompany();
+
         // Attempt to create new request
         $model = new Request();
 
-        $model->company_id = Yii::$app->user->getId();
-        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
+        $model->company_id = $company->company_id;
+        $model->contact_uuid = Yii::$app->user->identity->getId();
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
@@ -184,7 +139,7 @@ class RequestController extends Controller
         //save activity
         $model->createRequestActivity('I have created this request');
 
-        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->company_name, __METHOD__);
+        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -208,8 +163,7 @@ class RequestController extends Controller
                 ];
         }
 
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
-        $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
+        $model->contact_uuid = Yii::$app->user->identity->getId();
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
@@ -232,7 +186,7 @@ class RequestController extends Controller
         //save activity
         $model->createRequestActivity('I have updated this request');
 
-        Yii::info('[Request updated for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request updated for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -284,7 +238,7 @@ class RequestController extends Controller
 
         $model->createRequestActivity('I have completed this request and '. $model->request_feedback);
 
-        Yii::info('[Request marked as delivered for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request marked as delivered for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -336,7 +290,7 @@ class RequestController extends Controller
 
         $model->createRequestActivity('I have cancelled this request because '. $model->request_feedback);
 
-        Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -392,7 +346,14 @@ class RequestController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Request::findOne($id)) !== null) {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $model = Request::find()
+            ->andWhere(['request_uuid' => $id])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->one();
+            
+        if ($model !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

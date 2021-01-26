@@ -45,11 +45,13 @@ class StoreManager
 
         $this->_managedStores = Store::getDb()->cache(function($db) {
 
-            $subCompanies = Yii::$app->user->identity->getSubCompanies()->all();
+            $company = Yii::$app->companyManager->getCompany();
+
+            $subCompanies = $company->getSubCompanies()->all();
 
             $companyIds = ArrayHelper::getColumn ($subCompanies, 'company_id');
 
-            $companyIds[] = Yii::$app->user->getId();
+            $companyIds[] = $company->company_id;
 
             return Store::find()
                 ->filterWhere(['in', 'company_id', $companyIds])

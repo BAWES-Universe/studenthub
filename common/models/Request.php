@@ -50,8 +50,8 @@ class Request extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['contact_uuid', 'company_id'], 'required'],
-            [['company_id', 'request_created_by', 'request_updated_by', 'request_position_type', 'request_number_of_employees'], 'integer'],
+            [['company_id'], 'required'],
+            [['company_id', 'request_position_type', 'request_number_of_employees'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info'], 'string'],
@@ -134,6 +134,8 @@ class Request extends \yii\db\ActiveRecord
         return [
             'requestCreatedBy',
             'requestUpdatedBy',
+            'requestCreatedByContact',
+            'requestUpdatedByContact',
             'contact',
             'company',
             'lastActivity',
@@ -154,7 +156,7 @@ class Request extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContact($modelClass = "\common\models\CompanyContact")
+    public function getContact($modelClass = "\common\models\Contact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
@@ -173,6 +175,22 @@ class Request extends \yii\db\ActiveRecord
     public function getRequestUpdatedBy($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'request_updated_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestCreatedByContact($modelClass = "\common\models\Contact")
+    {
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'request_created_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestUpdatedByContact($modelClass = "\common\models\Contact")
+    {
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'request_updated_by']);
     }
 
     /**
@@ -197,6 +215,7 @@ class Request extends \yii\db\ActiveRecord
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->orderBy('suggestion_datetime DESC');
     }
+
     public function getActiveSuggestions($modelClass = "\common\models\Suggestion") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED]);

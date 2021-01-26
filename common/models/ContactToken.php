@@ -7,10 +7,10 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 
 /**
- * This is the model class for table "company_token".
+ * This is the model class for table "contact_token".
  *
  * @property integer $token_id
- * @property integer $company_id
+ * @property integer $contact_uuid
  * @property string $token_value
  * @property string $token_device
  * @property string $token_device_id
@@ -19,9 +19,9 @@ use yii\db\Expression;
  * @property string $token_expiry_datetime
  * @property string $token_created_datetime
  *
- * @property Company $company
+ * @property Admin $admin
  */
-class CompanyToken extends \yii\db\ActiveRecord
+class ContactToken extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 1;
     const STATUS_INACTIVE = 0;
@@ -32,7 +32,7 @@ class CompanyToken extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'company_token';
+        return 'contact_token';
     }
 
     /**
@@ -41,15 +41,11 @@ class CompanyToken extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id', 'token_value', 'token_status'], 'required'],
-            [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
-            //[['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['contact_uuid', 'token_value', 'token_status'], 'required'],
+            [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255]
         ];
     }
 
-    /**
-     * @return array
-     */
     public function behaviors() {
         return [
             [
@@ -68,7 +64,7 @@ class CompanyToken extends \yii\db\ActiveRecord
     {
         return [
             'token_id' => Yii::t('app','Token ID'),
-            'company_id' => Yii::t('app','Company ID'),
+            'contact_uuid' => Yii::t('app','Contact ID'),
             'token_value' => Yii::t('app','Token Value'),
             'token_device' => Yii::t('app','Token Device'),
             'token_device_id' => Yii::t('app','Token Device ID'),
@@ -91,11 +87,10 @@ class CompanyToken extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany($modelClass = "\common\models\Company")
+    public function getContact($modelClass = "\common\models\Contact")
     {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
 }

@@ -1,12 +1,16 @@
 <?php
 namespace company\tests;
 
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
+use company\models\Contact;
 use Yii;
 use company\tests\FunctionalTester;
-use company\models\CompanyToken;
-use common\fixtures\CompanyTokenFixture;
+use company\models\ContactToken;
+use common\fixtures\ContactTokenFixture;
 use common\fixtures\CandidateFixture;
 use Codeception\Util\HttpCode;
+
 
 class CandidateCest
 {
@@ -15,18 +19,22 @@ class CandidateCest
 
 	public function _fixtures() {
 		return [
-			'companyToken' => CompanyTokenFixture::className(),
+            'company' => CompanyFixture::className(),
+            'companyContact' => CompanyContactFixture::className(),
+			'contactToken' => ContactTokenFixture::className(),
 			'candidate'    => CandidateFixture::className()
 		] ;
 	}
 
 	public function _before(FunctionalTester $I)
 	{
-        $this->token = CompanyToken::find()
-            ->one()
+        $this->contact = Contact::find()->one();
+
+        $this->token = $this->contact->getAccessToken()
             ->token_value;
-        $this->company = CompanyToken::find()
-            ->one();
+
+        $this->company = $this->contact->getManagedCompanies()->one();
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -40,6 +48,7 @@ class CandidateCest
     {
         $I->wantTo('List candidates api');
         $I->sendGET('v1/candidates');
+        $I->haveHttpHeader ('Company-ID', $this->company->company_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 
@@ -63,7 +72,7 @@ class CandidateCest
      */
     public function getCandidateCount(FunctionalTester $I)
     {
-        $count = $this->company->company->getCandidates()->count();
+        $count = $this->company->getCandidates()->count();
         $I->wantTo('Validate company > candidates/total api to get total candidates');
         $I->sendGET('v1/candidates/total');
         $I->seeResponseCodeIs(HttpCode::OK); // 200

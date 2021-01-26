@@ -3,9 +3,6 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
-use yii\rest\Controller;
-use yii\filters\Cors;
-use yii\filters\auth\HttpBearerAuth;
 use common\models\CandidateWorkHistory;
 use company\models\Candidate;
 
@@ -13,65 +10,15 @@ use company\models\Candidate;
 /**
  * Candidate controller - Manage Candidate accounts as Admin
  */
-class CandidateController extends Controller
+class CandidateController extends BaseController
 {
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-
-        // remove authentication filter for cors to work
-        unset($behaviors['authenticator']);
-
-        // Allow XHR Requests from our different subdomains and dev machines
-        $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
-            'cors' => [
-                'Origin' => Yii::$app->params['allowedOrigins'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => null,
-                'Access-Control-Max-Age' => 86400,
-                'Access-Control-Expose-Headers' => [
-                    'X-Pagination-Current-Page',
-                    'X-Pagination-Page-Count',
-                    'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
-                ],
-            ],
-        ];
-
-        // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
-        $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
-        ];
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
-
-        return $behaviors;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function actions()
-    {
-        $actions = parent::actions();
-        $actions['options'] = [
-            'class' => 'yii\rest\OptionsAction',
-            // optional:
-            'collectionOptions' => ['GET'],
-            'resourceOptions' => ['GET', 'OPTIONS'],
-        ];
-        return $actions;
-    }
-
     /**
      * Return a List of Candidate Accounts assigned to work
      * for current company.
      */
     public function actionList()
     {
-        return Yii::$app->user->identity->getCandidates()->all();
+        return Yii::$app->companyManager->getCompany()->getCandidates()->all();
     }
 
     /**
@@ -80,7 +27,7 @@ class CandidateController extends Controller
      */
     public function actionTotal()
     {
-        return Yii::$app->user->identity->getCandidates()->count();
+        return Yii::$app->companyManager->getCompany()->getCandidates()->count();
     }
 
     /**

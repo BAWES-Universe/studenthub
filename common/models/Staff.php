@@ -105,17 +105,17 @@ class Staff extends ActiveRecord implements IdentityInterface
      * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
      */
-    public function getAccessTokens()
+    public function getAccessTokens($modelClass = "\common\models\StaffToken")
     {
-        return $this->hasMany(StaffToken::className(), ['staff_id' => 'staff_id']);
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getNotes()
+    public function getNotes($modelClass = "\common\models\Note")
     {
-        return $this->hasMany(\staff\models\Note::className(), ['staff_id' => 'staff_id']);
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**

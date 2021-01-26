@@ -1,68 +1,107 @@
 <?php
 namespace company\modules\v1\controllers;
 
+use company\models\Contact;
+use common\models\ContactEmail;
+use common\models\ContactPhone;
 use Yii;
-use yii\rest\Controller;
-use yii\filters\Cors;
-use yii\filters\auth\HttpBearerAuth;
+
+
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
  */
-class AccountController extends Controller
+class AccountController extends BaseController
 {
     /**
-     * @return array
+     * return profile details
      */
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-
-        // remove authentication filter for cors to work
-        unset($behaviors['authenticator']);
-
-        // Allow XHR Requests from our different subdomains and dev machines
-        $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
-            'cors' => [
-                'Origin' => Yii::$app->params['allowedOrigins'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => null,
-                'Access-Control-Max-Age' => 86400,
-                'Access-Control-Expose-Headers' => [
-                    'X-Pagination-Current-Page',
-                    'X-Pagination-Page-Count',
-                    'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
-                ],
-            ],
-        ];
-
-        // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
-        $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
-        ];
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
-
-        return $behaviors;
+    public function actionView() {
+        return Contact::findOne(Yii::$app->user->getId());
     }
 
     /**
-     * @inheritdoc
+     * Update account details
+     * @param $id
+     * @return array
      */
-    public function actions()
+    public function actionUpdate()
     {
-        $actions = parent::actions();
-        $actions['options'] = [
-            'class' => 'yii\rest\OptionsAction',
-            // optional:
-            'collectionOptions' => ['GET', 'POST', 'HEAD', 'OPTIONS'],
-            'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+        $model = Yii::$app->user->identity;
+
+        $model->contact_name = Yii::$app->request->getBodyParam("name");
+        //$model->contact_position = Yii::$app->request->getBodyParam("position");
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
+
+        /*if ($new_email != $model->contact_email) {
+            $model->contact_new_email = Yii::$app->request->getBodyParam("email");
+        }*/
+
+        $emails = Yii::$app->request->getBodyParam("emails");
+        $phones = Yii::$app->request->getBodyParam("phones");
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account details, please contact us for assistance."
+                ];
+            }
+        }
+
+        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
+        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
+
+        if(!$emails) {
+            $emails = [];
+        }
+
+        foreach($emails as $email) {
+
+            if(!$email['email_address'])
+                continue;
+
+            $em = new ContactEmail;
+            $em->contact_uuid = $model->contact_uuid;
+            $em->email_address = $email['email_address'];
+            $em->save();
+        }
+
+        if(!$phones) {
+            $phones = [];
+        }
+
+        foreach($phones as $phone) {
+
+            if(!$phone['phone_number'])
+                continue;
+
+            $em = new ContactPhone;
+            $em->contact_uuid = $model->contact_uuid;
+            $em->phone_number = $phone['phone_number'];
+            $em->save();
+        }
+
+        /*if($model->contact_new_email) {
+            $model->sendVerificationEmail();
+        }*/
+
+        return [
+            "operation" => "success",
+            "message" => "Account details successfully updated"
         ];
-        return $actions;
     }
 
+    /**
+     * ability to update password after login
+     */
     public function actionChangePassword()
     {
         $model = Yii::$app->user->identity;

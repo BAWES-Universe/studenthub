@@ -2115,8 +2115,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'have_video' => $this->candidate_video? 'Yes': 'No',
             'have_resume' => $this->candidate_resume? 'Yes': 'No',
             'candidate_committed' => $this->candidate_committed? 'Yes': 'No',
-            //'candidate_email' => $this->candidate_email,
-            //'candidate_phone' => $this->candidate_phone,
+            'candidate_email' => $this->candidate_email,
+            'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
             'candidate_driving_license' => $this->candidate_driving_license,
             'candidate_language_pref' => $this->candidate_language_pref,
@@ -2128,10 +2128,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ];
 
         if($this->university) {
+
+            $university_name = [];
+
+            if($this->university->university_name_en) {
+                $university_name[] = $this->university->university_name_en;
+            }
+
+            if($this->university->university_name_ar) {
+                $university_name[] = $this->university->university_name_ar;
+            }
+
             $data['university'] = [
                 'university_id' => $this->university_id,
                 'university_name_en' => $this->university->university_name_en,
-                'university_name_ar' => $this->university->university_name_ar
+                'university_name_ar' => $this->university->university_name_ar,
+                'university_name' => $university_name
             ];
         }
 

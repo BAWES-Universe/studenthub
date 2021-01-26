@@ -2,6 +2,9 @@
 
 namespace company\modules\v1\controllers;
 
+use company\models\CompanyContact;
+use company\models\Contact;
+use company\models\ContactInvitation;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
@@ -39,11 +42,13 @@ class AuthController extends Controller
             'class' => HttpBasicAuth::className(),
             'except' => ['options'],
             'auth' => function ($email, $password) {
-                $company = Company::findByEmail($email);
+
+                $contact = Contact::findByEmail($email);
                 
-                if ($company && $company->validatePassword($password)) {
-                    return $company;
+                if ($contact && $contact->validatePassword($password)) {
+                    return $contact;
                 }
+
                 return null;
             }
         ];
@@ -51,7 +56,9 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
-            'update-password'
+            'update-password',
+            'request-reset-password',
+            'create-account',
         ];
 
         return $behaviors;
@@ -84,18 +91,8 @@ class AuthController extends Controller
      */
     public function actionLogin()
     {  
-        $company = Yii::$app->user->identity;
-        
-        // Return Company access token if everything valid
-        $accessToken = $company->accessToken->token_value;
-
-        return [
-            "operation" => "success",
-            "token" => $accessToken,
-            "company_id" => $company->company_id,
-            "name" => $company->company_name,
-            "email" => $company->company_email
-        ];
+        $contact = Yii::$app->user->identity;
+        return $this->_loginResponse($contact);
     }
 
     /**
@@ -107,9 +104,9 @@ class AuthController extends Controller
         $token = Yii::$app->request->getBodyParam("token");
         $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
-        $company =  Company::findByPasswordResetToken($token);
+        $model = Contact::findByPasswordResetToken($token);
 
-        if(!$company){
+        if(!$model) {
             return [
                 'operation' => 'error',
                 'message' => 'Invalid password reset token. Please request another password reset email'
@@ -123,13 +120,119 @@ class AuthController extends Controller
             ];
         }
 
-        $company->setPassword($newPassword);
-        $company->removePasswordResetToken();
-        $company->save(false);
+        $model->setPassword($newPassword);
+        $model->removePasswordResetToken();
+        $model->save(false);
 
         return [
             'operation' => 'success',
-            'message' => 'Your password has been reset'
+            'message' => 'Your password has been reset',
         ];
+    }
+
+    /**
+     * Sends password reset email to user
+     * @return array
+     */
+    public function actionRequestResetPassword()
+    {
+        $emailInput = Yii::$app->request->getBodyParam("email");
+
+        $model = new \company\models\PasswordResetRequestForm();
+        $model->email = $emailInput;
+
+        if ($model->validate()) {
+
+            $contact = Contact::findOne([
+                'contact_email' => $model->email,
+            ]);
+
+            $contact->sendPasswordResetEmail();
+
+        } else {
+            return [
+                'operation' => 'error',
+                'message' => $model->errors
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => 'Reset password token sent on your email address.',
+        ];
+    }
+
+    private function _loginResponse($contact) {
+        // Return Company access token if everything valid
+        $accessToken = $contact->accessToken->token_value;
+
+        $company = Yii::$app->companyManager->getCompany();
+        Yii::$app->companyManager->setCompanyId($company->company_id);
+
+        return [
+            "operation" => "success",
+            "token" => $accessToken,
+            "contact" => $contact,
+            "company_id" => $company->company_id,
+            "name" => $company->company_name,
+            "email" => $company->company_email,
+            "role" => Yii::$app->user->identity->currentUserRole
+        ];
+    }
+
+    /**
+     * Creates new Agent Account
+     * @return array
+     */
+    public function actionCreateAccount() {
+
+        //invitation otp
+
+        $invitationOtp = Yii::$app->request->getBodyParam("otp");
+
+        $model = new Contact();
+
+        $model->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
+        $model->contact_email = Yii::$app->request->getBodyParam("email");
+        $model->contact_password_hash = Yii::$app->request->getBodyParam("password");
+
+        $invitation = ContactInvitation::find()
+            ->where([
+                'email_to_invite' => $model->contact_email,
+                'otp' => $invitationOtp
+            ])
+            ->one();
+
+        if($invitation) {
+            $model->contact_position = $invitation->role;
+        }
+
+        if (!$model->signUp(true)) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        if($invitation) {
+
+            //accept invitation
+
+            $invitation->accepted = ContactInvitation::ACCEPTED_TRUE;
+            $invitation->save();
+
+            //add agent to team
+
+            $companyContact = new CompanyContact();
+            $companyContact->company_id = $invitation->company_id;
+            $companyContact->contact_uuid = $model->contact_uuid;
+            $companyContact->role = $invitation->role;
+            $companyContact->save(false);
+
+            // to remove "expression": "NOW()", issue with login
+            $contactModel = Contact::findOne(['contact_uuid'=>$model->contact_uuid]);
+            Yii::$app->user->setIdentity($contactModel);
+            return $this->_loginResponse($contactModel);
+        }
     }
 }

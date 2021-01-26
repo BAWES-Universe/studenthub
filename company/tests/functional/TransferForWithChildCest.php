@@ -1,11 +1,15 @@
 <?php
 namespace company\tests;
 
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
 use common\fixtures\InvoiceFixture;
-use Yii;
-use common\fixtures\CompanyTokenFixture;
-use common\fixtures\CandidateFixture;
+use common\fixtures\StoreFixture;
+use common\models\CompanyContact;
 use company\tests\FunctionalTester;
+use Yii;
+use common\fixtures\ContactTokenFixture;
+use common\fixtures\CandidateFixture;
 use company\models\Transfer;
 use company\models\Company;
 use common\components\Excel;
@@ -16,27 +20,33 @@ class TransferForWithChildCest
 {
     public $token, $model;
 
+    public function _fixtures()
+    {
+            return [
+                'company' => CompanyFixture::className(),
+                'companyContact' => CompanyContactFixture::className(),
+                'contactToken' => ContactTokenFixture::className(),
+                'candidate'    => CandidateFixture::className(),
+                'invoice'    => InvoiceFixture::className()
+            ];
+    }
+
     public function _before(FunctionalTester $I)
     {
         Yii::$app->params['inCodeception'] = true;
         Yii::$app->params['transfer_cost'] = 0.35;
 
         $this->model = Company::findOne(1);
-        $this->token = $this->model->accessToken->token_value;
+
+        $companyContact = CompanyContact::find()->filterWhere (['company_id' => 1])->one();
+
+        $this->token = $companyContact->contact->getAccessToken()->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
     public function _after(FunctionalTester $I){}
 
-    public function _fixtures()
-    {
-            return [
-                    'companyToken' => CompanyTokenFixture::className(),
-                    'candidate'    => CandidateFixture::className(),
-                    'invoice'    => InvoiceFixture::className()
-            ];
-    }
-    
     /**
      * List transfers with relations for company with child
      * @param FunctionalTester $I
@@ -312,7 +322,6 @@ class TransferForWithChildCest
 		$I->sendGET( 'v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates' );
 		$I->seeResponseCodeIs( HttpCode::OK ); // 200
 		$I->seeResponseIsJson();
-
 	}
 
 	/**

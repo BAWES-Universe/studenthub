@@ -1,5 +1,6 @@
 <?php
 namespace company\models;
+
 /**
  * This is the model class for table "Invoice".
  * It extends from \common\models\Invoice but with custom functionality for this application module
