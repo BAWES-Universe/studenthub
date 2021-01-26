@@ -52,7 +52,8 @@ class Company extends \common\models\Company {
 
         $field['company_website'] = function ($model) {
             $url = $model->company_website;
-            if (!preg_match("~^(?:f|ht)tps?://~i", $model->company_website)) {
+
+            if ($model->company_website && !preg_match("~^(?:f|ht)tps?://~i", $model->company_website)) {
                 $url = "http://" . $model->company_website;
             }
             return $url;

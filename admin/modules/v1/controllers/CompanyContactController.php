@@ -77,13 +77,11 @@ class CompanyContactController extends Controller
     public function actionList()
     {
         $company_id = Yii::$app->request->get('company_id');
-        
-        $query = Contact::find()
-            ->orderBy('contact_created_at DESC');
-        
+
+        $query = CompanyContact::find()
+            ->orderBy('created_at ASC');
         if($company_id) {
-            $query->joinWith(['companyContacts'])
-                ->filterWhere(['company_id' => $company_id]);
+            $query->filterWhere(['company_id' => $company_id]);
         }
         
         return new ActiveDataProvider([
