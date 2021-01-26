@@ -62,7 +62,7 @@ class CompanyContactController extends BaseController
     {
         $company = Yii::$app->companyManager->getCompany();
 
-        $model = $company->getCompanyContacts()->filterWhere(['contact_uuid' => $id])->one();
+        $model = $company->getContacts()->filterWhere(['contact_uuid' => $id])->one();
 
         if ($model !== null) {
             return $model;
