@@ -113,7 +113,9 @@ class CompanyContact extends \yii\db\ActiveRecord
     {
         return [
             'contact',
-            'company'
+            'company',
+            'contactEmails',
+            'contactPhones'
         ];
     }
 
@@ -131,5 +133,23 @@ class CompanyContact extends \yii\db\ActiveRecord
     public function getContact($modelClass = "\common\models\Contact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactEmails($modelClass = "\common\models\ContactEmail")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
+            ->via('contact');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactPhones($modelClass = "\common\models\ContactPhone")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
+            ->via('contact');
     }
 }

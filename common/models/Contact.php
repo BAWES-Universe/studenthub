@@ -106,10 +106,6 @@ class Contact extends \yii\db\ActiveRecord
             $fields['contact_password_hash'],
             $fields['contact_password_reset_token'],
             $fields['contact_auth_key']);
-
-            $fields['role'] = function($model) {
-                return $model->getCompanyContacts()->one()->role;
-            };
         return $fields;
     }
 
@@ -369,5 +365,23 @@ class Contact extends \yii\db\ActiveRecord
         $token->save(false);
 
         return $token;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrentUserRole() {
+        $company_id = Yii::$app->companyManager->getCompanyId();
+        if ($company_id) {
+            $companyContact = CompanyContact::findOne(
+                [
+                    'contact_uuid'=>Yii::$app->user->getId(),
+                    'company_id'=>$company_id
+                ]);
+            if ($companyContact) {
+                return $companyContact->role;
+            }
+        }
+        return null;
     }
 }

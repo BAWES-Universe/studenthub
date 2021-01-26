@@ -17,7 +17,8 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
      */
     public function fields()
     {
-       return parent::fields();
+        $fields = parent::fields();
+        return $fields;
     }
 
     /**

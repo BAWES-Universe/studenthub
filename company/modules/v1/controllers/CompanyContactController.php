@@ -22,19 +22,18 @@ class CompanyContactController extends BaseController
 
         $company = Yii::$app->companyManager->getCompany();
 
-        $query = $company->getContacts()
-            ->orderBy('contact_created_at ASC');
-
+        $query = $company->getCompanyContacts()
+            ->orderBy('created_at ASC');
         if($q) {
-            $query->joinWith(['contactEmails', 'contactPhones'])
+            $query->joinWith(['contact','contactEmails', 'contactPhones'])
                 ->andWhere([
                     'OR',
-                    ['like', 'contact_name', $q],
+                    ['like', 'contact.contact_name', $q],
+                    ['like', 'contact.contact_email', $q],
                     ['like', 'contact_email.email_address', $q],
                     ['like', 'contact_phone.phone_number', $q]
                 ]);
         }
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -63,7 +62,7 @@ class CompanyContactController extends BaseController
             throw new NotFoundHttpException('The requested page does not exist.');
         }
 
-        if (!Yii::$app->user->identity->isOwner($company)) {
+        if (Yii::$app->user->identity->currentUserRole != 'Owner') {
             return [
                 "operation" => "error",
                 "message" => Yii::t('app', 'Your are not authorize to perform this action')

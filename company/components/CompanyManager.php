@@ -97,4 +97,20 @@ class CompanyManager
 
         return $companyIds;
     }
+
+    public function setCompanyId($company_id) {
+        $session = \Yii::$app->session;
+
+        $session_company_id = $session->get('selected_company_id');
+
+        if ($company_id && $company_id != $session_company_id) {
+            $session->set('selected_company_id', $company_id);
+        }
+    }
+
+    public function getCompanyId() {
+        $session = \Yii::$app->session;
+
+        return $session->get('selected_company_id');
+    }
 }

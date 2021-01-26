@@ -167,6 +167,8 @@ class AuthController extends Controller
         $accessToken = $contact->accessToken->token_value;
 
         $company = Yii::$app->companyManager->getCompany();
+        Yii::$app->companyManager->setCompanyId($company->company_id);
+
 
         return [
             "operation" => "success",
@@ -174,7 +176,8 @@ class AuthController extends Controller
             "contact" => $contact,
             "company_id" => $company->company_id,
             "name" => $company->company_name,
-            "email" => $company->company_email
+            "email" => $company->company_email,
+            "role" => Yii::$app->user->identity->currentUserRole
         ];
     }
 
