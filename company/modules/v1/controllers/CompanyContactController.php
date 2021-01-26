@@ -51,6 +51,24 @@ class CompanyContactController extends BaseController
         return $this->findModel($id);
     }
 
+    public function actionRemoveMember($id) {
+//        return Yii::$app->user->identity->role;
+        return Yii::$app->companyManager->getCompany();
+        $contact = $this->findModel($id);
+        if ($contact->role == 'Owner') {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('app', 'Your are not authorize to remove Owner')
+            ];
+        }
+        if ($contact->contact_uuid == Yii::$app->user->getId()) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('app', 'Your are not authorize to remove Own')
+            ];
+        }
+    }
+
     /**
      * Finds the CompanyContact model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

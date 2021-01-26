@@ -107,6 +107,9 @@ class Contact extends \yii\db\ActiveRecord
             $fields['contact_password_reset_token'],
             $fields['contact_auth_key']);
 
+            $fields['role'] = function($model) {
+                return $model->getCompanyContacts()->one()->role;
+            };
         return $fields;
     }
 
