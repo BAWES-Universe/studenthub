@@ -9,15 +9,6 @@ namespace company\models;
 class Staff extends \common\models\Staff
 {
     /**
-     * Access tokens used to login on devices
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAccessTokens()
-    {
-        return null;
-    }
-
-    /**
      * @return \yii\db\ActiveQuery
      */
     public function getNotes($modelClass = "\company\models\Note")
