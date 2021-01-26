@@ -174,4 +174,19 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             'contact_password_reset_token' => $token
         ]);
     }
+
+    /**
+     * Am I owner?
+     * @param string $company_id
+     * @return boolean
+     */
+    public function IsOwner($company_id) {
+        return \common\models\CompanyContact::find()
+            ->where([
+                'company_id' => $company_id,
+                'contact_uuid' => Yii::$app->user->getId(),
+                'role' => CompanyContact::ROLE_OWNER
+            ])
+            ->exists();
+    }
 }

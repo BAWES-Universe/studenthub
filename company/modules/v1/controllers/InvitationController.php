@@ -130,8 +130,6 @@ class InvitationController extends Controller {
         $receivedInviteQuery->andWhere(['email_to_invite'=> Yii::$app->user->identity->contact_email]);
 
         $result['invitationReceived'] = $receivedInviteQuery->all();
-        $result['email'] = Yii::$app->user->identity->contact_email;
-        $result['uuid'] = Yii::$app->user->identity->getId();
         return $result;
     }
     /**

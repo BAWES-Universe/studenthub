@@ -208,6 +208,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'DELETE <id>' => 'remove-member',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
