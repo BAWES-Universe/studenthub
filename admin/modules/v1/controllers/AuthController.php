@@ -43,9 +43,9 @@ class AuthController extends Controller
             
                 $admin = Admin::findByEmail($email);
                 
-//                if ($admin && $admin->validatePassword($password)) {
+                if ($admin && $admin->validatePassword($password)) {
                     return $admin;
-//                }
+                }
 
                 return null;
             }

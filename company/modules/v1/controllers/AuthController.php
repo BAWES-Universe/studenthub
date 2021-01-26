@@ -169,7 +169,6 @@ class AuthController extends Controller
         $company = Yii::$app->companyManager->getCompany();
         Yii::$app->companyManager->setCompanyId($company->company_id);
 
-
         return [
             "operation" => "success",
             "token" => $accessToken,
