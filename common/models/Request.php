@@ -254,4 +254,13 @@ class Request extends \yii\db\ActiveRecord
             ->andWhere(['in','request_status',[Request::STATUS_STARTED]])
             ->count();
     }
+
+    /**
+     * @inheritdoc
+     * @return query\RequestQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\RequestQuery(get_called_class());
+    }
 }
