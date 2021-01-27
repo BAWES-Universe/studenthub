@@ -454,11 +454,12 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 ->filterWhere(['candidate_id' => $transferCandidate->candidate_id])
                 ->one();
 
-            $totalAmount += $transferCandidate->totalPaidToCandidate;
 
             if (empty($candidate->bank) || !$transferCandidate->invoiceNumber || !$candidate->isProfileCompleted) {
                 continue;
             }
+
+            $totalAmount += $transferCandidate->totalPaidToCandidate;
 
             $list[] = [
                 'transfer' => 'S2',
