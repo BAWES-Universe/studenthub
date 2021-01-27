@@ -100,50 +100,6 @@ class CompanyContactController extends Controller
     }
 
     /**
-     * check if email available for contact
-     * @return array
-     */
-    public function actionIsEmailExists() {
-        $email = Yii::$app->request->get('email');
-
-        $model = Contact::find()
-            ->filterWhere(['contact_email' => $email])
-            ->one();
-
-        return [
-            'contact' => $model
-        ];
-    }
-
-    /**
-     * add contact to team
-     * @return array|string[]
-     */
-    public function actionAddToTeam() {
-
-        $company_id = Yii::$app->request->getBodyParam("company_id");
-        $role = Yii::$app->request->getBodyParam ("role");
-        $contact_uuid = Yii::$app->request->getBodyParam ("contact_uuid");
-
-        $companyContact = new \staff\models\CompanyContact();
-        $companyContact->contact_uuid = $contact_uuid;
-        $companyContact->company_id = $company_id;
-        $companyContact->role = $role;
-
-        if (!$companyContact->save()) {
-            return [
-                "operation" => "error",
-                "message" => $companyContact->errors
-            ];
-        }
-
-        return [
-            "operation" => "success",
-            "message" => "Contact added to team successfully"
-        ];
-    }
-
-    /**
      * Create a brand account
      * @return array
      */
@@ -293,6 +249,50 @@ class CompanyContactController extends Controller
         return [
             "operation" => "success",
             "message" => "Contact details successfully updated"
+        ];
+    }
+
+    /**
+     * check if email available for contact
+     * @return array
+     */
+    public function actionIsEmailExists() {
+        $email = Yii::$app->request->get('email');
+
+        $model = Contact::find()
+            ->filterWhere(['contact_email' => $email])
+            ->one();
+
+        return [
+            'contact' => $model
+        ];
+    }
+
+    /**
+     * add contact to team
+     * @return array|string[]
+     */
+    public function actionAddToTeam() {
+
+        $company_id = Yii::$app->request->getBodyParam("company_id");
+        $role = Yii::$app->request->getBodyParam ("role");
+        $contact_uuid = Yii::$app->request->getBodyParam ("contact_uuid");
+
+        $companyContact = new \staff\models\CompanyContact();
+        $companyContact->contact_uuid = $contact_uuid;
+        $companyContact->company_id = $company_id;
+        $companyContact->role = $role;
+
+        if (!$companyContact->save()) {
+            return [
+                "operation" => "error",
+                "message" => $companyContact->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Contact added to team successfully"
         ];
     }
 
