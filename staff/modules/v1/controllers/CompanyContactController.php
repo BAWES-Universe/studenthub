@@ -201,13 +201,16 @@ class CompanyContactController extends Controller
     public function actionIsEmailExists() {
         $email = Yii::$app->request->get('email');
 
-        $model = Contact::find()
-            ->filterWhere(['contact_email' => $email])
-            ->one();
+        if ($email) {
+            $model = Contact::find()
+                ->andWhere(new \yii\db\Expression('contact_email LIKE :term', [':term' => $email.'%']))
+                ->one();
 
-        return [
-            'contact' => $model
-        ];
+            return [
+                'contact' => $model
+            ];
+        }
+        return [];
     }
 
     /**
