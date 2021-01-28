@@ -74,7 +74,20 @@ class Contact extends \yii\db\ActiveRecord
             ],
         ];
     }
-    
+
+    /**
+     * @return bool
+     */
+    public function beforeDelete()
+    {
+        ContactEmail::deleteAll(['contact_uuid' => $this->contact_uuid]);
+        ContactPhone::deleteAll(['contact_uuid' => $this->contact_uuid]);
+        CompanyContact::deleteAll(['contact_uuid' => $this->contact_uuid]);
+        ContactToken::deleteAll(['contact_uuid' => $this->contact_uuid]);
+
+        return parent::beforeDelete ();
+    }
+
     /**
      * {@inheritdoc}
      */

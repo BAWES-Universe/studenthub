@@ -280,6 +280,7 @@ return [
                     'controller' => 'v1/company-contact',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET view-company-contact' => 'view-company-contact',
                         'GET is-email-exists' => 'is-email-exists',
                         'GET <id>' => 'view',
                         'POST' => 'create',
@@ -288,6 +289,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS view-company-contact' => 'options',
                         'OPTIONS add-to-team' => 'options',
                         'OPTIONS is-email-exists' => 'options',
                         'OPTIONS <id>' => 'options',
