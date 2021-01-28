@@ -81,7 +81,10 @@ class CompanyContactCest
         $model = CompanyContact ::find()->one();
         
         $I->wantTo('Validate company contact api to view company contact detail');
-        $I->sendGET('v1/company-contacts/view-company-contact' . $model->company_contact_uuid);
+        $I->sendGET('v1/company-contacts/view-company-contact', [
+            'contact_uuid' => $model->contact_uuid,
+            'company_uuid' => $model->company_id,
+        ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             'company_contact_uuid' => $model->company_contact_uuid

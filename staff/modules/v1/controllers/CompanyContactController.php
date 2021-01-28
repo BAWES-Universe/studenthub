@@ -121,7 +121,9 @@ class CompanyContactController extends Controller
         $company_id = Yii::$app->request->get('company_id');
         $contact_uuid = Yii::$app->request->get('contact_uuid');
 
-        return CompanyContact::findOne(['company_id' => $company_id, 'contact_uuid' => $contact_uuid]);
+        return CompanyContact::find()
+            ->filterWhere(['company_id' => $company_id, 'contact_uuid' => $contact_uuid])
+            ->one();
     }
 
     /**

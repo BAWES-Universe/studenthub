@@ -82,10 +82,10 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/company-contact',
                     'patterns' => [
-                        'GET' => 'list',
                         'GET view-company-contact' => 'view-company-contact',
                         'GET is-email-exists' => 'is-email-exists',
                         'GET <id>' => 'view',
+                        'GET' => 'list',
                         'POST' => 'create',
                         'PATCH add-to-team' => 'add-to-team',
                         'PATCH <id>' => 'update',
