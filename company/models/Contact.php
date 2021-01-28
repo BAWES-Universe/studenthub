@@ -88,7 +88,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
     public function getCompanyContactsHavingAccess($modelClass = "\company\models\CompanyContact")
     {
         return $this->getCompanyContacts($modelClass)
-            ->filterWhere(['in', 'role', [CompanyContact::ROLE_OWNER, CompanyContact::ROLE_HR]]);
+            ->filterWhere(['allow_access' => true]);
     }
 
     /**
@@ -174,20 +174,5 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         return static::findOne([
             'contact_password_reset_token' => $token
         ]);
-    }
-
-    /**
-     * Am I owner?
-     * @param string $company_id
-     * @return boolean
-     */
-    public function IsOwner($company_id) {
-        return \common\models\CompanyContact::find()
-            ->where([
-                'company_id' => $company_id,
-                'contact_uuid' => Yii::$app->user->getId(),
-                'role' => CompanyContact::ROLE_OWNER
-            ])
-            ->exists();
     }
 }

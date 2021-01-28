@@ -33,7 +33,7 @@ class RoleCest
     {
         $contact = Contact::find()
             ->joinWith(['companyContacts'])
-            ->filterWhere(['role' => CompanyContact::ROLE_OWNER])
+            ->filterWhere(['allow_access' => true])
             ->one();
 
         $token = $contact->getAccessToken();
@@ -55,7 +55,7 @@ class RoleCest
     {
         $contact = Contact::find()
             ->joinWith(['companyContacts'])
-            ->filterWhere(['role' => CompanyContact::ROLE_OTHER])
+            ->filterWhere(['allow_access' => false])
             ->one();
 
         $token = $contact->getAccessToken();

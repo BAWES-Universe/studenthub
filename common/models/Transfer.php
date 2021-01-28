@@ -458,8 +458,7 @@ class Transfer extends ActiveRecord
                 ->select('contact_uuid')
                 ->andWhere([
                     'company_id' => $invoice->transfer->company_id
-                ])
-                ->andWhere(['!=', 'role', CompanyContact::ROLE_OTHER]);
+                ]);
 
             $contacts = Contact::find()
                 ->andWhere(['contact_receive_email' => 1])
@@ -487,8 +486,7 @@ class Transfer extends ActiveRecord
                 ->select('contact_uuid')
                 ->andWhere([
                     'company_id' =>$invoice->transfer->company->parent_company_id
-                ])
-                ->andWhere(['!=', 'role', CompanyContact::ROLE_OTHER]);
+                ]);
 
             $contacts = Contact::find()
                 ->andWhere(['contact_receive_email' => 1])
