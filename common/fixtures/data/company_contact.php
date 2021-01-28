@@ -42,7 +42,7 @@ return [
         'contact_uuid' => '00558503-8baf-3556-a405-2f4482ec4547',
         'company_id' => 3,
         'contact_position' => 'Webmaster',
-        'allow_access' => 1,
+        'allow_access' => 0,
         'created_at' => '1978-07-14 13:37:54',
         'updated_at' => '1971-08-07 06:12:47',
     ],
