@@ -80,6 +80,7 @@ class CompanyContactController extends Controller
 
         $query = CompanyContact::find()
             ->orderBy('created_at ASC');
+
         if($company_id) {
             $query->filterWhere(['company_id' => $company_id]);
         }
@@ -97,6 +98,17 @@ class CompanyContactController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
+    }
+
+    /**
+     * retrun role details
+     * @return CompanyContact|null
+     */
+    public function actionViewCompanyContact() {
+        $company_id = Yii::$app->request->get('company_id');
+        $contact_uuid = Yii::$app->request->get('contact_uuid');
+
+        return CompanyContact::findOne(['company_id' => $company_id, 'contact_uuid' => $contact_uuid]);
     }
 
     /**
@@ -221,6 +233,16 @@ class CompanyContactController extends Controller
             }
         }
 
+        if (Yii::$app->request->getBodyParam("company_id")) {
+            \common\models\CompanyContact::updateAll(
+                ['role' => Yii::$app->request->getBodyParam("role")],
+                [
+                    'contact_uuid' => $model->contact_uuid,
+                    'company_id' => Yii::$app->request->getBodyParam("company_id")
+                ]
+            );
+        }
+
         ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
         ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
 
@@ -312,9 +334,6 @@ class CompanyContactController extends Controller
             ];
         }
 
-        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        
         $model->delete();
 
         return [

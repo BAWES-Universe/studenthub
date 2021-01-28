@@ -346,9 +346,6 @@ class CompanyContactController extends Controller
             ];
         }
 
-        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
-
         $model->delete();
 
         return [
