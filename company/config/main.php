@@ -144,10 +144,12 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET view-company-contact' => 'view-company-contact',
                         'GET list-child' => 'list-child',
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS view-company-contact' => 'options',
                         'OPTIONS list-child' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]

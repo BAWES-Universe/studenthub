@@ -7,6 +7,7 @@ use common\models\CompanyContact;
 use common\fixtures\CompanyFixture;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\ContactTokenFixture;
+use common\fixtures\ContactFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -21,6 +22,7 @@ class RoleCest
         return [
             'companyContact' => CompanyContactFixture::className (),
             'company' => CompanyFixture::className (),
+            'contact' => ContactFixture::className (),
             'contactToken' => ContactTokenFixture::className ()
         ];
     }
@@ -33,7 +35,7 @@ class RoleCest
     {
         $contact = Contact::find()
             ->joinWith(['companyContacts'])
-            ->filterWhere(['role' => CompanyContact::ROLE_OWNER])
+            ->filterWhere(['allow_access' => 1])
             ->one();
 
         $token = $contact->getAccessToken();
@@ -55,7 +57,7 @@ class RoleCest
     {
         $contact = Contact::find()
             ->joinWith(['companyContacts'])
-            ->filterWhere(['role' => CompanyContact::ROLE_OTHER])
+            ->filterWhere(['allow_access' => false])
             ->one();
 
         $token = $contact->getAccessToken();

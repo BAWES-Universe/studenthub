@@ -191,5 +191,6 @@ return [
     "Missing {value}" => "قيمة مفقودة}",
     'Receive Email?' => "استلام بريد الكتروني؟",
     "Receive Notification?" => "استلام التبليغ؟",
-    "Email already registered" => "البريد الإلكتروني مسجل مسبقا"
+    "Email already registered" => "البريد الإلكتروني مسجل مسبقا",
+    "Allow access" => "السماح بالمرور"
 ];

@@ -141,13 +141,6 @@ class InvitationController extends Controller {
         $role = Yii::$app->request->getBodyParam("role");
         $email_to_invite = Yii::$app->request->getBodyParam("email_to_invite");
 
-        if (!$this->_isOwner($company_id)) {
-            return [
-                'operation' => 'error',
-                'message' => Yii::t('app', 'You should be owner to invite members')
-            ];
-        }
-
         //agent can't send invitation to him self 
 
         if ($email_to_invite == Yii::$app->user->identity->contact_email) {
@@ -280,7 +273,7 @@ class InvitationController extends Controller {
         /**
          * agent can reject his invitation + he should be owner to reject invitation to other members in his team 
          */
-        if ($model->email_to_invite != $agent->email && !$this->_isOwner($model->company_id)) {
+        if ($model->email_to_invite != $agent->email) {
             return [
                 'operation' => 'error',
                 'message' => Yii::t('app', 'You should be owner to remove invitation')
@@ -324,13 +317,6 @@ class InvitationController extends Controller {
             ];
         }
 
-        if (!$this->_isOwner($model->company_id)) {
-            return [
-                'operation' => 'error',
-                'message' => Yii::t('app', 'You should be owner to remove invitation')
-            ];
-        }
-
         if (!$model->delete()) {
             return [
                 'operation' => 'error',
@@ -342,21 +328,6 @@ class InvitationController extends Controller {
             'operation' => 'success',
             'message' => Yii::t('app', "Invitation Deleted Successfully")
         ];
-    }
-
-    /**
-     * Am I owner?
-     * @param string $company_id
-     * @return boolean 
-     */
-    private function _isOwner($company_id) {
-        return CompanyContact::find()
-                        ->where([
-                            'company_id' => $company_id,
-                            'contact_uuid' => Yii::$app->user->getId(),
-                            'role' => CompanyContact::ROLE_OWNER
-                        ])
-                        ->exists();
     }
 
 }

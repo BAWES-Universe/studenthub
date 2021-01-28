@@ -4,7 +4,6 @@ return [
     'contact0' => [
         'contact_uuid' => '20666f33-b761-35c0-8520-b8a1902f3190',
         'contact_name' => 'Novella',
-        'contact_position' => 'Social Media Marketing Manager',
         'contact_email' => 'goodwin.berenice@maggio.org',
         'contact_auth_key' => 'INWm4HzH0Mq5Ml_DqcIKMhNbmo0FKhbb',
         'contact_password_hash' => '$2y$13$Zgn8XPtzfFZ.hCUr1eR8WOXxjuEJZBadYgwVRs7dYlI3FXQz3VOSy',
@@ -17,7 +16,6 @@ return [
     'contact1' => [
         'contact_uuid' => '7ac6f5f9-dce8-3416-b269-90a2ed624d41',
         'contact_name' => 'Rey',
-        'contact_position' => 'Graduate Teaching Assistant',
         'contact_email' => 'camden.lynch@hotmail.com',
         'contact_auth_key' => 'oAgsPyywmhEq4rJCzAvPJga3qmseCfsN',
         'contact_password_hash' => '$2y$13$RP320CDblqaQVMu9Zk.fb.jqeRDmxWWsHg.IfFenvlzkamagCiTCS',
@@ -30,7 +28,6 @@ return [
     'contact2' => [
         'contact_uuid' => '00558503-8baf-3556-a405-2f4482ec4547',
         'contact_name' => 'Deborah',
-        'contact_position' => 'Tax Preparer',
         'contact_email' => 'howe.gabe@toy.com',
         'contact_auth_key' => 'Fqynmtc8hYm4j-XX4KxdK-SV83hf2g2_',
         'contact_password_hash' => '$2y$13$DojXyuiM9TWAluZZ3fiE3uKGsMzCN.2oJCovhv01OXpmWDodQXMxO',
@@ -43,7 +40,6 @@ return [
     'contact3' => [
         'contact_uuid' => '8e7bf6f4-5ec1-39ea-b5b2-17f378cd3852',
         'contact_name' => 'Zola',
-        'contact_position' => 'Laundry OR Dry-Cleaning Worker',
         'contact_email' => 'jason32@hotmail.com',
         'contact_auth_key' => '1XEry2wuroehn8NueD7Fh_JVmZlgs0xJ',
         'contact_password_hash' => '$2y$13$9sVOxRqzIKyovvDxqBPK3.lblQyktr1WytrbAiLDz5XbogtSfQC6i',
@@ -56,7 +52,6 @@ return [
     'contact4' => [
         'contact_uuid' => 'fe98aef5-15dc-37ae-bec6-4eacc59f4fef',
         'contact_name' => 'Jadyn',
-        'contact_position' => 'Locker Room Attendant',
         'contact_email' => 'mckayla.bogan@hotmail.com',
         'contact_auth_key' => 'KXx8GBhvHgpfUEZaRC1QwnHYdnn05-ZP',
         'contact_password_hash' => '$2y$13$uRnCRcA4dQTC8PmQQfGex.HQeNzTzkYbPRnCrHpAvJZLwLs1hdmAW',
@@ -69,7 +64,6 @@ return [
     'contact5' => [
         'contact_uuid' => 'c20e1db8-e551-35fb-ad52-67ab19798466',
         'contact_name' => 'Aric',
-        'contact_position' => 'Railroad Switch Operator',
         'contact_email' => 'hassie.quitzon@heller.com',
         'contact_auth_key' => 'd4XLE7deRRI4GdiZzGJKP_e6RVGYT9Jq',
         'contact_password_hash' => '$2y$13$kZcE3DckFPQ8E0VC7/srPuwlOz8XVINhQpEoZ1mFYL8B4UKD/dwWO',
@@ -82,7 +76,6 @@ return [
     'contact6' => [
         'contact_uuid' => '3a9b2859-0bbd-30ac-a41f-acf1269489b5',
         'contact_name' => 'Asha',
-        'contact_position' => 'Director Religious Activities',
         'contact_email' => 'albertha83@bins.org',
         'contact_auth_key' => 'olrWzhhnBuLDr0ahlwMsbpb5spSaACkT',
         'contact_password_hash' => '$2y$13$QDMdGpojD2nfLyukDiPA3OUlRITl5vJjZ0hOmanKYBDiSEqAUgVpi',
@@ -95,7 +88,6 @@ return [
     'contact7' => [
         'contact_uuid' => '16dbd631-9057-3926-bd42-cbac2ccd4246',
         'contact_name' => 'Afton',
-        'contact_position' => 'Ceiling Tile Installer',
         'contact_email' => 'shields.brycen@adams.com',
         'contact_auth_key' => 'Yiwaba_aN2IxGS8vyihzDPADKlphHrer',
         'contact_password_hash' => '$2y$13$6gbrO7v/med5jtYjgWLEZOj.YrPcju7Is1EwSEjwDikP/nJ0vTyEG',
@@ -108,7 +100,6 @@ return [
     'contact8' => [
         'contact_uuid' => 'ee78aa7b-d2fd-31d1-83cd-34e8142ff4de',
         'contact_name' => 'Darrion',
-        'contact_position' => 'Tool and Die Maker',
         'contact_email' => 'schaefer.magali@yahoo.com',
         'contact_auth_key' => 'h7zfeZpG65GmU4l2pcXnHOVbSNzQjDVk',
         'contact_password_hash' => '$2y$13$Of0BmWkMtK3hzW5hWUlw2eUXO7DrmllR453Q99CtchkEAgWB5UkjG',
@@ -121,7 +112,6 @@ return [
     'contact9' => [
         'contact_uuid' => 'ebc4cfe5-8798-3e51-85a2-bcd02e362c21',
         'contact_name' => 'Kayleigh',
-        'contact_position' => 'Webmaster',
         'contact_email' => 'nikolaus.ethan@gmail.com',
         'contact_auth_key' => 'Lgaocc0nkAg6AJJKrdHJN6S_pmWEzPlg',
         'contact_password_hash' => '$2y$13$9kHwCI0HVLzKjvnpPpIlDeW5arTYn5UF/G0vAjSdcX8w43Bezt71.',

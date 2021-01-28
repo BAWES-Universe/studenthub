@@ -112,7 +112,20 @@ class CompanyContactController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
+    /**
+     * retrun access details
+     * @return \common\models\CompanyContact|null
+     */
+    public function actionViewCompanyContact() {
+        $company_id = Yii::$app->request->get('company_id');
+        $contact_uuid = Yii::$app->request->get('contact_uuid');
+
+        return CompanyContact::find()
+            ->filterWhere(['company_id' => $company_id, 'contact_uuid' => $contact_uuid])
+            ->one();
+    }
+
     /**
      * Create a brand account
      * @return array
@@ -123,7 +136,6 @@ class CompanyContactController extends Controller
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         $model->contact_email = Yii::$app->request->getBodyParam("email");
-        $model->contact_position = Yii::$app->request->getBodyParam("position");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
 
@@ -178,7 +190,8 @@ class CompanyContactController extends Controller
             $companyContact = new CompanyContact();
             $companyContact->contact_uuid = $model->contact_uuid;
             $companyContact->company_id = $company_id;
-            $companyContact->role = Yii::$app->request->getBodyParam("role");
+            $companyContact->allow_access = Yii::$app->request->getBodyParam("allow_access");
+            $companyContact->contact_position = Yii::$app->request->getBodyParam("contact_position");
 
             if (!$companyContact->save()) {
                 return [
@@ -220,13 +233,15 @@ class CompanyContactController extends Controller
     public function actionAddToTeam() {
 
         $company_id = Yii::$app->request->getBodyParam("company_id");
-        $role = Yii::$app->request->getBodyParam ("role");
         $contact_uuid = Yii::$app->request->getBodyParam ("contact_uuid");
+        $allow_access = Yii::$app->request->getBodyParam ("allow_access");
+        $contact_position = Yii::$app->request->getBodyParam("contact_position");
 
         $companyContact = new CompanyContact();
         $companyContact->contact_uuid = $contact_uuid;
         $companyContact->company_id = $company_id;
-        $companyContact->role = $role;
+        $companyContact->allow_access = $allow_access;
+        $companyContact->contact_position = $contact_position;
 
         if (!$companyContact->save()) {
             return [
@@ -260,7 +275,6 @@ class CompanyContactController extends Controller
 
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         $model->contact_email = Yii::$app->request->getBodyParam("email");
-        $model->contact_position = Yii::$app->request->getBodyParam("position");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
 
@@ -284,7 +298,10 @@ class CompanyContactController extends Controller
 
         if (Yii::$app->request->getBodyParam("company_id")) {
             CompanyContact::updateAll(
-                ['role' => Yii::$app->request->getBodyParam("role")],
+                [
+                    'contact_position' => Yii::$app->request->getBodyParam("contact_position"),
+                    'allow_access' => Yii::$app->request->getBodyParam("allow_access")
+                ],
                 [
                     'contact_uuid' => $model->contact_uuid,
                     'company_id' => Yii::$app->request->getBodyParam("company_id")
@@ -348,9 +365,6 @@ class CompanyContactController extends Controller
                 "message" => "Company Contact not found or already deleted"
             ];
         }
-
-        ContactEmail::deleteAll(['contact_uuid' => $model->contact_uuid]);
-        ContactPhone::deleteAll(['contact_uuid' => $model->contact_uuid]);
 
         $model->delete();
 

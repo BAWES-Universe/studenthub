@@ -12,7 +12,8 @@ return [
     'company_contact_uuid' => $faker->uuid,
     'contact_uuid' => $contact_uuid,
     'company_id' => $faker->numberBetween(1,10),
-    'role' => 'Owner',
+    'contact_position' => $faker->jobTitle,
+    'allow_access' => 1,
     'created_at' => $faker->date('Y-m-d H:i:s'),
     'updated_at' => $faker->date('Y-m-d H:i:s')
 ];

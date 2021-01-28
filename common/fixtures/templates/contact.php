@@ -6,7 +6,6 @@
 return [
     'contact_uuid' => $faker->uuid,
     'contact_name' => $faker->firstName,
-    'contact_position' => $faker->jobTitle,
 
     'contact_email' => $faker->email,
     'contact_auth_key' => Yii::$app->getSecurity()->generateRandomString(),

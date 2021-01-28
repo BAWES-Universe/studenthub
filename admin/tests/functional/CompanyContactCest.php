@@ -55,20 +55,39 @@ class CompanyContactCest
             'contact_uuid' => $model->contact_uuid
         ]);
     }
-    
+
     /**
      * View company contact detail
      * @param FunctionalTester $I
      */
     public function tryToView(FunctionalTester $I)
     {
-        $model = CompanyContact ::find()->one();
-        
+        $model = Contact ::find()->one();
+
         $I->wantTo('Validate company contact api to view company contact detail');
         $I->sendGET('v1/company-contacts/' . $model->contact_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             'contact_uuid' => $model->contact_uuid
+        ]);
+    }
+
+    /**
+     * View company contact detail
+     * @param FunctionalTester $I
+     */
+    public function tryToViewCompanyContact(FunctionalTester $I)
+    {
+        $model = CompanyContact ::find()->one();
+        
+        $I->wantTo('Validate company contact api to view company contact detail');
+        $I->sendGET('v1/company-contacts/view-company-contact', [
+            'contact_uuid' => $model->contact_uuid,
+            'company_uuid' => $model->company_id,
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            'company_contact_uuid' => $model->company_contact_uuid
         ]);
     }
 
@@ -83,7 +102,6 @@ class CompanyContactCest
             'v1/company-contacts',
             [
                 'name' => 'davert',
-                'position' => 'Java developer',
                 'email' => 'ravan@lanka.com',
                 'company_id' => '1',
                 'role' => 'Owner',
@@ -118,7 +136,6 @@ class CompanyContactCest
             'v1/company-contacts/' . $this->contact_uuid,
             [
                 'name' => 'davert',
-                'position' => 'Java developer',
                 'company_id' => '1',
                 'email' => 'ravan@lanka.com',
                 'emails' => [
@@ -175,7 +192,8 @@ class CompanyContactCest
         $I->sendPATCH(
             'v1/company-contacts/add-to-team',
             [
-                'role' => 'Owner',
+                'contact_position' => 'Owner',
+                'allow_access' => 1,
                 'contact_uuid' => $contact->contact_uuid,
                 'company_id' => '1'
             ]
