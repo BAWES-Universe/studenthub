@@ -51,6 +51,20 @@ class CompanyContactController extends BaseController
     }
 
     /**
+     * retrun access details
+     * @return \common\models\CompanyContact|null
+     */
+    public function actionViewCompanyContact() {
+        $company = Yii::$app->companyManager->getCompany();
+
+        $contact_uuid = Yii::$app->request->get('contact_uuid');
+
+        return CompanyContact::find()
+            ->filterWhere(['company_id' => $company->company_id, 'contact_uuid' => $contact_uuid])
+            ->one();
+    }
+
+    /**
      * @param $id
      * @return array
      * @throws NotFoundHttpException
