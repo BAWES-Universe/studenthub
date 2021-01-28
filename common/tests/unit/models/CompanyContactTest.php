@@ -45,12 +45,6 @@ class CompanyContactTest extends \Codeception\Test\Unit
             $model->contact_uuid = '123123123';
             expect('Invalid Contact id', $model->validate(['contact_uuid']))->false();
 
-            $model->role = 'OHO!';
-            expect('Invalid role', $model->validate(['role']))->false();
-
-            $model->role = CompanyContact::ROLE_OWNER;
-            expect('Valid role', $model->validate(['role']))->true();
-
             //company_id + contact_uuid should be unique combo
 
             //try to add same value

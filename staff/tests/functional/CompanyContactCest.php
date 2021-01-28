@@ -76,9 +76,7 @@ class CompanyContactCest
             [
                 'name' => 'davert',
                 'email' => 'ravan@lanka.com',
-                'position' => 'Java developer',
                 'company_id' => '1',
-                'role' => 'Owner',
                 'emails' => [
                     [
                         'email_address' => 'demo@demo.com'
@@ -111,7 +109,6 @@ class CompanyContactCest
             [
                 'name' => 'davert',
                 'email' => 'ravan@lanka.com',
-                'position' => 'Java developer',
                 'emails' => [
                     [
                         'email_address' => 'demo@demo.com'
@@ -167,7 +164,8 @@ class CompanyContactCest
         $I->sendPATCH(
             'v1/company-contacts/add-to-team',
             [
-                'role' => 'Owner',
+                'contact_position' => 'Owner',
+                'allow_access' => 1,
                 'contact_uuid' => $contact->contact_uuid,
                 'company_id' => '1'
             ]

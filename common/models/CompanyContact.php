@@ -15,7 +15,8 @@ use yii\db\Expression;
  * @property string $company_contact_uuid
  * @property string $contact_uuid
  * @property int $company_id
- * @property string $role Owner,HR,Finance,Other
+ * @property string $contact_position
+ * @property boolean $allow_access
  * @property string $created_at
  * @property string $updated_at
  * @property string $created_by
@@ -26,11 +27,6 @@ use yii\db\Expression;
  */
 class CompanyContact extends \yii\db\ActiveRecord
 {
-    const ROLE_OWNER = 'Owner';
-    const ROLE_HR = 'HR';
-    const ROLE_FINANCE = 'Finance';
-    const ROLE_OTHER = 'Other';
-
     /**
      * {@inheritdoc}
      */
@@ -46,15 +42,12 @@ class CompanyContact extends \yii\db\ActiveRecord
     {
         return [
             [['company_id'], 'integer'],
+            ['contact_position', 'required', 'string', 'max' => 100],
             [['created_at', 'updated_at'], 'safe'],
             ['company_id', 'unique', 'targetAttribute' => ['company_id', 'contact_uuid']],
             //['contact_uuid', 'unique', 'targetAttribute' => ['contact_uuid', 'company_id']],
             [['contact_uuid', 'created_by', 'updated_by'], 'string', 'max' => 60],
-
-            ['role', 'default', 'value' => self::ROLE_OWNER],
-
-            ['role', 'in', 'range' => [self::ROLE_OWNER, self::ROLE_HR, self::ROLE_FINANCE, self::ROLE_OTHER]],
-
+            ['allow_access', 'boolean'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
         ];
@@ -101,7 +94,8 @@ class CompanyContact extends \yii\db\ActiveRecord
             'company_contact_uuid' => Yii::t('app', 'Company Contact Uuid'),
             'contact_uuid' => Yii::t('app', 'Contact Uuid'),
             'company_id' => Yii::t('app', 'Company ID'),
-            'role' => Yii::t('app', 'Role'),
+            'contact_position' => Yii::t('app', 'Contact Position'),
+            'allow_access' => Yii::t('app', 'Allow access'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
             'created_by' => Yii::t('app', 'Created By'),
