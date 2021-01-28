@@ -13,7 +13,6 @@ use yii\helpers\Url;
  *
  * @property string $contact_uuid
  * @property string $contact_name
- * @property string $contact_position
  * @property string $contact_email
  * @property string $contact_password_hash
  * @property string $contact_auth_key
@@ -42,11 +41,11 @@ class Contact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['contact_name', 'contact_position', 'contact_email', 'contact_password_hash'], 'required'],
+            [['contact_name', 'contact_email', 'contact_password_hash'], 'required'],
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
             [['contact_uuid'], 'string', 'max' => 60],
             [['contact_email'], 'email'],
-            [['contact_name', 'contact_position', 'contact_password_reset_token',], 'string', 'max' => 255],
+            [['contact_name', 'contact_password_reset_token',], 'string', 'max' => 255],
             [['contact_uuid', 'contact_email'], 'unique'],
             [['contact_password_reset_token'], 'unique'],
         ];
@@ -97,7 +96,6 @@ class Contact extends \yii\db\ActiveRecord
             'contact_uuid' => Yii::t('app', 'Contact ID'),
             'company_id' => Yii::t('app', 'Company ID'),
             'contact_name' => Yii::t('app', 'Contact Name'),
-            'contact_position' => Yii::t('app', 'Contact Position'),
             'contact_receive_email' => Yii::t('app','Receive Email?'),
             'contact_receive_notification' => Yii::t('app','Receive Notification?'),
             'contact_auth_key' => Yii::t('app','Auth Key'),
@@ -151,7 +149,7 @@ class Contact extends \yii\db\ActiveRecord
     public function getCompanyContactsHavingAccess($modelClass = "\common\models\CompanyContact")
     {
         return $this->getCompanyContacts()
-            ->filterWhere(['in', 'role', [CompanyContact::ROLE_OWNER, CompanyContact::ROLE_HR]]);
+            ->filterWhere(['allow_access' => true]);
     }
 
     /**
@@ -378,23 +376,5 @@ class Contact extends \yii\db\ActiveRecord
         $token->save(false);
 
         return $token;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getCurrentUserRole() {
-        $company_id = Yii::$app->companyManager->getCompanyId();
-        if ($company_id) {
-            $companyContact = CompanyContact::findOne(
-                [
-                    'contact_uuid'=>Yii::$app->user->getId(),
-                    'company_id'=>$company_id
-                ]);
-            if ($companyContact) {
-                return $companyContact->role;
-            }
-        }
-        return null;
     }
 }
