@@ -58,10 +58,8 @@ class ContactTest extends \Codeception\Test\Unit
             expect('company email should be unique', $model->validate(['contact_email']))->true();
 
             $model->contact_name = null;
-            $model->contact_position = null;
 
             expect('Contact contact_name should be required field', $model->validate(['contact_name']))->false();
-            expect('Contact contact_position should be required field', $model->validate(['contact_position']))->false();
 
         });
     }
