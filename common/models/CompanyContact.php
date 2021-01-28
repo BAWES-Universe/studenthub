@@ -42,7 +42,7 @@ class CompanyContact extends \yii\db\ActiveRecord
     {
         return [
             [['company_id'], 'integer'],
-            ['contact_position', 'required', 'string', 'max' => 100],
+            ['contact_position', 'string', 'max' => 100],
             [['created_at', 'updated_at'], 'safe'],
             ['company_id', 'unique', 'targetAttribute' => ['company_id', 'contact_uuid']],
             //['contact_uuid', 'unique', 'targetAttribute' => ['contact_uuid', 'company_id']],

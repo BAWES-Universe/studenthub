@@ -56,12 +56,28 @@ class CompanyContactCest
      */
     public function tryToView(FunctionalTester $I)
     {
-        $model = CompanyContact::find()->one();
+        $model = Contact::find()->one();
         
         $I->wantTo('Validate company contact api to view company contact detail');
         $I->sendGET('v1/company-contacts/' . $model->contact_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
+    }
+
+    /**
+     * View company contact detail
+     * @param FunctionalTester $I
+     */
+    public function tryToViewCompanyContact(FunctionalTester $I)
+    {
+        $model = CompanyContact ::find()->one();
+
+        $I->wantTo('Validate company contact api to view company contact detail');
+        $I->sendGET('v1/company-contacts/view-company-contact' . $model->company_contact_uuid);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            'company_contact_uuid' => $model->company_contact_uuid
+        ]);
     }
 
     /**

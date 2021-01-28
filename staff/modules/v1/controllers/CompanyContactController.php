@@ -112,7 +112,18 @@ class CompanyContactController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
+    /**
+     * retrun access details
+     * @return \common\models\CompanyContact|null
+     */
+    public function actionViewCompanyContact() {
+        $company_id = Yii::$app->request->get('company_id');
+        $contact_uuid = Yii::$app->request->get('contact_uuid');
+
+        return CompanyContact::findOne(['company_id' => $company_id, 'contact_uuid' => $contact_uuid]);
+    }
+
     /**
      * Create a brand account
      * @return array
