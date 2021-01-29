@@ -209,14 +209,16 @@ return [
                     'controller' => 'v1/company-contact',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET view-company-contact' => 'view-company-contact',
                         'GET <id>' => 'view',
-                        'DELETE <id>' => 'remove-member',
+                        //'DELETE <id>' => 'remove-member',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS view-company-contact' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
-                [ // InvitationController
+                /*[ // InvitationController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invitation',
                     'patterns' => [
@@ -236,7 +238,7 @@ return [
                         'OPTIONS reject/<id>' => 'options',
                         'OPTIONS invitation-list/<id>' => 'options',
                     ]
-                ],
+                ],*/
             ],
         ],
     ],
