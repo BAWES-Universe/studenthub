@@ -8,7 +8,7 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 
-class CompanyContact extends \common\Models\CompanyContact
+class CompanyContact extends \common\models\CompanyContact
 {
 
     public function fields()
