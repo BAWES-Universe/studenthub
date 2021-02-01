@@ -265,11 +265,9 @@ class CompanyController extends Controller
         if (Yii::$app->request->getBodyParam('parent')) {
             $model->scenario = "newSubAccount";
             $model->parent_company_id =Yii::$app->request->getBodyParam("parent");
-            $model->company_password_hash = rand(11111,99999);
         } else {
             $model->scenario = "newAccount";
             $model->company_email =Yii::$app->request->getBodyParam("email");
-            $model->company_password_hash = Yii::$app->request->getBodyParam("password");
         }
 
         $model->company_name = Yii::$app->request->getBodyParam("name");
@@ -287,10 +285,6 @@ class CompanyController extends Controller
         if ($model->company_followup) {
             $model->company_last_followup_datetime = new Expression('NOW()');
         }
-
-        $model->setPassword($model->company_password_hash);
-
-        $model->generateAuthKey();
 
         if (!$model->save()) {
             if(isset($model->errors)){
