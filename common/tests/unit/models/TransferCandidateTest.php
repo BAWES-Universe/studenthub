@@ -104,7 +104,6 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $model->company_id = 1;
             $model->company_email = 'email@gmail.com';
 
-
             $model->store_name = $storeName;
             $model->company_name = $companyName;
             $model->validate();
