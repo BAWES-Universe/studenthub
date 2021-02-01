@@ -141,6 +141,8 @@ class CompanyContactController extends Controller
 
         $model->setPassword(Yii::$app->request->getBodyParam("password"));
 
+        $model->generateAuthKey();
+
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
 
