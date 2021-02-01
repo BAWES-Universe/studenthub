@@ -116,15 +116,15 @@ class BankCest
      * Try to delete
      * @param FunctionalTester $I
      */
-    public function tryToDelete(FunctionalTester $I)
-    {
-        $I->wantTo('delete bank via API');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendDelete('v1/banks/' . $this->bank_id);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-            "message" => "Bank deleted successfully"
-        ]);
-    }
+//    public function tryToDelete(FunctionalTester $I)
+//    {
+//        $I->wantTo('delete bank via API');
+//        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+//        $I->sendDelete('v1/banks/' . $this->bank_id);
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseContainsJson([
+//            "operation" => "success",
+//            "message" => "Bank deleted successfully"
+//        ]);
+//    }
 }

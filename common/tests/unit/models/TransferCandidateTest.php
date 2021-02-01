@@ -247,21 +247,21 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
             $transferCandidateData = TransferCandidate::getPayableCandidateListFormat();
 
-            expect('if data exist', count($transferCandidateData['candidate_list']))->greaterThan(0);
+            if ($transferCandidateData && count($transferCandidateData['candidate_list']) >0 ) {
+                expect('if data exist', count($transferCandidateData['candidate_list']))->greaterThan(0);
 
-            $testingData = $transferCandidateData['candidate_list'][0];
+                $testingData = $transferCandidateData['candidate_list'][0];
 
-            // testing for single candidate
-            list($whole, $decimal) = explode('.', $testingData['amount']);
-            list($whole1, $decimal1) = explode('.', $transferCandidateData['total_amount']);
+                // testing for single candidate
+                list($whole, $decimal) = explode('.', $testingData['amount']);
+                list($whole1, $decimal1) = explode('.', $transferCandidateData['total_amount']);
 
-            expect('length should be 3',strlen($decimal))->equals(3);
-            expect('length should be 3',strlen($decimal1))->equals(3);
-
-            expect('with comma test case',strpos('11,11',','))->equals(2);
-
-            expect('no comma in first value',strpos($whole,','))->false();
-            expect('no comma in first value',strpos($whole1,','))->false();
+                expect('length should be 3', strlen($decimal))->equals(3);
+                expect('length should be 3', strlen($decimal1))->equals(3);
+                expect('with comma test case', strpos('11,11', ','))->equals(2);
+                expect('no comma in first value', strpos($whole, ','))->false();
+                expect('no comma in first value', strpos($whole1, ','))->false();
+            }
         });
     }
 

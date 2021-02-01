@@ -430,19 +430,20 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * for text export
      * @return array
      */
+
     public static function getPayableCandidateListFormat()
     {
         $totalAmount = 0;
 
         $transferCandidates = self::find()
             ->payable()
-            ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))    
+            ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))
             ->all();
 
         if (!$transferCandidates) {
             return false;
         }
-        
+
         $list = [];
 
         //https://www.pivotaltracker.com/story/show/176535038
