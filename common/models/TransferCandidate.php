@@ -449,13 +449,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
         foreach ($transferCandidates as $transferCandidate) {
-
-            $candidate = Candidate::find()
-                ->with(['candidateSkills', 'candidateExperiences'])
-                ->filterWhere(['candidate_id' => $transferCandidate->candidate_id])
-                ->one();
-
-
+            $candidate = $transferCandidate->candidate;
             if (
                 empty($candidate->bank) ||
                 !$transferCandidate->bank_id ||
