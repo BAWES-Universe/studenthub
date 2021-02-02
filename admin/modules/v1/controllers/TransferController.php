@@ -506,7 +506,12 @@ class TransferController extends Controller
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
         foreach ($candidates as $candidate) {
-            if ($candidate->candidate->isProfileCompleted) {
+            if (
+                $candidate->candidate->isProfileCompleted &&
+                $candidate->bank_id &&
+                $candidate->transfer_benef_iban &&
+                $candidate->transfer_benef_name &&
+                $candidate->invoiceNumber) {
                 $payableCandidate[] = $candidate;
             }
         }
