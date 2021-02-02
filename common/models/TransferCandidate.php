@@ -456,7 +456,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 ->one();
 
 
-            if (!$transferCandidate->bank_id || !$transferCandidate->transfer_benef_iban || !$transferCandidate->transfer_benef_name || !$transferCandidate->invoiceNumber || !$candidate->isProfileCompleted) {
+            if (
+                empty($candidate->bank) ||
+                !$transferCandidate->bank_id ||
+                !$transferCandidate->transfer_benef_iban ||
+                !$transferCandidate->transfer_benef_name ||
+                !$transferCandidate->invoiceNumber ||
+                !$candidate->isProfileCompleted
+            ) {
                 continue;
             }
 
