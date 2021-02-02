@@ -508,7 +508,7 @@ class TransferController extends Controller
         foreach ($candidates as $candidate) {
             if (
                 $candidate->candidate->isProfileCompleted &&
-                $candidate->bank_id &&
+                $candidate->candidate->bank_id &&
                 $candidate->transfer_benef_iban &&
                 $candidate->transfer_benef_name &&
                 $candidate->invoiceNumber) {
