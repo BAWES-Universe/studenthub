@@ -490,6 +490,7 @@ class TransferController extends Controller
      */
     public function actionExportPayableCandidates()
     {
+        $payableCandidate = [];
         $onlyPayable = Yii::$app->request->get('only-payable');
         
         // Candidates whose company paid to admin but admin have not paid yet
