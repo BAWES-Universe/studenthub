@@ -451,6 +451,39 @@ class AccountController extends Controller
             ];
         }
 
+        //https://www.pivotaltracker.com/story/show/176767983
+        // in case if user change his bank credentials and he has any pending transfer
+        // which is not in completed or not even in distribution mode then change the bank detail
+        $candidateUpdated = Candidate::findOne(Yii::$app->user->getId());
+        $transferCandidate = TransferCandidate::find()
+            ->joinWith('transfer')
+            ->andWhere(
+                [
+                    'candidate_id'=>Yii::$app->user->getId(),
+                    'paid'=>TransferCandidate::UNPAID,
+                    'transfer_candidate.deleted'=>0
+                ]
+            )
+            ->andWhere(
+                [
+                    'transfer.transfer_status'=>[
+                        Transfer::STATUS_INITIATED,Transfer::STATUS_LOCK,Transfer::STATUS_PAYMENT_SENT
+                    ]
+                ]
+            )
+            ->all();
+
+        if (count($transferCandidate) > 0) {
+            foreach ($transferCandidate as $tc) {
+                // update bank detail in transfer candidate table
+                $tc->transfer_benef_name = $candidateUpdated->bank_account_name;
+                $tc->transfer_benef_iban = $candidateUpdated->candidate_iban;
+                $tc->bank_id = $candidateUpdated->bank_id;
+                $tc->save(false);
+            }
+        }
+
+
         Yii::$app->user->identity->updateAlgoliaIndex(false);
 
         return [

@@ -161,23 +161,31 @@ class CronController extends \yii\console\Controller {
             ->payable()
             ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))
             ->all();
-
         if ($candidates) {
-
-            foreach ($candidates as $transfer) {
-                 $amount += $transfer->totalPaidToCandidate;
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
+            foreach ($candidates as $candidate) {
+                if (
+                    $candidate->candidate->isProfileCompleted &&
+                    $candidate->candidate->bank_id &&
+                    $candidate->transfer_benef_iban &&
+                    $candidate->transfer_benef_name &&
+                    $candidate->invoiceNumber) {
+                    $payableCandidate[] = $candidate;
+                    $amount += $candidate->totalPaidToCandidate;
+                }
             }
             $amount = number_format($amount, 3);
         }
 
-        if ($candidates && count($candidates) > 0) {
+        if ($payableCandidate && count($payableCandidate) > 0) {
 
             \moonland\phpexcel\Excel::export([
                 'isMultipleSheet' => false,
                 'fileName'=>'payable_candidate',
                 'savePath' => sys_get_temp_dir() . '/',
                 'asAttachment' => true,
-                'models' => $candidates,
+                'models' => $payableCandidate,
                 'columns' => [
                     'tc_id',
                     'transfer_id',
@@ -226,7 +234,7 @@ class CronController extends \yii\console\Controller {
 
             $extension = pathinfo($file, PATHINFO_EXTENSION);
 
-            $subject = "We need to process KWD $amount to ".count($candidates)." people";
+            $subject = "We need to process KWD $amount to ".count($payableCandidate)." people";
 
             if (YII_ENV != 'prod') {
                 $subject = '[Fake] [Ignore] ' . $subject;
@@ -237,7 +245,7 @@ class CronController extends \yii\console\Controller {
             $send =  Yii::$app->mailer->compose("report-payment-required",
                 [
                     "amount" => $amount,
-                    "ppl" => count($candidates),
+                    "ppl" => count($payableCandidate),
                     'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
                 ])
 
