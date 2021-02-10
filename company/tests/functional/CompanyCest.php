@@ -50,8 +50,9 @@ class CompanyCest
     {
         $I->wantTo('update a company via API');
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->haveHttpHeader ('Company-ID', $this->company->company_id);
         $I->sendPATCH(
-            'v1/companies/' . $this->contact_uuid,
+            'v1/companies',
             [
                 'name' => 'davert',
                 'common_name_en' => 'ravan',
