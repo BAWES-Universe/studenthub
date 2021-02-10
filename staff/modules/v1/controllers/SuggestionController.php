@@ -2,6 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\Candidate;
+use common\models\Fulltimer;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -202,9 +204,15 @@ class SuggestionController extends Controller
         
         $transaction->commit();
 
+        if ($candidate_id) {
+            $suggestions = Candidate::findOne($candidate_id)->getSuggestion()->count();
+        } else if ($fulltimer_uuid) {
+            $suggestions = Fulltimer::findOne($candidate_id)->getSuggestion()->count();
+        }
         return [
             "operation" => "success",
-            "message" => "Suggestion created successfully"
+            "message" => "Suggestion created successfully",
+            "suggestionCount" => $suggestions
         ];
     }
 
