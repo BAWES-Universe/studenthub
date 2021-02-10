@@ -51,7 +51,7 @@ class Candidate extends \common\models\Candidate {
     }
 
     public function getSuggestionRejected() {
-        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_ACCEPTED])->count();
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_REJECTED])->count();
     }
 
     /**
