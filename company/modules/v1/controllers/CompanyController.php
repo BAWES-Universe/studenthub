@@ -70,4 +70,94 @@ class CompanyController extends BaseController
 
         return $data;
     }
+
+    /**
+     * update company details
+     */
+    public function actionUpdate()
+    {
+        $model = Yii::$app->companyManager->getCompany();
+
+        $model->company_name = ucfirst(Yii::$app->request->getBodyParam("name"));
+        $model->company_common_name_en = ucfirst(Yii::$app->request->getBodyParam("common_name_en"));
+        $model->company_common_name_ar = ucfirst(Yii::$app->request->getBodyParam("common_name_ar"));
+        $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
+        $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
+        $model->company_website = Yii::$app->request->getBodyParam("website");
+        $model->company_email = Yii::$app->request->getBodyParam("email");
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('company', "Company update successfully")
+        ];
+    }
+
+    /**
+     * Remove company logo
+     */
+    public function actionRemoveLogo()
+    {
+        $model = Yii::$app->companyManager->getCompany();
+
+        if ($model->company_logo) {
+            $model->deleteProfilePhotoFromCloudinary();
+        }
+
+        $model->company_logo = null;
+
+        if (!$model->save(false)) {
+            return [
+                'operation' => 'error',
+                'message' => $model->errors
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => Yii::t('company', 'Company Logo Removed Successfully')
+        ];
+    }
+
+    /**
+     * Allows user to change company logo
+     */
+    public function actionUpdateLogo() {
+
+        $company_logo = urldecode(Yii::$app->request->getBodyParam('company_logo'));
+
+        $model = Yii::$app->companyManager->getCompany();
+
+        $model->company_logo = $company_logo;
+
+        if(!$model->company_logo || $model->company_logo == "undefined") {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('company', 'Invalid input for {attribute}', [
+                    'attribute' => 'company logo'
+                ])
+            ];
+        }
+
+        $result = $model->updateCompanyLogo();
+
+        if ($result) {
+            return [
+                'operation' => 'success',
+                'logo' => $model->company_logo,
+                'message' => Yii::t('company', 'Company Logo Uploaded Successfully')
+            ];
+        } else {
+            return [
+                'operation' => 'error',
+                'message' => $model->errors
+            ];
+        }
+    }
 }
