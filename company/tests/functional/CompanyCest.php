@@ -43,6 +43,32 @@ class CompanyCest
     }
 
     /**
+     * Try to update
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToUpdate(FunctionalTester $I)
+    {
+        $I->wantTo('update a company via API');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH(
+            'v1/companies/' . $this->contact_uuid,
+            [
+                'name' => 'davert',
+                'common_name_en' => 'ravan',
+                'common_name_ar' => 'ravan',
+                'description_en' => 'ravan',
+                'description_ar' => 'ravan',
+                'website' => 'google.com',
+                'email' => 'tets@lol.com'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success"
+        ]);
+    }
+
+    /**
      * List sub companies
      * @param FunctionalTester $I
      */
@@ -77,6 +103,14 @@ class CompanyCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             'company_id' => $this->company->company_id
+        ]);
+    }
+
+    public function removeCompanyLogo(FunctionalTester $I) {
+        $I->sendDELETE('v1/companies/remove-logo');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            'operation' => 'success'
         ]);
     }
 }

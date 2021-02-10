@@ -73,6 +73,7 @@ class StaffController extends Controller
     {
         $query = Staff::find();
         $query->active();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
