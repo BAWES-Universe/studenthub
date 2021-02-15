@@ -131,7 +131,8 @@ class Contact extends \yii\db\ActiveRecord
             'contactEmails',
             'contactPhones',
             'notes',
-            'contactStats'
+            'contactStats',
+            'companyContacts'
         ];
     }
 

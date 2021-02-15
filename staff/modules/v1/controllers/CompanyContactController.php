@@ -89,12 +89,18 @@ class CompanyContactController extends Controller
                     ['like', 'contact_phone.phone_number', $q]
                 ]);
         }
-
         if($company_id) {
+            // we need to show position in contact listing page
+            // each contact have has many contact so using join to
+            // return as array. and to ignore password.
             $query
-                ->joinWith('companyContacts')
+                ->addSelect('contact.contact_name,contact.contact_uuid,contact.contact_email')
+                ->addSelect('contact.contact_receive_email,contact.contact_receive_email,contact.contact_updated_at')
+                ->addSelect('contact.contact_receive_notification,contact.contact_created_at')
+                ->joinWith(['contactEmails', 'contactPhones','companyContact'])
                 ->orderBy('created_at ASC')
-                ->filterWhere(['company_id' => $company_id]);
+                ->filterWhere(['company_id' => $company_id])
+                ->asArray();
         }
 
         return new ActiveDataProvider([
