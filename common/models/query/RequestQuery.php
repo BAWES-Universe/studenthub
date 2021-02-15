@@ -39,4 +39,9 @@ class RequestQuery extends ActiveQuery
     {
         return $this->andWhere("DATE(request_updated_datetime) < '$date'");
     }
+
+    public function filterByType($type)
+    {
+        return $this->andWhere(['request_position_type' => $type]);
+    }
 }

@@ -78,6 +78,7 @@ class RequestController extends Controller
         $request_status = Yii::$app->request->get("request_status");
         $start_date = Yii::$app->request->get("start_date");
         $end_date = Yii::$app->request->get("end_date");
+        $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
             ->orderBy('request_created_datetime DESC');
@@ -98,8 +99,12 @@ class RequestController extends Controller
 
         if($request_status) {
             $query->andWhere(['request_status' => $request_status]);
-        } 
-        
+        }
+
+        if($position_type) {
+            $query->filterByType($position_type);
+        }
+
         if($start_date) {
             $query->startDate($start_date);
         } 
@@ -131,7 +136,7 @@ class RequestController extends Controller
         }
 
         if($position_type) {
-            $query->andWhere(['request_position_type' => $position_type]);
+            $query->filterByType($position_type);
         }
 
         return new ActiveDataProvider([
