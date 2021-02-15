@@ -880,7 +880,13 @@ class CandidateController extends Controller
      */
     public function actionCandidateResumePdf($id)
     {
+        $withNumber = Yii::$app->request->get('with_number');
         $candidate = $this->findModel($id);
+
+        // remove phone in case candidate phone not required.
+        if (!$withNumber) {
+            $candidate->candidate_phone = null;
+        }
 
         if(!$candidate) {
             return [
@@ -893,6 +899,7 @@ class CandidateController extends Controller
 
         $content = $this->render('candidate-resume-pdf', [
             'candidate' => $candidate,
+            'withNumber' => $withNumber,
         ]);
 
         $pdf = new Pdf([

@@ -74,8 +74,8 @@ class StoreController extends BaseController
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
 
             $query = $company
-                ->getSubCompanies();
-            
+                ->getSubCompanyStores();
+//                ->getSubCompanies();
             return new ActiveDataProvider([
                 'query' => $query
             ]);
