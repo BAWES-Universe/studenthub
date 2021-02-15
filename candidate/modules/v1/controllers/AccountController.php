@@ -528,7 +528,8 @@ class AccountController extends Controller
             'candidate_job_search_status' => (int) $model->candidate_job_search_status,
             'isProfileCompleted' => $model->isProfileCompleted(),
             'store' => $model->store,
-            'company' => $model->company
+            'company' => $model->company,
+            'parent_company' => (isset($model->company->parentCompany)) ? $model->company->parentCompany : null
         ];
     }
     
