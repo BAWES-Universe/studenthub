@@ -83,6 +83,8 @@ class RequestCest
                 'position_type' => 1,//full time
                 'position_title' => 'Android developer',
                 'number_of_employees' => 1,
+                'job_description' => 'Autem.',
+                'compensation' => 'Dolor.',
                 'additional_info' => 'la la lala  la'
             ]
         );
@@ -109,6 +111,8 @@ class RequestCest
                 'position_type' => 1,//full time
                 'position_title' => 'Android developer',
                 'number_of_employees' => 1,
+                'job_description' => 'Autem.',
+                'compensation' => 'Dolor.',
                 'additional_info' => 'la la lala  la'
             ]
         );

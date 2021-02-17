@@ -10,7 +10,7 @@ $contact_uuid = Yii::$app->db->createCommand('SELECT contact_uuid from company_c
 $company_id = Yii::$app->db->createCommand('SELECT company_id from company limit ' . $index2 . ',1')->queryScalar();
 
 return [
-    'request_uuid' => $faker->uuid,
+    'request_uuid' => 'request_'.$faker->uuid,
     'company_id' => $company_id,
     'contact_uuid' => $contact_uuid,
     'request_created_by' => $faker->numberBetween(1,10),
@@ -19,6 +19,8 @@ return [
     'request_position_title' =>  $faker->words(10,1),
     'request_number_of_employees' => rand(10, 20),
     'request_additional_info' => $faker->sentence(1,10),
+    'request_job_description' => $faker->sentence(1,10),
+    'request_compensation' => $faker->sentence(1,10),
     'request_status' => $faker->randomElement([
         'pending',
         'started',
