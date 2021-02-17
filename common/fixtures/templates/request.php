@@ -6,8 +6,8 @@
 $index1 = $index % 1000;//faker->unique()->numberBetween(0, 1000);
 $index2 = $index % 500;//faker->unique()->numberBetween(0, 1000);
 
-$contact_uuid = Yii::$app->db->createCommand('SELECT contact_uuid from company_contact limit ' . $index1 . ',1')->queryScalar();
-$company_id = Yii::$app->db->createCommand('SELECT company_id from company limit ' . $index2 . ',1')->queryScalar();
+$contact_uuid = Yii::$app->db->createCommand('SELECT contact_uuid from company_contact order by rand() limit 1')->queryScalar();
+$company_id = Yii::$app->db->createCommand('SELECT company_id from company order by rand() limit 1')->queryScalar();
 
 return [
     'request_uuid' => 'request_'.$faker->uuid,
