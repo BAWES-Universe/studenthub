@@ -112,14 +112,21 @@ class TransferCandidate extends \common\models\TransferCandidate
                 "message" => "Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero"
             ];
         }
+
         $TransferCandidate->paid = TransferCandidate::UNPAID;
+        $TransferCandidate->transfer_benef_iban = null;
+        $TransferCandidate->transfer_benef_name = null;
+        $TransferCandidate->bank_id = null;
 
         if ($TransferCandidate->save(false)) {
 
             $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
+
             // in case if transfer is paid
             if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
+
                 $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+
                 if ($Transfer->save(false)) {
                     return [
                         "operation" => "success",
@@ -132,6 +139,12 @@ class TransferCandidate extends \common\models\TransferCandidate
                     ];
                 }
             }
+
+            $TransferCandidate->candidate->bank_id = null;
+            $TransferCandidate->candidate->bank_account_name = null;
+            $TransferCandidate->candidate->candidate_iban = null;
+            $TransferCandidate->candidate->save(false);
+
             return [
                 "operation" => "success",
                 "message" => 'Candidate Transfer marked as "unpaid" successfully'
