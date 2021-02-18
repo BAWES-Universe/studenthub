@@ -435,7 +435,7 @@ class TransferController extends Controller
                 $tc->paid = 1;
                 $tc->transfer_file_id = $transfer_file_id;
                 $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
-                
+
                 if(!$tc->save())
                 {
                     return [
@@ -443,6 +443,8 @@ class TransferController extends Controller
                         "message" => $tc->getErrors()
                     ];
                 }
+
+                $tc->emailTransferSuccess();
             }
 
             // Check if all paid, mark transfer as complete
@@ -477,7 +479,6 @@ class TransferController extends Controller
                 'error' => $e
             ];
         }
-
 
         return [
             'operation' => 'success',
