@@ -104,6 +104,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET detail/<id>' => 'view',
+                        'GET appreciation-certificate/<id>/<wid>' => 'appreciation-certificate',
                         'GET not-assigned' => 'list-not-assigned',
                         'GET assigned' => 'list-assigned',
                         'GET expired-civil-id' => 'list-expired-civil-id',
@@ -151,6 +152,7 @@ return [
                         'OPTIONS unapprove/<id>' => 'options',
                         'OPTIONS update-hour-rate/<id>' => 'options',
                         'OPTIONS expire-card/<id>' => 'options',
+                        'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options'
                     ]
                 ],
