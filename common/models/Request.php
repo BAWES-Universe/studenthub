@@ -18,6 +18,8 @@ use yii\behaviors\AttributeBehavior;
  * @property int $request_updated_by
  * @property int $request_position_type 1 - Fulltime, 2 - Partime
  * @property string $request_position_title the job title being requested
+ * @property string $request_job_description
+ * @property string $request_compensation
  * @property int $request_number_of_employees
  * @property string $request_additional_info
  * @property string $request_status
@@ -50,11 +52,11 @@ class Request extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id'], 'required'],
+            [['company_id','request_job_description','request_compensation'], 'required'],
             [['company_id', 'request_position_type', 'request_number_of_employees'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
-            [['request_additional_info'], 'string'],
+            [['request_additional_info','request_job_description','request_compensation'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
@@ -117,6 +119,8 @@ class Request extends \yii\db\ActiveRecord
             'request_updated_by' => Yii::t('app', 'Request Updated By'),
             'request_position_type' => Yii::t('app', '1 - Fulltime, 2 - Partime'),
             'request_position_title' => Yii::t('app', 'the job title being requested'),
+            'request_job_description' => Yii::t('app', 'Job Description'),
+            'request_compensation' => Yii::t('app', 'Compensation'),
             'request_number_of_employees' => Yii::t('app', 'Request Number Of Employees'),
             'request_additional_info' => Yii::t('app', 'Request Additional Info'),
             'request_status' => Yii::t('app', 'Request Status'),

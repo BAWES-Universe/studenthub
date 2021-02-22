@@ -595,8 +595,18 @@ class Company extends \yii\db\ActiveRecord
     }
 
     public function getMalls($modelClass = "\common\models\Mall") {
-        return $this->hasMany($modelClass::className(), ['mall_uuid' => 'mall_uuid'])
-            ->via('stores');
+
+        if($this->subCompanyStores)
+        {
+            //for parent company
+            return $this->hasMany($modelClass::className(), ['mall_uuid' => 'mall_uuid'])
+                ->via('subCompanyStores');
+        }
+        else
+        {
+            return $this->hasMany($modelClass::className(), ['mall_uuid' => 'mall_uuid'])
+                ->via('stores');
+        }
     }
 
     /**

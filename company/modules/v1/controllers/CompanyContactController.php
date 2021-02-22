@@ -24,6 +24,7 @@ class CompanyContactController extends BaseController
 
         $query = $company->getCompanyContacts()
             ->orderBy('created_at ASC');
+
         if($q) {
             $query->joinWith(['contact','contactEmails', 'contactPhones'])
                 ->andWhere([

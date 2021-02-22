@@ -175,9 +175,8 @@ class AuthController extends Controller
             "token" => $accessToken,
             "contact" => $contact,
             "company_id" => $company->company_id,
-            "name" => Yii::$app->user->identity->contact_name,
-            "email" => $company->company_email,
-            //"contact_name" => Yii::$app->user->identity->contact_name//$company->company_name,
+            "profile_name" => Yii::$app->user->identity->contact_name,
+            "email" => $company->company_email
         ];
     }
 

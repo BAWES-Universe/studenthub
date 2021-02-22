@@ -75,7 +75,9 @@ class Candidate extends \common\models\Candidate {
             'university',
             'country',
             'area',
-            'nationality'
+            'nationality',
+            'candidateSkills',
+            'candidateExperiences',
         ];
     }
         
@@ -134,5 +136,22 @@ class Candidate extends \common\models\Candidate {
     public function getCandidateIdCards($modelClass = "\common\models\CandidateIdCard")
     {
         return parent::getCandidateIdCards($modelClass);
+    }
+
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateSkills($modelClass = "\common\models\CandidateSkill")
+    {
+        return parent::getCandidateSkills($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateExperiences($modelClass = "\common\models\CandidateExperience")
+    {
+        return parent::getCandidateExperiences($modelClass);
     }
 }

@@ -2,8 +2,10 @@
 
 namespace admin\models;
 
+use common\models\Staff;
 use Yii;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 
 /**
@@ -112,14 +114,21 @@ class TransferCandidate extends \common\models\TransferCandidate
                 "message" => "Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero"
             ];
         }
+
         $TransferCandidate->paid = TransferCandidate::UNPAID;
+        $TransferCandidate->transfer_benef_iban = null;
+        $TransferCandidate->transfer_benef_name = null;
+        $TransferCandidate->bank_id = null;
 
         if ($TransferCandidate->save(false)) {
 
             $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
+
             // in case if transfer is paid
             if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
+
                 $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
+
                 if ($Transfer->save(false)) {
                     return [
                         "operation" => "success",
@@ -132,11 +141,46 @@ class TransferCandidate extends \common\models\TransferCandidate
                     ];
                 }
             }
+
+            $TransferCandidate->candidate->bank_id = null;
+            $TransferCandidate->candidate->bank_account_name = null;
+            $TransferCandidate->candidate->candidate_iban = null;
+            $TransferCandidate->candidate->save(false);
+
             return [
                 "operation" => "success",
                 "message" => 'Candidate Transfer marked as "unpaid" successfully'
             ];
         }
+    }
+
+    /**
+     * notify candidate on transfer marked as paid by admin
+     */
+    public function emailTransferSuccess() {
+
+        $subjectLine = number_format($this->totalPaidToCandidate, 3) . " transferred to your account!";
+
+        $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
+
+        if(YII_ENV != 'prod') {
+            $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
+        }
+
+        Yii::$app->mailer->compose('candidate/transfer-success',[
+            'name' => strtoupper (explode (' ', $name)[0]),
+            'totalPaidToCandidate' => $this->totalPaidToCandidate,
+            'imageMoney' => Yii::$app->urlManagerStaff->createUrl(
+                '../images/money.gif'
+            ),
+            'logo' => Yii::$app->urlManagerStaff->createUrl(
+                '../images/logo.png'
+            )
+        ])
+            ->setTo($this->candidate->candidate_email)
+            ->setFrom([Yii::$app->params['supportEmail'] => 'Khalid Al-Mutawa'])
+            ->setSubject($subjectLine)
+            ->send();
     }
 
     /**
@@ -162,7 +206,9 @@ class TransferCandidate extends \common\models\TransferCandidate
         if ($TransferCandidate->save(false)) {
 
             Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
-            
+
+            $TransferCandidate->emailTransferSuccess();
+
             return [
                 "operation" => "success",
                 "message" => 'Candidate Transfer marked as "paid" successfully'
@@ -201,6 +247,8 @@ class TransferCandidate extends \common\models\TransferCandidate
         foreach($transferCandidates as $transferCandidate) {
             $transferCandidate->paid = TransferCandidate::PAID;
             $transferCandidate->save();
+
+            $transferCandidate->emailTransferSuccess();
         }
 
         // fetch record of transfer list id and update one by one with condition
@@ -271,5 +319,28 @@ class TransferCandidate extends \common\models\TransferCandidate
             'operation' => 'success',
             'message' => count($transferCandidateIds). ' candidates have been marked as unpaid',
         ];
+    }
+
+    /**
+     * sending notification to all candidate with
+     * unpaid transfer due to bank issue
+     * @return bool
+     */
+    public function unpaidNotification()
+    {
+        $tmpName = explode(" ",$this->candidate->candidate_name);
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        $allStaffEmails = ArrayHelper::map(Staff::find()->all(),'staff_email','staff_name');
+        return Yii::$app->mailer->compose("candidate/transfer-fail.php",
+            [
+                "name" => (isset($tmpName[0]))  ? $tmpName[0] : $this->candidate->candidate_name,
+                'logo' => Url::to('@web/images/logo.png', true),
+                "webUrl" => Yii::$app->params['candidateAppUrl'] . 'view/payments',
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->candidate->candidate_email)
+            ->setBcc($allStaffEmails)
+            ->setSubject('Transfer failed. Please update your bank info')
+            ->send();
     }
 }

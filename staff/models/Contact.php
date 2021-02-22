@@ -5,17 +5,11 @@ namespace staff\models;
 class Contact extends \common\models\Contact
 {
     /**
-     * @inheritdoc
-     * shifted to contact model
+     * @return \yii\db\ActiveQuery
+     * to use with single company
      */
-//    public function fields()
-//    {
-//        return array_merge(parent::fields(),
-//            [
-//                'role' => function($model) {
-//                   return $model->getCompanyContacts()->one()->role;
-//                }
-//            ]
-//        );
-//    }
+    public function getCompanyContact($modelClass = "\staff\models\CompanyContact")
+    {
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+    }
 }

@@ -78,6 +78,7 @@ class RequestController extends Controller
         $request_status = Yii::$app->request->get("request_status");
         $start_date = Yii::$app->request->get("start_date");
         $end_date = Yii::$app->request->get("end_date");
+        $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
             ->orderBy('request_created_datetime DESC');
@@ -98,8 +99,12 @@ class RequestController extends Controller
 
         if($request_status) {
             $query->andWhere(['request_status' => $request_status]);
-        } 
-        
+        }
+
+        if($position_type) {
+            $query->filterByType($position_type);
+        }
+
         if($start_date) {
             $query->startDate($start_date);
         } 
@@ -131,7 +136,7 @@ class RequestController extends Controller
         }
 
         if($position_type) {
-            $query->andWhere(['request_position_type' => $position_type]);
+            $query->filterByType($position_type);
         }
 
         return new ActiveDataProvider([
@@ -164,8 +169,10 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
+        $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
+        $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
         $model->request_status = Request::STATUS_STARTED;
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -214,6 +221,8 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
+        $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
+        $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
 
         if (!$model->save())
         {

@@ -26,9 +26,7 @@ class SuggestionCest
         return [
         	'staffToken' => StaffTokenFixture::className(),
             'suggestion' => SuggestionFixture::className(),
-            'request' => RequestFixture::className(),
             'candidate' => CandidateFixture::className(),
-            'company' => CompanyFixture::className(),
         ];
     }
 
@@ -74,7 +72,6 @@ class SuggestionCest
     public function tryToCreate(FunctionalTester $I)
     {
         $request = Request::find()->where(['request_status' => Request::STATUS_STARTED])->one();
-        
         $candidate = Candidate::find()->one();
 
         $I->wantTo('create a suggestion via API');
@@ -90,17 +87,6 @@ class SuggestionCest
         $I->seeResponseContainsJson([
             "operation" => "success"
         ]);
-    }
-
-    /**
-     * Try to delete
-     * @param FunctionalTester $I
-     */
-    public function tryToDelete(FunctionalTester $I)
-    {
-        $I->wantTo('delete suggestion via API');
-        $I->sendDelete('v1/suggestions/' . $this->suggestion->suggestion_uuid);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 
     /**
@@ -126,6 +112,17 @@ class SuggestionCest
         $I->sendPATCH('v1/suggestions/reject/' . $this->suggestion->suggestion_uuid, [
             'reason' => 'Nah can not go with this'
         ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
+     * Try to delete
+     * @param FunctionalTester $I
+     */
+    public function tryToDelete(FunctionalTester $I)
+    {
+        $I->wantTo('delete suggestion via API');
+        $I->sendDelete('v1/suggestions/' . $this->suggestion->suggestion_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 }

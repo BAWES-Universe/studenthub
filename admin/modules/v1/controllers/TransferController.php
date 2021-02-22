@@ -333,29 +333,47 @@ class TransferController extends Controller
                 ];
             }
             
-            if($value['Status'] == 'FAIL')
-                continue;
+            if($value['Status'] == 'FAIL') {
+                $transferCandidate = TransferCandidate::find()->where(['tc_id' => $value['Credit Narrative']])->one();
+                if($transferCandidate && $transferCandidate->candidate) {
+                    $transferCandidate->paid = TransferCandidate::UNPAID;
+                    $transferCandidate->transfer_benef_iban = null;
+                    $transferCandidate->transfer_benef_name = null;
+                    $transferCandidate->bank_id = null;
+                    if ($transferCandidate->save(false)) {
 
-            $transferCandidate = TransferCandidate::find()->where(['tc_id' => $value['Credit Narrative']])->one();
-            
-            if(!$transferCandidate || !$transferCandidate->candidate) {
-                return [
-                    'operation' => 'error',
-                    'message' => 'Invalid excel',
-                    'errorCode' => 2
-                ];
+                        $transferCandidate->candidate->bank_id = null;
+                        $transferCandidate->candidate->bank_account_name = null;
+                        $transferCandidate->candidate->candidate_iban = null;
+                        if ($transferCandidate->candidate->save(false)) {
+                            $transferCandidate->unpaidNotification();
+                        }
+                    }
+                }
+
             }
-                    
-            $candidatesTransfers[] = [
-                'transfer_confirmation_id' => $value['Status Description'], 
-                'transfer_id' => $value['Debit Narrative'],  
-                'tc_id' => $value['Credit Narrative'],  
-                'candidate_id' => $transferCandidate->candidate->candidate_id, 
-                'candidate_name' => $transferCandidate->candidate->candidate_name, 
-                'total_amount' => $transferCandidate->totalPaidToCandidate 
-            ];
-            
-            $total += $transferCandidate->totalPaidToCandidate;
+            if($value['Status'] == 'SUCCESS') {
+                $transferCandidate = TransferCandidate::find()->where(['tc_id' => $value['Credit Narrative']])->one();
+
+                if(!$transferCandidate || !$transferCandidate->candidate) {
+                    return [
+                        'operation' => 'error',
+                        'message' => 'Invalid excel',
+                        'errorCode' => 2
+                    ];
+                }
+
+                $candidatesTransfers[] = [
+                    'transfer_confirmation_id' => $value['Status Description'],
+                    'transfer_id' => $value['Debit Narrative'],
+                    'tc_id' => $value['Credit Narrative'],
+                    'candidate_id' => $transferCandidate->candidate->candidate_id,
+                    'candidate_name' => $transferCandidate->candidate->candidate_name,
+                    'total_amount' => $transferCandidate->totalPaidToCandidate
+                ];
+
+                $total += $transferCandidate->totalPaidToCandidate;
+            }
         }
         
         return [
@@ -435,7 +453,7 @@ class TransferController extends Controller
                 $tc->paid = 1;
                 $tc->transfer_file_id = $transfer_file_id;
                 $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
-                
+
                 if(!$tc->save())
                 {
                     return [
@@ -443,6 +461,8 @@ class TransferController extends Controller
                         "message" => $tc->getErrors()
                     ];
                 }
+
+                $tc->emailTransferSuccess();
             }
 
             // Check if all paid, mark transfer as complete
@@ -477,7 +497,6 @@ class TransferController extends Controller
                 'error' => $e
             ];
         }
-
 
         return [
             'operation' => 'success',

@@ -120,6 +120,8 @@ class RequestController extends BaseController
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_status = Request::STATUS_STARTED;
+        $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
+        $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
 
         if (!$model->save())
         {
@@ -168,6 +170,8 @@ class RequestController extends BaseController
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
+        $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
+        $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
 
         if (!$model->save())
         {
