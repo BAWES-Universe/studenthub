@@ -379,4 +379,44 @@ class Candidate extends \common\models\Candidate {
 
         return $query;
     }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function incompleteAssignedToWork() {
+        return self::find()
+            ->filterAssigned()
+            ->incompletedProfile()
+            ->notDeleted();
+    }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function profileApprovalRequire() {
+        return self::find()
+            ->byApprovalStatus(0)
+            ->completedProfileWithoutApproval()
+            ->notDeleted();
+    }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function assignedExpiredCivilID() {
+        return self::find()
+            ->civilIdExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
+    }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function totalExpiredCards() {
+        return self::find()
+            ->idExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
+    }
 }

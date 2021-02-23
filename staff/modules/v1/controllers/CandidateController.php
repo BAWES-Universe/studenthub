@@ -560,8 +560,6 @@ class CandidateController extends Controller
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
-            return $query->all();
-
         return new ActiveDataProvider([
             'query' => $query
         ]);
