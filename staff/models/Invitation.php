@@ -18,7 +18,7 @@ class Invitation extends \common\models\Invitation
      */
     public function getCandidate($modelClass = "\staff\models\Candidate")
     {
-        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+        return parent::getCandidate($modelClass);
     }
 
     /**
@@ -26,7 +26,7 @@ class Invitation extends \common\models\Invitation
      */
     public function getInvitationCreatedByCompany($modelClass = "\staff\models\Company")
     {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'invitation_created_by_company']);
+        return parent::getInvitationCreatedByCompany($modelClass);
     }
 
     /**
@@ -34,7 +34,7 @@ class Invitation extends \common\models\Invitation
      */
     public function getInvitationCreatedByStaff($modelClass = "\staff\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'invitation_created_by_staff']);
+        return parent::getInvitationCreatedByStaff($modelClass);
     }
 
     /**
@@ -42,7 +42,7 @@ class Invitation extends \common\models\Invitation
      */
     public function getInvitationUpdatedByCompany($modelClass = "\staff\models\Company")
     {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'invitation_updated_by_company']);
+        return parent::getInvitationUpdatedByCompany($modelClass);
     }
 
     /**
@@ -50,7 +50,7 @@ class Invitation extends \common\models\Invitation
      */
     public function getInvitationUpdatedByStaff($modelClass = "\staff\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'invitation_updated_by_staff']);
+        return parent::getInvitationUpdatedByStaff($modelClass);
     }
 
     /**
@@ -58,6 +58,6 @@ class Invitation extends \common\models\Invitation
      */
     public function getRequest($modelClass = "\staff\models\Request")
     {
-        return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid']);
+        return parent::getRequest($modelClass);
     }
 }
