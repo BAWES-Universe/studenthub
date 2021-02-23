@@ -36,10 +36,25 @@ class Candidate extends \common\models\Candidate {
         $fields = parent::extraFields ();
 
         return array_merge ([
+            'invited',
+            'invitationAccepted',
+            'invitationRejected',
             'suggested',
             'suggestionAccepted',
             'suggestionRejected'
         ], $fields);
+    }
+
+    public function getInvited() {
+        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_INVITED])->count();
+    }
+
+    public function getInvitationAccepted() {
+        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_ACCEPTED])->count();
+    }
+
+    public function getInvitationRejected() {
+        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_REJECTED])->count();
     }
 
     public function getSuggested() {
@@ -52,6 +67,15 @@ class Candidate extends \common\models\Candidate {
 
     public function getSuggestionRejected() {
         return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_REJECTED])->count();
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\staff\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
     }
 
     /**
@@ -347,6 +371,7 @@ class Candidate extends \common\models\Candidate {
      * @return \common\models\query\CandidateQuery
      */
     public static function getAssignedIdleCandidate($candidate_name = null) {
+
         $query = Candidate::find()
             ->filterAssigned()
             ->getTwoMonthBeforeTransfers();
@@ -354,6 +379,7 @@ class Candidate extends \common\models\Candidate {
         if ($candidate_name) {
             $query->filterName($candidate_name);
         }
+
         return $query;
     }
 

@@ -2417,6 +2417,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
+    public function getInvitations($modelClass = "\common\models\Invitation")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getSuggestion($modelClass = "\common\models\Suggestion")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);

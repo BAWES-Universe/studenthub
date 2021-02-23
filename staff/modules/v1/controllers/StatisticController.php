@@ -107,12 +107,14 @@ class StatisticController extends Controller
         $result['requireFollowup'] = Company::companyFollowupCount();
 
         $result['activeRequests'] = Request::activeRequestCount();
+
         $result['totalRequests'] = Request::totalRequestCount();
 
         $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
-        $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();
-        $result['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
+        $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();
+
+        $result['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
         return $result;
     }
