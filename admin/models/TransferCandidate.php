@@ -2,8 +2,10 @@
 
 namespace admin\models;
 
+use common\models\Staff;
 use Yii;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 
 /**
@@ -317,5 +319,28 @@ class TransferCandidate extends \common\models\TransferCandidate
             'operation' => 'success',
             'message' => count($transferCandidateIds). ' candidates have been marked as unpaid',
         ];
+    }
+
+    /**
+     * sending notification to all candidate with
+     * unpaid transfer due to bank issue
+     * @return bool
+     */
+    public function unpaidNotification()
+    {
+        $tmpName = explode(" ",$this->candidate->candidate_name);
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+        $allStaffEmails = ArrayHelper::map(Staff::find()->all(),'staff_email','staff_name');
+        return Yii::$app->mailer->compose("candidate/transfer-fail.php",
+            [
+                "name" => (isset($tmpName[0]))  ? $tmpName[0] : $this->candidate->candidate_name,
+                'logo' => Url::to('@web/images/logo.png', true),
+                "webUrl" => Yii::$app->params['candidateAppUrl'] . 'view/payments',
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->candidate->candidate_email)
+            ->setBcc($allStaffEmails)
+            ->setSubject('Transfer failed. Please update your bank info')
+            ->send();
     }
 }

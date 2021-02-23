@@ -71,15 +71,9 @@ class StatisticController extends Controller
     {
         // # of candidates requiring ID card to be renewed
 
-    	$result['totalExpiredCards'] =  Candidate::find()
-            ->idExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->count();
+    	$result['totalExpiredCards'] =  Candidate::totalExpiredCards()->count();
 
-        $result['assignedExpiredCivilID'] =  Candidate::find()
-            ->civilIdExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->count();
+        $result['assignedExpiredCivilID'] =  Candidate::assignedExpiredCivilID()->count();
 
     	// # of candidates that need id generated
 
@@ -90,17 +84,11 @@ class StatisticController extends Controller
 
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
-        $result['profileApprovalRequire'] = Candidate::find()
-            ->byApprovalStatus(0)
-            ->completedProfileWithoutApproval()
-            ->count();
+        $result['profileApprovalRequire'] = Candidate::profileApprovalRequire()->count();
 
         //Candidates are assigned to work but have incomplete profiles.
 
-        $result['incompleteAssignedToWork'] = Candidate::find()
-            ->filterAssigned()
-            ->incompletedProfile()
-            ->count();
+        $result['incompleteAssignedToWork'] = Candidate::incompleteAssignedToWork()->count();
 
         $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
 

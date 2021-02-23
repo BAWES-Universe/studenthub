@@ -41,31 +41,20 @@ class StatisticsCest
         $I->wantTo('get statistics');
         $I->sendGET('v1/statistics');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $result['totalExpiredCards'] =  Candidate::find()
-            ->idExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->count();
+        $result['totalExpiredCards'] =  Candidate::totalExpiredCards()->count();
 
         // # of candidates that need id generated
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
-        $result['profileApprovalRequire'] = Candidate::find()
-            ->byApprovalStatus(0)
-            ->completedProfileWithoutApproval()
-            ->count();
+        $result['profileApprovalRequire'] = Candidate::profileApprovalRequire()->count();
 
         //Candidates are assigned to work but have incomplete profiles.
-        $result['incompleteAssignedToWork'] = Candidate::find()
-            ->filterAssigned()
-            ->incompletedProfile()
-            ->count();
+        $result['incompleteAssignedToWork'] = Candidate::incompleteAssignedToWork()->count();
 
         $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
         $result['requireFollowup'] = Company::companyFollowupCount();
 
-        $result['activeRequests'] = Request::find()
-            ->filterWhere(['request_status' => Request::STATUS_STARTED])
-            ->count();
+        $result['activeRequests'] = Request::activeRequestCount();
 
         $I->canSeeResponseContainsJson($result);
     }
