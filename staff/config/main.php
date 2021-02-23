@@ -345,6 +345,18 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invitation',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // SuggestionController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/suggestion',

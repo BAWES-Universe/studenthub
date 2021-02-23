@@ -1,5 +1,6 @@
 <?php
-namespace company\models;
+
+namespace candidate\models;
 
 
 /**
@@ -23,13 +24,5 @@ class Staff extends \common\models\Staff
         );
         // remove fields that contain sensitive information
         return $fields;
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getNotes($modelClass = "\company\models\Note")
-    {
-        return parent::getNotes ($modelClass);
     }
 }

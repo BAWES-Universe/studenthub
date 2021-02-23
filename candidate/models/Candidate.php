@@ -31,6 +31,15 @@ class Candidate extends \common\models\Candidate {
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
+    public function getInvitations($modelClass = "\candidate\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
     {
         return parent::getTransferCandidate($modelClass);
@@ -45,7 +54,6 @@ class Candidate extends \common\models\Candidate {
         return parent::getPaidTransferCandidate($modelClass);
     }
 
-    
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -134,7 +142,6 @@ class Candidate extends \common\models\Candidate {
     {
         return parent::getCandidateExperiences($modelClass);
     }
-
 
     /**
      * @inheritdoc

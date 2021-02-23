@@ -83,6 +83,15 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\common\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
+    }
+
+    /**
      * @return array|\yii\db\ActiveRecord[]
      */
     public function getPaidTransferCandidate($modelClass = "\admin\models\TransferCandidate")

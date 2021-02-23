@@ -78,9 +78,19 @@ class Candidate extends \common\models\Candidate {
             'nationality',
             'candidateSkills',
             'candidateExperiences',
+            'invitations'
         ];
     }
-        
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\company\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
