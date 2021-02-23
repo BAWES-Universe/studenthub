@@ -192,5 +192,14 @@ return [
     'Receive Email?' => "استلام بريد الكتروني؟",
     "Receive Notification?" => "استلام التبليغ؟",
     "Email already registered" => "البريد الإلكتروني مسجل مسبقا",
-    "Allow access" => "السماح بالمرور"
+    "Allow access" => "السماح بالمرور",
+    "Request Location" => "طلب الموقع",
+    "Invitation Uuid" => "Uuid دعوة",
+    "Invitation Status" => "حالة الدعوة",
+    "Invitation Created By Staff" => "دعوة تم إنشاؤها من قبل الموظفين",
+    "Invitation Updated By Staff" => "تم تحديث الدعوة من قبل طاقم العمل",
+    "Invitation Created By Company" => "دعوة تم إنشاؤها من قبل الشركة",
+    "Invitation Updated By Company" => "تم تحديث الدعوة من قبل الشركة",
+    "Invitation Created At" => "تم إنشاء الدعوة في",
+    "Invitation Updated At" => "تم تحديث الدعوة في"
 ];

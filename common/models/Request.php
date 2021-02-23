@@ -21,6 +21,7 @@ use yii\behaviors\AttributeBehavior;
  * @property string $request_job_description
  * @property string $request_compensation
  * @property int $request_number_of_employees
+ * @property string $request_location
  * @property string $request_additional_info
  * @property string $request_status
  * @property string $request_feedback
@@ -56,7 +57,7 @@ class Request extends \yii\db\ActiveRecord
             [['company_id', 'request_position_type', 'request_number_of_employees'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
-            [['request_additional_info','request_job_description','request_compensation'], 'string'],
+            [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
@@ -122,6 +123,7 @@ class Request extends \yii\db\ActiveRecord
             'request_job_description' => Yii::t('app', 'Job Description'),
             'request_compensation' => Yii::t('app', 'Compensation'),
             'request_number_of_employees' => Yii::t('app', 'Request Number Of Employees'),
+            'request_location' => Yii::t('app', 'Request Location'),
             'request_additional_info' => Yii::t('app', 'Request Additional Info'),
             'request_status' => Yii::t('app', 'Request Status'),
             'request_feedback' => Yii::t('app', 'Request Feedback'),
