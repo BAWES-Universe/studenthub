@@ -276,6 +276,16 @@ class RequestController extends Controller
             ];
         }
 
+        //feel new not null fields for old requests
+
+        if(!$model->request_job_description) {
+            $model->request_job_description = '.';
+        }
+
+        if(!$model->request_compensation) {
+            $model->request_compensation = '.';
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -328,6 +338,16 @@ class RequestController extends Controller
             ];
         }
 
+        //feel new not null fields for old requests
+
+        if(!$model->request_job_description) {
+            $model->request_job_description = '.';
+        }
+
+        if(!$model->request_compensation) {
+            $model->request_compensation = '.';
+        }
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
