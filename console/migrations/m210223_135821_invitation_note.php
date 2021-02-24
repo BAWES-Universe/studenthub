@@ -12,7 +12,7 @@ class m210223_135821_invitation_note extends Migration
      */
     public function safeUp()
     {
-        /*$this->addColumn ('note', 'invitation_uuid', $this->char (60)->after('request_uuid'));
+        $this->addColumn ('note', 'invitation_uuid', $this->char (60)->after('request_uuid'));
 
         // creates index for column `invitation_uuid`
         $this->createIndex(
@@ -28,7 +28,7 @@ class m210223_135821_invitation_note extends Migration
             'invitation_uuid',
             'invitation',
             'invitation_uuid'
-        );*/
+        );
 
         $this->alterColumn ('note', 'note_type', $this->string(100)->defaultValue ('Internal Note'));
     }
