@@ -30,7 +30,14 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
 <!--            <h1>Certificate of Appreciation</h1>-->
             <h2 class="name"><?=$candidate->candidate_name?></h2>
             <div class="working-for">IN RECOGNITION OF WORKING FOR</div>
-            <div class="company"><?=($workHistory && $workHistory->company) ? $workHistory->company->company_name : '-' ?></div>
+            <div class="company"><?php
+                if ($workHistory && $workHistory->company) {
+                    $company = (isset($workHistory->company->parentCompany)) ? $workHistory->company->parentCompany : $workHistory->company;
+                    echo ($company->company_common_name_en) ? $company->company_common_name_en :  $company->company_name;
+                } else {
+                    echo 'no company detail';
+                }
+            ?></div>
             <div class="at">At</div>
             <div class="store"><?=($workHistory && $workHistory->store) ? $workHistory->store->store_name : '-';?></div>
             <div class="date">From <?=date('F j, Y',strtotime($workHistory->start_date))?> to <?=($workHistory->end_date) ? date('F j, Y',strtotime($workHistory->end_date)) : 'Present'?></div>
