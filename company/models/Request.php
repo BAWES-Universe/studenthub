@@ -69,4 +69,8 @@ class Request extends \common\models\Request
     public function getActiveSuggestions($modelClass = "\company\models\Suggestion") {
         return parent::getActiveSuggestions($modelClass);
     }
+
+    public function getInvitations($modelClass = "\company\models\Invitation") {
+        return parent::getInvitations($modelClass);
+    }
 }

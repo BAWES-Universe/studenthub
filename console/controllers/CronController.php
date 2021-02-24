@@ -157,6 +157,7 @@ class CronController extends \yii\console\Controller {
     public function actionPayableCandidateNotification()
     {
         $amount = 0;
+        $payableCandidate = [];
         $candidates = TransferCandidate::find()
             ->payable()
             ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))
