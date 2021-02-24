@@ -131,6 +131,17 @@ class Invitation extends \yii\db\ActiveRecord
         ];
     }
 
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'candidate'
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */

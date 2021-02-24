@@ -3,9 +3,9 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
-use staff\models\Note;
+use company\models\Note;
 use yii\data\ActiveDataProvider;
-use staff\models\Request;
+use company\models\Request;
 use yii\web\NotFoundHttpException;
 
 
