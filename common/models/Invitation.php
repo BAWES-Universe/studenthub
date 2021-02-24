@@ -151,6 +151,17 @@ class Invitation extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'request',
+            'company'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidate($modelClass = "\common\models\Candidate")
@@ -196,6 +207,23 @@ class Invitation extends \yii\db\ActiveRecord
     public function getRequest($modelClass = "\common\models\Request")
     {
         return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\common\models\Company")
+    {
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('request');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['note_uuid' => 'note_uuid']);
     }
 
     /**

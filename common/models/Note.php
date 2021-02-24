@@ -16,6 +16,7 @@ use yii\behaviors\AttributeBehavior;
  * @property integer $company_id
  * @property integer $candidate_id
  * @property string $request_uuid
+ * @property string $invitation_uuid
  * @property string $suggestion_uuid
  * @property string $contact_uuid
  * @property string $fulltimer_uuid
@@ -42,6 +43,9 @@ class Note extends \yii\db\ActiveRecord
     const TYPE_ACCEPTED = "Accepted";
     const TYPE_REJECTED = "Rejected";
 
+    const TYPE_INVITATION_ACCEPTED = "Invitation Accepted";
+    const TYPE_INVITATION_REJECTED = "Invitation Rejected";
+
     /**
      * @inheritdoc
      */
@@ -66,7 +70,9 @@ class Note extends \yii\db\ActiveRecord
                 self::TYPE_TASK,
                 self::TYPE_SUGGESTED,
                 self::TYPE_ACCEPTED,
-                self::TYPE_REJECTED
+                self::TYPE_REJECTED,
+                self::TYPE_INVITATION_ACCEPTED,
+                self::TYPE_INVITATION_REJECTED
             ]],
             ['request_uuid', 'validateRequest'],
             ['contact_uuid', 'validateContact'],
@@ -77,6 +83,7 @@ class Note extends \yii\db\ActiveRecord
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
+            ['invitation_uuid', 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
             [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
     }
@@ -156,6 +163,7 @@ class Note extends \yii\db\ActiveRecord
             'note_uuid' => Yii::t('candidate', 'ID'),
             'candidate_id' => Yii::t('candidate', 'Candidate ID'),
             'request_uuid' => Yii::t('candidate', 'Request ID'),
+            'invitation_uuid' => Yii::t('candidate', 'Invitation ID'),
             'contact_uuid' => Yii::t('candidate', 'Contact ID'),
             'fulltimer_uuid' => Yii::t('candidate', 'FullTimer ID'),
             'note_type' => Yii::t('app', 'Note type'),
@@ -228,11 +236,22 @@ class Note extends \yii\db\ActiveRecord
         return [
             'candidate',
             'request',
+            'invitation',
             'company',
             'createdBy',
             'updatedBy',
             'companyContact',
         ];
+    }
+
+    /**
+     * Gets query for [[Invitation]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitation($modelName = '\common\models\Invitation')
+    {
+        return $this->hasOne($modelName::className(), ['invitation_uuid' => 'invitation_uuid']);
     }
 
     /**

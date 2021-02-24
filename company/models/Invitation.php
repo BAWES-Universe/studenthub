@@ -10,6 +10,14 @@ class Invitation extends \common\models\Invitation
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getNotes($modelClass = "\company\models\Note")
+    {
+        return parent::getNotes($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidate($modelClass = "\company\models\Candidate")
     {
         return parent::getCandidate($modelClass);
@@ -53,5 +61,13 @@ class Invitation extends \common\models\Invitation
     public function getRequest($modelClass = "\company\models\Request")
     {
         return parent::getRequest($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\candidate\models\Company")
+    {
+        return parent::getCompany($modelClass);
     }
 }

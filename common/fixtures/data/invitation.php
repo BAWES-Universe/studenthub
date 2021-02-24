@@ -4,7 +4,7 @@ return [
     'invitation0' => [
         'invitation_uuid' => '5da5051d-7507-3b2e-ba6c-ee1ea81f5b95',
         'candidate_id' => 1,
-        'request_uuid' => 1,
+        'request_uuid' => 'request_b135f074-76d1-3099-9643-a29d5d194f16',
         'invitation_status' => 0,
         'invitation_created_by_staff' => 1,
         'invitation_updated_by_staff' => 1,
@@ -16,7 +16,7 @@ return [
     'invitation1' => [
         'invitation_uuid' => '7d341daa-1b3b-3ef0-8c52-1be70a55ec89',
         'candidate_id' => 2,
-        'request_uuid' => 2,
+        'request_uuid' => 'request_faf73001-58e1-3cfa-9b6d-e0ee4956bede',
         'invitation_status' => 3,
         'invitation_created_by_staff' => 2,
         'invitation_updated_by_staff' => 2,
@@ -28,7 +28,7 @@ return [
     'invitation2' => [
         'invitation_uuid' => 'de37dd57-6364-3b38-830b-a52aa83a1e48',
         'candidate_id' => 3,
-        'request_uuid' => 3,
+        'request_uuid' => 'request_790ff2bc-1f59-3839-bf9a-c56a965edbc7',
         'invitation_status' => 3,
         'invitation_created_by_staff' => 3,
         'invitation_updated_by_staff' => 3,
@@ -40,7 +40,7 @@ return [
     'invitation3' => [
         'invitation_uuid' => '1e4ca421-f222-3028-a626-d7eb2f268d35',
         'candidate_id' => 4,
-        'request_uuid' => 4,
+        'request_uuid' => 'request_a712c512-cbe1-3369-824e-9723fc808bfe',
         'invitation_status' => 0,
         'invitation_created_by_staff' => 4,
         'invitation_updated_by_staff' => 4,
@@ -52,7 +52,7 @@ return [
     'invitation4' => [
         'invitation_uuid' => '4ec6ee02-c3b9-3b3a-a2a9-30b06891d31f',
         'candidate_id' => 5,
-        'request_uuid' => 5,
+        'request_uuid' => 'request_5d61ed30-e900-3836-95cd-48b43a284b96',
         'invitation_status' => 1,
         'invitation_created_by_staff' => 5,
         'invitation_updated_by_staff' => 5,
@@ -76,7 +76,7 @@ return [
     'invitation6' => [
         'invitation_uuid' => 'bb41a37d-4517-3108-bafd-1dc3d66e3366',
         'candidate_id' => 7,
-        'request_uuid' => 7,
+        'request_uuid' => 'request_d5d2306f-d148-3212-b709-c9c78bae1ae2',
         'invitation_status' => 2,
         'invitation_created_by_staff' => 7,
         'invitation_updated_by_staff' => 7,
@@ -88,7 +88,7 @@ return [
     'invitation7' => [
         'invitation_uuid' => 'bb0095da-b7ed-3792-8fb5-8ee59acc38ec',
         'candidate_id' => 8,
-        'request_uuid' => 8,
+        'request_uuid' => 'request_ed52ff15-719a-3af7-a90e-4b7777a5262a',
         'invitation_status' => 2,
         'invitation_created_by_staff' => 8,
         'invitation_updated_by_staff' => 8,
@@ -100,7 +100,7 @@ return [
     'invitation8' => [
         'invitation_uuid' => '7ecb6c98-3314-398a-a89b-a6b14b33eeee',
         'candidate_id' => 9,
-        'request_uuid' => 9,
+        'request_uuid' => 'request_1136bd9d-dab8-3b1d-92dd-0664a6bcbbd7',
         'invitation_status' => 3,
         'invitation_created_by_staff' => 9,
         'invitation_updated_by_staff' => 9,
@@ -112,7 +112,7 @@ return [
     'invitation9' => [
         'invitation_uuid' => '73d9d34f-02b9-32d0-8efe-23ca97b0b56c',
         'candidate_id' => 10,
-        'request_uuid' => 10,
+        'request_uuid' => 'request_a1d890a0-0bca-3c32-a701-bbba1d89220d',
         'invitation_status' => 2,
         'invitation_created_by_staff' => 10,
         'invitation_updated_by_staff' => 10,
