@@ -223,6 +223,18 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-candidate-invitation',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 /*[ // InvitationController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invitation',
