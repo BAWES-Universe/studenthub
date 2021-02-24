@@ -14,6 +14,16 @@ class Invitation extends \common\models\Invitation
     }
 
     /**
+     * Gets query for [[Invitation]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelName = '\staff\models\Note')
+    {
+        return parent::getNotes($modelName);
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidate($modelClass = "\staff\models\Candidate")

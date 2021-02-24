@@ -18,6 +18,16 @@ class Note extends \common\models\Note {
     }
 
     /**
+     * Gets query for [[Invitation]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitation($modelName = '\staff\models\Invitation')
+    {
+        return parent::getInvitation($modelName);
+    }
+
+    /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */

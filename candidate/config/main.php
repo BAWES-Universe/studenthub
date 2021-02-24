@@ -176,6 +176,19 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invitation',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'PATCH accept/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'reject',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS accept/<id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
+                    ]
+                ],
                 [ // CountryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/country',

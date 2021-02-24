@@ -9,6 +9,16 @@ namespace company\models;
 class Note extends \common\models\Note
 {
     /**
+     * Gets query for [[Invitation]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitation($modelName = '\company\models\Invitation')
+    {
+        return parent::getInvitation($modelName);
+    }
+
+    /**
      * Gets query for [[Request]].
      *
      * @return \yii\db\ActiveQuery

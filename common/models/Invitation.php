@@ -199,6 +199,14 @@ class Invitation extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['note_uuid' => 'note_uuid']);
+    }
+
+    /**
      * @inheritdoc
      * @return query\InvitationQuery the active query used by this AR class.
      */
