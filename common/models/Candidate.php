@@ -2118,6 +2118,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
+            'candidate_birth_timestamp' => strtotime($this->candidate_birth_date),
             'candidate_driving_license' => $this->candidate_driving_license,
             'candidate_language_pref' => $this->candidate_language_pref,
             'candidate_job_search_status' => $this->candidate_job_search_status,
