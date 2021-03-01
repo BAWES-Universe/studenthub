@@ -58,7 +58,7 @@ class Candidate extends \common\models\Candidate {
     }
 
     public function getSuggested() {
-        return $this->getSuggestion()->count();
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_SUGGESTED])->count();
     }
 
     public function getSuggestionAccepted() {

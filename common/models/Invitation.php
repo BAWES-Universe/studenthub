@@ -158,8 +158,17 @@ class Invitation extends \yii\db\ActiveRecord
         return [
             'request',
             'company',
-            'candidate'
+            'candidate',
+            'suggestion'
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\common\models\Suggestion")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id','request_uuid'=>'request_uuid']);
     }
 
     /**
