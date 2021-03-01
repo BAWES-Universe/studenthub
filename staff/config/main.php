@@ -280,6 +280,7 @@ return [
                         'GET active' => 'list-active',
                         'GET all-active' => 'list-all-active',
                         'GET my' => 'list-my',
+                        'GET is-request-updated/<id>' => 'is-request-updated',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH pick-up/<id>' => 'pick-up',
@@ -290,7 +291,7 @@ return [
                         'POST add-activity' => 'add-activity',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
+                        'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS pending' => 'options',
                         'OPTIONS active' => 'options',
                         'OPTIONS my' => 'options',
@@ -300,6 +301,7 @@ return [
                         'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
                         'OPTIONS all-active' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // BrandController
