@@ -377,6 +377,18 @@ class RequestController extends Controller
     }
 
     /**
+     * check if request updated
+     */
+    public function actionIsRequestUpdated($id) {
+
+        $request = $this->findModel ($id);
+
+        return [
+            "request_updated_datetime" => $request->request_updated_datetime
+        ];
+    }
+
+    /**
      * Allows staff to add request activity
      */
     public function actionAddActivity() {

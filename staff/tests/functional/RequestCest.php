@@ -55,7 +55,19 @@ class RequestCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
-    
+
+    /**
+     * api to check if request updated
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToCheckRequestUpdated(FunctionalTester $I)
+    {
+        $I->wantTo('Check if request updated');
+        $I->sendGET('v1/requests/is-request-updated/' . $this->request->request_uuid);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
     /**
      * View company contact detail
      * @param FunctionalTester $I
