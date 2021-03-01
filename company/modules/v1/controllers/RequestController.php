@@ -75,8 +75,8 @@ class RequestController extends BaseController
         $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
-            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
-            ->andWhere(['request_status' => Request::STATUS_STARTED])
+            ->andWhere(['IN', 'company_id', $companyIds])//current company and childs
+            ->andWhere(['NOT IN', 'request_status', [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED]])
             ->orderBy('request_created_datetime DESC');
 
         if($company_id) {

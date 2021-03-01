@@ -179,11 +179,13 @@ return [
                     'controller' => 'v1/request',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET active' => 'list-active',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS active' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
