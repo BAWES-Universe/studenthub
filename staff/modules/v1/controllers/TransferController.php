@@ -290,7 +290,10 @@ class TransferController extends Controller
             ];
         }
 
-        Yii::info('[Company '.$transfer->company->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
+        $info = '[ Staff '.Yii::$app->user->identity->staff_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent" ] ';
+        $info .= '[ for Company '.$transfer->company->company_name.'] ';
+        $info .= 'Check if payment has been received by bank.';
+        Yii::info($info, __METHOD__);
 
         return [
             "operation" => "success",
@@ -329,7 +332,10 @@ class TransferController extends Controller
         // send invoice mail
         $transfer->notify('invoice');
 
-        Yii::info('[Company '.$transfer->company->company_name.' has locked transfer #'.$transfer->transfer_id.'] They will be sending payment soon.', __METHOD__);
+        $info = '[ Staff '.Yii::$app->user->identity->staff_name.' has locked transfer #'.$transfer->transfer_id.'] ';
+        $info .= '[ for Company '.$transfer->company->company_name.'] ';
+        $info .= 'They will be sending payment soon.';
+        Yii::info($info, __METHOD__);
 
         return [
             "operation" => "success",
@@ -355,7 +361,10 @@ class TransferController extends Controller
         //delete data child transfer
         if(Transfer::deleteTransfer($model))
         {
-            Yii::info('[Company '.$model->company->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
+            $info = '[ Staff '.Yii::$app->user->identity->staff_name.' Deleted Transfer #'.$id.' ] ';
+            $info .= '[ for Company '.$model->company->company_name.'] ';
+            $info .= 'Check for reason and ask if they require assistance.';
+            Yii::info($info, __METHOD__);
 
             return [
                 "operation" => "success",
