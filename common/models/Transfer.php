@@ -892,9 +892,9 @@ class Transfer extends ActiveRecord
             $note->note_text = "I have created a transfer for " . $transfer->company->company_common_name_en . " with a total of " . $transfer->company_total . " KD";
             $note->save();
         } else {
-            if (Yii::$app->user->identity->staff_id) {
+            if (isset(Yii::$app->user->identity->staff_id)) {
                 $info = '[ Staff '.Yii::$app->user->identity->staff_name.' created a new transfer draft] ';
-            } else if (Yii::$app->user->identity->contact_uuid) {
+            } else if (isset(Yii::$app->user->identity->contact_uuid)) {
                 $info = '[ Agent '.Yii::$app->user->identity->contact_name.' created a new transfer draft] ';
             }
             $info .= '[ for '.$company->company_name.' ] ';
@@ -1171,9 +1171,9 @@ class Transfer extends ActiveRecord
             $note->note_text = "I have updated a transfer for " . $this->company->company_common_name_en . " with a total of " . $this->company_total . " KD";
             $note->save();
         } else {
-            if (Yii::$app->user->identity->staff_id) {
+            if (isset(Yii::$app->user->identity->staff_id)) {
                 $info = '[ Staff '.Yii::$app->user->identity->staff_name.' updated transfer #'.$this->transfer_id.'] ';
-            } else if (Yii::$app->user->identity->contact_uuid) {
+            } else if (isset(Yii::$app->user->identity->contact_uuid)) {
                 $info = '[ Agent '.Yii::$app->user->identity->contact_name.' updated transfer #'.$this->transfer_id.'] ';
             }
             $info .= '[ for '.$this->company->company_name.' ] ';
