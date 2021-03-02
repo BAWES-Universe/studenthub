@@ -517,8 +517,7 @@ class CandidateController extends Controller
         $withoutBank = Yii::$app->request->get("without_bank");
 
         $query = Candidate::find()
-            ->filterNotAssigned()
-            ->orderByStatus();
+            ->filterNotAssigned();
 
         if ($incompleteProfile) {
         //    $query->byApprovalStatus(0);
@@ -548,8 +547,7 @@ class CandidateController extends Controller
         $incompleteProfile = Yii::$app->request->get("incomplete_profile");
 
         $query = Candidate::find()
-            ->filterAssigned()
-            ->orderByStatus();
+            ->filterAssigned();
 
         if ($incompleteProfile) {
             $query->incompletedProfile();
@@ -575,8 +573,7 @@ class CandidateController extends Controller
         $phone = Yii::$app->request->get("phone");
         $type = Yii::$app->request->get("type");
 
-        $query = Candidate::find()
-            ->orderByStatus();
+        $query = Candidate::find();
 
         if ($type == 'assigned') {
             $query->filterAssigned();
