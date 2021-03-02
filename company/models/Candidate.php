@@ -38,6 +38,10 @@ class Candidate extends \common\models\Candidate {
             $fields['candidate_new_email'],
             $fields['bank_account_name'],
             $fields['bank_id'],
+            $fields['store_id'],
+            $fields['store'],
+            $fields['candidate_phone'],
+            $fields['candidate_email']
         );
 
         /**
@@ -94,7 +98,7 @@ class Candidate extends \common\models\Candidate {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUniversity($modelClass = "\common\models\University")
+    public function getUniversity($modelClass = "\company\models\University")
     {
         return parent::getUniversity($modelClass);
     }
@@ -102,7 +106,7 @@ class Candidate extends \common\models\Candidate {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCountry($modelClass = "\common\models\Country")
+    public function getCountry($modelClass = "\company\models\Country")
     {
         return parent::getCountry($modelClass);
     }
@@ -163,5 +167,13 @@ class Candidate extends \common\models\Candidate {
     public function getCandidateExperiences($modelClass = "\common\models\CandidateExperience")
     {
         return parent::getCandidateExperiences($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNationality($modelClass = "\company\models\Country")
+    {
+        return parent::getNationality($modelClass);
     }
 }

@@ -23,4 +23,13 @@ class Country extends \common\models\Country
     {
         return parent::getAreas($modelClass);
     }
+
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['total_candidates']);
+        return $fields;
+    }
+
 }
