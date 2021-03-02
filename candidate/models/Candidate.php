@@ -153,4 +153,9 @@ class Candidate extends \common\models\Candidate {
             return $token->candidate;
         }
     }
+
+    public function getNationality($modelClass = "\candidate\models\Country")
+    {
+        return parent::getNationality($modelClass);
+    }
 }
