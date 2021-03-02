@@ -44,6 +44,7 @@ class StatisticsCest
         $result['totalExpiredCards'] =  Candidate::find()
             ->idExpired()
             ->filterAssigned() // only candidate with assigned work
+            ->notDeleted()
             ->count();
 
         // # of candidates that need id generated
@@ -52,12 +53,14 @@ class StatisticsCest
         $result['profileApprovalRequire'] = Candidate::find()
             ->byApprovalStatus(0)
             ->completedProfileWithoutApproval()
+            ->notDeleted()
             ->count();
 
         //Candidates are assigned to work but have incomplete profiles.
         $result['incompleteAssignedToWork'] = Candidate::find()
             ->filterAssigned()
             ->incompletedProfile()
+            ->notDeleted()
             ->count();
 
         $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
