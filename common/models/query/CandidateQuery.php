@@ -273,4 +273,11 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function candidateMomKuwaitiFieldIsNull() {
         return $this->andWhere('{{%candidate}}.`candidate_mom_kuwaiti` IS NULL');
     }
+
+    /**
+     * @return CandidateQuery
+     */
+    public function notDeleted() {
+        return $this->andWhere(['{{%candidate}}.deleted'=>0]);
+    }
 }

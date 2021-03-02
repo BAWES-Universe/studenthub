@@ -349,7 +349,8 @@ class Candidate extends \common\models\Candidate {
     public static function getAssignedIdleCandidate($candidate_name = null) {
         $query = Candidate::find()
             ->filterAssigned()
-            ->getTwoMonthBeforeTransfers();
+            ->getTwoMonthBeforeTransfers()
+            ->notDeleted();
 
         if ($candidate_name) {
             $query->filterName($candidate_name);
@@ -376,6 +377,7 @@ class Candidate extends \common\models\Candidate {
             $query->filterName($candidate_name);
         }
 
+        $query->notDeleted(); // only candidate with assigned work
         return $query;
     }
 }
