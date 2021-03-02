@@ -547,8 +547,8 @@ class CandidateController extends Controller
         $incompleteProfile = Yii::$app->request->get("incomplete_profile");
 
         $query = Candidate::find()
-            ->filterAssigned();
-
+            ->filterAssigned()
+            ->notDeleted();
         if ($incompleteProfile) {
             $query->incompletedProfile();
         }
@@ -841,7 +841,8 @@ class CandidateController extends Controller
 
         $query = Candidate::find()
             ->civilIdExpired()
-            ->filterAssigned(); // only candidate with assigned work
+            ->filterAssigned()
+            ->notDeleted(); // only candidate with assigned work
 
         if($candidate_name) {
             $query->filterName($candidate_name);

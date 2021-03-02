@@ -252,7 +252,8 @@ class CandidateIdCardController extends Controller
 
         $query = Candidate::find()
             ->idExpired()
-            ->filterAssigned(); // only candidate with assigned work
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted(); // only candidate with assigned work
 
         if($candidate_name) {
             $query->filterName($candidate_name);
