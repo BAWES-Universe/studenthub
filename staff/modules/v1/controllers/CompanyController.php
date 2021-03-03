@@ -113,7 +113,8 @@ class CompanyController extends Controller
                 'subCompanies',
                 'stores',
             ])   
-            ->followups();
+            ->followups()
+            ->filterParent();
 
         return new ActiveDataProvider([
             'query' => $query
