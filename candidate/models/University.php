@@ -1,7 +1,7 @@
 <?php
 namespace candidate\models;
 
-use Yii;
+
 /**
  * This is the model class for table "University".
  * It extends from \common\models\University but with custom functionality for this application module
@@ -19,6 +19,14 @@ class University extends \common\models\University {
         unset($fields['total_candidates']);
 
         return $fields;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates($modelClass = "\candidate\models\Candidate")
+    {
+        return parent::getCandidates($modelClass);
     }
 }
 

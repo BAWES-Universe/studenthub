@@ -66,8 +66,16 @@ class Invitation extends \common\models\Invitation
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany($modelClass = "\candidate\models\Company")
+    public function getCompany($modelClass = "\company\models\Company")
     {
         return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\company\models\Suggestion")
+    {
+        return parent::getSuggestion($modelClass);
     }
 }

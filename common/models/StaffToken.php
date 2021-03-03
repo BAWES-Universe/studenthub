@@ -47,6 +47,20 @@ class StaffToken extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset(
+            $fields['token_value']
+        );
+
+        return $fields;
+    }
+
+    /**
      * @return array
      */
     public function behaviors() {

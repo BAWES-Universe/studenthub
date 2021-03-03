@@ -8,11 +8,11 @@ use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use candidate\models\Candidate;
-use common\models\CandidateSkill;
-use common\models\CandidateExperience;
+use candidate\models\CandidateSkill;
+use candidate\models\CandidateExperience;
 use candidate\models\TransferCandidate;
-use common\models\Transfer;
-use common\models\Area;
+use candidate\models\Transfer;
+use candidate\models\Area;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated

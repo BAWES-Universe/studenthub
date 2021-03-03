@@ -20,4 +20,21 @@ class Invoice extends \common\models\Invoice {
         };
         return $fields;
     }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\company\models\Company")
+    {
+        return parent::getCompany ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfer($modelClass = "\company\models\Transfer")
+    {
+        return parent::getTransfer ($modelClass);
+    }
 }

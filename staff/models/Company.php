@@ -108,6 +108,95 @@ class Company extends \common\models\Company {
     }
 
     /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\staff\models\Note")
+    {
+        return parent::getNotes($modelClass);
+    }
+
+    public function getTotalCandidates()
+    {
+        return parent::getTotalCandidateCount($this->company_id);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \company\models\Company
+     */
+    public function getCandidates($modelClass = "\staff\models\Candidate")
+    {
+        return parent::getCandidates($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getSubCompanyStores($modelClass = "\staff\models\Store")
+    {
+        return parent::getSubCompanyStores($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\staff\models\Request")
+    {
+        return parent::getRequests($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany($modelClass = "\staff\models\Company")
+    {
+        return parent::getParentCompany($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\staff\models\Invoice")
+    {
+        parent::getInvoices($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrands($modelClass = "\staff\models\Brand")
+    {
+        return parent::getBrands($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContacts($modelClass = "\staff\models\CompanyContact")
+    {
+        return parent::getCompanyContacts($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContacts($modelClass = "\staff\models\Contact")
+    {
+        return parent::getContacts($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFiles($modelClass = "\common\models\File")
+    {
+        return parent::getFiles($modelClass);
+    }
+
+    /**
      * Send new password to customer
      * @param $model
      * @param string $type
@@ -131,15 +220,6 @@ class Company extends \common\models\Company {
             ->setTo(['khalid@bawes.net'=>'Khalid'])
             ->setSubject($subject)
             ->send();
-    }
-
-    /**
-     * @param string $modelClass
-     * @return \yii\db\ActiveQuery
-     */
-    public function getNotes($modelClass = "\staff\models\Note")
-    {
-        return parent::getNotes($modelClass);
     }
 
     /**

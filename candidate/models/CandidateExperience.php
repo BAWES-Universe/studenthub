@@ -2,6 +2,7 @@
 
 namespace candidate\models;
 
+
 class CandidateExperience extends \common\models\CandidateExperience
 {
     /**

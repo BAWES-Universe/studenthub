@@ -2,7 +2,6 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Staff;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;

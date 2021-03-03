@@ -2,10 +2,10 @@
 
 namespace admin\modules\v1\controllers;
 
-use common\models\File;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
+use admin\models\File;
 use admin\models\Company;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;

@@ -591,8 +591,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
 
-        unset($fields['deleted']);
-        unset($fields['candidate_uid']);
+        unset(
+            $fields['deleted'],
+            $fields['candidate_uid'],
+            $fields['candidate_password_hash'],
+            $fields['candidate_password_reset_token']
+        );
 
         return $fields;
     }

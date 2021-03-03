@@ -85,5 +85,4 @@ class ContactInvitation extends \common\models\ContactInvitation {
     public function getCompany($modelClass = '\company\models\Company') {
         return parent::getCompany($modelClass);
     }
-
 }

@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use staff\models\Note;
 use staff\models\Store;
-use common\models\CandidateWorkHistory;
+use staff\models\CandidateWorkHistory;
 use yii\web\NotFoundHttpException;
 
 

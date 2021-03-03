@@ -2,9 +2,9 @@
 
 namespace candidate\models;
 
+
 class CandidateSkill extends \common\models\CandidateSkill
 {
-
     /**
      * @return array
      */
@@ -17,5 +17,13 @@ class CandidateSkill extends \common\models\CandidateSkill
         unset($fields['candidate_id']);
 
         return $fields;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($modelClass = "\candidate\models\Candidate")
+    {
+        return parent::getCandidate($modelClass);
     }
 }

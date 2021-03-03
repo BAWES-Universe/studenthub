@@ -2,8 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Candidate;
-use common\models\Fulltimer;
+use staff\models\Candidate;
+use staff\models\Fulltimer;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;

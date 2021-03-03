@@ -47,6 +47,18 @@ class AdminToken extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['token_value']);
+
+        return $fields;
+    }
+
     public function behaviors() {
         return [
             [
@@ -90,8 +102,8 @@ class AdminToken extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAdmin()
+    public function getAdmin($modelClass = "\common\models\Admin")
     {
-        return $this->hasOne(Admin::className(), ['admin_id' => 'admin_id']);
+        return $this->hasOne($modelClass::className(), ['admin_id' => 'admin_id']);
     }
 }

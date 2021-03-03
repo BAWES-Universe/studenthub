@@ -76,6 +76,18 @@ class ContactToken extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['token_value']);
+
+        return $fields;
+    }
+
+    /**
      * Generates unique access token to be used as value
      * @return string
      */

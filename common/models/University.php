@@ -110,20 +110,14 @@ class University extends \yii\db\ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
+
         unset($fields['deleted']);
+
         $fields['total_candidates'] = function($model) {
             return (int) sizeof($model->candidates);
         };
 
         return $fields;
-    }    
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCandidates()
-    {
-        return $this->hasMany(Candidate::className(),['university_id'=>'university_id']);
     }
 
     /**
@@ -134,6 +128,14 @@ class University extends \yii\db\ActiveRecord
     {
         $this->deleted = 1;
         return $this->save(false);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates($modelClass = "\common\models\Candidate")
+    {
+        return $this->hasMany($modelClass::className(),['university_id'=>'university_id']);
     }
 
     /**

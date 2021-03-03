@@ -3,15 +3,11 @@
 namespace candidate\modules\v1\controllers;
 
 
-use common\models\Candidate;
 use staff\models\Note;
-use staff\models\Suggestion;
 use Yii;
-use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use candidate\models\Invitation;
-use candidate\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;

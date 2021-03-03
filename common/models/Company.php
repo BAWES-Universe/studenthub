@@ -277,9 +277,9 @@ class Company extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getParentCompany()
+    public function getParentCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'parent_company_id']);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'parent_company_id']);
     }
 
     /**
@@ -325,16 +325,16 @@ class Company extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getInvoices()
+    public function getInvoices($modelClass = "\common\models\Invoice")
     {
         if(!$this->parent_company_id) //parent company         
         {
-            return $this->hasMany(Invoice::className(), ['company_id' => 'company_id'])
+            return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
                 ->via('subCompanies');
         }
         else //child company
         {
-            return $this->hasMany(Invoice::className(), ['company_id' => 'company_id']);
+            return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
         }        
     }
 
@@ -367,7 +367,43 @@ class Company extends \yii\db\ActiveRecord
             ->where('parent_transfer_id IS NULL')
             ->orderBy('transfer_id DESC');
     }
-    
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getSubCompanyStores($modelClass = "\common\models\Store")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('subCompanies')
+            ->andWhere(['deleted'=>0]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrands($modelClass = "\common\models\Brand")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContacts($modelClass = "\common\models\CompanyContact")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContacts($modelClass = "\common\models\Contact")
+    {
+        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
+            ->via('companyContacts');
+    }
+
     /**
      * @return bool
      */
@@ -392,42 +428,6 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param string $modelClass
-     * @return $this
-     */
-    public function getSubCompanyStores($modelClass = "\common\models\Store")
-    {
-        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
-            ->via('subCompanies')
-            ->andWhere(['deleted'=>0]);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getBrands($modelClass = "\common\models\Brand")
-    {
-        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
-    }
-    
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCompanyContacts($modelClass = "\common\models\CompanyContact")
-    {
-        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getContacts($modelClass = "\common\models\Contact")
-    {
-        return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
-            ->via('companyContacts');
-    }
-
-    /**
      * @param $company_id
      * @return int|string
      */
@@ -441,14 +441,6 @@ class Company extends \yii\db\ActiveRecord
         return Store::find()
             ->where(['in', 'company_id', $company_ids])
             ->sum('store_total_candidates');
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getFiles()
-    {
-        return $this->hasMany(File::className(), ['company_id' => 'company_id']);
     }
 
     /**
@@ -607,6 +599,14 @@ class Company extends \yii\db\ActiveRecord
             return $this->hasMany($modelClass::className(), ['mall_uuid' => 'mall_uuid'])
                 ->via('stores');
         }
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFiles($modelClass = "\common\models\File")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**

@@ -81,6 +81,23 @@ class Inspector extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // remove fields that contain sensitive information
+        unset($fields['inspector_auth_key'],
+            $fields['inspector_password_hash'],
+            $fields['inspector_password_reset_token'],
+            $fields['inspector_deleted']
+        );
+
+        return $fields;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()
@@ -173,15 +190,6 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ->setTo($this->inspector_email)
             ->setSubject('Reset your StudentHub password')
             ->send();
-    }
-
-    /**
-     * Access tokens used to login on devices
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAccessTokens()
-    {
-        return $this->hasMany(InspectorToken::className(), ['inspector_uuid' => 'inspector_uuid']);
     }
 
     /**
@@ -354,6 +362,15 @@ class Inspector extends ActiveRecord implements IdentityInterface
         }
 
         return null;
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = '\common\models\InspectorToken')
+    {
+        return $this->hasMany($modelClass::className(), ['inspector_uuid' => 'inspector_uuid']);
     }
 
     /**

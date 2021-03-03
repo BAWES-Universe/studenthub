@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
-use common\models\TransferFile;
+use admin\models\TransferFile;
 
 
 /**

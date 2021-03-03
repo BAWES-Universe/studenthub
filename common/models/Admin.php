@@ -51,6 +51,21 @@ class Admin extends ActiveRecord implements IdentityInterface {
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // remove fields that contain sensitive information
+        unset($fields['admin_auth_key'],
+            $fields['admin_password_hash'],
+            $fields['admin_password_reset_token']);
+
+        return $fields;
+    }
+
     public function behaviors() {
         return [
             [
@@ -84,9 +99,9 @@ class Admin extends ActiveRecord implements IdentityInterface {
      * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
      */
-    public function getAccessTokens()
+    public function getAccessTokens($modelClass = "\common\models\AdminToken")
     {
-        return $this->hasMany(AdminToken::className(), ['admin_id' => 'admin_id']);
+        return $this->hasMany($modelClass::className(), ['admin_id' => 'admin_id']);
     }
 
     /**

@@ -79,6 +79,146 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getPaidTransferCandidate($modelClass = "\staff\models\TransferCandidate")
+    {
+        return parent::getPaidTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity($modelClass = "\staff\models\University")
+    {
+        return parent::getUniversity($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\staff\models\Country")
+    {
+        return parent::getCountry($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore($modelClass = "\staff\models\Store")
+    {
+        return parent::getStore($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\staff\models\Company")
+    {
+        return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidate($modelClass = "\staff\models\TransferCandidate")
+    {
+        return parent::getTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCard($modelClass = "\staff\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCard($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCards($modelClass = "\staff\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCards($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateSkills($modelClass = "\common\models\CandidateSkill")
+    {
+        return parent::getCandidateSkills($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateExperiences($modelClass = "\common\models\CandidateExperience")
+    {
+        return parent::getCandidateExperiences($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNationality($modelClass = "\staff\models\Country")
+    {
+        return parent::getNationality($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\staff\models\Bank")
+    {
+        return parent::getBank ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\staff\models\Area")
+    {
+        return parent::getArea ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\staff\models\Transfer")
+    {
+        return parent::getTransfers ($modelClass);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\CandidateToken")
+    {
+        return parent::getAccessTokens ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory($modelClass = "\staff\models\CandidateWorkHistory")
+    {
+        return parent::getWorkHistory ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\staff\models\Suggestion")
+    {
+        return parent::getSuggestion ($modelClass);
+    }
+
+    /**
      * @param bool $insert
      * @return bool
      */
@@ -142,14 +282,6 @@ class Candidate extends \common\models\Candidate {
         }
 
         return true;
-    }
-
-    /**
-     * @return array|\yii\db\ActiveRecord[]
-     */
-    public function getPaidTransferCandidate($modelClass = "\staff\models\TransferCandidate")
-    {
-        return parent::getPaidTransferCandidate($modelClass);
     }
 
     /**

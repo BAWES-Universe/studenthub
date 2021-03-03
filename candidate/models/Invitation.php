@@ -69,4 +69,12 @@ class Invitation extends \common\models\Invitation
     {
         return parent::getCompany($modelClass);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\candidate\models\Suggestion")
+    {
+        return parent::getSuggestion($modelClass);
+    }
 }

@@ -5,7 +5,7 @@ namespace candidate\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\University;
+use candidate\models\University;
 use yii\web\NotFoundHttpException;
 
 

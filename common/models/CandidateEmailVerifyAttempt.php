@@ -66,7 +66,19 @@ class CandidateEmailVerifyAttempt extends \yii\db\ActiveRecord
             ],
         ];
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['code']);
+
+        return $fields;
+    }
+
     /**
      * {@inheritdoc}
      */
