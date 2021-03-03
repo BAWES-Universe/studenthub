@@ -583,6 +583,7 @@ class Company extends \yii\db\ActiveRecord
     public static function companyFollowupCount() {
         return self::find()
             ->followups()
+            ->filterParent()
             ->count();
     }
 
