@@ -25,4 +25,12 @@ class Staff extends \common\models\Staff
         // remove fields that contain sensitive information
         return $fields;
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\candidate\models\Note")
+    {
+        return parent::getNotes($modelClass);
+    }
 }

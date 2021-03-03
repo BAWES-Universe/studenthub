@@ -198,7 +198,7 @@ class TransferCandidateController extends Controller
      */
     protected function findTransferFile($id)
     {
-        if (($model = \common\models\TransferFile::findOne($id)) !== null) {
+        if (($model = \admin\models\TransferFile::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

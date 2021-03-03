@@ -36,4 +36,21 @@ class Staff extends \common\models\Staff {
             return $token->staff;
         }
     }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\StaffToken")
+    {
+        return parent::getAccessTokens($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\staff\models\Note")
+    {
+        return parent::getNotes($modelClass);
+    }
 }

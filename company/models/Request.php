@@ -9,6 +9,7 @@ namespace company\models;
 class Request extends \common\models\Request
 {
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getCompany($modelClass = "\company\models\Company")
@@ -17,6 +18,7 @@ class Request extends \common\models\Request
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getContact($modelClass = "\company\models\CompanyContact")
@@ -25,6 +27,7 @@ class Request extends \common\models\Request
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getRequestCreatedBy($modelClass = "\company\models\Staff")
@@ -33,6 +36,7 @@ class Request extends \common\models\Request
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getRequestUpdatedBy($modelClass = "\company\models\Staff")
@@ -41,6 +45,7 @@ class Request extends \common\models\Request
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getLastActivity($modelClass = "\company\models\Note")
@@ -49,6 +54,7 @@ class Request extends \common\models\Request
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getRequestActivities($modelClass = "\company\models\Note")
@@ -57,6 +63,7 @@ class Request extends \common\models\Request
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getSuggestions($modelClass = "\company\models\Suggestion") {
@@ -64,13 +71,36 @@ class Request extends \common\models\Request
     }
 
     /**
+     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getActiveSuggestions($modelClass = "\company\models\Suggestion") {
         return parent::getActiveSuggestions($modelClass);
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getInvitations($modelClass = "\company\models\Invitation") {
         return parent::getInvitations($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestCreatedByContact($modelClass = "\company\models\Contact")
+    {
+        return parent::getRequestCreatedByContact($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestUpdatedByContact($modelClass = "\company\models\Contact")
+    {
+        return parent::getRequestUpdatedByContact($modelClass);
     }
 }

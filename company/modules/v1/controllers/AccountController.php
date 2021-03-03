@@ -2,8 +2,8 @@
 namespace company\modules\v1\controllers;
 
 use company\models\Contact;
-use common\models\ContactEmail;
-use common\models\ContactPhone;
+use company\models\ContactEmail;
+use company\models\ContactPhone;
 use Yii;
 
 

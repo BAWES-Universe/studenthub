@@ -36,4 +36,20 @@ class CompanyContact extends \common\models\CompanyContact
     {
         return parent::getContact($modelClass);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactEmails($modelClass = "\staff\models\ContactEmail")
+    {
+        return parent::getContactEmails($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContactPhones($modelClass = "\staff\models\ContactPhone")
+    {
+        return parent::getContactPhones($modelClass);
+    }
 }

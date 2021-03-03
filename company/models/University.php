@@ -33,6 +33,13 @@ class University extends \common\models\University
         $fields = parent::fields();
         unset($fields['deleted'],$fields['total_candidates']);
         return $fields;
-    }    
+    }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates($modelClass = "\company\models\Candidate")
+    {
+        return parent::getCandidates ($modelClass);
+    }
 }

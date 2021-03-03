@@ -176,4 +176,63 @@ class Candidate extends \common\models\Candidate {
     {
         return parent::getNationality($modelClass);
     }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getPaidTransferCandidate($modelClass = "\company\models\TransferCandidate")
+    {
+        return parent::getPaidTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\company\models\Bank")
+    {
+        return parent::getBank ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\company\models\Area")
+    {
+        return parent::getArea ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\company\models\Transfer")
+    {
+        return parent::getTransfers ($modelClass);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\CandidateToken")
+    {
+        return parent::getAccessTokens ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory($modelClass = "\company\models\CandidateWorkHistory")
+    {
+        return parent::getWorkHistory ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\company\models\Suggestion")
+    {
+        return parent::getSuggestion ($modelClass);
+    }
 }

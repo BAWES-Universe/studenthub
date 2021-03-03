@@ -158,4 +158,30 @@ class Candidate extends \common\models\Candidate {
     {
         return parent::getNationality($modelClass);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\candidate\models\Area")
+    {
+        return parent::getArea ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\candidate\models\Transfer")
+    {
+        return parent::getTransfers ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\candidate\models\Suggestion")
+    {
+        return parent::getSuggestion ($modelClass);
+    }
 }

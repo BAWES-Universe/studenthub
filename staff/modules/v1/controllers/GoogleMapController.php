@@ -2,7 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Area;
+use staff\models\Area;
 use Yii;
 use yii\rest\Controller;  
 

@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\Mall;
+use staff\models\Mall;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;

@@ -6,7 +6,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Note;
-use common\models\Request;
+use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;

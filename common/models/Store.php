@@ -176,24 +176,6 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return bool
-     */
-    public function softDelete()
-    {
-        $this->deleted = 1;
-        return $this->save(false);
-    }
-    
-    /**
-     * @inheritdoc
-     * @return query\StoreQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new query\StoreQuery(get_called_class());
-    }
-
-    /**
      * @return \yii\db\ActiveQuery
      */
     public function getBrand($modelClass = "\common\models\Brand")
@@ -235,5 +217,23 @@ class Store extends \yii\db\ActiveRecord
     public function getCandidatesCount($modelClass = "\staff\models\Candidate")
     {
         return $this->getCandidates($modelClass)->count();
+    }
+
+    /**
+     * @return bool
+     */
+    public function softDelete()
+    {
+        $this->deleted = 1;
+        return $this->save(false);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\StoreQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\StoreQuery(get_called_class());
     }
 }

@@ -4,7 +4,7 @@ namespace company\modules\v1\controllers;
 
 use Yii;
 use yii\data\ActiveDataProvider;
-use common\models\CompanyContact;
+use company\models\CompanyContact;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -53,7 +53,7 @@ class CompanyContactController extends BaseController
 
     /**
      * retrun access details
-     * @return \common\models\CompanyContact|null
+     * @return \company\models\CompanyContact|null
      */
     public function actionViewCompanyContact() {
         $company = Yii::$app->companyManager->getCompany();

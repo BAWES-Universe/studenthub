@@ -117,6 +117,7 @@ class Contact extends \yii\db\ActiveRecord
             $fields['contact_password_hash'],
             $fields['contact_password_reset_token'],
             $fields['contact_auth_key']);
+
         return $fields;
     }
 

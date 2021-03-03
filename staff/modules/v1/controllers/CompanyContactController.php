@@ -2,8 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\ContactEmail;
-use common\models\ContactPhone;
+use staff\models\ContactEmail;
+use staff\models\ContactPhone;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -121,7 +121,7 @@ class CompanyContactController extends Controller
 
     /**
      * retrun access details
-     * @return \common\models\CompanyContact|null
+     * @return \staff\models\CompanyContact|null
      */
     public function actionViewCompanyContact() {
         $company_id = Yii::$app->request->get('company_id');

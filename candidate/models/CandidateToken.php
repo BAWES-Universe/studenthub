@@ -1,6 +1,7 @@
 <?php
 namespace candidate\models;
 
+
 /**
  * This is the model class for table "CandidateToken".
  * It extends from \common\models\CandidateToken but with custom functionality for this application module

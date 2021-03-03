@@ -2,7 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Candidate;
+use staff\models\Candidate;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;

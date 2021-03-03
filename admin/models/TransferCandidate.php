@@ -46,51 +46,6 @@ class TransferCandidate extends \common\models\TransferCandidate
     }
 
     /**
-     * @param string $modelClass
-     * @return \yii\db\ActiveQuery
-     */
-    public function getStore($modelClass = "\admin\models\Store")
-    {
-        return parent::getStore($modelClass);
-    }
-
-    /**
-     * @param string $modelClass
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCompany($modelClass = "\admin\models\Company")
-    {
-        return parent::getCompany($modelClass);
-    }
-
-    /**
-     * @param string $modelClass
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCandidate($modelClass = "\admin\models\Candidate")
-    {
-        return parent::getCandidate($modelClass);
-    }
-
-    /**
-     * @param string $modelClass
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTransfer($modelClass = "\admin\models\Transfer")
-    {
-        return parent::getTransfer($modelClass);
-    }
-
-    /**
-     * @param string $modelClass
-     * @return \yii\db\ActiveQuery
-     */
-    public function getInvoice($modelClass = "\admin\models\Invoice")
-    {
-        return parent::getInvoice($modelClass);
-    }
-
-    /**
      * mark transfer candidate as unpaid
      * also mark transfer from complete to
      * progress in case if its completed
@@ -342,5 +297,67 @@ class TransferCandidate extends \common\models\TransferCandidate
             ->setBcc($allStaffEmails)
             ->setSubject('Transfer failed. Please update your bank info')
             ->send();
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore($modelClass = "\admin\models\Store")
+    {
+        return parent::getStore($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\admin\models\Company")
+    {
+        return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($modelClass = "\admin\models\Candidate")
+    {
+        return parent::getCandidate($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfer($modelClass = "\admin\models\Transfer")
+    {
+        return parent::getTransfer($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoice($modelClass = "\admin\models\Invoice")
+    {
+        return parent::getInvoice($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\common\models\Bank")
+    {
+        return parent::getBank($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFile($modelClass = "\common\models\TransferFile")
+    {
+        return parent::getTransferFile($modelClass);
     }
 }

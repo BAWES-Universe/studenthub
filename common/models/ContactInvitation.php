@@ -181,7 +181,19 @@ class ContactInvitation extends \yii\db\ActiveRecord {
             'company'
         ];
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['otp']);
+
+        return $fields;
+    }
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery

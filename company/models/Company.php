@@ -1,5 +1,7 @@
 <?php
 namespace company\models;
+
+
 /**
  * This is the model class for table "Company".
  * It extends from \common\models\Company but with custom functionality for this application module
@@ -101,5 +103,80 @@ class Company extends \common\models\Company {
     public function getTransfers($modelClass = "\company\models\Transfer")
     {
         return parent::getTransfers($modelClass)->andWhere(['deleted'=>0]);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\company\models\Note")
+    {
+        return parent::getNotes($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\company\models\Request")
+    {
+        return parent::getRequests($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany($modelClass = "\company\models\Company")
+    {
+        return parent::getParentCompany($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\company\models\Invoice")
+    {
+        parent::getInvoices($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentTransfers($modelClass = "\company\models\Transfer")
+    {
+        return parent::getParentTransfers($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrands($modelClass = "\company\models\Brand")
+    {
+        return parent::getBrands($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContacts($modelClass = "\company\models\CompanyContact")
+    {
+        return parent::getCompanyContacts($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContacts($modelClass = "\company\models\Contact")
+    {
+        return parent::getContacts($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFiles($modelClass = "\company\models\File")
+    {
+        return parent::getFiles($modelClass);
     }
 }

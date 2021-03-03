@@ -62,4 +62,32 @@ class Note extends \common\models\Note {
     {
         return parent::getUpdatedBy($modelClass);
     }
+
+    /**
+     * Gets query for [[Request]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequest($modelName = '\staff\models\Request')
+    {
+        return parent::getRequest($modelName);
+    }
+
+    /**
+     * Gets query for [[CompanyContact]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContact($modelName = '\staff\models\CompanyContact')
+    {
+        return parent::getCompanyContact($modelName);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimer($modelClass = "\staff\models\Fulltimer")
+    {
+        return parent::getFulltimer($modelClass);
+    }
 }

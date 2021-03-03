@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 use staff\models\Company;
 use staff\models\Note;
-use common\models\File;
+use staff\models\File;
 use yii\web\NotFoundHttpException;
 
 

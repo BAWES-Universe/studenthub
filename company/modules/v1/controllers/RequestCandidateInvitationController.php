@@ -2,13 +2,13 @@
 
 namespace company\modules\v1\controllers;
 
-use common\models\Candidate;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Invitation;
 use staff\models\Request;
+use company\models\Candidate;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;

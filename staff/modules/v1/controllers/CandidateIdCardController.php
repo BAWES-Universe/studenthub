@@ -2,7 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Staff;
+use staff\models\Staff;
 use Da\QrCode\QrCode;
 use Yii;
 use yii\helpers\ArrayHelper; 

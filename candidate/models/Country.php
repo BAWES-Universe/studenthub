@@ -1,7 +1,7 @@
 <?php
 namespace candidate\models;
 
-use Yii;
+
 /**
  * This is the model class for table "Country".
  * It extends from \common\models\Country but with custom functionality for this application module

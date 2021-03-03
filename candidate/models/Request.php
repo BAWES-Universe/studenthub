@@ -3,8 +3,6 @@
 namespace candidate\models;
 
 
-use common\models\Suggestion;
-
 class Request extends \common\models\Request
 {
     /**
@@ -85,5 +83,12 @@ class Request extends \common\models\Request
     public function getActiveSuggestions($modelClass = "\candidate\models\Suggestion")
     {
         return parent::getActiveSuggestions($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\candidate\models\Invitation") {
+        return parent::getInvitations($modelClass);
     }
 }

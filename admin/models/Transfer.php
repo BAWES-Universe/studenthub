@@ -25,7 +25,6 @@ class Transfer extends \common\models\Transfer
         $fields['company_email'] = function($model) {
             return $model->company->company_email;
         };
-
         
     	$fields['total_transfer_cost'] = function($model) {
     		return floatval(Transfer::getTransferCost($model->transfer_id));
@@ -213,7 +212,7 @@ class Transfer extends \common\models\Transfer
      */
     public function getChildTransfers($modelClass = "\admin\models\Transfer")
     {
-        return parent::getChildTransfers($modelClass)->andWhere(['{{%transfer}}.deleted'=>0]);
+        return parent::getChildTransfers($modelClass);
     }
 
     /**
@@ -234,6 +233,65 @@ class Transfer extends \common\models\Transfer
     public function getChildTransferCandidates($modelClass = "\admin\models\TransferCandidate")
     {
         return parent::getChildTransferCandidates($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($modelClass = "\admin\models\Staff")
+    {
+        return parent::getCreatedBy($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\admin\models\Staff")
+    {
+        return parent::getUpdatedBy($modelClass);
+    }
+
+    /**
+     * Get all unpaid TransferCandidate related to this transfer or its parent transfer
+     * which include each employees hours worked, hourly rate, etc
+     * @param string $modelClass
+     * @return \common\models\Transfer|\yii\db\ActiveQuery
+     */
+    public function getUnPaidTransferCandidates($modelClass = "\admin\models\TransferCandidate")
+    {
+        return parent::getUnPaidTransferCandidates($modelClass);
+    }
+
+    /**
+     * Get all paid TransferCandidate related to this transfer or its parent transfer
+     * which include each employees hours worked, hourly rate, etc
+     * @param string $modelClass
+     * @return $this|\yii\db\ActiveQuery
+     */
+    public function getPaidTransferCandidates($modelClass = "\admin\models\TransferCandidate")
+    {
+        return parent::getPaidTransferCandidates($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getParentTransfer($modelClass = "\admin\models\Transfer")
+    {
+        return parent::getParentTransfer($modelClass);
+    }
+
+    /**
+     * Get all TransferCandidates belonging to child transfers (if available)
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getParentTransferCandidates($modelClass = "\admin\models\TransferCandidate")
+    {
+        return parent::getParentTransferCandidates($modelClass);
     }
 
     /**

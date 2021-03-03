@@ -47,4 +47,21 @@ class Staff extends \common\models\Staff {
             ->setSubject('Your account password has been reset')
             ->send();
     }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\StaffToken")
+    {
+        return parent::getAccessTokens($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\admin\models\Note")
+    {
+        return parent::getNotes($modelClass);
+    }
 }

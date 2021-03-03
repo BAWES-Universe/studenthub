@@ -120,9 +120,9 @@ class File extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**

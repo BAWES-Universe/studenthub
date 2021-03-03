@@ -64,4 +64,39 @@ class TransferCandidate extends \common\models\TransferCandidate
     {
         return parent::getCandidate($modelClass);
     }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfer($modelClass = "\staff\models\Transfer")
+    {
+        return parent::getTransfer($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoice($modelClass = "\staff\models\Invoice")
+    {
+        return parent::getInvoice($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\staff\models\Bank")
+    {
+        return parent::getBank($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFile($modelClass = "\staff\models\TransferFile")
+    {
+        return parent::getTransferFile($modelClass);
+    }
 }

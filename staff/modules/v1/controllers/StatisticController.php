@@ -2,7 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Request;
+use staff\models\Request;
 use staff\models\Company;
 use Yii;
 use yii\rest\Controller;
