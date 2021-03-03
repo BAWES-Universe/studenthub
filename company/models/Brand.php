@@ -4,7 +4,7 @@
 namespace company\models;
 
 
-class Brand extends \common\models\CandidateEmailVerifyAttempt
+class Brand extends \common\models\Brand
 {
     /**
      * @return \yii\db\ActiveQuery
