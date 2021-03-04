@@ -12,4 +12,17 @@ class Bank extends \common\models\Bank
     {
         return parent::getCandidate($modelClass);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        $fields = parent::extraFields();
+        return array_merge($fields, [
+            'candidateCount' => function($model) {
+                return $model->getCandidate()->count();
+            }
+        ]);
+    }
 }
