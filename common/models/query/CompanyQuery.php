@@ -161,4 +161,8 @@ class CompanyQuery extends \yii\db\ActiveQuery {
             $this
                 ->andWhere($q);
     }
+
+    public function notDeleted() {
+        return $this->andWhere(['{{%company}}.deleted' => 0]);
+    }
 }
