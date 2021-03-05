@@ -207,7 +207,7 @@ class CandidateCest
         ];
         $candidateID = 8;
 
-        $I->sendPATCH('v1/candidates/'.$candidateID,$candidate);
+        $I->sendPATCH('v1/candidates/'.$candidateID, $candidate);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -242,7 +242,7 @@ class CandidateCest
         ];
         $candidateID = 8;
 
-        $I->sendPOST('v1/candidates',$candidate);
+        $I->sendPOST('v1/candidates', $candidate);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -432,5 +432,22 @@ class CandidateCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
+
+    public function listExpiredIds(FunctionalTester $I)
+    {
+        $I->wantTo('list expired ids');
+        $I->sendGET('v1/candidates/expired-civil-id');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /*
+    public function viewAppreciationCertificate(FunctionalTester $I)
+    {
+        $I->wantTo('list expired ids');
+        $I->sendGET('v1/candidates/appreciation-certificate/<id>/<wid>');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }*/
 }
  

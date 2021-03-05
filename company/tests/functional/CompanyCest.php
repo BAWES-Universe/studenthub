@@ -6,7 +6,6 @@ use common\fixtures\CompanyContactFixture;
 use common\fixtures\CompanyFixture;
 use company\models\Company;
 use company\models\Contact;
-use company\tests\FunctionalTester;
 use Yii;
 use company\models\ContactToken;
 use common\fixtures\ContactTokenFixture;
@@ -109,6 +108,29 @@ class CompanyCest
 
     public function removeCompanyLogo(FunctionalTester $I) {
         $I->sendDELETE('v1/companies/remove-logo');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            'operation' => 'success'
+        ]);
+    }
+
+    /**
+     * try to update company logo
+     * @param FunctionalTester $I
+     */
+    public function updateCompanyLogo(FunctionalTester $I)
+    {
+        $response = Yii::$app->temporaryBucketResourceManager->save(
+            null,
+            'sample.jpg',
+            [],
+            codecept_data_dir() . 'files/sample.jpg',
+            'image/jpg'
+        );
+
+        $I->sendPATCH('v1/companies/update-logo', [
+            'company_logo' => basename($response['ObjectURL'])
+        ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             'operation' => 'success'

@@ -144,7 +144,6 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET view-company-contact' => 'view-company-contact',
                         'GET list-child' => 'list-child',
                         'GET <id>' => 'view',
                         'PATCH' => 'update',
@@ -152,7 +151,6 @@ return [
                         'DELETE remove-logo' => 'remove-logo',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS view-company-contact' => 'options',
                         'OPTIONS list-child' => 'options',
                         'OPTIONS remove-logo' => 'options',
                         'OPTIONS update-logo' => 'options',

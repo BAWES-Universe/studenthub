@@ -115,7 +115,6 @@ return [
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
                         'PATCH file-update/<id>' => 'update-file',
-                        'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH change-status/<id>' => 'change-status',
                         'PATCH update-followup/<id>' => 'update-followup',
                         'PATCH update-followup-interval/<id>' => 'update-followup-interval',
@@ -317,7 +316,6 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
-                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',

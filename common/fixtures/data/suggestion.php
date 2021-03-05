@@ -91,4 +91,13 @@ return [
         'suggestion_status' => 1,
         'suggestion_datetime' => '2009-08-04 22:57:14',
     ],
+    'suggestion10' => [
+        'suggestion_uuid' => 'suggestion_d9e37f54-5acd-340e-b61b-39036a87fd9f',
+        'request_uuid' => 'request_5d61ed30-e900-3836-95cd-48b43a284b96',
+        'fulltimer_uuid' => false,
+        'candidate_id' => false,
+        'note_uuid' => false,
+        'suggestion_status' => 1,
+        'suggestion_datetime' => '2009-08-04 22:57:14',
+    ],
 ];

@@ -255,11 +255,10 @@ class TransferForWithChildCest
         $I->seeResponseIsJson();
     }
 
-
     /*public function tryToTransferExcelTemplate(FunctionalTester $I)
     {
         $I->wantTo('Donwload transfer excel template');
-        $I->sendGET('v1/transfers/transfer-excel-template');
+        $I->sendGET('v1/transfers/transfer-excel-template/' . $this->model->company_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }*/
 
@@ -307,7 +306,6 @@ class TransferForWithChildCest
 		$I->sendGET( 'v1/transfers/' . $transfer->transfer_id . '?expand=invoices,transferCandidates' );
 		$I->seeResponseCodeIs( HttpCode::OK ); // 200
 		$I->seeResponseIsJson();
-
 	}
 
 	/**

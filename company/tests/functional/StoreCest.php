@@ -65,7 +65,7 @@ class StoreCest
     public function testViewStore(FunctionalTester $I)
     {
         $I->wantTo('View Store');
-        $I->sendGET('v1/stores/1');
+        $I->sendGET('v1/stores/view/1');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -88,6 +88,17 @@ class StoreCest
     public function testSubCompanies(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list stores and sub company');
         $I->sendGET('v1/stores/company-store');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * View store
+     * @param FunctionalTester $I
+     */
+    public function testViewStoreDetail(FunctionalTester $I) {
+        $I->wantTo('Validate company > stores api to list sub company\'s stores');
+        $I->sendGET('v1/stores/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
