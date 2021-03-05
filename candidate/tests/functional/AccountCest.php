@@ -65,7 +65,7 @@ class AccountCest
         $I->amGoingTo('Validate account > job-search-status api');
         $I->sendGET('v1/account/job-search-status');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson(['candidate_job_search_status' => 1,'isProfileCompleted' => false]);
+        $I->seeResponseContainsJson(['candidate_job_search_status' => 1]);
     }
     
     /**
@@ -401,6 +401,68 @@ class AccountCest
             'operation' => 'success',
             'message' => 'Candidate Location Info Updated Successfully'
         ]);
+    }
+
+    public function tryUpdateCivilExpiry(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to update civil id expiry date');
+        $I->sendPOST('v1/account/update-civil-id-expiry-date', [
+            'civil_id' => '70',
+            'civil_expiry_date' => '3033-12-12'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    public function tryUpdateKuwaitiNational(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to update if mother kuwaity');
+        $I->sendPOST('v1/account/update-kuwaiti-national', [
+            'candidate_mom_kuwaiti' => true
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    public function tryCheckVideoStatus(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to check video status');
+        $I->sendGET('v1/account/video-status');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
+     * api to update video status from aws mediaconvert
+     * @param \candidate\tests\FunctionalTester $I
+     */
+    public function tryUpdateVideoStatus(FunctionalTester $I)
+    {
+        $I->amGoingTo('try to update video status');
+        $I->haveHttpHeader('Content-Type', 'application/json');
+
+        $I->sendPOST('v1/account/video-by-webhook', [
+            "version" => "0",
+            "id" => "43c2c29e-fcf5-c8aa-c4d0-7c763dd477fc",
+            "detail-type" => "MediaConvert Job State Change",
+            "source" => "aws.mediaconvert",
+            "account" => "438663597141",
+            "time" => "2020-10-19T12:18:27Z",
+             "region" => "us-west-2",
+            "resources" => [
+                 "arn:aws:mediaconvert:us-west-2:438663597141:jobs/1603109904634-tcpauw"
+            ],
+            "detail" => [
+                "timestamp" => 1603109907908,
+                "accountId" => "438663597141",
+                "queue" => "arn:aws:mediaconvert:us-west-2:438663597141:queues/Default",
+                "jobId" => "1603109904634-tcpauw",
+                "status" => "Error",
+                "errorCode" => 1432,
+                "errorMessage" => "Unable to open input file [s3://studenthub-public-anyone-can-upload-24hr-expiry/1-1603104461545.webm]: [Failed probe/open: [Failed to read data: Invalid role provided in RESOURCE_ROLE_ARN]]",
+                "userMetadata" => [
+                    "User" => "1"
+                ]
+            ]
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 
 //    public function tryUpdateVideo(FunctionalTester $I)

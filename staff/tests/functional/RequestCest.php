@@ -3,10 +3,11 @@
 namespace staff\tests;
 
 use common\fixtures\ContactFixture;
+use common\models\Request;
 use staff\tests\FunctionalTester;
 use common\models\Company;
 use common\models\StaffToken;
-use common\models\CompanyContact;
+use common\models\Note;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\RequestFixture;
 use common\fixtures\CompanyContactFixture;
@@ -160,6 +161,44 @@ class RequestCest
         	'feedback' => 'Lorem isuem...'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    public function tryToListActive(FunctionalTester $I)
+    {
+        $I->wantTo('Validate request api response for listing pending');
+        $I->sendGET('v1/requests/active');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * try to add activity to request
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToAddActivity(FunctionalTester $I)
+    {
+        $request = Request::find()
+            ->filterWhere([
+                'request_status' => Request::STATUS_STARTED,
+                'company_id' => $this->company->company_id
+            ])
+            ->one();
+
+        $I->wantTo('add activity to list');
+        $I->sendPOST(
+            'v1/requests/add-activity',
+            [
+                'request_uuid' => $request->request_uuid,
+                'contact_uuid' => $this->contact->contact_uuid,
+                'note_type' => Note::TYPE_INTERNAL_NOTE,
+                'detail' => 'Test note'
+            ]
+        );
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+
+        $I->seeResponseContainsJson([
+            "operation" => "success"
+        ]);
     }
 }
 

@@ -118,14 +118,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Mock candidate name by civil id api
-     */
-    public function actionNameByCivilId() {
-        Yii::$app->response->format = 'html';
-        echo '<html><input id="#ContentPlaceHolder1_txtName" value="test arabic name" /></html>';
-    }
-
-    /**
      * Check if candidate email already verified 
      */
     public function actionIsEmailVerified() {

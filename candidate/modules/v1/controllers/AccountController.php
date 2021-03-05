@@ -199,6 +199,13 @@ class AccountController extends Controller
 
         $data = json_decode(file_get_contents("php://input"));
 
+        if(!$data) {
+            $data = (object) Yii::$app->request->post ();
+            $detail = (object) $data->detail;
+        } else {
+            $detail = $data->detail;
+        }
+
         if(isset($data->SubscribeURL)) {
             //log to sentry
 
@@ -209,7 +216,7 @@ class AccountController extends Controller
             ];
         }
 
-        $jobId = $data->detail->jobId;
+        $jobId = $detail->jobId;
 
         $model = Candidate::find()->where([
             'candidate_video_job_id' => $jobId
@@ -222,11 +229,11 @@ class AccountController extends Controller
             ];
         }
 
-        if($data->detail->status == 'ERROR') {
+        if($detail->status == 'ERROR') {
 
             //log to sentry
 
-            Yii::error($data->detail->errorMessage, 'candidate');
+            Yii::error($detail->errorMessage, 'candidate');
 
             //remove video
 
@@ -241,7 +248,7 @@ class AccountController extends Controller
             ];
         }
 
-        $fileName = basename($data->detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0]);
+        $fileName = basename($detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0]);
 
         $model->candidate_video = explode('.', $fileName)[0];
 

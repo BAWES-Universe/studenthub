@@ -300,7 +300,9 @@ class CompanyController extends Controller
                 ];
             }
         }
+
         $mail = Company::companyCreateUpdateMail($model);
+
         Yii::info('['.$model->company_name.' Company Account Created] Company created by '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
@@ -377,6 +379,11 @@ class CompanyController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
     public function actionUpdateFollowupInterval($id) {
 
         $model = $this->findModel((int) $id);

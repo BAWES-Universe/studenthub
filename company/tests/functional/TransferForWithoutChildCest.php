@@ -363,4 +363,13 @@ class TransferForWithoutChildCest
         $I->sendGET('v1/transfers/pdf/' . $invoice->invoice_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
+
+    public function tryToDownloadTransferExcel(FunctionalTester $I)
+    {
+        $I->wantTo('List transfers with relations for company without child');
+        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+        $I->sendGET('v1/transfers/transfer-excel-template');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
 }

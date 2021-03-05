@@ -6,6 +6,7 @@ use company\models\Contact;
 use company\models\ContactToken;
 use company\tests\FunctionalTester;
 use common\fixtures\CompanyContactFixture;
+use common\fixtures\ContactFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\ContactTokenFixture;
 use Codeception\Util\HttpCode;
@@ -22,6 +23,7 @@ class AuthCest
         return [
             'companyContact' => CompanyContactFixture::className(),
             'company' => CompanyFixture::className(),
+            'contact' => ContactFixture::className(),
             'contactToken' => ContactTokenFixture::className()
         ];
     }
@@ -69,6 +71,22 @@ class AuthCest
         $I->sendPATCH('v1/auth/update-password', [
             'token' => $this->contact->contact_password_reset_token,
             'newPassword' => '12345'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation"=>"success",
+        ]);
+    }
+
+    /**
+     * try to request password reset
+     * @param \company\tests\FunctionalTester $I
+     */
+    public function tryToRequestPasswordReset(FunctionalTester $I)
+    {
+        $I->wantTo('Validate auth > update password api');
+        $I->sendPOST('v1/auth/request-reset-password', [
+            'email' => $this->contact->contact_email
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
