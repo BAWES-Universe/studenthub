@@ -346,7 +346,7 @@ class TransferForWithoutChildCest
     /**
      * Download invoice for company without child
      * @param FunctionalTester $I
-     */
+     *
     public function tryToDownloadInvoice(FunctionalTester $I)
     {
         $transfer = $this->companyWithoutChild
@@ -371,5 +371,5 @@ class TransferForWithoutChildCest
         $I->sendGET('v1/transfers/transfer-excel-template');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-    }
+    }*/
 }

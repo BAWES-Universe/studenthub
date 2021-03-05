@@ -344,7 +344,7 @@ class TransferForWithChildCest
     /**
      * Download invoice for company with child
      * @param FunctionalTester $I
-     */
+     *
     public function tryToDownloadInvoice(FunctionalTester $I)
     {
         $transfer = $this->model
@@ -359,7 +359,7 @@ class TransferForWithChildCest
         $I->wantTo('Download invoice for company with child');
         $I->sendGET('v1/transfers/pdf/' . $invoice->invoice_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
+    }*/
 }
 
 
