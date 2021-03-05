@@ -668,6 +668,7 @@ class Company extends \yii\db\ActiveRecord
         return Company::find()
             ->filterParent()
             ->filterByActive40DaysPassedWithoutPayment()
+            ->notDeleted()
             ->count();
     }
 
@@ -681,6 +682,7 @@ class Company extends \yii\db\ActiveRecord
             ->filterActive()
             ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
             ->filterByActive40DaysPassedWithoutRequest()
+            ->notDeleted()
             ->count();
     }
 }

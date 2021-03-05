@@ -90,10 +90,17 @@ class CompanyController extends Controller
             $query->filterByActive40DaysPassedWithoutPayment();
         }
 
+        if ($status == 4) {
+            $query->filterActive()
+                ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+                ->filterByActive40DaysPassedWithoutRequest();
+        }
+
         if ($name) {
             $query->filterByName($name);
         }
 
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => [

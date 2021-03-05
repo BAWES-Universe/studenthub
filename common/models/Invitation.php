@@ -159,7 +159,9 @@ class Invitation extends \yii\db\ActiveRecord
             'request',
             'company',
             'candidate',
-            'suggestion'
+            'suggestion',
+            'notes',
+            'note' // in case user accept invitation then show invitation
         ];
     }
 
@@ -234,6 +236,14 @@ class Invitation extends \yii\db\ActiveRecord
     public function getNotes($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['note_uuid' => 'note_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNote($modelClass = "\common\models\Note")
+    {
+        return $this->hasOne($modelClass::className(), ['invitation_uuid' => 'invitation_uuid']);
     }
 
     /**

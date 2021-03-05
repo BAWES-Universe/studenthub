@@ -379,4 +379,9 @@ class Contact extends \yii\db\ActiveRecord
 
         return $token;
     }
+
+    public function getCompanyContact($modelClass = "\common\models\CompanyContact")
+    {
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+    }
 }
