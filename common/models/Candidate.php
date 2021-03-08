@@ -1840,7 +1840,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         //delete source candidate
 
-        Candidate::updateAll(['deleted' => 1], ['candidate_id' => $from]);
+//        Candidate::updateAll(['deleted' => 1], ['candidate_id' => $from]);
 
         CandidateExperience::updateAll(['deleted' => 1], ['candidate_id' => $from]);
 
@@ -1851,6 +1851,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         //logout from source devices for old account
 
         CandidateToken::deleteAll(['candidate_id' => $from]);
+
+        $candidate = Candidate::findOne(['candidate_id'=>$from]);
+        $candidate->deleted = 1;
+        $candidate->save(false);
     }
 
     /**
