@@ -133,7 +133,7 @@ class TransferCandidate extends \common\models\TransferCandidate
             )
         ])
             ->setTo($this->candidate->candidate_email)
-            ->setFrom([Yii::$app->params['supportEmail'] => 'Khalid Al-Mutawa'])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setSubject($subjectLine)
             ->send();
     }
@@ -284,8 +284,11 @@ class TransferCandidate extends \common\models\TransferCandidate
     public function unpaidNotification()
     {
         $tmpName = explode(" ",$this->candidate->candidate_name);
+
         Yii::$app->mailer->htmlLayout = 'layouts/html';
+        
         $allStaffEmails = ArrayHelper::map(Staff::find()->all(),'staff_email','staff_name');
+        
         return Yii::$app->mailer->compose("candidate/transfer-fail.php",
             [
                 "name" => (isset($tmpName[0]))  ? $tmpName[0] : $this->candidate->candidate_name,
