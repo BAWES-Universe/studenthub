@@ -21,7 +21,7 @@ class Request extends \common\models\Request
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
-    public function getContact($modelClass = "\company\models\CompanyContact")
+    public function getContact($modelClass = "\company\models\Contact")
     {
         return parent::getContact($modelClass);
     }
