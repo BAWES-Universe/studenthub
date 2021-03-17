@@ -187,8 +187,6 @@ class CandidateController extends Controller
     {
         $model = CandidateWorkHistory::find()
             ->filterCandidate($id)
-            ->with('store')
-            ->asArray()
             ->all();
 
         if(!$model)
