@@ -344,6 +344,17 @@ class RequestController extends BaseController
     }
 
     /**
+     * @return array
+     */
+    public function actionRequestCount() {
+        $company = Yii::$app->companyManager->getCompany();
+
+        return [
+            "active_request_count" => $company->getRequests()->activeRequest()->handleByStaff()->count()
+        ];
+    }
+
+    /**
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id

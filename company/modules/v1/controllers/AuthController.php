@@ -5,6 +5,7 @@ namespace company\modules\v1\controllers;
 use company\models\CompanyContact;
 use company\models\Contact;
 use company\models\ContactInvitation;
+use company\models\Request;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
@@ -176,7 +177,8 @@ class AuthController extends Controller
             "contact" => $contact,
             "company_id" => $company->company_id,
             "profile_name" => Yii::$app->user->identity->contact_name,
-            "email" => $company->company_email
+            "email" => $company->company_email,
+            "active_request_count" => $company->getRequests()->andWhere(['request_status'=>Request::STATUS_STARTED])->count()
         ];
     }
 

@@ -178,11 +178,13 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET active' => 'list-active',
+                        'GET count' => 'request-count',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS count' => 'options',
                         'OPTIONS active' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
