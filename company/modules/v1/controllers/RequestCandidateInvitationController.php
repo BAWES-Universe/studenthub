@@ -178,7 +178,7 @@ class RequestCandidateInvitationController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate invited successfully",
-            "invitedCount" => $invitedCount
+            "invitedCount" => (int) $invitedCount
         ];
     }
 
