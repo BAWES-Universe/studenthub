@@ -183,7 +183,7 @@ class InvitationController extends Controller {
 
         return [
             "operation" => "success",
-            "message" => Yii::t('app', "Invitation sent successfully")
+            "message" => Yii::t('app', "Invitation sent successfully"),
         ];
     }
 

@@ -82,8 +82,20 @@ class Candidate extends \common\models\Candidate {
             'nationality',
             'candidateSkills',
             'candidateExperiences',
-            'invitations'
+            'invitations',
+            'invitedCount'
         ];
+    }
+
+    /**
+     * @param string $modelClass
+     * @return bool|int|string|null
+     */
+    public function getInvitedCount($modelClass = "\company\models\Invitation")
+    {
+        return (int) $this->getInvitations($modelClass)
+            ->filterInvited()
+            ->count();
     }
 
     /**
