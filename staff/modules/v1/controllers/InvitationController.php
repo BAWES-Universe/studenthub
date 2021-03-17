@@ -92,7 +92,7 @@ class InvitationController extends Controller
             $query->andWhere(['candidate.candidate_id' => $candidate_id]);
         }
 
-        if($status) {
+        if($status > 1) {
             $query->andWhere(['invitation_status' => $status]);
         }
 

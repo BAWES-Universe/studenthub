@@ -103,7 +103,7 @@ class SuggestionController extends Controller
             $query->andWhere(['candidate.candidate_id' => $candidate_id]);
         }
 
-        if($status) {
+        if($status > 1) {
             $query->andWhere(['suggestion_status' => $status]);
         }
 

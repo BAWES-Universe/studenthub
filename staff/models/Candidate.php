@@ -46,7 +46,7 @@ class Candidate extends \common\models\Candidate {
     }
 
     public function getInvited() {
-        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_INVITED])->count();
+        return $this->getInvitations()->count();
     }
 
     public function getInvitationAccepted() {
@@ -58,7 +58,7 @@ class Candidate extends \common\models\Candidate {
     }
 
     public function getSuggested() {
-        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_SUGGESTED])->count();
+        return $this->getSuggestion()->count();
     }
 
     public function getSuggestionAccepted() {
