@@ -123,6 +123,25 @@ class RequestCandidateInvitationController extends Controller
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
         $request = Request::findOne(['request_uuid' => $request_uuid]);
+        $invited = Invitation::find()
+            ->andWhere([
+                'request_uuid' => $request_uuid,
+                'candidate_id' => $candidate_id,
+                'invitation_status' => [ Invitation::STATUS_ACCEPTED, Invitation::STATUS_INVITED ],
+            ])
+            ->one();
+
+        if( $invited ) {
+            if ($invited->invitation_status == Invitation::STATUS_ACCEPTED) {
+              $msg = 'Candidate has already accepted this request';
+            } else if ($invited->invitation_status == Invitation::STATUS_INVITED) {
+              $msg = 'Candidate has already been invited for this request';
+            }
+            return [
+                "operation" => "error",
+                "message" => $msg
+            ];
+        }
 
         if(!$request) {
             return [
