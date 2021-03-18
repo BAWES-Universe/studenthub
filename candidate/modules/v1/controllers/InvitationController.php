@@ -74,9 +74,15 @@ class InvitationController extends Controller
      */
     public function actionList()
     {
+        $count = Yii::$app->request->get("count");
+
         $query = Yii::$app->user->identity->getInvitations()
-            ->orderBy('invitation_created_at DESC')
-            ->andWhere(['invitation_status' => Invitation::STATUS_INVITED]);
+            ->orderBy('invitation_created_at DESC');
+
+        if ($count) {
+            $query->andWhere(['invitation_status' => Invitation::STATUS_INVITED]);
+            return $query->count();
+        }
 
         return new ActiveDataProvider([
             'query' => $query,
