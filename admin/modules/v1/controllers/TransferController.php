@@ -443,6 +443,8 @@ class TransferController extends Controller
             {
                 if(empty($transferCandidatesMapped[$value['tc_id']]))
                 {
+                    $transaction->rollBack();
+                    
                     return [
                         "operation" => "error",
                         'message' => 'Invalid request'
@@ -457,6 +459,8 @@ class TransferController extends Controller
 
                 if(!$tc->save())
                 {
+                    $transaction->rollBack();
+
                     return [
                         "operation" => "error",
                         "message" => $tc->getErrors()
