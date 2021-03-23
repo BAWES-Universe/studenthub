@@ -17,9 +17,10 @@ jobs:
 
       - image: circleci/mysql:5.7
         environment:
+          MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: payroll_test
-          MYSQL_USER: root
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_USER: bawes
+          MYSQL_PASSWORD: passw0rd
         command:
             mysqld --sql-mode=NO_ENGINE_SUBSTITUTION --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true
 
