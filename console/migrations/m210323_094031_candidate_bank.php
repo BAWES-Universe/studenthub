@@ -20,9 +20,12 @@ class m210323_094031_candidate_bank extends Migration
 
         $candidateIds = \yii\helpers\ArrayHelper::getColumn ($transfers, 'candidate_id');
 
-        $sql = "update candidate set bank_id = NULL, bank_account_name = NULL, candidate_iban = NULL WHERE candidate_id IN (" . implode (', ', $candidateIds) . ")";
-        
-        $this->db->createCommand ($sql)->execute ();
+        if(sizeof ($candidateIds) > 0) {
+
+            $sql = "update candidate set bank_id = NULL, bank_account_name = NULL, candidate_iban = NULL WHERE candidate_id IN (" . implode (', ', $candidateIds) . ")";
+
+            $this->db->createCommand ($sql)->execute ();
+        }
     }
 
     /**
