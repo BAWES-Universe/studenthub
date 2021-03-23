@@ -146,7 +146,7 @@ class CandidateCest
      * Get total no of candidate to review
      * @param FunctionalTester $I
      */
-    public function getTotalCandidates(FunctionalTester $I)
+    public function getTotalCandidatesToReview(FunctionalTester $I)
     {
         $query = Candidate::find()
             ->byApprovalStatus(0);

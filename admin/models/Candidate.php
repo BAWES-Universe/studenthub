@@ -1,6 +1,7 @@
 <?php
 namespace admin\models;
 
+
 /**
  * This is the model class for table "Candidate".
  * It extends from \common\models\Candidate but with custom functionality for this application module
@@ -83,10 +84,151 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\common\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
+    }
+
+    /**
      * @return array|\yii\db\ActiveRecord[]
      */
     public function getPaidTransferCandidate($modelClass = "\admin\models\TransferCandidate")
     {
         return parent::getPaidTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity($modelClass = "\admin\models\University")
+    {
+        return parent::getUniversity($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNationality($modelClass = "\admin\models\Country")
+    {
+        return parent::getNationality ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\admin\models\Country")
+    {
+        return parent::getCountry ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\common\models\Bank")
+    {
+        return parent::getBank ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\admin\models\Area")
+    {
+        return parent::getArea ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore($modelClass = "\admin\models\Store")
+    {
+        return parent::getStore ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\admin\models\Company")
+    {
+        return parent::getCompany ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\admin\models\Transfer")
+    {
+        return parent::getTransfers ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidate($modelClass = "\admin\models\TransferCandidate")
+    {
+        return parent::getTransferCandidate ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCard($modelClass = "\common\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCard ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCards($modelClass = "\common\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCards ($modelClass);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\admin\models\CandidateToken")
+    {
+        return parent::getAccessTokens ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return parent::getWorkHistory ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateSkills($modelClass = "\common\models\CandidateSkill")
+    {
+        return parent::getCandidateSkills ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateExperiences($modelClass = "\common\models\CandidateExperience")
+    {
+        return parent::getCandidateExperiences ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\admin\models\Suggestion")
+    {
+        return parent::getSuggestion ($modelClass);
     }
 }

@@ -30,7 +30,6 @@ class TransferFileCest
             ->one()
             ->token_value;
         $I->amBearerAuthenticated($this->token);
-
     }
 
     /**

@@ -3,12 +3,14 @@ namespace staff\tests;
 
 use yii;
 use common\models\Brand;
+use common\models\Company;
 use common\models\StaffToken;
 use common\fixtures\BrandFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
+
 
 class BrandCest
 {
@@ -84,6 +86,15 @@ class BrandCest
 
         $I->wantTo('get Brand detail');
         $I->sendDELETE('v1/brands/'. $brand->brand_uuid);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    public function listCompanyBrands(FunctionalTester $I)
+    {
+        $company = Company::find()->one();
+
+        $I->wantTo('get Brand listing by company');
+        $I->sendGET('v1/brands/company/' . $company->company_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 }

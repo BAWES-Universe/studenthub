@@ -2,6 +2,7 @@
 
 namespace staff\models;
 
+
 /**
  * This is the model class for table "mall".
  *
@@ -23,5 +24,21 @@ class Mall extends \common\models\Mall
         $field = parent::fields();
         unset($field['mall_updated_datetime'],$field['mall_created_datetime']);
         return $field;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStores($modelClass = "\staff\models\Store")
+    {
+        return parent::getStores($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates($modelClass = "\staff\models\Candidate")
+    {
+        return parent::getCandidates($modelClass);
     }
 }

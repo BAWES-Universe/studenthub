@@ -18,6 +18,16 @@ class Note extends \common\models\Note {
     }
 
     /**
+     * Gets query for [[Invitation]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitation($modelName = '\staff\models\Invitation')
+    {
+        return parent::getInvitation($modelName);
+    }
+
+    /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
@@ -51,5 +61,33 @@ class Note extends \common\models\Note {
     public function getUpdatedBy($modelClass = "\staff\models\Staff")
     {
         return parent::getUpdatedBy($modelClass);
+    }
+
+    /**
+     * Gets query for [[Request]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequest($modelName = '\staff\models\Request')
+    {
+        return parent::getRequest($modelName);
+    }
+
+    /**
+     * Gets query for [[CompanyContact]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContact($modelName = '\staff\models\CompanyContact')
+    {
+        return parent::getCompanyContact($modelName);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimer($modelClass = "\staff\models\Fulltimer")
+    {
+        return parent::getFulltimer($modelClass);
     }
 }

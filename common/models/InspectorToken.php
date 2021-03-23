@@ -75,6 +75,18 @@ class InspectorToken extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // remove fields that contain sensitive information
+        unset($fields['token_value']);
+
+        return $fields;
+    }
 
     /**
      * @inheritdoc
@@ -108,8 +120,8 @@ class InspectorToken extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getInspector()
+    public function getInspector($modelClass = '\common\models\Inspector')
     {
-        return $this->hasOne(Inspector::className(), ['inspector_uuid' => 'inspector_uuid']);
+        return $this->hasOne($modelClass::className(), ['inspector_uuid' => 'inspector_uuid']);
     }
 }

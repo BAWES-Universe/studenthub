@@ -36,14 +36,29 @@ class Candidate extends \common\models\Candidate {
         $fields = parent::extraFields ();
 
         return array_merge ([
+            'invited',
+            'invitationAccepted',
+            'invitationRejected',
             'suggested',
             'suggestionAccepted',
             'suggestionRejected'
         ], $fields);
     }
 
+    public function getInvited() {
+        return $this->getInvitations()->count();
+    }
+
+    public function getInvitationAccepted() {
+        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_ACCEPTED])->count();
+    }
+
+    public function getInvitationRejected() {
+        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_REJECTED])->count();
+    }
+
     public function getSuggested() {
-        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_SUGGESTED])->count();
+        return $this->getSuggestion()->count();
     }
 
     public function getSuggestionAccepted() {
@@ -52,6 +67,155 @@ class Candidate extends \common\models\Candidate {
 
     public function getSuggestionRejected() {
         return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_REJECTED])->count();
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\staff\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getPaidTransferCandidate($modelClass = "\staff\models\TransferCandidate")
+    {
+        return parent::getPaidTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity($modelClass = "\staff\models\University")
+    {
+        return parent::getUniversity($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\staff\models\Country")
+    {
+        return parent::getCountry($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore($modelClass = "\staff\models\Store")
+    {
+        return parent::getStore($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\staff\models\Company")
+    {
+        return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidate($modelClass = "\staff\models\TransferCandidate")
+    {
+        return parent::getTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCard($modelClass = "\staff\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCard($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateIdCards($modelClass = "\staff\models\CandidateIdCard")
+    {
+        return parent::getCandidateIdCards($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateSkills($modelClass = "\common\models\CandidateSkill")
+    {
+        return parent::getCandidateSkills($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateExperiences($modelClass = "\common\models\CandidateExperience")
+    {
+        return parent::getCandidateExperiences($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNationality($modelClass = "\staff\models\Country")
+    {
+        return parent::getNationality($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\staff\models\Bank")
+    {
+        return parent::getBank ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\staff\models\Area")
+    {
+        return parent::getArea ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\staff\models\Transfer")
+    {
+        return parent::getTransfers ($modelClass);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\CandidateToken")
+    {
+        return parent::getAccessTokens ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory($modelClass = "\staff\models\CandidateWorkHistory")
+    {
+        return parent::getWorkHistory ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\staff\models\Suggestion")
+    {
+        return parent::getSuggestion ($modelClass);
     }
 
     /**
@@ -118,14 +282,6 @@ class Candidate extends \common\models\Candidate {
         }
 
         return true;
-    }
-
-    /**
-     * @return array|\yii\db\ActiveRecord[]
-     */
-    public function getPaidTransferCandidate($modelClass = "\staff\models\TransferCandidate")
-    {
-        return parent::getPaidTransferCandidate($modelClass);
     }
 
     /**
@@ -347,14 +503,15 @@ class Candidate extends \common\models\Candidate {
      * @return \common\models\query\CandidateQuery
      */
     public static function getAssignedIdleCandidate($candidate_name = null) {
+
         $query = Candidate::find()
             ->filterAssigned()
             ->getTwoMonthBeforeTransfers()
             ->notDeleted();
-
         if ($candidate_name) {
             $query->filterName($candidate_name);
         }
+
         return $query;
     }
 
@@ -376,8 +533,48 @@ class Candidate extends \common\models\Candidate {
         if ($candidate_name) {
             $query->filterName($candidate_name);
         }
+        $query->notDeleted();
 
-        $query->notDeleted(); // only candidate with assigned work
         return $query;
+    }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function incompleteAssignedToWork() {
+        return self::find()
+            ->filterAssigned()
+            ->incompletedProfile()
+            ->notDeleted();
+    }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function profileApprovalRequire() {
+        return self::find()
+            ->byApprovalStatus(0)
+            ->completedProfileWithoutApproval()
+            ->notDeleted();
+    }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function assignedExpiredCivilID() {
+        return self::find()
+            ->civilIdExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
+    }
+
+    /**
+     * @return \common\models\query\CandidateQuery
+     */
+    public static function totalExpiredCards() {
+        return self::find()
+            ->idExpired()
+            ->filterAssigned() // only candidate with assigned work
+            ->notDeleted();
     }
 }

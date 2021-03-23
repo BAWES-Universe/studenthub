@@ -88,9 +88,9 @@ class Invoice extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getTransfer()
+    public function getTransfer($modelClass = "\common\models\Transfer")
     {
-        return $this->hasOne(Transfer::className(), ['transfer_id' => 'transfer_id']);
+        return $this->hasOne($modelClass::className(), ['transfer_id' => 'transfer_id']);
     }
 
     /* check salary transfer not paid

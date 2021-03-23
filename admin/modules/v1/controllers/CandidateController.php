@@ -2,11 +2,11 @@
 
 namespace admin\modules\v1\controllers;
 
-use common\models\CandidateWorkHistory;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Candidate;
+use admin\models\CandidateWorkHistory;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;

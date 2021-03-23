@@ -38,6 +38,10 @@ class Candidate extends \common\models\Candidate {
             $fields['candidate_new_email'],
             $fields['bank_account_name'],
             $fields['bank_id'],
+            $fields['store_id'],
+            $fields['store'],
+            $fields['candidate_phone'],
+            $fields['candidate_email']
         );
 
         /**
@@ -78,13 +82,35 @@ class Candidate extends \common\models\Candidate {
             'nationality',
             'candidateSkills',
             'candidateExperiences',
+            'invitations',
+            'invitedCount'
         ];
     }
-        
+
+    /**
+     * @param string $modelClass
+     * @return bool|int|string|null
+     */
+    public function getInvitedCount($modelClass = "\company\models\Invitation")
+    {
+        return (int) $this->getInvitations($modelClass)
+            ->filterInvited()
+            ->count();
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\company\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUniversity($modelClass = "\common\models\University")
+    public function getUniversity($modelClass = "\company\models\University")
     {
         return parent::getUniversity($modelClass);
     }
@@ -92,7 +118,7 @@ class Candidate extends \common\models\Candidate {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCountry($modelClass = "\common\models\Country")
+    public function getCountry($modelClass = "\company\models\Country")
     {
         return parent::getCountry($modelClass);
     }
@@ -153,5 +179,72 @@ class Candidate extends \common\models\Candidate {
     public function getCandidateExperiences($modelClass = "\common\models\CandidateExperience")
     {
         return parent::getCandidateExperiences($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNationality($modelClass = "\company\models\Country")
+    {
+        return parent::getNationality($modelClass);
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getPaidTransferCandidate($modelClass = "\company\models\TransferCandidate")
+    {
+        return parent::getPaidTransferCandidate($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\company\models\Bank")
+    {
+        return parent::getBank ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\company\models\Area")
+    {
+        return parent::getArea ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\company\models\Transfer")
+    {
+        return parent::getTransfers ($modelClass);
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\CandidateToken")
+    {
+        return parent::getAccessTokens ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getWorkHistory($modelClass = "\company\models\CandidateWorkHistory")
+    {
+        return parent::getWorkHistory ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\company\models\Suggestion")
+    {
+        return parent::getSuggestion ($modelClass);
     }
 }

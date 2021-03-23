@@ -212,6 +212,13 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['{{%candidate}}.candidate_id'=>$id]);
     }
 
+    /**
+     * @return CandidateQuery
+     */
+    public function notDeleted() {
+        return $this->andWhere(['{{%candidate}}.deleted'=>0]);
+    }
+
     public function incompletedProfile() {
         return $this->andWhere('{{%candidate}}.candidate_uid IS NULL OR
           {{%university}}.university_id IS NULL OR {{%country}}.country_id IS NULL OR
@@ -272,12 +279,5 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function candidateMomKuwaitiFieldIsNull() {
         return $this->andWhere('{{%candidate}}.`candidate_mom_kuwaiti` IS NULL');
-    }
-
-    /**
-     * @return CandidateQuery
-     */
-    public function notDeleted() {
-        return $this->andWhere(['{{%candidate}}.deleted'=>0]);
     }
 }

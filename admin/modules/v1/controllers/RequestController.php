@@ -2,11 +2,11 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Company;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\Request;
+use admin\models\Company;
+use admin\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;

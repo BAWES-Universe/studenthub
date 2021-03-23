@@ -66,11 +66,15 @@ class Bank extends \yii\db\ActiveRecord
      */
     public function fields()
     {
-        return array_merge(parent::fields(), [
-            'transfer_type_value' => function($data) {
-                return $data->getTypeValue();
-            }
-        ]);
+        $fields = parent::fields();
+
+        $fields['transfer_type_value'] = function($model) {
+            return $model->getTypeValue();
+        };
+
+        unset($fields['deleted']);
+
+        return $fields;
     }
 
     /**
@@ -107,9 +111,9 @@ class Bank extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidate()
+    public function getCandidate($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany(Candidate::className(), ['bank_id' => 'bank_id']);
+        return $this->hasMany($modelClass::className(), ['bank_id' => 'bank_id']);
     }
 
     /**

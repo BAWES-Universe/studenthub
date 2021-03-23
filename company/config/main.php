@@ -144,7 +144,6 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET view-company-contact' => 'view-company-contact',
                         'GET list-child' => 'list-child',
                         'GET <id>' => 'view',
                         'PATCH' => 'update',
@@ -152,7 +151,6 @@ return [
                         'DELETE remove-logo' => 'remove-logo',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS view-company-contact' => 'options',
                         'OPTIONS list-child' => 'options',
                         'OPTIONS remove-logo' => 'options',
                         'OPTIONS update-logo' => 'options',
@@ -179,11 +177,15 @@ return [
                     'controller' => 'v1/request',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET active' => 'list-active',
+                        'GET count' => 'request-count',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS count' => 'options',
+                        'OPTIONS active' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -220,6 +222,18 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS view-company-contact' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-candidate-invitation',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],

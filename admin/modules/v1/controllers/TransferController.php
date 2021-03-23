@@ -8,12 +8,13 @@ use yii\base\Exception;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Invoice;
-use common\models\Admin;
+use admin\models\Admin;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use company\models\TranferExcel;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
+
 
 /**
  * Transfer controller - Manage Transfer
@@ -421,7 +422,7 @@ class TransferController extends Controller
              
             $tc_ids = \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'tc_id');
             
-            $transfer_file_id = \common\models\TransferFile::saveFile($tc_ids, $model->excel);
+            $transfer_file_id = \admin\models\TransferFile::saveFile($tc_ids, $model->excel);
             
             if(!$transfer_file_id) {
                 return [

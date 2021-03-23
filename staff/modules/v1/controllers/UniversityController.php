@@ -4,9 +4,9 @@ namespace staff\modules\v1\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\helpers\ArrayHelper;
 use yii\data\ActiveDataProvider;
-use common\models\University;
+use staff\models\University;
+
 
 /**
  * University controller - Manage university as Admin

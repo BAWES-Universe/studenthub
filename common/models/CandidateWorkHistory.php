@@ -129,7 +129,6 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         ->exists();
     }
 
-
     public function extraFields()
     {
         return [

@@ -1,6 +1,7 @@
 <?php
 namespace admin\models;
 
+
 /**
  * This is the model class for table "Company".
  * It extends from \common\models\Company but with custom functionality for this application module
@@ -72,6 +73,7 @@ class Company extends \common\models\Company {
     {
         return parent::getStores($modelClass);
     }
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
@@ -79,5 +81,98 @@ class Company extends \common\models\Company {
     public function getNotes($modelClass = "\admin\models\Note")
     {
         return parent::getNotes($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\admin\models\Request")
+    {
+        return parent::getRequests($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany($modelClass = "\admin\models\Company")
+    {
+        return parent::getParentCompany($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getCandidates($modelClass = "\admin\models\Candidate")
+    {
+        return parent::getCandidates ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoices($modelClass = "\admin\models\Invoice")
+    {
+        parent::getInvoices($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\admin\models\Transfer")
+    {
+        return parent::getTransfers($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentTransfers($modelClass = "\admin\models\Transfer")
+    {
+        return parent::getParentTransfers($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \common\models\Company
+     */
+    public function getSubCompanyStores($modelClass = "\admin\models\Store")
+    {
+        return parent::getSubCompanyStores($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrands($modelClass = "\common\models\Brand")
+    {
+        return parent::getBrands($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyContacts($modelClass = "\common\models\CompanyContact")
+    {
+        return parent::getCompanyContacts($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContacts($modelClass = "\common\models\Contact")
+    {
+        return parent::getContacts($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFiles($modelClass = "\common\models\File")
+    {
+        return parent::getFiles($modelClass);
     }
 }

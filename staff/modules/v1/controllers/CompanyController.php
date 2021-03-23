@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 use staff\models\Company;
 use staff\models\Note;
-use common\models\File;
+use staff\models\File;
 use yii\web\NotFoundHttpException;
 
 
@@ -90,10 +90,17 @@ class CompanyController extends Controller
             $query->filterByActive40DaysPassedWithoutPayment();
         }
 
+        if ($status == 4) {
+            $query->filterActive()
+                ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+                ->filterByActive40DaysPassedWithoutRequest();
+        }
+
         if ($name) {
             $query->filterByName($name);
         }
 
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
@@ -300,7 +307,9 @@ class CompanyController extends Controller
                 ];
             }
         }
+
         $mail = Company::companyCreateUpdateMail($model);
+
         Yii::info('['.$model->company_name.' Company Account Created] Company created by '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
@@ -377,6 +386,11 @@ class CompanyController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
     public function actionUpdateFollowupInterval($id) {
 
         $model = $this->findModel((int) $id);

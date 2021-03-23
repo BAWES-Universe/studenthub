@@ -551,4 +551,15 @@ East Spencerfurt, TX 54526-8756',
         'store_updated_at' => '2009-05-02 08:19:15',
         'deleted' => '0',
     ],
+    'store50' => [
+        'store_id' => 51,
+        'company_id' => 3,
+        'store_name' => 'Gulgowski',
+        'store_location' => '2715 Stark Island Suite 438
+East Spencerfurt, TX 54526-8756',
+        'store_status' => 10,
+        'store_created_at' => '1972-06-30 05:56:13',
+        'store_updated_at' => '2009-05-02 08:19:15',
+        'deleted' => '0',
+    ],
 ];

@@ -3,9 +3,9 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
-use staff\models\Note;
+use company\models\Note;
 use yii\data\ActiveDataProvider;
-use staff\models\Request;
+use company\models\Request;
 use yii\web\NotFoundHttpException;
 
 
@@ -75,8 +75,8 @@ class RequestController extends BaseController
         $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
-            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
-            ->andWhere(['request_status' => Request::STATUS_STARTED])
+            ->andWhere(['IN', 'company_id', $companyIds])//current company and childs
+            ->andWhere(['NOT IN', 'request_status', [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED]])
             ->orderBy('request_created_datetime DESC');
 
         if($company_id) {
@@ -118,6 +118,7 @@ class RequestController extends BaseController
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
+        $model->request_location = Yii::$app->request->getBodyParam("location");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_status = Request::STATUS_STARTED;
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
@@ -169,6 +170,7 @@ class RequestController extends BaseController
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
+        $model->request_location = Yii::$app->request->getBodyParam("location");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
@@ -338,6 +340,17 @@ class RequestController extends BaseController
             "operation" => "success",
             "message" => "Request activity successfully added",
             "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function actionRequestCount() {
+        $company = Yii::$app->companyManager->getCompany();
+
+        return [
+            "active_request_count" => $company->getRequests()->activeRequest()->handleByStaff()->count()
         ];
     }
 

@@ -23,5 +23,13 @@ class FulltimerTags extends \common\models\FulltimerTags
     {
         return parent::getCountry($modelClass);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimer($modelClass = "\company\models\Fulltimer")
+    {
+        return parent::getFulltimer($modelClass);
+    }
 }
 

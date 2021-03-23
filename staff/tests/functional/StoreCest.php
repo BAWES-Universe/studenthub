@@ -53,6 +53,17 @@ class StoreCest
     }
 
     /**
+     * try to view store detail
+     * @param FunctionalTester $I
+     */
+    public function restCallToViewStoreDetail(FunctionalTester $I)
+    {
+        $I->wantTo('view store detail');
+        $I->sendGET('v1/stores/1');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
      * error Create store
      * @param FunctionalTester $I
      */
@@ -99,17 +110,6 @@ class StoreCest
         $I->sendPOST('v1/stores',['name'=>'Adidas Store','company_id'=>'2']);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson(["operation"=>"success","message"=>"Store successfully created"]);
-    }
-
-    /**
-     * try to view store detail
-     * @param FunctionalTester $I
-     */
-    public function restCallToViewStoreDetail(FunctionalTester $I)
-    {
-        $I->wantTo('view store detail');
-        $I->sendGET('v1/stores/1');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 
     /**

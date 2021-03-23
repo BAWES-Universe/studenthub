@@ -31,6 +31,15 @@ class Candidate extends \common\models\Candidate {
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
+    public function getInvitations($modelClass = "\candidate\models\Invitation")
+    {
+        return parent::getInvitations($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getTransferCandidate($modelClass = "\candidate\models\TransferCandidate")
     {
         return parent::getTransferCandidate($modelClass);
@@ -45,7 +54,6 @@ class Candidate extends \common\models\Candidate {
         return parent::getPaidTransferCandidate($modelClass);
     }
 
-    
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -135,7 +143,6 @@ class Candidate extends \common\models\Candidate {
         return parent::getCandidateExperiences($modelClass);
     }
 
-
     /**
      * @inheritdoc
      */
@@ -145,5 +152,36 @@ class Candidate extends \common\models\Candidate {
         if($token){
             return $token->candidate;
         }
+    }
+
+    public function getNationality($modelClass = "\candidate\models\Country")
+    {
+        return parent::getNationality($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getArea($modelClass = "\candidate\models\Area")
+    {
+        return parent::getArea ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransfers($modelClass = "\candidate\models\Transfer")
+    {
+        return parent::getTransfers ($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion($modelClass = "\candidate\models\Suggestion")
+    {
+        return parent::getSuggestion ($modelClass);
     }
 }

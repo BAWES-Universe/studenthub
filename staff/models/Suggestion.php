@@ -69,4 +69,12 @@ class Suggestion extends \common\models\Suggestion
     {
         return parent::getFeedbacks($modelClass);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimer($modelClass = "\staff\models\Fulltimer")
+    {
+        return parent::getFulltimer($modelClass);
+    }
 }

@@ -2,8 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Candidate;
-use common\models\Fulltimer;
+use staff\models\Candidate;
+use staff\models\Fulltimer;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -103,7 +103,7 @@ class SuggestionController extends Controller
             $query->andWhere(['candidate.candidate_id' => $candidate_id]);
         }
 
-        if($status) {
+        if($status > 1) {
             $query->andWhere(['suggestion_status' => $status]);
         }
 

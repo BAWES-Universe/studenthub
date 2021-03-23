@@ -61,4 +61,46 @@ class Store extends \common\models\Store {
     {
         return parent::getMall($modelClass);
     }
+
+    /**
+     * @param string $modelClass
+     * @return \common\models\Store
+     */
+    public function getStoreManager($modelClass = "\staff\models\Contact")
+    {
+        return parent::getStoreManager($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBrand($modelClass = "\staff\models\Brand")
+    {
+        return parent::getBrand ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistory($modelClass = "\staff\models\CandidateWorkHistory")
+    {
+        return parent::getCandidateWorkHistory($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistoryByLast40Days($modelClass = "\staff\models\CandidateWorkHistory")
+    {
+        return parent::getCandidateWorkHistoryByLast40Days($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \staff\models\Store
+     */
+    public function getCandidatesCount($modelClass = "\staff\models\Candidate")
+    {
+        return parent::getCandidatesCount($modelClass);
+    }
 }

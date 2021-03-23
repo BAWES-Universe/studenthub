@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\Country;
+use staff\models\Country;
 
 
 /**

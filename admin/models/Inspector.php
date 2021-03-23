@@ -11,17 +11,11 @@ use Yii;
 class Inspector extends \common\models\Inspector {
 
     /**
-     * @inheritdoc
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
      */
-    public function fields()
+    public function getAccessTokens($modelClass = '\common\models\InspectorToken')
     {
-        $fields = parent::fields();
-
-        // remove fields that contain sensitive information
-        unset($fields['inspector_auth_key'],
-        $fields['inspector_password_hash'],
-        $fields['inspector_password_reset_token']);
-
-        return $fields;
+        return parent::getAccessTokens($modelClass);
     }
 }

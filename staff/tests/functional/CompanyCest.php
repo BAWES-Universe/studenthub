@@ -1,16 +1,14 @@
 <?php
 namespace staff\tests;
 
-use candidate\models\Candidate;
-use common\fixtures\CandidateFixture;
-use common\fixtures\StoreFixture;
-use company\models\Company;
 use yii;
-use staff\tests\FunctionalTester;
 use common\models\StaffToken;
 use common\fixtures\StaffTokenFixture;
 use common\fixtures\CompanyFixture;
 use Codeception\Util\HttpCode;
+use common\fixtures\CandidateFixture;
+use common\fixtures\StoreFixture;
+
 
 class CompanyCest
 {
@@ -137,4 +135,53 @@ class CompanyCest
         ]);
         $I->seeResponseCodeIs(HttpCode::OK);
     }
+
+    /**
+     * Add company
+     * @param FunctionalTester $I
+     */
+    public function tryToAddCompany(FunctionalTester $I)
+    {
+        $I->wantTo('add company');
+        $I->sendPOST('v1/companies', [
+            'email' => 'Test@parent.com',
+            'name' => 'test',
+            'hourly_rate' => 2,
+            'bonus_commission' => 0,
+            'common_name_en' => 'test',
+            'common_name_ar' => 'test',
+            'description_en' => 'test',
+            'description_ar' => 'test',
+            'website' => 'me@me.com',
+            'logo' => null,
+            'followup' => false,
+            'followup_interval_weeks' => 1
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
+
+    /**
+     * try to update company
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToUpdateCompany(FunctionalTester $I)
+    {
+        $I->wantTo('add company');
+        $I->sendPATCH('v1/companies/1', [
+            'email' => 'Test@parent2.com',
+            'name' => 'test',
+            'hourly_rate' => 2,
+            'bonus_commission' => 0,
+            'common_name_en' => 'test',
+            'common_name_ar' => 'test',
+            'description_en' => 'test',
+            'description_ar' => 'test',
+            'website' => 'me@me.com',
+            'logo' => null,
+            'followup' => false,
+            'followup_interval_weeks' => 1
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK);
+    }
 }
+

@@ -48,8 +48,66 @@ class TransferCandidate extends \common\models\TransferCandidate
         return $fields;
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getTransfer($modelClass = "\candidate\models\Transfer")
     {
-        return $this->hasOne($modelClass::className(), ['transfer_id' => 'transfer_id']);
+        return parent::getTransfer($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStore($modelClass = "\candidate\models\Store")
+    {
+        return parent::getStore($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\candidate\models\Company")
+    {
+        return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($modelClass = "\candidate\models\Candidate")
+    {
+        return parent::getCandidate($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvoice($modelClass = "\common\models\Invoice")
+    {
+        return parent::getInvoice($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBank($modelClass = "\candidate\models\Bank")
+    {
+        return parent::getBank($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFile($modelClass = "\common\models\TransferFile")
+    {
+        return parent::getTransferFile($modelClass);
     }
 }

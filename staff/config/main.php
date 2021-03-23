@@ -104,6 +104,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET detail/<id>' => 'view',
+                        'GET appreciation-certificate/<id>/<wid>' => 'appreciation-certificate',
                         'GET not-assigned' => 'list-not-assigned',
                         'GET assigned' => 'list-assigned',
                         'GET expired-civil-id' => 'list-expired-civil-id',
@@ -151,6 +152,7 @@ return [
                         'OPTIONS unapprove/<id>' => 'options',
                         'OPTIONS update-hour-rate/<id>' => 'options',
                         'OPTIONS expire-card/<id>' => 'options',
+                        'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options'
                     ]
                 ],
@@ -182,7 +184,6 @@ return [
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
                         'POST add-followup-note/<id>' => 'add-followup-note',
-                        'PATCH change-status/<id>' => 'change-status',
                         'PATCH <id>' => 'update',
                         'PATCH update-followup/<id>' => 'update-followup',
                         'PATCH update-followup-interval/<id>' => 'update-followup-interval',
@@ -274,30 +275,22 @@ return [
                     'controller' => 'v1/request',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET pending' => 'list-pending',
                         'GET active' => 'list-active',
-                        'GET all-active' => 'list-all-active',
-                        'GET my' => 'list-my',
+                        'GET is-request-updated/<id>' => 'is-request-updated',
                         'GET <id>' => 'view',
                         'POST' => 'create',
-                        'PATCH pick-up/<id>' => 'pick-up',
                         'PATCH <id>' => 'update',
-                        'PATCH start/<id>' => 'start',
                         'PATCH cancel/<id>' => 'cancel',
                         'PATCH deliver/<id>' => 'deliver',
                         'POST add-activity' => 'add-activity',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options',
-                        'OPTIONS pending' => 'options',
+                        'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS active' => 'options',
-                        'OPTIONS my' => 'options',
-                        'OPTIONS pick-up/<id>' => 'options',
-                        'OPTIONS start/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
-                        'OPTIONS all-active' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // BrandController
@@ -339,6 +332,18 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invitation',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST' => 'create',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',

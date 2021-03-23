@@ -5,10 +5,9 @@ namespace company\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use company\models\Company;
 use company\models\Transfer;
 use company\models\TranferExcel;
-use common\models\Invoice;
+use company\models\Invoice;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use kartik\mpdf\Pdf;
@@ -284,7 +283,10 @@ class TransferController extends Controller
 
         $company = Yii::$app->companyManager->getCompany();
 
-        Yii::info('[Company '.$company->company_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent"] Check if payment has been received by bank.', __METHOD__);
+        $info = '[ Agent '.Yii::$app->user->identity->contact_name.' marked Transfer #'.$transfer->transfer_id.' as "Payment Sent" ] ';
+        $info .= '[ for Company '.$company->company_name.'] ';
+        $info .= 'Check if payment has been received by bank.';
+        Yii::info($info, __METHOD__);
 
         return [
             "operation" => "success",
@@ -317,7 +319,10 @@ class TransferController extends Controller
 
         $company = Yii::$app->companyManager->getCompany();
 
-        Yii::info('[Company '.$company->company_name.' has locked transfer #'.$transfer->transfer_id.'] They will be sending payment soon.', __METHOD__);
+        $info = '[ Agent '.Yii::$app->user->identity->contact_name.' has locked transfer #'.$transfer->transfer_id.' ] ';
+        $info .= '[ for Company '.$company->company_name.'] ';
+        $info .= 'They will be sending payment soon.';
+        Yii::info($info, __METHOD__);
 
         return [
             "operation" => "success",
@@ -339,7 +344,10 @@ class TransferController extends Controller
         {
             $company = Yii::$app->companyManager->getCompany();
 
-            Yii::info('[Company '.$company->company_name.' Deleted Transfer #'.$id.'] Check for reason and ask if they require assistance.', __METHOD__);
+            $info = '[ Agent '.Yii::$app->user->identity->contact_name.' has Deleted Transfer #'.$id.' ] ';
+            $info .= '[ for Company '.$company->company_name.'] ';
+            $info .= 'Check for reason and ask if they require assistance.';
+            Yii::info($info, __METHOD__);
 
             return [
                 "operation" => "success",

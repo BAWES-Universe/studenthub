@@ -50,8 +50,6 @@ class StoreCest
      */
     public function testListing(FunctionalTester $I)
     {
-        $store = Store::findOne(['company_id' => $this->company->company_id]);
-
         $I->wantTo('Validate company > stores api');
         $I->sendGET('v1/stores');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -64,8 +62,10 @@ class StoreCest
      */
     public function testViewStore(FunctionalTester $I)
     {
+        $store = $this->company->getStores()->one();
+
         $I->wantTo('View Store');
-        $I->sendGET('v1/stores/1');
+        $I->sendGET('v1/stores/view/' . $store->store_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -88,6 +88,17 @@ class StoreCest
     public function testSubCompanies(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list stores and sub company');
         $I->sendGET('v1/stores/company-store');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * View store
+     * @param FunctionalTester $I
+     */
+    public function testViewStoreDetail(FunctionalTester $I) {
+        $I->wantTo('Validate company > stores api to list sub company\'s stores');
+        $I->sendGET('v1/stores/2');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

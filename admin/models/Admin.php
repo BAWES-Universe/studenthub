@@ -1,6 +1,7 @@
 <?php
 namespace admin\models;
 
+use common\models\AdminToken;
 use Yii;
 use yii\helpers\Url;
 
@@ -9,21 +10,6 @@ use yii\helpers\Url;
  * It extends from \common\models\Admin but with custom functionality for this application module
  */
 class Admin extends \common\models\Admin {
-
-    /**
-     * @inheritdoc
-     */
-    public function fields()
-    {
-        $fields = parent::fields();
-
-        // remove fields that contain sensitive information
-        unset($fields['admin_auth_key'],
-        $fields['admin_password_hash'],
-        $fields['admin_password_reset_token']);
-
-        return $fields;
-    }
 
     /**
      * Send new password to customer
@@ -46,5 +32,14 @@ class Admin extends \common\models\Admin {
             ->setTo($model->admin_email)
             ->setSubject('Your account password has been reset')
             ->send();
+    }
+
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\admin\models\AdminToken")
+    {
+        return parent::getAccessTokens($modelClass);
     }
 }

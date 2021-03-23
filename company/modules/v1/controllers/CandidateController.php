@@ -3,7 +3,7 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
-use common\models\CandidateWorkHistory;
+use company\models\CandidateWorkHistory;
 use company\models\Candidate;
 
 

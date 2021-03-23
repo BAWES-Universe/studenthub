@@ -117,6 +117,7 @@ class Contact extends \yii\db\ActiveRecord
             $fields['contact_password_hash'],
             $fields['contact_password_reset_token'],
             $fields['contact_auth_key']);
+
         return $fields;
     }
 
@@ -377,5 +378,10 @@ class Contact extends \yii\db\ActiveRecord
         $token->save(false);
 
         return $token;
+    }
+
+    public function getCompanyContact($modelClass = "\common\models\CompanyContact")
+    {
+        return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
 }

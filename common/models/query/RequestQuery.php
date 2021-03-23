@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;
 
@@ -43,5 +44,15 @@ class RequestQuery extends ActiveQuery
     public function filterByType($type)
     {
         return $this->andWhere(['request_position_type' => $type]);
+    }
+
+    public function handleByStaff()
+    {
+        return $this->andWhere(['!=','request_created_by', 0]);
+    }
+
+    public function activeRequest()
+    {
+        return $this->andWhere(['request_status'=>Request::STATUS_STARTED]);
     }
 }

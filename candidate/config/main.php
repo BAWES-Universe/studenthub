@@ -45,7 +45,6 @@ return [
                         'GET login' => 'login',
                         'POST email-check' => 'email-check',
                         'POST register' => 'signup',
-                        'POST name-by-civil-id' => 'name-by-civil-id',
                         'POST request-reset-password' => 'request-reset-password',
                         'POST is-email-verified' => 'is-email-verified',
                         'POST update-email' => 'update-email',          
@@ -174,6 +173,19 @@ return [
                         'GET' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // InvitationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invitation',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'PATCH accept/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'reject',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS accept/<id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
                     ]
                 ],
                 [ // CountryController

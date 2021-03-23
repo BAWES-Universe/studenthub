@@ -2,14 +2,14 @@
 
 namespace admin\modules\v1\controllers;
 
-use admin\models\Company;
+
 use staff\models\Contact;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use common\models\CompanyContact;
-use common\models\ContactPhone;
-use common\models\ContactEmail;
+use admin\models\CompanyContact;
+use admin\models\ContactPhone;
+use admin\models\ContactEmail;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -235,7 +235,7 @@ class CompanyContactController extends Controller
         }
 
         if (Yii::$app->request->getBodyParam("company_id")) {
-            \common\models\CompanyContact::updateAll(
+            \admin\models\CompanyContact::updateAll(
                 [
                     'contact_position' => Yii::$app->request->getBodyParam("contact_position"),
                     'allow_access' => Yii::$app->request->getBodyParam("allow_access")

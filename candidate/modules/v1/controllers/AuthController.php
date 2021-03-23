@@ -9,7 +9,7 @@ use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use candidate\models\Candidate;
 use candidate\models\CandidateToken;
-use common\models\CandidateEmailVerifyAttempt;
+use candidate\models\CandidateEmailVerifyAttempt;
 use yii\web\NotFoundHttpException;
 
 
@@ -115,14 +115,6 @@ class AuthController extends Controller
         // Return candidate access token if everything valid
 
         return $this->_loginResponse($candidate);
-    }
-
-    /**
-     * Mock candidate name by civil id api
-     */
-    public function actionNameByCivilId() {
-        Yii::$app->response->format = 'html';
-        echo '<html><input id="#ContentPlaceHolder1_txtName" value="test arabic name" /></html>';
     }
 
     /**
@@ -521,7 +513,7 @@ class AuthController extends Controller
         $model->candidate_phone = Yii::$app->request->getBodyParam('phone');
         $model->candidate_language_pref = $lang;
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
-        $model->candidate_status = \common\models\Candidate::STATUS_PENDING;
+        $model->candidate_status = \candidate\models\Candidate::STATUS_PENDING;
         $model->approved = false;
         
         if (!$model->signup()) {

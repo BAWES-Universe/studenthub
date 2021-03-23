@@ -2,7 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\Request;
+use staff\models\Request;
 use staff\models\Company;
 use Yii;
 use yii\rest\Controller;
@@ -71,17 +71,9 @@ class StatisticController extends Controller
     {
         // # of candidates requiring ID card to be renewed
 
-    	$result['totalExpiredCards'] =  Candidate::find()
-            ->idExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->notDeleted() // only candidate with assigned work
-            ->count();
+    	$result['totalExpiredCards'] =  Candidate::totalExpiredCards()->count();
 
-        $result['assignedExpiredCivilID'] =  Candidate::find()
-            ->civilIdExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->notDeleted() // only candidate with assigned work
-            ->count();
+        $result['assignedExpiredCivilID'] =  Candidate::assignedExpiredCivilID()->count();
 
     	// # of candidates that need id generated
 
@@ -92,31 +84,25 @@ class StatisticController extends Controller
 
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
-        $result['profileApprovalRequire'] = Candidate::find()
-            ->byApprovalStatus(0)
-            ->completedProfileWithoutApproval()
-            ->notDeleted() // only candidate with assigned work
-            ->count();
+        $result['profileApprovalRequire'] = Candidate::profileApprovalRequire()->count();
 
         //Candidates are assigned to work but have incomplete profiles.
 
-        $result['incompleteAssignedToWork'] = Candidate::find()
-            ->filterAssigned()
-            ->incompletedProfile()
-            ->notDeleted() // only candidate with assigned work
-            ->count();
+        $result['incompleteAssignedToWork'] = Candidate::incompleteAssignedToWork()->count();
 
         $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
 
         $result['requireFollowup'] = Company::companyFollowupCount();
 
         $result['activeRequests'] = Request::activeRequestCount();
+
         $result['totalRequests'] = Request::totalRequestCount();
 
         $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
-        $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();
-        $result['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
+        $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();
+
+        $result['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
         return $result;
     }
