@@ -122,9 +122,15 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         if ($TransferCandidate->save(false)) {
 
+            $TransferCandidate->candidate->bank_id = null;
+            $TransferCandidate->candidate->bank_account_name = null;
+            $TransferCandidate->candidate->candidate_iban = null;
+            $TransferCandidate->candidate->save(false);
+
             $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
 
             // in case if transfer is paid
+
             if ($Transfer->transfer_status == Transfer::STATUS_TRANSFER_COMPLETE) {
 
                 $Transfer->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;
@@ -141,11 +147,6 @@ class TransferCandidate extends \common\models\TransferCandidate
                     ];
                 }
             }
-
-            $TransferCandidate->candidate->bank_id = null;
-            $TransferCandidate->candidate->bank_account_name = null;
-            $TransferCandidate->candidate->candidate_iban = null;
-            $TransferCandidate->candidate->save(false);
 
             return [
                 "operation" => "success",
