@@ -3,6 +3,7 @@
 namespace candidate\modules\v1\controllers;
 
 
+use common\models\Request;
 use staff\models\Note;
 use Yii;
 use yii\rest\Controller;
@@ -80,7 +81,9 @@ class InvitationController extends Controller
             ->orderBy('invitation_created_at DESC');
 
         if ($count) {
+            $query->joinWith(['request']);
             $query->andWhere(['invitation_status' => Invitation::STATUS_INVITED]);
+            $query->andWhere(['request.request_status' => Request::STATUS_STARTED]);
             return $query->count();
         }
 
