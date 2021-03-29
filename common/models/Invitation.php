@@ -254,4 +254,22 @@ class Invitation extends \yii\db\ActiveRecord
     {
         return new query\InvitationQuery(get_called_class());
     }
+
+    /**
+     * job invitation email
+     */
+    public function jobInvitationEmail()
+    {
+        $url = Yii::$app->params['candidateAppUrl'] . 'invitation-detail/' . $this->invitation_uuid;
+        return Yii::$app->mailer->compose("candidate/job-invitation",
+            [
+                "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                "model" => $this,
+                "url" => $url
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->candidate->candidate_email)
+            ->setSubject("You’re invited to apply for a job opening")
+            ->send();
+    }
 }
