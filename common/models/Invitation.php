@@ -151,6 +151,48 @@ class Invitation extends \yii\db\ActiveRecord
     }
 
     /**
+     * after object saved
+     * @param boolean $insert
+     * @param array $changedAttributes
+     * @return boolean
+     */
+    public function afterSave($insert, $changedAttributes) {
+        parent::afterSave($insert, $changedAttributes);
+
+        if($insert && $this->candidate_id) {
+            $this->sendNotification();
+        }
+
+        return true;
+    }
+
+    /**
+     * mobile notification on candidate invitation
+     */
+    public function sendNotification()
+    {
+        $heading = Yii::t('app', "You’re invited to apply for a job opening");
+        $subtitle = "@ " . $this->request->company->company_name;
+        $content = $this->request->request_job_description;
+
+        $filters = [
+            [
+                "field" => "tag",
+                "key" => "candidate_id",
+                "relation" => "=",
+                "value" => $this->candidate_id
+            ]
+        ];
+
+        $data = [
+            'subject' => 'invitation',
+            'invitation_uuid' => $this->invitation_uuid
+        ];
+
+        MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+    }
+
+    /**
      * @inheritdoc
      */
     public function extraFields()
@@ -253,5 +295,23 @@ class Invitation extends \yii\db\ActiveRecord
     public static function find()
     {
         return new query\InvitationQuery(get_called_class());
+    }
+
+    /**
+     * job invitation email
+     */
+    public function jobInvitationEmail()
+    {
+        $url = Yii::$app->params['candidateAppUrl'] . 'invitation-detail/' . $this->invitation_uuid;
+        return Yii::$app->mailer->compose("candidate/job-invitation",
+            [
+                "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                "model" => $this,
+                "url" => $url
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->candidate->candidate_email)
+            ->setSubject("You’re invited to apply for a job opening")
+            ->send();
     }
 }

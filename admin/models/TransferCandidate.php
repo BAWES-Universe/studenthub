@@ -111,35 +111,6 @@ class TransferCandidate extends \common\models\TransferCandidate
     }
 
     /**
-     * notify candidate on transfer marked as paid by admin
-     */
-    public function emailTransferSuccess() {
-
-        $subjectLine = number_format($this->totalPaidToCandidate, 3) . " transferred to your account!";
-
-        $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
-
-        if(YII_ENV != 'prod') {
-            $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
-        }
-
-        Yii::$app->mailer->compose('candidate/transfer-success',[
-            'name' => strtoupper (explode (' ', $name)[0]),
-            'totalPaidToCandidate' => $this->totalPaidToCandidate,
-            'imageMoney' => Yii::$app->urlManagerStaff->createUrl(
-                '../images/money.gif'
-            ),
-            'logo' => Yii::$app->urlManagerStaff->createUrl(
-                '../images/logo.png'
-            )
-        ])
-            ->setTo($this->candidate->candidate_email)
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setSubject($subjectLine)
-            ->send();
-    }
-
-    /**
      * mark candidate transfer as paid
      * @param $tc_id number
      * @param $transfer_confirmation_id string
@@ -159,11 +130,9 @@ class TransferCandidate extends \common\models\TransferCandidate
         $TransferCandidate->paid = TransferCandidate::PAID;
         $TransferCandidate->transfer_confirmation_id = $transfer_confirmation_id;
         
-        if ($TransferCandidate->save(false)) {
+        if ($TransferCandidate->save()) {
 
             Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
-
-            $TransferCandidate->emailTransferSuccess();
 
             return [
                 "operation" => "success",
@@ -203,8 +172,6 @@ class TransferCandidate extends \common\models\TransferCandidate
         foreach($transferCandidates as $transferCandidate) {
             $transferCandidate->paid = TransferCandidate::PAID;
             $transferCandidate->save();
-
-            $transferCandidate->emailTransferSuccess();
         }
 
         // fetch record of transfer list id and update one by one with condition

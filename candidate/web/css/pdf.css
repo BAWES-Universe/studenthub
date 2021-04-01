@@ -1,0 +1,164 @@
+@font-face {
+    font-family: 'abhaya';
+    src: url('../fonts/abhaya_libre/AbhayaLibre-SemiBold.woff2') format('woff2'),
+    url('../fonts/abhaya_libre/AbhayaLibre-SemiBold.woff') format('woff'),
+    url('../fonts/abhaya_libre/AbhayaLibre-SemiBold.ttf') format('truetype');
+}
+
+
+@font-face {
+    font-family: 'Andada';
+    src: url(../fonts/andada/Andada-Regular.ttf) format('truetype');
+}
+
+@font-face {
+    font-family: 'almarai';
+    src: url(../fonts/almarai/Almarai-Regular.ttf) format('truetype');
+}
+
+.outer-border {
+    /*width: 100%;*/
+    border : 15px solid #bacdfd;
+    /*height: 100%;*/
+    /*position: relative;*/
+}
+
+.inner-border {
+    /*width: 100%;*/
+    border : 12px solid #5C8BC2;
+    /*height: 95%;*/
+    /*position: relative;*/
+}
+.gold-seal-logo {
+    /*width: 100px;*/
+    /*float: right;*/
+    /*position: absolute;*/
+    /*right: 10px;*/
+    /*top: 10px;*/
+}
+h1 {
+    /*height: 10.5px;*/
+    margin: 45px 0 0 0;
+    font-family: 'abhaya', sans-serif;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+    padding: 0;
+}
+
+.awarded-to {
+    /*height: 35.5px;*/
+    margin: 10px 0 32.3px 0;
+    font-family: 'abhaya', sans-serif;
+    font-size: 29.4px;
+    padding: 0;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+
+.name {
+    margin: 0 0 18.5px 0;
+    object-fit: contain;
+    font-family: 'Almarai', sans-serif;
+    font-size: 29.4px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+.working-for {
+    margin: 20px 0 15px 0;
+    font-family: 'Andada', sans-serif;
+    font-size: 19.6px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+
+.company {
+    margin: 8px 0 0 0;
+    font-family: 'Andada', sans-serif;
+    font-size: 36.4px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+
+.at {
+    margin: 12px 0 12px 0;
+    font-family: 'Andada', sans-serif;
+    font-size: 19.6px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+
+.store {
+    margin: 4px 0 9.9px 0;
+    font-family: 'Andada', sans-serif;
+    font-size: 27.2px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+
+.date {
+    margin: 9.9px 0 9px 0;
+    font-family: 'Andada', sans-serif;
+    font-size: 19.6px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}
+.footer{
+    margin: 22px 0 22px 0;
+}
+.border {
+    border-bottom: 1px solid #fff;
+}
+.col-xs-2 {
+    width: 15.66666667%;
+}
+.auth {
+    font-family: 'Almarai', sans-serif;
+    font-size: 16.7px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #000;
+}

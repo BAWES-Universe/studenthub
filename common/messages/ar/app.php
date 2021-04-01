@@ -201,5 +201,7 @@ return [
     "Invitation Created By Company" => "دعوة تم إنشاؤها من قبل الشركة",
     "Invitation Updated By Company" => "تم تحديث الدعوة من قبل الشركة",
     "Invitation Created At" => "تم إنشاء الدعوة في",
-    "Invitation Updated At" => "تم تحديث الدعوة في"
+    "Invitation Updated At" => "تم تحديث الدعوة في",
+    "You’re invited to apply for a job opening" => "أنت مدعو للتقدم لوظيفة شاغرة",
+    "KD {amount} has been transferred to your bank account" => "تم تحويل KD {Amount} إلى حسابك المصرفي"
 ];

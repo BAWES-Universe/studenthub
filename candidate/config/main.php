@@ -161,9 +161,11 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET work-history' => 'work-history',
+                        'GET appreciation-certificate/<wid>' => 'appreciation-certificate',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS work-history' => 'options',
+                        'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],
                 [ // StatisticController
@@ -180,10 +182,12 @@ return [
                     'controller' => 'v1/invitation',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         'PATCH accept/<id>' => 'accept',
                         'PATCH reject/<id>' => 'reject',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                         'OPTIONS accept/<id>' => 'options',
                         'OPTIONS reject/<id>' => 'options',
                     ]

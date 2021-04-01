@@ -227,7 +227,11 @@ class TransferCandidate extends \yii\db\ActiveRecord
 //
 //        } else
         if (isset($changedAttributes['paid']) && $this->paid == self::PAID) {
-            
+
+            Yii::info ('marked as paid');
+
+            $this->emailTransferSuccess();
+
             $this->sendTransferPaidNotification();
             
         } else if (isset($changedAttributes['paid']) && $this->paid == self::UNPAID) {
@@ -260,7 +264,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function sendTransferPaidNotification() 
     {
-        $heading = Yii::t('app', 'Transfer paid');
+        $heading = Yii::t('app', "KD {amount} has been transferred to your bank account", [
+            "amount" => number_format($this->totalPaidToCandidate, 3)
+        ]);
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
         $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);
 
@@ -281,7 +287,36 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
     }
-    
+
+    /**
+     * notify candidate on transfer marked as paid by admin
+     */
+    public function emailTransferSuccess() {
+
+        $subjectLine = "KD " . number_format($this->totalPaidToCandidate, 3) . " has been transferred to your bank account";
+
+        $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
+
+        if(YII_ENV != 'prod') {
+            $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
+        }
+
+        Yii::$app->mailer->compose('candidate/transfer-success',[
+            'name' => strtoupper (explode (' ', $name)[0]),
+            'totalPaidToCandidate' => $this->totalPaidToCandidate,
+            'imageMoney' => Yii::$app->urlManagerStaff->createUrl(
+                '../images/money.gif'
+            ),
+            'logo' => Yii::$app->urlManagerStaff->createUrl(
+                '../images/logo.png'
+            )
+        ])
+            ->setTo($this->candidate->candidate_email)
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setSubject($subjectLine)
+            ->send();
+    }
+
     /**
      * mobile notification on transfer marked as unpaid
      */

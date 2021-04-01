@@ -548,6 +548,12 @@ class AccountController extends Controller
         $job_search_status = Yii::$app->request->getBodyParam('job_search_status');
 
         $model = Candidate::findOne(Yii::$app->user->getId());
+        if ($model->store_id > 0 && !$job_search_status) {
+            return [
+                'operation' => 'error',
+                "message" => Yii::t('candidate',"You can only change status if you are not assigned")
+            ];
+        }
         $model->candidate_job_search_status = $job_search_status;
 
         $model->scenario = 'updateJobSearchStatus';

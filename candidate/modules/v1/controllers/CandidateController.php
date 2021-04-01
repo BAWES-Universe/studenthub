@@ -2,11 +2,14 @@
 
 namespace candidate\modules\v1\controllers;
 
+use kartik\mpdf\Pdf;
 use Yii;
+use yii\base\BaseObject;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use candidate\models\CandidateWorkHistory;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -80,5 +83,57 @@ class CandidateController extends Controller
             return [];
 
         return $model;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|string[]
+     * @throws NotFoundHttpException
+     * @throws \Mpdf\MpdfException
+     * @throws \setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException
+     * @throws \setasign\Fpdi\PdfParser\PdfParserException
+     * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionAppreciationCertificate($wid) {
+
+        $candidate = Yii::$app->user->identity;
+
+        if(!$candidate) {
+            return [
+                "operation" => "error",
+                "message" => 'Transfer not found!'
+            ];
+        }
+        $workHistory = $candidate->getWorkHistory()->andWhere(['id'=>$wid])->one();
+        $this->layout = 'main';
+        $content = $this->render('candidate-appreciation-certificate-pdf', [
+            'candidate' => $candidate,
+            'workHistory' => $workHistory
+        ]);
+
+        $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            'marginTop' => 5,
+            'marginRight' => 6,
+            'marginLeft' => 6,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_LANDSCAPE,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // format content from your own css file if needed or use the
+            // enhanced bootstrap css built by Krajee for mPDF formatting
+            'cssFile' => [
+                '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
+                'css/pdf.css'
+            ],
+        ]);
+
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
     }
 }

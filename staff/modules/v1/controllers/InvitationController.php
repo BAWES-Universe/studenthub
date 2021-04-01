@@ -156,6 +156,8 @@ class InvitationController extends Controller
             ->filterInvited()
             ->count();
 
+        $model->jobInvitationEmail();
+
         return [
             "operation" => "success",
             "message" => "Candidate invited successfully",

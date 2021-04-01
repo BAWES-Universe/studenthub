@@ -18,6 +18,10 @@ class Store extends \common\models\Store {
             $fields['company_id'],
             $fields['store_updated_at']
         );
+
+        $fields['store_name'] = function($model) {
+            return strtolower($model->store_name);
+        };
         // remove fields that contain sensitive information
         return $fields;
     }
