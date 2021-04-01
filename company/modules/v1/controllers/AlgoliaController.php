@@ -2,6 +2,7 @@
 
 namespace company\modules\v1\controllers;
 
+use company\models\Request;
 use Yii;
 
 /**
@@ -14,6 +15,20 @@ class AlgoliaController extends BaseController
      */
     public function actionKey()
     {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $activeRequests = Request::find()
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->activeRequest()
+            ->count();
+
+        if(!$activeRequests) {
+            return [
+                'operation' => 'error',
+                'message' => 'No Active Request'
+            ];
+        }
+
         $ttl = 60 * 2; //2 min
 
         $params = [
