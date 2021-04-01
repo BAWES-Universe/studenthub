@@ -10,6 +10,16 @@ use Yii;
  */
 class Company extends \common\models\Company {
 
+
+    public function extraFields()
+    {
+        $fields = parent::extraFields();
+        return array_merge(
+            $fields,
+            ['parentCompany']
+        );
+    }
+
     /**
      * @return array
      */
