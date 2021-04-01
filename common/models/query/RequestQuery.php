@@ -53,6 +53,6 @@ class RequestQuery extends ActiveQuery
 
     public function activeRequest()
     {
-        return $this->andWhere(['request_status'=>Request::STATUS_STARTED]);
+        return $this->andWhere(['request_status' => Request::STATUS_STARTED]);
     }
 }
