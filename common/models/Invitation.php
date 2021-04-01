@@ -151,6 +151,48 @@ class Invitation extends \yii\db\ActiveRecord
     }
 
     /**
+     * after object saved
+     * @param boolean $insert
+     * @param array $changedAttributes
+     * @return boolean
+     */
+    public function afterSave($insert, $changedAttributes) {
+        parent::afterSave($insert, $changedAttributes);
+
+        if($insert && $this->candidate_id) {
+            $this->sendNotification();
+        }
+
+        return true;
+    }
+
+    /**
+     * mobile notification on candidate invitation
+     */
+    public function sendNotification()
+    {
+        $heading = Yii::t('app', "You’re invited to apply for a job opening");
+        $subtitle = "@ " . $this->request->company->company_name;
+        $content = $this->request->request_job_description;
+
+        $filters = [
+            [
+                "field" => "tag",
+                "key" => "candidate_id",
+                "relation" => "=",
+                "value" => $this->candidate_id
+            ]
+        ];
+
+        $data = [
+            'subject' => 'invitation',
+            'invitation_uuid' => $this->invitation_uuid
+        ];
+
+        MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+    }
+
+    /**
      * @inheritdoc
      */
     public function extraFields()
