@@ -1,6 +1,9 @@
 <?php
 namespace company\tests;
 
+use common\fixtures\CompanyContactFixture;
+use common\fixtures\CompanyFixture;
+use common\fixtures\ContactFixture;
 use yii;
 use common\models\ContactToken;
 use common\fixtures\ContactTokenFixture;
@@ -13,7 +16,10 @@ class AlgoliaCest
 
     public function _fixtures() {
         return [
-            'tokens' => ContactTokenFixture::className()
+            'tokens' => ContactTokenFixture::className(),
+            'company' => CompanyFixture::className (),
+            'companyContact' => CompanyContactFixture::className (),
+            //'contact' => ContactFixture::className ()
         ];
     }
 
