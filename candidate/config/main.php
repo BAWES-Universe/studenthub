@@ -161,9 +161,11 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET work-history' => 'work-history',
+                        'GET appreciation-certificate/<wid>' => 'appreciation-certificate',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS work-history' => 'options',
+                        'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],
                 [ // StatisticController

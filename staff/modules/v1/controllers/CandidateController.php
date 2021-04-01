@@ -229,6 +229,14 @@ class CandidateController extends Controller
         $candidate_id = Yii::$app->request->getBodyParam('candidate_id');
 
         $model = $this->findModel($candidate_id);
+
+        if ($model->store_id > 0 && !$job_search_status) {
+            return [
+                'operation' => 'error',
+                "message" => Yii::t('candidate',"Candidate status can only be change if they are not assigned")
+            ];
+        }
+
         $model->candidate_job_search_status = $job_search_status;
 
         $model->scenario = 'updateJobSearchStatus';
