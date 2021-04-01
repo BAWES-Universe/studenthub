@@ -228,8 +228,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
 //        } else
         if (isset($changedAttributes['paid']) && $this->paid == self::PAID) {
 
-            Yii::info ('marked as paid');
-
             $this->emailTransferSuccess();
 
             $this->sendTransferPaidNotification();
@@ -264,11 +262,11 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function sendTransferPaidNotification() 
     {
-        $heading = Yii::t('app', "KD {amount} has been transferred to your bank account", [
+        $heading = "Transfer paid";
+        $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
+        $content = Yii::t('app', "KD {amount} has been transferred to your bank account", [
             "amount" => number_format($this->totalPaidToCandidate, 3)
         ]);
-        $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
-        $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);
 
         $filters = [
             [
