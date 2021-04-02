@@ -2,7 +2,7 @@
 
 namespace common\models\query;
 
-use Yii;
+use company\models\Request;
 use common\models\Invitation;
 
 
@@ -15,5 +15,14 @@ class InvitationQuery extends \yii\db\ActiveQuery
     public function filterInvited()
     {
         return $this->andWhere (['invitation_status' => Invitation::STATUS_INVITED]);
+    }
+
+    /**
+     * active requests
+     * @return RequestQuery
+     */
+    public function activeRequest()
+    {
+        return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, 'pending']]);
     }
 }
