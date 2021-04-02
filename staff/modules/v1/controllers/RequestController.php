@@ -128,7 +128,7 @@ class RequestController extends Controller
         $position_type = Yii::$app->request->get("position_type");
 
         $query = Request::find()
-            ->andWhere(['request_status' => Request::STATUS_STARTED])
+            ->activeRequest()
             ->orderBy('request_created_datetime DESC');
 
         if($company_id) {
