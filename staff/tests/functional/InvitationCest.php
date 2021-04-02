@@ -55,7 +55,9 @@ class InvitationCest
      */
     public function tryToCreate(FunctionalTester $I)
     {
-        $request = Request::find ()->where (['request_status' => Request::STATUS_STARTED])->one ();
+        $request = Request::find ()
+            ->where (['request_status' => Request::STATUS_STARTED])
+            ->one ();
 
         $candidate = Candidate::find ()->one ();
 

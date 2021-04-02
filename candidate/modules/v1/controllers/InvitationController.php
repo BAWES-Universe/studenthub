@@ -81,9 +81,11 @@ class InvitationController extends Controller
             ->orderBy('invitation_created_at DESC');
 
         if ($count) {
-            $query->joinWith(['request']);
-            $query->andWhere(['invitation_status' => Invitation::STATUS_INVITED]);
-            $query->andWhere(['request.request_status' => Request::STATUS_STARTED]);
+
+            $query->joinWith(['request'])
+                ->andWhere(['invitation_status' => Invitation::STATUS_INVITED])
+                ->activeRequest();
+
             return $query->count();
         }
 
