@@ -258,7 +258,7 @@ class Request extends \yii\db\ActiveRecord
 
     public static function activeRequestCount() {
         return Request::find()
-            ->andWhere(['request_status' => Request::STATUS_STARTED])
+            ->activeRequest()
             //last 1 hour
             ->andWhere(
                 new \yii\db\Expression(
@@ -270,7 +270,7 @@ class Request extends \yii\db\ActiveRecord
 
     public static function totalRequestCount() {
         return Request::find()
-            ->andWhere(['in','request_status',[Request::STATUS_STARTED]])
+            ->activeRequest()
             ->count();
     }
 

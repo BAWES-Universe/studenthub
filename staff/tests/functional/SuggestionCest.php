@@ -71,7 +71,10 @@ class SuggestionCest
      */
     public function tryToCreate(FunctionalTester $I)
     {
-        $request = Request::find()->where(['request_status' => Request::STATUS_STARTED])->one();
+        $request = Request::find()
+            ->where(['request_status' => Request::STATUS_STARTED])
+            ->one();
+
         $candidate = Candidate::find()->one();
 
         $I->wantTo('create a suggestion via API');
