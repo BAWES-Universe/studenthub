@@ -178,7 +178,7 @@ class AuthController extends Controller
             "company_id" => $company->company_id,
             "profile_name" => Yii::$app->user->identity->contact_name,
             "email" => $company->company_email,
-            "active_request_count" => $company->getRequests()->andWhere(['request_status'=>Request::STATUS_STARTED])->count()
+            "active_request_count" => $company->getRequests()->activeRequest()->count()
         ];
     }
 
