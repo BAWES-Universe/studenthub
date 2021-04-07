@@ -14,6 +14,9 @@ class Company extends \common\models\Company {
     public function extraFields()
     {
         $fields = parent::extraFields();
+
+        unset($fields['company_approved_to_hire']);
+
         return array_merge(
             $fields,
             ['parentCompany']
