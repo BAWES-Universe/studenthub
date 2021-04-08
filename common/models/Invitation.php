@@ -161,6 +161,7 @@ class Invitation extends \yii\db\ActiveRecord
 
         if($insert && $this->candidate_id) {
             $this->sendNotification();
+            $this->jobInvitationEmail();
         }
 
         return true;
