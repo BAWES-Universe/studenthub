@@ -35,9 +35,14 @@ class CompanyManager
             die("ILLEGAL USAGE OF COMPANY MANAGER, THROW IN JAIL");
         }
 
+        $this->setCompanies();
+    }
+
+    public function setCompanies() {
+
         $cacheDuration = 60*1; //1 minute then delete from cache
 
-        //All the parent companies, user can access 
+        //All the parent companies, user can access
 
         $this->companies = Company::getDb()->cache(function($db) {
             return Yii::$app->user->identity->getManagedCompanies()->all();

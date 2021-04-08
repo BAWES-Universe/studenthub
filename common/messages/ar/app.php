@@ -203,5 +203,10 @@ return [
     "Invitation Created At" => "تم إنشاء الدعوة في",
     "Invitation Updated At" => "تم تحديث الدعوة في",
     "You’re invited to apply for a job opening" => "أنت مدعو للتقدم لوظيفة شاغرة",
-    "KD {amount} has been transferred to your bank account" => "تم تحويل KD {Amount} إلى حسابك المصرفي"
+    "KD {amount} has been transferred to your bank account" => "تم تحويل KD {Amount} إلى حسابك المصرفي",
+    "Contact Email" => "",
+    "Contact New Email" => "",
+    "Contact Email Verified?" => "",
+    'Contact Email Verify Attempt UUID' => "",
+    "Contact Limit Email" => ""
 ];
