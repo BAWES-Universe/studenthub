@@ -2,16 +2,12 @@
 
 namespace company\modules\v1\controllers;
 
-use company\models\CompanyContact;
 use company\models\Contact;
-use common\models\ContactEmailVerifyAttempt;
-use company\models\ContactToken;
 use company\models\ContactPhone;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\Cors;
-use company\models\Company;
 
 
 /**
@@ -144,7 +140,7 @@ class AuthController extends Controller
         if(!$newPassword) {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('company', 'Password field required')
+                'message' => Yii::t("company",'Password field required')
             ];
         }
 
@@ -154,7 +150,7 @@ class AuthController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => Yii::t('company','Your password has been reset'),
+            'message' => Yii::t("company",'Your password has been reset')
         ];
     }
 

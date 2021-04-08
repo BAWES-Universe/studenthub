@@ -80,26 +80,26 @@ class CompanyContactController extends BaseController
         if (Yii::$app->user->identity->currentUserRole != 'Owner') {
             return [
                 "operation" => "error",
-                "message" => Yii::t('app', 'Your are not authorize to perform this action')
+                "message" => Yii::t('company', 'Your are not authorize to perform this action')
             ];
         };
 
         if ($contact->role == 'Owner') {
             return [
                 "operation" => "error",
-                "message" => Yii::t('app', 'Your are not authorize to remove Owner')
+                "message" => Yii::t('company', 'Your are not authorize to remove Owner')
             ];
         }
         if ($contact->contact_uuid == Yii::$app->user->getId()) {
             return [
                 "operation" => "error",
-                "message" => Yii::t('app', 'Your are not authorize to remove Own')
+                "message" => Yii::t('company', 'Your are not authorize to remove Own')
             ];
         }
         if ($contact->delete()) {
             return [
                 "operation" => "success",
-                "message" => Yii::t('app', 'Team member removed successfully')
+                "message" => Yii::t('company', 'Team member removed successfully')
             ];
         }
     }
