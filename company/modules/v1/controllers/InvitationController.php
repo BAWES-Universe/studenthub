@@ -146,7 +146,7 @@ class InvitationController extends Controller {
         if ($email_to_invite == Yii::$app->user->identity->contact_email) {
             return [
                 "operation" => "error",
-                "message" => Yii::t('app', 'Contact can\'t send invitation to him self')
+                "message" => Yii::t('company', 'Contact can not send invitation to him self')
             ];
         }
 
@@ -162,7 +162,7 @@ class InvitationController extends Controller {
             return [
                 "operation" => "error",
                 "direct" => "1",
-                "message" => Yii::t('app', "Request already sent to email {email}", [
+                "message" => Yii::t('company', "Request already sent to email {email}", [
                     'email' => $email_to_invite
                 ])
             ];
@@ -183,7 +183,7 @@ class InvitationController extends Controller {
 
         return [
             "operation" => "success",
-            "message" => Yii::t('app', "Invitation sent successfully"),
+            "message" => Yii::t('company', "Invitation sent successfully"),
         ];
     }
 
@@ -204,14 +204,14 @@ class InvitationController extends Controller {
         if (!$model) {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('app', 'Item not found')
+                'message' => Yii::t('company', 'Item not found')
             ];
         }
 
         if ($model->accepted === ContactInvitation::ACCEPTED_FALSE) {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('app', 'Invitation cancelled')
+                'message' => Yii::t('company', 'Invitation cancelled')
             ];
         }
 
@@ -245,7 +245,7 @@ class InvitationController extends Controller {
 
         return [
             'operation' => 'success',
-            'message' => Yii::t('app', 'Invitation accepted successfully')
+            'message' => Yii::t('company', 'Invitation accepted successfully')
         ];
     }
 
@@ -266,7 +266,7 @@ class InvitationController extends Controller {
         if (!$model) {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('app', 'Item not found')
+                'message' => Yii::t('company', 'Item not found')
             ];
         }
 
@@ -276,7 +276,7 @@ class InvitationController extends Controller {
         if ($model->email_to_invite != $agent->email) {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('app', 'You should be owner to remove invitation')
+                'message' => Yii::t('company', 'You should be owner to remove invitation')
             ];
         }
 
@@ -285,7 +285,7 @@ class InvitationController extends Controller {
         if ($model->save()) {
             return [
                 'operation' => 'success',
-                'message' => Yii::t('app', 'Invitation rejected successfully')
+                'message' => Yii::t('company', 'Invitation rejected successfully')
             ];
         } else {
             return [
@@ -313,7 +313,7 @@ class InvitationController extends Controller {
         if (!$model) {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('app', 'Item not found')
+                'message' => Yii::t('company', 'Item not found')
             ];
         }
 
@@ -326,7 +326,7 @@ class InvitationController extends Controller {
 
         return [
             'operation' => 'success',
-            'message' => Yii::t('app', "Invitation Deleted Successfully")
+            'message' => Yii::t('company', "Invitation Deleted Successfully")
         ];
     }
 
