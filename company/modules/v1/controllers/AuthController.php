@@ -100,6 +100,26 @@ class AuthController extends Controller
     public function actionLogin()
     {  
         $contact = Yii::$app->user->identity;
+
+        // Email and password are correct, check if his email has been verified
+        // If email has been verified, then allow him to log in
+        if ($contact->contact_email_verification != Contact::EMAIL_VERIFIED) {
+
+            //$contact->generateOtp();
+            //$contact->save(false);
+
+            return [
+                "operation" => "error",
+                "errorType" => "email-not-verified",
+                "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
+                "unVerifiedToken" => $this->_loginResponse($contact)
+            ];
+        }
+
+        //Update last active datetime for candidate
+        //$contact->last_active_datetime = (new \yii\db\Query)->select(new \yii\db\Expression('NOW()'))->scalar();
+        //$contact->save(false);
+
         return $this->_loginResponse($contact);
     }
 
@@ -117,14 +137,14 @@ class AuthController extends Controller
         if(!$model) {
             return [
                 'operation' => 'error',
-                'message' => 'Invalid password reset token. Please request another password reset email'
+                'message' => Yii::t('company', 'Invalid password reset token. Please request another password reset email')
             ];
         }
 
         if(!$newPassword) {
             return [
                 'operation' => 'error',
-                'message' => 'Password field required'
+                'message' => Yii::t('company', 'Password field required')
             ];
         }
 
@@ -134,7 +154,7 @@ class AuthController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => 'Your password has been reset',
+            'message' => Yii::t('company','Your password has been reset'),
         ];
     }
 
@@ -166,7 +186,7 @@ class AuthController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => 'Reset password token sent on your email address.',
+            'message' => Yii::t('company','Reset password token sent on your email address.')
         ];
     }
 
@@ -204,6 +224,9 @@ class AuthController extends Controller
         $model->contact_email = Yii::$app->request->getBodyParam("email");
         $model->contact_password_hash = Yii::$app->request->getBodyParam("password");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+
+        //Generate OTP for Candidate
+        //$model->generateOTP();
 
         /*$invitation = ContactInvitation::find()
             ->where([
@@ -310,6 +333,7 @@ class AuthController extends Controller
      * @return array
      */
     public function actionVerifyEmail() {
+
         $code = Yii::$app->request->getBodyParam("code");
         $email = Yii::$app->request->getBodyParam("email");
 
@@ -333,6 +357,12 @@ class AuthController extends Controller
         $model = Contact::verifyEmail($email, $code);
 
         if ($model) {
+
+            //remove otp
+
+            //$model->contact_otp = null;
+            //$model->save(false);
+
             //remove old email verification attempts
 
             ContactEmailVerifyAttempt::deleteAll([
@@ -341,6 +371,7 @@ class AuthController extends Controller
             ]);
 
             return $this->_loginResponse($model);
+
         } else {
             //add entry for invalid attempt
 
@@ -410,7 +441,7 @@ class AuthController extends Controller
          * Opt will expiry after 60 minutes, so user have to login back to update
          * email
          *
-        if (!$contact->findByOtp($contact->otp, 60)) {
+        if (!$contact->findByOtp($contact->contact_otp, 60)) {
             return [
                 "operation" => "error-session-expired",
                 "message" => Yii::t('company', "Session expired, please log back in")
