@@ -1,10 +1,7 @@
 <?php
 namespace company\tests;
 
-use common\models\Company;
 use company\models\Contact;
-use company\models\ContactToken;
-use company\tests\FunctionalTester;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\ContactFixture;
 use common\fixtures\CompanyFixture;
@@ -56,6 +53,98 @@ class AuthCest
             "operation"=>"success",
             "company_id"=> $this->company->company_id
         ]);
+    }
+
+    /**
+     * abbility to signup
+     * @param \company\tests\FunctionalTester $I
+     */
+    public function tryToSignup(FunctionalTester $I)
+    {
+        $I->wantTo('Validate auth > create account api');
+        $I->sendPOST('v1/auth/create-account', [
+            "name" => "Mohanchand",
+            "email" => "mohan@localhost.com",
+            "password" => 12345,
+            "receive_email" => true,
+            "phone_number" => 87384334,
+            "company_name" => "Milton",
+            "contact_position" => "CEO"
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson([
+            "operation" => "success",
+        ]);
+    }
+
+    /**
+     * Check if email got verified
+     * @param FunctionalTester $I
+     */
+    public function tryToCheckEmailVerificationStatus(FunctionalTester $I)
+    {
+        $model = Contact::find()->one();
+        $model->contact_email_verification = 0;
+        $model->save(false);
+
+        $I->wantTo('Try to check if email got verified');
+        $I->sendPOST('v1/auth/is-email-verified', [
+            'token' => $model->getAccessToken()->token_value
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson();
+    }
+
+    /**
+     * Resend Verification Email
+     * @param FunctionalTester $I
+     */
+    public function tryToResendVerificationEmail(FunctionalTester $I)
+    {
+        $model = Contact::find()->one();
+        $model->contact_email_verification = 0;
+        $model->save(false);
+
+        $I->wantTo('Try to get verification again by email');
+        $I->sendPOST('v1/auth/resend-verification-email', [
+            'email' => $model->contact_email
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson();
+    }
+
+    /**
+     * Resend Verify Email
+     * @param FunctionalTester $I
+     */
+    public function tryToVerifyEmail(FunctionalTester $I)
+    {
+        $model = Contact::find()->one();
+        $model->contact_email_verification = 0;
+        $model->save(false);
+
+        $I->wantTo('Try to verify email by code');
+        $I->sendPOST('v1/auth/verify-email', [
+            'code' => $model->contact_auth_key,
+            'email' => $model->contact_email
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson();
+    }
+
+    public function tryToUpdateEmail(FunctionalTester $I)
+    {
+        $model = Contact::find()->one();
+        $model->contact_email_verification = 0;
+        $model->save(false);
+
+        $I->wantTo('Try to verify email by code');
+        $I->sendPOST('v1/auth/update-email', [
+            'unVerifiedToken' => $model->getAccessToken()->token_value,
+            'newEmail' => 'new@localhost.com'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseContainsJson();
     }
 
     /**

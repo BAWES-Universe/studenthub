@@ -14,6 +14,9 @@ use yii\helpers\Url;
  * @property string $contact_uuid
  * @property string $contact_name
  * @property string $contact_email
+ * @property string $contact_new_email
+ * @property string $contact_email_verification
+ * @property string $contact_limit_email
  * @property string $contact_password_hash
  * @property string $contact_auth_key
  * @property string $contact_receive_email
@@ -27,6 +30,10 @@ use yii\helpers\Url;
  */
 class Contact extends \yii\db\ActiveRecord
 {
+    //Email verification values for `contact_email_verification`
+    const EMAIL_VERIFIED = 1;
+    const EMAIL_NOT_VERIFIED = 0;
+
     /**
      * {@inheritdoc}
      */
@@ -44,7 +51,7 @@ class Contact extends \yii\db\ActiveRecord
             [['contact_name', 'contact_email', 'contact_password_hash'], 'required'],
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
             [['contact_uuid'], 'string', 'max' => 60],
-            [['contact_email'], 'email'],
+            [['contact_email', 'contact_new_email'], 'email'],
             [['contact_name', 'contact_password_reset_token',], 'string', 'max' => 255],
             [['contact_uuid', 'contact_email'], 'unique'],
             [['contact_password_reset_token'], 'unique'],
@@ -75,6 +82,20 @@ class Contact extends \yii\db\ActiveRecord
     }
 
     /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+
+        $scenarios = parent::scenarios();
+
+        $scenarios['signup'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email'];
+
+        $scenarios['updateEmail'] = ['contact_email', 'contact_new_email'];
+
+        return $scenarios;
+    }
+
+    /**
      * @return bool
      */
     public function beforeDelete()
@@ -96,6 +117,10 @@ class Contact extends \yii\db\ActiveRecord
             'contact_uuid' => Yii::t('app', 'Contact ID'),
             'company_id' => Yii::t('app', 'Company ID'),
             'contact_name' => Yii::t('app', 'Contact Name'),
+            'contact_email' => Yii::t('app', 'Contact Email'),
+            'contact_new_email' => Yii::t('app', 'Contact New Email'),
+            'contact_email_verification' => Yii::t('app', 'Contact Email Verified?'),
+            'contact_limit_email' => Yii::t('app', 'Contact Limit Email'),
             'contact_receive_email' => Yii::t('app','Receive Email?'),
             'contact_receive_notification' => Yii::t('app','Receive Notification?'),
             'contact_auth_key' => Yii::t('app','Auth Key'),
@@ -233,11 +258,31 @@ class Contact extends \yii\db\ActiveRecord
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = ContactToken::find()->where(['token_value' => $token])->with('contact')->one();
 
-        if($token) {
+        $token = ContactToken::find()->where([
+                'token_value' => $token,
+                'token_status' => ContactToken::STATUS_ACTIVE
+            ])
+            ->with('contact')
+            ->one();
+
+        if (!$token)
+            return false;
+
+        //update last used datetime
+
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->contact && $token->contact->contact_email_verification) {
             return $token->contact;
         }
+
+        //invalid token
+
+        $token->delete();
     }
 
     /**

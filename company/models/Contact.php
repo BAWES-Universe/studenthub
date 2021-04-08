@@ -2,8 +2,7 @@
 namespace company\models;
 
 use Yii;
-use company\models\CompanyContact;
-use company\models\ContactToken;
+use yii\db\Expression;
 
 
 /**
@@ -68,10 +67,109 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         $this->setPassword($this->contact_password_hash);
 
         if ($this->save($validate)) {
+
+            if ($this->getScenario() == 'signup-google')
+                $notification_message = "[Contact Signup: " . $this->contact_name . "] Signed up using Google";
+            else
+                $notification_message = "[Contact Signup: " . $this->contact_name . "] Signed up using Manual";
+
+            Yii::info($notification_message , __METHOD__);
+
+            if (!$this->contact_email_verification) {
+                $this->sendVerificationEmail();
+            }
+
             return $this;
         }
 
         return null;
+    }
+
+    /**
+     * Sends an email requesting a user to verify his email address
+     * @return boolean whether the email was sent
+     */
+    public function sendVerificationEmail() {
+
+        $this->generateAuthKey();
+
+        //Update contact last email limit timestamp
+        $this->contact_limit_email = new Expression('NOW()');
+        $this->save(false);
+
+        if ($this->contact_new_email) {
+            $email = $this->contact_new_email;
+        } else {
+            $email = $this->contact_email;
+        }
+
+        return Yii::$app->mailer->compose([
+            'html' => 'company/verify-email-html',
+            'text' => 'company/verify-email-text',
+        ], [
+            'contact' => $this
+        ])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setTo($email)
+            ->setSubject('Please confirm your email address')
+            ->send();
+    }
+
+    /**
+     * Verifies the candidate email
+     */
+    public static function verifyEmail($email, $code) {
+
+        $model = Contact::find()
+            ->where([
+                'AND',
+                ['contact_auth_key' => $code],
+                [
+                    'OR',
+                    ['contact_new_email' => $email],
+                    ['contact_email' => $email]
+                ]
+            ])
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        if ($model->contact_auth_key == $code) { //to cope with sql case insensitivity
+            //If not verified
+            if ($model->contact_email_verification == Contact::EMAIL_NOT_VERIFIED) {
+                //Verify this email
+                $model->contact_email_verification = Contact::EMAIL_VERIFIED;
+            }
+
+            // new email address
+
+            if (!empty($model->contact_new_email)) {
+                $model->contact_email = $model->contact_new_email;
+                $model->contact_new_email = null;
+            }
+
+            $model->contact_auth_key = ''; //remove auth key
+            $model->save(false);
+
+            return $model;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
+        $token = ContactToken::find()->where(['token_value' => $token])
+            ->with('contact')
+            ->one();
+
+        if ($token) {
+            return $token->contact;
+        }
     }
 
     /**
