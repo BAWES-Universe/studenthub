@@ -51,7 +51,7 @@ class AccountController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the account details, please contact us for assistance."
+                    "message" => Yii::t("company","We've faced a problem updating the account details, please contact us for assistance.")
                 ];
             }
         }
@@ -95,7 +95,7 @@ class AccountController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Account details successfully updated"
+            "message" => Yii::t("company","Account details successfully updated")
         ];
     }
 
@@ -117,28 +117,28 @@ class AccountController extends BaseController
         } else if (empty($newPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Empty new password"
+                "message" => Yii::t("company","Empty new password")
             ];
         }
 
         if ($oldPassword === $newPassword) {
             return [
                 "operation" => "error",
-                "message" => "New password should not be same as old password"
+                "message" => Yii::t("company","New password should not be same as old password")
             ];
         }
 
         if (!$model->validatePassword($oldPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Invalid Old Password"
+                "message" => Yii::t("company","Invalid Old Password")
             ];
         }
 
         if (strlen($newPassword) < 5) {
             return [
                 "operation" => "error",
-                "message" => "New password length should be great then equal to 5"
+                "message" => Yii::t("company","New password length should be great then equal to 5")
             ];
         }
 
@@ -147,7 +147,7 @@ class AccountController extends BaseController
         if ($model->save(false)) {
             return [
                 "operation" => "success",
-                "message" => "Password changed successfully!"
+                "message" => Yii::t("company","Password changed successfully!")
             ];
         }
     }

@@ -161,7 +161,7 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "type" => "system",
-                "message" => "Error reading file"
+                "message" => Yii::t('company',"Error reading file")
             ];
         } 
 
@@ -218,7 +218,7 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "type" => "system",
-                "message" => "Error reading file"
+                "message" => Yii::t('company',"Error reading file")
             ];
         } 
 
@@ -290,7 +290,7 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => 'Transfer has been marked as "Payment Sent"'
+            "message" => Yii::t('company','Transfer has been marked as "Payment Sent"')
         ];
     }
 
@@ -326,7 +326,7 @@ class TransferController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Transfer has been locked. Invoices will be sent to your email."
+            "message" => Yii::t('company',"Transfer has been locked. Invoices will be sent to your email.")
         ];
     }
 
@@ -351,14 +351,14 @@ class TransferController extends Controller
 
             return [
                 "operation" => "success",
-                "message" => 'Transfer deleted as requested.'
+                "message" => Yii::t('company','Transfer deleted as requested.')
             ];
         } 
         else 
         {
             return [
                 "operation" => "error",
-                "message" => 'Transfer status should be "Initiated" or "Locked" to delete it!'
+                "message" => Yii::t('company','Transfer status should be "Initiated" or "Locked" to delete it!')
             ];            
         }        
     }
