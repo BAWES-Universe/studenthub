@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use common\models\Invitation;
 use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;
@@ -58,5 +59,15 @@ class RequestQuery extends ActiveQuery
     public function activeRequest()
     {
         return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, 'pending']]);
+    }
+
+    public function accepted()
+    {
+        return $this->andWhere(['invitation_status' => Invitation::STATUS_ACCEPTED]);
+    }
+
+    public function rejected()
+    {
+        return $this->andWhere(['invitation_status' => Invitation::STATUS_REJECTED]);
     }
 }
