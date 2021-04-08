@@ -76,5 +76,5 @@ return [
     "University created successfully" => "تم إنشاء الجامعة بنجاح",
     "No record found" => "لم يتم العثور على سجل",
     "Record found" => "تم العثور على السجل",
-    "You can only change status if you are not assigned"=>"",
+    "You can only change status if you are not assigned" => "يمكنك فقط تغيير الحالة إذا لم يتم تعيينك",
 ];

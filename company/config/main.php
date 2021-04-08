@@ -173,11 +173,13 @@ return [
                         'GET view' => 'view',
                         'PATCH update' => 'update',
                         'POST change-password' => 'change-password',
+                        'POST update-email' => 'update-email',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS update' => 'options',
                         'OPTIONS view' => 'options',
-                        'OPTIONS change-password' => 'options'
+                        'OPTIONS change-password' => 'options',
+                        'OPTIONS update-email' => 'options',
                     ]
                 ],
                 [ // RequestController

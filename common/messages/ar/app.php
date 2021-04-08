@@ -204,9 +204,11 @@ return [
     "Invitation Updated At" => "تم تحديث الدعوة في",
     "You’re invited to apply for a job opening" => "أنت مدعو للتقدم لوظيفة شاغرة",
     "KD {amount} has been transferred to your bank account" => "تم تحويل KD {Amount} إلى حسابك المصرفي",
-    "Contact Email" => "",
-    "Contact New Email" => "",
-    "Contact Email Verified?" => "",
-    'Contact Email Verify Attempt UUID' => "",
-    "Contact Limit Email" => ""
+    "Contact Email" => "تواصل بالبريد الاكتروني",
+    "Contact New Email" => "الاتصال بالبريد الإلكتروني الجديد",
+    "Contact Email Verified?" => "الاتصال البريد الإلكتروني التحقق؟",
+    'Contact Email Verify Attempt UUID' => "جهة الاتصال البريد الإلكتروني تحقق من المحاولة UUID",
+    "Contact Limit Email" => "حد الاتصال بالبريد الإلكتروني",
+    "One Time Password" => "كلمة السر لمرة واحدة",
+    "error" => "خطأ"
 ];

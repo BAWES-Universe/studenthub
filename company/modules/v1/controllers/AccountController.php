@@ -20,6 +20,50 @@ class AccountController extends BaseController
     }
 
     /**
+     * Update email address
+     * @return type
+     */
+    public function actionUpdateEmail() {
+
+        $contact = Contact::findOne(Yii::$app->user->getId());
+
+        $new_email = Yii::$app->request->getBodyParam("email");
+
+        if (!$new_email) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address required")
+            ];
+        }
+
+        if ($new_email == $contact->email || $new_email == $contact->new_email) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Candidate new email address is same as old email")
+            ];
+        }
+
+        $contact->scenario = "updateEmail";
+
+        $contact->contact_new_email = $new_email;
+
+        if ($contact->save()) {
+
+            $contact->sendVerificationEmail();
+
+            return [
+                "operation" => "success",
+                "message" => Yii::t('company', "Contact Account Info Updated Successfully, please check email to verify new email address"),
+            ];
+        } else {
+            return [
+                "operation" => "error",
+                "message" => $contact->errors
+            ];
+        }
+    }
+
+    /**
      * Update account details
      * @param $id
      * @return array
