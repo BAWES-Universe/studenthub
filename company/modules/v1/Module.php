@@ -21,6 +21,16 @@ class Module extends \yii\base\Module
         if (!\Yii::$app->user->isGuest) {
             \Yii::$app->companyManager->setCompanyId($company_id);
         }
+
+
+        $lang = \Yii::$app->request->headers->get('language');
+
+        if ($lang && $lang != \Yii::$app->language)
+        {
+            \Yii::$app->language = $lang;
+        }
         parent::init();
+
+
     }
 }

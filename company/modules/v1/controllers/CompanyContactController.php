@@ -99,7 +99,7 @@ class CompanyContactController extends BaseController
         if ($contact->delete()) {
             return [
                 "operation" => "success",
-                "message" => Yii::t('app', 'Team member removed successfully')
+                "message" => Yii::t('company', 'Team member removed successfully')
             ];
         }
     }

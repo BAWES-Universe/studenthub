@@ -134,7 +134,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Request, please contact us for assistance."
+                    "message" => Yii::t('company',"We have faced a problem creating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -146,7 +146,7 @@ class RequestController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Request created successfully"
+            "message" => Yii::t('company',"Request created successfully")
         ];
     }
 
@@ -162,7 +162,7 @@ class RequestController extends BaseController
         if(!$model){
             return [
                     "operation" => "error",
-                    "message" => "Request not found."
+                    "message" => Yii::t('company',"Request not found.")
                 ];
         }
 
@@ -185,7 +185,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                    "message" => Yii::t('company',"We have faced a problem updating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -196,7 +196,7 @@ class RequestController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated",
+            "message" => Yii::t('company',"Request successfully updated"),
             "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
@@ -213,7 +213,7 @@ class RequestController extends BaseController
         if ($model->getActiveSuggestions()->count() > 0) {
             return [
                 "operation" => "error",
-                "message" => "Please clear all suggestions by accepting or rejecting before being able to proceed with mark delivered / cancellation"
+                "message" => Yii::t('company',"Please clear all suggestions by accepting or rejecting before being able to proceed with mark delivered / cancellation")
             ];
         }
 
@@ -223,7 +223,7 @@ class RequestController extends BaseController
         if (!$model->request_feedback) {
             return [
                 "operation" => "error",
-                "message" => "Please provide Feedback"
+                "message" => Yii::t('company',"Please provide Feedback")
             ];
         }
 
@@ -237,7 +237,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                    "message" => Yii::t('company',"We have faced a problem updating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -248,7 +248,7 @@ class RequestController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated",
+            "message" => Yii::t('company',"Request successfully updated"),
             "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
@@ -265,7 +265,7 @@ class RequestController extends BaseController
         if ($model->getActiveSuggestions()->count() > 0) {
             return [
                 "operation" => "error",
-                "message" => "Please clear all suggestions by accepting or rejecting before being able to proceed with mark delivered / cancellation"
+                "message" => Yii::t('company',"Please clear all suggestions by accepting or rejecting before being able to proceed with mark delivered / cancellation")
             ];
         }
 
@@ -275,7 +275,7 @@ class RequestController extends BaseController
         if (!$model->request_feedback) {
             return [
                 "operation" => "error",
-                "message" => "Please provide Feedback"
+                "message" => Yii::t('company',"Please provide Feedback")
             ];
         }
 
@@ -289,7 +289,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                    "message" => Yii::t('company',"We have faced a problem updating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -300,7 +300,7 @@ class RequestController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Request successfully updated",
+            "message" => Yii::t('company',"Request successfully updated"),
             "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
@@ -331,14 +331,14 @@ class RequestController extends BaseController
             } else {
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem adding the request activity, please contact us for assistance."
+                    "message" => Yii::t('company',"We have faced a problem adding the request activity, please contact us for assistance.")
                 ];
             }
         }
 
         return [
             "operation" => "success",
-            "message" => "Request activity successfully added",
+            "message" => Yii::t('company',"Request activity successfully added"),
             "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
         ];
     }

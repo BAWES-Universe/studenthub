@@ -113,7 +113,7 @@ class NoteController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => Yii::t('company',"We have faced a problem creating the Note, please contact us for assistance.")
                 ];
             }
         }
@@ -126,7 +126,7 @@ class NoteController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Note created successfully",
+            "message" => Yii::t('company',"Note created successfully"),
             "request_updated_at" => $request_updated_at
         ];
     }
@@ -144,7 +144,7 @@ class NoteController extends BaseController
         if(!$model){
             return [
                 "operation" => "error",
-                "message" => "Note not found."
+                "message" => Yii::t('company',"Note not found.")
             ];
         }
 
@@ -165,14 +165,14 @@ class NoteController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Note, please contact us for assistance."
+                    "message" => Yii::t('company',"We have faced a problem updating the Note, please contact us for assistance.")
                 ];
             }
         }
 
         return [
             "operation" => "success",
-            "message" => "Note successfully updated"
+            "message" => Yii::t('company',"Note successfully updated")
         ];
     }
 
@@ -188,7 +188,7 @@ class NoteController extends BaseController
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "Note not found or already deleted"
+                "message" => Yii::t('company',"Note not found or already deleted")
             ];
         }
 
@@ -196,7 +196,7 @@ class NoteController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Note deleted successfully"
+            "message" => Yii::t('company',"Note deleted successfully")
         ];
     }
 

@@ -110,14 +110,14 @@ class AuthController extends Controller
         if(!$model) {
             return [
                 'operation' => 'error',
-                'message' => 'Invalid password reset token. Please request another password reset email'
+                'message' => Yii::t('company','Invalid password reset token. Please request another password reset email')
             ];
         }
 
         if(!$newPassword) {
             return [
                 'operation' => 'error',
-                'message' => 'Password field required'
+                'message' => Yii::t('company','Password field required')
             ];
         }
 
@@ -159,7 +159,7 @@ class AuthController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => 'Reset password token sent on your email address.',
+            'message' => Yii::t('company','Reset password token sent on your email address.'),
         ];
     }
 
