@@ -173,6 +173,7 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if (!$model->save()) {
             if(isset($model->errors)){
@@ -246,6 +247,7 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if (!$model->save()) {
             if (isset($model->errors)) {
