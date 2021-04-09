@@ -316,6 +316,10 @@ class Note extends \yii\db\ActiveRecord
         return $this->hasOne($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
     }
 
+    public function getSuggestion($modelClass = "\common\models\Suggestion") {
+        return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid']);
+    }
+
     /**
      * @inheritdoc
      * @return query\NoteQuery the active query used by this AR class.
