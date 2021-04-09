@@ -59,5 +59,6 @@ return [
     "Please clear all suggestions by accepting or rejecting before being able to proceed with mark delivered / cancellation" => "يرجى مسح جميع الاقتراحات بقبولها أو رفضها قبل التمكن من متابعة العلامة التي تم تسليمها / إلغاءها",
     "Please provide Feedback" => "يرجى تقديم ملاحظات",
     "We have faced a problem adding the request activity, please contact us for assistance." => "لقد واجهنا مشكلة في إضافة نشاط الطلب ، يرجى الاتصال بنا للحصول على المساعدة.",
-    "Request activity successfully added" => "تمت إضافة نشاط الطلب بنجاح"
+    "Request activity successfully added" => "تمت إضافة نشاط الطلب بنجاح",
+    "We've not approved to invite candidate, please contact us for assistance." => "لم نوافق على دعوة المرشح ، يرجى الاتصال بنا للحصول على المساعدة."
 ];
