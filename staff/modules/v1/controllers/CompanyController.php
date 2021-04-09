@@ -74,7 +74,8 @@ class CompanyController extends Controller
     {
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
-        
+        $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
+
         $query = Company::find()
             ->filterParent();
 
@@ -100,7 +101,12 @@ class CompanyController extends Controller
             $query->filterByName($name);
         }
 
+        if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {
+            $query->filterByApprovedToHire($approved_to_hire);
+        }
+
         $query->notDeleted();
+
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
