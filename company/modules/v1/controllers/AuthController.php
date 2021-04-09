@@ -2,8 +2,12 @@
 
 namespace company\modules\v1\controllers;
 
+use company\models\Company;
 use company\models\Contact;
 use company\models\ContactPhone;
+use company\models\ContactToken;
+use company\models\CompanyContact;
+use common\models\ContactEmailVerifyAttempt;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
