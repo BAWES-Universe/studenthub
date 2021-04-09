@@ -377,7 +377,7 @@ class Contact extends \yii\db\ActiveRecord
      * Generates auth key [1 time use token]
      */
     public function generateAuthKey() {
-        $this->contact_auth_key = strtoupper($this->generateUniqueRandomString('auth_key', 4));
+        $this->contact_auth_key = strtoupper($this->generateUniqueRandomString('contact_auth_key', 4));
         //Yii::$app->security->generateRandomString();
     }
 

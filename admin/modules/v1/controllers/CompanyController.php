@@ -75,11 +75,11 @@ class CompanyController extends Controller
     {
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
-        $common_name_en = Yii::$app->request->getQueryParam("common_name_en",0);
-        $common_name_ar = Yii::$app->request->getQueryParam("common_name_ar",0);
+        $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
 
         $query = Company::find()
             ->filterParent();
+
         if ($status == 1) {
             $query->filterActive();
         }
@@ -94,6 +94,10 @@ class CompanyController extends Controller
 
         if ($name) {
             $query->filterByName($name);
+        }
+
+        if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {
+            $query->filterByApprovedToHire($approved_to_hire);
         }
 
         return new ActiveDataProvider([

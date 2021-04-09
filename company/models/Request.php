@@ -11,7 +11,6 @@ class Request extends \common\models\Request
 
     public function extraFields()
     {
-
         return array_merge(parent::extraFields(),[
             'stats'
         ]);
