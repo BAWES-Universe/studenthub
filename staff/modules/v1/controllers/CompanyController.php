@@ -295,6 +295,7 @@ class CompanyController extends Controller
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+        $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if ($model->company_followup) {
             $model->company_last_followup_datetime = new Expression('NOW()');
@@ -359,6 +360,7 @@ class CompanyController extends Controller
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+        $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if ($model->oldAttributes['company_followup'] != $model->company_followup) {
             $model->company_last_followup_datetime = new Expression('NOW()');
