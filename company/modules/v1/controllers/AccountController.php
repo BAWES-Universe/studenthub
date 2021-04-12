@@ -71,16 +71,17 @@ class AccountController extends BaseController
     public function actionUpdate()
     {
         $model = Yii::$app->user->identity;
-
+        $new_email = Yii::$app->request->getBodyParam("email");
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         //$model->contact_position = Yii::$app->request->getBodyParam("position");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
-        $model->contact_email = Yii::$app->request->getBodyParam("email");
 
-        /*if ($new_email != $model->contact_email) {
+        if ($new_email && ($new_email != $model->contact_email)) {
             $model->contact_new_email = Yii::$app->request->getBodyParam("email");
-        }*/
+        } else {
+            $model->contact_email = $new_email;
+        }
 
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
@@ -133,13 +134,15 @@ class AccountController extends BaseController
             $em->save();
         }
 
-        /*if($model->contact_new_email) {
+        $msg = Yii::t("company","Account details successfully updated");
+        if($model->contact_new_email) {
             $model->sendVerificationEmail();
-        }*/
+            $msg = Yii::t('company', "Contact Account Info Updated Successfully, please check email to verify new email address");
+        }
 
         return [
             "operation" => "success",
-            "message" => Yii::t("company","Account details successfully updated")
+            "message" => $msg
         ];
     }
 
