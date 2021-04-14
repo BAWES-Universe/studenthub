@@ -118,9 +118,9 @@ class InvitationController extends Controller
 
         if ($model->invitation_status != Invitation::STATUS_INVITED) {
             if ($model->invitation_status == Invitation::STATUS_ACCEPTED) {
-                $msg = Yii::t('app','you have already accepted this request');
+                $msg = Yii::t('candidate','you have already accepted this request');
             } else  {
-                $msg = Yii::t('app','you have already rejected this request');
+                $msg = Yii::t('candidate','you have already rejected this request');
             }
 
             return [
@@ -151,7 +151,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem creating the Note, please contact us for assistance.")
                 ];
             }
         }
@@ -170,7 +170,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Invitation, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem updating the Invitation, please contact us for assistance.")
                 ];
             }
         }
@@ -179,7 +179,7 @@ class InvitationController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Invitation marked as accepted successfully"
+            "message" => Yii::t('candidate',"Invitation marked as accepted successfully")
         ];
     }
 
@@ -195,9 +195,9 @@ class InvitationController extends Controller
 
         if ($model->invitation_status != Invitation::STATUS_INVITED) {
             if ($model->invitation_status == Invitation::STATUS_ACCEPTED) {
-                $msg = Yii::t('app','you have already accepted this request');
+                $msg = Yii::t('candidate','you have already accepted this request');
             } else  {
-                $msg = Yii::t('app','you have already rejected this request');
+                $msg = Yii::t('candidate','you have already rejected this request');
             }
 
             return [
@@ -228,7 +228,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem creating the Note, please contact us for assistance.")
                 ];
             }
         }
@@ -247,7 +247,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Invitation, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem updating the Invitation, please contact us for assistance.")
                 ];
             }
         }
@@ -256,7 +256,7 @@ class InvitationController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Invitation marked as rejected successfully"
+            "message" => Yii::t('candidate',"Invitation marked as rejected successfully")
         ];
     }
 
