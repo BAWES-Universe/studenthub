@@ -16,6 +16,8 @@ use yii\db\Expression;
  * @property int $candidate_id
  * @property string $request_uuid
  * @property int $invitation_status 1-Invited , 2-Rejected, 3-Accepted
+ * @property string $invitation_app_seen_at
+ * @property string $invitation_email_seen_at
  * @property int $invitation_created_by_staff
  * @property int $invitation_updated_by_staff
  * @property int $invitation_created_by_company
@@ -53,7 +55,7 @@ class Invitation extends \yii\db\ActiveRecord
             [['candidate_id', 'invitation_status', 'invitation_created_by_staff', 'invitation_updated_by_staff', 'invitation_created_by_company', 'invitation_updated_by_company'], 'integer'],
             [['request_uuid', 'candidate_id'], 'required'],
             [['request_uuid'], 'validateDuplicateRequest'],
-            [['invitation_created_at', 'invitation_updated_at'], 'safe'],
+            [['invitation_email_seen_at', 'invitation_app_seen_at', 'invitation_created_at', 'invitation_updated_at'], 'safe'],
             [['invitation_uuid', 'request_uuid'], 'string', 'max' => 60],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['invitation_created_by_company'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['invitation_created_by_company' => 'company_id']],
@@ -141,6 +143,8 @@ class Invitation extends \yii\db\ActiveRecord
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'request_uuid' => Yii::t('app', 'Request Uuid'),
             'invitation_status' => Yii::t('app', 'Invitation Status'),
+            'invitation_email_seen_at' => Yii::t('app', 'Invitation Email Seen At'),
+            'invitation_app_seen_at' => Yii::t('app', 'Invitation in App Seen At'),
             'invitation_created_by_staff' => Yii::t('app', 'Invitation Created By Staff'),
             'invitation_updated_by_staff' => Yii::t('app', 'Invitation Updated By Staff'),
             'invitation_created_by_company' => Yii::t('app', 'Invitation Created By Company'),

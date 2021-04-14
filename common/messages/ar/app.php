@@ -210,5 +210,7 @@ return [
     'Contact Email Verify Attempt UUID' => "جهة الاتصال البريد الإلكتروني تحقق من المحاولة UUID",
     "Contact Limit Email" => "حد الاتصال بالبريد الإلكتروني",
     "One Time Password" => "كلمة السر لمرة واحدة",
-    "error" => "خطأ"
+    "error" => "خطأ",
+    "Invitation in App Seen At" => "",
+    "Invitation Email Seen At" => ""
 ];
