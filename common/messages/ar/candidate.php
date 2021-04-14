@@ -77,4 +77,6 @@ return [
     "No record found" => "لم يتم العثور على سجل",
     "Record found" => "تم العثور على السجل",
     "You can only change status if you are not assigned" => "يمكنك فقط تغيير الحالة إذا لم يتم تعيينك",
+    'you have already accepted this request' => '',
+    'you have already rejected this request' => ''
 ];
