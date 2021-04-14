@@ -102,7 +102,7 @@ class CandidateController extends Controller
         if(!$candidate) {
             return [
                 "operation" => "error",
-                "message" => 'Transfer not found!'
+                "message" => Yii::t('candidate','Transfer not found!')
             ];
         }
         $workHistory = $candidate->getWorkHistory()->andWhere(['id'=>$wid])->one();

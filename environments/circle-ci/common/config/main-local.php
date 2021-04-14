@@ -22,6 +22,12 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'https://staff.api.dev.studenthub.co/v1',
         ],
+        'urlManagerCandidate' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => 'https://student.api.dev.studenthub.co/v1',
+        ],
         'urlManagerVerification' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
