@@ -50,6 +50,24 @@ class InvitationCest
     }
 
     /**
+     * Try to log view timestamp by email
+     * @param FunctionalTester $I
+     */
+    public function tryToLogEmail(FunctionalTester $I)
+    {
+        $I->wantTo('log email view timestamp via API');
+        $I->sendGET('v1/invitations/log/' . $this->invitation->invitation_uuid);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    public function tryToLogAppView(FunctionalTester $I)
+    {
+        $I->wantTo('log app view timestamp via API');
+        $I->sendGET('v1/invitations/log-viewed');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
      * Try to accept invitation
      * @param FunctionalTester $I
      */
