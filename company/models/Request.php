@@ -8,6 +8,23 @@ namespace company\models;
  */
 class Request extends \common\models\Request
 {
+
+    public function extraFields()
+    {
+        return array_merge(parent::extraFields(),[
+            'stats'
+        ]);
+    }
+
+    public function getStats() {
+        return [
+            'suggested' => $this->getSuggestions()->count(),
+            'invited' => $this->getInvitations()->count(),
+            'rejected' => $this->getInvitations()->rejected()->count(),
+            'accepted' => $this->getInvitations()->accepted()->count(),
+        ];
+    }
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery

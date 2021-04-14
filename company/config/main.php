@@ -61,10 +61,18 @@ return [
                         'GET login' => 'login',
                         'POST create-account' => 'create-account',
                         'POST request-reset-password' => 'request-reset-password',
+                        'POST verify-email' => 'verify-email',
+                        'POST is-email-verified' => 'is-email-verified',
+                        'POST update-email' => 'update-email',
+                        'POST resend-verification-email' => 'resend-verification-email',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS request-reset-password' => 'options',
+                        'OPTIONS verify-email' => 'options',
+                        'OPTIONS is-email-verified' => 'options',
+                        'OPTIONS update-email' => 'options',
+                        'OPTIONS resend-verification-email' => 'options',
                         'OPTIONS update-password' => 'options',
                         'OPTIONS create-account' => 'options',
                     ]
@@ -165,11 +173,13 @@ return [
                         'GET view' => 'view',
                         'PATCH update' => 'update',
                         'POST change-password' => 'change-password',
+                        'POST update-email' => 'update-email',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS update' => 'options',
                         'OPTIONS view' => 'options',
-                        'OPTIONS change-password' => 'options'
+                        'OPTIONS change-password' => 'options',
+                        'OPTIONS update-email' => 'options',
                     ]
                 ],
                 [ // RequestController

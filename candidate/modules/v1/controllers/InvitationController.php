@@ -116,6 +116,19 @@ class InvitationController extends Controller
 
         $model = $this->findModel($id);
 
+        if ($model->invitation_status != Invitation::STATUS_INVITED) {
+            if ($model->invitation_status == Invitation::STATUS_ACCEPTED) {
+                $msg = Yii::t('app','you have already accepted this request');
+            } else  {
+                $msg = Yii::t('app','you have already rejected this request');
+            }
+
+            return [
+                "operation" => "error",
+                "message" => $msg
+            ];
+        }
+
         $transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
@@ -179,6 +192,19 @@ class InvitationController extends Controller
         $reason = Yii::$app->request->getBodyParam("reason");
 
         $model = $this->findModel($id);
+
+        if ($model->invitation_status != Invitation::STATUS_INVITED) {
+            if ($model->invitation_status == Invitation::STATUS_ACCEPTED) {
+                $msg = Yii::t('app','you have already accepted this request');
+            } else  {
+                $msg = Yii::t('app','you have already rejected this request');
+            }
+
+            return [
+                "operation" => "error",
+                "message" => $msg
+            ];
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
 

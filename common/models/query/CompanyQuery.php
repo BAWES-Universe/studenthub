@@ -100,6 +100,15 @@ class CompanyQuery extends \yii\db\ActiveQuery {
     }
 
     /**
+     * filter by ability to invite candidates
+     * @param $approved_to_hire
+     * @return CompanyQuery
+     */
+    public function filterByApprovedToHire($approved_to_hire) {
+        return $this->andWhere(['company_approved_to_hire' => $approved_to_hire]);
+    }
+
+    /**
      * @param $id
      * @return $this
      */

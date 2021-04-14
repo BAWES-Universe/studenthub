@@ -20,6 +20,50 @@ class AccountController extends BaseController
     }
 
     /**
+     * Update email address
+     * @return type
+     */
+    public function actionUpdateEmail() {
+
+        $contact = Contact::findOne(Yii::$app->user->getId());
+
+        $new_email = Yii::$app->request->getBodyParam("email");
+
+        if (!$new_email) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address required")
+            ];
+        }
+
+        if ($new_email == $contact->email || $new_email == $contact->new_email) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Candidate new email address is same as old email")
+            ];
+        }
+
+        $contact->scenario = "updateEmail";
+
+        $contact->contact_new_email = $new_email;
+
+        if ($contact->save()) {
+
+            $contact->sendVerificationEmail();
+
+            return [
+                "operation" => "success",
+                "message" => Yii::t('company', "Contact Account Info Updated Successfully, please check email to verify new email address"),
+            ];
+        } else {
+            return [
+                "operation" => "error",
+                "message" => $contact->errors
+            ];
+        }
+    }
+
+    /**
      * Update account details
      * @param $id
      * @return array
@@ -27,16 +71,17 @@ class AccountController extends BaseController
     public function actionUpdate()
     {
         $model = Yii::$app->user->identity;
-
+        $new_email = Yii::$app->request->getBodyParam("email");
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         //$model->contact_position = Yii::$app->request->getBodyParam("position");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
-        $model->contact_email = Yii::$app->request->getBodyParam("email");
 
-        /*if ($new_email != $model->contact_email) {
+        if ($new_email && ($new_email != $model->contact_email)) {
             $model->contact_new_email = Yii::$app->request->getBodyParam("email");
-        }*/
+        } else {
+            $model->contact_email = $new_email;
+        }
 
         $emails = Yii::$app->request->getBodyParam("emails");
         $phones = Yii::$app->request->getBodyParam("phones");
@@ -51,7 +96,7 @@ class AccountController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the account details, please contact us for assistance."
+                    "message" => Yii::t("company","We've faced a problem updating the account details, please contact us for assistance.")
                 ];
             }
         }
@@ -89,13 +134,15 @@ class AccountController extends BaseController
             $em->save();
         }
 
-        /*if($model->contact_new_email) {
+        $msg = Yii::t("company","Account details successfully updated");
+        if($model->contact_new_email) {
             $model->sendVerificationEmail();
-        }*/
+            $msg = Yii::t('company', "Contact Account Info Updated Successfully, please check email to verify new email address");
+        }
 
         return [
             "operation" => "success",
-            "message" => "Account details successfully updated"
+            "message" => $msg
         ];
     }
 
@@ -117,28 +164,28 @@ class AccountController extends BaseController
         } else if (empty($newPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Empty new password"
+                "message" => Yii::t("company","Empty new password")
             ];
         }
 
         if ($oldPassword === $newPassword) {
             return [
                 "operation" => "error",
-                "message" => "New password should not be same as old password"
+                "message" => Yii::t("company","New password should not be same as old password")
             ];
         }
 
         if (!$model->validatePassword($oldPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Invalid Old Password"
+                "message" => Yii::t("company","Invalid Old Password")
             ];
         }
 
         if (strlen($newPassword) < 5) {
             return [
                 "operation" => "error",
-                "message" => "New password length should be great then equal to 5"
+                "message" => Yii::t("company","New password length should be great then equal to 5")
             ];
         }
 
@@ -147,7 +194,7 @@ class AccountController extends BaseController
         if ($model->save(false)) {
             return [
                 "operation" => "success",
-                "message" => "Password changed successfully!"
+                "message" => Yii::t("company","Password changed successfully!")
             ];
         }
     }

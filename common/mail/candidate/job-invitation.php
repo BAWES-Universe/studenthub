@@ -193,7 +193,7 @@
                                                 <td align="left" style="font-size:0px;padding:10px 25px;padding-top:20px;padding-bottom:5px;word-break:break-word;">
                                                     <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;">
                                                         <b><?=($model->company->company_common_name_en)? $model->company->company_common_name_en: $model->company->company_name;?></b> is looking to hire a <b>
-                                                            <?= ($model->request->request_position_type) ? 'full-time' : 'part-time'; ?>
+                                                            <?= ($model->request->request_position_type == 1) ? 'full-time' : 'part-time'; ?>
                                                             <?=$model->request->request_position_title?></b>.
                                                     </div>
                                                 </td>

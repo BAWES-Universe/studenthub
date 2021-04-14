@@ -100,6 +100,8 @@ class StaffController extends Controller
         $model->staff_name = Yii::$app->request->getBodyParam("name");
         $model->staff_email =Yii::$app->request->getBodyParam("email");
         $model->staff_password_hash = Yii::$app->request->getBodyParam("password");
+        $model->staff_gmail_username = Yii::$app->request->getBodyParam("gmail_username");
+        $model->staff_gmail_password = Staff::encryptPass(Yii::$app->request->getBodyParam("gmail_password"));
 
         if (!$model->signup())
         {
@@ -150,6 +152,8 @@ class StaffController extends Controller
 
         $model->staff_name = Yii::$app->request->getBodyParam("name");
         $model->staff_email =Yii::$app->request->getBodyParam("email");
+        $model->staff_gmail_username = Yii::$app->request->getBodyParam("gmail_username");
+        $model->staff_gmail_password = Staff::encryptPass(Yii::$app->request->getBodyParam("gmail_password"));
 
         if (!$model->save())
         {

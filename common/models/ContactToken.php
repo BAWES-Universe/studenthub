@@ -51,7 +51,7 @@ class ContactToken extends \yii\db\ActiveRecord
             [
                 'class' => TimestampBehavior::className(),
                 'createdAtAttribute' => 'token_created_datetime',
-                'updatedAtAttribute' => false,
+                'updatedAtAttribute' => 'token_last_used_datetime',
                 'value' => new Expression('NOW()'),
             ],
         ];
@@ -96,6 +96,11 @@ class ContactToken extends \yii\db\ActiveRecord
         if(!static::findOne(['token_value' => $randomString ])){
             return $randomString;
         }else return static::generateUniqueTokenString();
+    }
+
+    public function afterFind() {
+        $this->token_last_used_datetime =  new Expression('NOW()');
+        $this->save(false);
     }
 
     /**

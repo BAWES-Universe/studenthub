@@ -119,10 +119,20 @@ class RequestCandidateInvitationController extends Controller
      */
     public function actionCreate()
     {
+        $company = Yii::$app->companyManager->getCompany();
+
+        if(!$company->company_approved_to_hire) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company',"We've not approved to invite candidate, please contact us for assistance.")
+            ];
+        }
+
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
         $request = Request::findOne(['request_uuid' => $request_uuid]);
+
         $invited = Invitation::find()
             ->andWhere([
                 'request_uuid' => $request_uuid,
@@ -133,9 +143,9 @@ class RequestCandidateInvitationController extends Controller
 
         if( $invited ) {
             if ($invited->invitation_status == Invitation::STATUS_ACCEPTED) {
-              $msg = 'Candidate has already accepted this request';
+              $msg = Yii::t('company','Candidate has already accepted this request');
             } else if ($invited->invitation_status == Invitation::STATUS_INVITED) {
-              $msg = 'Candidate has already been invited for this request';
+              $msg = Yii::t('company','Candidate has already been invited for this request');
             }
             return [
                 "operation" => "error",
@@ -146,7 +156,7 @@ class RequestCandidateInvitationController extends Controller
         if(!$request) {
             return [
                 "operation" => "error",
-                "message" => 'Invalid Request ID'
+                "message" => Yii::t('company','Invalid Request ID')
             ];
         }
 
@@ -165,7 +175,7 @@ class RequestCandidateInvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Invitation, please contact us for assistance."
+                    "message" => Yii::t('company',"We've faced a problem creating the Invitation, please contact us for assistance.")
                 ];
             }
         }
@@ -177,7 +187,7 @@ class RequestCandidateInvitationController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Candidate invited successfully",
+            "message" => Yii::t('company',"Candidate invited successfully"),
             "invitedCount" => (int) $invitedCount
         ];
     }
@@ -195,7 +205,7 @@ class RequestCandidateInvitationController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Invitation deleted successfully"
+            "message" => Yii::t('company',"Invitation deleted successfully")
         ];
     }
 

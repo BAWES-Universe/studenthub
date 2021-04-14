@@ -14,11 +14,18 @@ class Company extends \common\models\Company {
     public function fields()
     {
         // Whitelisted fields to return
+
         return [
             'company_id',
             'parent_company_id',
             'company_name',
             'company_email',
+            'company_common_name_en',
+            'company_common_name_ar',
+            'company_description_en',
+            'company_description_en',
+            'company_website',
+            'company_approved_to_hire',
             'company_status'=> function($model) {
 
                 if(

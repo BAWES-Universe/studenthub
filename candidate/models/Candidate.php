@@ -24,6 +24,19 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_created_at'],
         $fields['candidate_updated_at']);
 
+        $fields['bank_account_needed'] = function($model) {
+            #https://www.pivotaltracker.com/story/show/177527467
+            if ($model->bank) {
+                return 0;
+            }
+
+            $unpaidTransfer = $model->getTransferCandidate()->andWhere(['paid'=>0,'deleted'=>0])->exists();
+            if ($model->store_id || $unpaidTransfer) {
+                return 1;
+            }   else {
+                return 0;
+            }
+        };
         return $fields;
     }
 

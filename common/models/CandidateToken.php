@@ -52,10 +52,15 @@ class CandidateToken extends \yii\db\ActiveRecord
             [
                 'class' => TimestampBehavior::className(),
                 'createdAtAttribute' => 'token_created_datetime',
-                'updatedAtAttribute' => false,
+                'updatedAtAttribute' => 'token_last_used_datetime',
                 'value' => new Expression('NOW()'),
             ],
         ];
+    }
+
+    public function afterFind() {
+        $this->token_last_used_datetime =  new Expression('NOW()');
+        $this->save(false);
     }
 
     /**

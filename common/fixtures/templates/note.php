@@ -7,7 +7,11 @@ return [
     'note_uuid' => $faker->uuid,
     'company_id' => $faker->numberBetween(1,10),
     'candidate_id' => $faker->numberBetween(1,10),
-    'request_uuid' => $faker->numberBetween(1,10),
+    'request_uuid' => $faker->uuid,
+    'invitation_uuid' => $faker->uuid,
+    'suggestion_uuid' => $faker->uuid,
+    'contact_uuid' => $faker->uuid,
+    'fulltimer_uuid' => $faker->uuid,
     'note_type' => $faker->randomElement([
         "Internal Note", "Phone Call", "Email", "Meeting", "Interview", "Task"
     ]),

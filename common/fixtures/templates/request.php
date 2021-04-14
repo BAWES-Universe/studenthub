@@ -19,6 +19,7 @@ return [
     'request_position_title' =>  $faker->words(10,1),
     'request_number_of_employees' => rand(10, 20),
     'request_additional_info' => $faker->sentence(1,10),
+    'request_location' => $faker->sentence(1,10),
     'request_job_description' => $faker->sentence(1,10),
     'request_compensation' => $faker->sentence(1,10),
     'request_status' => $faker->randomElement([
