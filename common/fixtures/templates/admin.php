@@ -11,6 +11,7 @@ return [
     'admin_password_hash' => Yii::$app->getSecurity()->generatePasswordHash('12345'),
     'admin_password_reset_token' => null,
     'admin_status' => 10,
+    'admin_limited_access' => 1,
     'admin_created_at' => $faker->date('Y-m-d H:i:s'),
     'admin_updated_at' => $faker->date('Y-m-d H:i:s'),
 ];
