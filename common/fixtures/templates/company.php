@@ -22,4 +22,5 @@ return [
     'company_approved_to_hire' => $faker->boolean(),
     'company_created_at' => $faker->date('Y-m-d H:i:s'),
     'company_updated_at' =>$faker->date('Y-m-d H:i:s'),
+    'deleted' =>0,
 ];
