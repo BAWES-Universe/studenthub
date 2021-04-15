@@ -337,8 +337,9 @@ class CandidateController extends Controller
         // save note
         $noteModel  = new Note();
         $noteModel->candidate_id  = $id;
+        $noteModel->company_id  = $model->store->company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
-        $noteModel->note_text  = "Assigned to {$storeName}";
+        $noteModel->note_text  = "Assigned to work at {$storeName}";
         $noteModel->save(false);
 
         // saving candidate work history
@@ -381,12 +382,13 @@ class CandidateController extends Controller
             }
         }
 
+        $commonCompanyName = $model->store->company->company_common_name_en;
         // save note
         $feedback = Yii::$app->request->get('feedback');
         $noteModel  = new Note();
         $noteModel->candidate_id  = $id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
-        $noteModel->note_text  = "Unassigned from {$storeName} because {$feedback}";
+        $noteModel->note_text  = "No longer assigned to work at {$storeName} for {$commonCompanyName} because {$feedback}";
         $noteModel->save(false);
 
         CandidateWorkHistory::saveUnAssignedHistory($model);
