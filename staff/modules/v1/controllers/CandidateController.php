@@ -365,6 +365,8 @@ class CandidateController extends Controller
         // Attempt to create new account
         $model = $this->findModel($id);
         $storeName = $model->store->store_name;
+        $company_id = $model->store->company_id;
+        $commonCompanyName = $model->company->company_common_name_en;
         $model->store_id = null;
 
         if (!$model->save(false))
@@ -381,12 +383,11 @@ class CandidateController extends Controller
                 ];
             }
         }
-
-        $commonCompanyName = $model->store->company->company_common_name_en;
         // save note
         $feedback = Yii::$app->request->get('feedback');
         $noteModel  = new Note();
         $noteModel->candidate_id  = $id;
+        $noteModel->company_id  = $company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
         $noteModel->note_text  = "No longer assigned to work at {$storeName} for {$commonCompanyName} because {$feedback}";
         $noteModel->save(false);
