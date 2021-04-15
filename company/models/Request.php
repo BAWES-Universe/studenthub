@@ -9,12 +9,8 @@ namespace company\models;
 class Request extends \common\models\Request
 {
 
-    /**
-     * @inheritdoc
-     */
     public function extraFields()
     {
-
         return array_merge(parent::extraFields(),[
             'stats'
         ]);
@@ -28,6 +24,7 @@ class Request extends \common\models\Request
             'accepted' => $this->getInvitations()->accepted()->count(),
         ];
     }
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery

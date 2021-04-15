@@ -15,6 +15,8 @@ use yii\web\IdentityInterface;
  * @property string $staff_email
  * @property string $staff_auth_key
  * @property string $staff_password_hash
+ * @property string $staff_gmail_username
+ * @property string $staff_gmail_password
  * @property string $staff_password_reset_token
  * @property integer $staff_status
  * @property integer $staff_created_at
@@ -42,7 +44,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
             [['staff_status'], 'integer'],
-            [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token'], 'string', 'max' => 255],
+            [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
             [['staff_email'], 'email'],
@@ -75,6 +77,8 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_email' => Yii::t('app','Staff Email'),
             'staff_auth_key' => Yii::t('app','Staff Auth Key'),
             'staff_password_hash' => Yii::t('app','Password'),
+            'staff_gmail_username' => Yii::t('app','Staff Gmail Username'),
+            'staff_gmail_password' => Yii::t('app','Staff Gmail Password'),
             'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
@@ -122,7 +126,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      */
     public function getNotes($modelClass = "\common\models\Note")
     {
-        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+        return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id']);
     }
 
     /**
@@ -327,5 +331,43 @@ class Staff extends ActiveRecord implements IdentityInterface
     public static function find()
     {
         return new query\StaffQuery(get_called_class());
+    }
+
+    public static function encryptPass($string) {
+
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for encryption
+        $encryption_iv = '1234567891011121';
+
+        // Store the encryption key
+        $encryption_key = "GeeksforGeeks";
+
+        // Use openssl_encrypt() function to encrypt the data
+        return openssl_encrypt($string, $ciphering,
+            $encryption_key, $options, $encryption_iv);
+    }
+
+    public static function decryptPass($string) {
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+        // Non-NULL Initialization Vector for decryption
+        $decryption_iv = '1234567891011121';
+
+        // Store the decryption key
+        $decryption_key = "GeeksforGeeks";
+
+        // Use openssl_decrypt() function to decrypt the data
+        return openssl_decrypt($string, $ciphering,
+            $decryption_key, $options, $decryption_iv);
     }
 }

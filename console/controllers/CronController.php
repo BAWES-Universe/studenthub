@@ -3,7 +3,11 @@
 namespace console\controllers;
 
 use admin\models\TransferCandidate;
+use common\models\Note;
+use common\models\Suggestion;
+use kartik\mpdf\Pdf;
 use Yii;
+use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use common\models\Staff;
@@ -277,6 +281,12 @@ class CronController extends \yii\console\Controller {
         // SELECT * FROM `candidate` where candidate_email_verification = 1 and country_id != 84 and candidate_area_uuid IN
         // (SELECT `area_uuid` FROM `area` WHERE `country_id` = 84)
         $total = Candidate::kuwaitiNationalityEmail();
+        return true;
+    }
+
+    public function actionSuggestedCandidate()
+    {
+        Suggestion::suggestionNotification();
         return true;
     }
 }

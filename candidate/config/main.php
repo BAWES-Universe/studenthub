@@ -18,6 +18,7 @@ return [
     ],
     'components' => [
         'request' => [
+            'enableCookieValidation' => false,
             // Accept and parse JSON Requests
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
@@ -182,11 +183,14 @@ return [
                     'controller' => 'v1/invitation',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET log/<id>' => 'log',
+                        'GET log-viewed' => 'log-viewed',
                         'GET <id>' => 'view',
                         'PATCH accept/<id>' => 'accept',
                         'PATCH reject/<id>' => 'reject',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS log-viewed' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS accept/<id>' => 'options',
                         'OPTIONS reject/<id>' => 'options',

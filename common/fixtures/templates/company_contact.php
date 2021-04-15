@@ -15,5 +15,7 @@ return [
     'contact_position' => $faker->jobTitle,
     'allow_access' => 1,
     'created_at' => $faker->date('Y-m-d H:i:s'),
-    'updated_at' => $faker->date('Y-m-d H:i:s')
+    'updated_at' => $faker->date('Y-m-d H:i:s'),
+    'created_by' => 1,
+    'updated_by' => 1
 ];

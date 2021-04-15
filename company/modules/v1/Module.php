@@ -18,10 +18,10 @@ class Module extends \yii\base\Module
     public function init()
     {
         $company_id = \Yii::$app->request->headers->get('Company-Id');
+
         if (!\Yii::$app->user->isGuest) {
             \Yii::$app->companyManager->setCompanyId($company_id);
         }
-
 
         $lang = \Yii::$app->request->headers->get('language');
 
@@ -29,8 +29,7 @@ class Module extends \yii\base\Module
         {
             \Yii::$app->language = $lang;
         }
+
         parent::init();
-
-
     }
 }

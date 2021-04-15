@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use common\models\Invitation;
 use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;

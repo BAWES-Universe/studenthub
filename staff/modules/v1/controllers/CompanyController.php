@@ -74,7 +74,8 @@ class CompanyController extends Controller
     {
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
-        
+        $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
+
         $query = Company::find()
             ->filterParent();
 
@@ -100,7 +101,12 @@ class CompanyController extends Controller
             $query->filterByName($name);
         }
 
+        if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {
+            $query->filterByApprovedToHire($approved_to_hire);
+        }
+
         $query->notDeleted();
+
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
@@ -289,6 +295,7 @@ class CompanyController extends Controller
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+        $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if ($model->company_followup) {
             $model->company_last_followup_datetime = new Expression('NOW()');
@@ -353,6 +360,7 @@ class CompanyController extends Controller
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
+        $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if ($model->oldAttributes['company_followup'] != $model->company_followup) {
             $model->company_last_followup_datetime = new Expression('NOW()');

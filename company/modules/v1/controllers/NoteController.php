@@ -113,7 +113,7 @@ class NoteController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem creating the Note, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem creating the Note, please contact us for assistance.")
                 ];
             }
         }
@@ -165,7 +165,7 @@ class NoteController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem updating the Note, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem updating the Note, please contact us for assistance.")
                 ];
             }
         }

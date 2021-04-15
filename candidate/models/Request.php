@@ -5,6 +5,23 @@ namespace candidate\models;
 
 class Request extends \common\models\Request
 {
+
+    /**
+     * @return array
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset(
+            $fields['request_compensation'],
+            $fields['request_number_of_employees']
+        );
+
+        // remove fields that contain sensitive information
+        return $fields;
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

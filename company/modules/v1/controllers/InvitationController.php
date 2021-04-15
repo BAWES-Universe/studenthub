@@ -162,7 +162,7 @@ class InvitationController extends Controller {
             return [
                 "operation" => "error",
                 "direct" => "1",
-                "message" => Yii::t('company', "request_already_sent", [
+                "message" => Yii::t('company', "Request already sent to email {email}", [
                     'email' => $email_to_invite
                 ])
             ];

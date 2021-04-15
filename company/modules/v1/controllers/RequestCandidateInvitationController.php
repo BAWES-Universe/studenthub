@@ -119,10 +119,20 @@ class RequestCandidateInvitationController extends Controller
      */
     public function actionCreate()
     {
+        $company = Yii::$app->companyManager->getCompany();
+
+        if(!$company->company_approved_to_hire) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company',"We've not approved to invite candidate, please contact us for assistance.")
+            ];
+        }
+
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
         $request = Request::findOne(['request_uuid' => $request_uuid]);
+
         $invited = Invitation::find()
             ->andWhere([
                 'request_uuid' => $request_uuid,
@@ -165,7 +175,7 @@ class RequestCandidateInvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem creating the Invitation, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem creating the Invitation, please contact us for assistance.")
                 ];
             }
         }

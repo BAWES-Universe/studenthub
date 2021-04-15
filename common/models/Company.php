@@ -28,6 +28,7 @@ use yii\helpers\Url;
  * @property integer $is_request_updates_in_30_days
  * @property boolean $company_followup_interval_weeks
  * @property boolean $company_last_followup_datetime
+ * @property boolean $company_approved_to_hire
  * @property integer $company_status
  * @property integer $company_created_at
  * @property integer $company_updated_at

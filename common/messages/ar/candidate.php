@@ -76,5 +76,12 @@ return [
     "University created successfully" => "تم إنشاء الجامعة بنجاح",
     "No record found" => "لم يتم العثور على سجل",
     "Record found" => "تم العثور على السجل",
-    "You can only change status if you are not assigned"=>"",
+    "You can only change status if you are not assigned" => "يمكنك فقط تغيير الحالة إذا لم يتم تعيينك",
+    'you have already accepted this request' => 'لقد قبلت هذا الطلب بالفعل',
+    'you have already rejected this request' => 'لقد رفضت هذا الطلب بالفعل',
+    'Transfer not found!' => "التحويل غير موجود!",
+    "We've faced a problem creating the Note, please contact us for assistance." => "لقد واجهنا مشكلة في إنشاء الملاحظة ، يرجى الاتصال بنا للحصول على المساعدة.",
+    "We've faced a problem updating the Invitation, please contact us for assistance." => "لقد واجهنا مشكلة أثناء تحديث الدعوة ، يرجى الاتصال بنا للحصول على المساعدة.",
+    "Invitation marked as accepted successfully" => "تم وضع علامة على الدعوة على أنها مقبولة بنجاح",
+    "Invitation marked as rejected successfully" => "تم وضع علامة على الدعوة على أنها مرفوضة بنجاح"
 ];

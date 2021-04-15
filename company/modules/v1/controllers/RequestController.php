@@ -134,7 +134,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem creating the Request, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem creating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -185,7 +185,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem updating the Request, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem updating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -237,7 +237,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem updating the Request, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem updating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -289,7 +289,7 @@ class RequestController extends BaseController
             }else{
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem updating the Request, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem updating the Request, please contact us for assistance.")
                 ];
             }
         }
@@ -331,7 +331,7 @@ class RequestController extends BaseController
             } else {
                 return [
                     "operation" => "error",
-                    "message" => Yii::t('company',"We have faced a problem adding the request activity, please contact us for assistance.")
+                    "message" => Yii::t('company',"We've faced a problem adding the request activity, please contact us for assistance.")
                 ];
             }
         }

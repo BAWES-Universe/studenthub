@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -55,6 +56,9 @@
     </style>
 </head>
 <body style="background-color:#ffffff;">
+
+<img src="<?= Yii::$app->urlManagerCandidate->baseUrl . '/invitations/log/' . $model->invitation_uuid ?>" />
+
 <div style="background-color:#ffffff;">
     <!--[if mso | IE]>
     <table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:700px;" width="700">
@@ -193,7 +197,7 @@
                                                 <td align="left" style="font-size:0px;padding:10px 25px;padding-top:20px;padding-bottom:5px;word-break:break-word;">
                                                     <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;">
                                                         <b><?=($model->company->company_common_name_en)? $model->company->company_common_name_en: $model->company->company_name;?></b> is looking to hire a <b>
-                                                            <?= ($model->request->request_position_type) ? 'full-time' : 'part-time'; ?>
+                                                            <?= ($model->request->request_position_type == 1) ? 'full-time' : 'part-time'; ?>
                                                             <?=$model->request->request_position_title?></b>.
                                                     </div>
                                                 </td>

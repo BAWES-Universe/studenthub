@@ -5,6 +5,7 @@ namespace company\modules\v1\controllers;
 use Yii;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
+
 /**
  * Company controller - Manage company accounts as Admin
  */

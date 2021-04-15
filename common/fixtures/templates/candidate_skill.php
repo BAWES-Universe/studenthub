@@ -7,5 +7,6 @@ return [
     'candidate_skill_id' => $index + 1,
     'candidate_id' => $index + 1,
     'skill' => $faker->word,
+    'deleted' => 1,
     'candidate_skill_created_at' => $faker->date('Y-m-d H:i:s')
 ];

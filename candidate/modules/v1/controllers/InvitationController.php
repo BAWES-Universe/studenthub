@@ -6,12 +6,15 @@ namespace candidate\modules\v1\controllers;
 use common\models\Request;
 use staff\models\Note;
 use Yii;
+use yii\db\Expression;
+use yii\helpers\Url;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use candidate\models\Invitation;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 
 /**
@@ -49,7 +52,10 @@ class InvitationController extends Controller
             'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = [
+            'options',
+            'log'
+        ];
 
         return $behaviors;
     }
@@ -116,6 +122,19 @@ class InvitationController extends Controller
 
         $model = $this->findModel($id);
 
+        if ($model->invitation_status != Invitation::STATUS_INVITED) {
+            if ($model->invitation_status == Invitation::STATUS_ACCEPTED) {
+                $msg = Yii::t('candidate','you have already accepted this request');
+            } else  {
+                $msg = Yii::t('candidate','you have already rejected this request');
+            }
+
+            return [
+                "operation" => "error",
+                "message" => $msg
+            ];
+        }
+
         $transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
@@ -138,7 +157,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem creating the Note, please contact us for assistance.")
                 ];
             }
         }
@@ -157,7 +176,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Invitation, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem updating the Invitation, please contact us for assistance.")
                 ];
             }
         }
@@ -166,7 +185,7 @@ class InvitationController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Invitation marked as accepted successfully"
+            "message" => Yii::t('candidate',"Invitation marked as accepted successfully")
         ];
     }
 
@@ -179,6 +198,19 @@ class InvitationController extends Controller
         $reason = Yii::$app->request->getBodyParam("reason");
 
         $model = $this->findModel($id);
+
+        if ($model->invitation_status != Invitation::STATUS_INVITED) {
+            if ($model->invitation_status == Invitation::STATUS_ACCEPTED) {
+                $msg = Yii::t('candidate','you have already accepted this request');
+            } else  {
+                $msg = Yii::t('candidate','you have already rejected this request');
+            }
+
+            return [
+                "operation" => "error",
+                "message" => $msg
+            ];
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -202,7 +234,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem creating the Note, please contact us for assistance.")
                 ];
             }
         }
@@ -221,7 +253,7 @@ class InvitationController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Invitation, please contact us for assistance."
+                    "message" => Yii::t('candidate',"We've faced a problem updating the Invitation, please contact us for assistance.")
                 ];
             }
         }
@@ -230,7 +262,55 @@ class InvitationController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Invitation marked as rejected successfully"
+            "message" => Yii::t('candidate',"Invitation marked as rejected successfully")
+        ];
+    }
+
+    /**
+     * log to invitation when it was seen
+     * @param $id
+     * @throws \yii\web\ServerErrorHttpException
+     */
+    public function actionLog($id)
+    {
+        $model = Invitation::find()
+            ->andWhere (['invitation_uuid' => $id])
+            ->one();
+
+        if(!$model->invitation_email_seen_at) {
+            $model->invitation_email_seen_at = new Expression('NOW()');
+            $model->save(false);
+        }
+
+        $response = Yii::$app->getResponse();
+        $response->headers->set('Content-Type', 'image/png');
+        $response->format = Response::FORMAT_RAW;
+
+        $imgFullPath = Url::to('@web/images/NFFFFFF-0.png', true);
+
+        if ( !is_resource($response->stream = fopen($imgFullPath, 'r')) ) {
+            throw new \yii\web\ServerErrorHttpException('file access failed: permission deny');
+        }
+
+        return $response->send();
+    }
+
+    /**
+     * mark all invitations as viewed in app
+     * @return string[]
+     */
+    public function actionLogViewed()
+    {
+        Invitation::updateAll ([
+            'invitation_app_seen_at' => new Expression('NOW()')
+        ], [
+           'AND',
+           ['candidate_id' => Yii::$app->user->getId()],
+           new Expression('invitation_app_seen_at IS NULL')
+        ]);
+
+        return [
+            'operation' => 'success'
         ];
     }
 

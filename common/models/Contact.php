@@ -14,8 +14,12 @@ use yii\helpers\Url;
  * @property string $contact_uuid
  * @property string $contact_name
  * @property string $contact_email
+ * @property string $contact_new_email
+ * @property string $contact_email_verification
+ * @property string $contact_limit_email
  * @property string $contact_password_hash
  * @property string $contact_auth_key
+ * @property string $contact_otp
  * @property string $contact_receive_email
  * @property string $contact_receive_notification
  * @property string $contact_created_at
@@ -27,6 +31,10 @@ use yii\helpers\Url;
  */
 class Contact extends \yii\db\ActiveRecord
 {
+    //Email verification values for `contact_email_verification`
+    const EMAIL_VERIFIED = 1;
+    const EMAIL_NOT_VERIFIED = 0;
+
     /**
      * {@inheritdoc}
      */
@@ -43,8 +51,8 @@ class Contact extends \yii\db\ActiveRecord
         return [
             [['contact_name', 'contact_email', 'contact_password_hash'], 'required'],
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
-            [['contact_uuid'], 'string', 'max' => 60],
-            [['contact_email'], 'email'],
+            [['contact_uuid'], 'string', 'max' => 60],//'contact_otp'
+            [['contact_email', 'contact_new_email'], 'email'],
             [['contact_name', 'contact_password_reset_token',], 'string', 'max' => 255],
             [['contact_uuid', 'contact_email'], 'unique'],
             [['contact_password_reset_token'], 'unique'],
@@ -75,6 +83,20 @@ class Contact extends \yii\db\ActiveRecord
     }
 
     /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios() {
+
+        $scenarios = parent::scenarios();
+
+        $scenarios['signup'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_otp'];
+
+        $scenarios['updateEmail'] = ['contact_email', 'contact_new_email'];
+
+        return $scenarios;
+    }
+
+    /**
      * @return bool
      */
     public function beforeDelete()
@@ -96,6 +118,11 @@ class Contact extends \yii\db\ActiveRecord
             'contact_uuid' => Yii::t('app', 'Contact ID'),
             'company_id' => Yii::t('app', 'Company ID'),
             'contact_name' => Yii::t('app', 'Contact Name'),
+            'contact_email' => Yii::t('app', 'Contact Email'),
+            'contact_new_email' => Yii::t('app', 'Contact New Email'),
+            'contact_email_verification' => Yii::t('app', 'Contact Email Verified?'),
+            'contact_limit_email' => Yii::t('app', 'Contact Limit Email'),
+            'contact_otp' => Yii::t('app', 'One Time Password'),
             'contact_receive_email' => Yii::t('app','Receive Email?'),
             'contact_receive_notification' => Yii::t('app','Receive Notification?'),
             'contact_auth_key' => Yii::t('app','Auth Key'),
@@ -114,9 +141,13 @@ class Contact extends \yii\db\ActiveRecord
         $fields = parent::fields();
 
         unset($fields['deleted'],
+            //$fields['contact_email_verification'],
+            $fields['contact_limit_email'],
+            $fields['contact_new_email'],
             $fields['contact_password_hash'],
             $fields['contact_password_reset_token'],
-            $fields['contact_auth_key']);
+            $fields['contact_auth_key'],
+            $fields['contact_otp']);
 
         return $fields;
     }
@@ -233,11 +264,31 @@ class Contact extends \yii\db\ActiveRecord
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = ContactToken::find()->where(['token_value' => $token])->with('contact')->one();
 
-        if($token) {
+        $token = ContactToken::find()->where([
+                'token_value' => $token,
+                'token_status' => ContactToken::STATUS_ACTIVE
+            ])
+            ->with('contact')
+            ->one();
+
+        if (!$token)
+            return false;
+
+        //update last used datetime
+
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->contact && $token->contact->contact_email_verification) {
             return $token->contact;
         }
+
+        //invalid token
+
+        $token->delete();
     }
 
     /**
@@ -326,7 +377,25 @@ class Contact extends \yii\db\ActiveRecord
      * Generates auth key [1 time use token]
      */
     public function generateAuthKey() {
-        $this->contact_auth_key = Yii::$app->security->generateRandomString();
+        $this->contact_auth_key = strtoupper($this->generateUniqueRandomString('contact_auth_key', 4));
+        //Yii::$app->security->generateRandomString();
+    }
+
+    /**
+     * Generate unique string for a given attribute of given length
+     * @param type $attribute
+     * @param type $length
+     * @return type
+     */
+    public function generateUniqueRandomString($attribute, $length = 32) {
+        $min = pow(10, $length - 1);
+        $max = pow(10, $length) - 1;
+        $randomString = mt_rand($min, $max);
+
+        if (!$this->findOne([$attribute => $randomString]))
+            return $randomString;
+        else
+            return $this->generateUniqueRandomString($attribute, $length);
     }
 
     /**
@@ -378,6 +447,67 @@ class Contact extends \yii\db\ActiveRecord
         $token->save(false);
 
         return $token;
+    }
+
+    /**
+     * return otp(one time password)
+     */
+    public function getOtp() {
+        return $this->contact_otp;
+    }
+
+    /**
+     * Validate this agents otp against supplied OTP if it hasn't already expired.
+     * @param  string $otp
+     * @return boolean      Whether OTP is valid or not
+     */
+    public function validateOtp($otp) {
+        if (static::isOtpExpired($otp, 5))
+            return false;
+
+        return $this->getOtp() === $otp;
+    }
+
+    /**
+     * Generates otp to unable user to get login by otp
+     */
+    public function generateOtp() {
+        $this->contact_otp = Yii::$app->db->createCommand('SELECT uuid()')->queryScalar()
+            . '@' . time();
+    }
+
+    /**
+     * Function to check supplied OTP if time has passed and it expired
+     *
+     * @param  string  $otp             The OTP to check for expiry
+     * @param  integer $minutesToExpire How many minutes until it expires
+     * @return boolean                  Whether the OTP is expired or not
+     */
+    public static function isOtpExpired($otp, $minutesToExpire = 5) {
+        $timeGeneratedAt = isset(explode('@', $otp)[1]) ? explode('@', $otp)[1] : null;
+        $expiryTime = $timeGeneratedAt + 60 * $minutesToExpire;
+
+        if (time() > $expiryTime) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Return candidate by otp (one time password)
+     * @param  string  $otp             The OTP belonging to agent
+     * @param  integer $minutesToExpire How many minutes until it expires
+     * @return type
+     */
+    public static function findByOtp($otp, $minutesToExpire = 5) {
+        // Check if OTP is still valid before attempting to find agent
+        if (static::isOtpExpired($otp, $minutesToExpire))
+            return false;
+
+        return self::find()
+            ->where(['contact_otp' => $otp])
+            ->one();
     }
 
     public function getCompanyContact($modelClass = "\common\models\CompanyContact")

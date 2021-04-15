@@ -22,6 +22,12 @@ return [
             'showScriptName' => false,
             'baseUrl' => 'http://localhost:8888/bawes/studenthub/staff/web/v1',
         ],
+        'urlManagerCandidate' => [
+            'class' => 'yii\web\UrlManager',
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => 'http://localhost:8888/bawes/studenthub/candidate/web/v1'
+        ],
         'urlManagerVerification' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
