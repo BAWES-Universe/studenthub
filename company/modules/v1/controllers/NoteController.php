@@ -126,7 +126,7 @@ class NoteController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => "Note created successfully",
+            "message" => Yii::t('company',"Note created successfully"),
             "request_updated_at" => $request_updated_at
         ];
     }

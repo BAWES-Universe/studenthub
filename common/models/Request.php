@@ -149,7 +149,8 @@ class Request extends \yii\db\ActiveRecord
             'requestActivities',
             'suggestions',
             'activeSuggestions',
-            'invitations'
+            'invitations',
+            'stats'
         ];
     }
 

@@ -140,7 +140,7 @@ class CompanyController extends BaseController
         if(!$model->company_logo || $model->company_logo == "undefined") {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('company', 'Invalid input for {attribute}', [
+                'message' => Yii::t('company', 'invalid_input', [
                     'attribute' => 'company logo'
                 ])
             ];
