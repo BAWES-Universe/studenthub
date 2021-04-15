@@ -135,6 +135,7 @@ class AccountController extends BaseController
         }
 
         $msg = Yii::t("company","Account details successfully updated");
+
         if($model->contact_new_email) {
             $model->sendVerificationEmail();
             $msg = Yii::t('company', "Contact Account Info Updated Successfully, please check email to verify new email address");
@@ -159,7 +160,7 @@ class AccountController extends BaseController
         if (empty($oldPassword)) {
             return [
                 "operation" => "error",
-                "message" => "Empty old password"
+                "message" => Yii::t("company","Empty old password")
             ];
         } else if (empty($newPassword)) {
             return [

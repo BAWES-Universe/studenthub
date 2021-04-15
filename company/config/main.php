@@ -18,6 +18,7 @@ return [
     ],
     'components' => [
         'request' => [
+            'enableCookieValidation' => false,
             // Accept and parse JSON Requests
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
