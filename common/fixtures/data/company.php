@@ -10,6 +10,7 @@ return [
         'company_hourly_rate' => 2,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company1' => [
         'company_id' => 2,
@@ -20,6 +21,7 @@ return [
         'company_hourly_rate' => 7,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company2' => [
         'company_id' => 3,
@@ -30,6 +32,7 @@ return [
         'company_hourly_rate' => 5,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company3' => [
         'company_id' => 4,
@@ -40,6 +43,7 @@ return [
         'company_hourly_rate' => 5,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company4' => [
         'company_id' => 5,
@@ -50,6 +54,7 @@ return [
         'company_hourly_rate' => 5,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company5' => [
         'company_id' => 6,
@@ -60,6 +65,7 @@ return [
         'company_hourly_rate' => 5,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company6' => [
         'company_id' => 7,
@@ -70,6 +76,7 @@ return [
         'company_hourly_rate' => 7,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company7' => [
         'company_id' => 8,
@@ -80,6 +87,7 @@ return [
         'company_hourly_rate' => 7,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company8' => [
         'company_id' => 9,
@@ -90,6 +98,7 @@ return [
         'company_hourly_rate' => 2,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
     'company9' => [
         'company_id' => 10,
@@ -100,5 +109,6 @@ return [
         'company_hourly_rate' => 2,
         'company_created_at' => '2002-11-04 19:07:56',
         'company_updated_at' => '2002-11-04 19:07:56',
+        'deleted' =>0
     ],
 ];

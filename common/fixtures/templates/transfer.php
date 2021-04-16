@@ -7,7 +7,7 @@ return [
     'total' => rand(10,100),
     'company_total' => rand(10,100),
     'payment_received_on' => $faker->date('Y-m-d H:i:s'),
-    'transfer_status' => 10,
+    'transfer_status' => $faker->numberBetween(1,10),
     'start_date' => $faker->date('Y-m-d H:i:s'),
     'end_date' => $faker->date('Y-m-d H:i:s'),
     'transfer_created_by' => 1,

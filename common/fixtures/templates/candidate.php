@@ -1,4 +1,8 @@
 <?php
+
+$index1 = $index % 1000;//faker->unique()->numberBetween(0, 1000);
+$area_uuid = Yii::$app->db->createCommand('SELECT area_uuid from area limit ' . $index1 . ',1')->queryScalar();
+
 /**
  * @var $faker \Faker\Generator
  * @var $index integer
@@ -22,7 +26,7 @@ return [
         'candidate_video_processed' => null,
         'candidate_email' => $faker->email,
         'candidate_new_email' => null,
-        'candidate_phone' => $faker->e164PhoneNumber,
+        'candidate_phone' => $faker->numberBetween($min = 1111111111, $max = 9999999999),
         'candidate_address_line1' => $faker->address,
         'candidate_birth_date' => $faker->date('Y-m-d'),
         'candidate_civil_id' => $faker->numberBetween(1000000000,99999999999),
@@ -35,14 +39,14 @@ return [
         'candidate_password_reset_token' => Yii::$app->security->generateRandomString() . '_' . time(),
         'candidate_status' => 1,
         'approved' => 1,
-        'candidate_email_verification' => 1,
-        'candidate_limit_email' => 1,
+        'candidate_email_verification' => $faker->numberBetween(0,1),
+        'candidate_limit_email' => $faker->date('Y-m-d H:i:s'),
         'candidate_mom_kuwaiti' => 1,
-        'candidate_driving_license' => 1,
+        'candidate_driving_license' => $faker->numberBetween(1,2),
         'candidate_resume' => null,
-        'candidate_area_uuid' => null,
+        'candidate_area_uuid' => $area_uuid,
         'candidate_language_pref' => 'en',
-        'candidate_job_search_status' => 1,
+        'candidate_job_search_status' => $faker->numberBetween(0,1),
         'candidate_committed' => 1,
         'candidate_latitude' => $faker->latitude,
         'candidate_longitude' => $faker->longitude,
