@@ -52,7 +52,7 @@ Kleinton, RI 39916-2171',
     'candidate1' => [
         'candidate_id' => 2,
         'candidate_uid' => 11385100160,
-        'store_id' => 14,
+        'store_id' => null,
         'bank_id' => 1,
         'university_id' => 1,
         'country_id' => 2,
