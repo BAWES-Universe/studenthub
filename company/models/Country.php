@@ -31,5 +31,4 @@ class Country extends \common\models\Country
         unset($fields['total_candidates']);
         return $fields;
     }
-
 }

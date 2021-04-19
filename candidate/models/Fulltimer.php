@@ -42,7 +42,8 @@ class Fulltimer extends \common\models\CompanyContact
      */
     public function getNotes($modelClass = "\candidate\models\Note")
     {
-        return parent::getNotes($modelClass);
+        return parent::getNotes($modelClass)
+            ->filterNonInternal();
     }
 
     /**
