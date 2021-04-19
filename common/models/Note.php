@@ -207,7 +207,7 @@ class Note extends \yii\db\ActiveRecord
         }
 
         if($this->request) {
-            $message = Yii::t ('staff', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
+            $message = Yii::t ('app', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
                 'name' => $this->request->company->company_name,
                 'email' => $this->request->company->company_email,
                 'staffName' => $staffName,

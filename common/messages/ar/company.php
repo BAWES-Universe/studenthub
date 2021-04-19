@@ -61,5 +61,5 @@ return [
     "We have faced a problem adding the request activity, please contact us for assistance." => "لقد واجهنا مشكلة في إضافة نشاط الطلب ، يرجى الاتصال بنا للحصول على المساعدة.",
     "Request activity successfully added" => "تمت إضافة نشاط الطلب بنجاح",
     "We've not approved to invite candidate, please contact us for assistance." => "لم نوافق على دعوة المرشح ، يرجى الاتصال بنا للحصول على المساعدة.",
-    "Request already sent to email {email}" => ""
+    "Request already sent to email {email}" => "تم إرسال الطلب بالفعل إلى البريد الإلكتروني {email}"
 ];

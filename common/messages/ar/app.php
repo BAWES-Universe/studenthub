@@ -211,6 +211,7 @@ return [
     "Contact Limit Email" => "حد الاتصال بالبريد الإلكتروني",
     "One Time Password" => "كلمة السر لمرة واحدة",
     "error" => "خطأ",
-    "Invitation in App Seen At" => "",
-    "Invitation Email Seen At" => ""
+    "Invitation in App Seen At" => "تمت رؤية الدعوة في التطبيق في",
+    "Invitation Email Seen At" => "تمت رؤية البريد الإلكتروني للدعوة في",
+    "[Update on request from {name} @ {email} by {staffName}] {activityDetail}" => "[تحديث عند الطلب من {name} @ {email} بواسطة {staffName}] {activityDetail}"
 ];
