@@ -199,12 +199,18 @@ class Note extends \yii\db\ActiveRecord
         if(!parent::beforeSave($insert)) {
             return false;
         }
+        $staffName = 'Guest';
+        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->staff_name) {
+            $staffName = Yii::$app->user->identity->staff_name;
+        } else if (isset($this->createdBy)) {
+            $staffName = $this->createdBy->staff_name;
+        }
 
         if($this->request) {
             $message = Yii::t ('staff', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
                 'name' => $this->request->company->company_name,
                 'email' => $this->request->company->company_email,
-                'staffName' => $this->createdBy? $this->createdBy->staff_name: 'Guest',
+                'staffName' => $staffName,
                 'activityDetail' => $this->note_text
             ]);
 
