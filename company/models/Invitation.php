@@ -12,7 +12,8 @@ class Invitation extends \common\models\Invitation
      */
     public function getNotes($modelClass = "\company\models\Note")
     {
-        return parent::getNotes($modelClass);
+        return parent::getNotes($modelClass)
+            ->filterNonInternal();
     }
 
     /**

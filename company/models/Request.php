@@ -67,7 +67,8 @@ class Request extends \common\models\Request
      */
     public function getLastActivity($modelClass = "\company\models\Note")
     {
-        return parent::getLastActivity($modelClass);
+        return parent::getLastActivity($modelClass)
+            ->filterNonInternal();
     }
 
     /**
@@ -76,7 +77,8 @@ class Request extends \common\models\Request
      */
     public function getRequestActivities($modelClass = "\company\models\Note")
     {
-        return parent::getRequestActivities($modelClass);
+        return parent::getRequestActivities($modelClass)
+            ->filterNonInternal();
     }
 
     /**

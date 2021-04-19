@@ -45,7 +45,8 @@ class Fulltimer extends \common\models\Fulltimer {
      */
     public function getNotes($modelClass = "\company\models\Note")
     {
-        return parent::getNotes($modelClass);
+        return parent::getNotes($modelClass)
+            ->filterNonInternal();
     }
 
     /**

@@ -26,7 +26,8 @@ class Suggestion extends \common\models\Suggestion
      */
     public function getNote($modelClass = "\candidate\models\Note")
     {
-        return parent::getNote($modelClass);
+        return parent::getNote($modelClass)
+            ->filterNonInternal();
     }
 
     /**
@@ -59,7 +60,8 @@ class Suggestion extends \common\models\Suggestion
      */
     public function getFeedback($modelClass = "\candidate\models\Note")
     {
-        return parent::getFeedback($modelClass);
+        return parent::getFeedback($modelClass)
+            ->filterNonInternal();
     }
 
     /**
@@ -68,6 +70,7 @@ class Suggestion extends \common\models\Suggestion
      */
     public function getFeedbacks($modelClass = "\candidate\models\Note")
     {
-        return parent::getFeedbacks($modelClass);
+        return parent::getFeedbacks($modelClass)
+            ->filterNonInternal();
     }
 }
