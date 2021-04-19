@@ -188,7 +188,7 @@ class CandidateCest
     {
         $I->wantTo('update candidate details');
 
-        $candidate = [
+        $data = [
             'store_id' => 1,
             'bank_id' => 1,
             'university_id' => 1,
@@ -207,9 +207,10 @@ class CandidateCest
             'photo_back' => 'photos/photo-1497874516406.png',
             'hourly_rate' => 1.5,
         ];
+
         $candidate = Candidate::find()->one();
 
-        $I->sendPATCH('v1/candidates/'.$candidate->candidate_id, $candidate);
+        $I->sendPATCH('v1/candidates/'.$candidate->candidate_id, $data);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -242,7 +243,6 @@ class CandidateCest
             'photo_back' => 'photos/photo-1497874516406.png',
             'hourly_rate' => 1.5,
         ];
-        $candidateID = 8;
 
         $I->sendPOST('v1/candidates', $candidate);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -349,7 +349,7 @@ class CandidateCest
      * Update Candidate hourly rate
      * @param FunctionalTester $I
      */
-    public function restCallToUpdateCandidateHourlyRate(FunctionalTester $I)
+    public function restCallToUpdateHourlyRate(FunctionalTester $I)
     {
         $I->wantTo('Update candidate hourly');
         $I->sendPATCH('v1/candidates/update-hour-rate/' . $this->candidate->candidate_id, [

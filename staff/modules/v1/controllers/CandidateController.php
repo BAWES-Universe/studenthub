@@ -203,7 +203,9 @@ class CandidateController extends Controller
                 ];
             }
         }
+
         $model->updateExperiences(Yii::$app->request->getBodyParam("experience"));
+
         $model->updateSkills(Yii::$app->request->getBodyParam("skill"));
 
         Yii::info('['.$model->candidate_name.' Candidate Account Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
@@ -215,9 +217,6 @@ class CandidateController extends Controller
             "store" => $model->store,
             "company" => $model->company
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
