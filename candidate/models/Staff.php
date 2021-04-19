@@ -31,6 +31,7 @@ class Staff extends \common\models\Staff
      */
     public function getNotes($modelClass = "\candidate\models\Note")
     {
-        return parent::getNotes($modelClass);
+        return parent::getNotes($modelClass)
+            ->filterNonInternal();
     }
 }

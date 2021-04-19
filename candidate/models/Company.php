@@ -62,7 +62,8 @@ class Company extends \common\models\Company {
      */
     public function getNotes($modelClass = "\candidate\models\Note")
     {
-        return parent::getNotes($modelClass);
+        return parent::getNotes($modelClass)
+            ->filterNonInternal();
     }
 
     /**

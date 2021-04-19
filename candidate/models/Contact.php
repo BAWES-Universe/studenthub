@@ -87,6 +87,7 @@ class Contact extends \common\models\Contact
      */
     public function getNotes($modelClass = "\candidate\models\Note")
     {
-        return parent::getNotes($modelClass);
+        return parent::getNotes($modelClass)
+            ->filterNonInternal();
     }
 }
