@@ -3,6 +3,8 @@
 namespace staff\models;
 
 
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "Request".
  * It extends from \common\models\Request but with custom functionality for this application module
@@ -103,5 +105,21 @@ class Request extends \common\models\Request {
      */
     public function getActiveSuggestions($modelClass = "\staff\models\Suggestion") {
         return parent::getActiveSuggestions($modelClass);
+    }
+
+    public function requestNotification()
+    {
+        $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
+        $staffList = Staff::find()->andWhere(['!=','staff_id',\Yii::$app->user->id])->all();
+        $subject =  "I've added a request for ".$this->request_position_title." for ".$company_name;
+        return \Yii::$app->mailer->compose("company/request-created",
+            [
+                "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                "model" => $this,
+            ])
+            ->setFrom([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
+            ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
+            ->setSubject($subject)
+            ->send();
     }
 }
