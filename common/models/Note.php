@@ -313,7 +313,11 @@ class Note extends \yii\db\ActiveRecord
      */
     public function getCreatedBy($modelClass = "\common\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by']);
+        //if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
+        //    return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+        //} else {
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+        //}
     }
 
     /**
@@ -332,6 +336,9 @@ class Note extends \yii\db\ActiveRecord
         return $this->hasOne($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getSuggestion($modelClass = "\common\models\Suggestion") {
         return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid']);
     }
