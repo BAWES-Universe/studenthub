@@ -178,18 +178,15 @@ class RequestCest
      */
     public function tryToAddActivity(FunctionalTester $I)
     {
-        $request = Request::find()
-            ->filterWhere([
-                'request_status' => Request::STATUS_STARTED,
-                'company_id' => $this->company->company_id
-            ])
-            ->one();
+        $this->request->request_status = Request::STATUS_STARTED;
+        $this->request->save();
 
         $I->wantTo('add activity to list');
+
         $I->sendPOST(
             'v1/requests/add-activity',
             [
-                'request_uuid' => $request->request_uuid,
+                'request_uuid' => $this->request->request_uuid,
                 'contact_uuid' => $this->contact->contact_uuid,
                 'note_type' => Note::TYPE_INTERNAL_NOTE,
                 'detail' => 'Test note'

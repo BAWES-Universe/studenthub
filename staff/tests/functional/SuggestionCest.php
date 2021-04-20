@@ -121,12 +121,12 @@ class SuggestionCest
     /**
      * Try to delete
      * @param FunctionalTester $I
-     */
+     *
     public function tryToDelete(FunctionalTester $I)
     {
         $I->wantTo('delete suggestion via API');
         $I->sendDelete('v1/suggestions/' . $this->suggestion->suggestion_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
+    }*/
 }
 

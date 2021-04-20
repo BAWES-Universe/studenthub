@@ -6,8 +6,11 @@ use yii\helpers\Url;
 /* @var $model common\models\Agent */
 
 $webUrl = Yii::$app->params['staffAppUrl'].'request-view/'.$model->request_uuid;
+
 $company_name = $model->company->company_common_name_en ? $model->company->company_common_name_en:
-    $model->company->company_name;
+
+$model->company->company_name;
+
 ?>
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
