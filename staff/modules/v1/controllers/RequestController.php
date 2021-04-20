@@ -191,6 +191,7 @@ class RequestController extends Controller
 
         //save activity
         $model->createRequestActivity('I have created this request');
+        $model->requestNotification();
 
         Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 

@@ -11,5 +11,6 @@ return [
     'finance_transfer' => 'finance@bawes.net',
     'candidateAppUrl' => 'https://student.studenthub.co/',
     'inspectorAppUrl' => 'https://inspector.studenthub.co/',
-    'companyAppUrl' => 'https://employer.studenthub.co/'
+    'companyAppUrl' => 'https://employer.studenthub.co/',
+    'staffAppUrl' => 'https://staff.studenthub.co/',
 ];
