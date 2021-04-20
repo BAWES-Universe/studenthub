@@ -87,7 +87,7 @@ return [
     [
         'tc_id' => '5',
     	'transfer_id' => '5',
-    	'candidate_id' => '1',
+    	'candidate_id' => '27',
     	'store_id' => '2',
     	'store_name' => 'First Store',
     	'company_id' => '5',
@@ -107,7 +107,7 @@ return [
     [
         'tc_id' => '6',
         'transfer_id' => '5',
-        'candidate_id' => '2',
+        'candidate_id' => '32',
         'store_id' => '2',
         'store_name' => 'Second Store',
         'company_id' => '5',

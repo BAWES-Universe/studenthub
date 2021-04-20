@@ -210,7 +210,7 @@ class Note extends \yii\db\ActiveRecord
 
         $staffName = 'Guest';
 
-        if (!Yii::$app->user->isGuest && isset(Yii::$app->user->identity->staff_name)) {
+        if (isset(Yii::$app->user->identity->staff_name)) {
             $staffName = Yii::$app->user->identity->staff_name;
         } else if (isset($this->createdBy)) {
             $staffName = $this->createdBy->staff_name;
