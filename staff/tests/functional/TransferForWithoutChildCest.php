@@ -29,7 +29,7 @@ class TransferForWithoutChildCest
         Yii::$app->params['inCodeception'] = true;
         Yii::$app->params['transfer_cost'] = 0.35;
       
-        $this->companyWithoutChild = Company::findOne(3);
+        $this->companyWithoutChild = Company::findOne(5);
 
         $this->token = StaffToken::find()
             ->one()

@@ -14,7 +14,7 @@ return [
     ],
     'company1' => [
         'company_id' => 2,
-        'parent_company_id' => null,
+        'parent_company_id' => 1,
         'company_name' => 'Thompson-Gleichner',
         'company_email' => 'cleve85@reichert.net',
         'company_bonus_commission' => 19,
@@ -25,7 +25,7 @@ return [
     ],
     'company2' => [
         'company_id' => 3,
-        'parent_company_id' => null,
+        'parent_company_id' => 1,
         'company_name' => 'Rempel Ltd',
         'company_email' => 'taryn51@moen.com',
         'company_bonus_commission' => 14,
@@ -47,7 +47,7 @@ return [
     ],
     'company4' => [
         'company_id' => 5,
-        'parent_company_id' => 3,
+        'parent_company_id' => null,
         'company_name' => 'Hand-McKenzie',
         'company_email' => 'howe.kelly@wiza.info',
         'company_bonus_commission' => 14,
@@ -69,7 +69,7 @@ return [
     ],
     'company6' => [
         'company_id' => 7,
-        'parent_company_id' => 2,
+        'parent_company_id' => null,
         'company_name' => 'Yundt LLC',
         'company_email' => 'abauch@reichert.net',
         'company_bonus_commission' => 19,
@@ -80,7 +80,7 @@ return [
     ],
     'company7' => [
         'company_id' => 8,
-        'parent_company_id' => 2,
+        'parent_company_id' => 7,
         'company_name' => 'Rodriguez, Hettinger and Zulauf',
         'company_email' => 'zstreich@moore.com',
         'company_bonus_commission' => 19,

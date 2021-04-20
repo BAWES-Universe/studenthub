@@ -109,9 +109,17 @@ class Note extends \yii\db\ActiveRecord
      */
     public function validateContact($attribute, $params, $validator)
     {
-        if ($this->company_id && $this->contact_uuid) {
-            $exist = CompanyContact::find()->andWhere(['company_id'=>$this->company_id,'contact_uuid'=>$this->contact_uuid])->exists();
-            if (!$exist) {
+        if ($this->company_id && $this->contact_uuid)
+        {
+            $exist = CompanyContact::find()
+                ->andWhere([
+                    'company_id' => $this->company_id,
+                    'contact_uuid' => $this->contact_uuid
+                ])
+                ->exists();
+
+            if (!$exist)
+            {
                 $this->addError($attribute, Yii::t('app', "Invalid contact request"));
             }
         }
@@ -199,8 +207,10 @@ class Note extends \yii\db\ActiveRecord
         if(!parent::beforeSave($insert)) {
             return false;
         }
+
         $staffName = 'Guest';
-        if (!Yii::$app->user->isGuest && Yii::$app->user->identity->staff_name) {
+
+        if (isset(Yii::$app->user->identity->staff_name)) {
             $staffName = Yii::$app->user->identity->staff_name;
         } else if (isset($this->createdBy)) {
             $staffName = $this->createdBy->staff_name;
