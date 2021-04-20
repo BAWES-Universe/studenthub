@@ -69,6 +69,12 @@ return [
     ],
     [
         'transfer_id' => 20,
+        'invoice_date' => '2017-12-23',
+        'invoice_status' => 'paid',
+        'deleted' => '0',
+    ],
+    [
+        'transfer_id' => 2,
     	'invoice_date' => '2017-12-23',
     	'invoice_status' => 'paid',
     	'deleted' => '0',
