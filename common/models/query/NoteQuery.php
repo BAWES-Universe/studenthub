@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use common\models\Note;
 use Yii;
 use yii\db\ActiveQuery;
 
