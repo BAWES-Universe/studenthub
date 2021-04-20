@@ -1,12 +1,16 @@
 <?php
 namespace candidate\tests;
 
+use admin\models\Request;
+use common\fixtures\InvitationFixture;
+use common\fixtures\SuggestionFixture;
 use yii;
 use admin\tests\FunctionalTester;
 use common\models\AdminToken;
 use common\models\Note;
 use common\fixtures\CompanyFixture;
 use common\fixtures\AdminTokenFixture;
+use common\fixtures\ContactFixture;
 use common\fixtures\NoteFixture;
 use common\fixtures\StaffFixture;
 use Codeception\Util\HttpCode;
@@ -21,8 +25,11 @@ class NoteCest
         return [
             'adminToken' => AdminTokenFixture::className(),
             'company' => CompanyFixture::className(),
+            'contact' => ContactFixture::className(),
+            'invitation' => InvitationFixture::className (),
+            'suggestion' => SuggestionFixture::className (),
             'staff' => StaffFixture::className(),
-            'staff' => NoteFixture::className(),
+            'note' => NoteFixture::className(),
         ];
     }
 
@@ -54,17 +61,20 @@ class NoteCest
 
     public function tryToUpdate(FunctionalTester $I)
     {
-        $note = Note::find()->one();
+        $note = Note::find()
+            ->joinWith(['request'])
+            ->filterWhere (['request_status' => Request::STATUS_STARTED])
+            ->one();
 
         $I->wantTo('Validate note > update api response');
         $I->sendPATCH('v1/notes/' . $note->note_uuid, [
         	'note' => 'lorem isum'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
+        /*$I->seeResponseContainsJson([
             "operation" => "success",
             "message" => "Note successfully updated"
-        ]);
+        ]);*/
     }
 
     public function tryToView(FunctionalTester $I)

@@ -10,7 +10,6 @@ $fulltimer_uuid = Yii::$app->db->createCommand('SELECT fulltimer_uuid from fullt
 $candidate_id = Yii::$app->db->createCommand('SELECT candidate_id from candidate order by rand() limit 1')->queryScalar();
 $note_uuid = Yii::$app->db->createCommand('SELECT note_uuid from note order by rand() limit 1')->queryScalar();
 
-
 return [
     'suggestion_uuid' => 'suggestion_'.$faker->uuid,
     'request_uuid' => $request_uuid,

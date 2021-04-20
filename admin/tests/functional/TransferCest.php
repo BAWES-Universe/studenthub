@@ -51,6 +51,7 @@ class TransferCest
                 ])
                 ->isParentTransfer()
                 ->one();
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -67,6 +68,7 @@ class TransferCest
         $query = Transfer::find()
             ->isParentTransfer()
             ->one();
+
         $I->wantTo('Validate admin > transfer api response for listing');
         $I->sendGET('v1/transfers');
         $I->seeResponseCodeIs(HttpCode::OK); // 200

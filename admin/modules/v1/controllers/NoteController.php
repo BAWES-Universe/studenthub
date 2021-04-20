@@ -133,13 +133,6 @@ class NoteController extends Controller
         // Attempt to create new account
         $model = $this->findModel($id);
 
-        if(!$model){
-            return [
-                    "operation" => "error",
-                    "message" => "Note not found."
-                ];
-        }
-
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
 
         if (!$model->save())

@@ -88,6 +88,7 @@ class RequestCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a request via API');
+
         $I->sendPOST(
             'v1/requests',
             [
@@ -98,7 +99,7 @@ class RequestCest
                 'number_of_employees' => 1,
                 'job_description' => 'Autem.',
                 'compensation' => 'Dolor.',
-                'additional_info' => 'la la lala  la'
+                'additional_info' => 'la la lala la'
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200

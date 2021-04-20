@@ -5,6 +5,8 @@ namespace company\tests;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\ContactTokenFixture;
+use common\fixtures\InvitationFixture;
+use common\fixtures\SuggestionFixture;
 use company\models\Contact;
 use company\tests\FunctionalTester;
 use common\models\Note;
@@ -22,6 +24,8 @@ class NoteCest
             'company' => CompanyFixture::className(),
             'companyContact' => CompanyContactFixture::className(),
             'contactToken' => ContactTokenFixture::className(),
+            'invitation' => InvitationFixture::className (),
+            'suggestion' => SuggestionFixture::className (),
             'note' => NoteFixture::className(),
         ];
     }
@@ -37,7 +41,7 @@ class NoteCest
 
         $I->amBearerAuthenticated($this->token);
         
-        $this->note_uuid = Note::find()->one()->note_uuid;
+        $this->note_uuid = $this->company->getNotes()->one()->note_uuid;
     }
 
     /**
@@ -59,11 +63,9 @@ class NoteCest
      */
     public function tryToView(FunctionalTester $I)
     {
-        $model = Note ::find()->one();
-
         $I->wantTo('Validate note api to view note detail');
         $I->amBearerAuthenticated($this->token);
-        $I->sendGET('v1/notes/' . $model->note_uuid);
+        $I->sendGET('v1/notes/' . $this->note_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
