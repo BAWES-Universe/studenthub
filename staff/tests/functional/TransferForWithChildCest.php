@@ -289,6 +289,7 @@ class TransferForWithChildCest
             ->getTransfers()
             ->where(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
+
         $I->wantTo( 'Mark transfer as "Payment Sent" for company with child' );
         $I->sendPATCH( 'v1/transfers/payment-sent/' . $transfer->transfer_id );
         $I->seeResponseCodeIs( HttpCode::OK ); // 200

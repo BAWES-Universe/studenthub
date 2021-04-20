@@ -1,14 +1,15 @@
 <?php
 
 return [
+    //initiated + parent
     'transfer0' => [
         'transfer_id' => 1,
         'parent_transfer_id' => null,
-        'company_id' => 55,
+        'company_id' => 1,
         'total' => 97,
         'company_total' => 30,
         'payment_received_on' => '1976-03-07 07:02:50',
-        'transfer_status' => 2,
+        'transfer_status' => 10,
         'start_date' => '1992-01-22 10:59:17',
         'end_date' => '1994-05-23 11:01:31',
         'transfer_created_by' => 1,
@@ -19,8 +20,8 @@ return [
     ],
     'transfer1' => [
         'transfer_id' => 2,
-        'parent_transfer_id' => null,
-        'company_id' => 74,
+        'parent_transfer_id' => 1,
+        'company_id' => 2,
         'total' => 99,
         'company_total' => 16,
         'payment_received_on' => '1988-10-05 08:29:02',
@@ -33,14 +34,15 @@ return [
         'transfer_updated_at' => '2007-11-08 23:28:41',
         'deleted' => 0,
     ],
+    //locked + parent
     'transfer2' => [
         'transfer_id' => 3,
-        'parent_transfer_id' => null,
-        'company_id' => 96,
+        'parent_transfer_id' => 4,
+        'company_id' => 2,
         'total' => 53,
         'company_total' => 63,
         'payment_received_on' => '2000-06-12 11:19:52',
-        'transfer_status' => 9,
+        'transfer_status' => 5,
         'start_date' => '1970-05-30 15:37:17',
         'end_date' => '1985-05-05 23:51:51',
         'transfer_created_by' => 1,
@@ -52,11 +54,11 @@ return [
     'transfer3' => [
         'transfer_id' => 4,
         'parent_transfer_id' => null,
-        'company_id' => 76,
+        'company_id' => 1,
         'total' => 66,
         'company_total' => 61,
         'payment_received_on' => '1988-01-17 22:01:02',
-        'transfer_status' => 4,
+        'transfer_status' => 5,
         'start_date' => '1972-11-15 17:43:44',
         'end_date' => '1981-10-03 04:41:16',
         'transfer_created_by' => 1,
@@ -65,14 +67,15 @@ return [
         'transfer_updated_at' => '2012-11-25 12:55:46',
         'deleted' => 0,
     ],
+    //initiated + without child
     'transfer4' => [
         'transfer_id' => 5,
         'parent_transfer_id' => null,
-        'company_id' => 25,
+        'company_id' => 5,
         'total' => 45,
         'company_total' => 70,
         'payment_received_on' => '1992-06-27 04:35:29',
-        'transfer_status' => 1,
+        'transfer_status' => 10,
         'start_date' => '1999-11-02 09:55:41',
         'end_date' => '2019-10-02 12:33:32',
         'transfer_created_by' => 1,
@@ -81,14 +84,15 @@ return [
         'transfer_updated_at' => '2001-08-14 02:02:01',
         'deleted' => 0,
     ],
+    //locked + without child
     'transfer5' => [
         'transfer_id' => 6,
         'parent_transfer_id' => null,
-        'company_id' => 14,
+        'company_id' => 5,
         'total' => 55,
         'company_total' => 28,
         'payment_received_on' => '2007-05-06 14:14:31',
-        'transfer_status' => 1,
+        'transfer_status' => 5,
         'start_date' => '2019-04-25 16:00:59',
         'end_date' => '1975-07-30 10:57:47',
         'transfer_created_by' => 1,
@@ -100,7 +104,7 @@ return [
     'transfer6' => [
         'transfer_id' => 7,
         'parent_transfer_id' => null,
-        'company_id' => 36,
+        'company_id' => 10,
         'total' => 54,
         'company_total' => 67,
         'payment_received_on' => '1975-02-05 19:47:14',
@@ -116,7 +120,7 @@ return [
     'transfer7' => [
         'transfer_id' => 8,
         'parent_transfer_id' => null,
-        'company_id' => 14,
+        'company_id' => 10,
         'total' => 27,
         'company_total' => 91,
         'payment_received_on' => '2021-01-30 09:22:20',
@@ -132,7 +136,7 @@ return [
     'transfer8' => [
         'transfer_id' => 9,
         'parent_transfer_id' => null,
-        'company_id' => 54,
+        'company_id' => 10,
         'total' => 28,
         'company_total' => 49,
         'payment_received_on' => '1992-11-22 06:17:11',
@@ -148,7 +152,7 @@ return [
     'transfer9' => [
         'transfer_id' => 10,
         'parent_transfer_id' => null,
-        'company_id' => 38,
+        'company_id' => 10,
         'total' => 89,
         'company_total' => 18,
         'payment_received_on' => '1983-12-20 21:26:33',
@@ -164,7 +168,7 @@ return [
     'transfer10' => [
         'transfer_id' => 11,
         'parent_transfer_id' => null,
-        'company_id' => 11,
+        'company_id' => 10,
         'total' => 35,
         'company_total' => 28,
         'payment_received_on' => '1971-03-24 12:05:46',
@@ -180,7 +184,7 @@ return [
     'transfer11' => [
         'transfer_id' => 12,
         'parent_transfer_id' => null,
-        'company_id' => 50,
+        'company_id' => 10,
         'total' => 54,
         'company_total' => 29,
         'payment_received_on' => '1981-12-12 11:34:43',
@@ -196,7 +200,7 @@ return [
     'transfer12' => [
         'transfer_id' => 13,
         'parent_transfer_id' => null,
-        'company_id' => 16,
+        'company_id' => 10,
         'total' => 89,
         'company_total' => 86,
         'payment_received_on' => '2005-05-21 23:32:12',
@@ -212,7 +216,7 @@ return [
     'transfer13' => [
         'transfer_id' => 14,
         'parent_transfer_id' => null,
-        'company_id' => 53,
+        'company_id' => 10,
         'total' => 38,
         'company_total' => 28,
         'payment_received_on' => '2010-11-27 12:56:15',
@@ -228,7 +232,7 @@ return [
     'transfer14' => [
         'transfer_id' => 15,
         'parent_transfer_id' => null,
-        'company_id' => 14,
+        'company_id' => 10,
         'total' => 35,
         'company_total' => 42,
         'payment_received_on' => '1996-07-01 07:21:11',
@@ -244,7 +248,7 @@ return [
     'transfer15' => [
         'transfer_id' => 16,
         'parent_transfer_id' => null,
-        'company_id' => 72,
+        'company_id' => 10,
         'total' => 75,
         'company_total' => 19,
         'payment_received_on' => '2010-10-08 04:12:51',
@@ -260,7 +264,7 @@ return [
     'transfer16' => [
         'transfer_id' => 17,
         'parent_transfer_id' => null,
-        'company_id' => 67,
+        'company_id' => 10,
         'total' => 69,
         'company_total' => 44,
         'payment_received_on' => '1992-12-11 11:20:42',
@@ -276,7 +280,7 @@ return [
     'transfer17' => [
         'transfer_id' => 18,
         'parent_transfer_id' => null,
-        'company_id' => 12,
+        'company_id' => 10,
         'total' => 39,
         'company_total' => 56,
         'payment_received_on' => '2003-07-01 16:04:22',
@@ -292,7 +296,7 @@ return [
     'transfer18' => [
         'transfer_id' => 19,
         'parent_transfer_id' => null,
-        'company_id' => 82,
+        'company_id' => 10,
         'total' => 22,
         'company_total' => 71,
         'payment_received_on' => '1987-11-03 05:34:57',
@@ -308,7 +312,7 @@ return [
     'transfer19' => [
         'transfer_id' => 20,
         'parent_transfer_id' => null,
-        'company_id' => 73,
+        'company_id' => 10,
         'total' => 10,
         'company_total' => 40,
         'payment_received_on' => '2014-04-24 03:52:30',

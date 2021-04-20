@@ -78,6 +78,7 @@ class CompanyCest
             ->childCompany($this->company->company_id)
             ->one();
 
+        //$I->haveHttpHeader ('Company-ID', $this->company->company_id);
         $I->sendGET('v1/companies/list-child');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([

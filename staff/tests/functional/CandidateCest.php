@@ -367,7 +367,7 @@ class CandidateCest
     {
         $I->wantTo('Update Candidate job search status');
         $I->sendPATCH('v1/candidates/job-search-status', [
-            'candidate_id' => 1,
+            'candidate_id' => $this->candidate->candidate_id,
             'job_search_status' => 1
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200

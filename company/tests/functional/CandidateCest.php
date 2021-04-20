@@ -4,9 +4,7 @@ namespace company\tests;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\CompanyFixture;
 use company\models\Contact;
-use Yii;
-use company\tests\FunctionalTester;
-use company\models\ContactToken;
+use company\models\Candidate;
 use common\fixtures\ContactTokenFixture;
 use common\fixtures\CandidateFixture;
 use Codeception\Util\HttpCode;
@@ -58,11 +56,13 @@ class CandidateCest
      */
     public function tryViewCandidates(FunctionalTester $I)
     {
+        $candidate = Candidate::find()->one();
+
         $I->wantTo('View candidate api');
-        $I->sendGET('v1/candidates/1');
+        $I->sendGET('v1/candidates/' . $candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
-            'candidate_id'=>1
+            'candidate_id' => $candidate->candidate_id
         ]);
     }
 

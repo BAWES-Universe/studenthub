@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'invitation_uuid' => $faker->uuid,
+    'invitation_uuid' => 'invitation_' .$faker->uuid,
     'candidate_id' => $index + 1,
     'request_uuid' => $index + 1,
     'invitation_status' => $faker->numberBetween(0,3),
