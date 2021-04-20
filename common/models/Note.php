@@ -81,8 +81,8 @@ class Note extends \yii\db\ActiveRecord
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
-            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
+            //[['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
+            //[['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
             ['invitation_uuid', 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
             [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
@@ -311,21 +311,25 @@ class Note extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreatedBy($modelClass = "\common\models\Staff")
+    public function getCreatedBy($modelClass = "\common\models\Staff", $candidateClass = "\common\models\Candidate")
     {
-        //if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
-        //    return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
-        //} else {
+        if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
+            return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
+        } else {
             return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
-        //}
+        }
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUpdatedBy($modelClass = "\common\models\Staff")
+    public function getUpdatedBy($modelClass = "\common\models\Staff", $candidateClass = "\common\models\Candidate")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
+        if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
+            return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
+        } else {
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+        }
     }
 
     /**
