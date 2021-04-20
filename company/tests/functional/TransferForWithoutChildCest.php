@@ -37,9 +37,19 @@ class TransferForWithoutChildCest
       
         $this->companyWithoutChild = Company::findOne(5);
 
-        $companyContact = CompanyContact::find()->filterWhere (['company_id' => 5])->one();
+        $companyContact = CompanyContact::find()
+            ->filterWhere ([
+                'allow_access' => 1,
+                'company_id' => 5
+            ])
+            ->one();
 
         $this->token = $companyContact->contact->getAccessToken()->token_value;
+
+        $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader('Company-Id', $this->companyWithoutChild->company_id);
+
     }
 
     public function _after(FunctionalTester $I)
