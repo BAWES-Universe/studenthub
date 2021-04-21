@@ -27,6 +27,7 @@ use yii\helpers\ArrayHelper;
  * @property string $request_additional_info
  * @property string $request_status
  * @property string $request_feedback
+ * @property string $num_hours_followup_interval
  * @property string $request_created_datetime
  * @property string $request_updated_datetime
  *
@@ -56,7 +57,7 @@ class Request extends \yii\db\ActiveRecord
     {
         return [
             [['company_id','request_job_description','request_compensation'], 'required'],
-            [['company_id', 'request_position_type', 'request_number_of_employees'], 'integer'],
+            [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
@@ -130,6 +131,7 @@ class Request extends \yii\db\ActiveRecord
             'request_additional_info' => Yii::t('app', 'Request Additional Info'),
             'request_status' => Yii::t('app', 'Request Status'),
             'request_feedback' => Yii::t('app', 'Request Feedback'),
+            'num_hours_followup_interval' => Yii::t('app', 'num hours followup interval'),
             'request_created_datetime' => Yii::t('app', 'Request Created Datetime'),
             'request_updated_datetime' => Yii::t('app', 'Request Updated Datetime'),
         ];

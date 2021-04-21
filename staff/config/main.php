@@ -280,6 +280,7 @@ return [
                         'GET is-request-updated/<id>' => 'is-request-updated',
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        'PATCH update-interval/<id>' => 'update-interval',
                         'PATCH <id>' => 'update',
                         'PATCH cancel/<id>' => 'cancel',
                         'PATCH deliver/<id>' => 'deliver',
@@ -291,7 +292,8 @@ return [
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
-                        'OPTIONS <id>' => 'options'
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS update-interval/<id>' => 'options',
                     ]
                 ],
                 [ // BrandController

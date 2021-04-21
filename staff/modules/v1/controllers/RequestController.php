@@ -428,6 +428,54 @@ class RequestController extends Controller
     }
 
     /**
+     * Allows staff to update request interval
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionUpdateInterval($id) {
+
+        $request_uuid = $id;
+        $hours = Yii::$app->request->getBodyParam('hours');
+        $feedback = Yii::$app->request->getBodyParam('reason');
+
+        $model = $this->findModel($request_uuid);
+        $model->num_hours_followup_interval = $hours;
+        $model->save(false);
+
+        $days = ($hours < 24) ? $hours.' hours' : round($hours/24).' days';
+        $reason = Yii::$app->user->identity->staff_name." has updated the followup interval for this ";
+        $reason .= "request to  ".$days." with feedback: ".$feedback;
+
+        $modelActivity = new Note();
+        $modelActivity->request_uuid = $request_uuid;
+        $modelActivity->note_type = \common\models\Note::TYPE_INTERNAL_NOTE;
+        $modelActivity->company_id = $model->company_id;
+        $modelActivity->note_text = $reason;
+
+        if (!$modelActivity->save())
+        {
+            if(isset($modelActivity->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $modelActivity->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem adding the request activity, please contact us for assistance."
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request activity successfully added",
+            "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
+        ];
+    }
+
+    /**
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
