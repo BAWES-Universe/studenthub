@@ -119,7 +119,7 @@ class StatisticsTest extends \Codeception\Test\Unit
 
     /**
      * test total Locked Transfer
-     */
+     *
     public function testStatisticsTotalLockedTransfer()
     {
         $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK);
@@ -133,7 +133,7 @@ class StatisticsTest extends \Codeception\Test\Unit
 
         expect('Total locked transfer', $locked)
             ->equals((isset($lockedTransfers['total'])) ? (int)$lockedTransfers['total'] : 0);
-    }
+    }*/
 
     /**
      * test total sent Transfer

@@ -1,13 +1,15 @@
 <?php
 
+$company_id = Yii::$app->db->createCommand('SELECT company_id from company order by rand() limit 1 ')->queryScalar();
+
 return [
     'transfer_id' => $index + 1,
     'parent_transfer_id' => null,
-    'company_id' => rand(10,100),
+    'company_id' => $company_id,
     'total' => rand(10,100),
     'company_total' => rand(10,100),
     'payment_received_on' => $faker->date('Y-m-d H:i:s'),
-    'transfer_status' => 10,
+    'transfer_status' => $faker->numberBetween(1,10),
     'start_date' => $faker->date('Y-m-d H:i:s'),
     'end_date' => $faker->date('Y-m-d H:i:s'),
     'transfer_created_by' => 1,

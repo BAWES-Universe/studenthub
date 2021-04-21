@@ -3,7 +3,9 @@
 namespace staff\modules\v1\controllers;
 
 use staff\models\Candidate;
+use staff\models\Note;
 use Yii;
+use yii\base\BaseObject;
 use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -121,6 +123,7 @@ class InvitationController extends Controller
     {
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+        $reason = Yii::$app->request->getBodyParam("reason");
 
         $request = Request::findOne(['request_uuid' => $request_uuid]);
 
@@ -131,6 +134,10 @@ class InvitationController extends Controller
             ];
         }
 
+        $transaction = Yii::$app->db->beginTransaction();
+
+        //create a "Note" of type "suggested"
+
         $model = new Invitation();
         $model->request_uuid = $request_uuid;
         $model->candidate_id = $candidate_id;
@@ -138,6 +145,7 @@ class InvitationController extends Controller
 
         if (!$model->save())
         {
+            $transaction->rollBack();
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -150,6 +158,34 @@ class InvitationController extends Controller
                 ];
             }
         }
+
+        $note = new Note;
+        $note->company_id = $request->company_id;
+        $note->candidate_id = $candidate_id;
+        $note->request_uuid = $request_uuid;
+        $note->invitation_uuid = $model->invitation_uuid;
+        $note->note_type = Note::TYPE_INTERNAL_NOTE;
+        $note->note_text = $reason;
+
+        if(!$note->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($note->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $note->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+
+        $transaction->commit();
 
         $invitedCount = Candidate::findOne($candidate_id)
             ->getInvitations()

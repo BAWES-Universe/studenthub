@@ -88,6 +88,7 @@ class RequestCest
     public function tryToCreate(FunctionalTester $I)
     {
         $I->wantTo('create a request via API');
+
         $I->sendPOST(
             'v1/requests',
             [
@@ -98,7 +99,7 @@ class RequestCest
                 'number_of_employees' => 1,
                 'job_description' => 'Autem.',
                 'compensation' => 'Dolor.',
-                'additional_info' => 'la la lala  la'
+                'additional_info' => 'la la lala la'
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -177,18 +178,15 @@ class RequestCest
      */
     public function tryToAddActivity(FunctionalTester $I)
     {
-        $request = Request::find()
-            ->filterWhere([
-                'request_status' => Request::STATUS_STARTED,
-                'company_id' => $this->company->company_id
-            ])
-            ->one();
+        $this->request->request_status = Request::STATUS_STARTED;
+        $this->request->save();
 
         $I->wantTo('add activity to list');
+
         $I->sendPOST(
             'v1/requests/add-activity',
             [
-                'request_uuid' => $request->request_uuid,
+                'request_uuid' => $this->request->request_uuid,
                 'contact_uuid' => $this->contact->contact_uuid,
                 'note_type' => Note::TYPE_INTERNAL_NOTE,
                 'detail' => 'Test note'

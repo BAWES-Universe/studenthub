@@ -190,13 +190,6 @@ class NoteController extends Controller
         // Attempt to create new account
         $model = $this->findModel($id);
 
-        if(!$model){
-            return [
-                    "operation" => "error",
-                    "message" => "Note not found."
-                ];
-        }
-
         $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
         $model->note_type = Yii::$app->request->getBodyParam("type");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");

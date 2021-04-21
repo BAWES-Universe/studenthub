@@ -54,6 +54,7 @@ class CompanyManager
      * @return \company\models\Company
      */
     public function getCompany() {
+
         $company_id = \Yii::$app->request->headers->get('Company-Id');
 
         //use first company as selected if not specified

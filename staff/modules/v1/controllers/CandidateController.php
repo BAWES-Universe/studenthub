@@ -203,7 +203,9 @@ class CandidateController extends Controller
                 ];
             }
         }
+
         $model->updateExperiences(Yii::$app->request->getBodyParam("experience"));
+
         $model->updateSkills(Yii::$app->request->getBodyParam("skill"));
 
         Yii::info('['.$model->candidate_name.' Candidate Account Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
@@ -215,9 +217,6 @@ class CandidateController extends Controller
             "store" => $model->store,
             "company" => $model->company
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
@@ -337,8 +336,9 @@ class CandidateController extends Controller
         // save note
         $noteModel  = new Note();
         $noteModel->candidate_id  = $id;
+        $noteModel->company_id  = $model->store->company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
-        $noteModel->note_text  = "Assigned to {$storeName}";
+        $noteModel->note_text  = "Assigned to work at {$storeName}";
         $noteModel->save(false);
 
         // saving candidate work history
@@ -364,6 +364,8 @@ class CandidateController extends Controller
         // Attempt to create new account
         $model = $this->findModel($id);
         $storeName = $model->store->store_name;
+        $company_id = $model->store->company_id;
+        $commonCompanyName = $model->company->company_common_name_en;
         $model->store_id = null;
 
         if (!$model->save(false))
@@ -380,13 +382,13 @@ class CandidateController extends Controller
                 ];
             }
         }
-
         // save note
         $feedback = Yii::$app->request->get('feedback');
         $noteModel  = new Note();
         $noteModel->candidate_id  = $id;
+        $noteModel->company_id  = $company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
-        $noteModel->note_text  = "Unassigned from {$storeName} because {$feedback}";
+        $noteModel->note_text  = "No longer assigned to work at {$storeName} for {$commonCompanyName} because {$feedback}";
         $noteModel->save(false);
 
         CandidateWorkHistory::saveUnAssignedHistory($model);

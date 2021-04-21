@@ -3,7 +3,7 @@
 return [
     'store0' => [
         'store_id' => 1,
-        'company_id' => 8,
+        'company_id' => 2,
         'store_name' => 'McKenzie PLC',
         'store_location' => '9070 Franecki Lights Suite 970
 West Sammy, LA 41885-0250',
@@ -14,7 +14,7 @@ West Sammy, LA 41885-0250',
     ],
     'store1' => [
         'store_id' => 2,
-        'company_id' => 10,
+        'company_id' => 5,
         'store_name' => 'Stanton Inc',
         'store_location' => '361 Grant Causeway Apt. 863
 Jesusfort, LA 77387-6357',
@@ -553,7 +553,7 @@ East Spencerfurt, TX 54526-8756',
     ],
     'store50' => [
         'store_id' => 51,
-        'company_id' => 3,
+        'company_id' => 2,
         'store_name' => 'Gulgowski',
         'store_location' => '2715 Stark Island Suite 438
 East Spencerfurt, TX 54526-8756',

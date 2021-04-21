@@ -40,6 +40,7 @@ class TransferCandidateCest
         $this->transferCandidate = $this->transfer->transferCandidates[0];
                 
         $this->transferFile = TransferFile::find()->one();
+
         $I->amBearerAuthenticated($this->token);
     }
     

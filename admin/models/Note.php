@@ -31,9 +31,9 @@ class Note extends \common\models\Note {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreatedBy($modelClass = "\admin\models\Staff")
+    public function getCreatedBy($modelClass = "\admin\models\Staff", $candidateClass = "\admin\models\Candidate")
     {
-        return parent::getcreatedBy($modelClass);
+        return parent::getcreatedBy($modelClass, $candidateClass);
     }
 
     /**
@@ -79,9 +79,9 @@ class Note extends \common\models\Note {
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUpdatedBy($modelClass = "\admin\models\Staff")
+    public function getUpdatedBy($modelClass = "\admin\models\Staff", $candidateClass = "\admin\models\Candidate")
     {
-        return parent::getUpdatedBy($modelClass);
+        return parent::getUpdatedBy($modelClass, $candidateClass);
     }
 
     /**

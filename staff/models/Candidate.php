@@ -291,31 +291,35 @@ class Candidate extends \common\models\Candidate {
      */
     public function updateExperiences($experiences)
     {
-        $experiences = explode(',', $experiences);
-
-        if (empty($experiences) || count($experiences) == 0)
-        {
-            return ;
-        }
-
         CandidateExperience::deleteAll([
             'candidate_id' => $this->candidate_id
         ]);
 
-        foreach ($experiences as $experience) {
-            if (!empty($experience)) {
-                $model = new CandidateExperience;
-                $model->candidate_id = $this->candidate_id;
-                $model->experience = $experience;
+        $experiences = explode(',', $experiences);
 
-                if(!$model->save()) {
-                    return [
-                        "operation" => "error",
-                        "message" => $model->getErrors()
-                    ];
-                }
+        if (empty($experiences) || count($experiences) == 0)
+        {
+            return null;
+        }
+
+        foreach ($experiences as $experience) {
+
+            if (empty($experience)) {
+                continue;
+            }
+
+            $model = new CandidateExperience;
+            $model->candidate_id = $this->candidate_id;
+            $model->experience = $experience;
+
+            if(!$model->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->getErrors()
+                ];
             }
         }
+
         return true;
     }
 
@@ -326,7 +330,11 @@ class Candidate extends \common\models\Candidate {
      */
     public function updateSkills($skills)
     {
-        $skills_array = explode(',',$skills);
+        CandidateSkill::deleteAll([
+            'candidate_id' => $this->candidate_id
+        ]);
+
+        $skills_array = explode(',', $skills);
 
         if (empty($skills) || count($skills_array) == 0)
         {
@@ -336,27 +344,31 @@ class Candidate extends \common\models\Candidate {
             ];
         }
 
-        CandidateSkill::deleteAll([
-            'candidate_id' => $this->candidate_id
-        ]);
+        foreach ($skills_array as $skill)
+        {
+            if (empty($skill)) {
+                continue;
+            }
 
-        foreach ($skills_array as $skill) {
-            if (!empty($skill)) {
-                $model = new CandidateSkill;
-                $model->candidate_id = $this->candidate_id;
-                $model->skill = $skill;
+            $model = new CandidateSkill;
+            $model->candidate_id = $this->candidate_id;
+            $model->skill = $skill;
 
-                if(!$model->save()) {
-                    return [
-                        "operation" => "error",
-                        "message" => $model->getErrors()
-                    ];
-                }
+            if(!$model->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->getErrors()
+                ];
             }
         }
+
         return true;
     }
 
+    /**
+     * update profile photo from temp AWS S3 repo object name
+     * @return bool|string
+     */
     public function changeProfilePhoto()
     {
         try {

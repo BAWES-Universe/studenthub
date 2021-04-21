@@ -44,12 +44,33 @@ class CompanyQuery extends \yii\db\ActiveQuery {
             new \yii\db\Expression('DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK) <= NOW()')
         ]);
     }
-    
+
+    /**
+     * @return $this
+     */
+    public function filterChild() {
+        return $this->andWhere(new Expression('{{%company}}.parent_company_id IS NOT NULL'));
+    }
+
     /**
      * @return $this
      */
     public function filterParent() {
-        return $this->andWhere(['{{%company}}.parent_company_id' => null]);
+        return $this->andWhere(new Expression('{{%company}}.parent_company_id IS NULL'));
+    }
+
+    /**
+     * filter companies without parent + child
+     * @return CompanyQuery
+     */
+    public function filterWithoutChild()
+    {
+        $subQuery = Company::find()
+            ->select('parent_company_id')
+            ->andWhere (new Expression('parent_company_id IS NOT NULL'));
+
+        return $this->filterWhere (['not in', 'company_id', $subQuery])//not parent company
+            ->andWhere (new Expression('parent_company_id IS NULL'));//not having parent
     }
 
     /**

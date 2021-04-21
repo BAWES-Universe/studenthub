@@ -81,8 +81,8 @@ class Note extends \yii\db\ActiveRecord
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
-            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
+            //[['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
+            //[['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
             ['invitation_uuid', 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
             [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
@@ -109,9 +109,17 @@ class Note extends \yii\db\ActiveRecord
      */
     public function validateContact($attribute, $params, $validator)
     {
-        if ($this->company_id && $this->contact_uuid) {
-            $exist = CompanyContact::find()->andWhere(['company_id'=>$this->company_id,'contact_uuid'=>$this->contact_uuid])->exists();
-            if (!$exist) {
+        if ($this->company_id && $this->contact_uuid)
+        {
+            $exist = CompanyContact::find()
+                ->andWhere([
+                    'company_id' => $this->company_id,
+                    'contact_uuid' => $this->contact_uuid
+                ])
+                ->exists();
+
+            if (!$exist)
+            {
                 $this->addError($attribute, Yii::t('app', "Invalid contact request"));
             }
         }
@@ -200,11 +208,19 @@ class Note extends \yii\db\ActiveRecord
             return false;
         }
 
+        $staffName = 'Guest';
+
+        if (isset(Yii::$app->user->identity->staff_name)) {
+            $staffName = Yii::$app->user->identity->staff_name;
+        } else if (isset($this->createdBy)) {
+            $staffName = $this->createdBy->staff_name;
+        }
+
         if($this->request) {
             $message = Yii::t ('app', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
                 'name' => $this->request->company->company_name,
                 'email' => $this->request->company->company_email,
-                'staffName' => $this->createdBy? $this->createdBy->staff_name: 'Guest',
+                'staffName' => $staffName,
                 'activityDetail' => $this->note_text
             ]);
 
@@ -295,17 +311,25 @@ class Note extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreatedBy($modelClass = "\common\models\Staff")
+    public function getCreatedBy($modelClass = "\common\models\Staff", $candidateClass = "\common\models\Candidate")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by']);
+        if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
+            return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
+        } else {
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+        }
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUpdatedBy($modelClass = "\common\models\Staff")
+    public function getUpdatedBy($modelClass = "\common\models\Staff", $candidateClass = "\common\models\Candidate")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
+        if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
+            return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
+        } else {
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+        }
     }
 
     /**
@@ -316,6 +340,9 @@ class Note extends \yii\db\ActiveRecord
         return $this->hasOne($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getSuggestion($modelClass = "\common\models\Suggestion") {
         return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid']);
     }

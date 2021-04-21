@@ -188,7 +188,7 @@ class StoreCest
      */
     public function restCallToUpdateStoreManagerWithValidDetail(FunctionalTester $I)
     {
-        $store = Store::findOne(['company_id'=>'4']);
+        $store = Store::findOne(['company_id' => '4']);
 
         $contact = CompanyContact::find()
             ->filterWhere(['company_id' => 4])

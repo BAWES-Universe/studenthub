@@ -79,6 +79,7 @@ class RequestController extends Controller
         $start_date = Yii::$app->request->get("start_date");
         $end_date = Yii::$app->request->get("end_date");
         $position_type = Yii::$app->request->get("position_type");
+        $followup_interval = Yii::$app->request->get("followup_interval");
 
         $query = Request::find()
             ->orderBy('request_created_datetime DESC');
@@ -111,7 +112,11 @@ class RequestController extends Controller
 
         if($end_date) {
             $query->endDate($end_date);
-        } 
+        }
+
+        if ($followup_interval) {
+            $query->orderByFollowupInterval($followup_interval);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -126,10 +131,10 @@ class RequestController extends Controller
     {
         $company_id = Yii::$app->request->get("company_id");
         $position_type = Yii::$app->request->get("position_type");
+        $followup_interval = Yii::$app->request->get("followup_interval");
 
         $query = Request::find()
-            ->activeRequest()
-            ->orderBy('request_created_datetime DESC');
+            ->activeRequest();
 
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
@@ -137,6 +142,12 @@ class RequestController extends Controller
 
         if($position_type) {
             $query->filterByType($position_type);
+        }
+
+        if ($followup_interval) {
+            $query->orderByFollowupInterval();
+        } else {
+            $query->orderBy('request_created_datetime DESC');
         }
 
         return new ActiveDataProvider([
@@ -191,6 +202,7 @@ class RequestController extends Controller
 
         //save activity
         $model->createRequestActivity('I have created this request');
+        $model->requestNotification();
 
         Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
@@ -218,7 +230,7 @@ class RequestController extends Controller
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
-        $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
+        $model->request_position_type = (int)Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_location = Yii::$app->request->getBodyParam("location");
@@ -403,6 +415,54 @@ class RequestController extends Controller
         $modelActivity->company_id = $model->company_id;
         $modelActivity->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $modelActivity->note_text = Yii::$app->request->getBodyParam("detail");
+
+        if (!$modelActivity->save())
+        {
+            if(isset($modelActivity->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $modelActivity->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem adding the request activity, please contact us for assistance."
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request activity successfully added",
+            "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
+        ];
+    }
+
+    /**
+     * Allows staff to update request interval
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionUpdateInterval($id) {
+
+        $request_uuid = $id;
+        $hours = Yii::$app->request->getBodyParam('hours');
+        $feedback = Yii::$app->request->getBodyParam('reason');
+
+        $model = $this->findModel($request_uuid);
+        $model->num_hours_followup_interval = $hours;
+        $model->save(false);
+
+        $days = ($hours < 24) ? $hours.' hours' : round($hours/24).' days';
+        $reason = Yii::$app->user->identity->staff_name." has updated the followup interval for this ";
+        $reason .= "request to  ".$days." with feedback: ".$feedback;
+
+        $modelActivity = new Note();
+        $modelActivity->request_uuid = $request_uuid;
+        $modelActivity->note_type = \common\models\Note::TYPE_INTERNAL_NOTE;
+        $modelActivity->company_id = $model->company_id;
+        $modelActivity->note_text = $reason;
 
         if (!$modelActivity->save())
         {
