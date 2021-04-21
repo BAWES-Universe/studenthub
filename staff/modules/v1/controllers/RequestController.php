@@ -219,7 +219,7 @@ class RequestController extends Controller
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
-        $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
+        $model->request_position_type = (int)Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_location = Yii::$app->request->getBodyParam("location");
