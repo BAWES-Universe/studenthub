@@ -60,4 +60,13 @@ class RequestQuery extends ActiveQuery
     {
         return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, 'pending']]);
     }
+
+    /**
+     * active requests
+     * @return RequestQuery
+     */
+    public function orderByFollowupInterval()
+    {
+        return $this->orderBy('num_hours_followup_interval DESC');
+    }
 }

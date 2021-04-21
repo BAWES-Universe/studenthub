@@ -79,6 +79,7 @@ class RequestController extends Controller
         $start_date = Yii::$app->request->get("start_date");
         $end_date = Yii::$app->request->get("end_date");
         $position_type = Yii::$app->request->get("position_type");
+        $followup_interval = Yii::$app->request->get("followup_interval");
 
         $query = Request::find()
             ->orderBy('request_created_datetime DESC');
@@ -111,7 +112,11 @@ class RequestController extends Controller
 
         if($end_date) {
             $query->endDate($end_date);
-        } 
+        }
+
+        if ($followup_interval) {
+            $query->orderByFollowupInterval($followup_interval);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -126,10 +131,10 @@ class RequestController extends Controller
     {
         $company_id = Yii::$app->request->get("company_id");
         $position_type = Yii::$app->request->get("position_type");
+        $followup_interval = Yii::$app->request->get("followup_interval");
 
         $query = Request::find()
-            ->activeRequest()
-            ->orderBy('request_created_datetime DESC');
+            ->activeRequest();
 
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
@@ -137,6 +142,12 @@ class RequestController extends Controller
 
         if($position_type) {
             $query->filterByType($position_type);
+        }
+
+        if ($followup_interval) {
+            $query->orderByFollowupInterval();
+        } else {
+            $query->orderBy('request_created_datetime DESC');
         }
 
         return new ActiveDataProvider([
