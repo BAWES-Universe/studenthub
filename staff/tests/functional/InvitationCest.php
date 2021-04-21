@@ -66,7 +66,8 @@ class InvitationCest
             'v1/invitations',
             [
                 'request_uuid' => $request->request_uuid,
-                'candidate_id' => $candidate->candidate_id
+                'candidate_id' => $candidate->candidate_id,
+                'reason' => 'test'
             ]
         );
         $I->seeResponseCodeIs (HttpCode::OK); // 200
