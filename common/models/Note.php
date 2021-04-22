@@ -222,7 +222,7 @@ class Note extends \yii\db\ActiveRecord
             Company::updateRequest($this->request->company_id);
         }
 
-//        $staffName = 'Guest';
+        $staffName = 'Guest';
 
 //        if (isset(Yii::$app->user->identity->staff_name)) {
 //            $staffName = Yii::$app->user->identity->staff_name;
