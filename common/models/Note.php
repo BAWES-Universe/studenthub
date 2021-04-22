@@ -208,25 +208,6 @@ class Note extends \yii\db\ActiveRecord
             return false;
         }
 
-        $staffName = 'Guest';
-
-        if (isset(Yii::$app->user->identity->staff_name)) {
-            $staffName = Yii::$app->user->identity->staff_name;
-        } else if (isset($this->createdBy)) {
-            $staffName = $this->createdBy->staff_name;
-        }
-
-        if($this->request) {
-            $message = Yii::t ('app', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
-                'name' => $this->request->company->company_name,
-                'email' => $this->request->company->company_email,
-                'staffName' => $staffName,
-                'activityDetail' => $this->note_text
-            ]);
-
-            Yii::info ($message, __METHOD__);
-        }
-
         return true;
     }
 
@@ -239,6 +220,28 @@ class Note extends \yii\db\ActiveRecord
             $this->request->request_updated_datetime = '';
             $this->request->update(false);
             Company::updateRequest($this->request->company_id);
+        }
+
+//        $staffName = 'Guest';
+
+//        if (isset(Yii::$app->user->identity->staff_name)) {
+//            $staffName = Yii::$app->user->identity->staff_name;
+//        } else
+        if (isset($this->createdBy->staff_name)) {
+            $staffName = $this->createdBy->staff_name;
+        } else if (isset($this->createdBy->candidate_name)) {
+            $staffName = $this->createdBy->candidate_name;
+        }
+
+        if($this->request) {
+            $message = Yii::t ('app', '[Update on request from {name} @ {email} by {staffName}] {activityDetail}', [
+                'name' => $this->request->company->company_name,
+                'email' => $this->request->company->company_email,
+                'staffName' => $staffName,
+                'activityDetail' => $this->note_text
+            ]);
+
+            Yii::info ($message, __METHOD__);
         }
 
         return true;
