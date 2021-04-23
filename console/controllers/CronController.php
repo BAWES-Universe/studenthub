@@ -50,7 +50,7 @@ class CronController extends \yii\console\Controller {
      * Method called by cron every minute
      */
     public function actionEveryMinute() {
-        return 0;
+        Suggestion::suggestionNotification();
     }
 
     /**
@@ -281,12 +281,6 @@ class CronController extends \yii\console\Controller {
         // SELECT * FROM `candidate` where candidate_email_verification = 1 and country_id != 84 and candidate_area_uuid IN
         // (SELECT `area_uuid` FROM `area` WHERE `country_id` = 84)
         $total = Candidate::kuwaitiNationalityEmail();
-        return true;
-    }
-
-    public function actionSuggestedCandidate()
-    {
-        Suggestion::suggestionNotification();
         return true;
     }
 }
