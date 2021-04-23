@@ -151,7 +151,10 @@ class RequestController extends Controller
         }
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 50,
+            ],
         ]);
     }
 
