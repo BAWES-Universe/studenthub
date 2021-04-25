@@ -308,7 +308,7 @@ class Suggestion extends \yii\db\ActiveRecord
                     $message->setTo(array_unique($emails))
                             ->setCc(array_merge([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name],[Yii::$app->params['adminEmail']=>'Khalid']));
                 }
-                $sent = //remove duplicate
+                
                 $message->setFrom([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
                     ->setBcc([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
                     ->setSubject($subject)
