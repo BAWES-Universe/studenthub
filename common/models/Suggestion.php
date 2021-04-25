@@ -34,7 +34,7 @@ class Suggestion extends \yii\db\ActiveRecord
     const TYPE_SUGGESTED = 1;
     const TYPE_REJECTED = 2;
     const TYPE_ACCEPTED = 3;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -210,7 +210,7 @@ class Suggestion extends \yii\db\ActiveRecord
     }
 
     /**
-     * Show latest feedback in suggestion 
+     * Show latest feedback in suggestion
      * @return \yii\db\ActiveQuery
      */
     public function getFeedback($modelClass = "\common\models\Note")
@@ -220,7 +220,7 @@ class Suggestion extends \yii\db\ActiveRecord
     }
 
     /**
-     * Show feedbacks in suggestion 
+     * Show feedbacks in suggestion
      * @return \yii\db\ActiveQuery
      */
     public function getFeedbacks($modelClass = "\common\models\Note")
@@ -247,7 +247,7 @@ class Suggestion extends \yii\db\ActiveRecord
         }
 
         $requests = [];
-        $staffs = \staff\models\Staff::find()->all();
+        $staffs = \staff\models\Staff::find()->andWhere(['!=', 'deleted', 1])->all();
         Yii::$app->controller->layout = '@common/mail/layouts/pdf';
         Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
         // finding all notes created by staff so can send email via staff email
@@ -414,7 +414,7 @@ class Suggestion extends \yii\db\ActiveRecord
                           font-weight: 700;
                           font-style: normal;
                         }
-            
+
                         @font-face {
                           font-family: 'effra';
                           src: url('@staff/web/fonts/effra_std_rg-webfont.woff2') format('woff2'),
@@ -423,7 +423,7 @@ class Suggestion extends \yii\db\ActiveRecord
                           font-weight: 400;
                           font-style: normal;
                         }
-            
+
                         @font-face {
                           font-family: 'effra';
                           src: url('@staff/web/fonts/l') format('woff2'),
