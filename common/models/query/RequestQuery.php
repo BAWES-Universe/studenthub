@@ -67,6 +67,7 @@ class RequestQuery extends ActiveQuery
      */
     public function orderByFollowupInterval()
     {
-        return $this->orderBy('num_hours_followup_interval DESC');
+//        SELECT request_uuid, num_hours_followup_interval, (num_hours_followup_interval*60) as min, (TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP())- (num_hours_followup_interval*60)) as remain, TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP()) as diff from request order by (TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP())-(num_hours_followup_interval*60)) DESC
+        return $this->orderBy('(TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP())-(num_hours_followup_interval*60)) DESC');
     }
 }

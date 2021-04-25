@@ -240,6 +240,12 @@ class Suggestion extends \yii\db\ActiveRecord
      */
     public static function suggestionNotification()
     {
+        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0')->queryScalar();
+        if (!$exist) {
+            Console::stdout("No new suggestion \n", Console::FG_RED, Console::BOLD);
+            return true;
+        }
+
         $requests = [];
         $staffs = \staff\models\Staff::find()->all();
         Yii::$app->controller->layout = '@common/mail/layouts/pdf';
@@ -267,7 +273,8 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 $message = Yii::$app->mailer->compose('company/suggestion-notification', [
                     'model' => $companyRequest,
-                    'staff' => $companyRequest->requestCreatedBy
+                    'staff' => $companyRequest->requestCreatedBy,
+                    "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                 ]);
 
                 // find all suggested profile for each suggestion of each request
@@ -277,6 +284,7 @@ class Suggestion extends \yii\db\ActiveRecord
                             'candidate' => $note->candidate,
                             'withNumber' => true,
                             'staff' => $companyRequest->requestCreatedBy,
+
                         ]);
 
                         $pdfAttachment = self::getPdfObj($note, $content);
@@ -289,10 +297,21 @@ class Suggestion extends \yii\db\ActiveRecord
                     Suggestion::updateAllCounters(['mail_to_company' => 1], ['suggestion_uuid' => $note->suggestion_uuid]);
                 }
 
-                $sent = $message->setTo(array_unique($emails))//remove duplicate
-                ->setFrom([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
-                    ->setCc(ArrayHelper::getColumn(Staff::find()->all(), 'staff_email'))
-                    ->setSubject('Profile for the interview')
+                $type = ($companyRequest->request_position_type == 1) ? 'full-time' : 'part-time';
+                $subject = 'Suggested candidates for your '.$type.' '.$companyRequest->request_position_title.' position @ '.$companyRequest->company->company_common_name_en;
+
+                // in case if contact doesn't have email address
+                if ($companyRequest->contact->contact_email) {
+                    $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
+                    ->setCc(array_merge(ArrayHelper::getColumn($staffs, 'staff_email'),array_unique($emails)));
+                } else  {
+                    $message->setTo(array_unique($emails))
+                            ->setCc(ArrayHelper::getColumn($staffs, 'staff_email'));
+                }
+                $sent = //remove duplicate
+                $message->setFrom([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
+                    ->setBcc(Yii::$app->params['adminEmail'])
+                    ->setSubject($subject)
                     ->send();
                 Console::stdout("email sent from staff (".$companyRequest->requestCreatedBy->staff_email.") for suggestion with total candidates: ".count($requestSuggestion)." \n", Console::FG_RED, Console::BOLD);
             }
