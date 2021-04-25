@@ -138,7 +138,7 @@ class CronController extends \yii\console\Controller {
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
         $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
         
-        $staffs = Staff::find()->all();
+        $staffs = Staff::findAll(['deleted'=>0]);
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
