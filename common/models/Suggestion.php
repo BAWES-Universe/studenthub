@@ -303,14 +303,14 @@ class Suggestion extends \yii\db\ActiveRecord
                 // in case if contact doesn't have email address
                 if ($companyRequest->contact->contact_email) {
                     $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
-                    ->setCc(array_merge(ArrayHelper::getColumn($staffs, 'staff_email'),array_unique($emails)));
+                    ->setCc(array_merge(array_unique($emails),[Yii::$app->params['adminEmail']=>'Khalid']));
                 } else  {
                     $message->setTo(array_unique($emails))
-                            ->setCc(ArrayHelper::getColumn($staffs, 'staff_email'));
+                            ->setCc(array_merge([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name],[Yii::$app->params['adminEmail']=>'Khalid']));
                 }
                 $sent = //remove duplicate
                 $message->setFrom([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
-                    ->setBcc(Yii::$app->params['adminEmail'])
+                    ->setBcc([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
                     ->setSubject($subject)
                     ->send();
                 Console::stdout("email sent from staff (".$companyRequest->requestCreatedBy->staff_email.") for suggestion with total candidates: ".count($requestSuggestion)." \n", Console::FG_RED, Console::BOLD);
