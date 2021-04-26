@@ -107,6 +107,8 @@ class FulltimerController extends Controller
         $model->fulltimer_phone = Yii::$app->request->getBodyParam("phone");
         $model->fulltimer_email = Yii::$app->request->getBodyParam("email");
         $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
+        $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
+        $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
 
         $model->tags = Yii::$app->request->getBodyParam("tags");
 
@@ -149,7 +151,9 @@ class FulltimerController extends Controller
         $model->fulltimer_phone = Yii::$app->request->getBodyParam("phone");
         $model->fulltimer_email = Yii::$app->request->getBodyParam("email");
         $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
-        
+        $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
+        $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
+
         $model->tags = Yii::$app->request->getBodyParam("tags");
  
         if (!$model->save())

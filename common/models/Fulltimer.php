@@ -21,6 +21,8 @@ use yii\helpers\Console;
  * @property string $fulltimer_name
  * @property string $fulltimer_phone
  * @property string $fulltimer_email
+ * @property string $fulltimer_current_salary
+ * @property string $fulltimer_expected_salary
  * @property string $fulltimer_pdf_cv
  * @property string $fulltimer_created_datetime
  * @property string $fulltimer_updated_datetime
@@ -53,7 +55,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             [['fulltimer_latitude', 'fulltimer_longitude'], 'number'],
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
-            [['fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv'], 'string', 'max' => 255],
+            [['fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv','fulltimer_current_salary','fulltimer_expected_salary'], 'string', 'max' => 255],
             [
                 ['fulltimer_pdf_cv'],
                 '\common\components\S3FileExistValidator',
@@ -113,6 +115,8 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_name' => Yii::t('app', 'Fulltimer Name'),
             'fulltimer_phone' => Yii::t('app', 'Fulltimer Phone'),
             'fulltimer_email' => Yii::t('app', 'Fulltimer Email'),
+            'fulltimer_current_salary' => Yii::t('app', 'Fulltimer current salary'),
+            'fulltimer_expected_salary' => Yii::t('app', 'Fulltimer expected salary'),
             'fulltimer_pdf_cv' => Yii::t('app', 'Fulltimer Pdf Cv'),
             'fulltimer_created_datetime' => Yii::t('app', 'Fulltimer Created Datetime'),
             'fulltimer_updated_datetime' => Yii::t('app', 'Fulltimer Updated Datetime'),
@@ -241,6 +245,8 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_phone' => $this->fulltimer_phone,
             'fulltimer_email' => $this->fulltimer_email,
             'fulltimer_pdf_cv' => $this->fulltimer_pdf_cv,
+            'fulltimer_current_salary' => $this->fulltimer_current_salary,
+            'fulltimer_expected_salary' => $this->fulltimer_expected_salary,
             'fulltimer_created_datetime' => $this->fulltimer_created_datetime,
             'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime,
             'have_resume' => $this->fulltimer_pdf_cv? 'Yes': 'No',
