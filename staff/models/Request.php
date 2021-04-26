@@ -110,7 +110,9 @@ class Request extends \common\models\Request {
 
     public function afterSave($insert, $changedAttributes)
     {
-        $this->requestUpdateNotification($changedAttributes);
+        if (!$insert) {
+            $this->requestUpdateNotification($changedAttributes);
+        }
         parent::afterSave($insert, $changedAttributes);
     }
 
@@ -163,7 +165,7 @@ class Request extends \common\models\Request {
 
         return \Yii::$app->mailer->compose("company/request-updated",
             [
-                "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
                 "changedParam" => $changedParam,
                 "changedAttributes" => $changedAttributes,
@@ -187,7 +189,7 @@ class Request extends \common\models\Request {
 
         return \Yii::$app->mailer->compose("company/request-created",
             [
-                "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
             ])
             ->setFrom([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
