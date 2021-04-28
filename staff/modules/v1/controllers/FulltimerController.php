@@ -110,6 +110,30 @@ class FulltimerController extends Controller
         $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
         $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
 
+        if ($model->fulltimer_name) {
+            $fulltimer = Fulltimer::findOne(['fulltimer_name'=>$model->fulltimer_name]);
+            if ($fulltimer) {
+                return [
+                    "operation" => "error",
+                    "message" => 'Fulltimer already exist with this name',
+                    "data" => $fulltimer
+                ];
+            }
+        }
+
+        if ($model->fulltimer_phone) {
+            $fulltimer = Fulltimer::findOne(['fulltimer_phone'=>$model->fulltimer_phone]);
+            if ($fulltimer) {
+                return [
+                    "operation" => "error",
+                    "message" => 'Fulltimer already exist with this phone number',
+                    "data" => $fulltimer
+                ];
+            }
+        }
+
+
+
         $model->tags = Yii::$app->request->getBodyParam("tags");
 
         if (!$model->save())

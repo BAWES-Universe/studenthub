@@ -67,7 +67,7 @@ class Fulltimer extends \yii\db\ActiveRecord
                     return (trim($model->fulltimer_pdf_cv) && $model->{$attribute} !== $model->getOldAttribute($attribute));
                 }
             ],
-            [['fulltimer_uuid', 'fulltimer_email'], 'unique'],
+            [['fulltimer_uuid', 'fulltimer_email','fulltimer_name','fulltimer_phone'], 'unique'],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['fulltimer_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['fulltimer_area_uuid' => 'area_uuid']],
             [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['nationality_id' => 'country_id']],
