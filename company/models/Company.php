@@ -2,6 +2,8 @@
 namespace company\models;
 
 
+use common\models\Invitation;
+
 /**
  * This is the model class for table "Company".
  * It extends from \common\models\Company but with custom functionality for this application module
@@ -185,5 +187,10 @@ class Company extends \common\models\Company {
     public function getFiles($modelClass = "\company\models\File")
     {
         return parent::getFiles($modelClass);
+    }
+
+    public function getInvitations() {
+
+        return parent::getInvitations();
     }
 }

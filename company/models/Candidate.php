@@ -83,7 +83,8 @@ class Candidate extends \common\models\Candidate {
             'candidateSkills',
             'candidateExperiences',
             'invitations',
-            'invitedCount'
+            'invitedCount',
+            'isInvitedForCompany'
         ];
     }
 
@@ -96,6 +97,10 @@ class Candidate extends \common\models\Candidate {
         return (int) $this->getInvitations($modelClass)
             ->filterInvited()
             ->count();
+    }
+
+    public function getIsInvitedForCompany() {
+        return Yii::$app->companyManager->getCompany()->getInvitations()->andWhere(['candidate_id'=>$this->candidate_id])->exists();
     }
 
     /**
