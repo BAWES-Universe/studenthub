@@ -238,11 +238,11 @@ class Suggestion extends \yii\db\ActiveRecord
      * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function suggestionNotification()
+    public static function suggestionCandidateNotification()
     {
-        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0')->queryScalar();
+        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0 and fulltimer_uuid is null')->queryScalar();
         if (!$exist) {
-            Console::stdout("No new suggestion \n", Console::FG_RED, Console::BOLD);
+            Console::stdout("No new Candidate suggestion \n", Console::FG_RED, Console::BOLD);
             return true;
         }
 
@@ -254,14 +254,14 @@ class Suggestion extends \yii\db\ActiveRecord
         foreach ($staffs as $staff) {
             $suggestions = $staff->getNotes()
                 ->joinWith('suggestion')
-                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
+                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0 and fulltimer_uuid is null")
                 ->all();
 
             // segregated suggestion base on request so can combine multiple resume on request base
             foreach ($suggestions as $suggestion) {
                 $requests[$suggestion->request_uuid][] = $suggestion;
             }
-            Console::stdout("Total staff (".$staff->staff_name.") suggestions: ".count($suggestions)." \n", Console::FG_RED, Console::BOLD);
+            Console::stdout("Total staff (".$staff->staff_name.") candidate suggestions: ".count($suggestions)." \n", Console::FG_RED, Console::BOLD);
         }
         // check if we have multiple request
         if (count($requests) > 0) {
@@ -313,7 +313,77 @@ class Suggestion extends \yii\db\ActiveRecord
                     ->setBcc([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
                     ->setSubject($subject)
                     ->send();
-                Console::stdout("email sent from staff (".$companyRequest->requestCreatedBy->staff_email.") for suggestion with total candidates: ".count($requestSuggestion)." \n", Console::FG_RED, Console::BOLD);
+                Console::stdout("email sent from staff (".$companyRequest->requestCreatedBy->staff_email.") for Candidate suggestion with total candidates: ".count($requestSuggestion)." \n", Console::FG_RED, Console::BOLD);
+            }
+        }
+    }
+
+    /**
+     * @return bool
+     * @throws \yii\db\Exception
+     */
+    public static function suggestionFulltimerNotification()
+    {
+        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0 and candidate_id is null')->queryScalar();
+        if (!$exist) {
+            Console::stdout("No new fulltimer suggestion \n", Console::FG_RED, Console::BOLD);
+            return true;
+        }
+
+        $requests = [];
+        $staffs = \staff\models\Staff::find()->andWhere(['!=', 'deleted', 1])->all();
+        Yii::$app->controller->layout = '@common/mail/layouts/pdf';
+        Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+        // finding all notes created by staff so can send email via staff email
+        foreach ($staffs as $staff) {
+            $suggestions = $staff->getNotes()
+                ->joinWith('suggestion')
+                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0 and note.candidate_id is null")
+                ->all();
+
+            // segregated suggestion base on request so can combine multiple resume on request base
+            foreach ($suggestions as $suggestion) {
+                $requests[$suggestion->request_uuid][] = $suggestion;
+            }
+            Console::stdout("Total staff (".$staff->staff_name.") suggestions for fulltimer: ".count($suggestions)." \n", Console::FG_RED, Console::BOLD);
+        }
+
+        // check if we have multiple request
+        if (count($requests) > 0) {
+
+            // loop for each request to send mail for each mail to its company
+            foreach ($requests as $request_uuid => $requestSuggestion) {
+                $companyRequest = Request::findOne($request_uuid);
+                $emails = self::getContactEmailByRequest($companyRequest);
+
+                $message = Yii::$app->mailer->compose('company/suggestion-fulltime', [
+                    'model' => $companyRequest,
+                    'requestSuggestion' => $requestSuggestion,
+                    'staff' => $companyRequest->requestCreatedBy,
+                    "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                ]);
+
+                // find all suggested profile for each suggestion of each request
+                foreach ($requestSuggestion as $note) {
+                    // update suggestion table to set mail to company
+                    Suggestion::updateAllCounters(['mail_to_company' => 1], ['suggestion_uuid' => $note->suggestion_uuid]);
+                }
+
+                $subject = 'Suggested candidates for your full-time '.$companyRequest->request_position_title.' position @ '.$companyRequest->company->company_common_name_en;
+                // in case if contact doesn't have email address
+                if ($companyRequest->contact->contact_email) {
+                    $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
+                    ->setCc(array_merge(array_unique($emails),[Yii::$app->params['adminEmail']=>'Khalid']));
+                } else  {
+                    $message->setTo(array_unique($emails))
+                            ->setCc(array_merge([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name],[Yii::$app->params['adminEmail']=>'Khalid']));
+                }
+
+                $message->setFrom([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
+                    ->setBcc([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
+                    ->setSubject($subject)
+                    ->send();
+                Console::stdout("email sent from staff (".$companyRequest->requestCreatedBy->staff_email.") for fulltimer suggestion with total candidates: ".count($requestSuggestion)." \n", Console::FG_RED, Console::BOLD);
             }
         }
     }
