@@ -153,7 +153,8 @@ class FulltimerController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Fulltimer created successfully"
+            "message" => "Fulltimer created successfully",
+            "data" => $model
         ];
     }
 

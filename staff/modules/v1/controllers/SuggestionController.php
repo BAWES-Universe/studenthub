@@ -207,7 +207,7 @@ class SuggestionController extends Controller
         if ($candidate_id) {
             $suggestions = Candidate::findOne($candidate_id)->getSuggestion()->count();
         } else if ($fulltimer_uuid) {
-            $suggestions = Fulltimer::findOne($candidate_id)->getSuggestion()->count();
+            $suggestions = Fulltimer::findOne($fulltimer_uuid)->getSuggestion()->count();
         }
         return [
             "operation" => "success",
