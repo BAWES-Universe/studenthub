@@ -88,6 +88,8 @@ class FulltimerCest
                 'name' => 'Shri Hari',
                 'phone' => '4342143234',
                 'email' => 'test@locao.com',
+                'current_salary' => '1111',
+                'expected_salary' => '222',
                 'pdf_cv' => basename($response['ObjectURL']),
                 'tags' => [
                     [
@@ -132,6 +134,8 @@ class FulltimerCest
                 'longitude' => 70,
                 'name' => 'Shri Hari',
                 'phone' => '4342143234',
+                'current_salary' => '1111',
+                'expected_salary' => '222',
                 'email' => 'test@locao.com',
                 'pdf_cv' => basename($response['ObjectURL']),
                 'tags' => [
