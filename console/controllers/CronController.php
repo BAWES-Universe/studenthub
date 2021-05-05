@@ -48,9 +48,11 @@ class CronController extends \yii\console\Controller {
 
     /**
      * Method called by cron every minute
+     * php yii cron/every-minute
      */
     public function actionEveryMinute() {
-        Suggestion::suggestionNotification();
+        Suggestion::suggestionCandidateNotification();
+        Suggestion::suggestionFulltimerNotification();
     }
 
     /**

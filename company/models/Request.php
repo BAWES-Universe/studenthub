@@ -2,6 +2,9 @@
 namespace company\models;
 
 
+use staff\models\Staff;
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the model class for table "Request".
  * It extends from \common\models\Request but with custom functionality for this application module
@@ -121,5 +124,32 @@ class Request extends \common\models\Request
     public function getRequestUpdatedByContact($modelClass = "\company\models\Contact")
     {
         return parent::getRequestUpdatedByContact($modelClass);
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($insert) {
+            $this->requestNotification();
+        }
+        parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function requestNotification()
+    {
+        $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
+
+        $staffList = Staff::findAll(['deleted'=>'0']);
+
+        $subject =  $company_name." is looking to hire ".$this->request_position_title;
+
+        return \Yii::$app->mailer->compose("company/request-created-bycompany",
+            [
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "model" => $this,
+            ])
+            ->setFrom([\Yii::$app->user->identity->contact_email => \Yii::$app->user->identity->contact_name])
+            ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
+            ->setSubject($subject)
+            ->send();
     }
 }

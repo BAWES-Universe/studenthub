@@ -274,6 +274,15 @@ class Company extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations() {
+        $subQuery = Request::find()->select('request_uuid')->andWhere(['company_id'=>$this->company_id]);
+        return Invitation::find()->where(['in', 'request_uuid', $subQuery]);
+    }
     
     /**
      * @return \yii\db\ActiveQuery
