@@ -254,9 +254,10 @@ class Suggestion extends \yii\db\ActiveRecord
         foreach ($staffs as $staff) {
             $suggestions = $staff->getNotes()
                 ->joinWith('suggestion')
-                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0 and fulltimer_uuid is null")
+                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0 and `suggestion`.`fulltimer_uuid` is null")
                 ->all();
-
+            //SELECT `note`.* FROM `note` LEFT JOIN `suggestion` ON `note`.`suggestion_uuid` = `suggestion`.`suggestion_uuid` WHERE
+            // (`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0 and `suggestion`.`fulltimer_uuid` is null) AND (`note`.`created_by`=2)
             // segregated suggestion base on request so can combine multiple resume on request base
             foreach ($suggestions as $suggestion) {
                 $requests[$suggestion->request_uuid][] = $suggestion;
@@ -355,6 +356,11 @@ class Suggestion extends \yii\db\ActiveRecord
             foreach ($requests as $request_uuid => $requestSuggestion) {
                 $companyRequest = Request::findOne($request_uuid);
                 $emails = self::getContactEmailByRequest($companyRequest);
+
+                // in case staff id not found then skip that entry
+                if (!$companyRequest->requestCreatedBy) {
+                    continue;
+                }
 
                 $message = Yii::$app->mailer->compose('company/suggestion-fulltime', [
                     'model' => $companyRequest,
