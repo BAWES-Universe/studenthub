@@ -134,7 +134,7 @@ $model->company->company_name;
                                             <td  style="width:150px;">
 
                                                 <img
-                                                        height="auto" src="../img/logo-studenthub.png" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="150"
+                                                        height="auto" src="<?=$logo?>" style="border:0;display:block;outline:none;text-decoration:none;height:auto;width:100%;" width="150"
                                                 />
 
                                             </td>

@@ -272,49 +272,57 @@ class Suggestion extends \yii\db\ActiveRecord
                 $companyRequest = Request::findOne($request_uuid);
                 $emails = self::getContactEmailByRequest($companyRequest);
 
-                $message = Yii::$app->mailer->compose('company/suggestion-notification', [
-                    'model' => $companyRequest,
-                    'staff' => $companyRequest->requestCreatedBy,
-                    "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                ]);
+                if ($companyRequest->requestCreatedBy || $companyRequest->requestUpdatedBy) {
+                    $staff = ($companyRequest->requestCreatedBy) ? $companyRequest->requestCreatedBy : $companyRequest->requestUpdatedBy;
 
-                // find all suggested profile for each suggestion of each request
-                foreach ($requestSuggestion as $note) {
-                    if ($note->candidate) {
-                        $content = Yii::$app->controller->render('@console/controllers/views/candidate-resume-pdf', [
-                            'candidate' => $note->candidate,
-                            'withNumber' => true,
-                            'staff' => $companyRequest->requestCreatedBy,
+                    $message = Yii::$app->mailer->compose('company/suggestion-notification', [
+                        'model' => $companyRequest,
+                        'staff' => $staff,
+                        "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                    ]);
 
-                        ]);
+                    // find all suggested profile for each suggestion of each request
+                    foreach ($requestSuggestion as $note) {
+                        if ($note->candidate) {
+                            $content = Yii::$app->controller->render('@console/controllers/views/candidate-resume-pdf', [
+                                'candidate' => $note->candidate,
+                                'withNumber' => true,
+                                'staff' => $staff,
 
-                        $pdfAttachment = self::getPdfObj($note, $content);
-                        $message->attachContent($pdfAttachment, [
-                            'fileName' => $note->candidate->candidate_id . '.pdf',
-                            'contentType' => 'application/pdf'
-                        ]);
+                            ]);
+
+                            $pdfAttachment = self::getPdfObj($note, $content);
+                            $message->attachContent($pdfAttachment, [
+                                'fileName' => $note->candidate->candidate_id . '.pdf',
+                                'contentType' => 'application/pdf'
+                            ]);
+                        }
+                        // update suggestion table to set mail to company
+                        Suggestion::updateAllCounters(['mail_to_company' => 1], ['suggestion_uuid' => $note->suggestion_uuid]);
                     }
-                    // update suggestion table to set mail to company
-                    Suggestion::updateAllCounters(['mail_to_company' => 1], ['suggestion_uuid' => $note->suggestion_uuid]);
-                }
 
-                $type = ($companyRequest->request_position_type == 1) ? 'full-time' : 'part-time';
-                $subject = 'Suggested candidates for your '.$type.' '.$companyRequest->request_position_title.' position @ '.$companyRequest->company->company_common_name_en;
+                    $type = ($companyRequest->request_position_type == 1) ? 'full-time' : 'part-time';
+                    $subject = 'Suggested candidates for your ' . $type . ' ' . $companyRequest->request_position_title . ' position @ ' . $companyRequest->company->company_common_name_en;
 
-                // in case if contact doesn't have email address
-                if ($companyRequest->contact->contact_email) {
-                    $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
-                    ->setCc(array_merge(array_unique($emails),[Yii::$app->params['adminEmail']=>'Khalid']));
-                } else  {
-                    $message->setTo(array_unique($emails))
-                            ->setCc(array_merge([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name],[Yii::$app->params['adminEmail']=>'Khalid']));
+                    // in case if contact doesn't have email address
+                    if ($companyRequest->contact->contactEmails) {
+                        $email = $companyRequest->contact->contactEmails[0];
+                        $message->setTo([$email->email_address => $companyRequest->contact->contact_name])
+                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                    } else if ($companyRequest->contact->contact_email) {
+                        $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
+                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                    } else {
+                        $message->setTo(array_unique($emails))
+                            ->setCc(array_merge([$staff->staff_email => $staff->staff_name], [Yii::$app->params['adminEmail'] => 'Khalid']));
+                    }
+
+                    $message->setFrom([$staff->staff_email => $staff->staff_name])
+                        ->setBcc([$staff->staff_email => $staff->staff_name])
+                        ->setSubject($subject)
+                        ->send();
+                    Console::stdout("email sent from staff (" . $companyRequest->requestCreatedBy->staff_email . ") for Candidate suggestion with total candidates: " . count($requestSuggestion) . " \n", Console::FG_RED, Console::BOLD);
                 }
-                
-                $message->setFrom([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
-                    ->setBcc([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
-                    ->setSubject($subject)
-                    ->send();
-                Console::stdout("email sent from staff (".$companyRequest->requestCreatedBy->staff_email.") for Candidate suggestion with total candidates: ".count($requestSuggestion)." \n", Console::FG_RED, Console::BOLD);
             }
         }
     }
@@ -351,45 +359,61 @@ class Suggestion extends \yii\db\ActiveRecord
 
         // check if we have multiple request
         if (count($requests) > 0) {
-
             // loop for each request to send mail for each mail to its company
             foreach ($requests as $request_uuid => $requestSuggestion) {
+                Console::stdout("Request UUID  (".$request_uuid.") \n", Console::FG_RED, Console::BOLD);
                 $companyRequest = Request::findOne($request_uuid);
                 $emails = self::getContactEmailByRequest($companyRequest);
 
                 // in case staff id not found then skip that entry
-                if (!$companyRequest->requestCreatedBy) {
-                    continue;
+                if ($companyRequest->requestCreatedBy || $companyRequest->requestUpdatedBy) {
+                    $staff = ($companyRequest->requestCreatedBy) ? $companyRequest->requestCreatedBy : $companyRequest->requestUpdatedBy;
+                    $message = Yii::$app->mailer->compose('company/suggestion-fulltime', [
+                        'model' => $companyRequest,
+                        'requestSuggestion' => $requestSuggestion,
+                        'staff' => $staff,
+                        "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                    ]);
+
+
+                    foreach ($requestSuggestion as $note) {
+                        if ($note->fulltimer->fulltimer_pdf_cv) {
+                            $url = Yii::$app->resourceManager->getUrl("fulltimer-resume/" . $note->fulltimer->fulltimer_pdf_cv);
+                            if ($url) {
+                                $message->attachContent(file_get_contents($url), [
+                                    'fileName' => $note->fulltimer->fulltimer_uuid . '.pdf',
+                                    'contentType' => 'application/pdf'
+                                ]);
+                            }
+                        }
+                    }
+
+                    // find all suggested profile for each suggestion of each request
+                    foreach ($requestSuggestion as $note) {
+                        // update suggestion table to set mail to company
+                        Suggestion::updateAllCounters(['mail_to_company' => 1], ['suggestion_uuid' => $note->suggestion_uuid]);
+                    }
+
+                    $subject = 'Suggested candidates for your full-time ' . $companyRequest->request_position_title . ' position @ ' . $companyRequest->company->company_common_name_en;
+                    // in case if contact doesn't have email address
+                    if ($companyRequest->contact->contactEmails) {
+                        $email = $companyRequest->contact->contactEmails[0];
+                        $message->setTo([$email->email_address => $companyRequest->contact->contact_name])
+                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                    } else if ($companyRequest->contact->contact_email) {
+                        $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
+                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                    } else {
+                        $message->setTo(array_unique($emails))
+                            ->setCc(array_merge([$staff->staff_email => $staff->staff_name], [Yii::$app->params['adminEmail'] => 'Khalid']));
+                    }
+
+                    $message->setFrom([$staff->staff_email => $staff->staff_name])
+                        ->setBcc([$staff->staff_email => $staff->staff_name])
+                        ->setSubject($subject)
+                        ->send();
+                    Console::stdout("email sent from staff (" . $staff->staff_email . ") for fulltimer suggestion with total candidates: " . count($requestSuggestion) . " \n", Console::FG_RED, Console::BOLD);
                 }
-
-                $message = Yii::$app->mailer->compose('company/suggestion-fulltime', [
-                    'model' => $companyRequest,
-                    'requestSuggestion' => $requestSuggestion,
-                    'staff' => $companyRequest->requestCreatedBy,
-                    "logo" => \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                ]);
-
-                // find all suggested profile for each suggestion of each request
-                foreach ($requestSuggestion as $note) {
-                    // update suggestion table to set mail to company
-                    Suggestion::updateAllCounters(['mail_to_company' => 1], ['suggestion_uuid' => $note->suggestion_uuid]);
-                }
-
-                $subject = 'Suggested candidates for your full-time '.$companyRequest->request_position_title.' position @ '.$companyRequest->company->company_common_name_en;
-                // in case if contact doesn't have email address
-                if ($companyRequest->contact->contact_email) {
-                    $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
-                    ->setCc(array_merge(array_unique($emails),[Yii::$app->params['adminEmail']=>'Khalid']));
-                } else  {
-                    $message->setTo(array_unique($emails))
-                            ->setCc(array_merge([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name],[Yii::$app->params['adminEmail']=>'Khalid']));
-                }
-
-                $message->setFrom([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
-                    ->setBcc([$companyRequest->requestCreatedBy->staff_email => $companyRequest->requestCreatedBy->staff_name])
-                    ->setSubject($subject)
-                    ->send();
-                Console::stdout("email sent from staff (".$companyRequest->requestCreatedBy->staff_email.") for fulltimer suggestion with total candidates: ".count($requestSuggestion)." \n", Console::FG_RED, Console::BOLD);
             }
         }
     }

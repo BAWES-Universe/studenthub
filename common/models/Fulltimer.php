@@ -62,7 +62,7 @@ class Fulltimer extends \yii\db\ActiveRecord
                 'filePath' => '',
                 'message' => "Please upload pdf resume",
                 'resourceManager' => Yii::$app->temporaryBucketResourceManager,
-                'extensions' => 'pdf',
+                'extensions' => 'pdf,doc,docx',
                 'when' => function($model, $attribute) {
                     return (trim($model->fulltimer_pdf_cv) && $model->{$attribute} !== $model->getOldAttribute($attribute));
                 }
