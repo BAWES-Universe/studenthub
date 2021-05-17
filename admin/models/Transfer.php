@@ -300,7 +300,7 @@ class Transfer extends \common\models\Transfer
      */
     public static function getTransferCost($transfer_id) {
         return TransferCandidate::find()
-            ->where([
+            ->andWhere([
                 'transfer_id' => $transfer_id
             ])
             ->andWhere('hours > 0 OR bonus > 0')
@@ -338,7 +338,7 @@ class Transfer extends \common\models\Transfer
     public static function markTransferCompleteOnCandidatePaid($transferID)
     {
         $unpaid = TransferCandidate::find()
-            ->where([
+            ->andWhere([
                 'paid' => 0
             ])
             ->andWhere(['transfer_id' => $transferID])

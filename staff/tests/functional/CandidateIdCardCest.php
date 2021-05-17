@@ -60,8 +60,8 @@ class CandidateIdCardCest {
     public function tryToGenerateIdCards(FunctionalTester $I) {
         //candidate not having cards
         $candidates = Candidate::find()
-                ->where('candidate_id NOT IN(select candidate_id from candidate_id_card)')
-                ->all();
+            ->andWhere('candidate_id NOT IN(select candidate_id from candidate_id_card)')
+            ->all();
 
         $arrCandidates = ArrayHelper::map($candidates, 'candidate_id', 'candidate_id');
 

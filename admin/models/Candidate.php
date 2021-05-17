@@ -34,7 +34,7 @@ class Candidate extends \common\models\Candidate {
         $totalAmount = 0;
         
         $transfers = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             ->isParentTransfer()
             ->all();
 

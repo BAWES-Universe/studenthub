@@ -119,7 +119,7 @@ class Admin extends ActiveRecord implements IdentityInterface {
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AdminToken::find()->where(['token_value' => $token])->with('admin')->one();
+        $token = AdminToken::find()->andWhere(['token_value' => $token])->with('admin')->one();
         if($token){
             return $token->admin;
         }

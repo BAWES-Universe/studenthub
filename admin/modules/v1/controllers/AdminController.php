@@ -187,7 +187,7 @@ class AdminController extends Controller
      */
     public function actionDelete($id)
     {
-//        $count = Admin::find()->where(['admin_limited_access'=>1])->count();
+//        $count = Admin::find()->andWhere(['admin_limited_access'=>1])->count();
 //        if ($count == 1) {
 //            return [
 //                "operation" => "error",

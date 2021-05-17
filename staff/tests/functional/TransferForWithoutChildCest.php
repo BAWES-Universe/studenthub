@@ -135,7 +135,7 @@ class TransferForWithoutChildCest
     {
         $transfer = $this->companyWithoutChild
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->isParentTransfer()
             ->one();
 
@@ -259,7 +259,7 @@ class TransferForWithoutChildCest
 
         $transfer = $this->companyWithoutChild
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $I->wantTo('Edit transfer for company without child');
@@ -281,7 +281,7 @@ class TransferForWithoutChildCest
     {
         $transfer = $this->companyWithoutChild
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_LOCK])
+            ->andWhere(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
 
         $I->wantTo('Mark transfer as "Payment Sent" for company without child');
@@ -299,7 +299,7 @@ class TransferForWithoutChildCest
     {
         $transfer = $this->companyWithoutChild
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $I->wantTo('Mark transfer as "Locked" for company without child');
@@ -317,7 +317,7 @@ class TransferForWithoutChildCest
     {
         $transfer = $this->companyWithoutChild
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $I->wantTo('Delete transfer for company without child');
@@ -335,7 +335,7 @@ class TransferForWithoutChildCest
     {
         $transfer = $this->companyWithoutChild
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_LOCK])
+            ->andWhere(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
 
         $invoice = $transfer
