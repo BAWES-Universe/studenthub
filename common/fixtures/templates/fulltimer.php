@@ -13,6 +13,8 @@ return [
     'fulltimer_name' => $faker->firstName,
     'fulltimer_phone' => $faker->e164PhoneNumber,
     'fulltimer_email' => $faker->email,
+    'fulltimer_current_salary' => $faker->randomNumber(5),
+    'fulltimer_expected_salary' => $faker->randomNumber(5),
     'fulltimer_pdf_cv' =>  'test.pdf',
     'fulltimer_created_datetime' => $faker->date('Y-m-d H:i:s'),
     'fulltimer_updated_datetime' => $faker->date('Y-m-d H:i:s'),

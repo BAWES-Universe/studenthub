@@ -333,11 +333,11 @@ class Suggestion extends \yii\db\ActiveRecord
      */
     public static function suggestionFulltimerNotification()
     {
-        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0 and candidate_id is null')->queryScalar();
-        if (!$exist) {
-            Console::stdout("No new fulltimer suggestion \n", Console::FG_RED, Console::BOLD);
-            return true;
-        }
+//        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0 and candidate_id is null')->queryScalar();
+//        if (!$exist) {
+//            Console::stdout("No new fulltimer suggestion \n", Console::FG_RED, Console::BOLD);
+//            return true;
+//        }
 
         $requests = [];
         $staffs = \staff\models\Staff::find()->andWhere(['!=', 'deleted', 1])->all();
@@ -381,8 +381,8 @@ class Suggestion extends \yii\db\ActiveRecord
                             $url = Yii::$app->resourceManager->getUrl("fulltimer-resume/" . $note->fulltimer->fulltimer_pdf_cv);
                             if ($url) {
                                 $message->attachContent(file_get_contents($url), [
-                                    'fileName' => $note->fulltimer->fulltimer_uuid . '.pdf',
-                                    'contentType' => 'application/pdf'
+                                    'fileName' => $note->fulltimer->fulltimer_pdf_cv,
+                                    'contentType' => Yii::$app->resourceManager->getType("fulltimer-resume/" . $note->fulltimer->fulltimer_pdf_cv)
                                 ]);
                             }
                         }

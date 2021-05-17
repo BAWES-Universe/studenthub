@@ -348,8 +348,8 @@
 
                                                                 <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:13px;line-height:24px;text-align:left;color:#ffffff;">
                                                                     <?php
-                                                                    if ($note->fulltimer->tags) {
-                                                                        foreach($note->fulltimer->tags as $tags) { ?>
+                                                                    if ($note->fulltimer->fulltimerTags) {
+                                                                        foreach($note->fulltimer->fulltimerTags as $tags) { ?>
 
                                                                             <span style='background-color:#333; padding:5px; margin-right:5px;'><?=$tags->tag?></span>
                                                                         <?php }
@@ -398,7 +398,7 @@
                                                                 <div
                                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:left;color:#444444;"
                                                                 >
-                                                                    Current salary: <?=$note->fulltimer->fulltimer_current_salary?> KD
+                                                                    Current salary: <?=$note->fulltimer->fulltimer_current_salary?>
                                                                 </div>
 
                                                             </td>
@@ -412,7 +412,7 @@
                                                                 <div
                                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:14px;line-height:24px;text-align:left;color:#444444;"
                                                                 >
-                                                                    Expected salary: Around <?=$note->fulltimer->fulltimer_expected_salary?> KD
+                                                                    Expected salary: Around <?=$note->fulltimer->fulltimer_expected_salary?>
                                                                 </div>
 
                                                             </td>
