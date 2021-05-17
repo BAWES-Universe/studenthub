@@ -974,7 +974,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
+        $token = CandidateToken::find()->andWhere(['token_value' => $token])->with('candidate')->one();
         if($token){
             return $token->candidate;
         }
@@ -1139,7 +1139,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function birthdayAlert()
     {
         $candidates = Candidate::find()
-            ->where('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
+            ->andWhere('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
             ->andWhere(['candidate_email_verification' => 1])
             ->all();
 
@@ -1174,7 +1174,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function civilIdExpire()
     {
         $candidates = Candidate::find()
-            ->where('YEAR(candidate_civil_expiry_date) = YEAR(NOW()) AND MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND DAY(candidate_civil_expiry_date) = DAY(NOW())')
+            ->andWhere('YEAR(candidate_civil_expiry_date) = YEAR(NOW()) AND MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND DAY(candidate_civil_expiry_date) = DAY(NOW())')
             ->all();
 
         if(!$candidates)
@@ -1276,9 +1276,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @inheritdoc
      */
     public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
-        $token = CandidateToken::find()->where(['token_value' => $token])
-                ->with('candidate')
-                ->one();
+        $token = CandidateToken::find()
+            ->andWhere(['token_value' => $token])
+            ->with('candidate')
+            ->one();
 
         if ($token && $token->candidate && !$token->candidate->deleted) {
             return $token->candidate;
@@ -1291,7 +1292,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function verifyEmail($email, $code) {
        
         $candidate = Candidate::find()
-            ->where([
+            ->andWhere([
                     'OR',
                     ['candidate_new_email' => $email],
                     ['candidate_email' => $email]
@@ -1480,7 +1481,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         //notify admin for abuse
 
         $totalUploads = CandidateVideoLog::find()
-            ->where([
+            ->andWhere([
                 'candidate_id' => $this->candidate_id,
                 'ip_address' => Yii::$app->getRequest()->getUserIP()
             ])

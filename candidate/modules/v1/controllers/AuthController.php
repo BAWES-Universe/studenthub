@@ -125,7 +125,7 @@ class AuthController extends Controller
         $token = Yii::$app->request->getBodyParam("token");
 
         $model = CandidateToken::find()
-                ->where(['token_value' => $token])
+                ->andWhere(['token_value' => $token])
                 ->one();
 
         if (!$model || !$model->candidate) {
@@ -289,7 +289,7 @@ class AuthController extends Controller
         //check limit reached
 
         $totalInvalidAttempts = CandidateEmailVerifyAttempt::find()
-                ->where([
+                ->andWhere([
                     'candidate_email' => $email,
                     'ip_address' => Yii::$app->getRequest()->getUserIP()
                 ])

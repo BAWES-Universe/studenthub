@@ -13,7 +13,9 @@ class Invitation extends \common\models\Invitation
         $field = parent::fields();
         unset($field['mall_updated_datetime'],$field['mall_created_datetime']);
         $field['is_suggested'] =  function($model) {
-              return Suggestion::find()->where(['request_uuid'=>$model->request_uuid,'candidate_id'=>$model->candidate_id])->exists();
+              return Suggestion::find()
+                  ->andWhere(['request_uuid'=>$model->request_uuid,'candidate_id' => $model->candidate_id])
+                  ->exists();
         };
         return $field;
 

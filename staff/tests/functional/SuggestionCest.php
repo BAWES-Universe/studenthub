@@ -72,7 +72,7 @@ class SuggestionCest
     public function tryToCreate(FunctionalTester $I)
     {
         $request = Request::find()
-            ->where(['request_status' => Request::STATUS_STARTED])
+            ->andWhere(['request_status' => Request::STATUS_STARTED])
             ->one();
 
         $candidate = Candidate::find()->one();

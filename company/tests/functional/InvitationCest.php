@@ -49,7 +49,7 @@ class InvitationCest
      */
     public function tryToCreate(FunctionalTester $I)
     {
-        $request = Request::find ()->where ([
+        $request = Request::find ()->andWhere ([
             'request_status' => Request::STATUS_STARTED,
             'company_id' => $this->company->company_id
         ])->one ();

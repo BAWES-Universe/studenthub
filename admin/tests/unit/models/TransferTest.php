@@ -91,11 +91,11 @@ class TransferTest extends \Codeception\Test\Unit {
     public function testStatisticsForTransferCostWhenCompanyWithoutChild() {
 
         $transfer = Transfer::find()
-                ->where(['company_id' => 3])
+                ->andWhere(['company_id' => 3])
                 ->one();
 
         $transfer_cost = TransferCandidate::find()
-                ->where(['transfer_id' => $transfer->transfer_id])
+                ->andWhere(['transfer_id' => $transfer->transfer_id])
                 ->sum('transfer_cost');
 
         expect('Check transfer cost getting calculated properly', $transfer_cost)
@@ -108,11 +108,11 @@ class TransferTest extends \Codeception\Test\Unit {
      *
     public function testStatisticsForTotalPaidTransferWhenCompanyWithoutChild() {
         $transfer = Transfer::find()
-                ->where(['company_id' => 3])
+                ->andWhere(['company_id' => 3])
                 ->one();
 
         $totalPaid = TransferCandidate::find()
-                ->where([
+                ->andWhere([
                     'transfer_id' => $transfer->transfer_id,
                     'paid' => 1
                 ])
@@ -129,11 +129,11 @@ class TransferTest extends \Codeception\Test\Unit {
     public function testStatisticsForTotalUnpaidTransferCandidateWhenCompanyWithoutChild() {
 
         $transfer = Transfer::find()
-                ->where(['company_id' => 3])
+                ->andWhere(['company_id' => 3])
                 ->one();
 
         $totalUnpaid = TransferCandidate::find()
-                ->where([
+                ->andWhere([
                     'transfer_id' => $transfer->transfer_id,
                     'paid' => 0
                 ])
@@ -149,11 +149,11 @@ class TransferTest extends \Codeception\Test\Unit {
      *
     public function testStatisticsForTransferProfitWhenCompanyWithoutChild() {
         $transfer = Transfer::find()
-                ->where(['company_id' => 3])
+                ->andWhere(['company_id' => 3])
                 ->one();
 
         $profit = TransferCandidate::find()
-                ->where([
+                ->andWhere([
                     'transfer_id' => $transfer->transfer_id
                 ])
                 ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost + bonus_commission');
@@ -168,11 +168,11 @@ class TransferTest extends \Codeception\Test\Unit {
      *
     public function testStatisticsForTransferCostWhenCompanyWithChild() {
         $transfer = Transfer::find()
-                ->where(['company_id' => 1])
+                ->andWhere(['company_id' => 1])
                 ->one();
 
         $transfer_cost = TransferCandidate::find()
-                ->where(['transfer_id' => $transfer->transfer_id])
+                ->andWhere(['transfer_id' => $transfer->transfer_id])
                 ->sum('transfer_cost');
 
         expect('Check transfer cost getting calculated properly', $transfer_cost)
@@ -185,11 +185,11 @@ class TransferTest extends \Codeception\Test\Unit {
      *
     public function testStatisticsForPaidTransferCandidateWhenCompanyWithChild() {
         $transfer = Transfer::find()
-                ->where(['company_id' => 1])
+                ->andWhere(['company_id' => 1])
                 ->one();
 
         $totalPaid = TransferCandidate::find()
-                ->where([
+                ->andWhere([
                     'transfer_id' => $transfer->transfer_id,
                     'paid' => 1
                 ])
@@ -205,11 +205,11 @@ class TransferTest extends \Codeception\Test\Unit {
      *
     public function testStatisticsForUnPaidTransferCandidateWhenCompanyWithChild() {
         $transfer = Transfer::find()
-                ->where(['company_id' => 1])
+                ->andWhere(['company_id' => 1])
                 ->one();
 
         $totalUnpaid = TransferCandidate::find()
-                ->where([
+                ->andWhere([
                     'transfer_id' => $transfer->transfer_id,
                     'paid' => 0
                 ])
@@ -226,11 +226,11 @@ class TransferTest extends \Codeception\Test\Unit {
     public function testStatisticsForTransferProfitWhenCompanyWithChild() {
         
         $transfer = Transfer::find()
-                ->where(['company_id' => 1])
+                ->andWhere(['company_id' => 1])
                 ->one();
         
         $profit = TransferCandidate::find()
-                ->where([
+                ->andWhere([
                     'transfer_id' => $transfer->transfer_id
                 ])
                 ->sum('((company_hourly_rate - candidate_hourly_rate ) * hours) - transfer_cost + bonus_commission');

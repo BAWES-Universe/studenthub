@@ -32,21 +32,21 @@ class TransferCest
             ->token_value;
 
         $this->transferWithPaymentSent = Transfer::find()
-                ->where([
+                ->andWhere([
                     'transfer_status' => Transfer::STATUS_PAYMENT_SENT
                 ])
                 ->isParentTransfer()
                 ->one();
 
         $this->lockedTransfer = Transfer::find()
-            ->where([
+            ->andWhere([
                 'transfer_status' => Transfer::STATUS_LOCK
             ])
             ->isParentTransfer()
             ->one();
 
         $this->transferWithPaymentReceived = Transfer::find()
-                ->where([
+                ->andWhere([
                     'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS
                 ])
                 ->isParentTransfer()
@@ -128,7 +128,7 @@ class TransferCest
     public function tryToLock(FunctionalTester $I)
     {
         $transferWithPaymentSent2 = Transfer::find()
-                ->where([
+                ->andWhere([
                     'transfer_status' => Transfer::STATUS_PAYMENT_SENT
                 ])
                 ->isParentTransfer()
@@ -223,9 +223,10 @@ class TransferCest
     public function tryToListPayable(FunctionalTester $I)
     {
         $query = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             ->isParentTransfer()
             ->one();
+
         $I->wantTo('Validate admin > transfer > List Payable Candidates api');
         $I->sendGET('v1/transfers/payable-candidates');
         $I->seeResponseCodeIs(HttpCode::OK); // 200

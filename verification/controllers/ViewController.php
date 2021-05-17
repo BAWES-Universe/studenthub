@@ -34,7 +34,7 @@ class ViewController extends Controller
     public function actionResume($candidate_uid)
     {
         $candidate = Candidate::find()
-            ->where([
+            ->andWhere([
                 'candidate_uid' => $candidate_uid
             ])
             ->one();
@@ -58,7 +58,7 @@ class ViewController extends Controller
     public function actionVideo($candidate_uid)
     {
         $candidate = Candidate::find()
-            ->where([
+            ->andWhere([
                 'candidate_uid' => $candidate_uid
             ])
             ->one();
@@ -83,7 +83,7 @@ class ViewController extends Controller
     public function actionTelephone($candidate_uid)
     {
         $candidate = Candidate::find()
-            ->where([
+            ->andWhere([
                 'candidate_uid' => $candidate_uid
             ])
             ->one();

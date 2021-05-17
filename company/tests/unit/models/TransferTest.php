@@ -113,7 +113,7 @@ class TransferTest extends \Codeception\Test\Unit
         $this->specify('Transfer model without child company', function () {
 
             $transfer = Transfer::find()
-                ->where([
+                ->andWhere([
                     'company_id' => 5,
                     'transfer_status' => Transfer::STATUS_INITIATED
                 ])
@@ -148,7 +148,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $this->specify('Transfer model with child company', function () {
             $transfer = Transfer::find()
-                ->where([
+                ->andWhere([
                     'company_id' => 1,
                     'transfer_status' => Transfer::STATUS_INITIATED
                 ])
@@ -224,7 +224,7 @@ class TransferTest extends \Codeception\Test\Unit
         $this->specify('Add new transfer for company with child', function() {
 
             $company = Company::find()
-                ->where('parent_company_id > 0')
+                ->andWhere('parent_company_id > 0')
                 ->one()
                 ->parentCompany;
 

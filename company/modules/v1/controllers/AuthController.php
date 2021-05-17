@@ -229,7 +229,7 @@ class AuthController extends Controller
         //$model->generateOTP();
 
         /*$invitation = ContactInvitation::find()
-            ->where([
+            ->andWhere([
                 'email_to_invite' => $model->contact_email,
                 'otp' => $invitationOtp
             ])
@@ -340,7 +340,7 @@ class AuthController extends Controller
         //check limit reached
 
         $totalInvalidAttempts = ContactEmailVerifyAttempt::find()
-            ->where([
+            ->andWhere([
                 'email' => $email,
                 'ip_address' => Yii::$app->getRequest()->getUserIP()
             ])
@@ -395,7 +395,7 @@ class AuthController extends Controller
         $token = Yii::$app->request->getBodyParam("token");
 
         $model = ContactToken::find()
-            ->where(['token_value' => $token])
+            ->andWhere(['token_value' => $token])
             ->one();
 
         if (!$model || !$model->contact) {

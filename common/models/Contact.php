@@ -265,7 +265,7 @@ class Contact extends \yii\db\ActiveRecord
      */
     public static function findIdentityByAccessToken($token, $type = null) {
 
-        $token = ContactToken::find()->where([
+        $token = ContactToken::find()->andWhere([
                 'token_value' => $token,
                 'token_status' => ContactToken::STATUS_ACTIVE
             ])
@@ -506,7 +506,7 @@ class Contact extends \yii\db\ActiveRecord
             return false;
 
         return self::find()
-            ->where(['contact_otp' => $otp])
+            ->andWhere(['contact_otp' => $otp])
             ->one();
     }
 

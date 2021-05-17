@@ -152,14 +152,14 @@ class TransferCandidateTest extends \Codeception\Test\Unit {
         $Transfer = Transfer::findOne(17);
         expect('Transfer to be in progress', ($Transfer->transfer_status == Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS))->true();
 
-        $count = TransferCandidate::find()->where(['transfer_id' => 17, 'paid' => 0])->count();
+        $count = TransferCandidate::find()->andWhere(['transfer_id' => 17, 'paid' => 0])->count();
         expect('one unpaid candidate', $count)->equals(1);
 
         // modifying fixture data
         $response = TransferCandidate::markPaid(34,"1122");
         expect('paid candidate transfer', $response['operation'])->equals('success');
        
-        $count = TransferCandidate::find()->where(['transfer_id' => 17, 'paid' => 0])->count();
+        $count = TransferCandidate::find()->andWhere(['transfer_id' => 17, 'paid' => 0])->count();
         expect('all candidate paid', $count)->equals(0);
 
         // checking after modifying fixture data
