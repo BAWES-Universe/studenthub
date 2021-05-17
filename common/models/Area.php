@@ -212,7 +212,7 @@ class Area extends \yii\db\ActiveRecord
         //add country if not available 
 
         $country = Country::find()
-            ->where(['country_name_en' => $country_name])
+            ->andWhere(['country_name_en' => $country_name])
             ->one();
 
         if(!$country)

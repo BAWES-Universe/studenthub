@@ -71,7 +71,7 @@ class InvitationController extends Controller {
      */
     public function actionByOtp($otp) {
         $invitation = ContactInvitation::find()
-                ->where([
+                ->andWhere([
                     'otp' => $otp
                 ])
                 ->one();
@@ -111,9 +111,9 @@ class InvitationController extends Controller {
         $query = Yii::$app->request->get('query');
         // sent invitation
         $invitedSentQuery = ContactInvitation::find()
-        ->joinWith(['invitedContact'])
-        ->where(['company_id' => $id])
-        ->andWhere('accepted IS NULL');
+            ->joinWith(['invitedContact'])
+            ->andWhere(['company_id' => $id])
+            ->andWhere('accepted IS NULL');
 
         if($query && strlen($query) > 0) {
             $invitedSentQuery->andWhere([
@@ -258,7 +258,7 @@ class InvitationController extends Controller {
         $agent = Yii::$app->user->identity;
 
         $model = ContactInvitation::find()
-                ->where([
+                ->andWhere([
                     'contact_invitation_uuid' => $id
                 ])
                 ->one();
@@ -305,7 +305,7 @@ class InvitationController extends Controller {
     public function actionDelete($id) {
         
         $model = ContactInvitation::find()
-                ->where([
+                ->andWhere([
                     'contact_invitation_uuid' => $id
                 ])
                 ->one();

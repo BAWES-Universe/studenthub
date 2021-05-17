@@ -281,7 +281,7 @@ class Company extends \yii\db\ActiveRecord
      */
     public function getInvitations() {
         $subQuery = Request::find()->select('request_uuid')->andWhere(['company_id'=>$this->company_id]);
-        return Invitation::find()->where(['in', 'request_uuid', $subQuery]);
+        return Invitation::find()->andWhere(['in', 'request_uuid', $subQuery]);
     }
     
     /**
@@ -299,7 +299,7 @@ class Company extends \yii\db\ActiveRecord
     public function getSubCompanies($modelClass = "\common\models\Company")
     {
         return $this->hasMany($modelClass::className(), ['parent_company_id' => 'company_id'])
-            ->where(['{{%company}}.deleted' => 0]);
+            ->andWhere(['{{%company}}.deleted' => 0]);
     }
 
     /**
@@ -322,7 +322,7 @@ class Company extends \yii\db\ActiveRecord
             //for parent company
             return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
                 ->via('subCompanyStores')
-                ->where(['{{%candidate}}.deleted' => 0]);
+                ->andWhere(['{{%candidate}}.deleted' => 0]);
         }
         else
         {
@@ -374,7 +374,7 @@ class Company extends \yii\db\ActiveRecord
     public function getParentTransfers($modelClass = "\common\models\Transfer")
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
-            ->where('parent_transfer_id IS NULL')
+            ->andWhere('parent_transfer_id IS NULL')
             ->orderBy('transfer_id DESC');
     }
 
@@ -449,7 +449,7 @@ class Company extends \yii\db\ActiveRecord
         $company_ids[] = $company_id;
 
         return Store::find()
-            ->where(['in', 'company_id', $company_ids])
+            ->andWhere(['in', 'company_id', $company_ids])
             ->sum('store_total_candidates');
     }
 

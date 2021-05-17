@@ -25,7 +25,10 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = ContactToken::find()->where(['token_value' => $token])->with('contact')->one();
+        $token = ContactToken::find()
+            ->andWhere(['token_value' => $token])
+            ->with('contact')
+            ->one();
 
         if($token) {
             return $token->contact;
@@ -122,7 +125,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
     public static function verifyEmail($email, $code) {
 
         $model = Contact::find()
-            ->where([
+            ->andWhere([
                 'AND',
                 ['contact_auth_key' => $code],
                 [
@@ -164,7 +167,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
      * @inheritdoc
      */
     public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
-        $token = ContactToken::find()->where(['token_value' => $token])
+        $token = ContactToken::find()->andWhere(['token_value' => $token])
             ->with('contact')
             ->one();
 

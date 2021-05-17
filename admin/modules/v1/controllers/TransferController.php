@@ -130,7 +130,7 @@ class TransferController extends Controller
     {
         // Candidates whose company paid to admin but admin have not paid yet
         $query = Transfer::find()
-            ->where(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             ->isParentTransfer();
         
         return new \yii\data\ActiveDataProvider([
@@ -155,7 +155,7 @@ class TransferController extends Controller
             //    'transferCandidates.candidate.bank',
             //    'transferCandidates.candidate.university'
             ])
-            ->where([
+            ->andWhere([
                 'transfer_id' => $id
             ])    
             ->one();
@@ -335,7 +335,7 @@ class TransferController extends Controller
             }
             
             if($value['Status'] == 'FAIL') {
-                $transferCandidate = TransferCandidate::find()->where(['tc_id' => $value['Credit Narrative']])->one();
+                $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
                 if($transferCandidate && $transferCandidate->candidate) {
                     $transferCandidate->paid = TransferCandidate::UNPAID;
                     $transferCandidate->transfer_benef_iban = null;
@@ -354,7 +354,7 @@ class TransferController extends Controller
 
             }
             if($value['Status'] == 'SUCCESS') {
-                $transferCandidate = TransferCandidate::find()->where(['tc_id' => $value['Credit Narrative']])->one();
+                $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
 
                 if(!$transferCandidate || !$transferCandidate->candidate) {
                     return [

@@ -120,7 +120,7 @@ class TransferForWithChildCest
     {
         $transfer = $this->model
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->isParentTransfer()
             ->one();
 
@@ -242,7 +242,7 @@ class TransferForWithChildCest
 
         $transfer = $this->model
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $I->wantTo('Edit transfer for company with child');
@@ -270,7 +270,7 @@ class TransferForWithChildCest
 	{
 		$transfer = $this->model
 			->getTransfers()
-			->where(['transfer_status' => Transfer::STATUS_INITIATED])
+			->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
 			->one();
 
 		$I->wantTo('Mark transfer as "Locked" for company with child');
@@ -287,7 +287,7 @@ class TransferForWithChildCest
     {
         $transfer = $this->model
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_LOCK])
+            ->andWhere(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
 
         $I->wantTo( 'Mark transfer as "Payment Sent" for company with child' );
@@ -317,7 +317,7 @@ class TransferForWithChildCest
     {
         $transfer = $this->model
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $I->wantTo('Delete transfer for company with child');
@@ -334,7 +334,7 @@ class TransferForWithChildCest
     {
         $transfer = $this->model
             ->getTransfers()
-            ->where(['transfer_status' => Transfer::STATUS_LOCK])
+            ->andWhere(['transfer_status' => Transfer::STATUS_LOCK])
             ->one();
 
         $invoice = $transfer

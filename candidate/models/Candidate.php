@@ -161,8 +161,12 @@ class Candidate extends \common\models\Candidate {
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        $token = CandidateToken::find()->where(['token_value' => $token])->with('candidate')->one();
-        if($token){
+        $token = CandidateToken::find()
+            ->andWhere(['token_value' => $token])
+            ->with('candidate')
+            ->one();
+
+        if($token) {
             return $token->candidate;
         }
     }

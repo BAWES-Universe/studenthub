@@ -104,7 +104,7 @@ class Invoice extends ActiveRecord
             return null;
 
         $companies = Company::find()
-            ->where('DATE(company_created_at) < DATE("'.date('Y-m-1').'")')
+            ->andWhere('DATE(company_created_at) < DATE("'.date('Y-m-1').'")')
             ->all();
 
         if(!$companies)
@@ -116,7 +116,7 @@ class Invoice extends ActiveRecord
         {
             $invoice = Invoice::find()
                 ->innerJoin('transfer', 'transfer.transfer_id = invoice.transfer_id')
-                ->where(['invoice_status' => 'paid'])
+                ->andWhere(['invoice_status' => 'paid'])
                 ->andWhere(['in', 'transfer.company_id', [$value->company_id, $value->parent_company_id]])
                 ->one();
 

@@ -35,7 +35,7 @@ class SiteController extends Controller
     public function actionIndex($candidate_uid)
     {
         $candidate = Candidate::find()
-            ->where([
+            ->andWhere([
                 'candidate_uid' => $candidate_uid
             ])
             ->one();
@@ -46,7 +46,7 @@ class SiteController extends Controller
         }
 
         $id = CandidateIdCard::find()
-            ->where(['candidate_id' => $candidate->candidate_id])
+            ->andWhere(['candidate_id' => $candidate->candidate_id])
             ->one();
 
         // don't show if candidate ID is expired or candidate not assigned to store

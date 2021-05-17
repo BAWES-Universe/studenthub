@@ -695,7 +695,7 @@ class Transfer extends ActiveRecord
         $companyCandidates = $this->company->getCandidates()->select('candidate_id');
 
         $extraCandidates = $this->getTransferCandidates()
-            ->where([
+            ->andWhere([
                 'not in',
                 'candidate_id',
                 $companyCandidates
@@ -828,7 +828,7 @@ class Transfer extends ActiveRecord
 
             $candidate = Candidate::find()
                 ->with(['store', 'company'])
-                ->where(['candidate_id' => $value['candidate_id']])
+                ->andWhere(['candidate_id' => $value['candidate_id']])
                 ->asArray()
                 ->one();
 
@@ -996,7 +996,7 @@ class Transfer extends ActiveRecord
 
             $candidate = Candidate::find()
                 ->with(['store','company'])
-                ->where(['candidate_id' => $value['candidate_id']])
+                ->andWhere(['candidate_id' => $value['candidate_id']])
                 ->asArray()
                 ->one();
 
@@ -1232,7 +1232,7 @@ class Transfer extends ActiveRecord
             //get company hourly rate
 
             $candidate = Candidate::find()
-                ->where(['candidate_id' => $value['candidate_id']])
+                ->andWhere(['candidate_id' => $value['candidate_id']])
                 ->one();
 
             if(!$candidate) {
@@ -1278,7 +1278,7 @@ class Transfer extends ActiveRecord
 
         // Use subcompany list to Get list of all stores belonging to the parent company
         $stores = Store::find()
-            ->where(['in', 'company_id', $company_ids])
+            ->andWhere(['in', 'company_id', $company_ids])
             ->all();
 
         $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
@@ -1288,7 +1288,7 @@ class Transfer extends ActiveRecord
         $candidate_ids = ArrayHelper::map($this->candidates, 'candidate_id', 'candidate_id');
 
         $missing = Candidate::find()
-            ->where(['in', 'store_id', $store_ids])
+            ->andWhere(['in', 'store_id', $store_ids])
             ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
             ->count();
 

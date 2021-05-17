@@ -49,7 +49,7 @@ class StatisticsTest extends \Codeception\Test\Unit
 
         $totalPayableCandidate = TransferCandidate::find()
             ->joinWith('transfer')
-            ->where([
+            ->andWhere([
                 'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                 'paid' => 0,
             ])
@@ -66,7 +66,7 @@ class StatisticsTest extends \Codeception\Test\Unit
         $payableDetail = Candidate::getTotalPayableCandidate();
         $totalPayable = TransferCandidate::find()
             ->joinWith('transfer')
-            ->where([
+            ->andWhere([
                 'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                 'paid' => 0,
             ])
@@ -81,7 +81,7 @@ class StatisticsTest extends \Codeception\Test\Unit
     public function testStatisticsTotalCandidate()
     {
         $totalCandidate = Candidate::find()
-            ->where(['deleted' => 0])
+            ->andWhere(['deleted' => 0])
             ->count();
 
         expect('Total candidates', $totalCandidate)->equals(Candidate::candidateCountByCondition());
@@ -94,7 +94,7 @@ class StatisticsTest extends \Codeception\Test\Unit
     {
         $totalAssignedToWork = Candidate::find()
             ->joinWith('store')
-            ->where([
+            ->andWhere([
                 '{{%candidate}}.deleted' => 0
             ])
             ->count();
@@ -108,7 +108,7 @@ class StatisticsTest extends \Codeception\Test\Unit
     public function testStatisticsTotalApprovedCandidate()
     {
         $approved = Candidate::find()
-            ->where([
+            ->andWhere([
                 'approved' => 1,
                 'deleted' => 0
             ])
@@ -125,7 +125,7 @@ class StatisticsTest extends \Codeception\Test\Unit
         $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK);
 
         $locked = Transfer::find()
-            ->where([
+            ->andWhere([
                 'deleted' => 0,
                 'transfer_status' => Transfer::STATUS_LOCK
             ])
@@ -141,8 +141,9 @@ class StatisticsTest extends \Codeception\Test\Unit
     public function testStatisticsTotalSentTransfer()
     {
         $paymentSentTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_PAYMENT_SENT);
+
         $paymentSent = Transfer::find()
-            ->where([
+            ->andWhere([
                 'deleted' => 0,
                 'transfer_status' => Transfer::STATUS_PAYMENT_SENT
             ])

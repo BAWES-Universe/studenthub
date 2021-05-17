@@ -178,7 +178,7 @@ class CandidateIdCardController extends Controller
             //check if id card already available
 
             $ID = CandidateIdCard::find()
-                ->where(['candidate_id' => $value])
+                ->andWhere(['candidate_id' => $value])
                 ->one();
 
             if($ID)
@@ -208,7 +208,7 @@ class CandidateIdCardController extends Controller
         //create zip file to download generated IDs
 
         $candidates = Candidate::find()
-            ->where(['in', 'candidate_id', $candidate_ids])
+            ->andWhere(['in', 'candidate_id', $candidate_ids])
             ->all();
 
         $result = CandidateIdCard::createIdCards($candidates);
@@ -280,7 +280,7 @@ class CandidateIdCardController extends Controller
                 continue;
 
             $ID = CandidateIdCard::find()
-                ->where(['candidate_id' => $value])
+                ->andWhere(['candidate_id' => $value])
                 ->one();
 
             if(!$ID)
@@ -313,7 +313,7 @@ class CandidateIdCardController extends Controller
         //log
 
         $candidates = Candidate::find()
-            ->where(['in', 'candidate_id', $candidate_ids])
+            ->andWhere(['in', 'candidate_id', $candidate_ids])
             ->all();
 
         $names = ArrayHelper::map($candidates, 'candidate_id', 'candidate_name');

@@ -114,7 +114,7 @@ class AccountController extends Controller
         }
         
         $experienceList = CandidateExperience::find()
-            ->where([
+            ->andWhere([
                 'candidate_id' => Yii::$app->user->getId()
             ])    
             ->all();
@@ -167,11 +167,13 @@ class AccountController extends Controller
         }
         
         $skillList = CandidateSkill::find()
-            ->where([
+            ->andWhere([
                 'candidate_id' => Yii::$app->user->getId()
             ])    
-            ->all(); 
+            ->all();
+
         Yii::$app->user->identity->updateAlgoliaIndex(false);
+
         return [
             "operation" => "success",
             "message" => Yii::t('candidate',"Skills updated successfully"),
@@ -218,9 +220,11 @@ class AccountController extends Controller
 
         $jobId = $detail->jobId;
 
-        $model = Candidate::find()->where([
-            'candidate_video_job_id' => $jobId
-        ])->one();
+        $model = Candidate::find()
+            ->andWhere([
+                'candidate_video_job_id' => $jobId
+            ])
+            ->one();
 
         if(!$model) {
             return [
