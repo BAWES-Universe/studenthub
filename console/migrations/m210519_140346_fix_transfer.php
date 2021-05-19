@@ -17,12 +17,14 @@ class m210519_140346_fix_transfer extends Migration
     {
         //recalculate transfer total
 
-        $transferCandidates = TransferCandidate::find()
+        /*$transferCandidates = TransferCandidate::find()
             ->joinWith ('candidate', true, 'left join')
             ->filterWhere ([
                 'paid' => 0
             ])
-            ->andWhere (new \yii\db\Expression('candidate.candidate_hourly_rate != transfer_candidate.candidate_hourly_rate'))
+            ->andWhere (new \yii\db\Expression(
+                'candidate.candidate_hourly_rate != transfer_candidate.candidate_hourly_rate AND candidate.store_id != transfer_candidate.store_id'
+            ))
             ->select('transfer_id')
             ->all();
 
@@ -30,6 +32,10 @@ class m210519_140346_fix_transfer extends Migration
 
         $transfers = Transfer::find()
             ->filterWhere (['in', 'transfer_id', $transferCandidatesIds])
+            ->all();*/
+
+        $transfers = Transfer::find()
+            ->filterWhere (['transfer_id' => 797])
             ->all();
 
         foreach($transfers as $transfer) {
