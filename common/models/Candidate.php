@@ -505,6 +505,42 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Company::updateCandidate($this->store_id, 1);
             Company::updateCandidate($changedAttributes['store_id'], -1);
         }
+        else if (array_key_exists('candidate_hourly_rate', $changedAttributes))
+        {
+            //recalculate transfer total
+
+            $transferCandidatesQuery = TransferCandidate::find()
+                ->filterWhere ([
+                    'paid' => 0,
+                    'candidate_id' => $this->candidate_id
+                ])
+                ->select('transfer_id');
+
+            $transfers = Transfer::find()
+                ->filterWhere (['transfer_status' => Transfer::STATUS_INITIATED])
+                ->filterWhere (['in', 'transfer_id', $transferCandidatesQuery])
+                ->all();
+
+            foreach($transfers as $transfer) {
+
+                $total = 0;
+
+                foreach ($transfer->transferCandidates as $transferCandidate)
+                {
+                    if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0)
+                    {
+                        //total amount we will pay to bank
+                        $total += $transferCandidate['bonus'] - $transferCandidate['bonus_commission'] + ($transferCandidate['hours'] * $this->candidate_hourly_rate) + $transferCandidate['transfer_cost'];
+                    }
+
+                    $transferCandidate->candidate_hourly_rate = $this->candidate_hourly_rate;
+                    $transferCandidate->save();
+                }
+
+                $transfer->total = $total;
+                $transfer->save();
+            }
+        }
         else if (
             array_key_exists('candidate_iban', $changedAttributes) ||
             array_key_exists('bank_account_name', $changedAttributes) ||
