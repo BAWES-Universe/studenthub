@@ -1890,8 +1890,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         CandidateToken::deleteAll(['candidate_id' => $from]);
 
         $candidate = Candidate::findOne(['candidate_id'=>$from]);
-        $candidate->deleted = 1;
-        $candidate->save(false);
+        $candidate->softDelete();
     }
 
     /**
