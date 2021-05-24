@@ -4,12 +4,14 @@
 $webUrl = Yii::$app->params['companyAppUrl'].'request-view/'.$model->request_uuid;
 $company_name = $model->company->company_common_name_en ? $model->company->company_common_name_en:$model->company->company_name;
 
+$type = ($model->request_position_type == 1) ? 'full-time' : 'part-time';
+$subject = 'Suggested candidates for your ' . $type . ' ' . $model->request_position_title . ' position @ ' . $model->company->company_common_name_en;
 ?>
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <title>
-        Suggested candidates for your part-time videographer position @ Azadea
+        <?=$subject?>
     </title>
     <!--[if !mso]><!-- -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

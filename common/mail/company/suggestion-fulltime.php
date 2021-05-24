@@ -1,8 +1,12 @@
+<?php
+$subject = 'Suggested candidates for your full-time ' . $model->request_position_title . ' position @ ' . $model->company->company_common_name_en;
+?>
+
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <title>
-        Suggested candidates for your full-time accountant position @ Ali Abdulwahab
+        <?=$subject?>
     </title>
     <!--[if !mso]><!-- -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
