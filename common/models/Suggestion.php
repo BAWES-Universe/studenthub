@@ -333,11 +333,11 @@ class Suggestion extends \yii\db\ActiveRecord
      */
     public static function suggestionFulltimerNotification()
     {
-//        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0 and candidate_id is null')->queryScalar();
-//        if (!$exist) {
-//            Console::stdout("No new fulltimer suggestion \n", Console::FG_RED, Console::BOLD);
-//            return true;
-//        }
+        $exist = Yii::$app->db->createCommand('SELECT * FROM `suggestion` WHERE suggestion_datetime <= NOW() - INTERVAL 20 MINUTE and mail_to_company = 0 and candidate_id is null')->queryScalar();
+        if (!$exist) {
+            Console::stdout("No new fulltimer suggestion \n", Console::FG_RED, Console::BOLD);
+            return true;
+        }
 
         $requests = [];
         $staffs = \staff\models\Staff::find()->andWhere(['!=', 'deleted', 1])->all();
@@ -443,15 +443,15 @@ class Suggestion extends \yii\db\ActiveRecord
 
         //company's contact email
 
-        if ($companyRequest->company->company_email)
-            $emails[] = $companyRequest->company->company_email;
+//        if ($companyRequest->company->company_email)
+//            $emails[] = $companyRequest->company->company_email;
 
         //if parent company, add company contact email if any + parent company's contact persons' email
 
         if ($companyRequest->company->parent_company_id) {
 
-            if ($companyRequest->company->parentCompany->company_email)
-                $emails[] = $companyRequest->company->parentCompany->company_email;
+//            if ($companyRequest->company->parentCompany->company_email)
+//                $emails[] = $companyRequest->company->parentCompany->company_email;
 
             //add parent company contact
 
