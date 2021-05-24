@@ -308,13 +308,13 @@ class Suggestion extends \yii\db\ActiveRecord
                     if ($companyRequest->contact->contactEmails) {
                         $email = $companyRequest->contact->contactEmails[0];
                         $message->setTo([$email->email_address => $companyRequest->contact->contact_name])
-                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                            ->setCc([Yii::$app->params['adminEmail'] => 'Khalid']);
                     } else if ($companyRequest->contact->contact_email) {
                         $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
-                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                            ->setCc([Yii::$app->params['adminEmail'] => 'Khalid']);
                     } else {
                         $message->setTo(array_unique($emails))
-                            ->setCc(array_merge([$staff->staff_email => $staff->staff_name], [Yii::$app->params['adminEmail'] => 'Khalid']));
+                            ->setCc([Yii::$app->params['adminEmail'] => 'Khalid']);
                     }
 
                     $message->setFrom([$staff->staff_email => $staff->staff_name])
@@ -399,10 +399,10 @@ class Suggestion extends \yii\db\ActiveRecord
                     if ($companyRequest->contact->contactEmails) {
                         $email = $companyRequest->contact->contactEmails[0];
                         $message->setTo([$email->email_address => $companyRequest->contact->contact_name])
-                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                            ->setCc([Yii::$app->params['adminEmail'] => 'Khalid']);
                     } else if ($companyRequest->contact->contact_email) {
                         $message->setTo([$companyRequest->contact->contact_email => $companyRequest->contact->contact_name])
-                            ->setCc(array_merge(array_unique($emails), [Yii::$app->params['adminEmail'] => 'Khalid']));
+                            ->setCc([Yii::$app->params['adminEmail'] => 'Khalid']);
                     } else {
                         $message->setTo(array_unique($emails))
                             ->setCc(array_merge([$staff->staff_email => $staff->staff_name], [Yii::$app->params['adminEmail'] => 'Khalid']));
