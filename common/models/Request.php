@@ -218,6 +218,15 @@ class Request extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy('note_created_datetime DESC');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getRequestActivities($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
@@ -286,5 +295,10 @@ class Request extends \yii\db\ActiveRecord
     public static function find()
     {
         return new query\RequestQuery(get_called_class());
+    }
+
+    public function getSuggestionEmailSubject() {
+        $type = ($this->request_position_type == 1) ? 'full-time' : 'part-time';
+        return 'Suggested candidates for your ' . $type . ' ' . $this->request_position_title . ' position @ ' . $this->company->company_common_name_en;
     }
 }

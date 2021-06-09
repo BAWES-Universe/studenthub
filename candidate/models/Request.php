@@ -15,7 +15,8 @@ class Request extends \common\models\Request
 
         unset(
             $fields['request_compensation'],
-            $fields['request_number_of_employees']
+            $fields['request_number_of_employees'],
+            $fields['request_additional_info']
         );
 
         // remove fields that contain sensitive information
