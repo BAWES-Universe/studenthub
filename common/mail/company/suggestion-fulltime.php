@@ -1,5 +1,6 @@
 <?php
 $subject = 'Suggested candidates for your full-time ' . $model->request_position_title . ' position @ ' . $model->company->company_common_name_en;
+$logo = \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https');
 ?>
 
 <!doctype html>
@@ -288,8 +289,10 @@ $subject = 'Suggested candidates for your full-time ' . $model->request_position
                     </tr>
 
 <?php
-                    foreach ($requestSuggestion as $note) {
-                        if ($note->fulltimer) { ?>
+                    foreach ($requestSuggestion as $suggestion) {
+                        if ($suggestion->note->fulltimer) {
+                            $note = $suggestion->note;
+                            ?>
                     <tr>
                         <td class="" width="700px">
                             <table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:688px;" width="688">
