@@ -514,4 +514,14 @@ class Contact extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
     }
+
+    /**
+     * get contact email
+     * @return string|null
+     */
+    public function getEmail() {
+        return ($this->contactEmails && count($this->contactEmails) > 0) ?
+            $this->contactEmails[0]->email_address :
+            ($this->contact_email) ? $this->contact_email : null;
+    }
 }
