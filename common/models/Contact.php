@@ -520,8 +520,13 @@ class Contact extends \yii\db\ActiveRecord
      * @return string|null
      */
     public function getEmail() {
-        return ($this->contactEmails && count($this->contactEmails) > 0) ?
-            $this->contactEmails[0]->email_address :
-            ($this->contact_email) ? $this->contact_email : null;
+
+        if($this->contactEmails && count($this->contactEmails) > 0) {
+            return $this->contactEmails[0]->email_address;
+        } else if ($this->contact_email) {
+            return $this->contact_email;
+        } else {
+            return null;
+        }
     }
 }
