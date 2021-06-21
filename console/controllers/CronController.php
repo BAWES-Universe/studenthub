@@ -52,7 +52,7 @@ class CronController extends \yii\console\Controller {
      */
     public function actionEveryMinute() {
         Suggestion::suggestionCandidateNotification();
-        //Suggestion::suggestionFulltimerNotification();
+        Suggestion::suggestionFulltimerNotification();
     }
 
     /**
