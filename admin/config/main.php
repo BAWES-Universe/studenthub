@@ -53,8 +53,10 @@ return [
                     'controller' => 'v1/statistic',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET transfer' => 'transfer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS transfer' => 'options',
                     ]
                 ],
                 [ // StaffController
