@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 use admin\models\Candidate;
+use admin\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\Cors;
@@ -97,5 +98,42 @@ class StatisticController extends Controller
         ];
 
         return $result;
+    }
+
+    /**
+     * transfer stats
+     */
+    public function actionTransfer() {
+
+        $data = [];
+
+        $data['totalTransferCandidate'] = TransferCandidate::find()
+            ->joinWith(['transfer'])
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            ->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            //->filterPaid()
+            ->count();
+
+        $data['totalPaymentAmountReceived'] = Transfer::find()
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            ->filterPaymentReceived()
+            ->sum('company_total');
+
+        $data['totalBelongingToCandidates'] = Transfer::find()
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            //->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            ->filterPaymentReceived()
+            ->sum('total');
+
+        $data['totalProfit'] = Transfer::find()
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            ->filterPaymentReceived()
+            ->sum('company_total - total');
+
+        return $data;
     }
 }

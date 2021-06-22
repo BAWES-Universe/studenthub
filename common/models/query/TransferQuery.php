@@ -5,6 +5,9 @@ namespace common\models\query;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\db\ActiveQuery;
+use common\models\Transfer;
+
+
 /**
  * This is the ActiveQuery class for [[Country]].
  *
@@ -37,7 +40,7 @@ class TransferQuery extends ActiveQuery
      */
     public function filterParent($transfer_id)
     {
-        return $this->andWhere(['parent_transfer_id' => $transfer_id]);
+        return $this->andWhere(['transfer.parent_transfer_id' => $transfer_id]);
     }
 
     /**
@@ -74,6 +77,19 @@ class TransferQuery extends ActiveQuery
     public function filterStatus($transfer_status)
     {
         return $this->andWhere(['{{%transfer}}.transfer_status' => $transfer_status]);
+    }
+
+    /**
+     * filter transfers where company paid
+     * @return TransferQuery
+     */
+    public function filterPaymentReceived()
+    {
+        return $this->andWhere(['in', '{{%transfer}}.transfer_status', [
+            Transfer::STATUS_PAYMENT_SENT,
+            Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+            Transfer::STATUS_TRANSFER_COMPLETE
+        ]]);
     }
 
     /**
