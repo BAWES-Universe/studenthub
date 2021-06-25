@@ -43,7 +43,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                     <?=Html::img('@staff/web/images/globe.png')?>
                 </div>
                 <div class="pull-left"  style="width: 70%">
-                    <p style="font-size: 16px;color: #333333;  padding-left: 15px;padding-top: 8px">
+                    <p style="font-size: 14px;color: #333333;  padding-left: 15px;padding-top: 8px">
                         <?= $candidate->nationality->country_nationality_name_en ?>
                     </p>
                 </div>
@@ -56,7 +56,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
 
                     </div>
                     <div class="pull-left"  style="width: 70%">
-                        <p style="font-size: 16px;color: #333333;  padding-left: 15px;padding-top: 8px">
+                        <p style="font-size: 14px;color: #333333;  padding-left: 15px;padding-top: 8px">
                             <?= $candidate->university->university_name_en? $candidate->university->university_name_en: $candidate->university->university_name_ar ?>
                         </p>
                     </div>
@@ -67,7 +67,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                         <?=Html::img('@staff/web/images/car_icons.png')?>
                     </div>
                     <div class="pull-left"  style="width: 70%">
-                        <p style="font-size: 16px;color: #333333;  padding-left: 15px;">
+                        <p style="font-size: 14px;color: #333333;  padding-left: 15px;">
                             Has driving <br/>license
                         </p>
                     </div>
@@ -77,17 +77,31 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
 
     </div>
     <div class="col-lg-6 col-md-6 col-xl-6 col-xs-6">
-        <h1 style="padding:0; margin:0; height: 50px;font-size: 36px;font-weight: bold;color: #000000;text-transform: capitalize;"><?=strtolower($candidate->candidate_name)?></h1>
-        <p style="padding:0; margin:0; font-size: 18px;color: #000000;">
+        <h1 style="padding:0; margin:0; height: 50px;font-size: 32px;font-weight: bold;color: #000000;text-transform: capitalize;"><?=strtolower($candidate->candidate_name)?></h1>
+        <p style="padding:0; margin:0; font-size: 16px;color: #000000;">
             <?php
                 $from = new DateTime($candidate->candidate_birth_date);
                 $to   = new DateTime('today');
                 echo $from->diff($to)->y.' years old';
             ?>
         </p>
-        <p style="margin-top:18px;font-size: 20px;font-weight: bold;color: #000000;">
+
+        <?php if($candidate->candidate_objective) { ?>
+        <p style="margin-top:18px;font-size: 16px;font-weight: bold;color: #000000;">
             "<?=$candidate->candidate_objective ?>"
         </p>
+        <?php } ?>
+
+        <?php if($because) { ?>
+        <div class="txt-suggestion">
+
+            <h5>I feel like I’d be good for your <?= $positionTitle ?> position because</h5>
+            <p>
+                <?= $because ?>
+            </p>
+        </div>
+        <?php } ?>
+
         <?php if ($candidate->candidate_phone) { ?>
             <p style="margin-top:18px;">
                 <?=Html::img('@staff/web/images/ic_phone@3x.png',['width'=>'33'])?>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -102,12 +116,13 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                 <?=Html::a(Html::img('@staff/web/images/cv.svg',['width'=>270]), $resumeUrl, ['target'=>'_blank']); ?>
             </div>
         <?php }  ?>
-        <div class="row" style="margin-top: 40px;">
-            <h1 style="font-size: 24px;font-weight: bold;color: #000000;">Work Experience</h1>
+
+        <div class="row" style="margin-left: 0;margin-top: 40px;">
+            <h1 style="margin-bottom: 20px; font-size: 21px;font-weight: bold;color: #000000;">Work Experience</h1>
             <?php if ($candidate->getCandidateExperiences()->count() > 0 ) { ?>
                 <ul>
                     <?php foreach ($candidate->getCandidateExperiences()->all() as $exp) { ?>
-                        <li style=" font-size: 16px;color: #000000;"><?=$exp->experience;?></li>
+                        <li style="font-size: 14px;color: #000000;"><?=$exp->experience;?></li>
                     <?php } ?>
                 </ul>
             <?php } else { ?>
@@ -116,13 +131,13 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
 
         </div>
 
-        <div class="row">
-            <h1 style="font-size: 24px;font-weight: bold;color: #000000;">Hobbies and Skills</h1>
+        <div class="row" style="margin-left: 0;">
+            <h1 style="margin-bottom: 20px; font-size: 21px;font-weight: bold;color: #000000;">Hobbies and Skills</h1>
             <?php
             if ($candidate->getCandidateSkills()->count() > 0 ) {
                 echo "<ul>";
                 foreach ($candidate->getCandidateSkills()->all() as $skill) { ?>
-                    <li style=" font-size: 16px;color: #000000;"><?=$skill->skill;?></li>
+                    <li style="font-size: 14px;color: #000000;"><?=$skill->skill;?></li>
                 <?php }
                 echo "</ul>";
             } else { ?>
