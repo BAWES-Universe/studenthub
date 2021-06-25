@@ -302,12 +302,35 @@ class Suggestion extends \yii\db\ActiveRecord
                         //throw new \yii\console\Exception('Resume not available to attach');
                     }
 
+                    //get invitation accepted note
+
+                    $inviation = Invitation::find()
+                        ->where([
+                            'candidate_id' => $eachSuggestion->candidate_id,
+                            'request_uuid' => $request->request_uuid
+                        ])
+                        ->one();
+
+                    $inviationAcceptedNote = null;
+
+                    if($inviation) {
+                        $inviationAcceptedNote = Note::find ()
+                            ->where ([
+                                'invitation_uuid' => $inviation->invitation_uuid,
+                                'candidate_id' => $eachSuggestion->candidate_id,
+                                'note_type' => Note::TYPE_INVITATION_ACCEPTED
+                            ])
+                            ->one ();
+                    }
+
                     $content = Yii::$app->controller->render(
                         '@console/controllers/views/candidate-resume-pdf',
                         [
                             'candidate' => $eachSuggestion->candidate,
                             'withNumber' => true,
                             'staff' => $suggestedByStaff,
+                            'because' => $inviationAcceptedNote? $inviationAcceptedNote->note_text: $suggestion->note->note_text,
+                            'positionTitle' => $request->request_position_title
                         ]
                     );
 
@@ -551,6 +574,7 @@ class Suggestion extends \yii\db\ActiveRecord
             'cssFile' => '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css',
             // any css to be embedded if required
             'cssInline' => "
+            
                     @font-face {
                           font-family: 'effra';
                           src: url('@staff/web/fonts/effra_std_bd-webfont.woff2') format('woff2'),
@@ -579,7 +603,42 @@ class Suggestion extends \yii\db\ActiveRecord
                         }
                         html, body, h1, p, div {
                             font-family: 'effra', sans-serif;
-                        }",
+                        }
+                        
+        .txt-suggestion {
+            width: 100%;
+            /* height: 154px; */
+            margin: 13px 0 12px 0;
+            padding: 14px 16px 9px;
+            background-color: #f2f2f2;
+        }
+
+        .txt-suggestion h5 {
+            margin: 0 0 8px;
+            font-family: Effra;
+            font-size: 12px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: left;
+            color: #000;
+        }
+
+        .txt-suggestion p {
+            margin: 8px 0 5px;
+            font-family: Effra;
+            font-size: 12px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            text-align: left;
+            color: #000;
+        }
+        ",
         ]);
         return $pdf->output($content, $profile->candidate->candidate_id . '.pdf', 'S');
     }

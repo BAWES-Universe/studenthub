@@ -11,6 +11,7 @@ use staff\models\Note;
 use staff\models\Store;
 use staff\models\CandidateWorkHistory;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 
 /**
@@ -889,6 +890,7 @@ class CandidateController extends Controller
     public function actionCandidateResumePdf($id)
     {
         $withNumber = Yii::$app->request->get('with_number');
+
         $candidate = $this->findModel($id);
 
         // remove phone in case candidate phone not required.
@@ -982,6 +984,7 @@ class CandidateController extends Controller
      * @throws \yii\base\InvalidConfigException
      */
     public function actionAppreciationCertificate($id,$wid) {
+
         $candidate = $this->findModel($id);
 
         if(!$candidate) {
@@ -990,8 +993,13 @@ class CandidateController extends Controller
                 "message" => 'Transfer not found!'
             ];
         }
-        $workHistory = $candidate->getWorkHistory()->andWhere(['id'=>$wid])->one();
+
+        $workHistory = $candidate->getWorkHistory()
+            ->andWhere(['id' => $wid])
+            ->one();
+
         $this->layout = 'main';
+
         $content = $this->render('candidate-appreciation-certificate-pdf', [
             'candidate' => $candidate,
             'workHistory' => $workHistory
@@ -1021,6 +1029,7 @@ class CandidateController extends Controller
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
+
     /**
      * Finds the Candidate model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
