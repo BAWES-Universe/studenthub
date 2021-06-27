@@ -38,7 +38,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return CompanyQuery
      */
     public function followups() {
-        return $this->filterWhere([
+        return $this->andWhere([
             'AND',
             'company_followup' => true,
             new \yii\db\Expression('DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK) <= NOW()')
@@ -69,7 +69,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
             ->select('parent_company_id')
             ->andWhere (new Expression('parent_company_id IS NOT NULL'));
 
-        return $this->filterWhere (['not in', 'company_id', $subQuery])//not parent company
+        return $this->andWhere (['not in', 'company_id', $subQuery])//not parent company
             ->andWhere (new Expression('parent_company_id IS NULL'));//not having parent
     }
 

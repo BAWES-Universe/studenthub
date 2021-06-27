@@ -82,7 +82,7 @@ class CompanyContactController extends Controller
             ->orderBy('created_at ASC');
 
         if($company_id) {
-            $query->filterWhere(['company_id' => $company_id]);
+            $query->andWhere(['company_id' => $company_id]);
         }
         
         return new ActiveDataProvider([
@@ -109,7 +109,7 @@ class CompanyContactController extends Controller
         $contact_uuid = Yii::$app->request->get('contact_uuid');
 
         return CompanyContact::find()
-            ->filterWhere(['company_id' => $company_id, 'contact_uuid' => $contact_uuid])
+            ->andWhere(['company_id' => $company_id, 'contact_uuid' => $contact_uuid])
             ->one();
     }
 
@@ -286,7 +286,7 @@ class CompanyContactController extends Controller
         $email = Yii::$app->request->get('email');
 
         $model = Contact::find()
-            ->filterWhere(['contact_email' => $email])
+            ->andWhere(['contact_email' => $email])
             ->one();
 
         return [

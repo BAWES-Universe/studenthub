@@ -434,7 +434,7 @@ class TransferController extends Controller
             //mark candidates as paid 
             
             $transferCandidates = TransferCandidate::find()
-                ->filterWhere(['in', 'tc_id', $tc_ids])
+                ->andWhere(['in', 'tc_id', $tc_ids])
                 ->all();
             
             $transferCandidatesMapped = \yii\helpers\ArrayHelper::index($transferCandidates, 'tc_id');

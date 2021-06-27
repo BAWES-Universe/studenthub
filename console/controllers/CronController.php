@@ -5,6 +5,7 @@ namespace console\controllers;
 use admin\models\TransferCandidate;
 use common\models\Note;
 use common\models\Suggestion;
+use common\models\Transfer;
 use kartik\mpdf\Pdf;
 use Yii;
 use yii\base\BaseObject;

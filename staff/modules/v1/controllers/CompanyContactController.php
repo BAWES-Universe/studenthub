@@ -99,7 +99,7 @@ class CompanyContactController extends Controller
                 ->addSelect('contact.contact_receive_notification,contact.contact_created_at')
                 ->joinWith(['contactEmails', 'contactPhones','companyContact'])
                 ->orderBy('created_at ASC')
-                ->filterWhere(['company_id' => $company_id])
+                ->andWhere(['company_id' => $company_id])
                 ->asArray();
         }
 
@@ -128,7 +128,7 @@ class CompanyContactController extends Controller
         $contact_uuid = Yii::$app->request->get('contact_uuid');
 
         return CompanyContact::find()
-            ->filterWhere(['company_id' => $company_id, 'contact_uuid' => $contact_uuid])
+            ->andWhere(['company_id' => $company_id, 'contact_uuid' => $contact_uuid])
             ->one();
     }
 

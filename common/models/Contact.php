@@ -182,7 +182,7 @@ class Contact extends \yii\db\ActiveRecord
     public function getCompanyContactsHavingAccess($modelClass = "\common\models\CompanyContact")
     {
         return $this->getCompanyContacts()
-            ->filterWhere(['allow_access' => true]);
+            ->andWhere(['allow_access' => true]);
     }
 
     /**

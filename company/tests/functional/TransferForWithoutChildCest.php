@@ -38,7 +38,7 @@ class TransferForWithoutChildCest
         $this->companyWithoutChild = Company::findOne(5);
 
         $companyContact = CompanyContact::find()
-            ->filterWhere ([
+            ->andWhere ([
                 'allow_access' => 1,
                 'company_id' => 5
             ])

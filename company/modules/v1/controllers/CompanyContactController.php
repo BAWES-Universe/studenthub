@@ -61,7 +61,7 @@ class CompanyContactController extends BaseController
         $contact_uuid = Yii::$app->request->get('contact_uuid');
 
         return CompanyContact::find()
-            ->filterWhere(['company_id' => $company->company_id, 'contact_uuid' => $contact_uuid])
+            ->andWhere(['company_id' => $company->company_id, 'contact_uuid' => $contact_uuid])
             ->one();
     }
 
@@ -115,7 +115,7 @@ class CompanyContactController extends BaseController
     {
         $company = Yii::$app->companyManager->getCompany();
 
-        $model = $company->getContacts()->filterWhere(['contact_uuid' => $id])->one();
+        $model = $company->getContacts()->andWhere(['contact_uuid' => $id])->one();
 
         if ($model !== null) {
             return $model;

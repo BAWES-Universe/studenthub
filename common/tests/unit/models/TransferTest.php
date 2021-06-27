@@ -43,7 +43,9 @@ class TransferTest extends \Codeception\Test\Unit
 
         $this->model = Company::findOne(1);
 
-        $companyContact = CompanyContact::find()->filterWhere (['company_id' => 1])->one();
+        $companyContact = CompanyContact::find()
+            ->andWhere (['company_id' => 1])
+            ->one();
 
         $this->token = $companyContact->contact->getAccessToken()->token_value;
     }
