@@ -510,16 +510,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             //recalculate transfer total
 
             $transferCandidatesQuery = TransferCandidate::find()
-                ->filterWhere ([
+                ->andWhere ([
                     'paid' => 0,
                     'candidate_id' => $this->candidate_id
                 ])
                 ->select('transfer_id');
 
             $transfers = Transfer::find()
-                ->filterWhere (['transfer_status' => Transfer::STATUS_INITIATED])
-                ->filterWhere (['in', 'transfer_id', $transferCandidatesQuery])
+                ->andWhere (['transfer_status' => Transfer::STATUS_INITIATED])
+                ->andWhere (['in', 'transfer_id', $transferCandidatesQuery])
                 ->all();
+
+            $transaction = Yii::$app->db->beginTransaction ();
 
             foreach($transfers as $transfer) {
 
@@ -527,19 +529,36 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 foreach ($transfer->transferCandidates as $transferCandidate)
                 {
+                    if($transferCandidate->candidate_id == $this->candidate_id)
+                    {
+                        $transferCandidate->candidate_hourly_rate = $this->candidate_hourly_rate;
+
+                        if(!$transferCandidate->save()) {
+                            $transaction->rollBack ();
+                            Yii::error ($transferCandidate->getErrors ());
+                            throw new \yii\web\BadRequestHttpException('Error updating hourly rate for transfer candidate #' . $transferCandidate->tc_id);
+                        }
+                    }
+
                     if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0)
                     {
                         //total amount we will pay to bank
-                        $total += $transferCandidate['bonus'] - $transferCandidate['bonus_commission'] + ($transferCandidate['hours'] * $this->candidate_hourly_rate) + $transferCandidate['transfer_cost'];
+                        $total += $transferCandidate['bonus'] - $transferCandidate['bonus_commission']
+                            + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate)
+                            + $transferCandidate['transfer_cost'];
                     }
-
-                    $transferCandidate->candidate_hourly_rate = $this->candidate_hourly_rate;
-                    $transferCandidate->save();
                 }
 
                 $transfer->total = $total;
-                $transfer->save();
+
+                if(!$transfer->save()) {
+                    $transaction->rollBack ();
+                    Yii::error ($transfer->getErrors ());
+                    throw new \yii\web\BadRequestHttpException('Error updating total for transfer #' . $transfer->transfer_id);
+                }
             }
+
+            $transaction->commit ();
         }
         else if (
             array_key_exists('candidate_iban', $changedAttributes) ||

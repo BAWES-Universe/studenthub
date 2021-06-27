@@ -364,7 +364,7 @@ class TransferTest extends \Codeception\Test\Unit
 
             $transfer = $company
                 ->getTransfers ()
-                ->filterWhere (['transfer_status' => Transfer::STATUS_INITIATED])
+                ->andWhere (['transfer_status' => Transfer::STATUS_INITIATED])
                 ->one ();
 
             $arrCandidate = [];
@@ -436,7 +436,7 @@ class TransferTest extends \Codeception\Test\Unit
 
             $transfer = $company
                 ->getTransfers()
-                ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+                ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
                 ->one();
 
             $candidates = $company
@@ -515,7 +515,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $start_date = '2010/10/10';
@@ -537,7 +537,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $arrCandidate = [
@@ -567,7 +567,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $arrCandidate = [];
@@ -601,7 +601,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $arrCandidate = [];
@@ -635,7 +635,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $arrCandidate = [];
@@ -669,7 +669,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $start_date = '2010/10/10';
@@ -693,7 +693,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $arrCandidate = [
@@ -725,7 +725,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         $transfer = $company
             ->getTransfers()
-            ->filterWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
             ->one();
 
         $arrCandidate = [];

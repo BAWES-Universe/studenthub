@@ -63,7 +63,7 @@ class NoteCest
     {
         $note = Note::find()
             ->joinWith(['request'])
-            ->filterWhere (['request_status' => Request::STATUS_STARTED])
+            ->andWhere (['request_status' => Request::STATUS_STARTED])
             ->one();
 
         $I->wantTo('Validate note > update api response');

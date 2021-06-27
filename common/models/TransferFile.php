@@ -113,7 +113,7 @@ class TransferFile extends \yii\db\ActiveRecord
         
         $tf->transfer_amount = TransferCandidate::find()
            ->select(new Expression('SUM((candidate_hourly_rate * hours) + bonus - bonus_commission)'))
-           ->filterWhere(['in', 'tc_id', $tc_ids])
+           ->andWhere(['in', 'tc_id', $tc_ids])
            ->scalar();
              
         if($tf->save()) {

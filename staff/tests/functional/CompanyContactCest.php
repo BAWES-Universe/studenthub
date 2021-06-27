@@ -171,11 +171,11 @@ class CompanyContactCest
     {
         $subQuery = CompanyContact::find()
             ->select('contact_uuid')
-            ->filterWhere(['company_id' => 1])
+            ->andWhere(['company_id' => 1])
             ->all();
 
         $contact = Contact::find()
-            ->filterWhere(['NOT IN', 'contact_uuid', $subQuery])
+            ->andWhere(['NOT IN', 'contact_uuid', $subQuery])
             ->one();
 
         $I->wantTo('add contact to team via API');

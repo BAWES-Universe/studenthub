@@ -19,7 +19,7 @@ class m210519_140346_fix_transfer extends Migration
 
         /*$transferCandidates = TransferCandidate::find()
             ->joinWith ('candidate', true, 'left join')
-            ->filterWhere ([
+            ->andWhere ([
                 'paid' => 0
             ])
             ->andWhere (new \yii\db\Expression(
@@ -31,11 +31,11 @@ class m210519_140346_fix_transfer extends Migration
         $transferCandidatesIds = \yii\helpers\ArrayHelper::getColumn ($transferCandidates, 'transfer_id');
 
         $transfers = Transfer::find()
-            ->filterWhere (['in', 'transfer_id', $transferCandidatesIds])
+            ->andWhere (['in', 'transfer_id', $transferCandidatesIds])
             ->all();*/
 
         $transfers = Transfer::find()
-            ->filterWhere (['transfer_id' => 797])
+            ->andWhere (['transfer_id' => 797])
             ->all();
 
         foreach($transfers as $transfer) {

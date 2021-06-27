@@ -166,7 +166,7 @@ class TransferCandidate extends \common\models\TransferCandidate
         $transferCandidateList = ArrayHelper::getColumn($transferCandidateIds,'tc_id');
         
         $transferCandidates = TransferCandidate::find()
-            ->filterWhere(['in', 'tc_id', $transferCandidateList])
+            ->andWhere(['in', 'tc_id', $transferCandidateList])
             ->all();
         
         foreach($transferCandidates as $transferCandidate) {
@@ -226,7 +226,7 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         
         $transferCandidates = TransferCandidate::find()
-            ->filterWhere($condition)
+            ->andWhere($condition)
             ->all();
         
         foreach($transferCandidates as $transferCandidate) {

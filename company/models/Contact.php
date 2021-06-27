@@ -190,7 +190,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
     public function getCompanyContactsHavingAccess($modelClass = "\company\models\CompanyContact")
     {
         return $this->getCompanyContacts($modelClass)
-            ->filterWhere(['allow_access' => true]);
+            ->andWhere(['allow_access' => true]);
     }
 
     /**
