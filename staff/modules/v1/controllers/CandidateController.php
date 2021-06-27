@@ -248,6 +248,8 @@ class CandidateController extends Controller
             ];
         }
 
+        Yii::info('['.$model->candidate_name.' Candidate Job Search Status Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
         return [
             'operation' => 'success',
         ];
@@ -264,6 +266,7 @@ class CandidateController extends Controller
         $candidate_hourly_rate = Yii::$app->request->getBodyParam('hourly_rate');
 
         $model = $this->findModel($id);
+        
         $model->candidate_hourly_rate = $candidate_hourly_rate;
 
         $model->scenario = 'updateHourRate';
@@ -274,6 +277,8 @@ class CandidateController extends Controller
                 'message' => $model->getErrors()
             ];
         }
+
+        Yii::info('['.$model->candidate_name.' Candidate Hourly Rate Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             'operation' => 'success',
@@ -463,6 +468,8 @@ class CandidateController extends Controller
             $model->candidate->commitmentWarningEmail();
         }
 
+        Yii::info('['.$model->candidate->candidate_name.' Candidate Job Committed Status Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
         return [
             "operation" => "success",
             "candidate_committed" => $model->candidate->candidate_committed,
@@ -583,6 +590,7 @@ class CandidateController extends Controller
         $email = Yii::$app->request->get("email");
         $phone = Yii::$app->request->get("phone");
         $type = Yii::$app->request->get("type");
+        $updatedAfter = Yii::$app->request->get("updatedAfter");
 
         $query = Candidate::find();
 
@@ -602,6 +610,9 @@ class CandidateController extends Controller
 
         if($phone) {
             $query->filterPhone($phone);
+        }
+        if($updatedAfter) {
+            $query->filterUpdatedAfter($updatedAfter);
         }
 
         return new ActiveDataProvider([
