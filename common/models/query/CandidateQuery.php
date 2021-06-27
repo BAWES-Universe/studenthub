@@ -3,6 +3,7 @@
 namespace common\models\query;
 
 use Yii;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use common\models\CandidateIdCard;
 use common\models\Store;
@@ -57,6 +58,15 @@ class CandidateQuery extends \yii\db\ActiveQuery
         // return candidate list for given company 
         
         return $this->andWhere(['in', '{{%candidate}}.store_id', $store_ids]);
+    }
+
+    /**
+     * @param $updatedAfter
+     * @return $this
+     */
+    public function filterUpdatedAfter($updatedAfter)
+    {
+        return $this->andWhere(new Expression("DATE(candidate_updated_at) > DATE('".$updatedAfter."') and DATE(candidate_created_at) != DATE(candidate_updated_at)"));
     }
 
     /**
