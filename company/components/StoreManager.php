@@ -54,7 +54,7 @@ class StoreManager
             $companyIds[] = $company->company_id;
 
             return Store::find()
-                ->filterWhere(['in', 'company_id', $companyIds])
+                ->andWhere(['in', 'company_id', $companyIds])
                 ->andWhere(['store.deleted' => 0])
                 ->asArray()
                 ->all();

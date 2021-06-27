@@ -191,7 +191,7 @@ class StoreCest
         $store = Store::findOne(['company_id' => '4']);
 
         $contact = CompanyContact::find()
-            ->filterWhere(['company_id' => 4])
+            ->andWhere(['company_id' => 4])
             ->one();
 
         $I->wantTo('update store Manager');

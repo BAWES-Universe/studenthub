@@ -38,7 +38,7 @@ class RequestActivityCest
         $this->company = $this->contact->getManagedCompanies()->one();
 
         $this->request = Request::find ()
-            ->filterWhere (['company_id' => $this->company->company_id])
+            ->andWhere (['company_id' => $this->company->company_id])
             ->one ();
 
         $I->amBearerAuthenticated($this->token);

@@ -78,7 +78,7 @@ class StoreController extends Controller
                 'candidates.bank',
                 'candidates.university'
             ])    
-            ->filterWhere(['company_id' => $companyId]);
+            ->andWhere(['company_id' => $companyId]);
 
         return new ActiveDataProvider([
             'query' => $query,

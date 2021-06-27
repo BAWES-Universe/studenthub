@@ -37,11 +37,11 @@ class SuggestionCest
         $this->company = $this->contact->getManagedCompanies()->one();
 
         $this->request = Request::find ()
-            ->filterWhere (['company_id' => $this->company->company_id])
+            ->andWhere (['company_id' => $this->company->company_id])
             ->one ();
 
         $this->suggestion = Suggestion::find ()
-            ->filterWhere (['request_uuid' => $this->request->request_uuid])
+            ->andWhere (['request_uuid' => $this->request->request_uuid])
             ->one ();
 
         $I->amBearerAuthenticated($this->token);
