@@ -83,7 +83,6 @@ class TransferCandidateController extends Controller
         
         if($tc_id) {
             $transferCandidateRecords = array_diff(explode(",", $tc_id),[""]);
-    
             $query->andWhere(['in', 'tc_id', $transferCandidateRecords]);
         }
         

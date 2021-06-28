@@ -232,7 +232,7 @@ class TransferFile extends \yii\db\ActiveRecord
                 'status_description' => $value['Status Description'],
                 'section_index' => $value['Section Index'],
                 'transfer_method' => $value['Transfer Method'],
-                'credit_amount' => $value['Credit Amount'],
+                'credit_amount' => str_replace (',', '', $value['Credit Amount']),
                 'credit_currency' => $value['Credit Currency'],
                 'exchange_rate' => (float) $value['Exchange Rate'],
                 'dealRefNo' => $value['DealRefNo'],
