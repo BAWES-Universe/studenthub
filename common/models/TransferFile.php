@@ -118,7 +118,7 @@ class TransferFile extends \yii\db\ActiveRecord
              
         if($tf->save()) {
             TransferFile::transferMail($tf, count($tc_ids), $fileName);
-            return $tf->transfer_file_id;
+            return $tf;
         }
     }
 

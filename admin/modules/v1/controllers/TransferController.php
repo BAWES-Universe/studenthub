@@ -418,12 +418,16 @@ class TransferController extends Controller
             }
             
             if($value['Status'] == 'FAIL') {
+
                 $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
+
                 if($transferCandidate && $transferCandidate->candidate) {
+                    
                     $transferCandidate->paid = TransferCandidate::UNPAID;
                     $transferCandidate->transfer_benef_iban = null;
                     $transferCandidate->transfer_benef_name = null;
                     $transferCandidate->bank_id = null;
+
                     if ($transferCandidate->save(false)) {
 
                         $transferCandidate->candidate->bank_id = null;
@@ -436,7 +440,9 @@ class TransferController extends Controller
                 }
 
             }
-            if($value['Status'] == 'SUCCESS') {
+
+            if($value['Status'] == 'SUCCESS')
+            {
                 $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
 
                 if(!$transferCandidate || !$transferCandidate->candidate) {
@@ -504,10 +510,10 @@ class TransferController extends Controller
             //save file used to mark transfers as paid 
              
             $tc_ids = \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'tc_id');
+
+            $tf = \admin\models\TransferFile::saveFile($tc_ids, $model->excel);
             
-            $transfer_file_id = \admin\models\TransferFile::saveFile($tc_ids, $model->excel);
-            
-            if(!$transfer_file_id) {
+            if(!$tf || !$tf->transfer_file_id) {
                 return [
                     "operation" => "error",
                     "message" => 'Error on trying to save transfer file'
@@ -537,7 +543,7 @@ class TransferController extends Controller
                 $tc = $transferCandidatesMapped[$value['tc_id']];
                 
                 $tc->paid = 1;
-                $tc->transfer_file_id = $transfer_file_id;
+                $tc->transfer_file_id = $tf->transfer_file_id;
                 $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
 
                 if(!$tc->save())
@@ -562,6 +568,10 @@ class TransferController extends Controller
             foreach($transfer_ids as $transfer_id) {
                 Transfer::markTransferCompleteOnCandidatePaid($transfer_id);
             }
+
+            //save transfer file entries
+
+            $tf->populateEntries();
 
             $transaction->commit();
 
