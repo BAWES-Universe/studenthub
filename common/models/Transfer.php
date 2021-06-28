@@ -184,6 +184,35 @@ class Transfer extends ActiveRecord
     }
 
     /**
+     * is current transfer suspicious of manipulation in transfer amount?
+     * @return bool
+     */
+    public function getIsSuspicious() {
+
+        return TransferCandidate::find()
+            ->innerJoinWith('transferFileEntry')
+            ->andWhere(new Expression('credit_amount != candidate_total'))
+            ->andWhere(['transfer_id' => $this->transfer_id])
+            ->exists();
+
+        /*$totalPaid = TransferFileEntry::find()
+            ->andWhere(['debit_narrative' => $this->transfer_id])
+            ->sum('credit_amount');
+
+        return $totalPaid != $this->total;*/
+    }
+
+    /**
+     * total amount paid
+     * @return bool|int|mixed|string|null
+     */
+    public function getTransferFileTotal() {
+        return TransferFileEntry::find()
+            ->andWhere(['debit_narrative' => $this->transfer_id])
+            ->sum('credit_amount');
+    }
+
+    /**
      * @inheritdoc
      */
     public function extraFields()
@@ -196,7 +225,9 @@ class Transfer extends ActiveRecord
             'invoices',
             'transferCandidates',
             'childTransfers',
-            'paidTransferCandidates'
+            'paidTransferCandidates',
+            'isSuspicious',
+            'transferFileTotal'
         ];
     }
 
@@ -341,6 +372,15 @@ class Transfer extends ActiveRecord
         return $this->hasMany($modelClass::className(), ['transfer_id'=>'transfer_id'])
             ->andWhere(['{{%transfer_candidate}}.deleted'=>0])
             ->via('childTransfers');
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFileEntries($modelClass = "\common\models\TransferFileEntry")
+    {
+        return $this->hasMany($modelClass::className(), ['debit_narrative' => 'transfer_id']);
     }
 
     /**

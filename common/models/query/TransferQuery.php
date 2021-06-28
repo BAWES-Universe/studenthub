@@ -3,6 +3,7 @@
 namespace common\models\query;
 
 use Yii;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\db\ActiveQuery;
 use common\models\Transfer;
@@ -41,6 +42,25 @@ class TransferQuery extends ActiveQuery
     public function filterParent($transfer_id)
     {
         return $this->andWhere(['transfer.parent_transfer_id' => $transfer_id]);
+    }
+
+    /**
+     * filter transfers where transfer total(for candidate) not matching
+     * transfer file total
+     * @return TransferQuery
+     */
+    public function filterSuspicious()
+    {
+        return $this->andWhere(new Expression("transfer_id in (select DISTINCT(transfer_id) FROM `transfer_candidate` INNER JOIN `transfer_file_entry` on 
+            `transfer_file_entry`.`credit_narrative` = `transfer_candidate`.`tc_id` 
+            WHERE `transfer_file_entry`.`credit_amount` != `transfer_candidate`.`candidate_total`)"));
+
+        /*
+        might have unpaid candidate
+        --------------------------------------
+        return $this->andWhere('transfer.total != (select sum("credit_amount") from transfer_file_entry 
+            where status="SUCCESS" AND debit_narrative=transfer.total)');
+        */
     }
 
     /**

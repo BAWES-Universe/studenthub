@@ -45,6 +45,15 @@ class TransferCandidate extends \common\models\TransferCandidate
     	return $fields;
     }
 
+    public function extraFields()
+    {
+        $fields =  parent::extraFields ();
+
+        return array_merge ($fields, [
+            'transferFileEntry'
+        ]);
+    }
+
     /**
      * mark transfer candidate as unpaid
      * also mark transfer from complete to

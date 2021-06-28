@@ -18,17 +18,17 @@ class m210628_071238_transfer_file_entries extends Migration
         $transfer_files = \common\models\TransferFile::find ()
             ->andWhere('transfer_file_id NOT IN (select DISTINCT(transfer_file_id) from transfer_file_entry)');
 
-        $transaction = Yii::$app->db->beginTransaction ();
-
         foreach ($transfer_files->each (1) as $transfer_file) {
+
+            $transaction = Yii::$app->db->beginTransaction ();
 
             if(!$transfer_file->populateEntries()) {
                 $transaction->rollBack ();
                 throw new \yii\web\BadRequestHttpException('Error populating entries for transfer file #' . $transfer_file->transfer_file_id);
             }
-        }
 
-        $transaction->commit ();
+            $transaction->commit ();
+        }
     }
 
     /**

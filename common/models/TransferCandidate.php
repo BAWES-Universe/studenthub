@@ -461,6 +461,16 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFileEntry($modelClass = "\common\models\TransferFileEntry")
+    {
+        return $this->hasOne($modelClass::className(), ['credit_narrative' => 'tc_id'])
+            ->andWhere(['transfer_file_entry.status' => 'SUCCESS']);
+    }
+
+    /**
      * get list of transferable candidate
      * for text export
      * @return array

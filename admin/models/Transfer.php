@@ -48,7 +48,9 @@ class Transfer extends \common\models\Transfer
             'totalUnpaid',
             'unPaidTransferCandidates',
             'remainingPaymentTransferTotal',
-            'profit'
+            'profit',
+            'transferFileEntries',
+            'isSuspicious'
         ];
     }
     
