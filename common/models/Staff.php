@@ -325,7 +325,10 @@ class Staff extends ActiveRecord implements IdentityInterface
         $this->staff_email = 'deleted at ' . time() . '-' . $this->staff_email;
         $this->staff_password_reset_token = null;
 
-        return $this->save(false);
+        if ($this->save(false)) {
+            return StaffToken::deleteAll(['staff_id'=>$this->staff_id]);
+        }
+        return false;
     }
 
     /**
