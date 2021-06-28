@@ -837,7 +837,54 @@ class TransferController extends Controller
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
-    
+
+    /**
+     * @return mixed|ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionSuspiciousList()
+    {
+        $company_name = Yii::$app->request->get('company_name');
+        $transfer_status = Yii::$app->request->get('transfer_status');
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = Transfer::find()
+            ->joinWith([
+                'transferCandidates' => function($query) {
+                    return $query
+                        ->joinWith('candidate')
+                        ->andWhere('`candidate`.`store_id` = `transfer_candidate`.`store_id` ')
+                        ->andWhere('`transfer_candidate`.`candidate_hourly_rate` != `candidate`.`candidate_hourly_rate`');
+
+                }
+            ]);
+
+        $query->isParentTransfer();
+
+        if ($company_name) {
+            $query->companyJoin()
+                ->filterCompany($company_name);
+        }
+
+        if($transfer_status)
+            $query->filterStatus($transfer_status);
+
+        if($start_date)
+            $query->startDate($start_date);
+
+        if($end_date)
+            $query->endDate($end_date);
+
+        $query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
+
+//        return $query->createCommand()->getRawSql();
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
     /**
      * Finds the Transfer model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
