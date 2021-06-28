@@ -186,6 +186,7 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/transfer',
                     'patterns' => [
+                        'GET suspicious' => 'suspicious-list',
                         'GET' => 'list',
                         'GET text' => 'text',
                         'GET payable-candidates' => 'payable-candidates',
@@ -195,12 +196,14 @@ return [
                         'GET pdf/<id>/<type>' => 'pdf',
                         'GET <id>' => 'view',
                         'POST import-excel' => 'import-excel',
+                        'POST update-transfer-from-file/<id>' => 'update-transfer-from-file',
                         'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH mark-paid-all' => 'mark-paid-all',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS update-transfer-from-file/<id>' => 'options',
                         'OPTIONS payable-candidates' => 'options',
                         'OPTIONS invoices/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -212,7 +215,8 @@ return [
                         'OPTIONS export-payable-candidates' => 'options',
                         'OPTIONS text' => 'options',
                         'OPTIONS export/<id>' => 'options',
-                        'OPTIONS pdf/<id>/<type>' => 'options'
+                        'OPTIONS pdf/<id>/<type>' => 'options',
+                        'OPTIONS suspicious' => 'options'
                     ]
                 ],
                 [ // TransferCandidateController

@@ -118,7 +118,7 @@ class TransferFile extends \yii\db\ActiveRecord
              
         if($tf->save()) {
             TransferFile::transferMail($tf, count($tc_ids), $fileName);
-            return $tf->transfer_file_id;
+            return $tf;
         }
     }
 
@@ -165,7 +165,139 @@ class TransferFile extends \yii\db\ActiveRecord
             ])
             ->send();
     }
-    
+
+    /**
+     * populate transfer_file_entry table from transfer file
+     * @throws \yii\db\Exception
+     */
+    public function populateEntries() {
+
+        //read file
+
+        $fileUrl = Yii::$app->resourceManager->getUrl ($this->transfer_file_s3_path);
+
+        //save in temp folder to process
+
+        $tmpFile = sys_get_temp_dir () . '/' . basename ($this->transfer_file_s3_path);
+
+        if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
+
+            return false;/*[
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];*/
+        }
+
+        $excelData = \moonland\phpexcel\Excel::import ($tmpFile, [
+            'setFirstRecordAsKeys' => false
+        ]);
+
+        //remove first blank row
+
+        \yii\helpers\ArrayHelper::remove ($excelData, '1');
+
+        //second row will be key
+
+        $keys = \yii\helpers\ArrayHelper::remove ($excelData, '2');
+
+        //create array with key to read data
+
+        $data = [];
+
+        foreach ($excelData as $values) {
+            $data[] = array_combine ($keys, $values);
+        }
+
+        //no need file anymore
+
+        @unlink ($tmpFile);
+
+        $transferFileEntries = [];
+
+        foreach ($data as $key => $value) {
+
+            //remove empty rows
+
+            if (empty($value['Status'])) {
+                continue;
+            }
+
+            $tfe_uuid = 'tfe_' . Yii::$app->db->createCommand ('SELECT uuid()')->queryScalar ();
+
+            $transferFileEntries[] = [
+                'tfe_uuid' => $tfe_uuid,
+                'transfer_file_id' => $this->transfer_file_id,
+                'status' => $value['Status'],
+                'status_description' => $value['Status Description'],
+                'section_index' => $value['Section Index'],
+                'transfer_method' => $value['Transfer Method'],
+                'credit_amount' => str_replace (',', '', $value['Credit Amount']),
+                'credit_currency' => $value['Credit Currency'],
+                'exchange_rate' => (float) $value['Exchange Rate'],
+                'dealRefNo' => $value['DealRefNo'],
+                'value_date' => $value['Value Date'],
+                'debit_account_no' => $value['Debit Account No'],
+                'credit_account_no' => $value['Credit Account No'],
+                'debit_narrative' => $value['Debit Narrative'],
+                'credit_narrative' => $value['Credit Narrative'],
+                'payment_details_1' => $value['Payment Details 1'],
+                'payment_details_2' => $value['Payment Details 2'],
+                'payment_details_3' => $value['Payment Details 3'],
+                'payment_details_4' => $value['Payment Details 4'],
+                'beneficiary_name' => $value['Beneficiary Name'],
+                'beneficiary_address_line_1' => $value['Beneficiary Address Line 1'],
+                'beneficiary_address_line_2' => $value['Beneficiary Address Line 2'],
+                'beneficiary_bank_name' => $value['Beneficiary Bank Name'],
+                'beneficiary_bank_address_1' => $value['Beneficiary Bank Address 1'],
+                'beneficiary_bank_address_2' => $value['Beneficiary Bank Address 2'],
+                'beneficiary_bank_address_3' => $value['Beneficiary Bank Address 3'],
+                'swift' => $value['Swift'],
+                'intermediary_account' => $value['Intermediary Account'],
+                'intermediary_swift' => $value['Intermediary Swift'],
+                'intrmediary_name' => $value['Intrmediary Name'],
+                'intermediary_address_1' => $value['Intermediary Address 1'],
+                'intermediary_address_2' => $value['Intermediary Address 2'],
+                'intermediary_address_3' => $value['Intermediary Address 3'],
+                'charges_type' => $value['Charges Type'],
+                'sort_code' => $value['Sort Code'],
+                'BIC_code' => $value['BIC Code'],
+                'IBAN' => $value['IBAN'],
+                'ABA_routing_code' => $value['ABA Routing Code'],
+                //'created_by' => null,
+                //'updated_by' => null,
+                'created_at' => date ('Y-m-d'),
+                'updated_at' => date ('Y-m-d'),
+            ];
+        }
+
+        //populate entries
+
+        $columns = [
+            'tfe_uuid', 'transfer_file_id', 'status', 'status_description', 'section_index', 'transfer_method', 'credit_amount',
+            'credit_currency', 'exchange_rate', 'dealRefNo', 'value_date', 'debit_account_no', 'credit_account_no', 'debit_narrative',
+            'credit_narrative', 'payment_details_1', 'payment_details_2', 'payment_details_3', 'payment_details_4',
+            'beneficiary_name', 'beneficiary_address_line_1', 'beneficiary_address_line_2', 'beneficiary_bank_name',
+            'beneficiary_bank_address_1', 'beneficiary_bank_address_2', 'beneficiary_bank_address_3', 'swift', 'intermediary_account',
+            'intermediary_swift', 'intrmediary_name', 'intermediary_address_1', 'intermediary_address_2', 'intermediary_address_3',
+            'charges_type', 'sort_code', 'BIC_code', 'IBAN', 'ABA_routing_code', 'created_at', 'updated_at',
+        ];
+
+        Yii::$app->db->createCommand ()->batchInsert ('transfer_file_entry', $columns,
+            $transferFileEntries
+        )->execute ();
+
+        return true;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFileEntry($modelClass = "\common\models\TransferFileEntry")
+    {
+        return $this->hasMany($modelClass::className(), ['transfer_file_id' => 'transfer_file_id']);
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

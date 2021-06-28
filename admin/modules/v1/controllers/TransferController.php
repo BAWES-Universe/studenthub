@@ -82,6 +82,7 @@ class TransferController extends Controller
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
         $end_date = Yii::$app->request->get('end_date');
+        $suspicious = Yii::$app->request->get('suspicious');
 
         $query = Transfer::find()
             ->isParentTransfer();
@@ -93,6 +94,10 @@ class TransferController extends Controller
 
         if($transfer_status)
             $query->filterStatus($transfer_status);
+
+        if($suspicious) {
+            $query->filterSuspicious();
+        }
 
         if($start_date)
             $query->startDate($start_date);
@@ -106,6 +111,84 @@ class TransferController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * update transfer total from transfer file entry
+     */
+    public function actionUpdateTransferFromFile($id)
+    {
+        $transfer = $this->findModel ($id);
+
+        $transaction = Yii::$app->db->beginTransaction ();
+
+        $total = 0;
+
+        foreach ($transfer->transferCandidates as $transferCandidate) {
+
+            //calculate hourly rate used in transfer
+
+            $candidate_hourly_rate = null;
+
+            if($transferCandidate->transferFileEntry) {
+                $candidate_hourly_rate = (
+                        $transferCandidate->transferFileEntry->credit_amount -
+                        $transferCandidate->bonus +
+                        $transferCandidate->bonus_commission -
+                        $transferCandidate['transfer_cost']
+                    ) / $transferCandidate->hours;
+            }
+
+            //if not processed + having same store
+
+            if(!$candidate_hourly_rate && $transferCandidate->store_id == $transferCandidate->candidate->store_id) {
+                $candidate_hourly_rate = $transferCandidate->candidate->candidate_hourly_rate;
+            }
+
+            //if store updated, keep old hourly rate
+
+            if($candidate_hourly_rate) {
+                $transferCandidate->candidate_hourly_rate = $candidate_hourly_rate;
+            }
+
+            if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0) {
+
+                $transferCandidate->candidate_total = $transferCandidate['bonus'] - $transferCandidate['bonus_commission']
+                    + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate)
+                    + $transferCandidate['transfer_cost'];
+
+                //total amount we will pay to bank
+                $total += $transferCandidate->candidate_total;
+            }
+
+            if (!$transferCandidate->save ()) {
+
+                $transaction->rollBack ();
+
+                return [
+                    'operation' => 'error',
+                    'message' => 'Error updating hourly rate for transfer candidate #' . $transferCandidate->tc_id
+                ];
+            }
+        }
+
+        $transfer->total = $total;
+
+        if(!$transfer->save()) {
+            $transaction->rollBack ();
+
+            return [
+                'operation' => 'error',
+                'message' => 'Error updating total for transfer #' . $transfer->transfer_id
+            ];
+        }
+
+        $transaction->commit ();
+
+        return [
+            'operation' => 'success',
+            'message' => 'Transfer updated from transfer files #' . $transfer->transfer_id
+        ];
     }
     
     /**
@@ -335,12 +418,16 @@ class TransferController extends Controller
             }
             
             if($value['Status'] == 'FAIL') {
+
                 $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
+
                 if($transferCandidate && $transferCandidate->candidate) {
+                    
                     $transferCandidate->paid = TransferCandidate::UNPAID;
                     $transferCandidate->transfer_benef_iban = null;
                     $transferCandidate->transfer_benef_name = null;
                     $transferCandidate->bank_id = null;
+
                     if ($transferCandidate->save(false)) {
 
                         $transferCandidate->candidate->bank_id = null;
@@ -353,7 +440,9 @@ class TransferController extends Controller
                 }
 
             }
-            if($value['Status'] == 'SUCCESS') {
+
+            if($value['Status'] == 'SUCCESS')
+            {
                 $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
 
                 if(!$transferCandidate || !$transferCandidate->candidate) {
@@ -421,10 +510,10 @@ class TransferController extends Controller
             //save file used to mark transfers as paid 
              
             $tc_ids = \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'tc_id');
+
+            $tf = \admin\models\TransferFile::saveFile($tc_ids, $model->excel);
             
-            $transfer_file_id = \admin\models\TransferFile::saveFile($tc_ids, $model->excel);
-            
-            if(!$transfer_file_id) {
+            if(!$tf || !$tf->transfer_file_id) {
                 return [
                     "operation" => "error",
                     "message" => 'Error on trying to save transfer file'
@@ -454,7 +543,7 @@ class TransferController extends Controller
                 $tc = $transferCandidatesMapped[$value['tc_id']];
                 
                 $tc->paid = 1;
-                $tc->transfer_file_id = $transfer_file_id;
+                $tc->transfer_file_id = $tf->transfer_file_id;
                 $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
 
                 if(!$tc->save())
@@ -479,6 +568,10 @@ class TransferController extends Controller
             foreach($transfer_ids as $transfer_id) {
                 Transfer::markTransferCompleteOnCandidatePaid($transfer_id);
             }
+
+            //save transfer file entries
+
+            $tf->populateEntries();
 
             $transaction->commit();
 
@@ -754,7 +847,54 @@ class TransferController extends Controller
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
-    
+
+    /**
+     * @return mixed|ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionSuspiciousList()
+    {
+        $company_name = Yii::$app->request->get('company_name');
+        $transfer_status = Yii::$app->request->get('transfer_status');
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = Transfer::find()
+            ->joinWith([
+                'transferCandidates' => function($query) {
+                    return $query
+                        ->joinWith('candidate')
+                        ->andWhere('`candidate`.`store_id` = `transfer_candidate`.`store_id` ')
+                        ->andWhere('`transfer_candidate`.`candidate_hourly_rate` != `candidate`.`candidate_hourly_rate`');
+
+                }
+            ]);
+
+        $query->isParentTransfer();
+
+        if ($company_name) {
+            $query->companyJoin()
+                ->filterCompany($company_name);
+        }
+
+        if($transfer_status)
+            $query->filterStatus($transfer_status);
+
+        if($start_date)
+            $query->startDate($start_date);
+
+        if($end_date)
+            $query->endDate($end_date);
+
+        $query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
+
+//        return $query->createCommand()->getRawSql();
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
     /**
      * Finds the Transfer model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

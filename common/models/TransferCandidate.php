@@ -28,6 +28,8 @@ use yii\behaviors\TimestampBehavior;
  * @property decimal $bonus - bonus amount company paying 
  * @property decimal $bonus_commission - commission admin will take from bonus in KWD
  * @property decimal $transfer_cost - transfer cost of payment
+ * @property decimal $candidate_total - candidate total
+ * @property decimal $company_total - company total
  * @property decimal $transfer_candidate
  * @property integer $paid
  * @property string $tc_created_at
@@ -459,6 +461,16 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferFileEntry($modelClass = "\common\models\TransferFileEntry")
+    {
+        return $this->hasOne($modelClass::className(), ['credit_narrative' => 'tc_id'])
+            ->andWhere(['transfer_file_entry.status' => 'SUCCESS']);
+    }
+
+    /**
      * get list of transferable candidate
      * for text export
      * @return array
@@ -635,6 +647,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
         if ((int)$value['hours']>0 || $value['bonus'] > 0) {
             $total = $value['bonus'] - $TCModel->bonus_commission + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
             $company_total = $value['bonus'] + ($value['hours'] * $company_hourly_rate);
+            $TCModel->candidate_total = $total;
+            $TCModel->company_total = $company_total;
         }
 
         // in case if amount is 0
