@@ -77,8 +77,11 @@ class StoreController extends Controller
                 'candidates.company', 
                 'candidates.bank',
                 'candidates.university'
-            ])    
-            ->andWhere(['company_id' => $companyId]);
+            ]);
+
+        if ($companyId) {
+            $query->andWhere(['company_id' => $companyId]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query,
