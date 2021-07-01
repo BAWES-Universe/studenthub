@@ -174,10 +174,12 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $fields['total_paid'] = function ($model) {
             return $this->totalPaidByCompany;
         };
+        
         // Total amount we need to pay to candidate
         $fields['total_amount'] = function ($model) {
             return $this->totalPaidToCandidate;
         };
+
         // Our Profile
         $fields['profit'] = function ($model) {
             return $this->profit;

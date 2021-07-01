@@ -28,6 +28,7 @@ class TransferCandidate extends \common\models\TransferCandidate
             $fields['transfer_cost'],
             $fields['tc_updated_at'],
             $fields['total_amount'],
+            $fields['company_total'],
             $fields['profit'],
             $fields['paid'],
             $fields['total_paid']

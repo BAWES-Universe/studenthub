@@ -14,7 +14,7 @@ class TransferCandidate extends \common\models\TransferCandidate
     	$fields = parent::fields();
 
         // Hide Sensitive Data
-    	unset($fields['total_amount'], $fields['transfer_cost'],
+    	unset($fields['candidate_total'], $fields['total_amount'], $fields['transfer_cost'],
             $fields['candidate_hourly_rate'], $fields['deleted'], $fields['profit'],
             $fields['tc_created_at'], $fields['tc_updated_at']);
 
