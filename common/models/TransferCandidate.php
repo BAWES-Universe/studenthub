@@ -74,6 +74,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_benef_name'], 'string', 'max' => 60],
             [['bank_id', 'transfer_confirmation_id', 'transfer_benef_name', 'transfer_benef_iban'], 'validateBankDetails'],
             [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
+            //[['hours'], 'validateHours'],
             [['tc_created_at', 'tc_updated_at'], 'safe'],
             [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
@@ -83,6 +84,22 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::className(), 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']]
         ];
     }
+
+    /**
+     * max length validation for no of hours
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     *
+    public function validateHours($attribute, $params, $validator)
+    {
+        if(strlen ((string)$this->hours) > 15) {
+            $this->addError($attribute, 'Hours can not be more than 15 character long.');
+            return false;
+        }
+
+        return true;
+    }*/
 
     public function validateStatus($attribute, $params, $validator)
     {
@@ -649,8 +666,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
         if ((int)$value['hours']>0 || $value['bonus'] > 0) {
             $total = $value['bonus'] - $TCModel->bonus_commission + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
             $company_total = $value['bonus'] + ($value['hours'] * $company_hourly_rate);
-            $TCModel->candidate_total = $total;
-            $TCModel->company_total = $company_total;
+            $TCModel->candidate_total = round($total, 3);
+            $TCModel->company_total = round($company_total, 3);
         }
 
         // in case if amount is 0

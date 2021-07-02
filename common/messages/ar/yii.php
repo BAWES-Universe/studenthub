@@ -24,6 +24,7 @@
  */
 return [
 	'(not set)' => '(لم يحدد)',
+    'Hours can not be more than 16 character long' => 'لا يمكن أن تكون الساعات أكثر من 16 حرفًا',
 	'An internal server error occurred.' => '.حدث خطأ داخلي في الخادم',
 	'Delete' => 'حذف',
 	'Error' => 'خطأ',
