@@ -208,6 +208,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $fields['hours'] = function ($model) {
             return (double)$this->hours;
         };
+
         $fields['bonus'] = function ($model) {
             return (double)$this->bonus;
         };
@@ -223,11 +224,21 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $fields['transfer_cost'] = function ($model) {
             return (double)$this->transfer_cost;
         };
+
         $fields['candidate_hourly_rate'] = function ($model) {
             return (double)$this->candidate_hourly_rate;
         };
+
         $fields['company_hourly_rate'] = function ($model) {
             return (double)$this->company_hourly_rate;
+        };
+
+        $fields['company_total'] = function ($model) {
+            return (double)$this->company_total;
+        };
+
+        $fields['candidate_total'] = function ($model) {
+            return (double)$this->candidate_total;
         };
 
         return $fields;
