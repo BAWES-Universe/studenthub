@@ -618,6 +618,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         $total = 0;
         $company_total = 0;
+        $hourly_rate = 0;
 
         $hourly_rate = $candidate['candidate_hourly_rate'];
 
@@ -625,9 +626,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $company = $candidate['company'];
 
         $TCModel = new \company\models\TransferCandidate;
+        $TCModel->attributes = $value;
         $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
         $TCModel->candidate_hourly_rate = $hourly_rate;
-        $TCModel->attributes = $value;
         $TCModel->transfer_id = $model->transfer_id;
         $TCModel->store_id = $candidate['store_id'];
         $TCModel->store_name = $store['store_name'];
