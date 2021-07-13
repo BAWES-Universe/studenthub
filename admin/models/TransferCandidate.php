@@ -263,8 +263,8 @@ class TransferCandidate extends \common\models\TransferCandidate
         $tmpName = explode(" ",$this->candidate->candidate_name);
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
-        
-        $allStaffEmails = ArrayHelper::map(Staff::find()->all(),'staff_email','staff_name');
+
+        $allStaffEmails = ArrayHelper::map(Staff::findAll(['deleted'=>'0']),'staff_email','staff_name');
         
         return Yii::$app->mailer->compose("candidate/transfer-fail.php",
             [
