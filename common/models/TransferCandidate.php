@@ -618,6 +618,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         $total = 0;
         $company_total = 0;
+        $hourly_rate = 0;
 
         $hourly_rate = $candidate['candidate_hourly_rate'];
 
@@ -625,9 +626,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $company = $candidate['company'];
 
         $TCModel = new \company\models\TransferCandidate;
+        $TCModel->attributes = $value;
         $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
         $TCModel->candidate_hourly_rate = $hourly_rate;
-        $TCModel->attributes = $value;
         $TCModel->transfer_id = $model->transfer_id;
         $TCModel->store_id = $candidate['store_id'];
         $TCModel->store_name = $store['store_name'];
@@ -669,14 +670,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
         }
 
         //calculate and save bonus_commission
-
-        $TCModel->bonus_commission = $value['bonus'] * $company_bonus_commission / 100;
+        $bonus = (int)$value['bonus'];
+        $hours = (int)$value['hours'];
+        $TCModel->bonus_commission = $bonus * $company_bonus_commission / 100;
 
         $TCModel->company_hourly_rate = $company_hourly_rate;
 
-        if ((int)$value['hours']>0 || $value['bonus'] > 0) {
-            $total = $value['bonus'] - $TCModel->bonus_commission + ($value['hours'] * $hourly_rate) + Yii::$app->params['transfer_cost'];
-            $company_total = $value['bonus'] + ($value['hours'] * $company_hourly_rate);
+        if ($hours > 0 || $bonus > 0) {
+            $total = $bonus - $TCModel->bonus_commission + ($hours * $hourly_rate) + Yii::$app->params['transfer_cost'];
+            $company_total = $bonus + ($hours * $company_hourly_rate);
             $TCModel->candidate_total = round($total, 3);
             $TCModel->company_total = round($company_total, 3);
         }
