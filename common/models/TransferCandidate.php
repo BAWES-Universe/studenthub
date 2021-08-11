@@ -670,8 +670,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
         }
 
         //calculate and save bonus_commission
-        $bonus = (int)$value['bonus'];
-        $hours = (int)$value['hours'];
+        $bonus = (float)$value['bonus'];
+        $hours = (float)$value['hours'];
         $TCModel->bonus_commission = $bonus * $company_bonus_commission / 100;
 
         $TCModel->company_hourly_rate = $company_hourly_rate;
