@@ -211,6 +211,7 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
     }
     
     /**
+     * todo: test function generated query
      * filter candidate who will get paid
      * @return this
      */
