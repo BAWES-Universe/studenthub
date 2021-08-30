@@ -273,9 +273,7 @@ class InvitationController extends Controller
      */
     public function actionLog($id)
     {
-        $model = Invitation::find()
-            ->andWhere (['invitation_uuid' => $id])
-            ->one();
+        $model = $this->findModel($id);
 
         if(!$model->invitation_email_seen_at) {
             $model->invitation_email_seen_at = new Expression('NOW()');
