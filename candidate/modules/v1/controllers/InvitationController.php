@@ -277,7 +277,7 @@ class InvitationController extends Controller
             ->andWhere (['invitation_uuid' => $id])
             ->one();
 
-        if(!$model->invitation_email_seen_at) {
+        if($model && !$model->invitation_email_seen_at) {
             $model->invitation_email_seen_at = new Expression('NOW()');
             $model->save(false);
         }

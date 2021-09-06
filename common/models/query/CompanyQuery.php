@@ -38,11 +38,12 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return CompanyQuery
      */
     public function followups() {
-        return $this->andWhere([
-            'AND',
-            'company_followup' => true,
-            new \yii\db\Expression('DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK) <= NOW()')
-        ]);
+        return $this->andWhere(['company_followup' => 1])
+            ->andWhere(
+                new \yii\db\Expression(
+                    'DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK) <= NOW()'
+                )
+            );
     }
 
     /**
