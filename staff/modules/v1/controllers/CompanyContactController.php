@@ -284,6 +284,7 @@ class CompanyContactController extends Controller
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         $model->contact_email = Yii::$app->request->getBodyParam("email");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_suggestions = Yii::$app->request->getBodyParam("receive_suggestions");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
 
         $emails = Yii::$app->request->getBodyParam("emails");
