@@ -255,7 +255,7 @@ class Suggestion extends \yii\db\ActiveRecord
             ])
             ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
             ->andWhere("`request`.request_position_type=2")
-//            ->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
+            ->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
             ->all();
 
         // fetch all request which are suggested to part timer and not mailed
@@ -477,7 +477,6 @@ class Suggestion extends \yii\db\ActiveRecord
                         array_unique(self::getContactEmailByRequest($request))
                     )
                 );
-
 
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
                     ->setTo($setTo)->setCc($setCc)
