@@ -21,6 +21,7 @@ use yii\helpers\Url;
  * @property string $contact_auth_key
  * @property string $contact_otp
  * @property string $contact_receive_email
+ * @property string $contact_receive_suggestions
  * @property string $contact_receive_notification
  * @property string $contact_created_at
  * @property string $contact_updated_at
@@ -89,7 +90,7 @@ class Contact extends \yii\db\ActiveRecord
 
         $scenarios = parent::scenarios();
 
-        $scenarios['signup'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_otp'];
+        $scenarios['signup'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_receive_suggestions','contact_otp'];
 
         $scenarios['updateEmail'] = ['contact_email', 'contact_new_email'];
 
@@ -125,6 +126,7 @@ class Contact extends \yii\db\ActiveRecord
             'contact_otp' => Yii::t('app', 'One Time Password'),
             'contact_receive_email' => Yii::t('app','Receive Email?'),
             'contact_receive_notification' => Yii::t('app','Receive Notification?'),
+            'contact_receive_suggestions' => Yii::t('app','Receive suggestions?'),
             'contact_auth_key' => Yii::t('app','Auth Key'),
             'contact_password_hash' => Yii::t('app','Password'),
             'contact_password_reset_token' => Yii::t('app','Password Reset Token'),
