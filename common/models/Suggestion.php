@@ -355,7 +355,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 $setCc = array_merge(
-                    [Yii::$app->params['operationsEmail'] => 'Khalid'],
+                    [Yii::$app->params['operationsEmail'] => 'Operations'],
                     array_merge(
                         [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name],
                         array_unique(self::getContactEmailByRequest($request))
@@ -471,7 +471,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 $setCc = array_merge(
-                    [Yii::$app->params['operationsEmail'] => 'Khalid'],
+                    [Yii::$app->params['operationsEmail'] => 'Operations'],
                     array_merge(
                         [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name],
                         array_unique(self::getContactEmailByRequest($request))
