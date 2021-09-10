@@ -157,6 +157,7 @@ class TransferFile extends \yii\db\ActiveRecord
                 )
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setCc([Yii::$app->params['operationsEmail']=>'operations'])
             ->setTo(Yii::$app->params['finance_transfer'])
             ->setSubject($subject)
             ->attachContent(file_get_contents($url), [

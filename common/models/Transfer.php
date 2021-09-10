@@ -549,7 +549,7 @@ class Transfer extends ActiveRecord
         }
 
         return $message->setTo(array_unique($emails))//remove duplicate 
-            ->setCc(Yii::$app->params['invoiceCC'])
+            ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
             ->setSubject($subjectLine)
             ->send();
     }
