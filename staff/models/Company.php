@@ -218,6 +218,7 @@ class Company extends \common\models\Company {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(['khalid@bawes.net'=>'Khalid'])
+            ->setCc([Yii::$app->params['operationsEmail']=>'operations'])
             ->setSubject($subject)
             ->send();
     }
