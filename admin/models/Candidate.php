@@ -1,6 +1,8 @@
 <?php
 namespace admin\models;
 
+use Yii;
+
 
 /**
  * This is the model class for table "Candidate".
@@ -34,12 +36,21 @@ class Candidate extends \common\models\Candidate {
         $totalAmount = 0;
         
         $transfers = Transfer::find()
-            ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->andWhere([
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])
             ->isParentTransfer()
             ->all();
 
         foreach ($transfers as $transfer) {
-            $candidates = $transfer->getUnPaidTransferCandidates()->asArray()->all();
+            $candidates = $transfer->getUnPaidTransferCandidates()
+                ->asArray()
+                ->all();
+
             $totalCandidate += count($candidates);
             $totalAmount += Candidate::calculateRemainingPaymentTransferTotal($candidates);
         }
@@ -74,12 +85,19 @@ class Candidate extends \common\models\Candidate {
      * @return int
      */
     public static function calculateRemainingPaymentTransferTotal($candidates) {
+
         $totalAmount = 0;
+
         if (count($candidates)>0) {
             foreach ($candidates as $candidateTransfer) {
-                $totalAmount += $candidateTransfer['bonus'] - $candidateTransfer['bonus_commission'] + ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
+                $totalAmount += round(
+                    Yii::$app->params['transfer_cost'] + $candidateTransfer['bonus'] - $candidateTransfer['bonus_commission'] +
+                    ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']),
+                3
+                );
             }
         }
+
         return $totalAmount;
     }
 

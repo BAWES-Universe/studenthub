@@ -50,7 +50,13 @@ class StatisticsTest extends \Codeception\Test\Unit
         $totalPayableCandidate = TransferCandidate::find()
             ->joinWith('transfer')
             ->andWhere([
-                'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])
+            ->andWhere([
                 'paid' => 0,
             ])
             ->count();
@@ -67,7 +73,13 @@ class StatisticsTest extends \Codeception\Test\Unit
         $totalPayable = TransferCandidate::find()
             ->joinWith('transfer')
             ->andWhere([
-                'transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])
+            ->andWhere([
                 'paid' => 0,
             ])
             ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission');
