@@ -260,6 +260,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
+        $scenarios['updateCandidateEmail'] = ['candidate_email'];
+
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
         
         $scenarios['changeVideo'] = ['candidate_video', 'candidate_video_job_id', 'candidate_video_processed'];

@@ -128,6 +128,7 @@ return [
                         'PATCH approve/<id>' => 'approve',
                         'PATCH unapprove/<id>' => 'unapprove',
                         'PATCH expire-card/<id>' => 'expire-candidate-card',
+                        'PATCH update-email/<id>' => 'update-candidate-email',
                         'DELETE unassign/<id>' => 'unassign',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
@@ -154,7 +155,8 @@ return [
                         'OPTIONS update-hour-rate/<id>' => 'options',
                         'OPTIONS expire-card/<id>' => 'options',
                         'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
-                        'OPTIONS list-expired-civil-id' => 'options'
+                        'OPTIONS list-expired-civil-id' => 'options',
+                        'OPTIONS update-email/<id>' => 'options'
                     ]
                 ],
                 [ // StoreController

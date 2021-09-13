@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CandidateToken;
 use kartik\mpdf\Pdf;
 use Yii;
 use yii\rest\Controller;
@@ -249,6 +250,34 @@ class CandidateController extends Controller
         }
 
         Yii::info('['.$model->candidate_name.' Candidate Job Search Status Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+
+    /**
+     * update candidate email
+     */
+    public function actionUpdateCandidateEmail($id) {
+
+        $email = Yii::$app->request->getBodyParam('email');
+
+        $model = $this->findModel($id);
+
+        $model->candidate_email = $email;
+
+        $model->scenario = 'updateCandidateEmail';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        CandidateToken::deleteAll(['candidate_token'=>$id]);
+        Yii::info('['.$model->candidate_name.' Candidate Email Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             'operation' => 'success',
