@@ -34,7 +34,10 @@ class TransferCandidateCest
         
         $this->transfer = Transfer::find()
                 ->isParentTransfer()
-                ->andWhere(['IN', 'transfer.transfer_status', [Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS, Transfer::STATUS_TRANSFER_COMPLETE]])
+                ->andWhere(['IN', 'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]])
                 ->one();
         
         $this->transferCandidate = $this->transfer->transferCandidates[0];

@@ -3,6 +3,7 @@
 namespace common\models\query;
 
 use common\models\Transfer;
+use yii\db\Expression;
 
 /**
  * This is the ActiveQuery class for [[TransferCandidate]].
@@ -103,7 +104,13 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      */
     public function payable() {
         return $this->joinWith(['transfer','candidate'])
-            ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            ->andWhere([
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                //    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])
             ->andWhere('parent_transfer_id IS NULL')//only parent transfers
             ->filterUnpaid(); //unpaid candidate
     }
@@ -114,8 +121,26 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      */
     public function payableWithPaid() {
         return $this->joinWith('transfer')
-            ->andWhere(['IN', 'transfer.transfer_status', [Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS, Transfer::STATUS_TRANSFER_COMPLETE]])
+            ->andWhere([
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])
             ->andWhere('transfer.parent_transfer_id IS NULL'); //only parent transfers
+    }
+
+    /**
+     * transfers with bank details
+     * @return TransferCandidateQuery
+     */
+    public function havingBankInfo() {
+        return $this->andWhere(new Expression(
+            'transfer_candidate.bank_id IS NOT NULL AND 
+            transfer_candidate.transfer_benef_iban IS NOT NULL AND 
+            transfer_candidate.transfer_benef_name IS NOT NULL')
+        );
     }
 
     /**
