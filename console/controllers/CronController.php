@@ -23,10 +23,26 @@ use common\models\Request;
 class CronController extends \yii\console\Controller {
 
     /**
-     * Used for testing only
+     * todo: mail on transfer total mismatch?
+     * Check if candidate total mismatch
      */
-    public function actionIndex() {
-        $this->stdout("Sample Output \n", Console::FG_RED, Console::BOLD);
+    public function actionCheckIfCandidateTotalMismatch() {
+
+        $transferCandidates = TransferCandidate::find()
+            ->payable()
+            ->havingBankInfo()
+            ->all();
+
+        $ids = [];
+
+        foreach ($transferCandidates as $transferCandidate) {
+            if($transferCandidate->totalPaidToCandidate != $transferCandidate->candidate_total) {
+                $ids[] = $transferCandidate->tc_id;
+                //$this->stdout( $transferCandidate->tc_id . " \n", Console::FG_RED);
+            }
+        }
+
+        $this->stdout(implode (', ', $ids) . " \n", Console::FG_RED, Console::BOLD);
     }
     
     /**
@@ -167,8 +183,9 @@ class CronController extends \yii\console\Controller {
         $payableCandidate = [];
         $candidates = TransferCandidate::find()
             ->payable()
-            ->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'))
+            ->havingBankInfo()
             ->all();
+
         if ($candidates) {
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
