@@ -223,13 +223,15 @@ class TransferCest
     public function tryToListPayable(FunctionalTester $I)
     {
         $query = Transfer::find()
+            ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            /*
             ->andWhere([
                 'IN',
                 'transfer.transfer_status', [
                     Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                     Transfer::STATUS_TRANSFER_COMPLETE
                 ]
-            ])
+            ])*/
             ->isParentTransfer()
             ->one();
 

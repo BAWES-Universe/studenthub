@@ -36,13 +36,15 @@ class Candidate extends \common\models\Candidate {
         $totalAmount = 0;
         
         $transfers = Transfer::find()
+            ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            /*
             ->andWhere([
                 'IN',
                 'transfer.transfer_status', [
                     Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                     Transfer::STATUS_TRANSFER_COMPLETE
                 ]
-            ])
+            ])*/
             ->isParentTransfer()
             ->all();
 
@@ -85,6 +87,10 @@ class Candidate extends \common\models\Candidate {
      * @return int
      */
     public static function calculateRemainingPaymentTransferTotal($candidates) {
+
+        if(!isset(Yii::$app->params['transfer_cost'])) {
+            Yii::$app->params['transfer_cost'] = 0;
+        }
 
         $totalAmount = 0;
 

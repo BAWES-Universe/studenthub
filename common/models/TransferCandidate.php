@@ -407,6 +407,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getTotalPaidToCandidate()
     {
+        if(!isset(Yii::$app->params['transfer_cost'])) {
+            Yii::$app->params['transfer_cost'] = 0;
+        }
+
         return round(
             ($this->candidate_hourly_rate * $this->hours) + $this->bonus - $this->bonus_commission +
                 Yii::$app->params['transfer_cost'],
@@ -620,6 +624,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * @return type
      */
     public static function saveCandidateTransfer($candidate, $model, $value) {
+
+        if(!isset(Yii::$app->params['transfer_cost'])) {
+            Yii::$app->params['transfer_cost'] = 0;
+        }
 
         $total = 0;
         $company_total = 0;
