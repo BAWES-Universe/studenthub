@@ -214,6 +214,13 @@ class TransferController extends Controller
         // Candidates whose company paid to admin but admin have not paid yet
         $query = Transfer::find()
             ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            /*->andWhere([
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])*/
             ->isParentTransfer();
         
         return new \yii\data\ActiveDataProvider([
@@ -615,7 +622,7 @@ class TransferController extends Controller
             ->payable();
 
         if($onlyPayable) {
-            $query->andWhere(new \yii\db\Expression('transfer_candidate.bank_id IS NOT NULL'));    
+            $query->havingBankInfo();
         }
         
         $candidates = $query

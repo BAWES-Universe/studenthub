@@ -261,7 +261,6 @@ class Suggestion extends \yii\db\ActiveRecord
         // fetch all request which are suggested to part timer and not mailed
 
         foreach ($requests as $request) {
-
             $suggestionGroup = [];
 
             $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
@@ -356,8 +355,11 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 $setCc = array_merge(
-                    [Yii::$app->params['adminEmail'] => 'Khalid'],
-                    [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name]
+                    [Yii::$app->params['operationsEmail'] => 'Operations'],
+                    array_merge(
+                        [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name],
+                        array_unique(self::getContactEmailByRequest($request))
+                    )
                 );
 
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
@@ -469,8 +471,11 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 $setCc = array_merge(
-                    [Yii::$app->params['adminEmail'] => 'Khalid'],
-                    [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name]
+                    [Yii::$app->params['operationsEmail'] => 'Operations'],
+                    array_merge(
+                        [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name],
+                        array_unique(self::getContactEmailByRequest($request))
+                    )
                 );
 
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
@@ -501,13 +506,13 @@ class Suggestion extends \yii\db\ActiveRecord
             ]);
 
         $contacts = Contact::find()
-            ->andWhere(['contact_receive_email' => 1])
+            ->andWhere(['contact_receive_email' => 1,'contact_receive_suggestions' => 1])
             ->andWhere(['in', 'contact_uuid', $subQuery])
-            ->andWhere(['<>', 'contact_email', null])
+            ->andWhere(['not', ['contact_email' => null]]) // to ignore empty email
+            ->andWhere(['not', ['contact_uuid' => $companyRequest->contact_uuid]]) // to ignore double email
             ->all();
 
         $emails = array_merge($emails, ArrayHelper::getColumn($contacts, 'contact_email'));
-
         //company's contact email
 
 //        if ($companyRequest->company->company_email)
@@ -529,9 +534,10 @@ class Suggestion extends \yii\db\ActiveRecord
                 ]);
 
             $contacts = Contact::find()
-                ->andWhere(['contact_receive_email' => 1])
+                ->andWhere(['contact_receive_email' => 1,'contact_receive_suggestions' => 1])
                 ->andWhere(['in', 'contact_uuid', $subQuery])
-                ->andWhere(['<>', 'contact_email', null])
+                ->andWhere(['not', ['contact_email' => null]]) // to ignore empty email
+                ->andWhere(['not', ['contact_uuid' => $companyRequest->contact_uuid]]) // to ignore double email
                 ->all();
 
             $emails = array_merge($emails, ArrayHelper::getColumn($contacts, 'contact_email'));
