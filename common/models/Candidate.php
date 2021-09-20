@@ -534,7 +534,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     if($transferCandidate->candidate_id == $this->candidate_id)
                     {
                         $transferCandidate->candidate_hourly_rate = $this->candidate_hourly_rate;
-
+                        $transferCandidate->candidate_total = $transferCandidate->bonus - $transferCandidate->bonus_commission + ($transferCandidate->hours * $transferCandidate->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
                         if(!$transferCandidate->save()) {
                             $transaction->rollBack ();
                             Yii::error ($transferCandidate->getErrors ());
