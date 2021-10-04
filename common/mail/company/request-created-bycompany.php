@@ -257,7 +257,7 @@ $webUrl = Yii::$app->params['staffAppUrl'].'request-view/'.$model->request_uuid;
                                                     <div
                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;"
                                                     >
-                                                        They're looking to hire <?=$model->request_number_of_employees?> people to work <?=($model->request_position_type) ? 'full-time':'part-time'?> as <?=$model->request_position_title?>.
+                                                        They're looking to hire <?=$model->request_number_of_employees?> people to work <?=($model->request_position_type == 1) ? 'full-time':'part-time'?> as <?=$model->request_position_title?>.
                                                     </div>
 
                                                 </td>
