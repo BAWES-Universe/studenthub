@@ -382,13 +382,13 @@ class AccountCest
         $I->seeResponseContainsJson(['operation' => 'success','message'=>'Civil Photo Front Uploaded Successfully']);
     }
 
-    public function tryGetAreaByLocation(FunctionalTester $I)
-    {
-        $I->amGoingTo('try to get area by location');
-        $I->sendGET('v1/account/area-by-location?latitude=70&longitude=70');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([ 'operation' => 'success']);
-    }
+//    public function tryGetAreaByLocation(FunctionalTester $I)
+//    {
+//        $I->amGoingTo('try to get area by location');
+//        $I->sendGET('v1/account/area-by-location?latitude=70&longitude=70');
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseContainsJson([ 'operation' => 'success']);
+//    }
 
     public function tryUpdateLocation(FunctionalTester $I)
     {
