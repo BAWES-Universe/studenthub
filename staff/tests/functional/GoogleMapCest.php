@@ -38,22 +38,22 @@ class GoogleMapCest
 //        $I->seeResponseContainsJson([ 'operation' => 'success']);
 //    }
 
-    public function tryToPlaceDetail(FunctionalTester $I)
-    {
-        $I->wantTo('Validate google-map > place detail api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/google-map/place-detail/ChIJWZXnT4IIzz8RD-6elZ0eaTQ');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }
-
-    public function tryToPlacePrediction(FunctionalTester $I)
-    {
-        $I->wantTo('Validate google-map > place predictions api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
-        $I->sendGET('v1/google-map/place-predictions?query=kuwait');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseIsJson();
-    }
+//    public function tryToPlaceDetail(FunctionalTester $I)
+//    {
+//        $I->wantTo('Validate google-map > place detail api response');
+//        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+//        $I->sendGET('v1/google-map/place-detail/ChIJWZXnT4IIzz8RD-6elZ0eaTQ');
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseIsJson();
+//    }
+//
+//    public function tryToPlacePrediction(FunctionalTester $I)
+//    {
+//        $I->wantTo('Validate google-map > place predictions api response');
+//        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token);
+//        $I->sendGET('v1/google-map/place-predictions?query=kuwait');
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseIsJson();
+//    }
 
 }
