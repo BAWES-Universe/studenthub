@@ -116,15 +116,9 @@ class CronController extends \yii\console\Controller {
             "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
         ];
 
-        $data['totalExpiredCards'] = Candidate::find()
-            ->idExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->count();
+        $data['totalExpiredCards'] = \staff\models\Candidate::totalExpiredCards()->count();
 
-        $data['assignedExpiredCivilID'] =  Candidate::find()
-            ->civilIdExpired()
-            ->filterAssigned() // only candidate with assigned work
-            ->count();
+        $data['assignedExpiredCivilID'] =  \staff\models\Candidate::assignedExpiredCivilID()->count();
 
         // # of candidates that need id generated
 
@@ -142,10 +136,7 @@ class CronController extends \yii\console\Controller {
 
         //Candidates are assigned to work but have incomplete profiles.
 
-        $data['incompleteAssignedToWork'] = Candidate::find()
-            ->filterAssigned()
-            ->incompletedProfile()
-            ->count();
+        $data['incompleteAssignedToWork'] = \staff\models\Candidate::incompleteAssignedToWork()->count();
 
         $data['missingBankInfo'] = \staff\models\Candidate::withoutBankInfoOrWithPayment()->count();
 
