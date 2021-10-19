@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'Fulltimer employed?' => '',
     'Candidate ID' => 'هوية المرشح',
     'Store ID' => 'معرف المتجر',
     'Bank ID' => 'معرف البنك',

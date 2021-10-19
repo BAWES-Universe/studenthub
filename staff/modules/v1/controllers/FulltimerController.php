@@ -110,8 +110,15 @@ class FulltimerController extends Controller
         $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
         $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
 
+        $model->university_id = Yii::$app->request->getBodyParam("university_id");
+        $model->fulltimer_employed = Yii::$app->request->getBodyParam("employed");
+        $model->fulltimer_gender = Yii::$app->request->getBodyParam("gender");
+        $model->fulltimer_driving_license = Yii::$app->request->getBodyParam("driving_license");
+        $model->fulltimer_birth_date = Yii::$app->request->getBodyParam("birth_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("birth_date"))): null;
+
         if ($model->fulltimer_name) {
             $fulltimer = Fulltimer::findOne(['fulltimer_name'=>$model->fulltimer_name]);
+
             if ($fulltimer) {
                 return [
                     "operation" => "error",
@@ -131,8 +138,6 @@ class FulltimerController extends Controller
                 ];
             }
         }
-
-
 
         $model->tags = Yii::$app->request->getBodyParam("tags");
 
@@ -179,8 +184,16 @@ class FulltimerController extends Controller
         $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
         $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
 
+        $model->university_id = Yii::$app->request->getBodyParam("university_id");
+        $model->fulltimer_employed = Yii::$app->request->getBodyParam("employed");
+        $model->fulltimer_gender = Yii::$app->request->getBodyParam("gender");
+        $model->fulltimer_driving_license = Yii::$app->request->getBodyParam("driving_license");
+
+        $model->fulltimer_birth_date = Yii::$app->request->getBodyParam("birth_date")?
+            date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("birth_date"))): null;
+
         $model->tags = Yii::$app->request->getBodyParam("tags");
- 
+
         if (!$model->save())
         {
             if(isset($model->errors)){
