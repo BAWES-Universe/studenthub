@@ -15,6 +15,13 @@ use yii\helpers\Console;
  * @property string $fulltimer_uuid
  * @property int $nationality_id
  * @property int $country_id
+ *
+ * @property int $university_id
+ * @property boolean $fulltimer_employed
+ * @property int $fulltimer_gender
+ * @property boolean $fulltimer_driving_license
+ * @property string $fulltimer_birth_date
+ *
  * @property string $fulltimer_area_uuid
  * @property string $fulltimer_latitude
  * @property string $fulltimer_longitude
@@ -36,6 +43,11 @@ class Fulltimer extends \yii\db\ActiveRecord
 {
     public $tags;
 
+    //Gender values for `gender`
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 3;
+
     /**
      * {@inheritdoc}
      */
@@ -51,10 +63,12 @@ class Fulltimer extends \yii\db\ActiveRecord
     {
         return [
             [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email'], 'required'],
-            [['nationality_id', 'country_id'], 'integer'],
+            [['nationality_id', 'country_id', 'fulltimer_gender'], 'integer'],
             [['fulltimer_latitude', 'fulltimer_longitude'], 'number'],
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
+            [['fulltimer_employed', 'fulltimer_driving_license'], 'boolean'],
+            [['fulltimer_birth_date'], 'date', 'format' => 'yyyy-M-d'],
             [['fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv','fulltimer_current_salary','fulltimer_expected_salary'], 'string', 'max' => 255],
             [
                 ['fulltimer_pdf_cv'],
@@ -71,6 +85,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
             [['fulltimer_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['fulltimer_area_uuid' => 'area_uuid']],
             [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['nationality_id' => 'country_id']],
+            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
         ];
     }
 
@@ -120,6 +135,11 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_pdf_cv' => Yii::t('app', 'Fulltimer Pdf Cv'),
             'fulltimer_created_datetime' => Yii::t('app', 'Fulltimer Created Datetime'),
             'fulltimer_updated_datetime' => Yii::t('app', 'Fulltimer Updated Datetime'),
+            'university_id' => Yii::t('app', 'University ID'),
+            'fulltimer_employed' => Yii::t('app', 'Fulltimer employed?'),
+            'fulltimer_gender' => Yii::t('app', 'Gender'),
+            'fulltimer_driving_license' => Yii::t('app', 'Driving License'),
+            'fulltimer_birth_date' => Yii::t('app', 'Birth Date')
         ];
     }
 
@@ -138,12 +158,14 @@ class Fulltimer extends \yii\db\ActiveRecord
             'rejectionRatio',
             'suggested',
             'suggestionAccepted',
-            'suggestionRejected'
+            'suggestionRejected',
+            'fulltimerSkills',
+            'fulltimerExperiences',
+            'university'
         ];
     }
 
     public function afterSave($insert, $changedAttributes) {
-
 
         if(!$this->tags) {
             return true;
@@ -250,7 +272,20 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_created_datetime' => $this->fulltimer_created_datetime,
             'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime,
             'have_resume' => $this->fulltimer_pdf_cv? 'Yes': 'No',
+            'fulltimer_employed' => $this->fulltimer_employed? 'Yes': 'No',
+            'fulltimer_birth_timestamp' => strtotime($this->fulltimer_birth_date),
+            'fulltimer_driving_license' => $this->fulltimer_driving_license
         ];
+
+        //to make gender label visible to filter instead of 1,0
+
+        if ($this->fulltimer_gender == self::GENDER_FEMALE) {
+            $data['fulltimer_gender'] = 'Female';
+        } elseif ($this->fulltimer_gender == self::GENDER_MALE) {
+            $data['fulltimer_gender'] = 'Male';
+        } else {
+            $data['fulltimer_gender'] = 'Other';
+        }
 
         if($this->nationality) {
             $data['nationality'] = [
@@ -330,6 +365,58 @@ class Fulltimer extends \yii\db\ActiveRecord
             ];
         }
 
+        //fulltimer_experience
+
+        $data['fulltimerExperiences'] = [];
+
+        foreach ($this->getFulltimerExperiences()->all() as $experience) {
+            $data['fulltimerExperiences'][] = [
+                'experience' => $experience->experience
+            ];
+        }
+
+        //fulltimer_skill
+
+        $data['fulltimerSkills'] = [];
+
+        foreach ($this->getFulltimerSkills()->select('skill')->all() as $candidateSkill) {
+            $data['fulltimerSkills'][] = [
+                'skill' => $candidateSkill->skill
+            ];
+        }
+
+        if($this->university) {
+
+            $university_name = [];
+
+            if($this->university->university_name_en) {
+                $university_name[] = $this->university->university_name_en;
+            }
+
+            if($this->university->university_name_ar) {
+                $university_name[] = $this->university->university_name_ar;
+            }
+
+            $data['university'] = [
+                'university_id' => $this->university_id,
+                'university_name_en' => $this->university->university_name_en,
+                'university_name_ar' => $this->university->university_name_ar,
+                'university_name' => $university_name
+            ];
+        }
+
+        /**
+         *
+        fulltimer_employed
+        fulltimer_gender
+        fulltimer_birth_timestamp
+        fulltimer_updated_at_timestamp
+        fulltimer_driving_license
+
+        fulltimerSkills.skill
+        fulltimerExperiences.experience
+        university.university_name
+         */
         return $data;
     }
 
@@ -449,6 +536,30 @@ class Fulltimer extends \yii\db\ActiveRecord
         }
 
         return true;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimerExperiences($modelClass = "\common\models\FulltimerExperience")
+    {
+        return $this->hasMany($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimerSkills($modelClass = "\common\models\FulltimerSkill")
+    {
+        return $this->hasMany($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity($modelClass = "\common\models\University")
+    {
+        return $this->hasOne($modelClass::className(), ['university_id' => 'university_id']);
     }
 
     /**
