@@ -7,8 +7,9 @@ $logo = \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'ht
 $type = ($model->request_position_type == 1) ? 'full-time' : 'part-time';
 $subject = 'Suggested candidates for your ' . $type . ' ' . $model->request_position_title . ' position @ ' . $model->company->company_common_name_en;
 
-$staff = ($model->requestCreatedBy) ? $model->requestCreatedBy : $model->requestUpdatedBy;
+//$staff = ($model->requestCreatedBy) ? $model->requestCreatedBy : $model->requestUpdatedBy;
 ?>
+
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
