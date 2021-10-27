@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\Staff;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -129,7 +130,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Create a Request 
+     * Create a Request
      * @param $id
      * @return array
      */
@@ -169,6 +170,44 @@ class RequestController extends Controller
         return [
             "operation" => "success",
             "message" => "Request successfully updated"
+        ];
+    }
+
+    /**
+     * Assign request to staff
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionAssign($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->staff_uuid = Yii::$app->request->getBodyParam("staff_uuid");
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                ];
+            }
+        }
+
+        $staff = Staff::find()
+            ->andWhere(['staff_uuid' => $id])
+            ->one();
+
+        return [
+            "operation" => "success",
+            "message" => "Request assigned to staff successfully",
+            "staff" => $staff
         ];
     }
 

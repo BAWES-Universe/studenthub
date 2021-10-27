@@ -16,6 +16,7 @@ use yii\helpers\ArrayHelper;
  * @property string $request_uuid
  * @property int $company_id Which company is this request for?
  * @property string $contact_uuid Which contact from this company made the request?
+ * @property string $staff_uuid
  * @property int $request_created_by
  * @property int $request_updated_by
  * @property int $request_position_type 1 - Fulltime, 2 - Partime
@@ -64,6 +65,7 @@ class Request extends \yii\db\ActiveRecord
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
+            [['staff_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_uuid' => 'staff_uuid']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
         ];
     }
@@ -120,6 +122,7 @@ class Request extends \yii\db\ActiveRecord
             'request_uuid' => Yii::t('app', 'Request Uuid'),
             'company_id' => Yii::t('app', 'Which company is this request for?'),
             'contact_uuid' => Yii::t('app', 'Which contact from this company made the request?'),
+            'staff_uuid' => Yii::t('app', 'Consultant'),
             'request_created_by' => Yii::t('app', 'Request Created By'),
             'request_updated_by' => Yii::t('app', 'Request Updated By'),
             'request_position_type' => Yii::t('app', '1 - Fulltime, 2 - Partime'),
@@ -154,8 +157,17 @@ class Request extends \yii\db\ActiveRecord
             'suggestions',
             'activeSuggestions',
             'invitations',
-            'stats'
+            'stats',
+            'staff'
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaff($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_uuid' => 'staff_uuid']);
     }
 
     /**
