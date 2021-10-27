@@ -74,7 +74,8 @@ class StaffCest
             [
                 "name" => "Mohammed Kanso",
                 "email" => "staff@staff.com",
-                "password" => "12345"
+                "password" => "12345",
+                "role" => Staff::ROLE_MANAGER
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -98,6 +99,7 @@ class StaffCest
             [
                 "name" => "Mohammed Kanso",
                 "email" => "unique@staff.com",
+                "role" => Staff::ROLE_MANAGER
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -119,6 +121,7 @@ class StaffCest
         $staff->generateAuthKey();
         $staff->setPassword('12345');
         $staff->save(false);
+
         $I->wantTo('delete staff via API');
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDelete('v1/staff/'.$staff->staff_id);

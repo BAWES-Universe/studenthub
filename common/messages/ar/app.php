@@ -2,6 +2,7 @@
 
 return [
     'Fulltimer employed?' => '',
+    'Role' => '',
     'Candidate ID' => 'هوية المرشح',
     'Store ID' => 'معرف المتجر',
     'Bank ID' => 'معرف البنك',
