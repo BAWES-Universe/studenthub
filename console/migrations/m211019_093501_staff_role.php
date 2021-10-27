@@ -2,6 +2,7 @@
 
 use yii\db\Migration;
 
+
 /**
  * Class m211019_093501_staff_role
  */

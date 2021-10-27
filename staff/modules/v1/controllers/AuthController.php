@@ -76,7 +76,6 @@ class AuthController extends Controller
         return $actions;
     }
 
-
     /**
      * Perform validation on the staff account (check if he's allowed login to platform)
      * If everything is alright,
@@ -95,7 +94,8 @@ class AuthController extends Controller
             "token" => $accessToken,
             "staff_id" => $staff->staff_id,
             "name" => $staff->staff_name,
-            "email" => $staff->staff_email
+            "email" => $staff->staff_email,
+            "role" => $staff->staff_role
         ];
     }
 
