@@ -287,6 +287,7 @@ return [
                         'PATCH cancel/<id>' => 'cancel',
                         'PATCH deliver/<id>' => 'deliver',
                         'POST add-activity' => 'add-activity',
+                        'PATCH assign/<id>' => 'assign',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS is-request-updated/<id>' => 'options',
@@ -294,6 +295,7 @@ return [
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
+                        'OPTIONS assign/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-interval/<id>' => 'options',
                     ]
