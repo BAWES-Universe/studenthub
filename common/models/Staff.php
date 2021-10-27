@@ -18,6 +18,7 @@ use yii\web\IdentityInterface;
  * @property string $staff_gmail_username
  * @property string $staff_gmail_password
  * @property string $staff_password_reset_token
+ * @property number $staff_role
  * @property integer $staff_status
  * @property integer $staff_created_at
  * @property integer $staff_updated_at
@@ -27,6 +28,9 @@ use yii\web\IdentityInterface;
  */
 class Staff extends ActiveRecord implements IdentityInterface
 {
+    const ROlE_MANAGER = 1;
+    const ROlE_CONSULTANT = 2;
+
     /**
      * @inheritdoc
      */
@@ -43,6 +47,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
+            [['staff_role'], 'number'],
             [['staff_status'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
@@ -80,6 +85,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_gmail_username' => Yii::t('app','Staff Gmail Username'),
             'staff_gmail_password' => Yii::t('app','Staff Gmail Password'),
             'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
+            'staff_role' => Yii::t('app', 'Role'),
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
             'staff_updated_at' => Yii::t('app','Staff Updated At'),
