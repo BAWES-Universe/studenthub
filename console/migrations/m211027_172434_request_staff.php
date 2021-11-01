@@ -12,24 +12,30 @@ class m211027_172434_request_staff extends Migration
      */
     public function safeUp()
     {
+
+        Yii::$app->db->createCommand('SET foreign_key_checks = 0')->execute();
+        $this->dropColumn('request','staff_uuid');
+//        $this->dropColumn('request','staff_uuid');
+        Yii::$app->db->createCommand('SET foreign_key_checks = 1')->execute();
+
         $this->addColumn (
             'request',
-            'staff_uuid',
-            $this->char(60)->after('contact_uuid')
+            'staff_id',
+            $this->integer(20)->after('contact_uuid')
         );
 
         $this->createIndex(
-            'idx-request-staff_uuid',
+            'idx-request-staff_id',
             'request',
-            'staff_uuid'
+            'staff_id'
         );
 
         $this->addForeignKey(
-            'fk-request-staff_uuid',
+            'fk-request-staff_id',
             'request',
-            'staff_uuid',
+            'staff_id',
             'staff',
-            'staff_uuid',
+            'staff_id',
             'CASCADE'
         );
     }
