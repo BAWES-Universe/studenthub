@@ -283,11 +283,11 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH update-interval/<id>' => 'update-interval',
-                        'PATCH <id>' => 'update',
                         'PATCH cancel/<id>' => 'cancel',
                         'PATCH deliver/<id>' => 'deliver',
                         'POST add-activity' => 'add-activity',
                         'PATCH assign/<id>' => 'assign',
+                        'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS is-request-updated/<id>' => 'options',

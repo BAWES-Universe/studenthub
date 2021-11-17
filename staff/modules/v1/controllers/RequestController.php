@@ -336,7 +336,7 @@ class RequestController extends Controller
             "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
-    
+
     /**
      * Update Request Status to `cancelled`
      * @param $id
@@ -372,7 +372,7 @@ class RequestController extends Controller
         if(!$model->request_compensation) {
             $model->request_compensation = '.';
         }
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -391,6 +391,44 @@ class RequestController extends Controller
         $model->createRequestActivity('I have cancelled this request because '. $model->request_feedback);
 
         Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Request successfully updated",
+            "staff" => $model->staff,
+            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
+        ];
+    }
+
+    /**
+     * Assign staff to request
+     * @param $id
+     * @return array
+     */
+    public function actionAssign($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
+        
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->createRequestActivity('I have assign this request to '. $model->staff->staff_name);
+
+        Yii::info('[Request assigned to '.$model->staff->staff_name.'] '.$model->request_position_title. ' @' .$model->company->company_name .' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",

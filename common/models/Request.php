@@ -16,7 +16,7 @@ use yii\helpers\ArrayHelper;
  * @property string $request_uuid
  * @property int $company_id Which company is this request for?
  * @property string $contact_uuid Which contact from this company made the request?
- * @property string $staff_uuid
+ * @property string $staff_id
  * @property int $request_created_by
  * @property int $request_updated_by
  * @property int $request_position_type 1 - Fulltime, 2 - Partime
@@ -29,6 +29,10 @@ use yii\helpers\ArrayHelper;
  * @property string $request_status
  * @property string $request_feedback
  * @property string $num_hours_followup_interval
+ * @property string $request_started_at
+ * @property string $request_assigned_at
+ * @property string $request_delivered_at
+ * @property string $request_cancelled_at
  * @property string $request_created_datetime
  * @property string $request_updated_datetime
  *
@@ -63,9 +67,10 @@ class Request extends \yii\db\ActiveRecord
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
+            [['request_started_at', 'request_assigned_at', 'request_delivered_at', 'request_cancelled_at'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
-            [['staff_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_uuid' => 'staff_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
         ];
     }
@@ -114,6 +119,35 @@ class Request extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave ($insert)) {
+            return false;
+        }
+
+        if($this->request_status == self::STATUS_STARTED && !$this->request_started_at) {
+            $this->request_started_at = new Expression('NOW()');
+        }
+
+        if($this->request_status == self::STATUS_CANCELLED && !$this->request_cancelled_at) {
+            $this->request_cancelled_at = new Expression('NOW()');
+        }
+
+        if($this->request_status == self::STATUS_DELIVERED && !$this->request_delivered_at) {
+            $this->request_delivered_at = new Expression('NOW()');
+        }
+
+        if($this->staff_id && !$this->request_assigned_at) {
+            $this->request_assigned_at = new Expression('NOW()');
+        }
+
+        return true;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()
@@ -122,7 +156,7 @@ class Request extends \yii\db\ActiveRecord
             'request_uuid' => Yii::t('app', 'Request Uuid'),
             'company_id' => Yii::t('app', 'Which company is this request for?'),
             'contact_uuid' => Yii::t('app', 'Which contact from this company made the request?'),
-            'staff_uuid' => Yii::t('app', 'Consultant'),
+            'staff_id' => Yii::t('app', 'Consultant'),
             'request_created_by' => Yii::t('app', 'Request Created By'),
             'request_updated_by' => Yii::t('app', 'Request Updated By'),
             'request_position_type' => Yii::t('app', '1 - Fulltime, 2 - Partime'),
@@ -135,6 +169,10 @@ class Request extends \yii\db\ActiveRecord
             'request_status' => Yii::t('app', 'Request Status'),
             'request_feedback' => Yii::t('app', 'Request Feedback'),
             'num_hours_followup_interval' => Yii::t('app', 'num hours followup interval'),
+            'request_started_at' =>  Yii::t('app', 'Request started at'),
+            'request_assigned_at' => Yii::t('app', 'Request assigned at'),
+            'request_delivered_at' => Yii::t('app', 'Request delivered at'),
+            'request_cancelled_at' => Yii::t('app', 'Request cancelled at'),
             'request_created_datetime' => Yii::t('app', 'Request Created Datetime'),
             'request_updated_datetime' => Yii::t('app', 'Request Updated Datetime'),
         ];
@@ -167,7 +205,7 @@ class Request extends \yii\db\ActiveRecord
      */
     public function getStaff($modelClass = "\common\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_uuid' => 'staff_uuid']);
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**

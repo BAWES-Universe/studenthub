@@ -96,11 +96,11 @@ class NoteQuery extends ActiveQuery
 
     /**
      * filter by staff
-     * @param $staff_uuid
+     * @param $staff_id
      * @return NoteQuery
      */
-    public function filterStaff($staff_uuid) {
-        return $this->andWhere (['created_by' => $staff_uuid]);
+    public function filterStaff($staff_id) {
+        return $this->andWhere (['created_by' => $staff_id]);
     }
 
     /**

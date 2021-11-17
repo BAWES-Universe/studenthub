@@ -183,7 +183,7 @@ class RequestController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->staff_uuid = Yii::$app->request->getBodyParam("staff_uuid");
+        $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
 
         if (!$model->save())
         {
@@ -201,7 +201,7 @@ class RequestController extends Controller
         }
 
         $staff = Staff::find()
-            ->andWhere(['staff_uuid' => $id])
+            ->andWhere(['staff_id' => $id])
             ->one();
 
         return [
