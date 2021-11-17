@@ -14,7 +14,7 @@ class m211027_172434_request_staff extends Migration
     {
 
         Yii::$app->db->createCommand('SET foreign_key_checks = 0')->execute();
-        $this->dropColumn('request','staff_uuid');
+   
 //        $this->dropColumn('request','staff_uuid');
         Yii::$app->db->createCommand('SET foreign_key_checks = 1')->execute();
 
