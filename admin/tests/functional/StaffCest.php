@@ -75,7 +75,7 @@ class StaffCest
                 "name" => "Mohammed Kanso",
                 "email" => "staff@staff.com",
                 "password" => "12345",
-                "role" => Staff::ROLE_MANAGER
+                "role" => 1//Staff::ROLE_MANAGER
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -99,7 +99,7 @@ class StaffCest
             [
                 "name" => "Mohammed Kanso",
                 "email" => "unique@staff.com",
-                "role" => Staff::ROLE_MANAGER
+                "role" => 1//Staff::ROLE_MANAGER
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
