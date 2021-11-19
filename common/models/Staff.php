@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use company\models\Request;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -115,6 +116,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function extraFields()
     {
         return [
+            'totalCompletedRequests'
         ];
     }
 
@@ -123,6 +125,25 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @return \yii\db\ActiveQuery
      */
     public function getAccessTokens($modelClass = "\common\models\StaffToken")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * return total completed requests by staff 
+     * @return int
+     */
+    public function getTotalCompletedRequests()
+    {
+        return (int) $this->getRequests ()
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
+            ->count ();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\common\models\Request")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
