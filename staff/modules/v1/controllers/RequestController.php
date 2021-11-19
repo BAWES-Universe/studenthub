@@ -112,11 +112,11 @@ class RequestController extends Controller
         }
 
         if($start_date) {
-            $query->startDate($start_date);
+            $query->startDate(date('Y-m-d', strtotime ($start_date)));
         } 
 
         if($end_date) {
-            $query->endDate($end_date);
+            $query->endDate(date('Y-m-d', strtotime ($end_date)));
         }
 
         if ($followup_interval) {

@@ -34,12 +34,12 @@ class RequestQuery extends ActiveQuery
 
 	public function startDate($date)
     {
-        return $this->andWhere("DATE(request_created_datetime) > '$date'");
+        return $this->andWhere("DATE(request_created_datetime) > '".$date."'");
     }
 
     public function endDate($date)
     {
-        return $this->andWhere("DATE(request_updated_datetime) < '$date'");
+        return $this->andWhere("DATE(request_updated_datetime) < '".$date."'");
     }
 
     public function filterByType($type)
