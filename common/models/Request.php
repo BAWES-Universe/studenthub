@@ -196,16 +196,28 @@ class Request extends \yii\db\ActiveRecord
             'activeSuggestions',
             'invitations',
             'stats',
-            'staff'
+            'staff',
+            'staffs'
         ];
     }
 
     /**
+     * request owner
      * @return \yii\db\ActiveQuery
      */
     public function getStaff($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * all staffs who have worked in this request
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaffs($modelClass = "\common\models\Staff")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'created_by'])
+            ->via('requestActivities');
     }
 
     /**
