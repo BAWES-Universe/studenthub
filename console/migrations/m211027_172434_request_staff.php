@@ -12,12 +12,6 @@ class m211027_172434_request_staff extends Migration
      */
     public function safeUp()
     {
-
-        Yii::$app->db->createCommand('SET foreign_key_checks = 0')->execute();
-   
-//        $this->dropColumn('request','staff_uuid');
-        Yii::$app->db->createCommand('SET foreign_key_checks = 1')->execute();
-
         $this->addColumn (
             'request',
             'staff_id',

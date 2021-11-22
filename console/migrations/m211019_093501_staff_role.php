@@ -20,7 +20,6 @@ class m211019_093501_staff_role extends Migration
                 ->defaultValue(1)
                 ->after ('staff_password_reset_token')
         );
-
     }
 }
 
