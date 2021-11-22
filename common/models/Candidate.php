@@ -1998,6 +1998,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (
             $this->area && $this->nationality &&
+            $this->area->country &&
             $this->area->country->country_nationality_name_en == 'Kuwaiti' &&
             $this->nationality->country_nationality_name_en != 'Kuwaiti' &&
             !$this->candidate_mom_kuwaiti
@@ -2445,6 +2446,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             if (
                 $candidate->area && $candidate->nationality &&
+                $candidate->area->country &&
                 $candidate->area->country->country_nationality_name_en == 'Kuwaiti' &&
                 $candidate->nationality->country_nationality_name_en != 'Kuwaiti' &&
                 !$candidate->candidate_mom_kuwaiti
