@@ -135,8 +135,23 @@ class Staff extends ActiveRecord implements IdentityInterface
      */
     public function getTotalCompletedRequests()
     {
-        return (int) $this->getRequests ()
-            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = $this->getRequests ()
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED]);
+
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
+        }
+
+        return (int) $query
             ->count ();
     }
 
