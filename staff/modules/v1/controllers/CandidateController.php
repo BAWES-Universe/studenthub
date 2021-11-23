@@ -93,6 +93,7 @@ class CandidateController extends Controller
         $model = new Candidate();
         //$model->scenario = "newAccount";
 
+        $model->candidate_preferred_time = Yii::$app->request->getBodyParam ('preferred_time');
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->country_id = Yii::$app->request->getBodyParam("country_id");
@@ -162,6 +163,7 @@ class CandidateController extends Controller
     {
         $model = $this->findModel($id);
 
+        $model->candidate_preferred_time = Yii::$app->request->getBodyParam ('preferred_time');
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->country_id = Yii::$app->request->getBodyParam("country_id");

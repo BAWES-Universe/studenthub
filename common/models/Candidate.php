@@ -54,6 +54,7 @@ use yii\web\NotFoundHttpException;
  * @property string $candidate_language_pref
  * @property string $candidate_job_search_status
  * @property integer $candidate_committed
+ * @property string $candidate_preferred_time
  * @property integer $candidate_status
  * @property integer $approved
  * @property integer $candidate_mom_kuwaiti
@@ -171,7 +172,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             ['candidate_committed', 'in', 'range' => [self::COMMITTED, self::NOT_COMMITTED]],
 
-            [['candidate_objective'], 'string', 'max' => 100],
+            [['candidate_objective', 'candidate_preferred_time'], 'string', 'max' => 100],
 
             [['candidate_latitude', 'candidate_longitude'], 'number'],
 
@@ -302,6 +303,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
 
         $scenarios['candidatePhone'] = ['candidate_phone'];
+
+        $scenarios['candidatePreferredTime'] = ['candidate_preferred_time'];
 
         $scenarios['statusChange'] = ['approved'];
 
@@ -484,6 +487,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_language_pref' => Yii::t('candidate','Language preference'),
             'candidate_job_search_status' => Yii::t('candidate', 'Job search status'),
             'candidate_committed' => Yii::t('candidate', 'Committed'),
+            'candidate_preferred_time' => Yii::t('candidate', 'Preferred time'),
             'candidate_status' => Yii::t('candidate','Status'),
             'candidate_created_at' => Yii::t('candidate','Created At'),
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
@@ -2182,6 +2186,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'have_video' => $this->candidate_video? 'Yes': 'No',
             'have_resume' => $this->candidate_resume? 'Yes': 'No',
             'candidate_committed' => $this->candidate_committed? 'Yes': 'No',
+            'candidate_preferred_time' => $this->candidate_preferred_time,
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,

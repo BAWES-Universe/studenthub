@@ -1272,6 +1272,37 @@ class AccountController extends Controller
     }
 
     /**
+     * update preferred time
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdatePreferredTime()
+    {
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $candidate->candidate_preferred_time = Yii::$app->request->getBodyParam('preferred_time');
+
+        $candidate->scenario = "candidatePreferredTime";
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Candidate Preferred Time Updated Successfully"),
+        ];
+    }
+
+    /**
      * update phone
      * @return type
      * @throws \yii\web\HttpException
@@ -1283,6 +1314,7 @@ class AccountController extends Controller
         if (!$candidate) {
             throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
         }
+
         $candidate->candidate_phone = Yii::$app->request->getBodyParam('phone');
 
         $candidate->scenario = "candidatePhone";
