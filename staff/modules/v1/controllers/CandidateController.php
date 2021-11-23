@@ -108,7 +108,7 @@ class CandidateController extends Controller
         $model->candidate_civil_expiry_date = Yii::$app->request->getBodyParam("expiry_date")? date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("expiry_date"))): null;
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
-        $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        //$model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->candidate_password_hash = $password;
         $model->password = $password; // temp password to send in mail
 
@@ -176,7 +176,7 @@ class CandidateController extends Controller
 
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
-        $model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        //$model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
 
         $model->candidate_driving_license = Yii::$app->request->getBodyParam("candidate_driving_license");
         $model->candidate_gender = Yii::$app->request->getBodyParam("candidate_gender");
@@ -322,6 +322,7 @@ class CandidateController extends Controller
     public function actionAssign($id)
     {
         $store_id = Yii::$app->request->getBodyParam("store_id");
+        $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
 
         $model = $this->findModel($id);
 
@@ -350,7 +351,9 @@ class CandidateController extends Controller
         }
 
         $model->store_id = $store_id;
-        $storeName = $model->store->store_name;
+
+        $model->candidate_hourly_rate = $hourly_rate;
+
         if (!$model->save()) {
 
             if(isset($model->errors)){
@@ -369,6 +372,9 @@ class CandidateController extends Controller
         }
 
         // save note
+
+        $storeName = $model->store->store_name;
+
         $noteModel  = new Note();
         $noteModel->candidate_id  = $id;
         $noteModel->company_id  = $model->store->company_id;

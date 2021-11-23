@@ -589,6 +589,7 @@ class Transfer extends ActiveRecord
     public static function generateSubCompanyTransfer($sub_companies, $model) {
 
         if ($sub_companies) {
+
             foreach ($sub_companies as $key => $company) {
 
                 //move transfer to transfer
@@ -609,9 +610,11 @@ class Transfer extends ActiveRecord
                 $total = $company_total = 0;
 
                 //remove old candidates if exists
+
                 TransferCandidate::deleteAll(['transfer_id' => $transfer->transfer_id]);
 
                 // transfer candidate for current company
+
                 $candidates = TransferCandidate::find()
                     ->candidatesByTransfer($model->transfer_id)
                     ->filterCompanyId($company['company_id'])
@@ -642,6 +645,7 @@ class Transfer extends ActiveRecord
      * @return bool
      */
     public function generateTransferInvoice() {
+
         $invoice = Invoice::findOne(['transfer_id' => $this->transfer_id]);
 
         if(!$invoice) {
@@ -666,6 +670,7 @@ class Transfer extends ActiveRecord
             ->all();
 
         // condition to check if current company has existing sub companies.
+
         $sub_companies = (
             $sub_companies &&
             (isset($this->company->subCompanies)) &&
