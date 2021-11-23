@@ -1,5 +1,7 @@
 <?php
 return [
+    "Candidate Preferred Time Updated Successfully" => "تم تحديث الوقت المفضل للمرشح بنجاح",
+    "Preferred time" => "الوقت المفضل",
     'Candidate new email address required' => 'مطلوب عنوان بريد إلكتروني جديد للمرشح',
     'Candidate new email address is same as old email' => 'عنوان البريد الإلكتروني الجديد للمرشح هو نفس عنوان البريد الإلكتروني القديم',
     'Candidate Account Info Updated Successfully, please check email to verify new email address' => 'تم تحديث معلومات حساب المرشح بنجاح ، يرجى التحقق من البريد الإلكتروني للتحقق من عنوان البريد الإلكتروني الجديد',
