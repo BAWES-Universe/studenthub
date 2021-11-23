@@ -633,7 +633,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $company_total = 0;
         $hourly_rate = 0;
 
-        $hourly_rate = $candidate['candidate_hourly_rate'];
+        $assignment = CandidateWorkHistory::find()
+            ->andWhere ([
+                'candidate_id' => $candidate['candidate_id'],
+                'store_id' => $candidate['store_id'],
+            ])
+            ->orderBy(new Expression('start_date DESC'))
+            ->one();
+
+        $hourly_rate = $assignment? $assignment->candidate_hourly_rate: $candidate['candidate_hourly_rate'];
 
         $store = $candidate['store'];
         $company = $candidate['company'];
