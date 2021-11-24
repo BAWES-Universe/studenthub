@@ -116,7 +116,71 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function extraFields()
     {
         return [
-            'totalCompletedRequests'
+            'totalCompletedRequests',
+            'totalClosedRequests',
+            'totalInvitations' => function($model) {
+
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getInvitations();
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->count();
+            },
+            'timeForCompletedRequests' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getRequests()
+                    ->andWhere(['request_status' => Request::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+            },
+            'timeForCancelledRequests' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getRequests()
+                    ->andWhere(['request_status' => Request::STATUS_CANCELLED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(request_cancelled_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
+            },
+            /*'totalRequests' => function($model) {
+                return $model->getRequests()->count();
+            }*/
         ];
     }
 
@@ -127,6 +191,35 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function getAccessTokens($modelClass = "\common\models\StaffToken")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * return total completed requests by staff
+     * @return int
+     */
+    public function getTotalClosedRequests()
+    {
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = $this->getRequests ()
+            ->andWhere(['in', 'request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_CANCELLED
+            ]]);
+
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
+        }
+
+        return (int) $query
+            ->count ();
     }
 
     /**
@@ -153,6 +246,14 @@ class Staff extends ActiveRecord implements IdentityInterface
 
         return (int) $query
             ->count ();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\common\models\Invitation")
+    {
+        return $this->hasMany($modelClass::className(), ['invitation_created_by_staff' => 'staff_id']);
     }
 
     /**
