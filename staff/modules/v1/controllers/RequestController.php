@@ -3,6 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use Yii;
+use staff\models\Staff;
 use staff\models\Note;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
