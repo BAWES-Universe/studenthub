@@ -118,6 +118,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             'totalCompletedRequests',
             'totalClosedRequests',
+            'totalPendingRequests',
             'totalInvitations' => function($model) {
 
                 $start_date = Yii::$app->request->get('start_date');
@@ -191,6 +192,35 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function getAccessTokens($modelClass = "\common\models\StaffToken")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * return total pending requests by staff
+     * @return int
+     */
+    public function getTotalPendingRequests()
+    {
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = $this->getRequests ()
+            ->andWhere(['not in', 'request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_CANCELLED
+            ]]);
+
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
+        }
+
+        return (int) $query
+            ->count ();
     }
 
     /**
