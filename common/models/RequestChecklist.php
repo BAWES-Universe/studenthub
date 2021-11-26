@@ -37,7 +37,8 @@ class RequestChecklist extends \yii\db\ActiveRecord
     {
         return [
             [['status_name'], 'required'],
-            [['is_require'], 'integer'],
+            [['is_require', 'sort_order'], 'integer'],
+            //[['is_require', 'sort_order'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['request_checklist_uuid'], 'string', 'max' => 60],
             [['status_name', 'status_name_ar'], 'string', 'max' => 100],
