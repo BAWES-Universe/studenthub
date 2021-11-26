@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use company\models\Request;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -18,6 +19,7 @@ use yii\web\IdentityInterface;
  * @property string $staff_gmail_username
  * @property string $staff_gmail_password
  * @property string $staff_password_reset_token
+ * @property number $staff_role
  * @property integer $staff_status
  * @property integer $staff_created_at
  * @property integer $staff_updated_at
@@ -27,6 +29,9 @@ use yii\web\IdentityInterface;
  */
 class Staff extends ActiveRecord implements IdentityInterface
 {
+    const ROlE_MANAGER = 1;
+    const ROlE_CONSULTANT = 2;
+
     /**
      * @inheritdoc
      */
@@ -43,6 +48,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
+            [['staff_role'], 'number'],
             [['staff_status'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
@@ -80,6 +86,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_gmail_username' => Yii::t('app','Staff Gmail Username'),
             'staff_gmail_password' => Yii::t('app','Staff Gmail Password'),
             'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
+            'staff_role' => Yii::t('app', 'Role'),
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
             'staff_updated_at' => Yii::t('app','Staff Updated At'),
@@ -109,6 +116,72 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function extraFields()
     {
         return [
+            'totalCompletedRequests',
+            'totalClosedRequests',
+            'totalPendingRequests',
+            'totalInvitations' => function($model) {
+
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getInvitations();
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->count();
+            },
+            'timeForCompletedRequests' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getRequests()
+                    ->andWhere(['request_status' => Request::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+            },
+            'timeForCancelledRequests' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getRequests()
+                    ->andWhere(['request_status' => Request::STATUS_CANCELLED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(request_cancelled_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
+            },
+            /*'totalRequests' => function($model) {
+                return $model->getRequests()->count();
+            }*/
         ];
     }
 
@@ -117,6 +190,106 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @return \yii\db\ActiveQuery
      */
     public function getAccessTokens($modelClass = "\common\models\StaffToken")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * return total pending requests by staff
+     * @return int
+     */
+    public function getTotalPendingRequests()
+    {
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = $this->getRequests ()
+            ->andWhere(['not in', 'request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_CANCELLED
+            ]]);
+
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
+        }
+
+        return (int) $query
+            ->count ();
+    }
+
+    /**
+     * return total completed requests by staff
+     * @return int
+     */
+    public function getTotalClosedRequests()
+    {
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = $this->getRequests ()
+            ->andWhere(['in', 'request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_CANCELLED
+            ]]);
+
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
+        }
+
+        return (int) $query
+            ->count ();
+    }
+
+    /**
+     * return total completed requests by staff 
+     * @return int
+     */
+    public function getTotalCompletedRequests()
+    {
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = $this->getRequests ()
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED]);
+
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
+        }
+
+        return (int) $query
+            ->count ();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\common\models\Invitation")
+    {
+        return $this->hasMany($modelClass::className(), ['invitation_created_by_staff' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequests($modelClass = "\common\models\Request")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }

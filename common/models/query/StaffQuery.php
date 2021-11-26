@@ -33,6 +33,6 @@ class StaffQuery extends ActiveQuery
     }
 
     public function active() {
-        $this->andWhere(['{{%staff}}.deleted'=>0]);
+        return $this->andWhere(['{{%staff}}.deleted'=>0]);
     }
 }

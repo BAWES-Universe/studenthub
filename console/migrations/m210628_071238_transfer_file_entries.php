@@ -15,7 +15,7 @@ class m210628_071238_transfer_file_entries extends Migration
     {
         //get all transfer files
 
-        $transfer_files = \common\models\TransferFile::find ()
+        /*$transfer_files = \common\models\TransferFile::find ()
             ->andWhere('transfer_file_id NOT IN (select DISTINCT(transfer_file_id) from transfer_file_entry)');
 
         foreach ($transfer_files->each (1) as $transfer_file) {
@@ -28,7 +28,7 @@ class m210628_071238_transfer_file_entries extends Migration
             }
 
             $transaction->commit ();
-        }
+        }*/
     }
 
     /**

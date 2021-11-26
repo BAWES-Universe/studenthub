@@ -261,12 +261,24 @@ class Suggestion extends \yii\db\ActiveRecord
         // fetch all request which are suggested to part timer and not mailed
 
         foreach ($requests as $request) {
+
             $suggestionGroup = [];
 
-            $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+            $latestSuggestion = $request->getSuggestions()
+                ->joinWith(['note'])
+                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
+                ->orderBy('suggestion_datetime DESC')//lastest suggestion
+                ->one();
+
+            if($latestSuggestion && $latestSuggestion->note->createdBy) {     
+                $staff = $latestSuggestion->note->createdBy;
+            } else {
+                $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+            }
 
             $message = Yii::$app->mailer->compose('company/suggestion-notification', [
-                'model' => $request
+                'model' => $request,
+                'staff' => $staff
             ]);
 
             // fetch all suggestion make for each not mailed request
@@ -421,7 +433,19 @@ class Suggestion extends \yii\db\ActiveRecord
                 $suggestionGroup[$suggestion->note->created_by][] = $suggestion;
             }
 
-            $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+            //$staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+
+            $latestSuggestion = $request->getSuggestions()
+                ->joinWith(['note'])
+                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
+                ->orderBy('suggestion_datetime DESC')//lastest suggestion
+                ->one();
+
+            if($latestSuggestion && $latestSuggestion->note && $latestSuggestion->note->createdBy) {     
+                $staff = $latestSuggestion->note->createdBy;
+            } else {
+                $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+            }
 
             foreach ($suggestionGroup as $suggestionByStaff) {
 
@@ -429,7 +453,6 @@ class Suggestion extends \yii\db\ActiveRecord
                     'model' => $request,
                     'requestSuggestion' => $suggestionByStaff,
                     'staff' => $staff,
-
                 ]);
 
                 // looping for each suggestion

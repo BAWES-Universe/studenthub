@@ -83,7 +83,7 @@ class CandidateTest extends \Codeception\Test\Unit
             expect('Candidate civil id expiry date should be required field', $candidate->validate(['candidate_civil_expiry_date']))->false();
             expect('Candidate civil photo front date should be required field', $candidate->validate(['candidate_civil_photo_front']))->false();
             expect('Candidate civil photo back should be required field', $candidate->validate(['candidate_civil_photo_back']))->false();
-            expect('Candidate hourly rate should be required field', $candidate->validate(['candidate_hourly_rate']))->false();
+           // expect('Candidate hourly rate should be required field', $candidate->validate(['candidate_hourly_rate']))->false();
             expect('Candidate personel photo should be required field', $candidate->validate(['candidate_personal_photo']))->false();
             expect('Candidate password hash should be required field', $candidate->validate(['candidate_personal_photo']))->false();
         });

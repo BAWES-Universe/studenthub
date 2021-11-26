@@ -3,6 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use Yii;
+use staff\models\Staff;
 use staff\models\Note;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -112,15 +113,20 @@ class RequestController extends Controller
         }
 
         if($start_date) {
-            $query->startDate($start_date);
+            $query->startDate(date('Y-m-d', strtotime ($start_date)));
         } 
 
         if($end_date) {
-            $query->endDate($end_date);
+            $query->endDate(date('Y-m-d', strtotime ($end_date)));
         }
 
         if ($followup_interval) {
             $query->orderByFollowupInterval($followup_interval);
+        }
+
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
+        {
+            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
         }
 
         return new ActiveDataProvider([
@@ -158,6 +164,11 @@ class RequestController extends Controller
             $query->orderByFollowupInterval();
         } else {
             $query->orderBy('request_created_datetime DESC');
+        }
+
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
+        {
+            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
         }
 
         return new ActiveDataProvider([
@@ -336,7 +347,7 @@ class RequestController extends Controller
             "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
         ];
     }
-    
+
     /**
      * Update Request Status to `cancelled`
      * @param $id
@@ -372,7 +383,7 @@ class RequestController extends Controller
         if(!$model->request_compensation) {
             $model->request_compensation = '.';
         }
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -391,6 +402,44 @@ class RequestController extends Controller
         $model->createRequestActivity('I have cancelled this request because '. $model->request_feedback);
 
         Yii::info('[Request marked as cancelled for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Request successfully updated",
+            "staff" => $model->staff,
+            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
+        ];
+    }
+
+    /**
+     * Assign staff to request
+     * @param $id
+     * @return array
+     */
+    public function actionAssign($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
+        
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->createRequestActivity('I have assign this request to '. $model->staff->staff_name);
+
+        Yii::info('[Request assigned to '.$model->staff->staff_name.'] '.$model->request_position_title. ' @' .$model->company->company_name .' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -506,7 +555,9 @@ class RequestController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Request::findOne($id)) !== null) {
+        $model = Request::findOne($id);
+
+        if ($model !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

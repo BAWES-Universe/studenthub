@@ -71,8 +71,14 @@ class StaffController extends Controller
      */
     public function actionList()
     {
-        $query = Staff::find();
-        $query->active();
+        $role = Yii::$app->request->get('role');
+
+        $query = Staff::find()
+            ->active();
+
+        if($role) {
+            $query->andWhere(['staff_role' => $role]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

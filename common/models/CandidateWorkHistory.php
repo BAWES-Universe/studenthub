@@ -63,6 +63,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      * @return bool
      */
     public static function saveAssignedHistory($candidate) {
+
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
         $model->store_id = $candidate->store_id;

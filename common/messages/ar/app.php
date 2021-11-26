@@ -1,6 +1,13 @@
 <?php
 
 return [
+    'Request started at' => '',
+    'Request assigned at' => '',
+    'Request delivered at' => '',
+    'Request cancelled at' => '',
+    'Fulltimer employed?' => '',
+    'Role' => '',
+    'Consultant' => '',
     'Candidate ID' => 'هوية المرشح',
     'Store ID' => 'معرف المتجر',
     'Bank ID' => 'معرف البنك',

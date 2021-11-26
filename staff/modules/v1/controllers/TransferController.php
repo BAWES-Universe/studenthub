@@ -103,8 +103,8 @@ class TransferController extends Controller
     {
         $company_id = Yii::$app->request->getBodyParam("company_id");
         $candidates = Yii::$app->request->getBodyParam("candidates");
-        $start_date = Yii::$app->request->getBodyParam("start_date");
-        $end_date = Yii::$app->request->getBodyParam("end_date");
+        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("start_date")));
+        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("end_date")));
 
         $company = $this->findCompany($company_id);
 
@@ -114,6 +114,7 @@ class TransferController extends Controller
                 "message" => 'Subcompany transfer not allowed'
             ];
         }
+
         //save transfer
         return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
     }
@@ -137,8 +138,8 @@ class TransferController extends Controller
 
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        $start_date = Yii::$app->request->getBodyParam('start_date');
-        $end_date = Yii::$app->request->getBodyParam('end_date');
+        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
+        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
 
         if(!$model->validate())
         {
@@ -193,8 +194,8 @@ class TransferController extends Controller
     {
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        $start_date = Yii::$app->request->getBodyParam('start_date');
-        $end_date = Yii::$app->request->getBodyParam('end_date');
+        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
+        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
 
         if(!$model->validate())
         {
@@ -255,8 +256,8 @@ class TransferController extends Controller
 
         $company_id = Yii::$app->request->getBodyParam("company_id");
         $candidates = Yii::$app->request->getBodyParam("candidates");
-        $start_date = Yii::$app->request->getBodyParam('start_date');
-        $end_date = Yii::$app->request->getBodyParam('end_date');
+        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
+        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
 
         $transfer = $this->findModel($id);
 

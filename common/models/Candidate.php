@@ -54,6 +54,7 @@ use yii\web\NotFoundHttpException;
  * @property string $candidate_language_pref
  * @property string $candidate_job_search_status
  * @property integer $candidate_committed
+ * @property string $candidate_preferred_time
  * @property integer $candidate_status
  * @property integer $approved
  * @property integer $candidate_mom_kuwaiti
@@ -116,7 +117,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_hourly_rate', 'candidate_personal_photo'], 'required'],
+            //'candidate_hourly_rate',
+            [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo'], 'required'],
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license','candidate_mom_kuwaiti'], 'integer'],
@@ -170,7 +172,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             ['candidate_committed', 'in', 'range' => [self::COMMITTED, self::NOT_COMMITTED]],
 
-            [['candidate_objective'], 'string', 'max' => 100],
+            [['candidate_objective', 'candidate_preferred_time'], 'string', 'max' => 100],
 
             [['candidate_latitude', 'candidate_longitude'], 'number'],
 
@@ -301,6 +303,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
 
         $scenarios['candidatePhone'] = ['candidate_phone'];
+
+        $scenarios['candidatePreferredTime'] = ['candidate_preferred_time'];
 
         $scenarios['statusChange'] = ['approved'];
 
@@ -483,6 +487,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_language_pref' => Yii::t('candidate','Language preference'),
             'candidate_job_search_status' => Yii::t('candidate', 'Job search status'),
             'candidate_committed' => Yii::t('candidate', 'Committed'),
+            'candidate_preferred_time' => Yii::t('candidate', 'Preferred time'),
             'candidate_status' => Yii::t('candidate','Status'),
             'candidate_created_at' => Yii::t('candidate','Created At'),
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
@@ -507,7 +512,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Company::updateCandidate($this->store_id, 1);
             Company::updateCandidate($changedAttributes['store_id'], -1);
         }
-        else if (array_key_exists('candidate_hourly_rate', $changedAttributes))
+        /*else if (array_key_exists('candidate_hourly_rate', $changedAttributes))
         {
             //recalculate transfer total
 
@@ -561,7 +566,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
 
             $transaction->commit ();
-        }
+        }*/
         else if (
             array_key_exists('candidate_iban', $changedAttributes) ||
             array_key_exists('bank_account_name', $changedAttributes) ||
@@ -1998,6 +2003,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (
             $this->area && $this->nationality &&
+            $this->area->country &&
             $this->area->country->country_nationality_name_en == 'Kuwaiti' &&
             $this->nationality->country_nationality_name_en != 'Kuwaiti' &&
             !$this->candidate_mom_kuwaiti
@@ -2180,6 +2186,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'have_video' => $this->candidate_video? 'Yes': 'No',
             'have_resume' => $this->candidate_resume? 'Yes': 'No',
             'candidate_committed' => $this->candidate_committed? 'Yes': 'No',
+            'candidate_preferred_time' => $this->candidate_preferred_time,
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
@@ -2445,6 +2452,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             if (
                 $candidate->area && $candidate->nationality &&
+                $candidate->area->country &&
                 $candidate->area->country->country_nationality_name_en == 'Kuwaiti' &&
                 $candidate->nationality->country_nationality_name_en != 'Kuwaiti' &&
                 !$candidate->candidate_mom_kuwaiti
