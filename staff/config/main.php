@@ -280,6 +280,7 @@ return [
                         'GET' => 'list',
                         'GET active' => 'list-active',
                         'GET is-request-updated/<id>' => 'is-request-updated',
+                        'GET list-checklist' => 'list-checklist',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH update-interval/<id>' => 'update-interval',
@@ -290,6 +291,7 @@ return [
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS list-checklist' => 'list-checklist',
                         'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS active' => 'options',
                         'OPTIONS cancel/<id>' => 'options',

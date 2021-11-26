@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\RequestChecklist;
 use Yii;
 use staff\models\Staff;
 use staff\models\Note;
@@ -544,6 +545,15 @@ class RequestController extends Controller
             "message" => "Request activity successfully added",
             "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
         ];
+    }
+
+    /**
+     * return request checklist
+     */
+    public function actionListChecklist()
+    {
+        return RequestChecklist::find()
+            ->all();
     }
 
     /**
