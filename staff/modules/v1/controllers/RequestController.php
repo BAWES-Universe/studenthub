@@ -103,7 +103,7 @@ class RequestController extends Controller
                     ['like', 'company_common_name_ar', $company_name],
                     ['like', 'company_name', $company_name]
                 ]);
-        } 
+        }
 
         if($request_status) {
             $query->andWhere(['request_status' => $request_status]);
@@ -115,7 +115,7 @@ class RequestController extends Controller
 
         if($start_date) {
             $query->startDate(date('Y-m-d', strtotime ($start_date)));
-        } 
+        }
 
         if($end_date) {
             $query->endDate(date('Y-m-d', strtotime ($end_date)));
@@ -187,16 +187,16 @@ class RequestController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
     /**
-     * Create a Request 
+     * Create a Request
      * @return array
      */
     public function actionCreate()
     {
         // Attempt to create new request
         $model = new Request();
- 
+
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
@@ -236,7 +236,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Update Request 
+     * Update Request
      * @param $id
      * @return array
      */
@@ -255,7 +255,7 @@ class RequestController extends Controller
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = (int)Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
-        $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
+        // $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_location = Yii::$app->request->getBodyParam("location");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
@@ -422,7 +422,7 @@ class RequestController extends Controller
         $model = $this->findModel($id);
 
         $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
-        
+
         if (!$model->save())
         {
             if(isset($model->errors)){

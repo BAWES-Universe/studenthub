@@ -35,7 +35,7 @@ return [
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'enableStrictParsing' => true,
+            'enableStrictParsing' => false,
             'showScriptName' => false,
             'rules' => [
                 [ // AlgoliaController
@@ -59,7 +59,7 @@ return [
                         'OPTIONS login' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
-                ],     
+                ],
                 [ // AccountController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/account',
@@ -69,7 +69,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS update-password' => 'options',
                     ]
-                ],     
+                ],
                 [ // StatisticController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/statistic',
@@ -139,10 +139,10 @@ return [
                         'OPTIONS detail/<id>' => 'options',
                         'OPTIONS candidate-resume-pdf/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
-                        'OPTIONS unassign/<id>' => 'options',                        
+                        'OPTIONS unassign/<id>' => 'options',
                         'OPTIONS not-assigned' => 'options',
-                        'OPTIONS assigned' => 'options',                        
-                        'OPTIONS search' => 'options',       
+                        'OPTIONS assigned' => 'options',
+                        'OPTIONS search' => 'options',
                         'OPTIONS job-search-status' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
@@ -244,9 +244,9 @@ return [
                     'patterns' => [
                         'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
-                        'POST generate' => 'generate',                        
+                        'POST generate' => 'generate',
                         'GET list-expired' => 'list-expired',
-                        'POST renew' => 'renew',                                                
+                        'POST renew' => 'renew',
                         'GET total-expired' => 'total-expired',
                         'GET <id>/<token>' => 'view',
                         // OPTIONS VERBS
@@ -254,7 +254,7 @@ return [
                         'OPTIONS list-candidates' => 'options',
                         'OPTIONS generate' => 'options',
                         'OPTIONS list-expired' => 'options',
-                        'OPTIONS renew' => 'options',                        
+                        'OPTIONS renew' => 'options',
                         'OPTIONS total-expired' => 'options',
                         'OPTIONS <id>/<token>' => 'options'
                     ]
@@ -300,6 +300,18 @@ return [
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-interval/<id>' => 'options',
+                    ]
+                ],
+                [ // StoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/story',
+                    'patterns' => [
+                        'GET list' => 'list',
+                        'POST change-story-status' => 'change-story-status',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list' => 'options',
+                        'OPTIONS change-story-status>' => 'options',
                     ]
                 ],
                 [ // BrandController
