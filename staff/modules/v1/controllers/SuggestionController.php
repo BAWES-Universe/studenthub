@@ -9,6 +9,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Suggestion;
 use staff\models\Note;
+use common\models\Story;
 use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -123,26 +124,36 @@ class SuggestionController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
     /**
-     * Create a Suggestion 
+     * Create a Suggestion
      * @return array
      */
     public function actionCreate()
-    {   
+    {
         $suggestion = Yii::$app->request->getBodyParam("suggestion");
+        $story_uuid = Yii::$app->request->getBodyParam("story_uuid");
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
+        $story = Story::findOne(['story_uuid' => $story_uuid]);
+
         $request = Request::findOne(['request_uuid' => $request_uuid]);
+
+        if(!$story) {
+            return [
+                "operation" => "error",
+                "message" => 'Invalid Story ID'
+            ];
+        }
 
         if(!$request) {
             return [
                 "operation" => "error",
                 "message" => 'Invalid Request ID'
             ];
-        } 
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -156,7 +167,7 @@ class SuggestionController extends Controller
         $note->note_type = Note::TYPE_SUGGESTED;
         $note->note_text = $suggestion;
 
-        if(!$note->save()) 
+        if(!$note->save())
         {
             $transaction->rollBack();
 
@@ -201,7 +212,12 @@ class SuggestionController extends Controller
 
         $note->suggestion_uuid = $model->suggestion_uuid;
         $note->save(false);
-        
+
+
+        $story->suggestion_uuid = $model->suggestion_uuid;
+        $story->story_status = Story::STATUS_DELIVERED;
+        $story->save(false);
+
         $transaction->commit();
 
         if ($candidate_id) {
@@ -209,6 +225,9 @@ class SuggestionController extends Controller
         } else if ($fulltimer_uuid) {
             $suggestions = Fulltimer::findOne($fulltimer_uuid)->getSuggestion()->count();
         }
+
+
+
         return [
             "operation" => "success",
             "message" => "Suggestion created successfully",
@@ -217,13 +236,13 @@ class SuggestionController extends Controller
     }
 
     /**
-     * accept a Suggestion 
+     * accept a Suggestion
      * @return array
      */
     public function actionAccept($id)
-    {   
+    {
         $reason = Yii::$app->request->getBodyParam("reason");
-        
+
         $model = $this->findModel($id);
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -237,7 +256,7 @@ class SuggestionController extends Controller
         $note->note_type = Note::TYPE_ACCEPTED;
         $note->note_text = $reason;
 
-        if(!$note->save()) 
+        if(!$note->save())
         {
             $transaction->rollBack();
 
@@ -282,13 +301,13 @@ class SuggestionController extends Controller
     }
 
     /**
-     * reject a Suggestion 
+     * reject a Suggestion
      * @return array
      */
     public function actionReject($id)
-    {   
+    {
         $reason = Yii::$app->request->getBodyParam("reason");
-        
+
         $model = $this->findModel($id);
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -302,7 +321,7 @@ class SuggestionController extends Controller
         $note->note_type = Note::TYPE_REJECTED;
         $note->note_text = $reason;
 
-        if(!$note->save()) 
+        if(!$note->save())
         {
             $transaction->rollBack();
 
@@ -347,7 +366,7 @@ class SuggestionController extends Controller
     }
 
     /**
-     * Delete an 
+     * Delete an
      * @param  integer $id
      * @return array
      */
@@ -370,7 +389,7 @@ class SuggestionController extends Controller
             "message" => "Suggestion deleted successfully"
         ];
     }
-    
+
     /**
      * Finds the Suggestion model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

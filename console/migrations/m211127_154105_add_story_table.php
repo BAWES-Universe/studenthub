@@ -30,6 +30,7 @@ class m211127_154105_add_story_table extends Migration
       $this->createTable ('{{%story}}', [
           "story_uuid" => $this->char(60),
           "request_uuid" => $this->char(60)->notNull(),
+          'staff_id' => $this->integer()->null(),
           'story_status' => $this->smallInteger()->notNull()->defaultValue(0),
           'story_time_spent' => $this->integer(),
           'story_created_at' => $this->dateTime (),
@@ -53,6 +54,23 @@ class m211127_154105_add_story_table extends Migration
           'RESTRICT',
           'RESTRICT'
       );
+
+      // creates index for column `staff_id`
+      $this->createIndex(
+          'idx-story-staff_id',
+          'story',
+          'staff_id'
+      );
+      // add foreign key for table `staff`
+      $this->addForeignKey(
+          'fk-story-staff_id',
+          'story',
+          'staff_id',
+          'staff',
+          'staff_id',
+          'CASCADE'
+      );
+
 
 
       $this->createTable ('{{%story_activity}}', [
@@ -110,6 +128,14 @@ class m211127_154105_add_story_table extends Migration
 
 
       $this->dropColumn('staff','staff_hourly_rate');
+
+
+      $this->dropForeignKey (
+          'fk-story-staff_id',
+          'story'
+      );
+
+      $this->dropIndex('idx-story-staff_id', 'story');
 
 
       $this->dropForeignKey (

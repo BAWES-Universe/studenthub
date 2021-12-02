@@ -35,7 +35,7 @@ return [
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'enableStrictParsing' => false,
+            'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
                 [ // AlgoliaController
@@ -279,6 +279,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET active' => 'list-active',
+                        'GET pending-request' => 'pending-request',
                         'GET is-request-updated/<id>' => 'is-request-updated',
                         'GET list-checklist' => 'list-checklist',
                         'GET <id>' => 'view',
@@ -291,6 +292,7 @@ return [
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS pending-request' => 'list-checklist',
                         'OPTIONS list-checklist' => 'list-checklist',
                         'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS active' => 'options',
@@ -305,12 +307,17 @@ return [
                 [ // StoryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/story',
+                    'pluralize' => false,
                     'patterns' => [
                         'GET list' => 'list',
+                        'GET active-story' => 'active-story',
+                        'GET <id>' => 'view',
                         'POST change-story-status' => 'change-story-status',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS list' => 'options',
+                        'OPTIONS active-story' => 'options',
+                        'OPTIONS <id>' => 'options',
                         'OPTIONS change-story-status>' => 'options',
                     ]
                 ],

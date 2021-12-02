@@ -15,6 +15,8 @@ use common\models\Request;
  *
  * @property string $story_uuid
  * @property string $request_uuid
+ * @property string $suggestion_uuid
+ * @property int $staff_id
  * @property int $story_status
  * @property int $story_time_spent
  * @property string $story_created_at
@@ -25,7 +27,6 @@ use common\models\Request;
  */
 class Story extends \yii\db\ActiveRecord
 {
-
     const STATUS_UNSTARTED = 0;
     const STATUS_STARTED = 1;
     const STATUS_FINISHED = 2;
@@ -50,11 +51,13 @@ class Story extends \yii\db\ActiveRecord
         return [
             [['story_uuid','request_uuid'], 'required'],
             ['story_status', 'in', 'range' => [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_FINISHED,self::STATUS_DELIVERED,self::STATUS_REJECTED,self::STATUS_ACCEPTED]],
-            [['story_status', 'story_time_spent'], 'integer'],
+            [['story_status', 'story_time_spent','staff_id','suggestion_uuid'], 'integer'],
             [['story_created_at', 'story_last_updated_at'], 'safe'],
             [['story_uuid', 'request_uuid'], 'string', 'max' => 60],
             [['story_uuid'], 'unique'],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
     }
 
@@ -94,6 +97,41 @@ class Story extends \yii\db\ActiveRecord
           $storyActivity->save(false);
         }
 
+
+        //Update request time spent
+        if(isset($changedAttributes['story_time_spent'])){
+          $request_model = Request::findOne($this->request_uuid);
+
+          $request_model->request_time_spent = $request_model->getStories()->sum('story_time_spent');
+          $request_model->save(false);
+
+        }
+
+
+    }
+
+    /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+      return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'request',
+            'company'
+        ];
     }
 
 
@@ -105,6 +143,7 @@ class Story extends \yii\db\ActiveRecord
         return [
             'story_uuid' => 'Story Uuid',
             'request_uuid' => 'Request Uuid',
+            'staff_id' => 'Staff id',
             'story_status' => 'Story Status',
             'story_time_spent' => 'Story Time Spent',
             'story_created_at' => 'Story Created At',
@@ -118,6 +157,38 @@ class Story extends \yii\db\ActiveRecord
     public function getRequest()
     {
         return $this->hasOne(Request::className(), ['request_uuid' => 'request_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestion()
+    {
+        return $this->hasOne(Suggestion::className(), ['suggestion_uuid' => 'suggestion_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaff()
+    {
+        return $this->hasOne(Request::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany($modelClass = "\common\models\Company")
+    {
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->via('request');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getActiveStoryActivity()
+    {
+        return $this->hasOne(StoryActivity::className(), ['story_uuid' => 'story_uuid'])->where(['activity_status' => StoryActivity::STATUS_STARTED]);
     }
 
     /**

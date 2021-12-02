@@ -82,6 +82,33 @@ class StoryController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
+
+    }
+
+
+    /**
+     * @param $id
+     * @return Request
+     * @throws NotFoundHttpException
+     */
+    public function actionActiveStory()
+    {
+      $model = Story::find()->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])->one();
+
+      if ($model !== null) {
+          return [
+              "operation" => "success",
+              "body" => $model
+          ];
+
+      } else {
+        return [
+            "operation" => "error",
+            "message" => Yii::t ('app', "There is no active story")
+        ];
+      }
+
+
     }
 
 
@@ -91,8 +118,6 @@ class StoryController extends Controller
      */
     public function actionList()
     {
-
-
         $query = Story::find()
             ->joinWith('request')
             ->where(['story_status' => Story::STATUS_UNSTARTED])
@@ -126,13 +151,18 @@ class StoryController extends Controller
           ];
         }
 
+        $status = (int) Yii::$app->request->getBodyParam("status");
+
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
         $story =  $this->findModel($storyUuid);
 
 
         // Attempt to create new request
         $model = new StoryActivity();
-        $model->staff_id = Yii::$app->user->getId();
+
+        if($status != StoryActivity::STATUS_UNSTARTED)
+          $model->staff_id = Yii::$app->user->getId();
+
         $model->story_uuid = $storyUuid;
         $model->activity_status = $status;
 
@@ -143,11 +173,15 @@ class StoryController extends Controller
                                       ->one();
 
         $activity_created_at = new \DateTime(date('Y-m-d H:i:s',strtotime($last_story_acitivty_model->activity_created_at)));
-        $activity_last_updated_at = new \DateTime(date('Y-m-d H:i:s',strtotime($last_story_acitivty_model->activity_last_updated_at)));
         $activity_last_updated_at = new \DateTime(date('Y-m-d H:i:s'));
-        $interval = $activity_created_at->diff($activity_last_updated_at);
+        $diff = $activity_created_at->diff($activity_last_updated_at);
+        $daysInSecs = $diff->format('%r%a') * 24 * 60 * 60;
+        $hoursInSecs = $diff->h * 60 * 60;
+        $minsInSecs = $diff->i * 60;
 
-        $last_story_acitivty_model->activity_time_spent = $interval->s;
+        $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+
+        $last_story_acitivty_model->activity_time_spent = $seconds;
         $last_story_acitivty_model->save(false);
 
 
