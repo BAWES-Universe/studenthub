@@ -48,7 +48,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
-            [['staff_role'], 'number'],
+            [['staff_role','staff_hourly_rate'], 'number'],
             [['staff_status'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
@@ -90,6 +90,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
             'staff_updated_at' => Yii::t('app','Staff Updated At'),
+            'staff_hourly_rate' => Yii::t('app','Staff Hourly Rate'),
         ];
     }
 
@@ -268,7 +269,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * return total completed requests by staff 
+     * return total completed requests by staff
      * @return int
      */
     public function getTotalCompletedRequests()
@@ -308,6 +309,16 @@ class Staff extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
+
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryActivities()
+    {
+        return $this->hasMany(StoryActivity::className(), ['staff_id' => 'staff_id']);
+    }
+
 
     /**
      * @return \yii\db\ActiveQuery
