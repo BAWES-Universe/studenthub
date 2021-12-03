@@ -13,18 +13,15 @@ class m211127_154105_add_story_table extends Migration
    */
   public function safeUp()
   {
-
       $this->addColumn('staff', 'staff_hourly_rate', $this->double(10,3)->notNull()->defaultValue(1.6) );
 
       $this->addColumn('request', 'request_priority', $this->integer(50)->defaultValue(0));
       $this->addColumn('request', 'request_time_spent', $this->integer()->null());
 
-
       $tableOptions = null;
       if ($this->db->driverName === 'mysql') {
           // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
           $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
-
       }
 
       $this->createTable ('{{%story}}', [
@@ -71,8 +68,6 @@ class m211127_154105_add_story_table extends Migration
           'CASCADE'
       );
 
-
-
       $this->createTable ('{{%story_activity}}', [
           "story_activity_uuid" => $this->char(60),
           "story_uuid" => $this->char(60)->notNull(),
@@ -84,7 +79,6 @@ class m211127_154105_add_story_table extends Migration
       ], $tableOptions);
 
       $this->addPrimaryKey('PK', 'story_activity', 'story_activity_uuid');
-
 
       $this->createIndex (
           'idx-story_activity-story_uuid',
@@ -117,7 +111,6 @@ class m211127_154105_add_story_table extends Migration
           'staff_id',
           'CASCADE'
       );
-
   }
 
   /**
