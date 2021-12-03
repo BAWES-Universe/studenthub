@@ -491,6 +491,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @return bool
      */
     public function softDelete() {
+
         $this->deleted = 1;
 
         //remove unique fields, so can create new account with same details
@@ -501,6 +502,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         if ($this->save(false)) {
             return StaffToken::deleteAll(['staff_id'=>$this->staff_id]);
         }
+        
         return false;
     }
 
