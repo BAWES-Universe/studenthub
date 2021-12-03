@@ -185,6 +185,21 @@ class Staff extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public static function getTotalNoOfHours()
+    {
+        $timeForCompletedRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        $timeForCancelledRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_CANCELLED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        return ($timeForCancelledRequests + $timeForCompletedRequests) / 3600;
+    }
+
     /**
      * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
