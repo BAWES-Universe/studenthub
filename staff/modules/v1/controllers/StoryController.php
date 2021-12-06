@@ -139,7 +139,7 @@ class StoryController extends Controller
      * Stop working on story
      * @return array
      */
-      public function actionChangeStoryStatus()
+    public function actionChangeStoryStatus()
     {
 
         $status = Yii::$app->request->getBodyParam("status");
@@ -165,7 +165,6 @@ class StoryController extends Controller
 
         $model->story_uuid = $storyUuid;
         $model->activity_status = $status;
-
 
         $last_story_acitivty_model = StoryActivity::find()
                                       ->where(['story_uuid' => $storyUuid])
