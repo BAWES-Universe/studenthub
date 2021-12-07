@@ -123,7 +123,8 @@ class StoryActivity extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            'story'
+            'story',
+            'staff'
         ];
     }
 

@@ -205,6 +205,7 @@ class Request extends \yii\db\ActiveRecord
             'stats',
             'staff',
             'staffs',
+            'stories',
             'storyOwners'
         ];
     }

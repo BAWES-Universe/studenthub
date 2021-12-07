@@ -129,7 +129,9 @@ class Story extends \yii\db\ActiveRecord
     {
         return [
             'request',
-            'company'
+            'company',
+            'staff',
+            'storyActivities'
         ];
     }
 
@@ -171,7 +173,7 @@ class Story extends \yii\db\ActiveRecord
      */
     public function getStaff()
     {
-        return $this->hasOne(Request::className(), ['staff_id' => 'staff_id']);
+        return $this->hasOne(Staff::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
