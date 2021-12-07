@@ -3,13 +3,12 @@
 namespace common\models;
 
 use staff\models\Staff;
-use common\models\Story;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
-use yii\helpers\ArrayHelper;
+
 
 /**
  * This is the model class for table "request".
@@ -205,7 +204,8 @@ class Request extends \yii\db\ActiveRecord
             'invitations',
             'stats',
             'staff',
-            'staffs'
+            'staffs',
+            'storyOwners'
         ];
     }
 
@@ -318,14 +318,22 @@ class Request extends \yii\db\ActiveRecord
             ->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED]);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\common\models\Story")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid']);
+    }
 
-      /**
-       * @return \yii\db\ActiveQuery
-       */
-      public function getStories()
-      {
-          return $this->hasMany(Story::className(), ['request_uuid' => 'request_uuid']);
-      }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryOwners($modelClass = "\common\models\Staff")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id'])
+            ->via('stories');
+    }
 
     /**
      * create activity record for request

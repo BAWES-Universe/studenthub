@@ -34,7 +34,6 @@ class Story extends \yii\db\ActiveRecord
     const STATUS_REJECTED = 4;
     const STATUS_ACCEPTED = 5;
 
-
     /**
      * {@inheritdoc}
      */
