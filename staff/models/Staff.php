@@ -31,7 +31,7 @@ class Staff extends \common\models\Staff {
         return array_merge(parent::extraFields(),[
             'storyActivities',
             'groupStoryActivities',
-            'activeStoriesActivities',
+            'activeStory',
         ]);
     }
     /**
@@ -94,5 +94,20 @@ class Staff extends \common\models\Staff {
              ->andWhere(['<>','activity_time_spent','null'])
              ->andWhere(['activity_status'=> 1])
              ->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\staff\models\Story")
+    {
+        return parent::getStories($modelClass);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getActiveStory()
+    {
+        return $this->getStories()->andWhere(['story_status'=>Story::STATUS_STARTED])->all();
     }
 }
