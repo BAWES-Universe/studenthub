@@ -49,9 +49,6 @@ class Request extends \yii\db\ActiveRecord
     const STATUS_DELIVERED = 'delivered';
     const STATUS_CANCELLED = 'cancelled';
 
-
-
-
     /**
      * {@inheritdoc}
      */
@@ -303,16 +300,25 @@ class Request extends \yii\db\ActiveRecord
             ->orderBy('note_created_datetime DESC');
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getSuggestions($modelClass = "\common\models\Suggestion") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->orderBy('suggestion_datetime DESC');
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getInvitations($modelClass = "\common\models\Invitation") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->orderBy('invitation_created_at DESC');
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getActiveSuggestions($modelClass = "\common\models\Suggestion") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED]);

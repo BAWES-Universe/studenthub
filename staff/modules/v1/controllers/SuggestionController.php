@@ -212,8 +212,7 @@ class SuggestionController extends Controller
 
         $note->suggestion_uuid = $model->suggestion_uuid;
         $note->save(false);
-
-
+        
         $story->suggestion_uuid = $model->suggestion_uuid;
         $story->story_status = Story::STATUS_DELIVERED;
         $story->save(false);
@@ -225,8 +224,6 @@ class SuggestionController extends Controller
         } else if ($fulltimer_uuid) {
             $suggestions = Fulltimer::findOne($fulltimer_uuid)->getSuggestion()->count();
         }
-
-
 
         return [
             "operation" => "success",
