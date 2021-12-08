@@ -2,13 +2,14 @@
 
 namespace common\models;
 
+use common\models\Request;
+use common\models\StoryActivity;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
 use yii\helpers\ArrayHelper;
-use common\models\StoryActivity;
-use common\models\Request;
+
 
 /**
  * This is the model class for table "story".
@@ -105,8 +106,6 @@ class Story extends \yii\db\ActiveRecord
           $request_model->save(false);
 
         }
-
-
     }
 
     /**
@@ -133,7 +132,6 @@ class Story extends \yii\db\ActiveRecord
         ];
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -153,25 +151,25 @@ class Story extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getRequest()
+    public function getRequest($modelClass = "\common\models\Request")
     {
-        return $this->hasOne(Request::className(), ['request_uuid' => 'request_uuid']);
+        return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getSuggestion()
+    public function getSuggestion($modelClass = "\common\models\Suggestion")
     {
-        return $this->hasOne(Suggestion::className(), ['suggestion_uuid' => 'suggestion_uuid']);
+        return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStaff()
+    public function getStaff($modelClass = "\common\models\Request")
     {
-        return $this->hasOne(Request::className(), ['staff_id' => 'staff_id']);
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
@@ -179,22 +177,24 @@ class Story extends \yii\db\ActiveRecord
      */
     public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])->via('request');
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('request');
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getActiveStoryActivity()
+    public function getActiveStoryActivity($modelClass = "\common\models\StoryActivity")
     {
-        return $this->hasOne(StoryActivity::className(), ['story_uuid' => 'story_uuid'])->where(['activity_status' => StoryActivity::STATUS_STARTED]);
+        return $this->hasOne($modelClass::className(), ['story_uuid' => 'story_uuid'])
+            ->andWhere(['activity_status' => StoryActivity::STATUS_STARTED]);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStoryActivities()
+    public function getStoryActivities($modelClass = "\common\models\StoryActivity")
     {
-        return $this->hasMany(StoryActivity::className(), ['story_uuid' => 'story_uuid']);
+        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
     }
 }

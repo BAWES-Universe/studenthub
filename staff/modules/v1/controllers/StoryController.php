@@ -107,10 +107,7 @@ class StoryController extends Controller
             "message" => Yii::t ('app', "There is no active story")
         ];
       }
-
-
     }
-
 
     /**
      * Return a List of stories.
@@ -156,7 +153,6 @@ class StoryController extends Controller
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
         $story =  $this->findModel($storyUuid);
 
-
         // Attempt to create new request
         $model = new StoryActivity();
 
@@ -171,18 +167,20 @@ class StoryController extends Controller
                                       ->orderBy('activity_created_at desc')
                                       ->one();
 
-        $activity_created_at = new \DateTime(date('Y-m-d H:i:s',strtotime($last_story_acitivty_model->activity_created_at)));
-        $activity_last_updated_at = new \DateTime(date('Y-m-d H:i:s'));
-        $diff = $activity_created_at->diff($activity_last_updated_at);
-        $daysInSecs = $diff->format('%r%a') * 24 * 60 * 60;
-        $hoursInSecs = $diff->h * 60 * 60;
-        $minsInSecs = $diff->i * 60;
+        if($last_story_acitivty_model)
+        {
+            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
+            $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
+            $diff = $activity_created_at->diff ($activity_last_updated_at);
+            $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
+            $hoursInSecs = $diff->h * 60 * 60;
+            $minsInSecs = $diff->i * 60;
 
-        $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+            $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
 
-        $last_story_acitivty_model->activity_time_spent = $seconds;
-        $last_story_acitivty_model->save(false);
-
+            $last_story_acitivty_model->activity_time_spent = $seconds;
+            $last_story_acitivty_model->save (false);
+        }
 
         if (!$model->save())
         {
