@@ -2,19 +2,15 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\RequestChecklist;
 use Yii;
-use staff\models\Staff;
 use common\models\StoryActivity;
 use common\models\Story;
-use staff\models\Note;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
-use yii\db\Expression;
 
 
 /**
@@ -72,8 +68,6 @@ class StoryController extends Controller
         return $actions;
     }
 
-
-
     /**
      * @param $id
      * @return Request
@@ -85,7 +79,6 @@ class StoryController extends Controller
 
     }
 
-
     /**
      * @param $id
      * @return Request
@@ -94,6 +87,31 @@ class StoryController extends Controller
     public function actionActiveStory()
     {
       $model = Story::find()->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])->one();
+
+      if ($model !== null) {
+          return [
+              "operation" => "success",
+              "body" => $model
+          ];
+
+      } else {
+        return [
+            "operation" => "error",
+            "message" => Yii::t ('app', "There is no active story")
+        ];
+      }
+    }
+
+    /**
+     * @param $id
+     * @return Request
+     * @throws NotFoundHttpException
+     */
+    public function actionAllOldStories()
+    {
+      $model = Story::find()->andWhere(['staff_id' => Yii::$app->user->getId()])
+          ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+          ->all();
 
       if ($model !== null) {
           return [
