@@ -157,7 +157,7 @@ class StoryController extends Controller
     public function actionChangeStoryStatus()
     {
 
-        $status = Yii::$app->request->getBodyParam("status");
+        $status = (int) Yii::$app->request->getBodyParam("status");
 
         if (!in_array ($status, [StoryActivity::STATUS_UNSTARTED, StoryActivity::STATUS_STARTED,StoryActivity::STATUS_FINISHED,StoryActivity::STATUS_DELIVERED,StoryActivity::STATUS_REJECTED, StoryActivity::STATUS_ACCEPTED])){
           return [
@@ -166,8 +166,15 @@ class StoryController extends Controller
           ];
         }
 
-        $status = (int) Yii::$app->request->getBodyParam("status");
-
+        if ($status == Story::STATUS_STARTED ) {
+            $exist = Story::find()->andWhere(['staff_id'=>Yii::$app->user->getId(),'story_status'=>StoryActivity::STATUS_STARTED])->exists();
+            if ($exist) {
+                return [
+                    "operation" => "error",
+                    "message" => "Please complete your existing story. You can only work one story at a time"
+                ];
+            }
+        }
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
         $story =  $this->findModel($storyUuid);
 
@@ -185,8 +192,7 @@ class StoryController extends Controller
                                       ->orderBy('activity_created_at desc')
                                       ->one();
 
-        if($last_story_acitivty_model)
-        {
+        if($last_story_acitivty_model) {
             $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
             $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
             $diff = $activity_created_at->diff ($activity_last_updated_at);
