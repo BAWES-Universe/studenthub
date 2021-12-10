@@ -12,7 +12,6 @@ use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
-
 /**
  * Story controller - Manage brand as Admin
  */
@@ -76,7 +75,6 @@ class StoryController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
-
     }
 
     /**
