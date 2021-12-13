@@ -2,20 +2,15 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\RequestChecklist;
 use Yii;
-use staff\models\Staff;
 use common\models\StoryActivity;
 use common\models\Story;
-use staff\models\Note;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
-use yii\db\Expression;
-
 
 /**
  * Story controller - Manage brand as Admin
@@ -72,8 +67,6 @@ class StoryController extends Controller
         return $actions;
     }
 
-
-
     /**
      * @param $id
      * @return Request
@@ -82,9 +75,7 @@ class StoryController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
-
     }
-
 
     /**
      * @param $id
@@ -107,10 +98,32 @@ class StoryController extends Controller
             "message" => Yii::t ('app', "There is no active story")
         ];
       }
-
-
     }
 
+    /**
+     * @param $id
+     * @return Request
+     * @throws NotFoundHttpException
+     */
+    public function actionAllOldStories()
+    {
+      $model = Story::find()->andWhere(['staff_id' => Yii::$app->user->getId()])
+          ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+          ->all();
+
+      if ($model !== null) {
+          return [
+              "operation" => "success",
+              "body" => $model
+          ];
+
+      } else {
+        return [
+            "operation" => "error",
+            "message" => Yii::t ('app', "There is no active story")
+        ];
+      }
+    }
 
     /**
      * Return a List of stories.
@@ -142,7 +155,7 @@ class StoryController extends Controller
     public function actionChangeStoryStatus()
     {
 
-        $status = Yii::$app->request->getBodyParam("status");
+        $status = (int) Yii::$app->request->getBodyParam("status");
 
         if (!in_array ($status, [StoryActivity::STATUS_UNSTARTED, StoryActivity::STATUS_STARTED,StoryActivity::STATUS_FINISHED,StoryActivity::STATUS_DELIVERED,StoryActivity::STATUS_REJECTED, StoryActivity::STATUS_ACCEPTED])){
           return [
@@ -151,11 +164,17 @@ class StoryController extends Controller
           ];
         }
 
-        $status = (int) Yii::$app->request->getBodyParam("status");
-
+        if ($status == Story::STATUS_STARTED ) {
+            $exist = Story::find()->andWhere(['staff_id'=>Yii::$app->user->getId(),'story_status'=>StoryActivity::STATUS_STARTED])->exists();
+            if ($exist) {
+                return [
+                    "operation" => "error",
+                    "message" => "Please complete your existing story. You can only work one story at a time"
+                ];
+            }
+        }
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
         $story =  $this->findModel($storyUuid);
-
 
         // Attempt to create new request
         $model = new StoryActivity();
@@ -171,18 +190,19 @@ class StoryController extends Controller
                                       ->orderBy('activity_created_at desc')
                                       ->one();
 
-        $activity_created_at = new \DateTime(date('Y-m-d H:i:s',strtotime($last_story_acitivty_model->activity_created_at)));
-        $activity_last_updated_at = new \DateTime(date('Y-m-d H:i:s'));
-        $diff = $activity_created_at->diff($activity_last_updated_at);
-        $daysInSecs = $diff->format('%r%a') * 24 * 60 * 60;
-        $hoursInSecs = $diff->h * 60 * 60;
-        $minsInSecs = $diff->i * 60;
+        if($last_story_acitivty_model) {
+            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
+            $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
+            $diff = $activity_created_at->diff ($activity_last_updated_at);
+            $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
+            $hoursInSecs = $diff->h * 60 * 60;
+            $minsInSecs = $diff->i * 60;
 
-        $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+            $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
 
-        $last_story_acitivty_model->activity_time_spent = $seconds;
-        $last_story_acitivty_model->save(false);
-
+            $last_story_acitivty_model->activity_time_spent = $seconds;
+            $last_story_acitivty_model->save (false);
+        }
 
         if (!$model->save())
         {

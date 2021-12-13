@@ -311,12 +311,14 @@ return [
                     'patterns' => [
                         'GET list' => 'list',
                         'GET active-story' => 'active-story',
+                        'GET all-old-stories' => 'all-old-stories',
                         'GET <id>' => 'view',
                         'POST change-story-status' => 'change-story-status',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS list' => 'options',
                         'OPTIONS active-story' => 'options',
+                        'OPTIONS all-old-stories' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS change-story-status>' => 'options',
                     ]

@@ -314,9 +314,9 @@ class Staff extends ActiveRecord implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStoryActivities()
+    public function getStoryActivities($modelClass = "\common\models\StoryActivity")
     {
-        return $this->hasMany(StoryActivity::className(), ['staff_id' => 'staff_id']);
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
 
@@ -577,5 +577,13 @@ class Staff extends ActiveRecord implements IdentityInterface
         // Use openssl_decrypt() function to decrypt the data
         return openssl_decrypt($string, $ciphering,
             $decryption_key, $options, $decryption_iv);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\common\models\Story")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 }

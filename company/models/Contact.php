@@ -141,6 +141,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         }
 
         if ($model->contact_auth_key == $code) { //to cope with sql case insensitivity
+
             //If not verified
             if ($model->contact_email_verification == Contact::EMAIL_NOT_VERIFIED) {
                 //Verify this email

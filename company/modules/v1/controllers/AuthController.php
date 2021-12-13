@@ -55,6 +55,7 @@ class AuthController extends Controller
                 return null;
             }
         ];
+
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
