@@ -352,6 +352,18 @@ class CandidateController extends Controller
             ];
         }
 
+        $store = Store::find()
+            ->andWhere (['store_id' => $store_id])
+            ->one();
+
+        if(!$store) {
+            return [
+                "operation" => "error",
+                "message" => "Store not found",
+                "code" => 1
+            ];
+        }
+
         $model->store_id = $store_id;
 
         $model->candidate_hourly_rate = $hourly_rate;
@@ -375,7 +387,7 @@ class CandidateController extends Controller
 
         // save note
 
-        $storeName = $model->store->store_name;
+        $storeName = $store->store_name;
 
         $noteModel  = new Note();
         $noteModel->candidate_id  = $id;
@@ -388,7 +400,7 @@ class CandidateController extends Controller
 
         CandidateWorkHistory::saveAssignedHistory($model);
 
-        Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$model->store->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$storeName.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -406,6 +418,7 @@ class CandidateController extends Controller
     {
         // Attempt to create new account
         $model = $this->findModel($id);
+
         $storeName = $model->store->store_name;
         $company_id = $model->store->company_id;
         $commonCompanyName = $model->company->company_common_name_en;
@@ -425,6 +438,7 @@ class CandidateController extends Controller
                 ];
             }
         }
+
         // save note
         $feedback = Yii::$app->request->get('feedback');
         $noteModel  = new Note();
