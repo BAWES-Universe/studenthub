@@ -163,17 +163,24 @@ class NoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel($id);
+        $model = $this->findModel($id);
 
-        if(!$brand) {
+        if(!$model) {
             return [
                 "operation" => "error",
                 "message" => "Note not found or already deleted"
             ];
         }
 
-        // Delete brand
-        $brand->delete();
+        if($model->suggestion) {
+            return [
+                "operation" => "error",
+                "message" => "Note being use in suggestion"
+            ];
+        }
+
+        // Delete note
+        $model->delete();
 
         return [
             "operation" => "success",
