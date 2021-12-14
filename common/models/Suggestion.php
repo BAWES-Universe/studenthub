@@ -474,10 +474,12 @@ class Suggestion extends \yii\db\ActiveRecord
                                 'contentType' => Yii::$app->resourceManager->getType("fulltimer-resume/" . $eachSuggestion->note->fulltimer->fulltimer_pdf_cv)
                             ]);
                         } else {
-                            throw new \yii\console\Exception('Resume not available to attach');
+                            //continue;
+                            throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->note->fulltimer_uuid);
                         }
                     } else {
-                        throw new \yii\console\Exception('Resume not available to attach');
+                        //continue;
+                        throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->note->fulltimer_uuid);
                     }
 
                     //  update suggestion table to set mail to company
