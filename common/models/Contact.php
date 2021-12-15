@@ -50,7 +50,7 @@ class Contact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['contact_name', 'contact_email', 'contact_password_hash'], 'required'],
+            [['contact_name', 'contact_email'], 'required'],//'contact_password_hash'
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
             [['contact_uuid'], 'string', 'max' => 60],//'contact_otp'
             [['contact_email', 'contact_new_email'], 'email'],
