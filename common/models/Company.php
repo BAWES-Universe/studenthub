@@ -158,6 +158,8 @@ class Company extends \yii\db\ActiveRecord
 
         $scenarios['updateFollowup'] = ['company_followup'];
 
+        $scenarios['updateStatus'] = ['company_status'];
+
         $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
 
         return $scenarios;
