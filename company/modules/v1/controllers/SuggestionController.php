@@ -124,11 +124,6 @@ class SuggestionController extends BaseController
             }
         }
 
-        if($model->story) {
-            $model->story->story_status = Story::STATUS_FINISHED;
-            $model->story->save();
-        }
-
         $transaction->commit();
 
         return [
