@@ -126,9 +126,12 @@ class RequestController extends Controller
             $query->orderByFollowupInterval($followup_interval);
         }
 
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
-        {
-            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
+            $query->joinWith (['stories'])
+                ->andWhere ([
+                    //'request.staff_id' => Yii::$app->user->getId (),
+                    'story.staff_id' => Yii::$app->user->getId ()
+                ]);
         }
 
         return new ActiveDataProvider([
@@ -168,9 +171,12 @@ class RequestController extends Controller
             $query->orderBy('request_created_datetime DESC');
         }
 
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
-        {
-            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
+            $query->joinWith (['stories'])
+                ->andWhere ([
+                    //'request.staff_id' => Yii::$app->user->getId (),
+                    'story.staff_id' => Yii::$app->user->getId ()
+                ]);
         }
 
         return new ActiveDataProvider([
@@ -214,19 +220,18 @@ class RequestController extends Controller
              $query->orderBy('request_created_datetime DESC');
          }
 
-
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
-        {
-            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
-        }
+         if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
+             $query->joinWith (['stories'])
+                 ->andWhere ([
+                     //'request.staff_id' => Yii::$app->user->getId (),
+                     'story.staff_id' => Yii::$app->user->getId ()
+                 ]);
+         }
 
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
-
-
-
 
     /**
      * @param $id
