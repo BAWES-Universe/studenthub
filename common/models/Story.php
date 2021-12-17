@@ -2,13 +2,10 @@
 
 namespace common\models;
 
-use common\models\Request;
-use common\models\StoryActivity;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
-use yii\helpers\ArrayHelper;
 
 
 /**
@@ -19,6 +16,7 @@ use yii\helpers\ArrayHelper;
  * @property string $suggestion_uuid
  * @property int $staff_id
  * @property int $story_status
+ * @property int $is_old
  * @property int $story_time_spent
  * @property string $story_created_at
  * @property string $story_last_updated_at
@@ -51,7 +49,7 @@ class Story extends \yii\db\ActiveRecord
         return [
             [['story_uuid','request_uuid'], 'required'],
             ['story_status', 'in', 'range' => [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_FINISHED,self::STATUS_DELIVERED,self::STATUS_REJECTED,self::STATUS_ACCEPTED]],
-            [['story_status', 'story_time_spent','staff_id','suggestion_uuid'], 'integer'],
+            [['story_status', 'story_time_spent','staff_id','suggestion_uuid','is_old'], 'integer'],
             [['story_created_at', 'story_last_updated_at'], 'safe'],
             [['story_uuid', 'request_uuid'], 'string', 'max' => 60],
             [['story_uuid'], 'unique'],
@@ -144,6 +142,7 @@ class Story extends \yii\db\ActiveRecord
             'request_uuid' => 'Request Uuid',
             'staff_id' => 'Staff id',
             'story_status' => 'Story Status',
+            'is_old' => 'Is Old',
             'story_time_spent' => 'Story Time Spent',
             'story_created_at' => 'Story Created At',
             'story_last_updated_at' => 'Story Last Updated At',
