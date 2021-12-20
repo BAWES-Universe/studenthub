@@ -203,7 +203,7 @@ class AuthController extends Controller
             "token" => $accessToken,
             "company_id" => $company->company_id,
             "profile_name" => $contact->contact_name,
-            "email" => $company->company_email,
+            "email" => $contact->contact_email,
             "active_request_count" => $company->getRequests()->activeRequest()->count()
         ];
     }

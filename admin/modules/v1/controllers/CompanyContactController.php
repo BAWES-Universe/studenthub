@@ -146,6 +146,10 @@ class CompanyContactController extends Controller
             }
         }
 
+        if (!$model->contact_email_verification) {
+            $model->sendVerificationEmail();
+        }
+
         foreach($emails as $email) {
 
             if(!$email['email_address'])

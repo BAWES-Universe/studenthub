@@ -531,4 +531,34 @@ class Contact extends \yii\db\ActiveRecord
             return null;
         }
     }
+
+    /**
+     * Sends an email requesting a user to verify his email address
+     * @return boolean whether the email was sent
+     */
+    public function sendVerificationEmail() {
+
+        $this->generateAuthKey();
+
+        //Update contact last email limit timestamp
+        $this->contact_limit_email = new Expression('NOW()');
+        $this->save(false);
+
+        if ($this->contact_new_email) {
+            $email = $this->contact_new_email;
+        } else {
+            $email = $this->contact_email;
+        }
+
+        return Yii::$app->mailer->compose([
+            'html' => 'company/verify-email-html',
+            'text' => 'company/verify-email-text',
+        ], [
+            'contact' => $this
+        ])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setTo($email)
+            ->setSubject('Please confirm your email address')
+            ->send();
+    }
 }
