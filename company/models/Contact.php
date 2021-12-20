@@ -137,7 +137,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             ->one();
 
         if(!$model) {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            return false;
         }
 
         if ($model->contact_auth_key == $code) { //to cope with sql case insensitivity
