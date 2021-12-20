@@ -85,6 +85,7 @@ return [
                     'patterns' => [
                         'GET view-company-contact' => 'view-company-contact',
                         'GET is-email-exists' => 'is-email-exists',
+                        'GET send-verification-email' => 'resend-verification-email',
                         'GET <id>' => 'view',
                         'GET' => 'list',
                         'POST' => 'create',
@@ -96,6 +97,7 @@ return [
                         'OPTIONS view-company-contact' => 'options',
                         'OPTIONS add-to-team' => 'options',
                         'OPTIONS is-email-exists' => 'options',
+                        'OPTIONS send-verification-email' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
