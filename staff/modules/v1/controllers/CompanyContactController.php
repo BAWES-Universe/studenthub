@@ -94,7 +94,7 @@ class CompanyContactController extends Controller
             // each contact have has many contact so using join to
             // return as array. and to ignore password.
             $query
-                ->addSelect('contact.contact_name,contact.contact_uuid,contact.contact_email')
+                ->addSelect('contact.contact_name,contact.contact_uuid,contact.contact_email,contact.contact_email_verification')
                 ->addSelect('contact.contact_receive_email,contact.contact_receive_email,contact.contact_updated_at')
                 ->addSelect('contact.contact_receive_notification,contact.contact_created_at')
                 ->joinWith(['contactEmails', 'contactPhones','companyContact'])
@@ -165,6 +165,10 @@ class CompanyContactController extends Controller
                     "message" => "We've faced a problem creating the contact details, please contact us for assistance."
                 ];
             }
+        }
+
+        if (!$model->contact_email_verification) {
+            $model->sendVerificationEmail();
         }
 
         foreach($emails as $email) {
@@ -382,7 +386,35 @@ class CompanyContactController extends Controller
             "message" => "Company Contact deleted successfully"
         ];
     }
-    
+
+    public function actionResendVerificationEmail() {
+
+        $id = Yii::$app->request->get('contact_uuid');
+        $model = Contact::findOne($id);
+
+        if(!$model) {
+            return [
+                "operation" => "Error",
+                "message" => "Invalid Contact"
+            ];
+        }
+
+        if (!$model->contact_email_verification) {
+            $model->sendVerificationEmail();
+
+            return [
+                "operation" => "success",
+                "message" => "Verification email sent successfully"
+            ];
+
+        } else  {
+            return [
+                "operation" => "Error",
+                "message" => "Email already Validated"
+            ];
+        }
+    }
+
     /**
      * Finds the CompanyContact model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
