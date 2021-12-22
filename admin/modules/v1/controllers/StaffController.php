@@ -234,7 +234,7 @@ class StaffController extends Controller
     public function actionResetPassword($id)
     {
         $model = $this->findModel((int) $id);
-
+        $password = Yii::$app->request->getBodyParam("password", null);
         if(!$model) {
             return [
                 "operation" => "error",
@@ -243,7 +243,9 @@ class StaffController extends Controller
             ];
         }
 
-        $password = Yii::$app->security->generateRandomString(5);
+        if (!$password) {
+            $password = Yii::$app->security->generateRandomString(5);
+        }
 
         $model->password = $password;
         $model->save(false);
