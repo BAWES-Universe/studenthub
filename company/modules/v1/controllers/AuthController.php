@@ -355,6 +355,19 @@ class AuthController extends Controller
             ];
         }
 
+        //should not be in use 
+
+        $exists = Contact::find()
+            ->andWhere(['email' => $email])
+            ->exists();
+
+        if($exists) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address already registered")
+            ];
+        }
+
         $model = Contact::verifyEmail($email, $code);
 
         if ($model) {

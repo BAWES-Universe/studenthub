@@ -43,6 +43,19 @@ class AccountController extends BaseController
             ];
         }
 
+        //should not be in use 
+
+        $exists = Contact::find()
+            ->andWhere(['email' => $new_email])
+            ->exists();
+
+        if($exists) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address already registered")
+            ];
+        }
+
         $contact->scenario = "updateEmail";
 
         $contact->contact_new_email = $new_email;
