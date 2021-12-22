@@ -2,6 +2,8 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\CompanyContact;
+use common\models\Contact;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -163,7 +165,29 @@ class CompanyController extends Controller
             $model->scenario = "newAccount";
             $model->company_email =Yii::$app->request->getBodyParam("email");
         }
-        
+
+        if ($model->scenario == "newAccount") {
+            $transaction = Yii::$app->db->beginTransaction();
+
+            $contactModel = new Contact();
+
+            $contactModel->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
+            $contactModel->contact_email = Yii::$app->request->getBodyParam("email");
+            $contactModel->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
+            $contactModel->contact_receive_email = 1;
+
+
+            if (!$contactModel->sendVerificationEmail()) {
+
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => $contactModel->errors
+                ];
+            }
+        }
+
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $model->company_bonus_commission = Yii::$app->request->getBodyParam("bonus_commission");
@@ -176,6 +200,7 @@ class CompanyController extends Controller
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if (!$model->save()) {
+            $transaction->rollBack();
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -188,6 +213,24 @@ class CompanyController extends Controller
                 ];
             }
         }
+
+        if ($model->scenario == "newAccount") {
+            $companyContact = new CompanyContact();
+            $companyContact->company_id = $model->company_id;
+            $companyContact->contact_uuid = $contactModel->contact_uuid;
+            $companyContact->contact_position = 'CEO';
+            $companyContact->allow_access = true;
+
+            if (!$companyContact->save()) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => $companyContact->errors
+                ];
+            }
+        }
+        $transaction->commit();
 
         Yii::info('['.$model->company_name.' Company Account Created] Company created by '.Yii::$app->user->identity->admin_name, __METHOD__);
 
