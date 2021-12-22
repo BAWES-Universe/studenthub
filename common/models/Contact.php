@@ -102,6 +102,10 @@ class Contact extends \yii\db\ActiveRecord
      */
     public function beforeDelete()
     {
+        //remove unique fields, so can create new account with same details
+
+        $this->contact_password_reset_token = null;
+
         ContactEmail::deleteAll(['contact_uuid' => $this->contact_uuid]);
         ContactPhone::deleteAll(['contact_uuid' => $this->contact_uuid]);
         CompanyContact::deleteAll(['contact_uuid' => $this->contact_uuid]);
