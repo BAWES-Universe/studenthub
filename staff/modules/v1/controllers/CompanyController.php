@@ -283,6 +283,8 @@ class CompanyController extends Controller
 
         $model->scenario = 'adminCreate';
 
+        $transaction = Yii::$app->db->beginTransaction();
+
         if (Yii::$app->request->getBodyParam('parent')) {
             $model->scenario = "newSubAccount";
             $model->parent_company_id =Yii::$app->request->getBodyParam("parent");
@@ -292,7 +294,6 @@ class CompanyController extends Controller
         }
 
         if ($model->scenario == "newAccount") {
-            $transaction = Yii::$app->db->beginTransaction();
 
             $contactModel = new Contact();
 
