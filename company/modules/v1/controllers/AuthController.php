@@ -358,7 +358,7 @@ class AuthController extends Controller
         //should not be in use 
 
         $exists = Contact::find()
-            ->andWhere(['email' => $email])
+            ->andWhere(['contact_email' => $email])
             ->exists();
 
         if($exists) {
@@ -428,6 +428,7 @@ class AuthController extends Controller
      * @return type
      */
     public function actionUpdateEmail() {
+
         $unVerifiedToken = Yii::$app->request->getBodyParam("unVerifiedToken");
         $new_email = Yii::$app->request->getBodyParam("newEmail");
 
@@ -448,6 +449,19 @@ class AuthController extends Controller
             return [
                 "operation" => "error",
                 "message" => Yii::t('company', "Contact new email address is same as old email")
+            ];
+        }
+        
+        //should not be in use 
+
+        $exists = Contact::find()
+            ->andWhere(['contact_email' => $new_email])
+            ->exists();
+
+        if($exists) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address already registered")
             ];
         }
 
