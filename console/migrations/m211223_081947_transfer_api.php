@@ -14,7 +14,7 @@ class m211223_081947_transfer_api extends Migration
      */
     public function safeUp()
     {
-       // $this->addColumn ('candidate', 'candidate_pending_profile', $this->text ()->after ('candidate_mom_kuwaiti'));
+        $this->addColumn ('candidate', 'candidate_pending_profile', $this->text ()->after ('candidate_mom_kuwaiti'));
 
         $candidates = Candidate::find()
             ->andWhere (['deleted' => 0]);
