@@ -136,6 +136,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_limit_email', 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
+            ['candidate_pending_profile', 'string'],
             [
                 ['candidate_civil_id'],
                 'number',
@@ -311,6 +312,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateHourRate'] = ['candidate_hourly_rate'];
 
         $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid'];
+
+        $scenarios['updatePendingProfile'] = ['candidate_pending_profile'];
 
         return $scenarios;
     }
@@ -567,6 +570,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $transaction->commit ();
         }*/
+
         else if (
             array_key_exists('candidate_iban', $changedAttributes) ||
             array_key_exists('bank_account_name', $changedAttributes) ||
@@ -596,7 +600,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $this->scenario, [
                     'updateLanguagePref', //as not saving language preference in algolia
                     'signup', //as will have incomplete profile
-                    'updateEmail'//as not saving email in algolia
+                    'updateEmail',//as not saving email in algolia
+                    'updatePendingProfile'//not using pending profile field in algolia
                 ]
             )
         ) {
@@ -646,11 +651,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         };
 
         $fields['isProfileCompleted'] = function($model) {
-            return $model->isProfileCompleted();
+            return !$model->candidate_pending_profile ||
+                strlen ($model->candidate_pending_profile) == 0;
+            //isProfileCompleted();
         };
 
         $fields['pendingField'] = function($model) {
-            return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
+            return $model->candidate_pending_profile && strlen ($model->candidate_pending_profile) > 0 ?
+                explode (',', $model->candidate_pending_profile): null;
+           //($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
 
         unset(
@@ -780,6 +789,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 break;
             }
         }
+
+        //update profile status
+
+        $this->isInCompleteProfile();
+
+        $this->candidate_pending_profile = implode(',', array_keys($this->pendingProfile));
 
         return true;
     }

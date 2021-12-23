@@ -82,6 +82,23 @@ class CandidateSkill extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave ($insert, $changedAttributes);
+
+        //update profile status
+
+        //$this->candidate->isInCompleteProfile();
+
+        //$this->candidate->candidate_pending_profile = implode(',', array_keys($this->candidate->pendingProfile));
+        $this->candidate->setScenario('updatePendingProfile');
+        $this->candidate->save(false);
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidate($modelClass = "\common\models\Candidate")
