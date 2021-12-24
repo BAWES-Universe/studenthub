@@ -36,6 +36,7 @@ use yii\behaviors\AttributeBehavior;
  * @property string $request_created_datetime
  * @property string $request_updated_datetime
  * @property int $request_priority
+ * @property int $is_old
  * @property int $request_time_spent
  *
  * @property Company $company
@@ -64,7 +65,7 @@ class Request extends \yii\db\ActiveRecord
     {
         return [
             [['company_id','request_job_description','request_compensation'], 'required'],
-            [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval', 'request_priority', 'request_time_spent'], 'integer'],
+            [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval', 'request_priority', 'request_time_spent','is_old'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
@@ -178,6 +179,7 @@ class Request extends \yii\db\ActiveRecord
             'request_created_datetime' => Yii::t('app', 'Request Created Datetime'),
             'request_updated_datetime' => Yii::t('app', 'Request Updated Datetime'),
             'request_priority' => Yii::t('app', 'Request Priority'),
+            'is_old' => Yii::t('app', 'Is Old'),
             'request_time_spent' => Yii::t('app', 'Request Time Spent'),
           ];
     }
