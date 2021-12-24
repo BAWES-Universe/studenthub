@@ -132,8 +132,15 @@ class StoryController extends Controller
     public function actionList()
     {
         $status = Yii::$app->request->get('story_status',null);
+
         $query = Story::find()
-            ->joinWith('request');
+            ->joinWith('request')
+            ->andWhere([
+                'NOT IN',
+                'request_status',
+                [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED]
+            ]);
+            
         if ($status == 'rejected') {
             $query->andWhere(['story_status' => Story::STATUS_REJECTED]);
         } else if ($status == 'unstarted') {
@@ -144,6 +151,7 @@ class StoryController extends Controller
                 ['story_status' => Story::STATUS_REJECTED]
             ]);
         }
+
         $query->orderBy(
                 [
                   'request.request_priority' => SORT_ASC,
