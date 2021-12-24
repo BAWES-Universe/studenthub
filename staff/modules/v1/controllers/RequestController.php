@@ -298,12 +298,7 @@ class RequestController extends Controller
     {
         $model = $this->findModel($id);
 
-        if(!$model){
-            return [
-                    "operation" => "error",
-                    "message" => "Request not found."
-                ];
-        }
+        $model->setScenario ('staffUpdate');
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
@@ -329,6 +324,7 @@ class RequestController extends Controller
                 ];
             }
         }
+
         //save activity
         $model->createRequestActivity('I have updated this request');
 

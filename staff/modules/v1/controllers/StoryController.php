@@ -154,7 +154,6 @@ class StoryController extends Controller
      */
     public function actionChangeStoryStatus()
     {
-
         $status = (int) Yii::$app->request->getBodyParam("status");
 
         if (!in_array ($status, [StoryActivity::STATUS_UNSTARTED, StoryActivity::STATUS_STARTED,StoryActivity::STATUS_FINISHED,StoryActivity::STATUS_DELIVERED,StoryActivity::STATUS_REJECTED, StoryActivity::STATUS_ACCEPTED])){
