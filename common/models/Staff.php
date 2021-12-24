@@ -588,6 +588,9 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     public function getCurrentStory() {
-        return Story::findOne(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED]);
+        return Story::find()->andWhere(['story.staff_id' => Yii::$app->user->getId(),'story.story_status' => Story::STATUS_STARTED])
+            ->joinWith('request')
+            ->asArray()
+            ->one();
     }
 }
