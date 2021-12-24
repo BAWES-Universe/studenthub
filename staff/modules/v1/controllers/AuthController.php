@@ -95,7 +95,8 @@ class AuthController extends Controller
             "staff_id" => $staff->staff_id,
             "name" => $staff->staff_name,
             "email" => $staff->staff_email,
-            "role" => $staff->staff_role
+            "role" => $staff->staff_role,
+            "story" => $staff->currentStory
         ];
     }
 

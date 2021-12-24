@@ -586,4 +586,8 @@ class Staff extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
+
+    public function getCurrentStory() {
+        return Story::findOne(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED]);
+    }
 }
