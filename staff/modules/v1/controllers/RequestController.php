@@ -190,7 +190,6 @@ class RequestController extends Controller
      */
      public function actionPendingRequest()
      {
-
          $company_name = Yii::$app->request->get("company_name");
          $followup_interval = Yii::$app->request->get("followup_interval");
 
