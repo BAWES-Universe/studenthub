@@ -131,16 +131,26 @@ class StoryController extends Controller
      */
     public function actionList()
     {
+        $status = Yii::$app->request->get('story_status',null);
         $query = Story::find()
-            ->joinWith('request')
-            ->where(['story_status' => Story::STATUS_UNSTARTED])
-            ->orWhere(['story_status' => Story::STATUS_REJECTED])
-            ->orderBy(
+            ->joinWith('request');
+        if ($status == 'rejected') {
+            $query->andWhere(['story_status' => Story::STATUS_REJECTED]);
+        } else if ($status == 'unstarted') {
+            $query->andWhere(['story_status' => Story::STATUS_UNSTARTED]);
+        } else {
+            $query->andWhere(['or',
+                ['story_status' => Story::STATUS_UNSTARTED],
+                ['story_status' => Story::STATUS_REJECTED]
+            ]);
+        }
+        $query->orderBy(
                 [
                   'request.request_priority' => SORT_ASC,
                    new \yii\db\Expression('FIELD (story_status, 4,0)'),
                   'request_created_datetime' => SORT_ASC
                 ]);
+
 
         return new ActiveDataProvider([
             'query' => $query
