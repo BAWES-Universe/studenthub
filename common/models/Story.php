@@ -128,7 +128,8 @@ class Story extends \yii\db\ActiveRecord
             'request',
             'company',
             'staff',
-            'storyActivities'
+            'storyActivities',
+            'latestStoryActivity'
         ];
     }
 
@@ -197,5 +198,13 @@ class Story extends \yii\db\ActiveRecord
     public function getStoryActivities($modelClass = "\common\models\StoryActivity")
     {
         return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLatestStoryActivity($modelClass = "\common\models\StoryActivity")
+    {
+        return $this->getStoryActivities()->orderBy('activity_created_at DESC')->one();
     }
 }
