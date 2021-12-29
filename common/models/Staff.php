@@ -48,7 +48,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
-            [['staff_role'], 'number'],
+            [['staff_role','staff_hourly_rate'], 'number'],
             [['staff_status'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
@@ -90,6 +90,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
             'staff_updated_at' => Yii::t('app','Staff Updated At'),
+            'staff_hourly_rate' => Yii::t('app','Staff Hourly Rate'),
         ];
     }
 
@@ -185,6 +186,21 @@ class Staff extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public static function getTotalNoOfHours()
+    {
+        $timeForCompletedRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        $timeForCancelledRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_CANCELLED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        return ($timeForCancelledRequests + $timeForCompletedRequests) / 3600;
+    }
+
     /**
      * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
@@ -253,7 +269,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * return total completed requests by staff 
+     * return total completed requests by staff
      * @return int
      */
     public function getTotalCompletedRequests()
@@ -293,6 +309,16 @@ class Staff extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
+
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryActivities($modelClass = "\common\models\StoryActivity")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
 
     /**
      * @return \yii\db\ActiveQuery
@@ -491,6 +517,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @return bool
      */
     public function softDelete() {
+
         $this->deleted = 1;
 
         //remove unique fields, so can create new account with same details
@@ -501,6 +528,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         if ($this->save(false)) {
             return StaffToken::deleteAll(['staff_id'=>$this->staff_id]);
         }
+        
         return false;
     }
 
@@ -549,5 +577,20 @@ class Staff extends ActiveRecord implements IdentityInterface
         // Use openssl_decrypt() function to decrypt the data
         return openssl_decrypt($string, $ciphering,
             $decryption_key, $options, $decryption_iv);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\common\models\Story")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    public function getCurrentStory() {
+        return Story::find()->andWhere(['story.staff_id' => Yii::$app->user->getId(),'story.story_status' => Story::STATUS_STARTED])
+            ->joinWith('request')
+            ->asArray()
+            ->one();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\Story;
 use staff\models\Candidate;
 use staff\models\Note;
 use Yii;
@@ -122,17 +123,37 @@ class InvitationController extends Controller
     public function actionCreate()
     {
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
+        $story_uuid = Yii::$app->request->getBodyParam("story_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $reason = Yii::$app->request->getBodyParam("reason");
 
-        $request = Request::findOne(['request_uuid' => $request_uuid]);
+        //story status should be active + own by login user
 
-        if(!$request) {
+        $story = $story_uuid? Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_uuid' => $story_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]): Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]);
+
+        if(!$story) {
             return [
                 "operation" => "error",
-                "message" => 'Invalid Request ID'
+                "message" => 'No active story found for this request'
             ];
         }
+
+        /*if($story->staff_id != Yii::$app->user->getId ())
+        {
+            return [
+                "operation" => "error",
+                "message" => 'You'
+            ];
+        }*/
 
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -142,10 +163,12 @@ class InvitationController extends Controller
         $model->request_uuid = $request_uuid;
         $model->candidate_id = $candidate_id;
         $model->invitation_status = Invitation::STATUS_INVITED;
+        $model->story_uuid = $story->story_uuid;
 
         if (!$model->save())
         {
             $transaction->rollBack();
+
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -160,7 +183,7 @@ class InvitationController extends Controller
         }
 
         $note = new Note;
-        $note->company_id = $request->company_id;
+        $note->company_id = $story->request->company_id;
         $note->candidate_id = $candidate_id;
         $note->request_uuid = $request_uuid;
         $note->invitation_uuid = $model->invitation_uuid;
@@ -183,7 +206,6 @@ class InvitationController extends Controller
                 ];
             }
         }
-
 
         $transaction->commit();
 

@@ -55,6 +55,7 @@ class AuthController extends Controller
                 return null;
             }
         ];
+
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
@@ -354,6 +355,19 @@ class AuthController extends Controller
             ];
         }
 
+        //should not be in use 
+
+        $exists = Contact::find()
+            ->andWhere(['contact_email' => $email])
+            ->exists();
+
+        if($exists) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address already registered")
+            ];
+        }
+
         $model = Contact::verifyEmail($email, $code);
 
         if ($model) {
@@ -414,6 +428,7 @@ class AuthController extends Controller
      * @return type
      */
     public function actionUpdateEmail() {
+
         $unVerifiedToken = Yii::$app->request->getBodyParam("unVerifiedToken");
         $new_email = Yii::$app->request->getBodyParam("newEmail");
 
@@ -434,6 +449,19 @@ class AuthController extends Controller
             return [
                 "operation" => "error",
                 "message" => Yii::t('company', "Contact new email address is same as old email")
+            ];
+        }
+        
+        //should not be in use 
+
+        $exists = Contact::find()
+            ->andWhere(['contact_email' => $new_email])
+            ->exists();
+
+        if($exists) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address already registered")
             ];
         }
 

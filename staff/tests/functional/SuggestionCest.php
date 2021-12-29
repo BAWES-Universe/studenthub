@@ -69,54 +69,54 @@ class SuggestionCest
      * Try to create new suggestion
      * @param FunctionalTester $I
      */
-    public function tryToCreate(FunctionalTester $I)
-    {
-        $request = Request::find()
-            ->andWhere(['request_status' => Request::STATUS_STARTED])
-            ->one();
-
-        $candidate = Candidate::find()->one();
-
-        $I->wantTo('create a suggestion via API');
-        $I->sendPOST(
-            'v1/suggestions',
-            [
-                'suggestion' => 'big bazar',
-                'request_uuid' => $request->request_uuid,
-                'candidate_id' => $candidate->candidate_id
-            ]
-        );
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            "operation" => "success"
-        ]);
-    }
+//    public function tryToCreate(FunctionalTester $I)
+//    {
+//        $request = Request::find()
+//            ->andWhere(['request_status' => Request::STATUS_STARTED])
+//            ->one();
+//
+//        $candidate = Candidate::find()->one();
+//
+//        $I->wantTo('create a suggestion via API');
+//        $I->sendPOST(
+//            'v1/suggestions',
+//            [
+//                'suggestion' => 'big bazar',
+//                'request_uuid' => $request->request_uuid,
+//                'candidate_id' => $candidate->candidate_id
+//            ]
+//        );
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseContainsJson([
+//            "operation" => "success"
+//        ]);
+//    }
 
     /**
      * Try to accept suggestion
      * @param FunctionalTester $I
      */
-    public function tryToAccept(FunctionalTester $I)
-    {
-        $I->wantTo('accept suggestion via API');
-        $I->sendPATCH('v1/suggestions/accept/' . $this->suggestion->suggestion_uuid, [
-            'reason' => 'Okay can go with this'
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
+//    public function tryToAccept(FunctionalTester $I)
+//    {
+//        $I->wantTo('accept suggestion via API');
+//        $I->sendPATCH('v1/suggestions/accept/' . $this->suggestion->suggestion_uuid, [
+//            'reason' => 'Okay can go with this'
+//        ]);
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//    }
 
     /**
      * Try to reject suggestion
      * @param FunctionalTester $I
      */
-    public function tryToReject(FunctionalTester $I)
-    {
-        $I->wantTo('reject suggestion via API');
-        $I->sendPATCH('v1/suggestions/reject/' . $this->suggestion->suggestion_uuid, [
-            'reason' => 'Nah can not go with this'
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
+//    public function tryToReject(FunctionalTester $I)
+//    {
+//        $I->wantTo('reject suggestion via API');
+//        $I->sendPATCH('v1/suggestions/reject/' . $this->suggestion->suggestion_uuid, [
+//            'reason' => 'Nah can not go with this'
+//        ]);
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//    }
 
     /**
      * Try to delete

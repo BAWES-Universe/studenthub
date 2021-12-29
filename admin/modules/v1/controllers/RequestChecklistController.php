@@ -5,16 +5,14 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use staff\models\Note;
-use yii\filters\Cors;
-use yii\filters\auth\HttpBearerAuth;
+use admin\models\RequestChecklist;
 use yii\web\NotFoundHttpException;
 
 
 /**
- * Note controller - Manage brand as Admin
+ * RequestChecklist controller - Manage request checklist as Admin
  */
-class NoteController extends Controller
+class RequestChecklistController extends Controller
 {
     public function behaviors()
     {
@@ -25,7 +23,7 @@ class NoteController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => \yii\filters\Cors::className(),
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -43,11 +41,11 @@ class NoteController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => \yii\filters\auth\HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
-
+        
         return $behaviors;
     }
 
@@ -67,23 +65,21 @@ class NoteController extends Controller
     }
 
     /**
-     * Return a List of Brand Accounts available.
-     * @return ActiveDataProvider
+     * Return a List of RequestChecklist Accounts available.
      */
     public function actionList()
     {
-        $query = Note::find()
-            ->orderBy('note_created_datetime DESC');
-        
+        $query = RequestChecklist::find();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
 
     /**
-     * @param $id
-     * @return Note
-     * @throws NotFoundHttpException
+     * load request checklist details
+     * @param type $id
+     * @return type
      */
     public function actionView($id)
     {
@@ -91,16 +87,17 @@ class NoteController extends Controller
     }
     
     /**
-     * Create a Note account
-     * @return array
+     * Create a request checklist account
      */
     public function actionCreate()
     {
-        // Attempt to create new brand
-        $model = new Note();
+        // Attempt to create new request checklist
+        $model = new RequestChecklist();
 
-        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->status_name = Yii::$app->request->getBodyParam("status_name");
+        $model->status_name_ar = Yii::$app->request->getBodyParam("status_name_ar");
+        $model->is_require = Yii::$app->request->getBodyParam("is_require");
+        $model->sort_order = Yii::$app->request->getBodyParam("sort_order");
 
         if (!$model->save())
         {
@@ -112,28 +109,36 @@ class NoteController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => "We've faced a problem creating the request checklist, please contact us for assistance."
                 ];
             }
         }
 
+        Yii::info('[RequestChecklist Account Created] RequestChecklist "'.$model->status_name_en.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
-            "message" => "Note created successfully"
+            "message" => "RequestChecklist created successfully"
         ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
-     * Create a Note account
+     * Create a request checklist account
      * @param $id
      * @return array
      */
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel($id);
+        $model = $this->findModel((int) $id);
 
-        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->status_name = Yii::$app->request->getBodyParam("status_name");
+        $model->status_name_ar = Yii::$app->request->getBodyParam("status_name_ar");
+        $model->is_require = Yii::$app->request->getBodyParam("is_require");
+        $model->sort_order = Yii::$app->request->getBodyParam("sort_order");
 
         if (!$model->save())
         {
@@ -145,15 +150,20 @@ class NoteController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Note, please contact us for assistance."
+                    "message" => "We've faced a problem updating the request checklist, please contact us for assistance."
                 ];
             }
         }
 
+        Yii::info('[RequestChecklist Account Updated] RequestChecklist "'.$model->status_name.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
         return [
             "operation" => "success",
-            "message" => "Note successfully updated"
+            "message" => "RequestChecklist successfully updated"
         ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
@@ -163,41 +173,46 @@ class NoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel((int)$id);
 
         if(!$model) {
             return [
                 "operation" => "error",
-                "message" => "Note not found or already deleted"
+                "message" => "RequestChecklist not found or already deleted"
             ];
+
         }
 
-        if($model->suggestion) {
+        Yii::info('[RequestChecklist Deleted] RequestChecklist "'.$model->status_name.'" account deleted by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+
+        // Delete
+        if ($model->delete()) {
+
+            return [
+                "operation" => "success",
+                "message" => "RequestChecklist deleted successfully"
+            ];
+        } else {
             return [
                 "operation" => "error",
-                "message" => "Note being use in suggestion"
+                "message" => "RequestChecklist deleted failed. Please try again."
             ];
         }
 
-        // Delete note
-        $model->delete();
-
-        return [
-            "operation" => "success",
-            "message" => "Note deleted successfully"
-        ];
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
     }
     
     /**
-     * Finds the Brand model based on its primary key value.
+     * Finds the RequestChecklist model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Note the loaded model
+     * @return Transfer the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Note::findOne($id)) !== null) {
+        if (($model = RequestChecklist::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

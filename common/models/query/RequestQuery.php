@@ -53,6 +53,20 @@ class RequestQuery extends ActiveQuery
     }
 
     /**
+     * filter by query string
+     */ 
+    public function filterByKeyword($keyword) 
+    {
+        return $this->andWhere([
+            'OR',
+            ['like', 'request_job_description', $keyword],
+            ['like', 'request_compensation', $keyword],
+            ['like', 'request_additional_info', $keyword],
+            ['like', 'request_location', $keyword],
+        ]);
+    }
+
+    /**
      * active requests
      * @return RequestQuery
      */
