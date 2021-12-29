@@ -366,16 +366,22 @@ class Suggestion extends \yii\db\ActiveRecord
                     $setTo = array_unique(self::getContactEmailByRequest($request));
                 }
 
-                $setCc = array_merge(
-                    [Yii::$app->params['operationsEmail'] => 'Operations'],
-                    array_merge(
-                        [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name],
-                        array_unique(self::getContactEmailByRequest($request))
-                    )
+                $setCc = array_merge([
+                        Yii::$app->params['operationsEmail'] => 'Operations',
+                        $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
+                    ],
+                    self::getContactEmailByRequest($request)
                 );
 
+                $author = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+
+                if($author) {
+                    $setCc[] = [$author->staff_email => $author->staff_name];
+                }
+
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
-                    ->setTo($setTo)->setCc($setCc)
+                    ->setTo($setTo)
+                    ->setCc(array_unique($setCc))
                     ->setBcc([$staff->staff_email => $staff->staff_name])
                     ->setSubject($request->suggestionEmailSubject)
                     ->send();
@@ -496,15 +502,22 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 $setCc = array_merge(
-                    [Yii::$app->params['operationsEmail'] => 'Operations'],
-                    array_merge(
-                        [$suggestedByStaff->staff_email => $suggestedByStaff->staff_name],
-                        array_unique(self::getContactEmailByRequest($request))
-                    )
+                    [
+                        Yii::$app->params['operationsEmail'] => 'Operations',
+                        $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
+                    ],
+                    self::getContactEmailByRequest($request)
                 );
 
+                $author = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+
+                if($author) {
+                    $setCc[] = [$author->staff_email => $author->staff_name];
+                }
+
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
-                    ->setTo($setTo)->setCc($setCc)
+                    ->setTo($setTo)
+                    ->setCc(array_unique($setCc))
                     ->setBcc([$staff->staff_email => $staff->staff_name])
                     ->setSubject($request->suggestionEmailSubject)
                     ->send();
