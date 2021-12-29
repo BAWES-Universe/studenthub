@@ -2,8 +2,6 @@
 
 namespace company\modules\v1\controllers;
 
-use common\models\Story;
-use staff\models\Note;
 use Yii;
 use yii\data\ActiveDataProvider;
 use staff\models\Suggestion;
@@ -67,136 +65,7 @@ class SuggestionController extends BaseController
         return $this->findModel($id);
     }
 
-    /**
-     * accept a Suggestion
-     * @return array
-     */
-    public function actionAccept($id)
-    {
-        $reason = Yii::$app->request->getBodyParam("reason");
-
-        $model = $this->findModel($id);
-
-        $transaction = Yii::$app->db->beginTransaction();
-
-        $note = new Note;
-        $note->request_uuid = $model->request_uuid;
-        $note->company_id = $model->request->company_id;
-        $note->candidate_id = $model->candidate_id;
-        $note->fulltimer_uuid = $model->fulltimer_uuid;
-        $note->suggestion_uuid = $model->suggestion_uuid;
-        $note->note_type = Note::TYPE_ACCEPTED;
-        $note->note_text = $reason;
-
-        if(!$note->save())
-        {
-            $transaction->rollBack();
-
-            if(isset($note->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $note->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
-                ];
-            }
-        }
-
-        $model->suggestion_status = Suggestion::TYPE_ACCEPTED;
-
-        if (!$model->save())
-        {
-            $transaction->rollBack();
-
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
-                ];
-            }
-        }
-
-        $transaction->commit();
-
-        return [
-            "operation" => "success",
-            "message" => "Suggestion marked as accepted successfully"
-        ];
-    }
-
-    /**
-     * reject a Suggestion
-     * @return array
-     */
-    public function actionReject($id)
-    {
-        $reason = Yii::$app->request->getBodyParam("reason");
-
-        $model = $this->findModel($id);
-
-        $transaction = Yii::$app->db->beginTransaction();
-
-        $note = new Note;
-        $note->request_uuid = $model->request_uuid;
-        $note->company_id = $model->request->company_id;
-        $note->candidate_id = $model->candidate_id;
-        $note->fulltimer_uuid = $model->fulltimer_uuid;
-        $note->suggestion_uuid = $model->suggestion_uuid;
-        $note->note_type = Note::TYPE_REJECTED;
-        $note->note_text = $reason;
-
-        if(!$note->save())
-        {
-            $transaction->rollBack();
-
-            if(isset($note->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $note->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
-                ];
-            }
-        }
-
-        $model->suggestion_status = Suggestion::TYPE_REJECTED;
-
-        if (!$model->save())
-        {
-            $transaction->rollBack();
-
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
-                ];
-            }
-        }
-
-        $transaction->commit();
-
-        return [
-            "operation" => "success",
-            "message" => "Suggestion marked as rejected successfully"
-        ];
-    }
-
+    
     /**
      * Finds the Suggestion model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

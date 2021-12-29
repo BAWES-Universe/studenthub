@@ -2,11 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
-use company\models\Invitation;
-use company\models\Request;
 use staff\models\Staff;
 use Yii;
-use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -38,12 +35,7 @@ class StaffController extends Controller
                     'X-Pagination-Current-Page',
                     'X-Pagination-Page-Count',
                     'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count',
-                    'X-totalPendingRequests',
-                    'X-totalClosedRequests',
-                    'X-totalInvitations',
-                    'X-totalNoOfHours',
-                    'X-totalVelocity'
+                    'X-Pagination-Total-Count'
                 ],
             ],
         ];
@@ -80,41 +72,6 @@ class StaffController extends Controller
     public function actionList()
     {
         $role = Yii::$app->request->get('role');
-
-        $totalPendingRequests = Request::find()
-            ->andWhere(new Expression('staff_id IS NOT NULL'))
-            ->andWhere(['not in', 'request_status', [
-                Request::STATUS_DELIVERED,
-                Request::STATUS_CANCELLED
-            ]])
-            ->count();
-
-        Yii::$app->response->headers->set ('X-totalPendingRequests', $totalPendingRequests);
-
-        $totalClosedRequests = Request::find()
-            ->andWhere(new Expression('staff_id IS NOT NULL'))
-            ->andWhere(['in', 'request_status', [
-                Request::STATUS_DELIVERED,
-                Request::STATUS_CANCELLED
-            ]])
-            ->count();
-
-        Yii::$app->response->headers->set ('X-totalClosedRequests', $totalClosedRequests);
-
-        $totalInvitations = Invitation::find()->count();
-
-        Yii::$app->response->headers->set ('X-totalInvitations', $totalInvitations);
-
-        $totalNoOfHours = Staff::getTotalNoOfHours();
-
-        Yii::$app->response->headers->set ('X-totalNoOfHours', $totalNoOfHours);
-
-        if($totalClosedRequests > 0) {
-
-            $days = ceil ($totalNoOfHours /  24);
-
-            Yii::$app->response->headers->set ('X-totalVelocity', $totalClosedRequests / $days);
-        }
 
         $query = Staff::find()
             ->active();

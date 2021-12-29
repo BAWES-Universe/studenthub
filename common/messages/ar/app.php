@@ -1,11 +1,6 @@
 <?php
 
 return [
-    'Request Checklist Uuid' => '',
-    "Status Name" => '',
-    'Status Name Ar' => '',
-    'Is Require' => '',
-    'Sort Order' => '',
     'Request started at' => '',
     'Request assigned at' => '',
     'Request delivered at' => '',
