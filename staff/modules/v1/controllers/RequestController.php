@@ -145,6 +145,7 @@ class RequestController extends Controller
      */
     public function actionListActive()
     {
+        $keyword = Yii::$app->request->get("query");
         $company_id = Yii::$app->request->get("company_id");
         $position_type = Yii::$app->request->get("position_type");
         $followup_interval = Yii::$app->request->get("followup_interval");
@@ -152,9 +153,14 @@ class RequestController extends Controller
 
         $query = Request::find();
 
+        if($keyword) {
+            $query->filterByKeyword($keyword);
+        }
+
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
         }
+
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
         } else {
