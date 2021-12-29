@@ -44,7 +44,7 @@ class CronController extends \yii\console\Controller {
 
         $this->stdout(implode (', ', $ids) . " \n", Console::FG_RED, Console::BOLD);
     }
-    
+
     /**
      * Method called by cron once a day
      */
@@ -147,7 +147,7 @@ class CronController extends \yii\console\Controller {
         $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
         $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
-        
+
         $staffs = Staff::findAll(['deleted'=>'0']);
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
@@ -266,7 +266,7 @@ class CronController extends \yii\console\Controller {
                 ])
 
                 ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-                ->setTo(Yii::$app->params['invoiceFrom'])
+                ->setTo(Yii::$app->params['operationsEmail'])
                 ->setSubject($subject)
                 ->attachContent(file_get_contents($file), [
                     'fileName' => $fileName,
