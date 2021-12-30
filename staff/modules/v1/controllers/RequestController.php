@@ -2,14 +2,12 @@
 
 namespace staff\modules\v1\controllers;
 
-use common\models\RequestChecklist;
 use Yii;
 use staff\models\Staff;
 use staff\models\Note;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
-use staff\models\Suggestion;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -104,7 +102,7 @@ class RequestController extends Controller
                     ['like', 'company_common_name_ar', $company_name],
                     ['like', 'company_name', $company_name]
                 ]);
-        }
+        } 
 
         if($request_status) {
             $query->andWhere(['request_status' => $request_status]);
@@ -116,7 +114,7 @@ class RequestController extends Controller
 
         if($start_date) {
             $query->startDate(date('Y-m-d', strtotime ($start_date)));
-        }
+        } 
 
         if($end_date) {
             $query->endDate(date('Y-m-d', strtotime ($end_date)));
@@ -126,12 +124,9 @@ class RequestController extends Controller
             $query->orderByFollowupInterval($followup_interval);
         }
 
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
-            $query->joinWith (['stories'])
-                ->andWhere ([
-                    //'request.staff_id' => Yii::$app->user->getId (),
-                    'story.staff_id' => Yii::$app->user->getId ()
-                ]);
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
+        {
+            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
         }
 
         return new ActiveDataProvider([
@@ -145,7 +140,6 @@ class RequestController extends Controller
      */
     public function actionListActive()
     {
-        $keyword = Yii::$app->request->get("query");
         $company_id = Yii::$app->request->get("company_id");
         $position_type = Yii::$app->request->get("position_type");
         $followup_interval = Yii::$app->request->get("followup_interval");
@@ -153,14 +147,9 @@ class RequestController extends Controller
 
         $query = Request::find();
 
-        if($keyword) {
-            $query->filterByKeyword($keyword);
-        }
-
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
         }
-
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
         } else {
@@ -177,64 +166,14 @@ class RequestController extends Controller
             $query->orderBy('request_created_datetime DESC');
         }
 
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
-            $query->joinWith (['stories'])
-                ->andWhere ([
-                    //'request.staff_id' => Yii::$app->user->getId (),
-                    'story.staff_id' => Yii::$app->user->getId ()
-                ]);
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
+        {
+            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
         }
 
         return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * Return a List of requests available.
-     * @return ActiveDataProvider
-     */
-     public function actionPendingRequest()
-     {
-         $company_name = Yii::$app->request->get("company_name");
-         $followup_interval = Yii::$app->request->get("followup_interval");
-
-         $query = Request::find()
-                   ->joinWith('suggestions')
-                   ->where([
-                       'suggestion.suggestion_status' => Suggestion::TYPE_SUGGESTED,
-                   ]);
-
-
-         if($company_name) {
-             $query->joinWith('company')
-                 ->andWhere([
-                     'OR',
-                     ['like', 'company.company_common_name_en', $company_name],
-                     ['like', 'company.company_common_name_ar', $company_name],
-                     ['like', 'company.company_name', $company_name]
-                 ]);
-         }
-
-         $query->activeRequest();
-
-
-         if ($followup_interval) {
-             $query->orderByFollowupInterval();
-         } else {
-             $query->orderBy('request_created_datetime DESC');
-         }
-
-         if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
-             $query->joinWith (['stories'])
-                 ->andWhere ([
-                     //'request.staff_id' => Yii::$app->user->getId (),
-                     'story.staff_id' => Yii::$app->user->getId ()
-                 ]);
-         }
-
-        return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => false
         ]);
     }
 
@@ -247,16 +186,16 @@ class RequestController extends Controller
     {
         return $this->findModel($id);
     }
-
+    
     /**
-     * Create a Request
+     * Create a Request 
      * @return array
      */
     public function actionCreate()
     {
         // Attempt to create new request
         $model = new Request();
-
+ 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
@@ -296,7 +235,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Update Request
+     * Update Request 
      * @param $id
      * @return array
      */
@@ -304,13 +243,18 @@ class RequestController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->setScenario ('staffUpdate');
+        if(!$model){
+            return [
+                    "operation" => "error",
+                    "message" => "Request not found."
+                ];
+        }
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = (int)Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
-        // $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
+        $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_location = Yii::$app->request->getBodyParam("location");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
@@ -330,7 +274,6 @@ class RequestController extends Controller
                 ];
             }
         }
-
         //save activity
         $model->createRequestActivity('I have updated this request');
 
@@ -478,7 +421,7 @@ class RequestController extends Controller
         $model = $this->findModel($id);
 
         $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
-
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -601,15 +544,6 @@ class RequestController extends Controller
             "message" => "Request activity successfully added",
             "request_updated_at" => Request::findOne($modelActivity->request_uuid)->request_updated_datetime
         ];
-    }
-
-    /**
-     * return request checklist
-     */
-    public function actionListChecklist()
-    {
-        return RequestChecklist::find()
-            ->all();
     }
 
     /**

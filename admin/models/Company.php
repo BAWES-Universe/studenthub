@@ -12,7 +12,6 @@ class Company extends \common\models\Company {
      * Scenarios for validation and massive assignment
      */
     public function scenarios() {
-
         $scenarios = parent::scenarios();
 
         $scenarios['adminUpdate'] = ['company_name', 'company_email', 'parent_company_id', 'company_hourly_rate', 'company_bonus_commission',

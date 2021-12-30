@@ -30,7 +30,6 @@ use yii\helpers\Url;
  * @property boolean $company_last_followup_datetime
  * @property boolean $company_approved_to_hire
  * @property integer $company_status
- * @property integer $company_status_override
  * @property integer $company_created_at
  * @property integer $company_updated_at
  * @property integer $deleted
@@ -86,7 +85,7 @@ class Company extends \yii\db\ActiveRecord
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
-            [['company_followup', 'company_status_override'], 'boolean'],
+            ['company_followup', 'boolean'],
             ['company_last_followup_datetime', 'safe'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
@@ -159,8 +158,6 @@ class Company extends \yii\db\ActiveRecord
 
         $scenarios['updateFollowup'] = ['company_followup'];
 
-        $scenarios['updateStatus'] = ['company_status_override'];
-
         $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
 
         return $scenarios;
@@ -199,10 +196,6 @@ class Company extends \yii\db\ActiveRecord
 
         $fields['company_status'] = function($model) {
 
-            if($this->company_status_override) {
-                return self::STATUS_ACTIVE;
-            }
-
             if(
                 $this->total_candidate > 0 ||
                 $this->is_request_updates_in_30_days > 0 ||
@@ -218,11 +211,6 @@ class Company extends \yii\db\ActiveRecord
     }
 
     public function getCompany_status() {
-
-        if($this->company_status_override) {
-            return self::STATUS_ACTIVE;
-        }
-
         if(
             $this->total_candidate > 0 ||
             $this->is_request_updates_in_30_days > 0 ||

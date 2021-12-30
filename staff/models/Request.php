@@ -12,16 +12,16 @@ use yii\helpers\ArrayHelper;
  */
 class Request extends \common\models\Request {
 
-//    /**
-//     * @inheritdoc
-//     */
-//    public function fields()
-//    {
-//        $fields = parent::fields();
-//
-//        // remove fields that contain sensitive information
-//        return $fields;
-//    }
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        // remove fields that contain sensitive information
+        return $fields;
+    }
 
     /**
      * @return \yii\db\ActiveQuery

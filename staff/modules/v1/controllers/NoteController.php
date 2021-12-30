@@ -151,7 +151,6 @@ class NoteController extends Controller
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
-        $model->request_checklist_uuid = Yii::$app->request->getBodyParam("request_checklist_uuid");
 
         if (!$model->save())
         {
@@ -198,8 +197,7 @@ class NoteController extends Controller
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
-        $model->request_checklist_uuid = Yii::$app->request->getBodyParam("request_checklist_uuid");
-
+        
         if (!$model->save())
         {
             if(isset($model->errors)){
