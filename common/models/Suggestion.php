@@ -377,7 +377,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 $author = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
 
                 if($author) {
-                    $setCc[] = [$author->staff_email => $author->staff_name];
+                    $setCc[$author->staff_email] = $author->staff_name;
                 }
 
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
@@ -513,7 +513,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 $author = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
 
                 if($author) {
-                    $setCc[] = [$author->staff_email => $author->staff_name];
+                    $setCc[$author->staff_email] = $author->staff_name;
                 }
 
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
