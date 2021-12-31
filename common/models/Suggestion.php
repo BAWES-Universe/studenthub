@@ -371,18 +371,18 @@ class Suggestion extends \yii\db\ActiveRecord
                         Yii::$app->params['operationsEmail'] => 'Operations',
                         $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
                     ],
-                    self::getContactEmailByRequest($request)
+                    array_unique(self::getContactEmailByRequest($request))
                 );
                 
                 $author = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
 
-                if($author) {
+                if($author && $author->staff_email != $suggestedByStaff->staff_email) {
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
 
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
                     ->setTo($setTo)
-                    ->setCc(array_unique($setCc))
+                    ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])
                     ->setSubject($request->suggestionEmailSubject)
                     ->send();
@@ -507,18 +507,18 @@ class Suggestion extends \yii\db\ActiveRecord
                         Yii::$app->params['operationsEmail'] => 'Operations',
                         $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
                     ],
-                    self::getContactEmailByRequest($request)
+                    array_unique(self::getContactEmailByRequest($request))
                 );
 
                 $author = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
 
-                if($author) {
+                if($author && $author->staff_email != $suggestedByStaff->staff_email) {
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
 
                 $message->setFrom([$staff->staff_email => $staff->staff_name])
                     ->setTo($setTo)
-                    ->setCc(array_unique($setCc))
+                    ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])
                     ->setSubject($request->suggestionEmailSubject)
                     ->send();
