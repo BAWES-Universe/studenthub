@@ -68,7 +68,7 @@ class SuggestionCest
     /**
      * Try to create new suggestion
      * @param FunctionalTester $I
-     */
+     *
     public function tryToCreate(FunctionalTester $I)
     {
         $request = Request::find()
@@ -95,7 +95,7 @@ class SuggestionCest
     /**
      * Try to accept suggestion
      * @param FunctionalTester $I
-     */
+     *
     public function tryToAccept(FunctionalTester $I)
     {
         $I->wantTo('accept suggestion via API');
@@ -108,7 +108,7 @@ class SuggestionCest
     /**
      * Try to reject suggestion
      * @param FunctionalTester $I
-     */
+     *
     public function tryToReject(FunctionalTester $I)
     {
         $I->wantTo('reject suggestion via API');

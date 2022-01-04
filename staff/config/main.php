@@ -275,12 +275,33 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // StoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/story',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET list' => 'list',
+                        'GET active-story' => 'active-story',
+                        'GET all-old-stories' => 'all-old-stories',
+                        'GET <id>' => 'view',
+                        'POST change-story-status' => 'change-story-status',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list' => 'options',
+                        'OPTIONS active-story' => 'options',
+                        'OPTIONS all-old-stories' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS change-story-status>' => 'options',
+                    ]
+                ],
                 [ // RequestController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/request',
                     'patterns' => [
                         'GET' => 'list',
                         'GET active' => 'list-active',
+                        'GET pending-request' => 'pending-request',
+                        'GET list-checklist' => 'list-checklist',
                         'GET is-request-updated/<id>' => 'is-request-updated',
                         'GET <id>' => 'view',
                         'POST' => 'create',
@@ -292,6 +313,8 @@ return [
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS pending-request' => 'list-checklist',
+                        'OPTIONS list-checklist' => 'list-checklist',
                         'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS active' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
