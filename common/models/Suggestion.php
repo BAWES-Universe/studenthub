@@ -221,6 +221,14 @@ class Suggestion extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStory($modelClass = "\common\models\Story")
+    {
+        return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid']);
+    }
+
+    /**
      * Show feedbacks in suggestion
      * @return \yii\db\ActiveQuery
      */

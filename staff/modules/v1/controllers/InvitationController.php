@@ -10,6 +10,7 @@ use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Invitation;
+use common\models\Story;
 use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -124,13 +125,27 @@ class InvitationController extends Controller
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $reason = Yii::$app->request->getBodyParam("reason");
+        $story_uuid = Yii::$app->request->getBodyParam("story_uuid");
+
+        //story status should be active + own by login user
+
+        $story = $story_uuid? Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_uuid' => $story_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]): Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]);
 
         $request = Request::findOne(['request_uuid' => $request_uuid]);
 
-        if(!$request) {
+        if(!$story) {
             return [
                 "operation" => "error",
-                "message" => 'Invalid Request ID'
+                "message" => 'No active story found for this request'
             ];
         }
 
@@ -142,6 +157,7 @@ class InvitationController extends Controller
         $model->request_uuid = $request_uuid;
         $model->candidate_id = $candidate_id;
         $model->invitation_status = Invitation::STATUS_INVITED;
+        $model->story_uuid = $story->story_uuid;
 
         if (!$model->save())
         {
@@ -160,7 +176,7 @@ class InvitationController extends Controller
         }
 
         $note = new Note;
-        $note->company_id = $request->company_id;
+        $note->company_id = $story->request->company_id;
         $note->candidate_id = $candidate_id;
         $note->request_uuid = $request_uuid;
         $note->invitation_uuid = $model->invitation_uuid;

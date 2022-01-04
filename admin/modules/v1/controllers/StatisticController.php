@@ -4,7 +4,9 @@ namespace admin\modules\v1\controllers;
 
 use admin\models\Candidate;
 use admin\models\TransferCandidate;
+use admin\models\University;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -82,6 +84,11 @@ class StatisticController extends Controller
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
         $result['payable']['total'] = $payableDetail['payable'];
         $result['payable']['amount'] = $payableDetail['amount'];
+
+        $result['totalUniversitiesToFix'] = University::find()
+            ->andWhere(new Expression('university_name_en IS NULL OR university_name_ar IS NULL OR 
+                university_name_en = university_name_ar'))
+            ->count();
 
         // Transfers
         $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK);

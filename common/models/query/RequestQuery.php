@@ -32,24 +32,53 @@ class RequestQuery extends ActiveQuery
         return parent::one($db);
     }
 
+    /**
+     * @param $date
+     * @return RequestQuery
+     */
 	public function startDate($date)
     {
         return $this->andWhere("DATE(request_created_datetime) > '".$date."'");
     }
 
+    /**
+     * @param $date
+     * @return RequestQuery
+     */
     public function endDate($date)
     {
         return $this->andWhere("DATE(request_updated_datetime) < '".$date."'");
     }
 
+    /**
+     * @param $type
+     * @return RequestQuery
+     */
     public function filterByType($type)
     {
         return $this->andWhere(['request_position_type' => $type]);
     }
 
+    /**
+     * @return RequestQuery
+     */
     public function handleByStaff()
     {
         return $this->andWhere(['!=','request_created_by', 0]);
+    }
+
+    /**
+     * filter by query string
+     */
+    public function filterByKeyword($keyword)
+    {
+        return $this->andWhere([
+            'OR',
+            ['like', 'request_job_description', $keyword],
+            ['like', 'request_compensation', $keyword],
+            ['like', 'request_additional_info', $keyword],
+            ['like', 'request_location', $keyword],
+        ]);
     }
 
     /**

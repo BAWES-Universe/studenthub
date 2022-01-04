@@ -1,0 +1,89 @@
+<?php
+
+use yii\db\Migration;
+
+/**
+ * Class m211215_105556_request_to_stories
+ */
+class m211215_105556_request_to_stories extends Migration
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function safeUp()
+    {
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('story')
+            ->getColumn('is_old');
+
+        if (!$columnData) {
+            $this->addColumn('story', 'is_old', $this->tinyInteger(1)->defaultValue(0)->after('story_status'));
+        }
+
+        $sql = "select * from request where 1";
+
+        $requests = Yii::$app->db->createCommand ($sql)->queryAll ();
+
+        foreach ($requests as $request) {
+
+            for ($i = 0; $i < $request['request_number_of_employees']; $i++) {
+
+                $noteQuery = "SELECT * FROM `note` where (note_type='Suggested' OR note_type='Internal Note') and request_uuid='".$request['request_uuid']."' group by updated_by";
+
+                $notes = Yii::$app->db->createCommand ($noteQuery)->queryAll ();
+                $story_uuid = 'story_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+                $request_uuid = $request['request_uuid'];
+                $suggestion_uuid = NULL;
+                $story_status = 0;
+                if ($request['request_status'] == 'started') {
+                    $story_status = \common\models\Story::STATUS_STARTED;
+                } else if ($request['request_status'] == 'delivered') {
+                    $story_status = \common\models\Story::STATUS_DELIVERED;
+                } else if ($request['request_status'] == 'cancelled') {
+                    $story_status = \common\models\Story::STATUS_REJECTED;
+                }
+
+                if ($notes) {
+                    $staff_ids = array_keys(\yii\helpers\ArrayHelper::map($notes, 'updated_by', 'updated_by'));
+                    $staff_id = $staff_ids[array_rand($staff_ids)];
+                }
+                $staff_id = ($staff_id && $staff_id == 1) ? 2 : ($staff_id) ? $staff_id : 'NULL';
+
+                $storyInsert = "INSERT INTO `story` (`story_uuid`, `request_uuid`, `suggestion_uuid`, `staff_id`, `story_status`, `is_old`, `story_time_spent`, `story_created_at`, `story_last_updated_at`) VALUES
+                ('$story_uuid', '$request_uuid', NULL, $staff_id,'$story_status', 1, 1, NOW(), NOW())";
+                Yii::$app->db->createCommand ($storyInsert)->execute();
+
+                $story_activity_uuid = 'stry_act_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+
+                $storyDetailInsert = "INSERT INTO `story_activity` (`story_activity_uuid`, `story_uuid`, `staff_id`, `activity_time_spent`, `activity_status`, `activity_created_at`, `activity_last_updated_at`) VALUES
+                ('$story_activity_uuid', '$story_uuid', $staff_id, 1, $story_status, NOW(), NOW())";
+                Yii::$app->db->createCommand ($storyDetailInsert)->execute();
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function safeDown()
+    {
+        $this->dropColumn('story', 'is_old');
+    }
+
+    /*
+    // Use up()/down() to run migration code without a transaction.
+    public function up()
+    {
+
+    }
+
+    public function down()
+    {
+        echo "m211215_105556_request_to_stories cannot be reverted.\n";
+
+        return false;
+    }
+    */
+}
