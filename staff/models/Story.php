@@ -4,7 +4,7 @@
 namespace staff\models;
 
 
-class Story
+class Story  extends \common\models\Story
 {
 
 }
