@@ -81,6 +81,7 @@ class SuggestionController extends Controller
         $fulltimer_uuid = Yii::$app->request->get("fulltimer_uuid");
         $candidate_id = Yii::$app->request->get("candidate_id");
         $status = Yii::$app->request->get("status");
+        $withPagination = Yii::$app->request->get("withPagination");
 
         $query = Suggestion::find()
             ->joinWith(['fulltimer', 'candidate'])
@@ -88,9 +89,8 @@ class SuggestionController extends Controller
                 'or',
                 'candidate.candidate_id is not null',
                 'fulltimer.fulltimer_uuid is not null'
-                ])
-
-        ->orderBy('suggestion_datetime DESC');
+            ])
+            ->orderBy('suggestion_datetime DESC');
 
         if($request_uuid) {
             $query->andWhere(['request_uuid' => $request_uuid]);
@@ -108,10 +108,20 @@ class SuggestionController extends Controller
             $query->andWhere(['suggestion_status' => $status]);
         }
 
-        return new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => false
-        ]);
+        if($withPagination)
+        {
+            return new ActiveDataProvider([
+                'query' => $query,
+            ]);
+        }
+        else
+        {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+        }
+
     }
 
     /**
