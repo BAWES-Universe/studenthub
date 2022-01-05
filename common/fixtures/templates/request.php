@@ -7,7 +7,9 @@ $index1 = $index % 1000;//faker->unique()->numberBetween(0, 1000);
 $index2 = $index % 500;//faker->unique()->numberBetween(0, 1000);
 
 $contact_uuid = Yii::$app->db->createCommand('SELECT contact_uuid from company_contact order by rand() limit 1')->queryScalar();
+
 $staff_id = Yii::$app->db->createCommand('SELECT staff_id from staff order by rand() limit 1')->queryScalar();
+
 $company_id = Yii::$app->db->createCommand('SELECT company_id from company order by rand() limit 1')->queryScalar();
 
 return [
@@ -19,11 +21,11 @@ return [
     'request_updated_by' => $faker->numberBetween(1,10),
     'request_position_type' => rand(1, 2),
     'request_position_title' =>  $faker->words(10,1),
-    'request_number_of_employees' => rand(10, 20),
-    'request_additional_info' => $faker->sentence(1,10),
-    'request_location' => $faker->sentence(1,10),
     'request_job_description' => $faker->sentence(1,10),
     'request_compensation' => $faker->sentence(1,10),
+    'request_number_of_employees' => rand(10, 20),
+    'request_location' => $faker->sentence(1,10),
+    'request_additional_info' => $faker->sentence(1,10),
     'request_status' => $faker->randomElement([
         'pending',
         'started',
@@ -31,10 +33,14 @@ return [
         'cancelled'
     ]),
     'request_feedback' => $faker->sentence(1,10),
+    'num_hours_followup_interval' => 1,
     'request_started_at' => $faker->date('Y-m-d H:i:s'),
     'request_assigned_at' => $faker->date('Y-m-d H:i:s'),
     'request_delivered_at' => $faker->date('Y-m-d H:i:s'),
     'request_cancelled_at' => $faker->date('Y-m-d H:i:s'),
     'request_created_datetime' => $faker->date('Y-m-d H:i:s'),
-    'request_updated_datetime' => $faker->date('Y-m-d H:i:s')
+    'request_updated_datetime' => $faker->date('Y-m-d H:i:s'),
+    'request_priority' => 0,
+    'is_old' => 0,
+    'request_time_spent' => 24*60*60
 ];

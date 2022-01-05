@@ -15,6 +15,7 @@ return [
     'contact_auth_key' => Yii::$app->getSecurity()->generateRandomString(),
 	'contact_password_reset_token' => Yii::$app->getSecurity()->generateRandomString(),
     'contact_receive_notification' => 1,
+    'contact_receive_suggestions' => 1,
     'contact_created_at' => $faker->date('Y-m-d H:i:s'),
     'contact_updated_at' => $faker->date('Y-m-d H:i:s')
 ];

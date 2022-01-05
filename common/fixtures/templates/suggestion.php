@@ -17,5 +17,6 @@ return [
     'candidate_id' => $candidate_id,
     'note_uuid' => $note_uuid,
     'suggestion_status' => $faker->numberBetween(0,3),
+    'mail_to_company' => 1,
     'suggestion_datetime' => $faker->date('Y-m-d H:i:s')
 ];
