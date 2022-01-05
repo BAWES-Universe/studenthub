@@ -7,5 +7,6 @@ return [
     'country_name_en' => $faker->country,
     'country_name_ar' => 'أفغانستان',
     'country_nationality_name_en' => $faker->country,
-    'country_nationality_name_ar' => 'الأفغاني'
+    'country_nationality_name_ar' => "الأفغاني'",
+    'country_from_google_map' => 0
 ];

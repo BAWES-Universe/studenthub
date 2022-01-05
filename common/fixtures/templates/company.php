@@ -20,6 +20,7 @@ return [
     'company_followup_interval_weeks' => $faker->numberBetween($min = 1, $max = 6),
     'company_last_followup_datetime' => $faker->date('Y-m-d H:i:s'),
     'company_approved_to_hire' => $faker->boolean(),
+    'company_status_override' => 0,
     'company_created_at' => $faker->date('Y-m-d H:i:s'),
     'company_updated_at' =>$faker->date('Y-m-d H:i:s'),
     'deleted' =>0,
