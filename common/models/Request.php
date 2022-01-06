@@ -63,7 +63,7 @@ class Request extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id','request_job_description','request_compensation'], 'required'],
+            [['company_id', 'request_position_title', 'request_job_description','request_compensation'], 'required'],
             [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval', 'request_priority', 'request_time_spent','is_old'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
