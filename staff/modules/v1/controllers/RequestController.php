@@ -93,6 +93,8 @@ class RequestController extends Controller
 
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
+        } else {
+            $query->activeRequest();
         }
 
         if($company_name) {
@@ -150,6 +152,7 @@ class RequestController extends Controller
         $position_type = Yii::$app->request->get("position_type");
         $followup_interval = Yii::$app->request->get("followup_interval");
         $contact_uuid = Yii::$app->request->get("contact_uuid");
+        $request_status = Yii::$app->request->get("request_status");
 
         $query = Request::find();
 
@@ -163,12 +166,14 @@ class RequestController extends Controller
 
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
-        } else {
-            $query->activeRequest();
         }
 
         if($position_type) {
             $query->filterByType($position_type);
+        }
+
+        if($request_status) {
+            $query->andWhere(['request_status' => $request_status]);
         }
 
         if ($followup_interval) {
