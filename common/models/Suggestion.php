@@ -53,7 +53,9 @@ class Suggestion extends \yii\db\ActiveRecord
             [['request_uuid', 'note_uuid'], 'required'],
             [['candidate_id'], 'integer'],
 
-            ['suggestion_status', 'in', 'range' => [self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED]],
+            ['suggestion_status', 'in', 'range' => [
+                self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED
+            ]],
 
             [['suggestion_datetime'], 'safe'],
             [['candidate_id', 'fulltimer_uuid'], 'validateCandidate', 'skipOnEmpty' => false],

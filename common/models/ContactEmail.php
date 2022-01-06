@@ -35,6 +35,7 @@ class ContactEmail extends \yii\db\ActiveRecord
     {
         return [
             [['email_address'], 'required'],
+            [['email_address'], 'email'],
             [['email_created_datetime', 'email_updated_datetime'], 'safe'],
             [['email_uuid', 'contact_uuid'], 'string', 'max' => 60],
             [['email_address'], 'string', 'max' => 255],

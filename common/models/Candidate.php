@@ -133,6 +133,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
             [['candidate_new_email', 'candidate_email'], 'validateEmail'],
+            [['candidate_new_email'], 'validateNewEmail'],
             ['candidate_limit_email', 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
@@ -166,6 +167,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
 
             ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
 
@@ -339,9 +341,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * new email can not be same as old
+     * @param $attribute
+     */
+    public function validateNewEmail($attribute) {
+
+        if ($this->candidate_new_email == $this->candidate_email) {
+            $this->addError('candidate_new_email', Yii::t('app', 'Email already registered'));
+        }
+    }
+
+    /**
      * Validate email in new_email field
      */
     public function validateEmail($attribute) {
+
         $query = self::find()
             ->andWhere([
                 'or',
