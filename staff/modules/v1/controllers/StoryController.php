@@ -84,7 +84,7 @@ class StoryController extends Controller
      */
     public function actionActiveStory()
     {
-        $model = Story::find()->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])->one();
+        $model = Story::find()->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])->all();
 
         if ($model !== null) {
             return [
@@ -196,43 +196,45 @@ class StoryController extends Controller
         // Attempt to create new request
         $model = new StoryActivity();
 
-        if($status != StoryActivity::STATUS_UNSTARTED)
-            $model->staff_id = Yii::$app->user->getId();
+        if ($status) {
 
-        $model->story_uuid = $storyUuid;
-        $model->activity_status = $status;
+            if ($status != StoryActivity::STATUS_UNSTARTED)
+                $model->staff_id = Yii::$app->user->getId();
 
-        $last_story_acitivty_model = StoryActivity::find()
-            ->where(['story_uuid' => $storyUuid])
-            ->orderBy('activity_created_at desc')
-            ->one();
+            $model->story_uuid = $storyUuid;
+            $model->activity_status = $status;
 
-        if($last_story_acitivty_model) {
-            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
-            $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
-            $diff = $activity_created_at->diff ($activity_last_updated_at);
-            $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
-            $hoursInSecs = $diff->h * 60 * 60;
-            $minsInSecs = $diff->i * 60;
+            $last_story_acitivty_model = StoryActivity::find()
+                ->where(['story_uuid' => $storyUuid])
+                ->orderBy('activity_created_at desc')
+                ->one();
 
-            $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+            if ($last_story_acitivty_model) {
+                $activity_created_at = new \DateTime(date('Y-m-d H:i:s', strtotime($last_story_acitivty_model->activity_created_at)));
+                $activity_last_updated_at = new \DateTime(date('Y-m-d H:i:s'));
+                $diff = $activity_created_at->diff($activity_last_updated_at);
+                $daysInSecs = $diff->format('%r%a') * 24 * 60 * 60;
+                $hoursInSecs = $diff->h * 60 * 60;
+                $minsInSecs = $diff->i * 60;
 
-            $last_story_acitivty_model->activity_time_spent = $seconds;
-            $last_story_acitivty_model->save (false);
-        }
+                $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
 
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the Request, please contact us for assistance."
-                ];
+                $last_story_acitivty_model->activity_time_spent = $seconds;
+                $last_story_acitivty_model->save(false);
+            }
+
+            if (!$model->save()) {
+                if (isset($model->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $model->errors
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem creating the Request, please contact us for assistance."
+                    ];
+                }
             }
         }
 
