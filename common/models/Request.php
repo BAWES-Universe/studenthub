@@ -408,10 +408,10 @@ class Request extends \yii\db\ActiveRecord
                         'IN',
                         'story_status',
                         [
-                            'STATUS_STARTED',
-                            'STATUS_UNSTARTED',
-                            'STATUS_DELIVERED',
-                            'STATUS_REJECTED'
+                            Story::STATUS_STARTED,
+                            Story::STATUS_UNSTARTED,
+                            Story::STATUS_DELIVERED,
+                            Story::STATUS_REJECTED
                         ]
                     ]
                 ]);
