@@ -135,6 +135,7 @@ class Request extends \yii\db\ActiveRecord
         }
 
         if($this->request_status == self::STATUS_CANCELLED && !$this->request_cancelled_at) {
+            $this->staff_id = null;
             $this->request_cancelled_at = new Expression('NOW()');
         }
 
@@ -401,7 +402,7 @@ class Request extends \yii\db\ActiveRecord
         if(isset($changedAttributes['request_status'])) {
 
             if($changedAttributes['request_status'] == self::STATUS_CANCELLED) {
-                Story::updateAll (['story_status' => Story::STATUS_FINISHED], [
+                Story::updateAll (['story_status' => Story::STATUS_CANCELLED], [
                     'AND',
                     ['request_uuid' => $this->request_uuid],
                     [
