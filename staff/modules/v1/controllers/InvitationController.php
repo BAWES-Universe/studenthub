@@ -140,7 +140,7 @@ class InvitationController extends Controller
             'staff_id' => Yii::$app->user->getId ()
         ]);
 
-        $request = Request::findOne(['request_uuid' => $request_uuid]);
+        //$request = Request::findOne(['request_uuid' => $request_uuid]);
 
         if(!$story) {
             return [
