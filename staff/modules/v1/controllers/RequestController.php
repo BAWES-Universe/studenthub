@@ -8,6 +8,7 @@ use staff\models\Note;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
+use staff\models\Suggestion;
 use common\models\RequestChecklist;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
