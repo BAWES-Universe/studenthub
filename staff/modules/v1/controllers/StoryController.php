@@ -173,7 +173,7 @@ class StoryController extends Controller
     public function actionChangeStoryStatus()
     {
         $status = (int) Yii::$app->request->getBodyParam("status");
-
+        $last_story_acitivty_model = null;
         if (!in_array ($status, [StoryActivity::STATUS_UNSTARTED, StoryActivity::STATUS_STARTED,StoryActivity::STATUS_FINISHED,StoryActivity::STATUS_DELIVERED,StoryActivity::STATUS_REJECTED, StoryActivity::STATUS_ACCEPTED])){
             return [
                 "operation" => "error",
