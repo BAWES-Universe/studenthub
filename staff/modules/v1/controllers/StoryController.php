@@ -191,11 +191,13 @@ class StoryController extends Controller
             }
         }
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
+
         $story =  $this->findModel($storyUuid);
+        $story->story_time_spent = $story->getStoryActivities()->sum('activity_time_spent');
+        $story->save(false);
 
         // Attempt to create new request
         $model = new StoryActivity();
-
         if ($status) {
 
             if ($status != StoryActivity::STATUS_UNSTARTED)
