@@ -238,9 +238,11 @@ class StoryController extends Controller
             }
         }
 
+        $company = ($model && $model->company && $model->company->company_name) ? $model->company->company_name : ' - ';
+        $story = ($story  && $story->request && $story->request->request_position_title) ? $story->request->request_position_title : ' - ';
         return [
             "operation" => "success",
-            "message" => Yii::$app->user->identity->staff_name . " started " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
+            "message" => Yii::$app->user->identity->staff_name . " started " . $story  . ' for ' . $company,
             "last_story_acitivty_model" => $last_story_acitivty_model,
             "newStoryActivity" => $model
         ];
