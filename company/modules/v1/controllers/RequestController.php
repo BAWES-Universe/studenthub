@@ -355,6 +355,18 @@ class RequestController extends BaseController
     }
 
     /**
+     * check if request updated
+     */
+    public function actionIsRequestUpdated($id) {
+
+        $request = $this->findModel ($id);
+
+        return [
+            "request_updated_datetime" => $request->request_updated_datetime
+        ];
+    }
+
+    /**
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
