@@ -131,25 +131,17 @@ class StoryController extends Controller
      */
     public function actionList()
     {
-        $status = Yii::$app->request->get('story_status',null);
+        $status = Yii::$app->request->get('story_status');
+        $position_type = Yii::$app->request->get('position_type');
 
         $query = Story::find()
-            ->joinWith('request')
-            ->andWhere([
-                'NOT IN',
-                'request_status',
-                [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED]
-            ]);
+            ->joinWith('request');
 
-        if ($status == 'rejected') {
-            $query->andWhere(['story_status' => Story::STATUS_REJECTED]);
-        } else if ($status == 'unstarted') {
-            $query->andWhere(['story_status' => Story::STATUS_UNSTARTED]);
-        } else {
-            $query->andWhere(['or',
-                ['story_status' => Story::STATUS_UNSTARTED],
-                ['story_status' => Story::STATUS_REJECTED]
-            ]);
+        if ($status || $status == '0')
+            $query->andWhere(['story_status' => $status]);
+
+        if ($position_type) {
+            $query->andWhere(['request.request_position_type' => $position_type]);
         }
 
         $query->orderBy(
@@ -158,7 +150,6 @@ class StoryController extends Controller
                 new \yii\db\Expression('FIELD (story_status, 4,0)'),
                 'request_created_datetime' => SORT_ASC
             ]);
-
 
         return new ActiveDataProvider([
             'query' => $query
