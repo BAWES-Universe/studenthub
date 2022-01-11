@@ -82,12 +82,21 @@ class RequestQuery extends ActiveQuery
     }
 
     /**
+     * pending requests
+     * @return RequestQuery
+     */
+    public function pendingRequest()
+    {
+        return $this->andWhere(['request.request_status' => Request::STATUS_PENDING]);
+    }
+
+    /**
      * active requests
      * @return RequestQuery
      */
     public function activeRequest()
     {
-        return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, 'pending']]);
+        return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, Request::STATUS_PENDING]]);
     }
 
     /**

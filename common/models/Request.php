@@ -48,7 +48,8 @@ class Request extends \yii\db\ActiveRecord
     const STATUS_STARTED = 'started';
     const STATUS_DELIVERED = 'delivered';
     const STATUS_CANCELLED = 'cancelled';
-    
+    const STATUS_PENDING = 'pending';
+
     /**
      * {@inheritdoc}
      */
@@ -65,7 +66,7 @@ class Request extends \yii\db\ActiveRecord
         return [
             [['company_id', 'request_position_title', 'request_job_description','request_compensation'], 'required'],
             [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval', 'request_priority', 'request_time_spent','is_old'], 'integer'],
-            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
+            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED, self::STATUS_PENDING]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
