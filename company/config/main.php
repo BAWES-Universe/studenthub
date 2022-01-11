@@ -190,6 +190,7 @@ return [
                         'GET' => 'list',
                         'GET active' => 'list-active',
                         'GET count' => 'request-count',
+                        'GET is-request-updated/<id>' => 'is-request-updated',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
@@ -197,6 +198,7 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS count' => 'options',
                         'OPTIONS active' => 'options',
+                        'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
