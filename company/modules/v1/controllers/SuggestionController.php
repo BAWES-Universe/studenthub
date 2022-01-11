@@ -92,6 +92,7 @@ class SuggestionController extends BaseController
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
     /**
      * accept a Suggestion
      * @return array

@@ -218,11 +218,11 @@ class Note extends \yii\db\ActiveRecord
         parent::afterSave($insert, $changedAttributes);
 
         if ($this->request) {
+
             if ($insert) {
                 //update `request_updated_at` field
                 $this->request->request_updated_datetime = '';
                 $this->request->update(false);
-                Company::updateRequest($this->request->company_id);
             }
 
             $staffName = 'Guest';

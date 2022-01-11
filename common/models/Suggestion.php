@@ -147,6 +147,22 @@ class Suggestion extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @throws \Throwable
+     * @throws \yii\db\Exception
+     * @throws \yii\db\StaleObjectException
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        //update `request_updated_at` field
+        $this->request->request_updated_datetime = '';
+        $this->request->update(false);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()

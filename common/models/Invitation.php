@@ -171,6 +171,10 @@ class Invitation extends \yii\db\ActiveRecord
             $this->jobInvitationEmail();
         }
 
+        //update `request_updated_at` field
+        $this->request->request_updated_datetime = '';
+        $this->request->update(false);
+
         return true;
     }
 
