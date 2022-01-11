@@ -54,10 +54,44 @@ class Contact extends \yii\db\ActiveRecord
             [['contact_created_datetime', 'contact_updated_datetime'], 'safe'],
             [['contact_uuid'], 'string', 'max' => 60],//'contact_otp'
             [['contact_email', 'contact_new_email'], 'email'],
+            [['contact_email', 'contact_new_email'], 'validateEmail'],
+            [['contact_new_email'], 'validateNewEmail'],
             [['contact_name', 'contact_password_reset_token',], 'string', 'max' => 255],
-            [['contact_uuid', 'contact_email'], 'unique'],
+            [['contact_uuid'], 'unique'],//'contact_email'
             [['contact_password_reset_token'], 'unique'],
         ];
+    }
+
+    /**
+     * new email can not be same as old
+     * @param $attribute
+     */
+    public function validateNewEmail($attribute) {
+
+        if ($this->contact_new_email == $this->contact_email) {
+            $this->addError('contact_new_email', Yii::t('app', 'Email already registered'));
+        }
+    }
+
+    /**
+     * Validate email in new_email field
+     */
+    public function validateEmail($attribute) {
+
+        $query = self::find()
+            ->andWhere([
+                'or',
+                ['contact_new_email' => $this->$attribute],
+                ['contact_email' => $this->$attribute]
+            ]);
+
+        if($this->contact_uuid) {
+            $query->andWhere(['!=', 'contact_uuid', $this->contact_uuid]);
+        }
+
+        if ($query->exists()) {
+            $this->addError('contact_email', Yii::t('app', 'Email already registered'));
+        }
     }
 
     public function behaviors() {
@@ -93,6 +127,8 @@ class Contact extends \yii\db\ActiveRecord
         $scenarios['signup'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_receive_suggestions','contact_otp'];
 
         $scenarios['updateEmail'] = ['contact_email', 'contact_new_email'];
+
+        $scenarios['verifyEmail'] = ['contact_email_verification', 'contact_email', 'contact_new_email', 'contact_auth_key'];
 
         return $scenarios;
     }
