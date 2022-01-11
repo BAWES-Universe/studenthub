@@ -79,6 +79,7 @@ class InvitationController extends Controller
     public function actionList()
     {
         $request_uuid = Yii::$app->request->get("request_uuid");
+        $story_uuid = Yii::$app->request->get("story_uuid");
         $candidate_id = Yii::$app->request->get("candidate_id");
         $status = Yii::$app->request->get("status");
 
@@ -91,6 +92,10 @@ class InvitationController extends Controller
             $query->andWhere(['request_uuid' => $request_uuid]);
         }
 
+        if($story_uuid) {
+            $query->andWhere(['story_uuid' => $story_uuid]);
+        }
+
         if($candidate_id) {
             $query->andWhere(['candidate.candidate_id' => $candidate_id]);
         }
@@ -100,8 +105,7 @@ class InvitationController extends Controller
         }
 
         return new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => false
+            'query' => $query
         ]);
     }
 
