@@ -47,6 +47,12 @@ class SuggestionTest extends \Codeception\Test\Unit
             expect('should not accept empty request_uuid', $model->validate(['request_uuid']))->false();
             expect('should not accept empty candidate_id', $model->validate(['candidate_id']))->false();
             expect('should not accept empty note_uuid', $model->validate(['note_uuid']))->false();
+
+            $model->suggestion_status = 9999999;
+
+            //$model->validate();
+
+            expect('should not accept random string for suggestion_status', $model->validate(['suggestion_status']))->false();
         });
     }
 

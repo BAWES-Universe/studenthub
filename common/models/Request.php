@@ -63,7 +63,7 @@ class Request extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id','request_job_description','request_compensation'], 'required'],
+            [['company_id', 'request_position_title', 'request_job_description','request_compensation'], 'required'],
             [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval', 'request_priority', 'request_time_spent','is_old'], 'integer'],
             ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
@@ -135,6 +135,7 @@ class Request extends \yii\db\ActiveRecord
         }
 
         if($this->request_status == self::STATUS_CANCELLED && !$this->request_cancelled_at) {
+            $this->staff_id = null;
             $this->request_cancelled_at = new Expression('NOW()');
         }
 
@@ -401,17 +402,17 @@ class Request extends \yii\db\ActiveRecord
         if(isset($changedAttributes['request_status'])) {
 
             if($changedAttributes['request_status'] == self::STATUS_CANCELLED) {
-                Story::updateAll (['story_status' => Story::STATUS_FINISHED], [
+                Story::updateAll (['story_status' => Story::STATUS_CANCELLED], [
                     'AND',
                     ['request_uuid' => $this->request_uuid],
                     [
                         'IN',
                         'story_status',
                         [
-                            'STATUS_STARTED',
-                            'STATUS_UNSTARTED',
-                            'STATUS_DELIVERED',
-                            'STATUS_REJECTED'
+                            Story::STATUS_STARTED,
+                            Story::STATUS_UNSTARTED,
+                            Story::STATUS_DELIVERED,
+                            Story::STATUS_REJECTED
                         ]
                     ]
                 ]);

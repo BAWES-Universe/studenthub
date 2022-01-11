@@ -80,7 +80,7 @@ class Invitation extends \yii\db\ActiveRecord
         ) {
             $query = self::find()
                 ->andWhere([
-                    'invitation_status' => self::STATUS_INVITED,
+                    //'invitation_status' => self::STATUS_INVITED,
                     'request_uuid' => $this->request_uuid,
                     'candidate_id' => $this->candidate_id
                 ]);

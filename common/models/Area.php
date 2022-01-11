@@ -217,13 +217,13 @@ class Area extends \yii\db\ActiveRecord
 
         if(!$country)
         {
-            $countryInfo = json_decode(file_get_contents('https://restcountries.eu/rest/v2/alpha/' . $country_code));
+            //$countryInfo = json_decode(file_get_contents('https://restcountries.eu/rest/v2/alpha/' . $country_code));
 
             $country = new Country;
             $country->country_name_en = $country_name;
             $country->country_name_ar = $country_name;
-            $country->country_nationality_name_en = $countryInfo->demonym;
-            $country->country_nationality_name_ar = $countryInfo->demonym;
+            $country->country_nationality_name_en = $country_name;//$countryInfo->demonym;
+            $country->country_nationality_name_ar = $country_name;//$countryInfo->demonym;
             $country->country_from_google_map = 1;
 
             if(!$country->save()) {

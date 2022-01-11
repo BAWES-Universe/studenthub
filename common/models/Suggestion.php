@@ -53,7 +53,9 @@ class Suggestion extends \yii\db\ActiveRecord
             [['request_uuid', 'note_uuid'], 'required'],
             [['candidate_id'], 'integer'],
 
-            ['suggestion_status', 'in', 'range' => [self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED]],
+            ['suggestion_status', 'in', 'range' => [
+                self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED
+            ]],
 
             [['suggestion_datetime'], 'safe'],
             [['candidate_id', 'fulltimer_uuid'], 'validateCandidate', 'skipOnEmpty' => false],
@@ -493,24 +495,23 @@ class Suggestion extends \yii\db\ActiveRecord
                     $suggestedByStaff = $eachSuggestion->note->createdBy;
 
                     if (
-                        $eachSuggestion->note &&
-                        $eachSuggestion->note->fulltimer &&
-                        $eachSuggestion->note->fulltimer->fulltimer_pdf_cv
+                        $eachSuggestion->fulltimer &&
+                        $eachSuggestion->fulltimer->fulltimer_pdf_cv
                     ) {
-                        $url = Yii::$app->resourceManager->getUrl("fulltimer-resume/" . $eachSuggestion->note->fulltimer->fulltimer_pdf_cv);
+                        $url = Yii::$app->resourceManager->getUrl("fulltimer-resume/" . $eachSuggestion->fulltimer->fulltimer_pdf_cv);
 
                         if ($url) {
                             $message->attachContent(file_get_contents($url), [
-                                'fileName' => $eachSuggestion->note->fulltimer->fulltimer_pdf_cv,
-                                'contentType' => Yii::$app->resourceManager->getType("fulltimer-resume/" . $eachSuggestion->note->fulltimer->fulltimer_pdf_cv)
+                                'fileName' => $eachSuggestion->fulltimer->fulltimer_pdf_cv,
+                                'contentType' => Yii::$app->resourceManager->getType("fulltimer-resume/" . $eachSuggestion->fulltimer->fulltimer_pdf_cv)
                             ]);
                         } else {
                             //continue;
-                            throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->note->fulltimer_uuid);
+                            throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                         }
                     } else {
                         //continue;
-                        throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->note->fulltimer_uuid);
+                        throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                     }
 
                     //  update suggestion table to set mail to company

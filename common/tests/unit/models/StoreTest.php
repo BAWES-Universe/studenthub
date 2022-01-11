@@ -55,6 +55,19 @@ class StoreTest extends \Codeception\Test\Unit {
             expect('company id should accept only integer', $model->errors)->hasKey('company_id');
             expect('store status should accept only integer', $model->errors)->hasKey('store_status');
         });
+
+        $this->specify('model foreign key fields test', function () {
+            $model = new Store();
+
+            $model->store_manager_uuid = 2113123132;
+            $model->brand_uuid = 2113123132;
+            $model->mall_uuid = 2113123132;
+
+            $model->validate();
+            expect('should not accept random value for store_manager_uuid', $model->errors)->hasKey('store_manager_uuid');
+            expect('should not accept random value for brand_uuid', $model->errors)->hasKey('brand_uuid');
+            expect('should not accept random value for mall_uuid', $model->errors)->hasKey('mall_uuid');
+        });
     }
 
     /**
@@ -109,5 +122,4 @@ class StoreTest extends \Codeception\Test\Unit {
             expect('sub company error case ', $model->errors)->hasKey('company_id');
         });
     }
-
 }

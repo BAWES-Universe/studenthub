@@ -84,7 +84,7 @@ class StoryController extends Controller
      */
     public function actionActiveStory()
     {
-        $model = Story::find()->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])->one();
+        $model = Story::find()->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])->all();
 
         if ($model !== null) {
             return [
@@ -131,25 +131,17 @@ class StoryController extends Controller
      */
     public function actionList()
     {
-        $status = Yii::$app->request->get('story_status',null);
+        $status = Yii::$app->request->get('story_status');
+        $position_type = Yii::$app->request->get('position_type');
 
         $query = Story::find()
-            ->joinWith('request')
-            ->andWhere([
-                'NOT IN',
-                'request_status',
-                [Request::STATUS_CANCELLED, Request::STATUS_DELIVERED]
-            ]);
+            ->joinWith('request');
 
-        if ($status == 'rejected') {
-            $query->andWhere(['story_status' => Story::STATUS_REJECTED]);
-        } else if ($status == 'unstarted') {
-            $query->andWhere(['story_status' => Story::STATUS_UNSTARTED]);
-        } else {
-            $query->andWhere(['or',
-                ['story_status' => Story::STATUS_UNSTARTED],
-                ['story_status' => Story::STATUS_REJECTED]
-            ]);
+        if ($status || $status == '0')
+            $query->andWhere(['story_status' => $status]);
+
+        if ($position_type) {
+            $query->andWhere(['request.request_position_type' => $position_type]);
         }
 
         $query->orderBy(
@@ -158,7 +150,6 @@ class StoryController extends Controller
                 new \yii\db\Expression('FIELD (story_status, 4,0)'),
                 'request_created_datetime' => SORT_ASC
             ]);
-
 
         return new ActiveDataProvider([
             'query' => $query
@@ -173,7 +164,7 @@ class StoryController extends Controller
     public function actionChangeStoryStatus()
     {
         $status = (int) Yii::$app->request->getBodyParam("status");
-
+        $last_story_acitivty_model = null;
         if (!in_array ($status, [StoryActivity::STATUS_UNSTARTED, StoryActivity::STATUS_STARTED,StoryActivity::STATUS_FINISHED,StoryActivity::STATUS_DELIVERED,StoryActivity::STATUS_REJECTED, StoryActivity::STATUS_ACCEPTED])){
             return [
                 "operation" => "error",
@@ -191,54 +182,58 @@ class StoryController extends Controller
             }
         }
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
+
         $story =  $this->findModel($storyUuid);
 
         // Attempt to create new request
         $model = new StoryActivity();
+//        if ($status) {
 
-        if($status != StoryActivity::STATUS_UNSTARTED)
-            $model->staff_id = Yii::$app->user->getId();
+            if ($status != StoryActivity::STATUS_UNSTARTED)
+                $model->staff_id = Yii::$app->user->getId();
 
-        $model->story_uuid = $storyUuid;
-        $model->activity_status = $status;
+            $model->story_uuid = $storyUuid;
+            $model->activity_status = $status;
 
-        $last_story_acitivty_model = StoryActivity::find()
-            ->where(['story_uuid' => $storyUuid])
-            ->orderBy('activity_created_at desc')
-            ->one();
+            $last_story_acitivty_model = StoryActivity::find()
+                ->where(['story_uuid' => $storyUuid])
+                ->orderBy('activity_created_at desc')
+                ->one();
 
-        if($last_story_acitivty_model) {
-            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
-            $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
-            $diff = $activity_created_at->diff ($activity_last_updated_at);
-            $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
-            $hoursInSecs = $diff->h * 60 * 60;
-            $minsInSecs = $diff->i * 60;
+            if ($last_story_acitivty_model) {
+                $activity_created_at = new \DateTime(date('Y-m-d H:i:s', strtotime($last_story_acitivty_model->activity_created_at)));
+                $activity_last_updated_at = new \DateTime(date('Y-m-d H:i:s'));
+                $diff = $activity_created_at->diff($activity_last_updated_at);
+                $daysInSecs = $diff->format('%r%a') * 24 * 60 * 60;
+                $hoursInSecs = $diff->h * 60 * 60;
+                $minsInSecs = $diff->i * 60;
 
-            $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+                $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
 
-            $last_story_acitivty_model->activity_time_spent = $seconds;
-            $last_story_acitivty_model->save (false);
-        }
-
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem creating the Request, please contact us for assistance."
-                ];
+                $last_story_acitivty_model->activity_time_spent = $seconds;
+                $last_story_acitivty_model->save(false);
             }
-        }
 
+            if (!$model->save()) {
+                if (isset($model->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $model->errors
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem creating the Request, please contact us for assistance."
+                    ];
+                }
+            }
+//        }
+
+        $company = ($model && $model->company && $model->company->company_name) ? $model->company->company_name : ' - ';
+        $story = ($story  && $story->request && $story->request->request_position_title) ? $story->request->request_position_title : ' - ';
         return [
             "operation" => "success",
-            "message" => Yii::$app->user->identity->staff_name . " started " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
+            "message" => Yii::$app->user->identity->staff_name . " started " . $story  . ' for ' . $company,
             "last_story_acitivty_model" => $last_story_acitivty_model,
             "newStoryActivity" => $model
         ];
