@@ -91,9 +91,7 @@ class StoryActivity extends \yii\db\ActiveRecord
         else
             $story_model->staff_id = null;
 
-
         $story_model->save(false);
-
     }
 
 

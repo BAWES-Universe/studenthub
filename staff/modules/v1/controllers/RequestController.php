@@ -128,14 +128,14 @@ class RequestController extends Controller
             $query->orderByFollowupInterval($followup_interval);
         }
 
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
+        /*if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
             $query->joinWith (['stories'])
                 ->andWhere ([
                     //'request.staff_id' => Yii::$app->user->getId (),
                     'story.staff_id' => Yii::$app->user->getId ()
                 ]);
             //$query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
-        }
+        }*/
 
         return new ActiveDataProvider([
             'query' => $query
@@ -183,14 +183,14 @@ class RequestController extends Controller
             $query->orderBy('request_created_datetime DESC');
         }
 
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
+        /*if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
             $query->joinWith (['stories'])
                 ->andWhere ([
                     //'request.staff_id' => Yii::$app->user->getId (),
                     'story.staff_id' => Yii::$app->user->getId ()
                 ]);
             //$query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
-        }
+        }*/
 
         return new ActiveDataProvider([
             'query' => $query
@@ -223,20 +223,19 @@ class RequestController extends Controller
 
         $query->activeRequest();
 
-
         if ($followup_interval) {
             $query->orderByFollowupInterval();
         } else {
             $query->orderBy('request_created_datetime DESC');
         }
 
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
+        /*if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
             $query->joinWith (['stories'])
                 ->andWhere ([
                     //'request.staff_id' => Yii::$app->user->getId (),
                     'story.staff_id' => Yii::$app->user->getId ()
                 ]);
-        }
+        }*/
 
         return new ActiveDataProvider([
             'query' => $query
@@ -271,7 +270,7 @@ class RequestController extends Controller
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
-        $model->request_status = Request::STATUS_STARTED;
+        $model->request_status = Request::STATUS_PENDING;
 
         if (!$model->save())
         {

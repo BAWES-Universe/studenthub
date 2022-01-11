@@ -164,24 +164,44 @@ class StoryController extends Controller
     public function actionChangeStoryStatus()
     {
         $status = (int) Yii::$app->request->getBodyParam("status");
+
+        $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
+
         $last_story_acitivty_model = null;
-        if (!in_array ($status, [StoryActivity::STATUS_UNSTARTED, StoryActivity::STATUS_STARTED,StoryActivity::STATUS_FINISHED,StoryActivity::STATUS_DELIVERED,StoryActivity::STATUS_REJECTED, StoryActivity::STATUS_ACCEPTED])){
+
+        $arrStatus = [
+            StoryActivity::STATUS_UNSTARTED,
+            StoryActivity::STATUS_STARTED,
+            StoryActivity::STATUS_FINISHED,
+            StoryActivity::STATUS_DELIVERED,
+            StoryActivity::STATUS_REJECTED,
+            StoryActivity::STATUS_ACCEPTED
+        ];
+
+        if (!in_array ($status, $arrStatus))
+        {
             return [
                 "operation" => "error",
                 "message" => Yii::t ('app', "Invalid status!")
             ];
         }
 
-        if ($status == Story::STATUS_STARTED ) {
-            $exist = Story::find()->andWhere(['staff_id'=>Yii::$app->user->getId(),'story_status'=>StoryActivity::STATUS_STARTED])->exists();
-            if ($exist) {
+        if ($status == Story::STATUS_STARTED)
+        {
+            $exist = Story::find()
+                ->andWhere(['staff_id'=>Yii::$app->user->getId(),'story_status'=>StoryActivity::STATUS_STARTED])
+                ->exists();
+
+            if ($exist)
+            {
                 return [
                     "operation" => "error",
                     "message" => "Please complete your existing story. You can only work one story at a time"
                 ];
             }
+
+            //update request status to started if not
         }
-        $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
 
         $story =  $this->findModel($storyUuid);
 
@@ -230,7 +250,9 @@ class StoryController extends Controller
 //        }
 
         $company = ($model && $model->company && $model->company->company_name) ? $model->company->company_name : ' - ';
+
         $story = ($story  && $story->request && $story->request->request_position_title) ? $story->request->request_position_title : ' - ';
+
         return [
             "operation" => "success",
             "message" => Yii::$app->user->identity->staff_name . " started " . $story  . ' for ' . $company,

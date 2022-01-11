@@ -102,20 +102,28 @@ class Story extends \yii\db\ActiveRecord
             return true;
         }
 
+        $request = Request::findOne($this->request_uuid);
+
+        if(
+            isset($changedAttributes['story_status']) &&
+            $this->story_status == self::STATUS_STARTED &&
+            $request->request_status == Request::STATUS_PENDING
+        ) {
+            $request->request_status = Request::STATUS_STARTED;
+        }
+
         //Update request time spent
 
         if(isset($changedAttributes['story_time_spent']))
         {
-            $request_model = Request::findOne($this->request_uuid);
-
-            $request_model->request_time_spent = $request_model->getStories()->sum('story_time_spent');
-            $request_model->save(false);
+            $request->request_time_spent = $request->getStories()->sum('story_time_spent');
+            $request->save(false);
         }
         else
         {
             //update `request_updated_at` field
-            $this->request->request_updated_datetime = '';
-            $this->request->update(false);
+            $request->request_updated_datetime = '';
+            $request->update(false);
         }
     }
 
