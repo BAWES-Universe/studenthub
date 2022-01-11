@@ -1050,7 +1050,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        $token = CandidateToken::find()->andWhere(['token_value' => $token])->with('candidate')->one();
+        $token = CandidateToken::find()->andWhere(['token_value' => $token])
+            ->with('candidate')->one();
         if($token){
             return $token->candidate;
         }
