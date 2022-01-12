@@ -150,6 +150,26 @@ class SuggestionController extends BaseController
             }
         }
 
+        if ($model->story_uuid) {
+            $story = Story::findOne($model->story_uuid);
+            $story->story_status = Story::STATUS_ACCEPTED;
+            if (!$story->save()) {
+                $transaction->rollBack();
+
+                if(isset($story->errors)){
+                    return [
+                        "operation" => "error",
+                        "message" => $story->errors
+                    ];
+                }else{
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
+                    ];
+                }
+            }
+        }
+
         $transaction->commit();
 
         return [

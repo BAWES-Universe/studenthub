@@ -22,4 +22,4 @@ return [
 	'story_time_spent' => 24*60*60,
 	'story_created_at' => $faker->date('Y-m-d H:i:s'), 
 	'story_last_updated_at' => $faker->date('Y-m-d H:i:s'),
-]
+];

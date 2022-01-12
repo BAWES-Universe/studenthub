@@ -80,6 +80,7 @@ class SuggestionController extends Controller
         $request_uuid = Yii::$app->request->get("request_uuid");
         $fulltimer_uuid = Yii::$app->request->get("fulltimer_uuid");
         $candidate_id = Yii::$app->request->get("candidate_id");
+        $story_uuid = Yii::$app->request->get("story_uuid");
         $status = Yii::$app->request->get("status");
         $withPagination = Yii::$app->request->get("withPagination");
 
@@ -106,6 +107,10 @@ class SuggestionController extends Controller
 
         if($status > 1) {
             $query->andWhere(['suggestion_status' => $status]);
+        }
+
+        if($story_uuid) {
+            $query->andWhere(['suggestion.story_uuid' => $story_uuid]);
         }
 
         if($withPagination)
@@ -205,6 +210,7 @@ class SuggestionController extends Controller
         $model->fulltimer_uuid = $fulltimer_uuid;
         $model->candidate_id = $candidate_id;
         $model->note_uuid = $note->note_uuid;
+        $model->story_uuid = $story->story_uuid;
         $model->suggestion_status = Suggestion::TYPE_SUGGESTED;
 
         if (!$model->save())

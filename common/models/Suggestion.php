@@ -21,6 +21,7 @@ use yii\helpers\VarDumper;
  * @property string $fulltimer_uuid
  * @property int $candidate_id
  * @property string $note_uuid
+ * @property string $story_uuid
  * @property int $suggestion_status 1-Suggested , 2- rejected, 3- accepted
  * @property string $suggestion_datetime
  *
@@ -60,8 +61,9 @@ class Suggestion extends \yii\db\ActiveRecord
             [['suggestion_datetime'], 'safe'],
             [['candidate_id', 'fulltimer_uuid'], 'validateCandidate', 'skipOnEmpty' => false],
             [['request_uuid'], 'validateDuplicateRequest'],
-            [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid'], 'string', 'max' => 60],
+            [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid','story_uuid'], 'string', 'max' => 60],
             [['suggestion_uuid'], 'unique'],
+            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             [['note_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Note::className(), 'targetAttribute' => ['note_uuid' => 'note_uuid']],
@@ -175,6 +177,7 @@ class Suggestion extends \yii\db\ActiveRecord
             'fulltimer_uuid' => Yii::t('app', 'Fulltimer Uuid'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'note_uuid' => Yii::t('app', 'Note Uuid'),
+            'story_uuid' => Yii::t('app', 'Story Uuid'),
             'suggestion_status' => Yii::t('app', 'Suggestion Status'),
             'suggestion_datetime' => Yii::t('app', 'Suggestion Datetime'),
         ];
