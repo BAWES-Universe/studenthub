@@ -402,21 +402,21 @@ class Request extends \yii\db\ActiveRecord
          */
         if(isset($changedAttributes['request_status'])) {
 
-            if($changedAttributes['request_status'] == self::STATUS_CANCELLED) {
+            if($this->request_status == self::STATUS_CANCELLED) {
                 Story::updateAll (['story_status' => Story::STATUS_CANCELLED], [
-                    'AND',
-                    ['request_uuid' => $this->request_uuid],
-                    [
-                        'IN',
-                        'story_status',
-                        [
-                            Story::STATUS_STARTED,
-                            Story::STATUS_UNSTARTED,
-                            Story::STATUS_DELIVERED,
-                            Story::STATUS_REJECTED
-                        ]
-                    ]
+                    'request_uuid' => $this->request_uuid
                 ]);
+                /**
+                 [
+                    'IN',
+                    'story_status',
+                    [
+                        Story::STATUS_STARTED,
+                        Story::STATUS_UNSTARTED,
+                        Story::STATUS_DELIVERED,
+                        Story::STATUS_REJECTED
+                    ]
+                 ]*/
             }
         }
 
