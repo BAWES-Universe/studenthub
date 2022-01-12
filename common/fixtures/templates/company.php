@@ -6,7 +6,7 @@ return [
     'company_name' => $faker->company,
     'company_common_name_en' => $faker->company,
     'company_common_name_ar' => $faker->company,
-    'company_description_enr' => $faker->text,
+    'company_description_en' => $faker->text,
     'company_description_ar' => $faker->text,
     'company_website' => $faker->domainName,
     'company_email' => $faker->companyEmail,
