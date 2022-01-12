@@ -253,6 +253,7 @@ class Note extends \yii\db\ActiveRecord
     {
         return [
             'candidate',
+            'fulltimer',
             'request',
             'invitation',
             'company',

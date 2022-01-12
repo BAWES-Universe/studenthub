@@ -84,7 +84,9 @@ class StoryController extends Controller
      */
     public function actionActiveStory()
     {
-        $model = Story::find()->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])->all();
+        $model = Story::find()
+            ->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])
+            ->all();
 
         if ($model !== null) {
             return [
