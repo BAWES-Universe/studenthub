@@ -156,11 +156,6 @@ class StoryController extends Controller
         ]);
     }
 
-
-    /**
-     * Stop working on story
-     * @return array
-     */
     public function actionChangeStoryStatus()
     {
         $status = (int) Yii::$app->request->getBodyParam("status");
@@ -186,76 +181,64 @@ class StoryController extends Controller
             ];
         }
 
-        if ($status == Story::STATUS_STARTED)
-        {
-            $exist = Story::find()
-                ->andWhere(['staff_id'=>Yii::$app->user->getId(),'story_status'=>StoryActivity::STATUS_STARTED])
-                ->exists();
-
-            if ($exist)
-            {
+        if ($status == Story::STATUS_STARTED ) {
+            $exist = Story::find()->andWhere(['staff_id'=>Yii::$app->user->getId(),'story_status'=>StoryActivity::STATUS_STARTED])->exists();
+            if ($exist) {
                 return [
                     "operation" => "error",
                     "message" => "Please complete your existing story. You can only work one story at a time"
                 ];
             }
-
-            //update request status to started if not
         }
 
         $story =  $this->findModel($storyUuid);
 
         // Attempt to create new request
         $model = new StoryActivity();
-//        if ($status) {
 
-            if ($status != StoryActivity::STATUS_UNSTARTED)
-                $model->staff_id = Yii::$app->user->getId();
+        if($status != StoryActivity::STATUS_UNSTARTED)
+            $model->staff_id = Yii::$app->user->getId();
 
-            $model->story_uuid = $storyUuid;
-            $model->activity_status = $status;
+        $model->story_uuid = $storyUuid;
+        $model->activity_status = $status;
 
-            $last_story_acitivty_model = StoryActivity::find()
-                ->where(['story_uuid' => $storyUuid])
-                ->orderBy('activity_created_at desc')
-                ->one();
+        $last_story_acitivty_model = StoryActivity::find()
+            ->where(['story_uuid' => $storyUuid])
+            ->orderBy('activity_created_at desc')
+            ->one();
 
-            if ($last_story_acitivty_model) {
-                $activity_created_at = new \DateTime(date('Y-m-d H:i:s', strtotime($last_story_acitivty_model->activity_created_at)));
-                $activity_last_updated_at = new \DateTime(date('Y-m-d H:i:s'));
-                $diff = $activity_created_at->diff($activity_last_updated_at);
-                $daysInSecs = $diff->format('%r%a') * 24 * 60 * 60;
-                $hoursInSecs = $diff->h * 60 * 60;
-                $minsInSecs = $diff->i * 60;
+        if($last_story_acitivty_model) {
+            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
+            $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
+            $diff = $activity_created_at->diff ($activity_last_updated_at);
+            $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
+            $hoursInSecs = $diff->h * 60 * 60;
+            $minsInSecs = $diff->i * 60;
 
-                $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+            $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
 
-                $last_story_acitivty_model->activity_time_spent = $seconds;
-                $last_story_acitivty_model->save(false);
+            $last_story_acitivty_model->activity_time_spent = $seconds;
+            $last_story_acitivty_model->save (false);
+        }
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Request, please contact us for assistance."
+                ];
             }
-
-            if (!$model->save()) {
-                if (isset($model->errors)) {
-                    return [
-                        "operation" => "error",
-                        "message" => $model->errors
-                    ];
-                } else {
-                    return [
-                        "operation" => "error",
-                        "message" => "We've faced a problem creating the Request, please contact us for assistance."
-                    ];
-                }
-            }
-//        }
-
-        $company = ($model && $model->company && $model->company->company_name) ? $model->company->company_name : ' - ';
-
-        $story = ($story  && $story->request && $story->request->request_position_title) ? $story->request->request_position_title : ' - ';
+        }
 
         return [
             "operation" => "success",
-            "message" => Yii::$app->user->identity->staff_name . " started " . $story  . ' for ' . $company,
+            "message" => Yii::$app->user->identity->staff_name . " started " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
             "last_story_acitivty_model" => $last_story_acitivty_model,
             "newStoryActivity" => $model
         ];
