@@ -625,7 +625,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]
             )
         ) {
-            //return $this->updateAlgoliaIndex($insert);
+            return $this->updateAlgoliaIndex($insert);
         }
 
         //on soft delete remove or job status updated to not looking for job
