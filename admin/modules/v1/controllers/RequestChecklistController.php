@@ -114,7 +114,7 @@ class RequestChecklistController extends Controller
             }
         }
 
-        Yii::info('[RequestChecklist Account Created] RequestChecklist "'.$model->status_name_en.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
+        Yii::info('[RequestChecklist Account Created] RequestChecklist "'.$model->status_name.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
