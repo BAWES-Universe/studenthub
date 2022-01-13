@@ -7,7 +7,7 @@ return yii\helpers\ArrayHelper::merge(
         'components' => [
             'db' => [
                 'dsn' => 'mysql:host=localhost;dbname=payroll_test',
-            ]
+            ],
             //to fix error for BlamableBehaviour in unit testing
             'user' => [
                 'class' => 'common\models\Staff'
