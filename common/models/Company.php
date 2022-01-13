@@ -431,10 +431,6 @@ class Company extends \yii\db\ActiveRecord
     {
         $this->deleted = 1;
 
-        //remove unique fields, so can create new account with same details
-
-        $this->company_password_reset_token = null;
-
         return $this->save(false);
     }
 
