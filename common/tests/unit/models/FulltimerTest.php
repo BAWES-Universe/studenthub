@@ -7,6 +7,7 @@ use common\models\Fulltimer;
 use common\fixtures\FulltimerFixture;
 use common\fixtures\AreaFixture;
 use common\fixtures\CountryFixture;
+use common\fixtures\UniversityFixture;
 use Codeception\Specify;
 
 
@@ -23,7 +24,8 @@ class FulltimerTest extends \Codeception\Test\Unit
         return [
             'fulltimer' => FulltimerFixture::className(),
             'area' => AreaFixture::className(),
-            'country' => CountryFixture::className()
+            'country' => CountryFixture::className(),
+            'university' => UniversityFixture::className(),
         ];
     }
 
@@ -108,9 +110,13 @@ class FulltimerTest extends \Codeception\Test\Unit
         $this->specify('Update fulltimer', function() {
             $area = Area::find()->one();
 
-            $model = Fulltimer::find()->one();
+            $model = Fulltimer::find()
+                ->joinWith(['university'])
+                ->one();
+
             $model->fulltimer_area_uuid = $area->area_uuid;
             $model->fulltimer_name = 'Matro';
+            $model->university_id = 1;
             $model->validate();
 
             expect('updated successfully', $model->save())->true();
