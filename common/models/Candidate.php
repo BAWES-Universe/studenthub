@@ -265,6 +265,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
+        $scenarios['verifyEmail'] = ['candidate_email', 'candidate_new_email', 'candidate_email_verification'];
+
         $scenarios['updateCandidateEmail'] = ['candidate_email'];
 
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
@@ -316,6 +318,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid'];
 
         $scenarios['updatePendingProfile'] = ['candidate_pending_profile'];
+
+        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token'];
 
         return $scenarios;
     }
@@ -614,11 +618,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     'updateLanguagePref', //as not saving language preference in algolia
                     'signup', //as will have incomplete profile
                     'updateEmail',//as not saving email in algolia
-                    'updatePendingProfile'
+                    'updatePendingProfile',
+                    'changePassword',
+                    'updatePasswordToken',
+                    //'verifyEmail'
                 ]
             )
         ) {
-            return $this->updateAlgoliaIndex($insert);
+            //return $this->updateAlgoliaIndex($insert);
         }
 
         //on soft delete remove or job status updated to not looking for job
@@ -1027,13 +1034,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function sendPasswordResetEmail()
     {
+        $this->setScenario('updatePasswordToken');
         $this->generatePasswordResetToken();
         $this->save(false);
 
         //Yii::$app->mailer->htmlLayout = 'layouts/html';
 
         $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
+
         $name = explode(' ',$this->candidate_name);
+
         return Yii::$app->mailer->compose("candidate/password-reset-html",
             [
                 "webUrl" => $webUrl,
@@ -1397,6 +1407,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ];
         }
 
+        $candidate->setScenario('verifyEmail');
+
         if ($candidate->candidate_auth_key && $code && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
             //If not verified
             if ($candidate->candidate_email_verification == Candidate::EMAIL_NOT_VERIFIED) {
@@ -1412,7 +1424,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
 
             $candidate->candidate_auth_key = ''; //remove auth key
+
             $candidate->save(false);
+
             return [
                 'success' => true,
                 'data' => $candidate
