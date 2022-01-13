@@ -14,6 +14,14 @@ class m211223_081947_transfer_api extends Migration
      */
     public function safeUp()
     {
+        if(!in_array(
+            Yii::$app->params['algolia_candidate_index'], [
+            'prod_candidate_public',
+            'dev_candidate_public'
+        ])) {
+            return true; 
+        }
+
         $this->addColumn ('candidate', 'candidate_pending_profile', $this->text ()->after ('candidate_mom_kuwaiti'));
 
         $candidates = Candidate::find()
