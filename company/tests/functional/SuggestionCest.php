@@ -68,4 +68,30 @@ class SuggestionCest
         $I->sendGET ('v1/suggestions/' . $this->suggestion->suggestion_uuid);
         $I->seeResponseCodeIs (HttpCode::OK); // 200
     }
+
+    /**
+     * Try to accept suggestion
+     * @param FunctionalTester $I
+     */
+    public function tryToAccept(FunctionalTester $I)
+    {
+        $I->wantTo('accept suggestion via API');
+        $I->sendPATCH('v1/suggestions/accept/' . $this->suggestion->suggestion_uuid, [
+            'reason' => 'Okay can go with this'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
+     * Try to reject suggestion
+     * @param FunctionalTester $I
+     */
+    public function tryToReject(FunctionalTester $I)
+    {
+        $I->wantTo('reject suggestion via API');
+        $I->sendPATCH('v1/suggestions/reject/' . $this->suggestion->suggestion_uuid, [
+            'reason' => 'Nah can not go with this'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
 }
