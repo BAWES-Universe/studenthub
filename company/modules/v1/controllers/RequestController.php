@@ -349,8 +349,13 @@ class RequestController extends BaseController
     public function actionRequestCount() {
         $company = Yii::$app->companyManager->getCompany();
 
+        $count = $company->getRequests()
+            ->activeRequest()
+            ->handleByStaff()
+            ->count();
+
         return [
-            "active_request_count" => $company->getRequests()->activeRequest()->handleByStaff()->count()
+            "active_request_count" => $count
         ];
     }
 

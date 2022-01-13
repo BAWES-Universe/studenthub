@@ -188,5 +188,6 @@ class AuthCest {
             'email' => $this->candidate->candidate_email
         ]);
     }
+
 }
 
