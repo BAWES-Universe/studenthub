@@ -5,7 +5,7 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use admin\models\RequestChecklist;
+use common\models\RequestChecklist;
 use yii\web\NotFoundHttpException;
 
 

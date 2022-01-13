@@ -3,8 +3,11 @@
 namespace admin\tests;
 
 use admin\models\AdminToken;
+use common\models\RequestChecklist;
 use common\fixtures\RequestChecklistFixture;
+use common\fixtures\AdminTokenFixture;
 use admin\tests\FunctionalTester;
+use Codeception\Util\HttpCode;
 
 class RequestChecklistCest
 {
@@ -13,7 +16,8 @@ class RequestChecklistCest
     public function _fixtures()
     {
         return [
-            'country' => RequestChecklistFixture::className()
+            'adminToken' => AdminTokenFixture::className(),
+            'requestChecklist' => RequestChecklistFixture::className()
         ];
     }
 

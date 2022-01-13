@@ -8,4 +8,4 @@ return [
 	'sort_order' => 0,
 	'created_at' => $faker->date('Y-m-d H:i:s'),
 	'updated_at' => $faker->date('Y-m-d H:i:s'),
-]
+];
