@@ -135,6 +135,7 @@ class StoryController extends Controller
     {
         $status = Yii::$app->request->get('story_status');
         $position_type = Yii::$app->request->get('position_type');
+        $keyword = Yii::$app->request->get("query");
 
         $query = Story::find()
             ->joinWith('request');
@@ -145,6 +146,14 @@ class StoryController extends Controller
         if ($position_type) {
             $query->andWhere(['request.request_position_type' => $position_type]);
         }
+
+        if ($keyword) {
+            $query->andWhere([
+                'OR',
+                ['like', 'request.request_position_title', $keyword]
+            ]);
+        }
+
 
         $query->orderBy(
             [
