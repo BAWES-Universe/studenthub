@@ -2,6 +2,8 @@
 
 namespace staff\tests;
 
+use common\fixtures\StoryFixture;
+use common\models\Story;
 use common\models\Suggestion;
 use staff\tests\FunctionalTester;
 use common\models\Note;
@@ -20,22 +22,40 @@ class SuggestionCest
 {
     public $token;
     public $suggestion;
+    public $staff;
+    public $story;
 
     public function _fixtures()
     {
         return [
         	'staffToken' => StaffTokenFixture::className(),
             'suggestion' => SuggestionFixture::className(),
+            'story' => StoryFixture::className(),
             'candidate' => CandidateFixture::className(),
         ];
     }
 
     public function _before(FunctionalTester $I)
     {
-        $this->token = StaffToken::find()
-            ->one()
+        $model = StaffToken::find()
+            ->one();
+
+        $this->staff = $model->staff;
+
+        $this->token = $model
             ->token_value;
-        
+
+        $this->story = Story::find()
+            ->andWhere(['story_status' => Story::STATUS_STARTED])
+            ->one();
+
+        //assign current staff so he can work
+        $this->story->staff_id = $this->staff->staff_id;
+        $this->story->save(false);
+
+        $this->story->request->request_status = Request::STATUS_STARTED;
+        $this->story->request->save(false);
+
         $this->suggestion = Suggestion::find()->one();
    
         $I->amBearerAuthenticated($this->token);
@@ -68,13 +88,9 @@ class SuggestionCest
     /**
      * Try to create new suggestion
      * @param FunctionalTester $I
-     *
+     */
     public function tryToCreate(FunctionalTester $I)
     {
-        $request = Request::find()
-            ->andWhere(['request_status' => Request::STATUS_STARTED])
-            ->one();
-
         $candidate = Candidate::find()->one();
 
         $I->wantTo('create a suggestion via API');
@@ -82,7 +98,8 @@ class SuggestionCest
             'v1/suggestions',
             [
                 'suggestion' => 'big bazar',
-                'request_uuid' => $request->request_uuid,
+                'story_uuid' => $this->story->story_uuid,
+                'request_uuid' => $this->story->request_uuid,
                 'candidate_id' => $candidate->candidate_id
             ]
         );

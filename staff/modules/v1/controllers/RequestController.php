@@ -478,9 +478,11 @@ class RequestController extends Controller
      */
     public function actionAssign($id)
     {
+        $staff_id = Yii::$app->request->getBodyParam("staff_id");
+
         $model = $this->findModel($id);
 
-        $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
+        $model->staff_id = $staff_id;
         
         if (!$model->save())
         {
@@ -497,9 +499,11 @@ class RequestController extends Controller
             }
         }
 
-        $model->createRequestActivity('I have assign this request to '. $model->staff->staff_name);
+        $staff = Staff::find()->andWhere(['staff_id' => $staff_id])->one();
 
-        Yii::info('[Request assigned to '.$model->staff->staff_name.'] '.$model->request_position_title. ' @' .$model->company->company_name .' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        $model->createRequestActivity('I have assign this request to '. $staff->staff_name);
+
+        Yii::info('[Request assigned to '.$staff->staff_name.'] '.$model->request_position_title. ' @' .$model->company->company_name .' By '. Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",

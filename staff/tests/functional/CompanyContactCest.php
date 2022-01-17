@@ -206,4 +206,18 @@ class CompanyContactCest
         $I->sendDelete('v1/company-contacts/' . $this->contact_uuid);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
+
+    /**
+     * try to send verification email
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToSendVerificationEmail(FunctionalTester $I)
+    {
+        $I->wantTo('send verification email to contact');
+        $I->sendGET('v1/company-contacts/send-verification-email', [
+            'contact_uuid' => $this->contact_uuid
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
 }

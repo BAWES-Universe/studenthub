@@ -184,7 +184,12 @@ class StoryController extends Controller
         }
 
         if ($status == Story::STATUS_STARTED ) {
-            $exist = Story::find()->andWhere(['staff_id'=>Yii::$app->user->getId(),'story_status'=>StoryActivity::STATUS_STARTED])->exists();
+
+            $exist = Story::find()->andWhere([
+                'staff_id' => Yii::$app->user->getId(),
+                'story_status' => StoryActivity::STATUS_STARTED
+            ])->exists();
+
             if ($exist) {
                 return [
                     "operation" => "error",
