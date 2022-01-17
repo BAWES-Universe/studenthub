@@ -202,6 +202,14 @@ class Story extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getSuggestions($modelClass = "\common\models\Suggestion")
+    {
+        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getStaff($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
