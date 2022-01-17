@@ -112,6 +112,17 @@ class Story extends \yii\db\ActiveRecord
             $request->request_status = Request::STATUS_STARTED;
         }
 
+        //request status to be deliver if all story delivered
+
+        $finished = $request->getStories()
+            ->andWhere(['story_status' => self::STATUS_DELIVERED])
+            ->count();
+
+        if($request->request_number_of_employees == $finished)
+        {
+            $request->request_status = Request::STATUS_DELIVERED;
+        }
+
         //Update request time spent
 
         if(isset($changedAttributes['story_time_spent']))
@@ -123,8 +134,9 @@ class Story extends \yii\db\ActiveRecord
         {
             //update `request_updated_at` field
             $request->request_updated_datetime = '';
-            $request->update(false);
         }
+
+        $request->update(false);
     }
 
     /**

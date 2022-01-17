@@ -167,13 +167,16 @@ class StoryController extends Controller
         ]);
     }
 
+    /**
+     * change story status
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
     public function actionChangeStoryStatus()
     {
         $status = (int) Yii::$app->request->getBodyParam("status");
 
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
-
-        $last_story_acitivty_model = null;
 
         $arrStatus = [
             StoryActivity::STATUS_UNSTARTED,
@@ -210,6 +213,7 @@ class StoryController extends Controller
         $story =  $this->findModel($storyUuid);
 
         // Attempt to create new request
+
         $model = new StoryActivity();
 
         if($status != StoryActivity::STATUS_UNSTARTED)
@@ -239,7 +243,7 @@ class StoryController extends Controller
 
         if (!$model->save())
         {
-            if(isset($model->errors)){
+            if(isset($model->errors)) {
                 return [
                     "operation" => "error",
                     "message" => $model->errors
