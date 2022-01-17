@@ -74,27 +74,35 @@ class StoryActivity extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
 
-        $story_model = Story::findOne($this->story_uuid);
+        $story = Story::findOne($this->story_uuid);
 
         if($this->staff_id)
-            $story_model->staff_id = $this->staff_id;
+            $story->staff_id = $this->staff_id;
 
-        $story_model->story_status = $this->activity_status;
-        $story_model->story_time_spent = $story_model->getStoryActivities()->sum('activity_time_spent');
+        $story->story_status = $this->activity_status;
+
+        $story->story_time_spent = $story->getStoryActivities()
+            ->sum('activity_time_spent');
 
         if($this->staff_id)
-            $story_model->staff_id = $this->staff_id;
+            $story->staff_id = $this->staff_id;
         else
-            $story_model->staff_id = null;
+            $story->staff_id = null;
 
-        $story_model->save(false);
+        $story->save(false);
     }
 
-
+    /**
+     * @return array[]
+     */
     public function behaviors() {
         return [
             [
