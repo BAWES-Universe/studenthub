@@ -12,12 +12,7 @@ return [
 	'request_uuid' => $request_uuid,
 	'suggestion_uuid' => $suggestion_uuid,
 	'staff_id' => $staff_id,
-	'story_status' => $faker->randomElement([
-        'pending',
-        'started',
-        'delivered',
-        'cancelled'
-    ]),
+	'story_status' => $faker->numberBetween(0, 6),
 	'is_old' => 0, 
 	'story_time_spent' => 24*60*60,
 	'story_created_at' => $faker->date('Y-m-d H:i:s'), 

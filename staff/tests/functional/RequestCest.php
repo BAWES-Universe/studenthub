@@ -3,7 +3,9 @@
 namespace staff\tests;
 
 use common\fixtures\ContactFixture;
+use common\fixtures\StaffFixture;
 use common\models\Request;
+use staff\models\Staff;
 use staff\tests\FunctionalTester;
 use common\models\Company;
 use common\models\StaffToken;
@@ -23,6 +25,7 @@ class RequestCest
     {
         return [
             'staffToken' => StaffTokenFixture::className(),
+            'staff' => StaffFixture::className(),
             'request' => RequestFixture::className(),
             'company' => CompanyFixture::className(),
             'companyContact' => CompanyContactFixture::className(),
@@ -197,6 +200,62 @@ class RequestCest
         $I->seeResponseContainsJson([
             "operation" => "success"
         ]);
+    }
+
+    /**
+     * api to list request checklist
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToListRequestChecklist(FunctionalTester $I)
+    {
+        $I->wantTo('Check if can list checklist');
+        $I->sendGET('v1/requests/list-checklist');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * api to list pending request
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToListPendingRequest(FunctionalTester $I)
+    {
+        $I->wantTo('Check if can list pending request');
+        $I->sendGET('v1/requests/pending-request');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * api to update followup interval
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToUpdateInterval(FunctionalTester $I)
+    {
+        $I->wantTo('Check if can update followup interval');
+        $I->sendPATCH('v1/requests/update-interval/' . $this->request->request_uuid, [
+            'hours' => 1,
+            'reason' => 'test'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * api to assign staff
+     * @param \staff\tests\FunctionalTester $I
+     */
+    public function tryToAssign(FunctionalTester $I)
+    {
+        $staff = Staff::find()->one();
+
+        $I->wantTo('Check if can assign staff');
+        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $I->sendPATCH('v1/requests/assign/' . $this->request->request_uuid, [
+            'staff_id' => $staff->staff_id
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
     }
 }
 
