@@ -156,7 +156,7 @@ class RequestCest
     /**
      * Try to deliver 
      * @param FunctionalTester $I
-     */
+     *
     public function tryToDeliver(FunctionalTester $I)
     {
         $I->wantTo('deliver request via API');
@@ -165,8 +165,11 @@ class RequestCest
         	'feedback' => 'Lorem isuem...'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
+    }*/
 
+    /**
+     * @param \staff\tests\FunctionalTester $I
+     */
     public function tryToListActive(FunctionalTester $I)
     {
         $I->wantTo('Validate request api response for listing pending');
