@@ -233,10 +233,6 @@ class SuggestionController extends Controller
         $note->suggestion_uuid = $model->suggestion_uuid;
         $note->save(false);
 
-        $story->suggestion_uuid = $model->suggestion_uuid;
-        $story->story_status = Story::STATUS_DELIVERED;
-        $story->save(false);
-
         $transaction->commit();
 
         if ($candidate_id) {
