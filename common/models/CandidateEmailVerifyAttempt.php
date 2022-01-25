@@ -32,8 +32,6 @@ class CandidateEmailVerifyAttempt extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_email','code','ip_address'], 'required'],
-            ['candidate_email', 'email'],
             [['created_at'], 'safe'],
             [['ceva_uuid'], 'string', 'max' => 60],
             [['code'], 'string', 'max' => 32],

@@ -41,7 +41,6 @@ class AuthCest {
      */
     public function tryToLogin(FunctionalTester $I) {
         $candidate = Candidate::findOne(['candidate_email_verification'=>1]);
-
         $I->wantTo('Validate auth > login api');
         $I->amHttpAuthenticated($candidate->candidate_email, '12345');
         $I->sendGET('v1/auth/login');
@@ -61,7 +60,6 @@ class AuthCest {
      */
     public function tryToUpdatePassword(FunctionalTester $I) {
         $candidate =  Candidate::findOne(['candidate_id'=>$this->candidate->candidate_id]);
-        $candidate->setScenario('changePassword');
         $candidate->candidate_password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
         $candidate->save(false);
 
@@ -190,6 +188,5 @@ class AuthCest {
             'email' => $this->candidate->candidate_email
         ]);
     }
-
 }
 

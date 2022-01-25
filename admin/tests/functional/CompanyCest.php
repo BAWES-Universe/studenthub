@@ -30,7 +30,6 @@ class CompanyCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
-
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -322,23 +321,5 @@ class CompanyCest
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendDELETE('v1/companies/'.$company->company_id);
         $I->seeResponseCodeIs(HttpCode::OK);
-    }
-
-    /**
-     * Update company status
-     * @param FunctionalTester $I
-     */
-    public function tryToUpdateCompanyStatus(FunctionalTester $I)
-    {
-        $company = Company::find()->one();
-        $I->wantTo('update company status via admin > companies API');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/companies/change-status/'.$company->company_id, [
-            'status' => 1
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-        ]);
     }
 }

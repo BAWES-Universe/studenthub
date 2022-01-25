@@ -136,31 +136,31 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             ])
             ->one();
 
-        //to cope with sql case insensitivity
-
-        if(!$model || $model->contact_auth_key != $code) {
+        if(!$model) {
             return false;
         }
 
-        $model->setScenario('verifyEmail');
+        if ($model->contact_auth_key == $code) { //to cope with sql case insensitivity
+            //If not verified
+            if ($model->contact_email_verification == Contact::EMAIL_NOT_VERIFIED) {
+                //Verify this email
+                $model->contact_email_verification = Contact::EMAIL_VERIFIED;
+            }
 
-        //If not verified
-        if ($model->contact_email_verification == Contact::EMAIL_NOT_VERIFIED) {
-            //Verify this email
-            $model->contact_email_verification = Contact::EMAIL_VERIFIED;
+            // new email address
+
+            if (!empty($model->contact_new_email)) {
+                $model->contact_email = $model->contact_new_email;
+                $model->contact_new_email = null;
+            }
+
+            $model->contact_auth_key = ''; //remove auth key
+            $model->save(false);
+
+            return $model;
+        } else {
+            return false;
         }
-
-        // new email address
-
-        if (!empty($model->contact_new_email)) {
-            $model->contact_email = $model->contact_new_email;
-            $model->contact_new_email = null;
-        }
-
-        $model->contact_auth_key = ''; //remove auth key
-        //$model->save(false);
-
-        return $model;
     }
 
     /**

@@ -32,7 +32,8 @@ class RequestActivityController extends BaseController
             'pagination' => false
         ]);
     }
-    
+
+
     /**
      * return request activity detail
      * @param $request_uuid

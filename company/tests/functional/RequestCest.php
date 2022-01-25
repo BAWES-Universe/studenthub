@@ -108,26 +108,4 @@ class RequestCest
         ]);
         $I->seeResponseCodeIs (HttpCode::OK); // 200
     }
-
-    /**
-     * Try to get request count
-     * @param FunctionalTester $I
-     */
-    public function tryToGetRequestCount(FunctionalTester $I)
-    {
-        $I->wantTo ('Get request count via API');
-        $I->sendGET('v1/requests/count');
-        $I->seeResponseCodeIs (HttpCode::OK); // 200
-    }
-
-    /**
-     * Try to check if request updated
-     * @param FunctionalTester $I
-     */
-    public function tryToCheckIfRequestUpdated(FunctionalTester $I)
-    {
-        $I->wantTo ('Check is request updated via API');
-        $I->sendGET('v1/requests/is-request-updated/' . $this->request->request_uuid);
-        $I->seeResponseCodeIs (HttpCode::OK); // 200
-    }
 }

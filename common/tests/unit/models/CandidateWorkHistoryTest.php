@@ -52,12 +52,10 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
             $model = new CandidateWorkHistory();
             $model->candidate_id = 'candidate_id';
             $model->store_id = 'store_id';
-            $model->company_id = null;
             $model->validate();
             expect('invalid candidate_id',$model->errors)->hasKey('candidate_id');
             expect('invalid candidate id message',$model->errors['candidate_id']['0'])->equals('Candidate ID must be an integer.');
             expect('invalid store_id',$model->errors)->hasKey('store_id');
-            expect('invalid company_id',$model->errors)->hasKey('company_id');
             expect('invalid candidate id message',$model->errors['store_id']['0'])->equals('Store ID must be an integer.');
         });
 

@@ -36,23 +36,10 @@ class AccountController extends BaseController
             ];
         }
 
-        if ($new_email == $contact->contact_email || $new_email == $contact->contact_new_email) {
+        if ($new_email == $contact->email || $new_email == $contact->new_email) {
             return [
                 "operation" => "error",
                 "message" => Yii::t('company', "Candidate new email address is same as old email")
-            ];
-        }
-
-        //should not be in use
-
-        $exists = Contact::find()
-            ->andWhere(['contact_email' => $new_email])
-            ->exists();
-
-        if($exists) {
-            return [
-                "operation" => "error",
-                "message" => Yii::t('company', "Contact new email address already registered")
             ];
         }
 

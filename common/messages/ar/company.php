@@ -1,7 +1,7 @@
 <?php
 
 return [
-    "Contact new email address already registered" => "الاتصال بعنوان البريد الإلكتروني الجديد مسجل بالفعل",
+
     "Please click on the link sent to you by email to verify your account" => 'يرجى النقر على الرابط المرسل إليك عبر البريد الإلكتروني لإثبات ملكية حسابك',
     "Contact Account not found" => "حساب جهة الاتصال غير موجود",
     "Email was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds" => 'تم إرسال البريد الإلكتروني مسبقًا ، ويمكنك طلب حساب آخر في دقائق {numMinutes, number} و {numSeconds, number} ثانية',
