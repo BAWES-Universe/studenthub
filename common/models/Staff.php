@@ -48,7 +48,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
-            [['staff_role'], 'number'],
+            [['staff_role','staff_hourly_rate'], 'number'],
             [['staff_status'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
@@ -185,6 +185,21 @@ class Staff extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    public static function getTotalNoOfHours()
+    {
+        $timeForCompletedRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        $timeForCancelledRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_CANCELLED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        return ($timeForCancelledRequests + $timeForCompletedRequests) / 3600;
+    }
+
     /**
      * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
@@ -300,6 +315,29 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function getNotes($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryActivities($modelClass = "\common\models\StoryActivity")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\common\models\Story")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    public function getCurrentStory() {
+        return Story::find()->andWhere(['story.staff_id' => Yii::$app->user->getId(),'story.story_status' => Story::STATUS_STARTED])
+            ->joinWith('request')
+            ->asArray()
+            ->one();
     }
 
     /**

@@ -387,9 +387,14 @@ class CompanyContactController extends Controller
         ];
     }
 
+    /**
+     * send verification email to contact's email address
+     * @return string[]
+     */
     public function actionResendVerificationEmail() {
 
         $id = Yii::$app->request->get('contact_uuid');
+
         $model = Contact::findOne($id);
 
         if(!$model) {

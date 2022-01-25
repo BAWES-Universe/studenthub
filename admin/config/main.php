@@ -301,6 +301,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // RequestChecklistController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-checklist',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // UniversityController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/university',

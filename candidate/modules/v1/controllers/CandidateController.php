@@ -99,14 +99,13 @@ class CandidateController extends Controller
 
         $candidate = Yii::$app->user->identity;
 
-        if(!$candidate) {
-            return [
-                "operation" => "error",
-                "message" => Yii::t('candidate','Transfer not found!')
-            ];
-        }
-        $workHistory = $candidate->getWorkHistory()->andWhere(['id'=>$wid])->one();
+        $workHistory = $candidate
+            ->getWorkHistory()
+            ->andWhere(['id' => $wid])
+            ->one();
+
         $this->layout = 'main';
+
         $content = $this->render('candidate-appreciation-certificate-pdf', [
             'candidate' => $candidate,
             'workHistory' => $workHistory

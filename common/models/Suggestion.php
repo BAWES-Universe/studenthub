@@ -21,6 +21,7 @@ use yii\helpers\VarDumper;
  * @property string $fulltimer_uuid
  * @property int $candidate_id
  * @property string $note_uuid
+ * @property string $story_uuid
  * @property int $suggestion_status 1-Suggested , 2- rejected, 3- accepted
  * @property string $suggestion_datetime
  *
@@ -53,13 +54,16 @@ class Suggestion extends \yii\db\ActiveRecord
             [['request_uuid', 'note_uuid'], 'required'],
             [['candidate_id'], 'integer'],
 
-            ['suggestion_status', 'in', 'range' => [self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED]],
+            ['suggestion_status', 'in', 'range' => [
+                self::TYPE_PENDING, self::TYPE_SUGGESTED, self::TYPE_ACCEPTED, self::TYPE_REJECTED
+            ]],
 
             [['suggestion_datetime'], 'safe'],
             [['candidate_id', 'fulltimer_uuid'], 'validateCandidate', 'skipOnEmpty' => false],
             [['request_uuid'], 'validateDuplicateRequest'],
-            [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid'], 'string', 'max' => 60],
+            [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid','story_uuid'], 'string', 'max' => 60],
             [['suggestion_uuid'], 'unique'],
+            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             [['note_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Note::className(), 'targetAttribute' => ['note_uuid' => 'note_uuid']],
@@ -147,6 +151,22 @@ class Suggestion extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @throws \Throwable
+     * @throws \yii\db\Exception
+     * @throws \yii\db\StaleObjectException
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        //update `request_updated_at` field
+        $this->request->request_updated_datetime = '';
+        $this->request->update(false);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()
@@ -157,6 +177,7 @@ class Suggestion extends \yii\db\ActiveRecord
             'fulltimer_uuid' => Yii::t('app', 'Fulltimer Uuid'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'note_uuid' => Yii::t('app', 'Note Uuid'),
+            'story_uuid' => Yii::t('app', 'Story Uuid'),
             'suggestion_status' => Yii::t('app', 'Suggestion Status'),
             'suggestion_datetime' => Yii::t('app', 'Suggestion Datetime'),
         ];
@@ -218,6 +239,14 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid'])
             ->orderBy('note_created_datetime DESC');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStory($modelClass = "\common\models\Story")
+    {
+        return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid']);
     }
 
     /**
@@ -304,6 +333,9 @@ class Suggestion extends \yii\db\ActiveRecord
             foreach ($suggestionGroup as $suggestionByStaff) {
 
                 // looping for each suggestion
+
+                $noOfAttachments = 0;
+
                 foreach ($suggestionByStaff as $eachSuggestion) {
 
                     $suggestedByStaff = $eachSuggestion->note->createdBy;
@@ -353,10 +385,19 @@ class Suggestion extends \yii\db\ActiveRecord
                         ]
                     );
 
+                    $noOfAttachments++;
+
                     //  update suggestion table to set mail to company
                     Suggestion::updateAllCounters(['mail_to_company' => 1], [
                         'suggestion_uuid' => $eachSuggestion->suggestion_uuid
                     ]);
+                }
+
+                /**
+                 * send mail only when cv available
+                 */
+                if($noOfAttachments == 0) {
+                    continue;
                 }
 
                 // in case if contact doesn't have email address
@@ -464,6 +505,8 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 // looping for each suggestion
 
+                $noOfAttachments = 0;
+
                 foreach ($suggestionByStaff as $eachSuggestion) {
 
                     $suggestedByStaff = $eachSuggestion->note->createdBy;
@@ -488,10 +531,19 @@ class Suggestion extends \yii\db\ActiveRecord
                         throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                     }
 
+                    $noOfAttachments++;
+
                     //  update suggestion table to set mail to company
                     Suggestion::updateAllCounters(['mail_to_company' => 1], [
                         'suggestion_uuid' => $eachSuggestion->suggestion_uuid
                     ]);
+                }
+
+                /**
+                 * send mail only when cv available
+                 */
+                if($noOfAttachments == 0) {
+                    continue;
                 }
 
                 // in case if contact doesn't have email address

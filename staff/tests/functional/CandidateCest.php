@@ -134,13 +134,13 @@ class CandidateCest
      * try to list all working candidates
      * @param FunctionalTester $I
      */
-//    public function restCallToListWorkingCandidate(FunctionalTester $I)
-//    {
-//        $I->wantTo('list all working candidate');
-//        $I->sendGET('v1/candidates/assigned');
-//        $I->seeResponseCodeIs(HttpCode::OK); // 200
-//        $I->seeResponseIsJson(['candidate_id' => 7]);
-//    }
+    public function restCallToListWorkingCandidate(FunctionalTester $I)
+    {
+        $I->wantTo('list all working candidate');
+        $I->sendGET('v1/candidates/assigned');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson(['candidate_id' => 7]);
+    }
 
     /**
      * try to list all non working candidates
@@ -451,5 +451,19 @@ class CandidateCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }*/
+
+    /**
+     * update email
+     * @param FunctionalTester $I
+     */
+    public function restCallToUpdateEmail(FunctionalTester $I)
+    {
+        $I->wantTo('Candidate expire card');
+        $I->sendPATCH('v1/candidates/update-email/' . $this->candidate->candidate_id, [
+            'email' => 'new@email.com'
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
 }
  

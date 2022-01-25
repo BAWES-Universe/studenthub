@@ -26,6 +26,62 @@ class Staff extends \common\models\Staff {
     }
 
     /**
+     * @return array
+     */
+    public function extraFields()
+    {
+        return array_merge(parent::extraFields(),[
+            'storyActivities',
+            'groupStoryActivities',
+            'activeStory',
+        ]);
+    }
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryActivities($modelClass = "\staff\models\StoryActivity")
+    {
+        return parent::getStoryActivities($modelClass);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGroupStoryActivities($modelClass = "\staff\models\StoryActivity")
+    {
+        return parent::getStoryActivities($modelClass)->groupBy('story_uuid')->all();
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getActiveStoriesActivities($modelClass = "\staff\models\StoryActivity")
+    {
+        return $this->getStoryActivities()
+            ->andWhere(['<>','activity_time_spent','null'])
+            ->andWhere(['activity_status'=> 1])
+            ->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\staff\models\Story")
+    {
+        return parent::getStories($modelClass);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getActiveStory()
+    {
+        return $this->getStories()->andWhere(['story_status'=>Story::STATUS_STARTED])->all();
+    }
+
+    /**
      * @param mixed $token
      * @param null $type
      * @return mixed

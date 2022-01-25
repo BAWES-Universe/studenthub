@@ -85,7 +85,7 @@ class Company extends \yii\db\ActiveRecord
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
-            ['company_followup', 'boolean'],
+            [['company_followup', 'company_status_override'], 'boolean'],
             ['company_last_followup_datetime', 'safe'],
             [['company_bonus_commission', 'company_hourly_rate'], 'number'],
             [['parent_company_id'], 'validateCompany'],
@@ -158,6 +158,8 @@ class Company extends \yii\db\ActiveRecord
 
         $scenarios['updateFollowup'] = ['company_followup'];
 
+        $scenarios['updateStatus'] = ['company_status_override'];
+
         $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
 
         return $scenarios;
@@ -196,6 +198,10 @@ class Company extends \yii\db\ActiveRecord
 
         $fields['company_status'] = function($model) {
 
+            if($this->company_status_override) {
+                return self::STATUS_ACTIVE;
+            }
+
             if(
                 $this->total_candidate > 0 ||
                 $this->is_request_updates_in_30_days > 0 ||
@@ -211,6 +217,10 @@ class Company extends \yii\db\ActiveRecord
     }
 
     public function getCompany_status() {
+        if($this->company_status_override) {
+            return self::STATUS_ACTIVE;
+        }
+
         if(
             $this->total_candidate > 0 ||
             $this->is_request_updates_in_30_days > 0 ||
@@ -421,10 +431,6 @@ class Company extends \yii\db\ActiveRecord
     {
         $this->deleted = 1;
 
-        //remove unique fields, so can create new account with same details
-
-        $this->company_password_reset_token = null;
-
         return $this->save(false);
     }
 
@@ -570,24 +576,25 @@ class Company extends \yii\db\ActiveRecord
         if (!parent::beforeSave($insert)) {
             return false;
         }
-            // in case update
+        
+        // in case update
 
-            if (
-                !$this->isNewRecord &&
-                $this->company_logo &&
-                $this->company_logo != $this->oldAttributes['company_logo'] &&
-                !$this->updateCompanyLogo()
-            ) {
-                return false;
-            }
+        if (
+            !$this->isNewRecord &&
+            $this->company_logo &&
+            $this->company_logo != $this->oldAttributes['company_logo'] &&
+            !$this->updateCompanyLogo()
+        ) {
+            return false;
+        }
 
-            // in case create
+        // in case create
 
-            if ($this->isNewRecord && $this->company_logo && !$this->updateCompanyLogo()) {
-                return false;
-            }
+        if ($this->isNewRecord && $this->company_logo && !$this->updateCompanyLogo()) {
+            return false;
+        }
 
-            return true;
+        return true;
     }
 
     public static function companyFollowupCount() {
@@ -648,6 +655,7 @@ class Company extends \yii\db\ActiveRecord
             $q30Days .= "where (company.company_id = $company_id or company.parent_company_id =$company_id) AND ";
             $q30Days .= "DATE(request.request_updated_datetime) > DATE_SUB(NOW(),INTERVAL 30 DAY)";
             $request30daysQuery = Yii::$app->db->createCommand($q30Days)->queryScalar();
+
             Yii::$app->db->createCommand()->update('company', ['is_request_updates_in_30_days' => ($request30daysQuery) ? 1 : 0], 'company_id = ' . $ID)->execute();
         }
     }

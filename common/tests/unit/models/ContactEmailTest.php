@@ -29,8 +29,10 @@ class ContactEmailTest extends \Codeception\Test\Unit
         expect('model adding new contactEmail', $data->save())->true();
 
         $data->email_address = null;
-
         expect('contactEmail email_address should be required field', $data->validate(['email_address']))->false();
+
+        $data->email_address = 'Im-invalid';
+        expect('contactEmail email_address should be validated as email', $data->validate(['email_address']))->false();
 
         $data->contact_uuid = '123123123';
         expect('Invalid contact id', $data->validate(['contact_uuid']))->false();
