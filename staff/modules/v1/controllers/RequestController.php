@@ -173,7 +173,7 @@ class RequestController extends Controller
 
         return new ActiveDataProvider([
             'query' => $query,
-            'pagination' => false
+//            'pagination' => false
         ]);
     }
 
