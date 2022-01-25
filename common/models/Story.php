@@ -128,7 +128,7 @@ class Story extends \yii\db\ActiveRecord
         if(isset($changedAttributes['story_time_spent']))
         {
             $request->request_time_spent = $request->getStories()->sum('story_time_spent');
-            $request->save(false);
+            //$request->save(false);
         }
         else
         {
