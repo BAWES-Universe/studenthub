@@ -304,6 +304,9 @@ class Suggestion extends \yii\db\ActiveRecord
             foreach ($suggestionGroup as $suggestionByStaff) {
 
                 // looping for each suggestion
+
+                $noOfAttachments = 0;
+
                 foreach ($suggestionByStaff as $eachSuggestion) {
 
                     $suggestedByStaff = $eachSuggestion->note->createdBy;
@@ -353,10 +356,16 @@ class Suggestion extends \yii\db\ActiveRecord
                         ]
                     );
 
+                    $noOfAttachments++;
+
                     //  update suggestion table to set mail to company
                     Suggestion::updateAllCounters(['mail_to_company' => 1], [
                         'suggestion_uuid' => $eachSuggestion->suggestion_uuid
                     ]);
+                }
+
+                if($noOfAttachments == 0) {
+                    continue;
                 }
 
                 // in case if contact doesn't have email address
@@ -464,6 +473,8 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 // looping for each suggestion
 
+                $noOfAttachments = 0;
+
                 foreach ($suggestionByStaff as $eachSuggestion) {
 
                     $suggestedByStaff = $eachSuggestion->note->createdBy;
@@ -488,10 +499,16 @@ class Suggestion extends \yii\db\ActiveRecord
                         throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                     }
 
+                    $noOfAttachments++;
+
                     //  update suggestion table to set mail to company
                     Suggestion::updateAllCounters(['mail_to_company' => 1], [
                         'suggestion_uuid' => $eachSuggestion->suggestion_uuid
                     ]);
+                }
+
+                if($noOfAttachments == 0) {
+                    continue;
                 }
 
                 // in case if contact doesn't have email address
