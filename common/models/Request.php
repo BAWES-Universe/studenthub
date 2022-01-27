@@ -207,7 +207,8 @@ class Request extends \yii\db\ActiveRecord
      */
     public function getStaff($modelClass = "\common\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id'])
+            ->andWhere(['staff.deleted'=>'0']);
     }
 
     /**
@@ -217,6 +218,7 @@ class Request extends \yii\db\ActiveRecord
     public function getStaffs($modelClass = "\common\models\Staff")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'created_by'])
+            ->andWhere(['staff.deleted'=>'0'])
             ->via('requestActivities');
     }
 
@@ -241,7 +243,8 @@ class Request extends \yii\db\ActiveRecord
      */
     public function getRequestCreatedBy($modelClass = "\common\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'request_created_by']);
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'request_created_by'])
+            ->andWhere(['staff.deleted'=>'0']);
     }
 
     /**
@@ -249,7 +252,8 @@ class Request extends \yii\db\ActiveRecord
      */
     public function getRequestUpdatedBy($modelClass = "\common\models\Staff")
     {
-        return $this->hasOne($modelClass::className(), ['staff_id' => 'request_updated_by']);
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'request_updated_by'])
+            ->andWhere(['staff.deleted'=>'0']);
     }
 
     /**
