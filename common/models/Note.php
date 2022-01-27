@@ -315,7 +315,8 @@ class Note extends \yii\db\ActiveRecord
         if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
             return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
         } else {
-            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by'])
+                ->andWhere(['staff.deleted'=>'0']);
         }
     }
 
@@ -327,7 +328,8 @@ class Note extends \yii\db\ActiveRecord
         if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
             return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
         } else {
-            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by'])
+            ->andWhere(['staff.deleted'=>'0']);
         }
     }
 
