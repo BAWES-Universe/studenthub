@@ -1,10 +1,8 @@
 <?php
 namespace candidate\tests;
 
-use candidate\models\CandidateWorkHistory;
-use candidate\tests\FunctionalTester;
-use common\fixtures\CandidateWorkHistoryFixture;
 use yii;
+use candidate\tests\FunctionalTester;
 use common\models\CandidateToken;
 use common\fixtures\CandidateFixture;
 use common\fixtures\CandidateTokenFixture;
@@ -19,7 +17,6 @@ class CandidateCest
     {
         return [
             'candidateToken' => CandidateTokenFixture::className(),
-            'candidateWorkHistory' => CandidateWorkHistoryFixture::className(),
             'candidate' => CandidateFixture::className()
         ];
     }
@@ -41,18 +38,4 @@ class CandidateCest
         $I->sendGET('v1/candidates/work-history');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
-
-    /**
-     * download work experience certificate
-     * @param \candidate\tests\FunctionalTester $I
-     *
-    public function tryToDownloadCertificate(FunctionalTester $I)
-    {
-        $model = CandidateWorkHistory::find()->one();
-
-        $I->wantTo('Validate candidate > appreciation-certificate api response');
-        $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token->token_value);
-        $I->sendGET('v1/candidates/appreciation-certificate/'. $model->id);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }*/
 }

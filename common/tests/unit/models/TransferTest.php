@@ -113,6 +113,7 @@ class TransferTest extends \Codeception\Test\Unit
 
         expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
         expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
+
     }
 
     /**

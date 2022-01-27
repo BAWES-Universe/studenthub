@@ -4,11 +4,7 @@ $request_uuid = Yii::$app->db->createCommand('SELECT request_uuid from request l
 $invitation_uuid = Yii::$app->db->createCommand('SELECT invitation_uuid from invitation limit ' . $index1 . ',1')->queryScalar();
 $suggestion_uuid = Yii::$app->db->createCommand('SELECT suggestion_uuid from suggestion limit ' . $index1 . ',1')->queryScalar();
 $contact_uuid = Yii::$app->db->createCommand('SELECT contact_uuid from contact limit ' . $index1 . ',1')->queryScalar();
-
 $fulltimer_uuid = Yii::$app->db->createCommand('SELECT fulltimer_uuid from fulltimer limit ' . $index1 . ',1')->queryScalar();
-
-$request_checklist_uuid = Yii::$app->db->createCommand('SELECT request_checklist_uuid from request_checklist limit ' . $index1 . ',1')->queryScalar();
-
 
 /**
  * @var $faker \Faker\Generator
@@ -19,7 +15,6 @@ return [
     'company_id' => $faker->numberBetween(1,10),
     'candidate_id' => $faker->numberBetween(1,10),
     'request_uuid' => $request_uuid,
-    'request_checklist_uuid' => $request_checklist_uuid,
     'invitation_uuid' => $invitation_uuid,
     'suggestion_uuid' => $suggestion_uuid,
     'contact_uuid' => $contact_uuid,

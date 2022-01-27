@@ -16,7 +16,6 @@ use yii\behaviors\AttributeBehavior;
  * @property integer $company_id
  * @property integer $candidate_id
  * @property string $request_uuid
- * @property string $request_checklist_uuid
  * @property string $invitation_uuid
  * @property string $suggestion_uuid
  * @property string $contact_uuid
@@ -81,7 +80,6 @@ class Note extends \yii\db\ActiveRecord
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
-            [['request_checklist_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => RequestChecklist::className(), 'targetAttribute' => ['request_checklist_uuid' => 'request_checklist_uuid']],
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             //[['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
             //[['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
@@ -173,7 +171,6 @@ class Note extends \yii\db\ActiveRecord
             'note_uuid' => Yii::t('candidate', 'ID'),
             'candidate_id' => Yii::t('candidate', 'Candidate ID'),
             'request_uuid' => Yii::t('candidate', 'Request ID'),
-            'request_checklist_uuid' => Yii::t('app', 'Request Checklist Uuid'),
             'invitation_uuid' => Yii::t('candidate', 'Invitation ID'),
             'contact_uuid' => Yii::t('candidate', 'Contact ID'),
             'fulltimer_uuid' => Yii::t('candidate', 'FullTimer ID'),
@@ -218,11 +215,11 @@ class Note extends \yii\db\ActiveRecord
         parent::afterSave($insert, $changedAttributes);
 
         if ($this->request) {
-
             if ($insert) {
                 //update `request_updated_at` field
                 $this->request->request_updated_datetime = '';
                 $this->request->update(false);
+                Company::updateRequest($this->request->company_id);
             }
 
             $staffName = 'Guest';
@@ -253,7 +250,6 @@ class Note extends \yii\db\ActiveRecord
     {
         return [
             'candidate',
-            'fulltimer',
             'request',
             'invitation',
             'company',
@@ -261,14 +257,6 @@ class Note extends \yii\db\ActiveRecord
             'updatedBy',
             'companyContact',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRequestChecklist($modelClass = "\common\models\RequestChecklist")
-    {
-        return $this->hasMany($modelClass::className(), ['request_checklist_uuid' => 'request_checklist_uuid']);
     }
 
     /**
@@ -327,7 +315,8 @@ class Note extends \yii\db\ActiveRecord
         if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
             return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
         } else {
-            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by'])
+                ->andWhere(['staff.deleted'=>'0']);
         }
     }
 
@@ -339,7 +328,8 @@ class Note extends \yii\db\ActiveRecord
         if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
             return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
         } else {
-            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by'])
+            ->andWhere(['staff.deleted'=>'0']);
         }
     }
 

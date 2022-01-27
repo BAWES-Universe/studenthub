@@ -24,7 +24,6 @@ class BankCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
-
         $I->amBearerAuthenticated($this->token);
     }
 

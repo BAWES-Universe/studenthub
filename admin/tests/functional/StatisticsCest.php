@@ -69,15 +69,4 @@ class StatisticsCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson($result);
     }
-
-    /**
-     * Get transfer statistics
-     * @param FunctionalTester $I
-     */
-    public function tryToGetTransferStatistics(FunctionalTester $I)
-    {
-        $I->wantTo('Validate admin > transfer statistics api response');
-        $I->sendGET('v1/statistics/transfer');
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
 }

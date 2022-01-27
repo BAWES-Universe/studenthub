@@ -1,8 +1,8 @@
 <?php
 namespace candidate\tests;
 
-use candidate\tests\FunctionalTester;
 use yii;
+use candidate\tests\FunctionalTester;
 use candidate\models\CandidateToken;
 use common\fixtures\CandidateTokenFixture;
 use common\fixtures\TransferCandidateFixture;
@@ -461,21 +461,6 @@ class AccountCest
                     "User" => "1"
                 ]
             ]
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
-
-    /**
-     * api to update preferred time to contact
-     * @param \candidate\tests\FunctionalTester $I
-     */
-    public function tryUpdatePreferredTime(FunctionalTester $I)
-    {
-        $I->amGoingTo('try to update video status');
-        $I->haveHttpHeader('Content-Type', 'application/json');
-
-        $I->sendPOST('v1/account/update-preferred-time', [
-            'preferred_time' => '10am to 11am'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }

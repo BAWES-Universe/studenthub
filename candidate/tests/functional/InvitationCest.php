@@ -92,16 +92,5 @@ class InvitationCest
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
-
-    /**
-     * Try to view invitation
-     * @param FunctionalTester $I
-     */
-    public function tryToView(FunctionalTester $I)
-    {
-        $I->wantTo('view invitation via API');
-        $I->sendGET('v1/invitations/' . $this->invitation->invitation_uuid);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
 }
 

@@ -15,7 +15,6 @@ use yii\db\Expression;
  * @property string $invitation_uuid
  * @property int $candidate_id
  * @property string $request_uuid
- * @property string $story_uuid
  * @property int $invitation_status 1-Invited , 2-Rejected, 3-Accepted
  * @property string $invitation_app_seen_at
  * @property string $invitation_email_seen_at
@@ -64,7 +63,6 @@ class Invitation extends \yii\db\ActiveRecord
             [['invitation_updated_by_company'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['invitation_updated_by_company' => 'company_id']],
             [['invitation_updated_by_staff'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['invitation_updated_by_staff' => 'staff_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
-            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
         ];
     }
 
@@ -80,7 +78,7 @@ class Invitation extends \yii\db\ActiveRecord
         ) {
             $query = self::find()
                 ->andWhere([
-                    //'invitation_status' => self::STATUS_INVITED,
+                    'invitation_status' => self::STATUS_INVITED,
                     'request_uuid' => $this->request_uuid,
                     'candidate_id' => $this->candidate_id
                 ]);
@@ -144,7 +142,6 @@ class Invitation extends \yii\db\ActiveRecord
             'invitation_uuid' => Yii::t('app', 'Invitation Uuid'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'request_uuid' => Yii::t('app', 'Request Uuid'),
-            'story_uuid' => Yii::t('app', 'Story Uuid'),
             'invitation_status' => Yii::t('app', 'Invitation Status'),
             'invitation_email_seen_at' => Yii::t('app', 'Invitation Email Seen At'),
             'invitation_app_seen_at' => Yii::t('app', 'Invitation in App Seen At'),
@@ -170,10 +167,6 @@ class Invitation extends \yii\db\ActiveRecord
             $this->sendNotification();
             $this->jobInvitationEmail();
         }
-
-        //update `request_updated_at` field
-        $this->request->request_updated_datetime = '';
-        $this->request->update(false);
 
         return true;
     }
@@ -211,21 +204,12 @@ class Invitation extends \yii\db\ActiveRecord
     {
         return [
             'request',
-            'story',
             'company',
             'candidate',
             'suggestion',
             'notes',
             'note' // in case user accept invitation then show invitation
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getStory($modelClass = "\common\models\Story")
-    {
-        return $this->hasOne($modelClass::className(), ['story_uuid' => 'story_uuid']);
     }
 
     /**
@@ -324,7 +308,6 @@ class Invitation extends \yii\db\ActiveRecord
     public function jobInvitationEmail()
     {
         $url = Yii::$app->params['candidateAppUrl'] . 'invitation-detail/' . $this->invitation_uuid;
-
         return Yii::$app->mailer->compose("candidate/job-invitation",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),

@@ -1,7 +1,6 @@
 <?php
 $index1 = $index % 1000; //faker->unique()->numberBetween(0, 1000);
 $staff_id = Yii::$app->db->createCommand('SELECT staff_id from staff limit '.$index1.',1')->queryScalar();
-
 return [
 	'token_id' => $index + 1, // this token belongs to this admin, needs to match # of admins/their PK
 	'staff_id' => $staff_id,

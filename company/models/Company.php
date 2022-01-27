@@ -64,18 +64,6 @@ class Company extends \common\models\Company {
         ];
     }
     
-    /**
-     * Scenarios for validation and massive assignment
-     */
-    public function scenarios() {
-        $scenarios = parent::scenarios();
-
-        $scenarios['update'] = ['company_name', 'company_common_name_en', 'company_common_name_ar', 
-            'company_description_en', 'company_description_ar', 'company_website', 'company_email'];
-
-        return $scenarios;
-    }
-
     public function getTotalCandidates() 
     {
         return parent::getTotalCandidateCount($this->company_id);

@@ -187,6 +187,7 @@ class AuthController extends Controller
             $candidate->candidate_new_email = $new_email;
         }
 
+
         if ($candidate->save()) {
 
             //extend otp to fix: https://www.pivotaltracker.com/story/show/169037267
@@ -303,7 +304,6 @@ class AuthController extends Controller
         }
 
         $candidate = Candidate::verifyEmail($email, $code);
-
         if ($candidate['success'] == false) {
             return [
                 'operation' => 'error',
@@ -417,7 +417,7 @@ class AuthController extends Controller
 
         $candidate =  Candidate::findByPasswordResetToken($token);
 
-        if(!$candidate) {
+        if(!$candidate){
             return [
                 'operation' => 'error',
                 'message' => Yii::t('candidate','Invalid password reset token. Please request another password reset email')
