@@ -12,7 +12,7 @@ use common\fixtures\CandidateIdCardFixture;
 use Codeception\Util\HttpCode;
 
 
-class CandidateIdCardCest {
+class fCandidateIdCardCest {
 
     public $token;
 
@@ -56,7 +56,7 @@ class CandidateIdCardCest {
     /**
      * Generate ID Cards
      * @param FunctionalTester $I
-     */
+     *
     public function tryToGenerateIdCards(FunctionalTester $I) {
         //candidate not having cards
         $candidates = Candidate::find()
@@ -70,7 +70,7 @@ class CandidateIdCardCest {
             'candidates' => $arrCandidates
         ]);
         $I->seeResponseCodeIs(HttpCode::OK);
-    }
+    }*/
 
     /**
      * List Expired ID
