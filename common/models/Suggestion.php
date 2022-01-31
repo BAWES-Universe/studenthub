@@ -393,12 +393,9 @@ class Suggestion extends \yii\db\ActiveRecord
                     ]);
                 }
 
-<<<<<<< HEAD
-=======
                 /**
                  * send mail only when cv available
                  */
->>>>>>> parent of eef740ed (Revert "Merge branch 'develop'")
                 if($noOfAttachments == 0) {
                     continue;
                 }
@@ -460,6 +457,7 @@ class Suggestion extends \yii\db\ActiveRecord
             ->all();
 
         // fetch all request which are suggested to part timer and not mailed
+
         foreach ($requests as $request) {
 
             // fetch all suggestion make for each not mailed request
@@ -498,8 +496,8 @@ class Suggestion extends \yii\db\ActiveRecord
                 $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
             }
 
-            foreach ($suggestionGroup as $suggestionByStaff) {
-
+            foreach ($suggestionGroup as $suggestionByStaff)
+            {
                 $message = Yii::$app->mailer->compose('company/suggestion-fulltime', [
                     'model' => $request,
                     'requestSuggestion' => $suggestionByStaff,
@@ -510,8 +508,8 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 $noOfAttachments = 0;
 
-                foreach ($suggestionByStaff as $eachSuggestion) {
-
+                foreach ($suggestionByStaff as $eachSuggestion)
+                {
                     $suggestedByStaff = $eachSuggestion->note->createdBy;
 
                     if (
@@ -542,12 +540,9 @@ class Suggestion extends \yii\db\ActiveRecord
                     ]);
                 }
 
-<<<<<<< HEAD
-=======
                 /**
                  * send mail only when cv available
                  */
->>>>>>> parent of eef740ed (Revert "Merge branch 'develop'")
                 if($noOfAttachments == 0) {
                     continue;
                 }
@@ -609,6 +604,7 @@ class Suggestion extends \yii\db\ActiveRecord
             ->all();
 
         $emails = array_merge($emails, ArrayHelper::getColumn($contacts, 'contact_email'));
+
         //company's contact email
 
 //        if ($companyRequest->company->company_email)
