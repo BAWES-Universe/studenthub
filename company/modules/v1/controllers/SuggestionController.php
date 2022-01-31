@@ -3,9 +3,12 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
+use common\models\Story;
+use staff\models\Note;
 use yii\data\ActiveDataProvider;
 use staff\models\Suggestion;
 use yii\web\NotFoundHttpException;
+
 
 /**
  * Suggestion controller - Manage Suggestion as Admin
@@ -88,5 +91,155 @@ class SuggestionController extends BaseController
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * accept a Suggestion
+     * @return array
+     */
+    public function actionAccept($id)
+    {
+        $reason = Yii::$app->request->getBodyParam("reason");
+
+        $model = $this->findModel($id);
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $note = new Note;
+        $note->request_uuid = $model->request_uuid;
+        $note->company_id = $model->request->company_id;
+        $note->candidate_id = $model->candidate_id;
+        $note->fulltimer_uuid = $model->fulltimer_uuid;
+        $note->suggestion_uuid = $model->suggestion_uuid;
+        $note->note_type = Note::TYPE_ACCEPTED;
+        $note->note_text = $reason;
+
+        if(!$note->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($note->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $note->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->suggestion_status = Suggestion::TYPE_ACCEPTED;
+
+        if (!$model->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
+                ];
+            }
+        }
+
+        if ($model->story_uuid) {
+            $story = Story::findOne($model->story_uuid);
+            $story->story_status = Story::STATUS_ACCEPTED;
+            if (!$story->save()) {
+                $transaction->rollBack();
+
+                if(isset($story->errors)){
+                    return [
+                        "operation" => "error",
+                        "message" => $story->errors
+                    ];
+                }else{
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
+                    ];
+                }
+            }
+        }
+
+        $transaction->commit();
+
+        return [
+            "operation" => "success",
+            "message" => "Suggestion marked as accepted successfully"
+        ];
+    }
+
+    /**
+     * reject a Suggestion
+     * @return array
+     */
+    public function actionReject($id)
+    {
+        $reason = Yii::$app->request->getBodyParam("reason");
+
+        $model = $this->findModel($id);
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $note = new Note;
+        $note->request_uuid = $model->request_uuid;
+        $note->company_id = $model->request->company_id;
+        $note->candidate_id = $model->candidate_id;
+        $note->fulltimer_uuid = $model->fulltimer_uuid;
+        $note->suggestion_uuid = $model->suggestion_uuid;
+        $note->note_type = Note::TYPE_REJECTED;
+        $note->note_text = $reason;
+
+        if(!$note->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($note->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $note->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+
+        $model->suggestion_status = Suggestion::TYPE_REJECTED;
+
+        if (!$model->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Suggestion, please contact us for assistance."
+                ];
+            }
+        }
+
+        $transaction->commit();
+
+        return [
+            "operation" => "success",
+            "message" => "Suggestion marked as rejected successfully"
+        ];
     }
 }

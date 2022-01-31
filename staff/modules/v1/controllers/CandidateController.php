@@ -278,7 +278,8 @@ class CandidateController extends Controller
             ];
         }
 
-        CandidateToken::deleteAll(['candidate_id'=>$id]);
+        CandidateToken::deleteAll(['candidate_id' => $id]);
+
         Yii::info('['.$model->candidate_name.' Candidate Email Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [

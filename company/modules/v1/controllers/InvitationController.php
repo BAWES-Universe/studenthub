@@ -194,6 +194,7 @@ class InvitationController extends Controller {
      * @throws \yii\db\StaleObjectException
      */
     public function actionAccept($id) {
+
         $model = ContactInvitation::find()
                 ->filterByCurrentContact()
                 ->andWhere([

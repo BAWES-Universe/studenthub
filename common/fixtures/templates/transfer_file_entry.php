@@ -1,0 +1,51 @@
+<?php 
+
+$transfer_file_id = Yii::$app->db->createCommand('SELECT transfer_file_id from transfer_file order by rand() limit 1')->queryScalar();
+
+return [
+	'tfe_uuid' => 'tfe_' . $faker->uuid, 
+	'transfer_file_id' => $transfer_file_id,
+	'status' => $faker->randomElement([
+        'success',
+        'failed'
+    ]),
+	'status_description' => $faker->words(10),
+	'section_index' => $index + 1,
+	'transfer_method' => 'NEFT', 
+	'credit_amount' => $faker->numberBetween(100, 1000), 
+	'credit_currency' => 'KWD', 
+	'exchange_rate' => 1, 
+	'dealRefNo' => $faker->uuid,
+	'value_date' => $faker->date('Y-m-d H:i:s'), 
+	'debit_account_no' => '787162837618736178263', 
+	'credit_account_no' => '787162837618736178263',  
+	'debit_narrative' => $transfer_id, 
+	'credit_narrative' => $tc_id, 
+	'payment_details_1' => $faker->word, 
+	'payment_details_2' => $faker->word,
+	'payment_details_3' => $faker->word,
+	'payment_details_4' => $faker->word,
+	'beneficiary_name' => $faker->name,
+	'beneficiary_address_line_1' => $faker->secondaryAddress,
+	'beneficiary_address_line_2' => $faker->streetAddress,
+	'beneficiary_bank_name' => $faker->name, 
+	'beneficiary_bank_address_1' => $faker->secondaryAddress,
+	'beneficiary_bank_address_2' => $faker->secondaryAddress,
+	'beneficiary_bank_address_3' => $faker->secondaryAddress,
+	'swift' => $faker->numberBetween(100000, 1000000), 
+	'intermediary_account' => '123123123123123',
+	'intermediary_swift' => $faker->numberBetween(100000, 1000000),  
+	'intermediary_name' => $faker->name,  
+	'intermediary_address_1' => $faker->secondaryAddress,
+	'intermediary_address_2' => $faker->secondaryAddress,
+	'intermediary_address_3' => $faker->secondaryAddress,
+	'changes_type' => 'Service', 
+	'sort_code' => 0,
+	'BIC_code' => '12234234', 
+	'IBAN' => 'IBAN12313123123' 
+	'ABA_routing_code' => 'ASD55333', 
+	'created_by' => $admin_id,
+	'updated_by' => $admin_id, 
+	'created_at' => $faker->date('Y-m-d H:i:s'),
+	'updated_at' => $faker->date('Y-m-d H:i:s'),
+]
