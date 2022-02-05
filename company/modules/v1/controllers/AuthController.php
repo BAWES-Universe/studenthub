@@ -12,6 +12,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\Cors;
+use yii\web\NotFoundHttpException;
 
 
 /**
