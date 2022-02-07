@@ -6,6 +6,7 @@ use common\models\Transfer;
 use Yii;
 use yii\db\Expression;
 use yii\helpers\Url;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "Company".
@@ -221,6 +222,50 @@ class Company extends \common\models\Company {
             ->setCc([Yii::$app->params['operationsEmail']=>'operations'])
             ->setSubject($subject)
             ->send();
+    }
+
+
+    /**
+     * Send new password to customer
+     * @param $model
+     * @param string $type
+     * @return bool
+     */
+    public static function sendPayrollEmail($company)
+    {
+
+            Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+
+            $subQuery = CompanyContact::find()
+                ->select('contact_uuid')
+                ->andWhere([
+                    'company_id' => $company->company_id
+                ]);
+
+            $contacts = Contact::find()
+                ->andWhere(['contact_receive_email' => 1])
+                ->andWhere(['in', 'contact_uuid', $subQuery])
+                ->andWhere(['IS NOT', 'contact_email', null])
+                ->all();
+
+
+            $emails = ArrayHelper::getColumn($contacts, 'contact_email');
+
+            $lastMonth = date(' F ', strtotime('last month'));
+            $year = date(' Y ', strtotime('last month'));
+
+            return Yii::$app->mailer->compose("attendance-sheet",
+                [
+                    "company" => $company,
+                    "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                ])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                ->setTo(array_unique($emails))
+                ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
+                ->setSubject($lastMonth . ' Payroll '. $year)
+                ->send();
+
     }
 
     /**
