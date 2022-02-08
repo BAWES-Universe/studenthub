@@ -158,7 +158,7 @@ return [
                         'OPTIONS expire-card/<id>' => 'options',
                         'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options',
-                        'OPTIONS update-email/<id>' => 'options'
+                        'OPTIONS update-email/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
