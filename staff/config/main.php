@@ -59,7 +59,7 @@ return [
                         'OPTIONS login' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
-                ],     
+                ],
                 [ // AccountController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/account',
@@ -69,7 +69,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS update-password' => 'options',
                     ]
-                ],     
+                ],
                 [ // StatisticController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/statistic',
@@ -141,10 +141,10 @@ return [
                         'OPTIONS detail/<id>' => 'options',
                         'OPTIONS candidate-resume-pdf/<id>' => 'options',
                         'OPTIONS assign/<id>' => 'options',
-                        'OPTIONS unassign/<id>' => 'options',                        
+                        'OPTIONS unassign/<id>' => 'options',
                         'OPTIONS not-assigned' => 'options',
-                        'OPTIONS assigned' => 'options',                        
-                        'OPTIONS search' => 'options',       
+                        'OPTIONS assigned' => 'options',
+                        'OPTIONS search' => 'options',
                         'OPTIONS job-search-status' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
@@ -158,7 +158,7 @@ return [
                         'OPTIONS expire-card/<id>' => 'options',
                         'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options',
-                        'OPTIONS update-email/<id>' => 'options'
+                        'OPTIONS update-email/<id>' => 'options',
                     ]
                 ],
                 [ // StoreController
@@ -185,6 +185,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET followups' => 'followups',
+                        'GET payroll-email/<id>' => 'payroll-email',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
@@ -195,6 +196,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS followups' => 'options',
+                        'OPTIONS payroll-email' => 'options',
                         'OPTIONS update-followup/<id>' => 'options',
                         'OPTIONS update-followup-interval/<id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
@@ -246,9 +248,9 @@ return [
                     'patterns' => [
                         'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
-                        'POST generate' => 'generate',                        
+                        'POST generate' => 'generate',
                         'GET list-expired' => 'list-expired',
-                        'POST renew' => 'renew',                                                
+                        'POST renew' => 'renew',
                         'GET total-expired' => 'total-expired',
                         'GET <id>/<token>' => 'view',
                         // OPTIONS VERBS
@@ -256,7 +258,7 @@ return [
                         'OPTIONS list-candidates' => 'options',
                         'OPTIONS generate' => 'options',
                         'OPTIONS list-expired' => 'options',
-                        'OPTIONS renew' => 'options',                        
+                        'OPTIONS renew' => 'options',
                         'OPTIONS total-expired' => 'options',
                         'OPTIONS <id>/<token>' => 'options'
                     ]

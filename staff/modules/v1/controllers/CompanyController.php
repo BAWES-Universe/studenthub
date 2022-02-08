@@ -127,7 +127,7 @@ class CompanyController extends Controller
             ->with([
                 'subCompanies',
                 'stores',
-            ])   
+            ])
             ->followups()
             ->filterParent();
 
@@ -148,7 +148,7 @@ class CompanyController extends Controller
     }
 
     /**
-     * add followup note 
+     * add followup note
      * @return array
      */
     public function actionAddFollowupNote($id)
@@ -179,7 +179,7 @@ class CompanyController extends Controller
         $model->company->company_last_followup_datetime = new Expression('NOW()');
         $model->company->save(false);
 
-        //reload to get latest followup time 
+        //reload to get latest followup time
 
         $company = Company::findOne($id);
 
@@ -265,10 +265,34 @@ class CompanyController extends Controller
     }
 
     /**
+     * Send payroll email
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
      */
+    public function actionPayrollEmail($id)
+    {
+
+          $model = $this->findModel((int) $id);
+
+          if (!$model) {
+              return [
+                  "operation" => "error",
+                  "message" => "Company account not found"
+              ];
+          }
+
+          $mail = Company::sendPayrollEmail($model);
+
+
+          return [
+              "operation" => "success",
+              "message" => "Payroll email has been sent",
+              "mail_status" => $mail
+          ];
+
+    }
+
     public function actionUpdateFollowup($id) {
 
         $model = $this->findModel((int) $id);

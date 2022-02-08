@@ -420,24 +420,53 @@ class CandidateController extends Controller
         // Attempt to create new account
         $model = $this->findModel($id);
 
-        $storeName = $model->store->store_name;
-        $company_id = $model->store->company_id;
-        $commonCompanyName = $model->company->company_common_name_en;
-        $model->store_id = null;
+        $store_id = Yii::$app->request->get('store_id', null);
 
-        if (!$model->save(false))
-        {
-            if(isset($model->errors)){
+        // in case multiple store are assigned by mistake or system issue.
+        if ($store_id  && $store_id != $model->store_id) {
+            // else save unassigned history
+            $candidateHistoryModel = \common\models\CandidateWorkHistory::find()
+                ->filterCandidate($model->candidate_id)
+                ->andWhere(['store_id'=>$store_id])
+                ->one();
+            if ($candidateHistoryModel) {
+                $storeName = $candidateHistoryModel->store->store_name;
+                $company_id = $candidateHistoryModel->store->company_id;
+                $commonCompanyName = $candidateHistoryModel->company->company_common_name_en;
+                $candidateHistoryModel->end_date  = new \yii\db\Expression('NOW()');
+                if (!$candidateHistoryModel->save()) {
+                    return [
+                        "operation" => "error",
+                        "message" => $model->errors
+                    ];
+                }
+            } else {
                 return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                    'operation' =>'error',
+                    'message' =>Yii::t('app','no record found')
                 ];
             }
+        } else {
+
+            $storeName = $model->store->store_name;
+            $company_id = $model->store->company_id;
+            $commonCompanyName = $model->company->company_common_name_en;
+            $model->store_id = null;
+
+            if (!$model->save(false)) {
+                if (isset($model->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $model->errors
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem updating the account, please contact us for assistance."
+                    ];
+                }
+            }
+            CandidateWorkHistory::saveUnAssignedHistory($model);
         }
 
         // save note
@@ -448,8 +477,6 @@ class CandidateController extends Controller
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
         $noteModel->note_text  = "No longer assigned to work at {$storeName} for {$commonCompanyName} because {$feedback}";
         $noteModel->save(false);
-
-        CandidateWorkHistory::saveUnAssignedHistory($model);
 
         Yii::info('['.$model->candidate_name.' unassigned from store] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 

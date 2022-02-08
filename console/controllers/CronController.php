@@ -15,6 +15,8 @@ use common\models\Staff;
 use common\models\Candidate;
 use common\models\Company;
 use common\models\Request;
+use common\models\CompanyContact;
+use common\models\Contact;
 
 
 /**
