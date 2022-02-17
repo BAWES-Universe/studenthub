@@ -196,7 +196,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS followups' => 'options',
-                        'OPTIONS payroll-email' => 'options',
+                        'OPTIONS payroll-email/<id>' => 'options',
                         'OPTIONS update-followup/<id>' => 'options',
                         'OPTIONS update-followup-interval/<id>' => 'options',
                         'OPTIONS file-create/<id>' => 'options',
