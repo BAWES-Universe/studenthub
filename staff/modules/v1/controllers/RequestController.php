@@ -84,6 +84,8 @@ class RequestController extends Controller
         $position_type = Yii::$app->request->get("position_type");
         $followup_interval = Yii::$app->request->get("followup_interval");
         $contact_uuid = Yii::$app->request->get("contact_uuid");
+        $q = Yii::$app->request->get("query");
+
 
         $query = Request::find()
             ->orderBy('request_created_datetime DESC');
@@ -96,6 +98,19 @@ class RequestController extends Controller
             $query->andWhere(['contact_uuid' => $contact_uuid]);
         } else {
             $query->activeRequest();
+        }
+
+        if ($q) {
+            $query->joinWith('company');
+            $query->andFilterWhere([
+                'or',
+                ['like', 'request.request_position_title', $q],
+                ['like', 'request.request_job_description', $q],
+                ['like', 'request.request_additional_info', $q],
+                ['like', 'company_common_name_en', $q],
+                ['like', 'company_common_name_ar', $q],
+                ['like', 'company_name', $q]
+            ]);
         }
 
         if($company_name) {
