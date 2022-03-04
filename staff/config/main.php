@@ -132,6 +132,7 @@ return [
                         'PATCH expire-card/<id>' => 'expire-candidate-card',
                         'PATCH update-email/<id>' => 'update-candidate-email',
                         'DELETE unassign/<id>' => 'unassign',
+
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS toggle-committed' => 'options',
@@ -253,6 +254,7 @@ return [
                         'POST renew' => 'renew',
                         'GET total-expired' => 'total-expired',
                         'GET <id>/<token>' => 'view',
+                        'GET list-candidate-without-card' => 'list-without-card-with-job',
                         // OPTIONS VERBS
                         'OPTIONS list-candidate-ids' => 'options',
                         'OPTIONS list-candidates' => 'options',
@@ -260,7 +262,8 @@ return [
                         'OPTIONS list-expired' => 'options',
                         'OPTIONS renew' => 'options',
                         'OPTIONS total-expired' => 'options',
-                        'OPTIONS <id>/<token>' => 'options'
+                        'OPTIONS <id>/<token>' => 'options',
+                        'OPTIONS list-candidate-without-card' => 'options',
                     ]
                 ],
                 [ // NoteController
