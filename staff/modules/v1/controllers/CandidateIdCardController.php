@@ -340,6 +340,14 @@ class CandidateIdCardController extends Controller
         ];
     }
 
+    public function actionListWithoutCardWithJob() {
+
+        return Candidate::find()
+            ->idNeedGenerated()
+            ->filterAssigned()
+            ->all();
+    }
+
     /**
      * @param $token
      * @param null $type
