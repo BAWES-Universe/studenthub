@@ -107,10 +107,17 @@ class SuggestionController extends Controller
             $query->andWhere(['suggestion_status' => $status]);
         }
 
-        return new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => false
-        ]);
+        $page = Yii::$app->request->get("page",null);
+        if ($page) {
+            return new ActiveDataProvider([
+                'query' => $query
+            ]);
+        } else {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+        }
     }
 
     /**
