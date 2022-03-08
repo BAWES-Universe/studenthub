@@ -162,7 +162,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function idNeedGenerated()
     {
-        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card)');
+        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card where deleted = 0 )');
     }
 
     /**
