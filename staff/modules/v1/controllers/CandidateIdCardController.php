@@ -116,6 +116,7 @@ class CandidateIdCardController extends Controller
         if($candidate_name) {
             $query->filterName($candidate_name);
         }
+        $query->andWhere(['{{%candidate_id_card}}.deleted'=>0]);
 
         return new ActiveDataProvider([
             'query' => $query
