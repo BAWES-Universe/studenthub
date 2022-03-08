@@ -652,7 +652,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $TCModel->candidate_hourly_rate = $hourly_rate;
         $TCModel->transfer_id = $model->transfer_id;
         $TCModel->store_id = $candidate['store_id'];
-        $TCModel->store_name = $store['store_name'];
+        if ($store) {
+            $TCModel->store_name = $store['store_name'];
+        }
         $TCModel->company_id = $store['company_id'];
         $TCModel->company_name = $company['company_name'];
         $TCModel->company_email = $company['company_email'];
