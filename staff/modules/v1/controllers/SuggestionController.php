@@ -109,6 +109,7 @@ class SuggestionController extends Controller
             $query->andWhere(['suggestion_status' => $status]);
         }
 
+
         if($story_uuid) {
             $query->andWhere(['suggestion.story_uuid' => $story_uuid]);
         }
@@ -119,14 +120,12 @@ class SuggestionController extends Controller
                 'query' => $query,
             ]);
         }
-        else
-        {
+        else {
             return new ActiveDataProvider([
                 'query' => $query,
                 'pagination' => false
             ]);
         }
-
     }
 
     /**
