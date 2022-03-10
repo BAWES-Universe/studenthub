@@ -88,25 +88,27 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
             $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
-            FileHelper::createDirectory($path. '/' . $value->candidate_uid);
+            if (!is_dir($path. '/' . $value->candidate_uid)) {
+                FileHelper::createDirectory($path . '/' . $value->candidate_uid);
 
-            Browsershot::url($card_url . '?side=front')
-                ->timeout(0)
-                ->waitUntilNetworkIdle()
-                ->windowSize(638, 1011)
-                ->save($path. '/' . $value->candidate_uid .'/front.png');
+                Browsershot::url($card_url . '?side=front')
+                    ->timeout(0)
+                    ->waitUntilNetworkIdle()
+                    ->windowSize(638, 1011)
+                    ->save($path . '/' . $value->candidate_uid . '/front.png');
 
-            Browsershot::url($card_url . '?side=back')
-                ->timeout(0)     
-                ->waitUntilNetworkIdle()
-                ->windowSize(638, 1011)
-                ->save($path. '/' . $value->candidate_uid .'/back.png');
+                Browsershot::url($card_url . '?side=back')
+                    ->timeout(0)
+                    ->waitUntilNetworkIdle()
+                    ->windowSize(638, 1011)
+                    ->save($path . '/' . $value->candidate_uid . '/back.png');
 
-            // Add photo folder to zip
-                
-            $zip->addFile($path. '/' . $value->candidate_uid .'/front.png', $value->candidate_uid . '/front.png');
+                // Add photo folder to zip
 
-            $zip->addFile($path. '/' . $value->candidate_uid .'/back.png', $value->candidate_uid . '/back.png');
+                $zip->addFile($path . '/' . $value->candidate_uid . '/front.png', $value->candidate_uid . '/front.png');
+
+                $zip->addFile($path . '/' . $value->candidate_uid . '/back.png', $value->candidate_uid . '/back.png');
+            }
         }
         
         $zip->close();
