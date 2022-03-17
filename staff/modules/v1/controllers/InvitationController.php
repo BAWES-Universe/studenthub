@@ -155,7 +155,7 @@ class InvitationController extends Controller
             ];
         }
 
-//        $transaction = Yii::$app->db->beginTransaction();
+        $transaction = Yii::$app->db->beginTransaction();
 
         //create a "Note" of type "suggested"
 
@@ -167,7 +167,7 @@ class InvitationController extends Controller
 
         if (!$model->validate())
         {
-//            $transaction->rollBack();
+            $transaction->rollBack();
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -183,7 +183,7 @@ class InvitationController extends Controller
 
         if (!$model->save())
         {
-//            $transaction->rollBack();
+            $transaction->rollBack();
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -196,48 +196,44 @@ class InvitationController extends Controller
                 ];
             }
         }
-        return [
-            "operation" => "success",
-            "message" => "Candidate invited successfully",
-            "invitedCount" => 0
-        ];
-//        $note = new Note;
-//        $note->company_id = $story->request->company_id;
-//        $note->candidate_id = $candidate_id;
-//        $note->request_uuid = $request_uuid;
-//        $note->invitation_uuid = $model->invitation_uuid;
-//        $note->note_type = Note::TYPE_INTERNAL_NOTE;
-//        $note->note_text = $reason;
-//
-//        if(!$note->save())
-//        {
-//            $transaction->rollBack();
-//
-//            if(isset($note->errors)){
-//                return [
-//                    "operation" => "error",
-//                    "message" => $note->errors
-//                ];
-//            }else{
-//                return [
-//                    "operation" => "error",
-//                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
-//                ];
-//            }
-//        }
+
+        $note = new Note;
+        $note->company_id = $story->request->company_id;
+        $note->candidate_id = $candidate_id;
+        $note->request_uuid = $request_uuid;
+        $note->invitation_uuid = $model->invitation_uuid;
+        $note->note_type = Note::TYPE_INTERNAL_NOTE;
+        $note->note_text = $reason;
+
+        if(!$note->save())
+        {
+            $transaction->rollBack();
+
+            if(isset($note->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $note->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
 
 
-//        $transaction->commit();
+        $transaction->commit();
 
-//        $invitedCount = Candidate::findOne($candidate_id)
-//            ->getInvitations()
-//            ->filterInvited()
-//            ->count();
+        $invitedCount = Candidate::findOne($candidate_id)
+            ->getInvitations()
+            ->filterInvited()
+            ->count();
 
         return [
             "operation" => "success",
             "message" => "Candidate invited successfully",
-            "invitedCount" => 0
+            "invitedCount" => $invitedCount
         ];
     }
 
