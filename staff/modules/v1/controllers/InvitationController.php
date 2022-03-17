@@ -126,6 +126,7 @@ class InvitationController extends Controller
      */
     public function actionCreate()
     {
+
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $reason = Yii::$app->request->getBodyParam("reason");
@@ -144,6 +145,7 @@ class InvitationController extends Controller
             'staff_id' => Yii::$app->user->getId ()
         ]);
 
+
         //$request = Request::findOne(['request_uuid' => $request_uuid]);
 
         if(!$story) {
@@ -153,7 +155,7 @@ class InvitationController extends Controller
             ];
         }
 
-        $transaction = Yii::$app->db->beginTransaction();
+//        $transaction = Yii::$app->db->beginTransaction();
 
         //create a "Note" of type "suggested"
 
@@ -163,9 +165,9 @@ class InvitationController extends Controller
         $model->invitation_status = Invitation::STATUS_INVITED;
         $model->story_uuid = $story->story_uuid;
 
-        if (!$model->save())
+        if (!$model->validate())
         {
-            $transaction->rollBack();
+//            $transaction->rollBack();
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
@@ -179,43 +181,63 @@ class InvitationController extends Controller
             }
         }
 
-        $note = new Note;
-        $note->company_id = $story->request->company_id;
-        $note->candidate_id = $candidate_id;
-        $note->request_uuid = $request_uuid;
-        $note->invitation_uuid = $model->invitation_uuid;
-        $note->note_type = Note::TYPE_INTERNAL_NOTE;
-        $note->note_text = $reason;
-
-        if(!$note->save())
+        if (!$model->save())
         {
-            $transaction->rollBack();
-
-            if(isset($note->errors)){
+//            $transaction->rollBack();
+            if(isset($model->errors)){
                 return [
                     "operation" => "error",
-                    "message" => $note->errors
+                    "message" => $model->errors
                 ];
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => "We've faced a problem creating the Invitation, please contact us for assistance."
                 ];
             }
         }
+        return [
+            "operation" => "success",
+            "message" => "Candidate invited successfully",
+            "invitedCount" => 0
+        ];
+//        $note = new Note;
+//        $note->company_id = $story->request->company_id;
+//        $note->candidate_id = $candidate_id;
+//        $note->request_uuid = $request_uuid;
+//        $note->invitation_uuid = $model->invitation_uuid;
+//        $note->note_type = Note::TYPE_INTERNAL_NOTE;
+//        $note->note_text = $reason;
+//
+//        if(!$note->save())
+//        {
+//            $transaction->rollBack();
+//
+//            if(isset($note->errors)){
+//                return [
+//                    "operation" => "error",
+//                    "message" => $note->errors
+//                ];
+//            }else{
+//                return [
+//                    "operation" => "error",
+//                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+//                ];
+//            }
+//        }
 
 
-        $transaction->commit();
+//        $transaction->commit();
 
-        $invitedCount = Candidate::findOne($candidate_id)
-            ->getInvitations()
-            ->filterInvited()
-            ->count();
+//        $invitedCount = Candidate::findOne($candidate_id)
+//            ->getInvitations()
+//            ->filterInvited()
+//            ->count();
 
         return [
             "operation" => "success",
             "message" => "Candidate invited successfully",
-            "invitedCount" => $invitedCount
+            "invitedCount" => 0
         ];
     }
 
