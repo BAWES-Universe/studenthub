@@ -66,8 +66,10 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'POST update-password' => 'update-password',
+                        'GET' => 'account',
                         // OPTIONS VERBS
                         'OPTIONS update-password' => 'options',
+                        'OPTIONS' => 'options',
                     ]
                 ],
                 [ // StatisticController

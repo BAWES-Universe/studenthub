@@ -91,4 +91,22 @@ class AccountController extends Controller
             'message' => 'Your password has been reset'
         ];
     }
+
+    public function actionAccount()
+    {
+        $staff = Yii::$app->user->identity;
+
+        // Return Staff access token if everything valid
+        $accessToken = $staff->accessToken->token_value;
+
+        return [
+            "operation" => "success",
+            "token" => $accessToken,
+            "staff_id" => $staff->staff_id,
+            "name" => $staff->staff_name,
+            "email" => $staff->staff_email,
+            "story" => $staff->currentStory,
+            "role" => $staff->staff_role
+        ];
+    }
 }
