@@ -70,7 +70,7 @@ class Request extends \yii\db\ActiveRecord
         return [
             [['company_id', 'request_position_title', 'request_job_description','request_compensation'], 'required'],
             [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval', 'request_priority', 'request_time_spent','is_old'], 'integer'],
-            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED, self::STATUS_PENDING,, self::STATUS_FINISHED, self::STATUS_RE_WORK]],
+            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED, self::STATUS_PENDING, self::STATUS_FINISHED, self::STATUS_RE_WORK]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
