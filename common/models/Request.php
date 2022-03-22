@@ -31,6 +31,8 @@ use yii\helpers\ArrayHelper;
  * @property string $num_hours_followup_interval
  * @property string $request_started_at
  * @property string $request_assigned_at
+ * @property string $request_finished_at
+ * @property string $request_re_worked_at
  * @property string $request_delivered_at
  * @property string $request_cancelled_at
  * @property string $request_created_datetime
@@ -43,10 +45,12 @@ use yii\helpers\ArrayHelper;
  */
 class Request extends \yii\db\ActiveRecord
 {
+    const STATUS_PENDING = 'pending';
     const STATUS_STARTED = 'started';
     const STATUS_DELIVERED = 'delivered';
     const STATUS_CANCELLED = 'cancelled';
-    
+    const STATUS_FINISHED = 'finished_by_recruitment';
+    const STATUS_RE_WORK = 're_work';
     /**
      * {@inheritdoc}
      */
@@ -63,7 +67,7 @@ class Request extends \yii\db\ActiveRecord
         return [
             [['company_id','request_job_description','request_compensation'], 'required'],
             [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval'], 'integer'],
-            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED]],
+            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED, self::STATUS_FINISHED, self::STATUS_RE_WORK]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
@@ -144,6 +148,14 @@ class Request extends \yii\db\ActiveRecord
             $this->request_assigned_at = new Expression('NOW()');
         }
 
+        if($this->request_status == self::STATUS_FINISHED) {
+            $this->request_finished_at = new Expression('NOW()');
+        }
+
+        if($this->request_status == self::STATUS_RE_WORK) {
+            $this->request_re_worked_at = new Expression('NOW()');
+        }
+
         return true;
     }
 
@@ -172,6 +184,8 @@ class Request extends \yii\db\ActiveRecord
             'request_started_at' =>  Yii::t('app', 'Request started at'),
             'request_assigned_at' => Yii::t('app', 'Request assigned at'),
             'request_delivered_at' => Yii::t('app', 'Request delivered at'),
+            'request_re_worked_at' => Yii::t('app', 'Request re worked at'),
+            'request_finished_at' => Yii::t('app', 'Request finished at'),
             'request_cancelled_at' => Yii::t('app', 'Request cancelled at'),
             'request_created_datetime' => Yii::t('app', 'Request Created Datetime'),
             'request_updated_datetime' => Yii::t('app', 'Request Updated Datetime'),
