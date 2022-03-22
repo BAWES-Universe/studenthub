@@ -313,6 +313,7 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH update-interval/<id>' => 'update-interval',
+                        'PATCH update-status/<id>' => 'update-status',
                         'PATCH cancel/<id>' => 'cancel',
                         //'PATCH deliver/<id>' => 'deliver',
                         'POST add-activity' => 'add-activity',
@@ -330,6 +331,7 @@ return [
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-interval/<id>' => 'options',
+                        'OPTIONS update-status/<id>' => 'options',
                     ]
                 ],
                 [ // BrandController

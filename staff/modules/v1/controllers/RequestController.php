@@ -488,6 +488,44 @@ class RequestController extends Controller
     }
 
     /**
+     * Update Request Status
+     * @param $id
+     * @return array
+     */
+    public function actionUpdateStatus($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->request_status = Yii::$app->request->getBodyParam("status");
+
+        if (!$model->save()) {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                ];
+            }
+        }
+
+        $status = ($model->request_status == Request::STATUS_RE_WORK) ? 'Re-work' : 'Finished by recruitment';
+        $model->createRequestActivity('I have set request status as `'.$status.'`');
+
+        Yii::info('[Request marked as '.$status.' for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Request successfully updated",
+            "staff" => $model->staff,
+            "request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
+        ];
+    }
+
+    /**
      * Assign staff to request
      * @param $id
      * @return array
