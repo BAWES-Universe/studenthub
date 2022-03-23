@@ -184,7 +184,8 @@ class RequestController extends Controller
 
         $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'"];
 
-        $query->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+        $query->addOrderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+
 
         if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
         {
