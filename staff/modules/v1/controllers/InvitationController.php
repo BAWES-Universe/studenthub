@@ -126,7 +126,6 @@ class InvitationController extends Controller
      */
     public function actionCreate()
     {
-
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $reason = Yii::$app->request->getBodyParam("reason");
