@@ -49,7 +49,15 @@ class m211215_105556_request_to_stories extends Migration
                     $staff_ids = array_keys(\yii\helpers\ArrayHelper::map($notes, 'updated_by', 'updated_by'));
                     $staff_id = $staff_ids[array_rand($staff_ids)];
                 }
-                $staff_id = ($staff_id && $staff_id == 1) ? 2 : ($staff_id) ? $staff_id : 'NULL';
+
+                if($staff_id && $staff_id == 1)
+                {
+                    $staff_id = 2;
+                }
+                else if(!$staff_id) 
+                {
+                    $staff_id = 'NULL';
+                }
 
                 $storyInsert = "INSERT INTO `story` (`story_uuid`, `request_uuid`, `suggestion_uuid`, `staff_id`, `story_status`, `is_old`, `story_time_spent`, `story_created_at`, `story_last_updated_at`) VALUES
                 ('$story_uuid', '$request_uuid', NULL, $staff_id,'$story_status', 1, 1, NOW(), NOW())";
