@@ -144,6 +144,7 @@ class InvitationController extends Controller
             'staff_id' => Yii::$app->user->getId ()
         ]);
 
+
         //$request = Request::findOne(['request_uuid' => $request_uuid]);
 
         if(!$story) {
@@ -162,6 +163,22 @@ class InvitationController extends Controller
         $model->candidate_id = $candidate_id;
         $model->invitation_status = Invitation::STATUS_INVITED;
         $model->story_uuid = $story->story_uuid;
+
+        if (!$model->validate())
+        {
+            $transaction->rollBack();
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Invitation, please contact us for assistance."
+                ];
+            }
+        }
 
         if (!$model->save())
         {

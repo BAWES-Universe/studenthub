@@ -162,6 +162,13 @@ class SuggestionController extends Controller
             'staff_id' => Yii::$app->user->getId ()
         ]);
 
+        if(!$story) {
+            return [
+                "operation" => "error",
+                "message" => 'You need to start story on selected request'
+            ];
+        }
+
         $request = Request::findOne(['request_uuid' => $request_uuid]);
 
         // only check if candidate is rejected case
@@ -179,12 +186,7 @@ class SuggestionController extends Controller
             ];
         }
 
-        if(!$story) {
-            return [
-                "operation" => "error",
-                "message" => 'You need to start story on selected request'
-            ];
-        } 
+
 
         $transaction = Yii::$app->db->beginTransaction();
 
