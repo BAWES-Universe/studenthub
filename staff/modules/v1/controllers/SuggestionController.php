@@ -2,15 +2,16 @@
 
 namespace staff\modules\v1\controllers;
 
-use staff\models\Candidate;
-use staff\models\Fulltimer;
+
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Suggestion;
+use staff\models\Candidate;
+use staff\models\Fulltimer;
 use staff\models\Note;
 use staff\models\Request;
-use common\models\Story;
+use staff\models\Story;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -172,6 +173,7 @@ class SuggestionController extends Controller
         $request = Request::findOne(['request_uuid' => $request_uuid]);
 
         // only check if candidate is rejected case
+
         $exist = $story->getSuggestions()->andWhere(
             ['or',
                 ['suggestion_status'=>Suggestion::TYPE_SUGGESTED],
@@ -186,9 +188,7 @@ class SuggestionController extends Controller
             ];
         }
 
-
-
-        $transaction = Yii::$app->db->beginTransaction();
+        //$transaction = Yii::$app->db->beginTransaction();
 
         //create a "Note" of type "suggested"
 
@@ -202,7 +202,7 @@ class SuggestionController extends Controller
 
         if(!$note->save()) 
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($note->errors)){
                 return [
@@ -229,7 +229,7 @@ class SuggestionController extends Controller
 
         if (!$model->save())
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($model->errors)){
                 return [
@@ -244,16 +244,18 @@ class SuggestionController extends Controller
             }
         }
 
-        $note->suggestion_uuid = $model->suggestion_uuid;
-        $note->save(false);
+        //$transaction->commit();
 
-        $transaction->commit();
+        Note::updateAll(['suggestion_uuid' => $model->suggestion_uuid], [
+            'note_uuid' => $note->note_uuid
+        ]);
 
         if ($candidate_id) {
             $suggestions = Candidate::findOne($candidate_id)->getSuggestion()->count();
         } else if ($fulltimer_uuid) {
             $suggestions = Fulltimer::findOne($fulltimer_uuid)->getSuggestion()->count();
         }
+
         return [
             "operation" => "success",
             "message" => "Suggestion created successfully",
