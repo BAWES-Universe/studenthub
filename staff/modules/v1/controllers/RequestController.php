@@ -135,6 +135,11 @@ class RequestController extends Controller
             $query->endDate(date('Y-m-d', strtotime ($end_date)));
         }
 
+
+        $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'"];
+
+        $query->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+
         if ($followup_interval) {
             $query->orderByFollowupInterval($followup_interval);
         }
@@ -175,16 +180,17 @@ class RequestController extends Controller
             $query->filterByType($position_type);
         }
 
+        $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'"];
+
+        $query->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+
         if ($followup_interval) {
             $query->orderByFollowupInterval();
         } else {
-            $query->orderBy('request_created_datetime DESC');
+            $query->addOrderBy('request_created_datetime DESC');
 
         }
 
-        $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'"];
-
-        $query->addOrderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
 
 
         if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
