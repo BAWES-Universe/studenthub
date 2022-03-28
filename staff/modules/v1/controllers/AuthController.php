@@ -41,8 +41,6 @@ class AuthController extends Controller
             
                 $staff = Staff::findByEmail($email);
                 
-                return $staff;
-                
                 if ($staff && $staff->validatePassword($password)) {
                     return $staff;
                 }
