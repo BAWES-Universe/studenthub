@@ -647,6 +647,7 @@ class Company extends \yii\db\ActiveRecord
             $q = 'SELECT count(*) FROM request left join company on request.company_id = company.company_id ';
             $q .= "where (company.company_id = $company_id or company.parent_company_id =$company_id) AND request.request_status = 'started'";
             $requestQuery = Yii::$app->db->createCommand($q)->queryScalar();
+            
             Yii::$app->db->createCommand()->update('company', ['no_of_active_requests' => $requestQuery], 'company_id = ' . $ID)->execute();
 
             // check total request for parent company and child company.in last 30 days

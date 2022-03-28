@@ -441,7 +441,8 @@ class Request extends \yii\db\ActiveRecord
         Company::updateRequest($this->company_id);
     }
 
-    public static function activeRequestCount() {
+    public static function activeRequestCount() 
+    {
         return Request::find()
             ->activeRequest()
             //last 1 hour
