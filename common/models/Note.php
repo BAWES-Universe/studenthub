@@ -20,6 +20,7 @@ use yii\behaviors\AttributeBehavior;
  * @property string $invitation_uuid
  * @property string $suggestion_uuid
  * @property string $contact_uuid
+ * @property string $story_uuid
  * @property string $fulltimer_uuid
  * @property string $note_type
  * @property string $note_text
@@ -81,6 +82,7 @@ class Note extends \yii\db\ActiveRecord
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
             [['request_checklist_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => RequestChecklist::className(), 'targetAttribute' => ['request_checklist_uuid' => 'request_checklist_uuid']],
             [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
             //[['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
@@ -176,6 +178,7 @@ class Note extends \yii\db\ActiveRecord
             'request_checklist_uuid' => Yii::t('app', 'Request Checklist Uuid'),
             'invitation_uuid' => Yii::t('candidate', 'Invitation ID'),
             'contact_uuid' => Yii::t('candidate', 'Contact ID'),
+            'story_uuid' => Yii::t('candidate', 'Story ID'),
             'fulltimer_uuid' => Yii::t('candidate', 'FullTimer ID'),
             'note_type' => Yii::t('app', 'Note type'),
             'company_id' => Yii::t('candidate', 'Company ID'),
@@ -358,6 +361,13 @@ class Note extends \yii\db\ActiveRecord
      */
     public function getSuggestion($modelClass = "\common\models\Suggestion") {
         return $this->hasOne($modelClass::className(), ['suggestion_uuid' => 'suggestion_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStory($modelClass = "\common\models\Story") {
+        return $this->hasOne($modelClass::className(), ['story_uuid' => 'story_uuid']);
     }
 
     /**

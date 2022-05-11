@@ -54,6 +54,7 @@ class Story extends \yii\db\ActiveRecord
             [['story_uuid', 'request_uuid','suggestion_uuid'], 'string', 'max' => 60],
             [['story_uuid'], 'unique'],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
             [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
@@ -161,6 +162,7 @@ class Story extends \yii\db\ActiveRecord
             'request',
             'company',
             'staff',
+            'story',
             'storyActivities',
             'latestStoryActivity'
         ];
@@ -203,6 +205,14 @@ class Story extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      */
     public function getSuggestions($modelClass = "\common\models\Suggestion")
+    {
+        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStory($modelClass = "\common\models\Story")
     {
         return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
     }
