@@ -124,10 +124,10 @@ class CronController extends \yii\console\Controller {
 
         // # of candidates that need id generated
 
-        /*$result['id_need_generated'] = Candidate::find()
+        $data['id_need_generated'] = Candidate::find()
             ->filterAssigned()
             ->idNeedGenerated()
-            ->count();*/
+            ->count();
 
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
