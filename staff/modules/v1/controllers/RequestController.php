@@ -125,7 +125,10 @@ class RequestController extends Controller
         }
 
         if($request_status) {
-            $query->andWhere(['request_status' => $request_status]);
+            if($request_status == 'need-update')
+                $query->needUpdate();
+            else
+                $query->andWhere(['request_status' => $request_status]);
         }
 
         if($position_type) {
@@ -171,10 +174,11 @@ class RequestController extends Controller
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
         }
+
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
         } else {
-            $query->activeRequest();
+            $query->needUpdate();//activeRequest
         }
 
         if($position_type) {
@@ -191,9 +195,7 @@ class RequestController extends Controller
             $query->addOrderBy('request_created_datetime DESC');
 
         }
-
-
-
+        
         if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
         {
             $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
