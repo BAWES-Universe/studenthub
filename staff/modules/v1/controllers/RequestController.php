@@ -121,10 +121,13 @@ class RequestController extends Controller
                     ['like', 'company_common_name_ar', $company_name],
                     ['like', 'company_name', $company_name]
                 ]);
-        } 
+        }
 
         if($request_status) {
-            $query->andWhere(['request_status' => $request_status]);
+            if($request_status == 'need-update')
+                $query->needUpdate();
+            else
+                $query->andWhere(['request_status' => $request_status]);
         }
 
         if($position_type) {
@@ -189,7 +192,10 @@ class RequestController extends Controller
         }
 
         if($request_status) {
-            $query->andWhere(['request_status' => $request_status]);
+            if($request_status == 'need-update')
+                $query->needUpdate();
+            else
+                $query->andWhere(['request_status' => $request_status]);
         }
 
         if ($followup_interval) {
