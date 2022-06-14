@@ -150,6 +150,12 @@ class Request extends \common\models\Request {
             array_push($changedParam,'Changed addition info from "'.$changedAttributes['request_additional_info'].'" to "'.$this->request_additional_info.'"');
         }
 
+        if (array_key_exists('request_status', $changedAttributes)) {
+            $oldStatus = ucfirst(str_replace('_',' ',$changedAttributes['request_status']));
+            $newStatus = ucfirst(str_replace('_',' ',$this->request_status));
+            array_push($changedParam,'Request status changed from "'.$oldStatus.'" to "'.$newStatus.'"');
+        }
+
         if (count($changedParam)  == 0) {
             return;
         }
