@@ -268,7 +268,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * return total completed requests by staff 
+     * return total completed requests by staff
      * @return int
      */
     public function getTotalCompletedRequests()

@@ -87,8 +87,13 @@ class RequestController extends Controller
         $q = Yii::$app->request->get("query");
 
 
+        $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
+
+
         $query = Request::find()
-            ->orderBy('request_created_datetime DESC');
+                  ->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+
+        $query->addOrderBy('request_created_datetime ASC');
 
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
@@ -136,11 +141,12 @@ class RequestController extends Controller
 
         if($start_date) {
             $query->startDate(date('Y-m-d', strtotime ($start_date)));
-        } 
+        }
 
         if($end_date) {
             $query->endDate(date('Y-m-d', strtotime ($end_date)));
         }
+
 
         if ($followup_interval) {
             $query->orderByFollowupInterval($followup_interval);
@@ -185,6 +191,9 @@ class RequestController extends Controller
 
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
+        } else {
+            $query->needUpdate();//activeRequest
+
         }
 
         if($position_type) {
@@ -198,12 +207,16 @@ class RequestController extends Controller
                 $query->andWhere(['request_status' => $request_status]);
         }
 
+        $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
+
+        $query->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+
+
         if ($followup_interval) {
             $query->orderByFollowupInterval();
         } else {
-            $query->orderBy('request_created_datetime DESC');
+            $query->addOrderBy('request_created_datetime DESC');
         }
-
         /*if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
             $query->joinWith (['stories'])
                 ->andWhere ([
@@ -249,6 +262,11 @@ class RequestController extends Controller
         } else {
             $query->orderBy('request_created_datetime DESC');
         }
+        
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
+        {
+            $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
+        }
 
         /*if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
             $query->joinWith (['stories'])
@@ -273,16 +291,16 @@ class RequestController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
     /**
-     * Create a Request 
+     * Create a Request
      * @return array
      */
     public function actionCreate()
     {
         // Attempt to create new request
         $model = new Request();
- 
+
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
@@ -322,7 +340,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Update Request 
+     * Update Request
      * @param $id
      * @return array
      */
@@ -542,8 +560,8 @@ class RequestController extends Controller
 
         $model = $this->findModel($id);
 
-        $model->staff_id = $staff_id;
-        
+        $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
+
         if (!$model->save())
         {
             if(isset($model->errors)){
