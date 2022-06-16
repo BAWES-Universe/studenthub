@@ -73,13 +73,14 @@ class RequestQuery extends ActiveQuery
      */
     public function needUpdate()
     {
-        return $this->activeRequest()
+        return $this->activeRequest();
             //last 1 hour
-            ->andWhere(
-                new \yii\db\Expression(
-                    "request_updated_datetime < DATE_SUB(NOW(),INTERVAL 24 HOUR) OR request_updated_datetime = request_created_datetime"
-                )
-            );
+        // removed as not showing all data
+//            ->andWhere(
+//                new \yii\db\Expression(
+//                    "request_updated_datetime < DATE_SUB(NOW(),INTERVAL 24 HOUR) OR request_updated_datetime = request_created_datetime"
+//                )
+//            );
     }
 
     /**
