@@ -158,6 +158,22 @@ class InvitationController extends Controller
 
         //create a "Note" of type "suggested"
 
+
+        $query = Invitation::find()
+            ->andWhere(['candidate_id'=>$candidate_id])
+            ->andWhere(new Expression('DATE(`invitation_created_at`) = CURDATE()'))
+            ->one();
+
+        //BP-1194 candidate can only receive one invitation in a day
+        if ($query) {
+            $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => 'Candidate has been already invited today for request `'.$query->request->request_number_of_employees. ($query->request->request_position_type == 1 ? ' Fulltime ' : ' Par-time ').$query->request->request_position_title. '`'
+            ];
+        }
+
         $model = new Invitation();
         $model->request_uuid = $request_uuid;
         $model->candidate_id = $candidate_id;

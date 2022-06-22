@@ -21,6 +21,7 @@ use yii\web\IdentityInterface;
  * @property string $staff_password_reset_token
  * @property number $staff_role
  * @property integer $staff_status
+ * @property integer $staff_notification
  * @property integer $staff_created_at
  * @property integer $staff_updated_at
  * @property integer $deleted
@@ -49,7 +50,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
             [['staff_role','staff_hourly_rate'], 'number'],
-            [['staff_status'], 'integer'],
+            [['staff_status','staff_notification'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
@@ -88,6 +89,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
             'staff_role' => Yii::t('app', 'Role'),
             'staff_status' => Yii::t('app','Staff Status'),
+            'staff_notification' => Yii::t('app','Staff Notification'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
             'staff_updated_at' => Yii::t('app','Staff Updated At'),
         ];
