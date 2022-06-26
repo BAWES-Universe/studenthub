@@ -373,7 +373,7 @@ class CronController extends \yii\console\Controller {
                 $datetime = new \DateTime($suggestion->suggestion_datetime);
 
                 \Segment::track([
-                    'userId' => Yii::$app->user->getId(),
+                    'userId' => 'cron',
                     'event' => 'Suggestion Created',
                     'properties' => [
                         'suggestion_uuid' => $this->suggestion_uuid,
