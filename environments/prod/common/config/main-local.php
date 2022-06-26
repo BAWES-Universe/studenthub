@@ -95,18 +95,18 @@ return [
                     'class' => 'notamedia\sentry\SentryTarget',
                     'dsn' => 'https://6cbd2100e1ff41e7875352655ffbf50d:e18336b09d864b29aa12aca3fbc6706c@sentry.io/168200',
                     'levels' => ['error', 'warning'],
-
+                    'except' => [
+                        'yii\web\BadRequestHttpException',
+                        'yii\web\UnauthorizedHttpException',
+                        'yii\web\NotFoundHttpException',
+                        'yii\web\HttpException:400',
+                        'yii\web\HttpException:401',
+                        'yii\web\HttpException:404',
+                    ],
                     'clientOptions' => [
                         //which environment are we running this on?
                         'environment' => 'production',
-                        'excluded_exceptions' => [
-                            'yii\web\BadRequestHttpException',
-                            'yii\web\UnauthorizedHttpException',
-                            'yii\web\NotFoundHttpException',
-                            'yii\web\HttpException:400',
-                            'yii\web\HttpException:401',
-                            'yii\web\HttpException:404',
-                        ],
+
                         // Disable notifications for malicious errors from 3rd party
                         // 'send_callback' => function($data) {
                         //     // Error Types to Ignore
