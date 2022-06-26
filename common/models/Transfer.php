@@ -948,6 +948,20 @@ class Transfer extends ActiveRecord
             Yii::info($info, __METHOD__);
         }
 
+        if(YII_ENV == 'prod') {
+
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Transfer Created',
+                'properties' => [
+                    'transfer_id' => $transfer->transfer_id,
+                    'company_id' => $transfer->company_id,
+                    'company_name' => $company->company_name,
+                    'total' => $transfer->total
+                ]
+            ]);
+        }
+
         return [
             "operation" => "success",
             "message" => "Transfer created.",
@@ -1226,6 +1240,20 @@ class Transfer extends ActiveRecord
             $info .= '[ for '.$this->company->company_name.' ] ';
             $info .= ' Check if they require assistance ';
             Yii::info($info, __METHOD__);
+        }
+
+        if(YII_ENV == 'prod') {
+
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Transfer Updated',
+                'properties' => [
+                    'transfer_id' => $transfer->transfer_id,
+                    'company_id' => $transfer->company_id,
+                    'company_name' => $transfer->company?$transfer->company->company_name: null,
+                    'total' => $transfer->total
+                ]
+            ]);
         }
 
         return [
