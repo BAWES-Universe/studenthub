@@ -158,6 +158,19 @@ class Invitation extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param bool $insert
+     * @return false|void
+     */
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * after object saved
      * @param boolean $insert
      * @param array $changedAttributes
@@ -174,6 +187,22 @@ class Invitation extends \yii\db\ActiveRecord
         //update `request_updated_at` field
         $this->request->request_updated_datetime = '';
         $this->request->update(false);
+        
+        if(YII_ENV == 'prod') {
+            if ($insert) {
+                \Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Candidate Invited',
+                    'properties' => [
+                        'candidate_id' => $this->candidate_id,
+                        'request_uuid' => $this->request_uuid,
+                        'invitation_created_by_staff' => $this->invitation_created_by_staff,
+                        'invitation_created_by_company' => $this->invitation_created_by_company,
+                        'invitation_created_at' => $this->invitation_created_at
+                    ]
+                ]);
+            }
+        }
 
         return true;
     }

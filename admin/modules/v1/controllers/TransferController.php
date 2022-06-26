@@ -281,6 +281,17 @@ class TransferController extends Controller
         // Sending receipt to company via email
         $transfer->notify('receipt');
 
+        if(YII_ENV == 'prod') {
+
+                \Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Transfer Marked As Payment Received',
+                    'properties' => [
+                        'transfer_id' => $id
+                    ]
+                ]);
+        }
+
         return [
             "operation" => "success",
             "message" => 'Transfer marked as "Payment Received" successfully'
@@ -308,6 +319,17 @@ class TransferController extends Controller
         }
 
         Yii::info('[Transfer #'.$id.' unlocked] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        if(YII_ENV == 'prod') {
+
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Transfer UnLocked',
+                'properties' => [
+                    'transfer_id' => $id
+                ]
+            ]);
+        }
 
         return [
             "operation" => "success",
@@ -344,6 +366,17 @@ class TransferController extends Controller
         }
 
         Yii::info('[Transfer #'.$id.' reverted to locked] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        if(YII_ENV == 'prod') {
+
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Transfer Locked',
+                'properties' => [
+                    'transfer_id' => $id
+                ]
+            ]);
+        }
 
         return [
             "operation" => "success",
