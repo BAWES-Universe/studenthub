@@ -123,9 +123,20 @@ class Suggestion extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @return bool
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
+        //update `request_updated_at` field
+        $this->request->request_updated_datetime = '';
+        $this->request->update(false);
 
         if(YII_ENV == 'prod') {
             if ($insert)
@@ -136,6 +147,8 @@ class Suggestion extends \yii\db\ActiveRecord
                     'properties' => [
                         'suggestion_uuid' => $this->suggestion_uuid,
                         'request_uuid' => $this->request_uuid,
+                        'candidate_id' => $this->candidate_id,
+                        'fulltimer_uuid' => $this->fulltimer_uuid,
                         'by' => $this->note? $this->note->created_by: null
                     ]
                 ]);
@@ -147,7 +160,9 @@ class Suggestion extends \yii\db\ActiveRecord
                     'event' => 'Suggestion Updated',
                     'properties' => [
                         'suggestion_uuid' => $this->suggestion_uuid,
-                        'request_uuid' => $this->request_uuid
+                        'request_uuid' => $this->request_uuid,
+                        'candidate_id' => $this->candidate_id,
+                        'fulltimer_uuid' => $this->fulltimer_uuid,
                     ]
                 ]);
             }
@@ -181,22 +196,6 @@ class Suggestion extends \yii\db\ActiveRecord
                 'value' => new Expression('NOW()'),
             ],
         ];
-    }
-
-    /**
-     * @param bool $insert
-     * @param array $changedAttributes
-     * @throws \Throwable
-     * @throws \yii\db\Exception
-     * @throws \yii\db\StaleObjectException
-     */
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-
-        //update `request_updated_at` field
-        $this->request->request_updated_datetime = '';
-        $this->request->update(false);
     }
 
     /**
