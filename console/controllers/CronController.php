@@ -296,4 +296,99 @@ class CronController extends \yii\console\Controller {
         $total = Candidate::kuwaitiNationalityEmail();
         return true;
     }
+
+    /**
+     * sync transfers with segment
+     */
+    public function actionSegmentTransfer() {
+
+        \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+
+        $query = TransferCandidate::find()
+            ->with('candidate')
+            ->andWhere(['paid' => TransferCandidate::PAID]);
+        //->limit(1)
+
+        $count = 0;
+
+        $total = TransferCandidate::find()
+            ->andWhere(['paid' => TransferCandidate::PAID])
+            ->count();
+
+        Console::startProgress(0, $total);
+
+        foreach($query->batch(100) as $tcs) {
+
+            $count += sizeof($tcs);
+
+            foreach ($tcs as $tc) {
+
+                $name = $tc->candidate->candidate_name ? $tc->candidate->candidate_name : $tc->candidate->candidate_name_ar;
+
+                $datetime = new \DateTime($tc->tc_updated_at);
+
+                \Segment::track([
+                    'userId' => 'cron',//Yii::$app->user->getId()
+                    'event' => 'Candidate Transfer Paid',
+                    'properties' => [
+                        'tc_id' => $tc->tc_id,
+                        'transfer_id' => $tc->transfer_id,
+                        'candidate_id' => $tc->candidate_id,
+                        'name' => $name,
+                        'revenue' => 0 - $tc->getProfit(),
+                        'currency' => 'KWD'
+                    ],
+                    'timestamp' => $datetime->format('c')
+                ]);
+            }
+
+            Console::updateProgress($count, $total);
+        }
+
+        \Segment::flush();
+    }
+
+    /**
+     * sync suggestion with segment
+     */
+    public function actionSegmentSuggestion() {
+
+        \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+
+        $query = Suggestion::find();
+
+        $count = 0;
+
+        $total = Suggestion::find()
+            ->count();
+
+        Console::startProgress(0, $total);
+
+        foreach($query->batch(100) as $suggestions) {
+
+            $count += sizeof($suggestions);
+
+            foreach ($suggestions as $suggestion) {
+
+                $datetime = new \DateTime($suggestion->suggestion_datetime);
+
+                \Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Suggestion Created',
+                    'properties' => [
+                        'suggestion_uuid' => $this->suggestion_uuid,
+                        'request_uuid' => $this->request_uuid,
+                        'candidate_id' => $this->candidate_id,
+                        'fulltimer_uuid' => $this->fulltimer_uuid,
+                        'by' => $this->note ? $this->note->created_by : null
+                    ],
+                    'timestamp' => $datetime->format('c')
+                ]);
+            }
+
+            Console::updateProgress($count, $total);
+        }
+
+        \Segment::flush();
+    }
 }
