@@ -122,8 +122,10 @@ class InvitationController extends Controller
 
         $model = $this->findModel($id);
 
-        if ($model->invitation_status != Invitation::STATUS_INVITED) {
-            if ($model->invitation_status == Invitation::STATUS_ACCEPTED) {
+        if ($model->invitation_status != Invitation::STATUS_INVITED)
+        {
+            if ($model->invitation_status == Invitation::STATUS_ACCEPTED)
+            {
                 $msg = Yii::t('candidate','you have already accepted this request');
             } else  {
                 $msg = Yii::t('candidate','you have already rejected this request');
@@ -182,6 +184,17 @@ class InvitationController extends Controller
         }
 
         $transaction->commit();
+
+        if(YII_ENV == 'prod') {
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Candidate Invitation Accepted',
+                'properties' => [
+                    'invitation_uuid' => $model->invitation_uuid,
+                    'reason' => $reason
+                ]
+            ]);
+        }
 
         return [
             "operation" => "success",
@@ -259,6 +272,17 @@ class InvitationController extends Controller
         }
 
         $transaction->commit();
+
+        if(YII_ENV == 'prod') {
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Candidate Invitation Rejected',
+                'properties' => [
+                    'invitation_uuid' => $model->invitation_uuid,
+                    'reason' => $reason
+                ]
+            ]);
+        }
 
         return [
             "operation" => "success",

@@ -119,6 +119,39 @@ class Suggestion extends \yii\db\ActiveRecord
         }
     }
 
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if(YII_ENV == 'prod') {
+            if ($insert)
+            {
+                \Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Suggestion Created',
+                    'properties' => [
+                        'suggestion_uuid' => $this->suggestion_uuid,
+                        'request_uuid' => $this->request_uuid,
+                        'by' => $this->note? $this->note->created_by: null
+                    ]
+                ]);
+            }
+            else
+            {
+                \Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Suggestion Updated',
+                    'properties' => [
+                        'suggestion_uuid' => $this->suggestion_uuid,
+                        'request_uuid' => $this->request_uuid
+                    ]
+                ]);
+            }
+        }
+
+        return true;
+    }
+
     /**
      * @return array
      */

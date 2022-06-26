@@ -265,7 +265,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             $this->sendTransferPaidNotification();
             
         } else if (isset($changedAttributes['paid']) && $this->paid == self::UNPAID) {
-            
+
             $this->sendTransferUnpaidNotification();
             
         }
@@ -331,6 +331,22 @@ class TransferCandidate extends \yii\db\ActiveRecord
             $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
         }
 
+        if(YII_ENV == 'prod') {
+
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Candidate Transfer Paid',
+                'properties' => [
+                    'tc_id' => $this->tc_id,
+                    'transfer_id' => $this->transfer_id,
+                    'candidate_id' => $this->candidate_id,
+                    'name' => $name,
+                    'revenue' => $this->getProfit(),
+                    'currency' => 'KWD'
+                ]
+            ]);
+        }
+
         Yii::$app->mailer->compose('candidate/transfer-success',[
             'name' => strtoupper (explode (' ', $name)[0]),
             'totalPaidToCandidate' => $this->totalPaidToCandidate,
@@ -352,6 +368,24 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function sendTransferUnpaidNotification() 
     {
+        if(YII_ENV == 'prod') {
+
+            $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
+
+            \Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Candidate Transfer Paid',//Un-Paid
+                'properties' => [
+                    'tc_id' => $this->tc_id,
+                    'transfer_id' => $this->transfer_id,
+                    'candidate_id' => $this->candidate_id,
+                    'name' => $name,
+                    'revenue' => 0 - $this->getProfit(),
+                    'currency' => 'KWD'
+                ]
+            ]);
+        }
+
         $heading = Yii::t('app', 'Transfer marked as unpaid');
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
         $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);

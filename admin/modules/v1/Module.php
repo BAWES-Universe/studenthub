@@ -2,6 +2,8 @@
 
 namespace admin\modules\v1;
 
+use Segment;
+
 /**
  * v1 module definition class
  */
@@ -19,7 +21,20 @@ class Module extends \yii\base\Module
     {
         parent::init();
 
-        //Can Initialize / add params to this module here
+        if(YII_ENV == 'prod') {
+
+            \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+
+            if(!Yii::$app->user->isGuest)
+            {
+                $user = Yii::$app->user->identity;
+
+                \Segment::identify([Yii::$app->user->getId(), [
+                    "name" => $user->admin_name,
+                    "email" => $user->admin_email
+                ]]);
+            }
+        }
     }
 
 }
