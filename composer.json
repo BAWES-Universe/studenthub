@@ -45,7 +45,8 @@
             "enabled": false
         },
         "allow-plugins": {
-            "yiisoft/yii2-composer": true
+            "yiisoft/yii2-composer": true,
+            "composer/package-versions-deprecated": true
         }
     },
     "repositories": [
