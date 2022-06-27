@@ -353,7 +353,7 @@ class CronController extends \yii\console\Controller {
      */
     public function actionSegmentSuggestion() {
 
-        \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
         $query = Suggestion::find();
 
@@ -372,7 +372,7 @@ class CronController extends \yii\console\Controller {
 
                 $datetime = new \DateTime($suggestion->suggestion_datetime);
 
-                \Segment::track([
+                Segment::track([
                     'userId' => 'cron',
                     'event' => 'Suggestion Created',
                     'properties' => [
@@ -389,6 +389,6 @@ class CronController extends \yii\console\Controller {
             Console::updateProgress($count, $total);
         }
 
-        \Segment::flush();
+        Segment::flush();
     }
 }
