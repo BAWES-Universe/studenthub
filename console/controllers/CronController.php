@@ -17,7 +17,7 @@ use common\models\Company;
 use common\models\Request;
 use common\models\CompanyContact;
 use common\models\Contact;
-//use Segment\Segment;
+use Segment\Segment;
 
 /**
  * All Cron actions related to this project
@@ -302,7 +302,7 @@ class CronController extends \yii\console\Controller {
      */
     public function actionSegmentTransfer() {
 
-        \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
         $query = TransferCandidate::find()
             ->with('candidate')
@@ -327,7 +327,7 @@ class CronController extends \yii\console\Controller {
 
                 $datetime = new \DateTime($tc->tc_updated_at);
 
-                \Segment::track([
+                Segment::track([
                     'userId' => 'cron',//Yii::$app->user->getId()
                     'event' => 'Candidate Transfer Paid',
                     'properties' => [
@@ -345,7 +345,7 @@ class CronController extends \yii\console\Controller {
             Console::updateProgress($count, $total);
         }
 
-        \Segment::flush();
+        Segment::flush();
     }
 
     /**
