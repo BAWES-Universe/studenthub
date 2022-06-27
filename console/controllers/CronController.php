@@ -19,6 +19,7 @@ use common\models\CompanyContact;
 use common\models\Contact;
 use Segment\Segment;
 
+
 /**
  * All Cron actions related to this project
  */
@@ -307,7 +308,8 @@ class CronController extends \yii\console\Controller {
         $query = TransferCandidate::find()
             ->with('candidate')
             ->andWhere(['paid' => TransferCandidate::PAID]);
-        //->limit(1)
+            //->limit(17545)
+            //->offset(8800);
 
         $count = 0;
 
@@ -323,7 +325,7 @@ class CronController extends \yii\console\Controller {
 
             foreach ($tcs as $tc) {
 
-                $name = $tc->candidate->candidate_name ? $tc->candidate->candidate_name : $tc->candidate->candidate_name_ar;
+                $name = $tc->candidate && $tc->candidate->candidate_name ? $tc->candidate->candidate_name : $tc->candidate->candidate_name_ar;
 
                 $datetime = new \DateTime($tc->tc_updated_at);
 
