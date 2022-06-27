@@ -2,6 +2,7 @@
 
 namespace company\modules\v1;
 
+use Yii;
 use Segment\Segment;
 
 /**
