@@ -11,7 +11,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\VarDumper;
-
+use Segment\Segment;
 
 /**
  * This is the model class for table "suggestion".
@@ -141,7 +141,7 @@ class Suggestion extends \yii\db\ActiveRecord
         if(YII_ENV == 'prod') {
             if ($insert)
             {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Suggestion Created',
                     'properties' => [
@@ -155,7 +155,7 @@ class Suggestion extends \yii\db\ActiveRecord
             }
             else
             {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Suggestion Updated',
                     'properties' => [

@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use Segment\Segment;
 
 /**
  * This is the model class for table "transfer_candidate".
@@ -333,7 +334,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         if(YII_ENV == 'prod') {
 
-            \Segment::track([
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Transfer Paid',
                 'properties' => [
@@ -372,7 +373,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
             $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
 
-            \Segment::track([
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Transfer Paid',//Un-Paid
                 'properties' => [
@@ -381,7 +382,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
                     'candidate_id' => $this->candidate_id,
                     'name' => $name,
                     'revenue' => 0 - $this->getProfit(),
-                    'currency' => 'KWD'
+                    'currency' => 'KWD',
+                    'transfer_cost' => $this->transfer_cost,
+                    'candidate_total' => $this->candidate_total,
+                    'company_total' => $this->company_total,
                 ]
             ]);
         }

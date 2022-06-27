@@ -10,7 +10,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
-
+use Segment\Segment;
 
 /**
  * This is the model class for table "candidate".
@@ -794,8 +794,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if(YII_ENV == 'prod') {
             if ($insert) {
-                \Segment::track([
-                    'userId' => Yii::$app->user->getId(),
+                Segment::track([
+                    'userId' => Yii::$app->user->isGuest? $this->candidate_id: Yii::$app->user->getId(),
                     'event' => 'Candidate Profile Created',
                     'properties' => [
                         'candidate_id' => $this->candidate_id,
@@ -804,8 +804,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ]
                 ]);
             } else {
-                \Segment::track([
-                    'userId' => Yii::$app->user->getId(),
+                Segment::track([
+                    'userId' => Yii::$app->user->isGuest? $this->candidate_id: Yii::$app->user->getId(),
                     'event' => 'Candidate Profile Updated',
                     'properties' => [
                         'candidate_id' => $this->candidate_id,

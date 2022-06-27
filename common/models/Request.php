@@ -9,6 +9,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
 use yii\helpers\ArrayHelper;
+use Segment\Segment;
 
 /**
  * This is the model class for table "request".
@@ -443,7 +444,7 @@ class Request extends \yii\db\ActiveRecord
         if(YII_ENV == 'prod') {
             if ($insert)
             {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Request Created',
                     'properties' => [
@@ -454,7 +455,7 @@ class Request extends \yii\db\ActiveRecord
             }
             else
             {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Request Updated',
                     'properties' => [
