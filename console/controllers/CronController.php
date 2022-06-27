@@ -384,11 +384,11 @@ class CronController extends \yii\console\Controller {
                     'userId' => 'cron',
                     'event' => 'Suggestion Created',
                     'properties' => [
-                        'suggestion_uuid' => $this->suggestion_uuid,
-                        'request_uuid' => $this->request_uuid,
-                        'candidate_id' => $this->candidate_id,
-                        'fulltimer_uuid' => $this->fulltimer_uuid,
-                        'by' => $this->note ? $this->note->created_by : null
+                        'suggestion_uuid' => $suggestion->suggestion_uuid,
+                        'request_uuid' => $suggestion->request_uuid,
+                        'candidate_id' => $suggestion->candidate_id,
+                        'fulltimer_uuid' => $suggestion->fulltimer_uuid,
+                        'by' => $suggestion->note ? $suggestion->note->created_by : null
                     ],
                     'timestamp' => $datetime->format('c')
                 ]);
