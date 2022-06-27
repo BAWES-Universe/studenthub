@@ -336,7 +336,10 @@ class CronController extends \yii\console\Controller {
                         'candidate_id' => $tc->candidate_id,
                         'name' => $name,
                         'revenue' => 0 - $tc->getProfit(),
-                        'currency' => 'KWD'
+                        'currency' => 'KWD',
+                        'transfer_cost' => $tc->transfer_cost,
+                        'candidate_total' => $tc->candidate_total,
+                        'company_total' => $tc->company_total,
                     ],
                     'timestamp' => $datetime->format('c')
                 ]);
