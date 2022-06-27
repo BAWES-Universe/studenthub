@@ -10,7 +10,7 @@ use yii\behaviors\TimestampBehavior;
 use kartik\mpdf\Pdf;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
-
+use Segment\Segment;
 
 /**
  * This is the model class for table "transfer".
@@ -948,9 +948,9 @@ class Transfer extends ActiveRecord
             Yii::info($info, __METHOD__);
         }
 
-        if(YII_ENV == 'prod1') {
+        if(YII_ENV == 'prod') {
 
-            \Segment::track([
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Transfer Created',
                 'properties' => [
@@ -1244,7 +1244,7 @@ class Transfer extends ActiveRecord
 
         if(YII_ENV == 'prod') {
 
-            \Segment::track([
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Transfer Updated',
                 'properties' => [

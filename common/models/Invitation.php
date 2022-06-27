@@ -7,7 +7,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
-
+use Segment\Segment;
 
 /**
  * This is the model class for table "invitation".
@@ -181,9 +181,9 @@ class Invitation extends \yii\db\ActiveRecord
             $this->jobInvitationEmail();
         }
 
-        if(YII_ENV == 'prod1') {
+        if(YII_ENV == 'prod') {
             if ($insert) {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Candidate Invited',
                     'properties' => [

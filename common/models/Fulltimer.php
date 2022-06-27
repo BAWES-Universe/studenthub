@@ -7,7 +7,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 use yii\helpers\Console;
-
+use Segment\Segment;
 
 /**
  * This is the model class for table "fulltimer".
@@ -203,10 +203,10 @@ class Fulltimer extends \yii\db\ActiveRecord
 
         $this->updateAlgoliaIndex($insert);
 
-        if(YII_ENV == 'prod1') {
+        if(YII_ENV == 'prod') {
             if ($insert)
             {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Fulltimer Created',
                     'properties' => [
@@ -216,7 +216,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             }
             else
             {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Fulltimer Updated',
                     'properties' => [

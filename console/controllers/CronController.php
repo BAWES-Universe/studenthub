@@ -325,8 +325,11 @@ class CronController extends \yii\console\Controller {
 
             foreach ($tcs as $tc) {
 
-                $name = $tc->candidate && $tc->candidate->candidate_name ? $tc->candidate->candidate_name : $tc->candidate->candidate_name_ar;
-
+                if($tc->candidate)
+                    $name = $tc->candidate->candidate_name ? $tc->candidate->candidate_name : $tc->candidate->candidate_name_ar;
+                else 
+                    $name = null; 
+                
                 $datetime = new \DateTime($tc->tc_updated_at);
 
                 Segment::track([
@@ -337,7 +340,7 @@ class CronController extends \yii\console\Controller {
                         'transfer_id' => $tc->transfer_id,
                         'candidate_id' => $tc->candidate_id,
                         'name' => $name,
-                        'revenue' => 0 - $tc->getProfit(),
+                        'revenue' => $tc->getProfit(),
                         'currency' => 'KWD',
                         'transfer_cost' => $tc->transfer_cost,
                         'candidate_total' => $tc->candidate_total,

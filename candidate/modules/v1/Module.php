@@ -2,7 +2,7 @@
 
 namespace candidate\modules\v1;
 
-use Segment;
+use Segment\Segment;
 use Yii;
 
 /**
@@ -29,15 +29,15 @@ class Module extends \yii\base\Module
             Yii::$app->language = $lang;
         }
 
-        if(YII_ENV == 'prod1') {
+        if(YII_ENV == 'prod') {
 
-            \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+            Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
             if(!Yii::$app->user->isGuest)
             {
                 $user = Yii::$app->user->identity;
 
-                \Segment::identify([Yii::$app->user->getId(), [
+                Segment::identify([Yii::$app->user->getId(), [
                     "name" => $user->candidate_name,
                     "email" => $user->candidate_email
                 ]]);

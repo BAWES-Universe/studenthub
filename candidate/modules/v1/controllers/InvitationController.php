@@ -15,7 +15,7 @@ use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-
+use Segment\Segment;
 
 /**
  * Invitation controller - Manage Invitation as Candidate
@@ -185,8 +185,8 @@ class InvitationController extends Controller
 
         $transaction->commit();
 
-        if(YII_ENV == 'prod1') {
-            \Segment::track([
+        if(YII_ENV == 'prod') {
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Invitation Accepted',
                 'properties' => [
@@ -273,8 +273,8 @@ class InvitationController extends Controller
 
         $transaction->commit();
 
-        if(YII_ENV == 'prod1') {
-            \Segment::track([
+        if(YII_ENV == 'prod') {
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Invitation Rejected',
                 'properties' => [
