@@ -21,7 +21,7 @@ class Module extends \yii\base\Module
     {
         parent::init();
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
 
             \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 

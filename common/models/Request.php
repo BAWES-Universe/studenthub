@@ -354,7 +354,7 @@ class Request extends \yii\db\ActiveRecord
 
         Company::updateRequest($this->company_id);
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
             if ($insert)
             {
                 \Segment::track([

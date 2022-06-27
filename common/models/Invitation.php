@@ -181,7 +181,7 @@ class Invitation extends \yii\db\ActiveRecord
             $this->jobInvitationEmail();
         }
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
             if ($insert) {
                 \Segment::track([
                     'userId' => Yii::$app->user->getId(),
