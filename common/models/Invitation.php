@@ -190,10 +190,27 @@ class Invitation extends \yii\db\ActiveRecord
         
         if(YII_ENV == 'prod') {
             if ($insert) {
+
+                if($this->candidate) {
+                    $name = $this->candidate->candidate_name ? $this->candidate->candidate_name : $this->candidate->candidate_name_ar;
+                } else {
+                    $name = null;
+                }
+
+                if($this->invitationCreatedByStaff) {
+                    $staff = $this->invitationCreatedByStaff->staff_name;
+                } else if($this->invitationCreatedByCompany) {
+                    $staff = $this->invitationCreatedByCompany->company_name;
+                } else {
+                    $staff = null;
+                }
+
                 Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Candidate Invited',
                     'properties' => [
+                        'candidate' => $name,
+                        'staff' => $staff,
                         'candidate_id' => $this->candidate_id,
                         'request_uuid' => $this->request_uuid,
                         'invitation_created_by_staff' => $this->invitation_created_by_staff,

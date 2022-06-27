@@ -141,6 +141,18 @@ class Suggestion extends \yii\db\ActiveRecord
         if(YII_ENV == 'prod') {
             if ($insert)
             {
+                $staff = $this->getCreatedBy()->one();
+
+                if($this->candidate)
+                    $name = $this->candidate->candidate_name ? $this->candidate->candidate_name : $this->candidate->candidate_name_ar;
+                else
+                    $name = null;
+
+                if($this->fulltimer)
+                    $fulltimer = $this->fulltimer->fulltimer_name;
+                else
+                    $fulltimer = null;
+
                 Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Suggestion Created',
@@ -148,8 +160,11 @@ class Suggestion extends \yii\db\ActiveRecord
                         'suggestion_uuid' => $this->suggestion_uuid,
                         'request_uuid' => $this->request_uuid,
                         'candidate_id' => $this->candidate_id,
+                        'candidate' => $name,
                         'fulltimer_uuid' => $this->fulltimer_uuid,
-                        'by' => $this->note? $this->note->created_by: null
+                        'fulltimer' => $fulltimer,
+                        'staff_id' => $this->note? $this->note->created_by: null,
+                        'staff_name' => $staff? $staff->staff_name: null
                     ]
                 ]);
             }

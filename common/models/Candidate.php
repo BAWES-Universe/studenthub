@@ -667,7 +667,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 Segment::track($data);
 
-            } else {
+            }
+            else
+            {
                 Segment::track([
                     'userId' => Yii::$app->user->isGuest? $this->candidate_id: Yii::$app->user->getId(),
                     'event' => 'Candidate Profile Updated',

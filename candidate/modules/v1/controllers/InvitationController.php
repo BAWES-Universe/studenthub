@@ -186,12 +186,18 @@ class InvitationController extends Controller
 
         $transaction->commit();
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod')
+        {
+            $name = $model->candidate->candidate_name? $model->candidate->candidate_name: $model->candidate->candidate_name_ar;
+
             Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Invitation Accepted',
                 'properties' => [
                     'invitation_uuid' => $model->invitation_uuid,
+                    'company_id' => $note->company_id,
+                    'request_uuid' => $model->request_uuid,
+                    'candidate' => $name,
                     'reason' => $reason
                 ]
             ]);
@@ -275,11 +281,17 @@ class InvitationController extends Controller
         $transaction->commit();
 
         if(YII_ENV == 'prod') {
+
+            $name = $model->candidate->candidate_name? $model->candidate->candidate_name: $model->candidate->candidate_name_ar;
+
             Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Invitation Rejected',
                 'properties' => [
                     'invitation_uuid' => $model->invitation_uuid,
+                    'company_id' => $note->company_id,
+                    'request_uuid' => $model->request_uuid,
+                    'candidate' => $name,
                     'reason' => $reason
                 ]
             ]);

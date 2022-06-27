@@ -384,6 +384,18 @@ class CronController extends \yii\console\Controller {
 
                 $datetime = new \DateTime($suggestion->suggestion_datetime);
 
+                $staff = $suggestion->getCreatedBy()->one();
+
+                if($suggestion->candidate)
+                    $name = $suggestion->candidate->candidate_name ? $suggestion->candidate->candidate_name : $suggestion->candidate->candidate_name_ar;
+                else
+                    $name = null;
+
+                if($suggestion->fulltimer)
+                    $fulltimer = $suggestion->fulltimer->fulltimer_name;
+                else
+                    $fulltimer = null;
+
                 Segment::track([
                     'userId' => 'cron',
                     'event' => 'Suggestion Created',
@@ -391,8 +403,11 @@ class CronController extends \yii\console\Controller {
                         'suggestion_uuid' => $suggestion->suggestion_uuid,
                         'request_uuid' => $suggestion->request_uuid,
                         'candidate_id' => $suggestion->candidate_id,
+                        'candidate' => $name,
                         'fulltimer_uuid' => $suggestion->fulltimer_uuid,
-                        'by' => $suggestion->note ? $suggestion->note->created_by : null
+                        'fulltimer' => $fulltimer,
+                        'staff_id' => $suggestion->note ? $suggestion->note->created_by : null,
+                        'staff_name' => $staff? $staff->staff_name: null
                     ],
                     'timestamp' => $datetime->format('c')
                 ]);

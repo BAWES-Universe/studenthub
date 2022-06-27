@@ -449,6 +449,7 @@ class Request extends \yii\db\ActiveRecord
                     'event' => 'Request Created',
                     'properties' => [
                         'company_id' => $this->company_id,
+                        'company' => $this->company->company_name,
                         'request_uuid' => $this->request_uuid
                     ]
                 ]);
@@ -460,6 +461,7 @@ class Request extends \yii\db\ActiveRecord
                     'event' => 'Request Updated',
                     'properties' => [
                         'company_id' => $this->company_id,
+                        'company' => $this->company->company_name,
                         'request_uuid' => $this->request_uuid,
                         'request_status' => $this->request_status,
                         'staff_id' => $this->staff_id
