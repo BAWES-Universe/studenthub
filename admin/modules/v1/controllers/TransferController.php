@@ -287,7 +287,11 @@ class TransferController extends Controller
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Transfer Marked As Payment Received',
                     'properties' => [
-                        'transfer_id' => $id
+                        'transfer_id' => $id,
+                        'total' => $transfer->total,
+                        'company_total' => $transfer->company_total,
+                        'revenue' => $transfer->company_total - $transfer->total,
+                        'currency' => 'KWD'
                     ]
                 ]);
         }
