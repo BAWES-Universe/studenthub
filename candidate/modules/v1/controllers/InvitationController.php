@@ -185,7 +185,7 @@ class InvitationController extends Controller
 
         $transaction->commit();
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
             \Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Invitation Accepted',
@@ -273,7 +273,7 @@ class InvitationController extends Controller
 
         $transaction->commit();
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
             \Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Candidate Invitation Rejected',

@@ -281,7 +281,7 @@ class TransferController extends Controller
         // Sending receipt to company via email
         $transfer->notify('receipt');
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
 
                 \Segment::track([
                     'userId' => Yii::$app->user->getId(),
@@ -320,7 +320,7 @@ class TransferController extends Controller
 
         Yii::info('[Transfer #'.$id.' unlocked] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
 
             \Segment::track([
                 'userId' => Yii::$app->user->getId(),
@@ -367,7 +367,7 @@ class TransferController extends Controller
 
         Yii::info('[Transfer #'.$id.' reverted to locked] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
 
             \Segment::track([
                 'userId' => Yii::$app->user->getId(),

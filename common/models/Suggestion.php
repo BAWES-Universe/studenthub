@@ -123,7 +123,7 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
             if ($insert)
             {
                 \Segment::track([

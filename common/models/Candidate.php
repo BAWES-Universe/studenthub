@@ -763,7 +763,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!parent::beforeSave($insert))
             return false;
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
             if ($insert) {
                 \Segment::track([
                     'userId' => Yii::$app->user->getId(),

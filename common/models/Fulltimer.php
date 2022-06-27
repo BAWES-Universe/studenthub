@@ -203,7 +203,7 @@ class Fulltimer extends \yii\db\ActiveRecord
 
         $this->updateAlgoliaIndex($insert);
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
             if ($insert)
             {
                 \Segment::track([

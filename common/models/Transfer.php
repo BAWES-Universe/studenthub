@@ -948,7 +948,7 @@ class Transfer extends ActiveRecord
             Yii::info($info, __METHOD__);
         }
 
-        if(YII_ENV == 'prod') {
+        if(YII_ENV == 'prod1') {
 
             \Segment::track([
                 'userId' => Yii::$app->user->getId(),
