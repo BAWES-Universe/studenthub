@@ -102,6 +102,8 @@ class Expense extends \yii\db\ActiveRecord
                     'type' => $this->type,
                     'detail' => $this->detail,
                     'amount' => $this->amount,
+                    'currency' => 'KWD',
+                    'revenue' => $this->amount,//just for beautiful graphs 
                     'created_by' => $this->createdBy->admin_name
                 ]
             ]);
