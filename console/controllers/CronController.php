@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\Note;
 use common\models\Suggestion;
@@ -408,6 +409,54 @@ class CronController extends \yii\console\Controller {
                         'fulltimer' => $fulltimer,
                         'staff_id' => $suggestion->note ? $suggestion->note->created_by : null,
                         'staff_name' => $staff? $staff->staff_name: null
+                    ],
+                    'timestamp' => $datetime->format('c')
+                ]);
+            }
+
+            Console::updateProgress($count, $total);
+        }
+
+        Segment::flush();
+    }
+
+    /**
+     * sync expense with segment
+     */
+    public function actionSegmentExpense() {
+
+        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+
+        $query = Expense::find();
+
+        $count = 0;
+
+        $total = Expense::find()
+            ->count();
+
+        Console::startProgress(0, $total);
+
+        foreach($query->batch(100) as $expenses) {
+
+            $count += sizeof($expenses);
+
+            foreach ($expenses as $expense) {
+
+                $datetime = $expense->transaction_datetime?
+                    new \DateTime($expense->transaction_datetime): new \DateTime($expense->created_at);
+
+                Segment::track([
+                    'userId' => 'cron',
+                    'event' => 'Expense Added',
+                    'properties' => [
+                        'expense_uuid' => $expense->expense_uuid,
+                        'title' => $expense->title,
+                        'type' => $expense->type,
+                        'detail' => $expense->detail,
+                        'amount' => $expense->amount,
+                        'currency' => 'KWD',
+                        'revenue' => $expense->amount,//just for beautiful graphs
+                        'created_by' => $expense->createdBy?$expense->createdBy->admin_name: null
                     ],
                     'timestamp' => $datetime->format('c')
                 ]);
