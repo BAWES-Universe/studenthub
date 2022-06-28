@@ -17,6 +17,7 @@ use yii\db\Expression;
  * @property string $type
  * @property string $detail
  * @property number $amount
+ * @property string $transaction_datetime
  * @property int $created_by
  * @property int $updated_by
  * @property string $created_at
@@ -44,7 +45,7 @@ class Expense extends \yii\db\ActiveRecord
             [['title', 'type'], 'required'],
             [['detail'], 'string'],
             [['created_by', 'updated_by', 'amount'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['created_at', 'updated_at', 'transaction_datetime'], 'safe'],
             [['expense_uuid'], 'string', 'max' => 60],
             [['title', 'type'], 'string', 'max' => 128],
             [['expense_uuid'], 'unique'],
@@ -93,6 +94,10 @@ class Expense extends \yii\db\ActiveRecord
         parent::afterSave ($insert, $changedAttributes);
 
         if(YII_ENV == 'prod') {
+
+            $datetime = $this->transaction_datetime?
+                new \DateTime($this->transaction_datetime): new \DateTime($this->created_at);
+
             Segment::track ([
                 'userId' => Yii::$app->user->getId (),
                 'event' => 'Expense Added',
@@ -103,9 +108,10 @@ class Expense extends \yii\db\ActiveRecord
                     'detail' => $this->detail,
                     'amount' => $this->amount,
                     'currency' => 'KWD',
-                    'revenue' => $this->amount,//just for beautiful graphs 
+                    'revenue' => $this->amount,//just for beautiful graphs
                     'created_by' => $this->createdBy->admin_name
-                ]
+                ],
+                'timestamp' => $datetime->format('c')
             ]);
         }
     }
@@ -121,6 +127,7 @@ class Expense extends \yii\db\ActiveRecord
             'type' => Yii::t('app', 'Type'),
             'detail' => Yii::t('app', 'Detail'),
             'amount' => Yii::t('app', 'Amount'),
+            'transaction_datetime' => Yii::t('app', 'Transaction Datetime'),
             'created_by' => Yii::t('app', 'Created By'),
             'updated_by' => Yii::t('app', 'Updated By'),
             'created_at' => Yii::t('app', 'Created At'),

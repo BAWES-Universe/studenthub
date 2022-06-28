@@ -103,6 +103,14 @@ class ExpenseController extends Controller
         $model->detail = Yii::$app->request->getBodyParam("detail");
         $model->amount = Yii::$app->request->getBodyParam("amount");
 
+        $date = Yii::$app->request->getBodyParam("transaction_datetime");
+
+        if($date) {
+            $model->transaction_datetime = date ('Y-m-d H:i:s', strtotime (str_replace ('-', '/', $date)));
+        } else {
+            $model->transaction_datetime = date ('Y-m-d H:i:s');
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -141,6 +149,14 @@ class ExpenseController extends Controller
         $model->detail = Yii::$app->request->getBodyParam("detail");
         $model->amount = Yii::$app->request->getBodyParam("amount");
 
+        $date = Yii::$app->request->getBodyParam("transaction_datetime");
+
+        if($date) {
+            $model->transaction_datetime = date ('Y-m-d H:i:s', strtotime (str_replace ('-', '/', $date)));
+        } else {
+            $model->transaction_datetime = date ('Y-m-d H:i:s');
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -156,7 +172,7 @@ class ExpenseController extends Controller
             }
         }
 
-        //Yii::info('[Expense Updated: '.$model->expense_name.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[Expense Updated: '.$model->title.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -176,7 +192,7 @@ class ExpenseController extends Controller
         // Delete expense
         $expense->softDelete();
 
-        Yii::info('[Expense Soft Deleted: '.$expense->expense_name.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[Expense Soft Deleted: '.$expense->title.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
