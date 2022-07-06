@@ -59,6 +59,15 @@ return [
                         'OPTIONS transfer' => 'options',
                     ]
                 ],
+                [ // EventController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/event',
+                    'patterns' => [
+                        'POST' => 'import-excel',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // StaffController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/staff',
