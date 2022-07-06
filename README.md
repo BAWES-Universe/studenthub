@@ -116,4 +116,4 @@ for `urlManagerStaff` component's `baseUrl` property for files at environments/*
 * Candidate Invitation Rejected (public)
 * Candidate Invited (public)
 
-There can be other custom events fired manually
+There can be other custom events fired manually, use `Datetime` column in excel to upload past events

@@ -154,6 +154,14 @@ class EventController extends Controller
         // row will be key
 
         $keys = \yii\helpers\ArrayHelper::remove($excelData, '1');
+        
+        if(empty($keys["A"])) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        }
 
         //create array with key to read data
 
@@ -176,14 +184,18 @@ class EventController extends Controller
         {
             //if empty cell, ignore
 
-            if(empty($value[$keys[0]])) {
+            if(empty($value[$keys["A"]])) {
                 continue;
             }
+
+            $datetime = isset($value['Datetime'])?
+                    new \DateTime(strtotime($value['Datetime'])): new \DateTime();
 
             Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => $event,
-                'properties' => $value
+                'properties' => $value,
+                'timestamp' => $datetime->format('c')
             ]);
 
             $total++;
@@ -193,7 +205,8 @@ class EventController extends Controller
 
         return [
             'total' => $total,
-            'operation' => "Success"
+            "message" => $total . " total events fired",
+            'operation' => "success"
         ];
     }
 }
