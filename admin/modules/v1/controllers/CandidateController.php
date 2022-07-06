@@ -212,6 +212,13 @@ class CandidateController extends Controller
      */
     public function actionDelete($id)
     {
+        if (Yii::$app->user->identity->admin_limited_access) {
+            return [
+                "operation" => "error",
+                "message" => "You are not allowed to perform this action"
+            ];
+        }
+
         $model = Candidate::findOne(['candidate_id'=>$id]);
 
         if (!$model || ($model && $model->deleted)) {
