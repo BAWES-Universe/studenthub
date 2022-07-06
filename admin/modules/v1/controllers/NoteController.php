@@ -74,7 +74,11 @@ class NoteController extends Controller
     {
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
-        
+
+        if (Yii::$app->request->get("company_id")) {
+            $query->filterCompany(Yii::$app->request->get("company_id"));
+        }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);

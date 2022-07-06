@@ -159,13 +159,14 @@ return [
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
                         'GET <id>' => 'view',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
-                        'OPTIONS <id>' => 'options'
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // NoteController

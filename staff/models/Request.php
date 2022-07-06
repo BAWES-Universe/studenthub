@@ -190,6 +190,7 @@ class Request extends \common\models\Request {
         $staffList = Staff::find()
             ->andWhere(['!=', 'staff_id', \Yii::$app->user->id])
             ->andWhere(['!=', 'deleted', 1])
+            ->andWhere(['staff_notification' => 1])
             ->all();
 
         $subject =  "I've added a request for ".$this->request_position_title." for ".$company_name;

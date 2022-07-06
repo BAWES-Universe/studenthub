@@ -246,6 +246,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function scenarios() {
         $scenarios = parent::scenarios();
 
+        $scenarios['deleteCandidate'] = ['deleted'];
+
         $scenarios['updateName'] = ['candidate_name'];
 
         $scenarios['updateNameAr'] = ['candidate_name_ar'];
@@ -497,6 +499,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     public function afterSave($insert, $changedAttributes) {
+
 
         parent::afterSave($insert, $changedAttributes);
 
