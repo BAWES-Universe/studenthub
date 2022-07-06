@@ -11,7 +11,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\VarDumper;
-
+use Segment\Segment;
 
 /**
  * This is the model class for table "suggestion".
@@ -141,21 +141,37 @@ class Suggestion extends \yii\db\ActiveRecord
         if(YII_ENV == 'prod') {
             if ($insert)
             {
-                \Segment::track([
+                $staff = $this->getCreatedBy()->one();
+
+                if($this->candidate)
+                    $name = $this->candidate->candidate_name ? $this->candidate->candidate_name : $this->candidate->candidate_name_ar;
+                else
+                    $name = null;
+
+                if($this->fulltimer)
+                    $fulltimer = $this->fulltimer->fulltimer_name;
+                else
+                    $fulltimer = null;
+
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Suggestion Created',
                     'properties' => [
                         'suggestion_uuid' => $this->suggestion_uuid,
                         'request_uuid' => $this->request_uuid,
                         'candidate_id' => $this->candidate_id,
+                        'by' => $this->note? $this->note->created_by: null,
+                        'candidate' => $name,
                         'fulltimer_uuid' => $this->fulltimer_uuid,
-                        'by' => $this->note? $this->note->created_by: null
+                        'fulltimer' => $fulltimer,
+                        'staff_id' => $this->note? $this->note->created_by: null,
+                        'staff_name' => $staff? $staff->staff_name: null
                     ]
                 ]);
             }
             else
             {
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Suggestion Updated',
                     'properties' => [

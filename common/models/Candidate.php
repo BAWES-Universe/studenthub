@@ -10,7 +10,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use yii\helpers\Url;
 use yii\web\NotFoundHttpException;
-
+use Segment\Segment;
 
 /**
  * This is the model class for table "candidate".
@@ -248,6 +248,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function scenarios() {
         $scenarios = parent::scenarios();
+
+        $scenarios['deleteCandidate'] = ['deleted'];
 
         $scenarios['updateName'] = ['candidate_name'];
 
@@ -519,6 +521,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     public function afterSave($insert, $changedAttributes) {
 
+
         parent::afterSave($insert, $changedAttributes);
 
         if($insert)
@@ -643,6 +646,45 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
         }
 
+
+        if(YII_ENV == 'prod') {
+            if ($insert) {
+
+                $data = Yii::$app->user->isGuest ? [
+                    'anonymousId' => $this->candidate_id,
+                    'event' => 'Candidate Profile Created',
+                    'properties' => [
+                        'candidate_id' => $this->candidate_id,
+                        'name' => $this->candidate_name,
+                        'email' => $this->candidate_email
+                    ]
+                ]:[
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Candidate Profile Created',
+                    'properties' => [
+                        'candidate_id' => $this->candidate_id,
+                        'name' => $this->candidate_name,
+                        'email' => $this->candidate_email
+                    ]
+                ];
+
+                Segment::track($data);
+
+            }
+            else
+            {
+                Segment::track([
+                    'userId' => Yii::$app->user->isGuest? $this->candidate_id: Yii::$app->user->getId(),
+                    'event' => 'Candidate Profile Updated',
+                    'properties' => [
+                        'candidate_id' => $this->candidate_id,
+                        'name' => $this->candidate_name,
+                        'email' => $this->candidate_email
+                    ]
+                ]);
+            }
+        }
+        
         return true;
     }
 
@@ -792,29 +834,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!parent::beforeSave($insert))
             return false;
 
-        if(YII_ENV == 'prod') {
-            if ($insert) {
-                \Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Candidate Profile Created',
-                    'properties' => [
-                        'candidate_id' => $this->candidate_id,
-                        'name' => $this->candidate_name,
-                        'email' => $this->candidate_email
-                    ]
-                ]);
-            } else {
-                \Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Candidate Profile Updated',
-                    'properties' => [
-                        'candidate_id' => $this->candidate_id,
-                        'name' => $this->candidate_name,
-                        'email' => $this->candidate_email
-                    ]
-                ]);
-            }
-        }
 
         // Move uploaded files to permanent bucket // as we are only going to use cloudinary
 //        $this->_moveTemporaryFilesToPermanentBucket();

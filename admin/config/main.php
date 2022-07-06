@@ -159,13 +159,14 @@ return [
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
                         'GET <id>' => 'view',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
-                        'OPTIONS <id>' => 'options'
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // NoteController
@@ -251,6 +252,20 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options'
+                    ]
+                ],
+                [ // ExpenseController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/expense',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // BankController

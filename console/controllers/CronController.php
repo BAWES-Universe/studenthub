@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\Note;
 use common\models\Suggestion;
@@ -17,6 +18,7 @@ use common\models\Company;
 use common\models\Request;
 use common\models\CompanyContact;
 use common\models\Contact;
+use Segment\Segment;
 
 
 /**
@@ -306,12 +308,13 @@ class CronController extends \yii\console\Controller {
      */
     public function actionSegmentTransfer() {
 
-        \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
         $query = TransferCandidate::find()
             ->with('candidate')
             ->andWhere(['paid' => TransferCandidate::PAID]);
-        //->limit(1)
+            //->limit(17545)
+            //->offset(8800);
 
         $count = 0;
 
@@ -327,11 +330,14 @@ class CronController extends \yii\console\Controller {
 
             foreach ($tcs as $tc) {
 
-                $name = $tc->candidate->candidate_name ? $tc->candidate->candidate_name : $tc->candidate->candidate_name_ar;
-
+                if($tc->candidate)
+                    $name = $tc->candidate->candidate_name ? $tc->candidate->candidate_name : $tc->candidate->candidate_name_ar;
+                else 
+                    $name = null; 
+                
                 $datetime = new \DateTime($tc->tc_updated_at);
 
-                \Segment::track([
+                Segment::track([
                     'userId' => 'cron',//Yii::$app->user->getId()
                     'event' => 'Candidate Transfer Paid',
                     'properties' => [
@@ -339,8 +345,11 @@ class CronController extends \yii\console\Controller {
                         'transfer_id' => $tc->transfer_id,
                         'candidate_id' => $tc->candidate_id,
                         'name' => $name,
-                        'revenue' => 0 - $tc->getProfit(),
-                        'currency' => 'KWD'
+                        'revenue' => $tc->getProfit(),
+                        'currency' => 'KWD',
+                        'transfer_cost' => $tc->transfer_cost,
+                        'candidate_total' => $tc->candidate_total,
+                        'company_total' => $tc->company_total,
                     ],
                     'timestamp' => $datetime->format('c')
                 ]);
@@ -349,7 +358,7 @@ class CronController extends \yii\console\Controller {
             Console::updateProgress($count, $total);
         }
 
-        \Segment::flush();
+        Segment::flush();
     }
 
     /**
@@ -357,7 +366,7 @@ class CronController extends \yii\console\Controller {
      */
     public function actionSegmentSuggestion() {
 
-        \Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
         $query = Suggestion::find();
 
@@ -376,15 +385,30 @@ class CronController extends \yii\console\Controller {
 
                 $datetime = new \DateTime($suggestion->suggestion_datetime);
 
-                \Segment::track([
+                $staff = $suggestion->getCreatedBy()->one();
+
+                if($suggestion->candidate)
+                    $name = $suggestion->candidate->candidate_name ? $suggestion->candidate->candidate_name : $suggestion->candidate->candidate_name_ar;
+                else
+                    $name = null;
+
+                if($suggestion->fulltimer)
+                    $fulltimer = $suggestion->fulltimer->fulltimer_name;
+                else
+                    $fulltimer = null;
+
+                Segment::track([
                     'userId' => 'cron',
                     'event' => 'Suggestion Created',
                     'properties' => [
-                        'suggestion_uuid' => $this->suggestion_uuid,
-                        'request_uuid' => $this->request_uuid,
-                        'candidate_id' => $this->candidate_id,
-                        'fulltimer_uuid' => $this->fulltimer_uuid,
-                        'by' => $this->note ? $this->note->created_by : null
+                        'suggestion_uuid' => $suggestion->suggestion_uuid,
+                        'request_uuid' => $suggestion->request_uuid,
+                        'candidate_id' => $suggestion->candidate_id,
+                        'candidate' => $name,
+                        'fulltimer_uuid' => $suggestion->fulltimer_uuid,
+                        'fulltimer' => $fulltimer,
+                        'staff_id' => $suggestion->note ? $suggestion->note->created_by : null,
+                        'staff_name' => $staff? $staff->staff_name: null
                     ],
                     'timestamp' => $datetime->format('c')
                 ]);
@@ -393,6 +417,54 @@ class CronController extends \yii\console\Controller {
             Console::updateProgress($count, $total);
         }
 
-        \Segment::flush();
+        Segment::flush();
+    }
+
+    /**
+     * sync expense with segment
+     */
+    public function actionSegmentExpense() {
+
+        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+
+        $query = Expense::find();
+
+        $count = 0;
+
+        $total = Expense::find()
+            ->count();
+
+        Console::startProgress(0, $total);
+
+        foreach($query->batch(100) as $expenses) {
+
+            $count += sizeof($expenses);
+
+            foreach ($expenses as $expense) {
+
+                $datetime = $expense->transaction_datetime?
+                    new \DateTime($expense->transaction_datetime): new \DateTime($expense->created_at);
+
+                Segment::track([
+                    'userId' => 'cron',
+                    'event' => 'Expense Added',
+                    'properties' => [
+                        'expense_uuid' => $expense->expense_uuid,
+                        'title' => $expense->title,
+                        'type' => $expense->type,
+                        'detail' => $expense->detail,
+                        'amount' => $expense->amount,
+                        'currency' => 'KWD',
+                        'revenue' => $expense->amount,//just for beautiful graphs
+                        'created_by' => $expense->createdBy?$expense->createdBy->admin_name: null
+                    ],
+                    'timestamp' => $datetime->format('c')
+                ]);
+            }
+
+            Console::updateProgress($count, $total);
+        }
+
+        Segment::flush();
     }
 }

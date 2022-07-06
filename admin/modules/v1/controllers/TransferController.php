@@ -14,7 +14,7 @@ use admin\models\TransferCandidate;
 use company\models\TranferExcel;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
-
+use Segment\Segment;
 
 /**
  * Transfer controller - Manage Transfer
@@ -283,11 +283,15 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Transfer Marked As Payment Received',
                     'properties' => [
-                        'transfer_id' => $id
+                        'transfer_id' => $id,
+                        'total' => $transfer->total,
+                        'company_total' => $transfer->company_total,
+                        'revenue' => $transfer->company_total - $transfer->total,
+                        'currency' => 'KWD'
                     ]
                 ]);
         }
@@ -322,7 +326,7 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-            \Segment::track([
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Transfer UnLocked',
                 'properties' => [
@@ -369,7 +373,7 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-            \Segment::track([
+            Segment::track([
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Transfer Locked',
                 'properties' => [

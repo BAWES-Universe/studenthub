@@ -7,7 +7,7 @@ use company\models\Note;
 use yii\data\ActiveDataProvider;
 use company\models\Request;
 use yii\web\NotFoundHttpException;
-
+use Segment\Segment;
 
 /**
  * Request controller - Manage brand as Admin
@@ -338,7 +338,7 @@ class RequestController extends BaseController
 
         if(YII_ENV == 'prod') {
 
-                \Segment::track([
+                Segment::track([
                     'userId' => Yii::$app->user->getId(),
                     'event' => 'Request Activity Added',
                     'properties' => [

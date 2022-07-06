@@ -5,16 +5,16 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use staff\models\Note;
+use admin\models\Expense;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
 
 /**
- * Note controller - Manage brand as Admin
+ * Expense controller - Manage expense as Admin
  */
-class NoteController extends Controller
+class ExpenseController extends Controller
 {
     public function behaviors()
     {
@@ -67,17 +67,12 @@ class NoteController extends Controller
     }
 
     /**
-     * Return a List of Brand Accounts available.
+     * Return a List of Expense Accounts available.
      * @return ActiveDataProvider
      */
     public function actionList()
     {
-        $query = Note::find()
-            ->orderBy('note_created_datetime DESC');
-
-        if (Yii::$app->request->get("company_id")) {
-            $query->filterCompany(Yii::$app->request->get("company_id"));
-        }
+        $query = Expense::find();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -85,26 +80,36 @@ class NoteController extends Controller
     }
 
     /**
-     * @param $id
-     * @return Note
-     * @throws NotFoundHttpException
+     * load expense details
+     * @param type $id
+     * @return type
      */
     public function actionView($id)
     {
         return $this->findModel($id);
     }
-    
+
     /**
-     * Create a Note account
+     * Create a expense account
      * @return array
      */
     public function actionCreate()
     {
-        // Attempt to create new brand
-        $model = new Note();
+        // Attempt to create new expense
+        $model = new Expense();
 
-        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
-        $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->title = Yii::$app->request->getBodyParam("title");
+        $model->type = Yii::$app->request->getBodyParam("type");
+        $model->detail = Yii::$app->request->getBodyParam("detail");
+        $model->amount = Yii::$app->request->getBodyParam("amount");
+
+        $date = Yii::$app->request->getBodyParam("transaction_datetime");
+
+        if($date) {
+            $model->transaction_datetime = date ('Y-m-d H:i:s', strtotime (str_replace ('-', '/', $date)));
+        } else {
+            $model->transaction_datetime = date ('Y-m-d H:i:s');
+        }
 
         if (!$model->save())
         {
@@ -116,28 +121,41 @@ class NoteController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                    "message" => "We've faced a problem creating the expense, please contact us for assistance."
                 ];
             }
         }
 
+        Yii::info('[Expense Added: '.$model->title.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
         return [
             "operation" => "success",
-            "message" => "Note created successfully"
+            "message" => "Expense created successfully"
         ];
     }
 
     /**
-     * Create a Note account
+     * Create a expense account
      * @param $id
      * @return array
      */
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel($id);
+        $model = $this->findModel((int) $id);
 
-        $model->note_text = htmlentities(Yii::$app->request->getBodyParam("note"));
+        $model->title = Yii::$app->request->getBodyParam("title");
+        $model->type = Yii::$app->request->getBodyParam("type");
+        $model->detail = Yii::$app->request->getBodyParam("detail");
+        $model->amount = Yii::$app->request->getBodyParam("amount");
+
+        $date = Yii::$app->request->getBodyParam("transaction_datetime");
+
+        if($date) {
+            $model->transaction_datetime = date ('Y-m-d H:i:s', strtotime (str_replace ('-', '/', $date)));
+        } else {
+            $model->transaction_datetime = date ('Y-m-d H:i:s');
+        }
 
         if (!$model->save())
         {
@@ -149,14 +167,16 @@ class NoteController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the Note, please contact us for assistance."
+                    "message" => "We've faced a problem updating the expense, please contact us for assistance."
                 ];
             }
         }
 
+        Yii::info('[Expense Updated: '.$model->title.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
         return [
             "operation" => "success",
-            "message" => "Note successfully updated"
+            "message" => "Expense successfully updated"
         ];
     }
 
@@ -167,34 +187,29 @@ class NoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel($id);
+        $expense = $this->findModel((int)$id);
 
-        if(!$model) {
-            return [
-                "operation" => "error",
-                "message" => "Note not found or already deleted"
-            ];
-        }
+        // Delete expense
+        $expense->softDelete();
 
-        // Delete note
-        $model->delete();
+        Yii::info('[Expense Soft Deleted: '.$expense->title.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         return [
             "operation" => "success",
-            "message" => "Note deleted successfully"
+            "message" => "Expense deleted successfully"
         ];
     }
-    
+
     /**
-     * Finds the Brand model based on its primary key value.
+     * Finds the Expense model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Note the loaded model
+     * @return Transfer the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Note::findOne($id)) !== null) {
+        if (($model = Expense::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
