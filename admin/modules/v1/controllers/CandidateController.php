@@ -76,7 +76,17 @@ class CandidateController extends Controller
         $query = Candidate::find();
 
         $by = Yii::$app->request->get('by');
-        
+
+        if (Yii::$app->request->get('name', null)) {
+            $query->filterName(Yii::$app->request->get('name'));
+        }
+        if (Yii::$app->request->get('email', null)) {
+            $query->filterEmail(Yii::$app->request->get('email'));
+        }
+        if (Yii::$app->request->get('phone', null)) {
+            $query->filterEmail(Yii::$app->request->get('phone'));
+        }
+
         switch ($by) {
             case 'country_id' :
                 $query->filterCountry(Yii::$app->request->get('country_id'));
@@ -194,7 +204,49 @@ class CandidateController extends Controller
 
         return $model;
     }
-    
+
+    /**
+     * Delete an account
+     * @param  integer $id
+     * @return array
+     */
+    public function actionDelete($id)
+    {
+        $model = Candidate::findOne(['candidate_id'=>$id]);
+
+        if (!$model || ($model && $model->deleted)) {
+            return [
+                "operation" => "success",
+                "message" => "Candidate account already deleted"
+            ];
+        }
+
+        $model->scenario = 'deleteCandidate';
+        $model->deleted = 1;
+
+        if (!$model->save()) {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+        Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $model->candidate_id);
+
+        Yii::info('['.$model->candidate_email.' Account Deleted] Candidate account Deleted by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account deleted successfully"
+        ];
+    }
+
     /**
      * Finds the Candidate model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
