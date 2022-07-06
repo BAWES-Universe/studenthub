@@ -43,11 +43,11 @@ jobs:
           command: |
             sudo docker-php-ext-install zip
             sudo apt-get install
-            sudo docker-php-ext-install pdo_mysql exif && sudo docker-php-ext-enable pdo_mysql
+        #sudo docker-php-ext-install pdo_mysql exif && sudo docker-php-ext-enable pdo_mysql
         #sudo docker-php-ext-install libonig-dev mbstring exif
         # sudo docker-php-ext-configure intl
         # sudo docker-php-ext-install intl
-#sudo docker-php-ext-install gd
+        #sudo docker-php-ext-install gd
       
       #- run:
       #    name: Install puppeteer
