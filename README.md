@@ -94,3 +94,26 @@ Production ---> `* * * * * cd ~/www && ./init --env=Production --overwrite=All >
 ### make sure to update staff api url
 
 for `urlManagerStaff` component's `baseUrl` property for files at environments/*/common/config/main-local.php
+
+# List of events we sending to segment 
+
+* Request Activity Added (public)
+* Transfer Created (public)
+* Transfer Updated (public)
+* Fulltimer Created (public)
+* Fulltimer Updated (public)
+* Request Created
+* Request Updated
+* Suggestion Created (public)
+* Suggestion Updated (public)
+* Transfer Marked As Payment Received (public)
+* Transfer Locked
+* Transfer UnLocked
+* Candidate Transfer Paid (Can calculate profit from this) (public)
+* Candidate Profile Created (public)
+* Candidate Profile Updated (public)
+* Candidate Invitation Accepted (public)
+* Candidate Invitation Rejected (public)
+* Candidate Invited (public)
+
+There can be other custom events fired manually
