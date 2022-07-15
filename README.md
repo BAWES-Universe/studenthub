@@ -117,3 +117,50 @@ for `urlManagerStaff` component's `baseUrl` property for files at environments/*
 * Candidate Invited (public)
 
 There can be other custom events fired manually, use `Datetime` column in excel to upload past events
+
+## Set up Docker Dev Environment -1
+
+Run the following command after installing Docker
+
+```bash
+docker-compose up
+```
+
+This should set you up with the entire app along with MySQL and Redis. Use the following links to check it out:
+
+* [Admin API on localhost:21080](http://localhost:21080)
+* [Candidate API on localhost:23080](http://localhost:22080)
+* [Company API on localhost:8080](http://localhost:23080)
+* [Inspector API on localhost:8080](http://localhost:24080)
+* [Staff API on localhost:8080](http://localhost:25080)
+* [Verification on localhost:8080](http://localhost:26080)
+
+
+## Accessing terminal in backend container
+
+```bash
+docker-compose exec backend bash
+
+# Now you can run things like
+./init
+./yii migrate
+```
+
+## Running Codeception Tests
+
+Use `docker-compose run --rm` to launch a new backend container which will run the automated tests then destroy the container after it's done.
+
+We have a shortcut script in the project main folder you can use to run complete tests.
+
+```bash
+# Shortcut script in project root folder.
+# Launch this from your own device(host) not the container
+./run-tests.sh
+
+# What this is doing is calling
+docker-compose run --rm backend vendor/bin/codecept run --fail-fast --html report-web.html
+
+# You can also run this in the background by passing `-d` flag
+# to docker-compose and check the test results in the
+# outputted report-web.html
+```
