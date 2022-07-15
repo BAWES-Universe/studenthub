@@ -39,8 +39,8 @@ return [
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.eu.mailgun.org',
-                'username' => 'postmaster@plugn.io',
-                'password' => '2d43d23b68911184532de9f81810f5ca-18e06deb-d74119cb',
+                'username' => 'postmaster@studenthub.co',
+                'password' => '345f8ffa2c7eb8af3c398e53976f67b0-18e06deb-bdad79c2',
                 'port' => '587',
                 'encryption' => 'tls',
                 // 'plugins' => [
