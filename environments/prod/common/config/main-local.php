@@ -38,13 +38,31 @@ return [
             'viewPath' => '@common/mail',
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
+                'host' => 'smtp.eu.mailgun.org',
+                'username' => 'postmaster@plugn.io',
+                'password' => '2d43d23b68911184532de9f81810f5ca-18e06deb-d74119cb',
+                'port' => '587',
+                'encryption' => 'tls',
+                // 'plugins' => [
+                //     [
+                //         'class' => 'Openbuildings\Swiftmailer\CssInlinerPlugin',
+                //     ],
+                // ],
+            ],
+        ],
+        /*
+        'mailer' => [
+            'class' => 'yii\swiftmailer\Mailer',
+            'viewPath' => '@common/mail',
+            'transport' => [
+                'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.sendgrid.net',
                 'username' => 'apikey',
                 'password' => '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',//WeLoveSHTrainingProg!121',
                 'port' => '587',
                 'encryption' => 'tls',
             ],
-        ],
+        ],*/
         'eventManager' => [
             'class' => 'common\components\EventManager',
             'key' => 'bfe2ac5e039a3d8d1c8e281967d6f954'
