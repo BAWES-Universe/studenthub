@@ -13,11 +13,18 @@ return [
             'viewPath' => '@common/mail',
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
+                'host' => 'email-smtp.eu-west-1.amazonaws.com',
+                'username' => 'AKIAWMITDJRKTH5HBB2O',
+                'password' => 'BKyPcINpZJsEVnUrMGymff27eaIztgNwSWN7xI2960eJ',
+                'port' => '587',
+                'encryption' => 'tls',
+                /*
+                'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.sendgrid.net',
                 'username' => 'apikey',
                 'password' => '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',//WeLoveSHTrainingProg!121',
                 'port' => '587',
-                'encryption' => 'tls',
+                'encryption' => 'tls',*/
             ],
         ],
         'eventManager' => [
