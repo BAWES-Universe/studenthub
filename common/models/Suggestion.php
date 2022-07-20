@@ -444,7 +444,8 @@ class Suggestion extends \yii\db\ActiveRecord
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
 
-                $message->setFrom([$staff->staff_email => $staff->staff_name])
+                $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setReplyTo([$staff->staff_email => $staff->staff_name])
                     ->setTo($setTo)
                     ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])
@@ -587,7 +588,8 @@ class Suggestion extends \yii\db\ActiveRecord
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
 
-                $message->setFrom([$staff->staff_email => $staff->staff_name])
+                $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setReplyTo([$staff->staff_email => $staff->staff_name])
                     ->setTo($setTo)
                     ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])

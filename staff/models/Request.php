@@ -177,7 +177,8 @@ class Request extends \common\models\Request {
                 "changedParam" => $changedParam,
                 "changedAttributes" => $changedAttributes,
             ])
-            ->setFrom([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
             ->setSubject($subject)
             ->send();
@@ -200,7 +201,8 @@ class Request extends \common\models\Request {
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
             ])
-            ->setFrom([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
             ->setSubject($subject)
             ->send();
