@@ -2,7 +2,7 @@
 
 namespace staff\models;
 
-
+use Yii;
 use yii\helpers\ArrayHelper;
 
 
