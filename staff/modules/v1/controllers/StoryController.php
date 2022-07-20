@@ -259,11 +259,38 @@ class StoryController extends Controller
             }
         }
 
+        $totalDelivered = $story->request->getStories()
+            ->andWhere(['story_status' => Story::STATUS_DELIVERED])
+            ->count();
+
+        $total = $story->request->getStories()->count();
+
+        $nextStory = $story->request->getStories()
+            ->andWhere(['story_status' => Story::STATUS_UNSTARTED])
+            ->one();
+
+        //if no story in current request, get story from other
+
+        if(!$nextStory)
+        {
+            $nextStory = Story::find()
+                ->andWhere(['story_status' => Story::STATUS_UNSTARTED])
+                ->one();
+        }
+
+        $newStoryActivity = StoryActivity::find()
+            ->where(['story_uuid' => $storyUuid])
+            ->orderBy('activity_created_at desc')
+            ->one();
+
         return [
             "operation" => "success",
             "message" => Yii::$app->user->identity->staff_name . " started " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
             "last_story_acitivty_model" => $last_story_acitivty_model,
-            "newStoryActivity" => $model
+            "newStoryActivity" => $newStoryActivity,
+            "totalDelivered" => $totalDelivered,
+            "total" => $total,
+            "nextStory" => $nextStory
         ];
     }
 
