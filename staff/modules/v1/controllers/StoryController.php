@@ -228,8 +228,11 @@ class StoryController extends Controller
             ->one();
 
         if($last_story_acitivty_model) {
+            
             $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
+
             $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
+
             $diff = $activity_created_at->diff ($activity_last_updated_at);
             $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
             $hoursInSecs = $diff->h * 60 * 60;

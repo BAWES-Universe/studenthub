@@ -474,7 +474,8 @@ class CronController extends \yii\console\Controller {
         $a = \Yii::$app->mailer->compose([
             'message' => 'test',
         ])
-            ->setFrom(['krushnkathrecha@gmail.com' => 'Plugn'])//\Yii::$app->params['supportEmail']
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setReplyTo(['a.aljasser@trolley.com.kw' => 'Plugn'])//\Yii::$app->params['supportEmail']
             ->setTo(['kathrechakrushn@gmail.com'])
             ->setSubject('Test email')
             ->send();
