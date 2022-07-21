@@ -311,6 +311,7 @@ class RequestController extends Controller
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
         $model->request_status = Request::STATUS_PENDING;
+        $model->no_of_employees_per_story = Yii::$app->request->getBodyParam("no_of_employees_per_story");
 
         if (!$model->save())
         {
@@ -359,6 +360,7 @@ class RequestController extends Controller
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
+        $model->no_of_employees_per_story = Yii::$app->request->getBodyParam("no_of_employees_per_story");
 
         if (!$model->save())
         {

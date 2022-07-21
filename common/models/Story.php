@@ -47,7 +47,7 @@ class Story extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['story_uuid','request_uuid'], 'required'],
+            [['request_uuid'], 'required'],
             ['story_status', 'in', 'range' => [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_FINISHED,self::STATUS_DELIVERED,self::STATUS_REJECTED,self::STATUS_ACCEPTED]],
             [['story_status', 'story_time_spent','staff_id','is_old'], 'integer'],
             [['story_created_at', 'story_last_updated_at'], 'safe'],

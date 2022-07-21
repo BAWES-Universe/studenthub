@@ -18,7 +18,8 @@ class m220511_072946_story_notes_changes extends Migration
             ->getTableSchema('note')
             ->getColumn('story_uuid');
 
-        if (!$columnData) {
+        if (!$columnData) 
+        {
             $this->addColumn('note', 'story_uuid', $this->char(60)->null()->after('suggestion_uuid'));
 
             $this->createIndex(

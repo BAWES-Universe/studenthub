@@ -25,6 +25,7 @@ use Segment\Segment;
  * @property string $request_job_description
  * @property string $request_compensation
  * @property int $request_number_of_employees
+ * @property int $no_of_employees_per_story
  * @property string $request_location
  * @property string $request_additional_info
  * @property string $request_status
@@ -81,10 +82,25 @@ class Request extends \yii\db\ActiveRecord
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
             [['num_hours_followup_interval'], 'number', 'min' => 0],
-            [['request_number_of_employees'], 'number', 'min' => 1],
+            [['request_number_of_employees', 'no_of_employees_per_story'], 'number', 'min' => 1],
+            ['no_of_employees_per_story', 'validateNoOfEmplPerStory']
         ];
     }
 
+    /**
+     * Validate no of employees per story
+     */
+    public function validateNoOfEmplPerStory($attribute, $params, $validator) {
+
+        if ($this->no_of_employees_per_story > $this->request_number_of_employees) {
+
+            $this->addError('no_of_employees_per_story', "No of employees per story can not be greater than no of employees in request.");
+        }
+    }
+
+    /**
+     * Validate contact belong to request owner
+     */ 
     public function validateContact($attribute, $params, $validator) {
 
         if ($this->contact_uuid && $this->company_id) {
@@ -183,6 +199,7 @@ class Request extends \yii\db\ActiveRecord
             'request_job_description' => Yii::t('app', 'Job Description'),
             'request_compensation' => Yii::t('app', 'Compensation'),
             'request_number_of_employees' => Yii::t('app', 'Request Number Of Employees'),
+            'no_of_employees_per_story' => Yii::t('app', 'Number Of Employees per Story'),
             'request_location' => Yii::t('app', 'Request Location'),
             'request_additional_info' => Yii::t('app', 'Request Additional Info'),
             'request_status' => Yii::t('app', 'Request Status'),
@@ -407,13 +424,21 @@ class Request extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if($insert) {
+        if($insert) 
+        {
             //Add stories based on request_number_of_employees
-            for ($i=0; $i < $this->request_number_of_employees; $i++) {
+
+            $count = ceil($this->request_number_of_employees / $this->no_of_employees_per_story);
+
+            for ($i=0; $i < $count; $i++) 
+            {
                 $story = new Story();
                 $story->request_uuid = $this->request_uuid;
                 $story->story_status = Story::STATUS_UNSTARTED;
-                $story->save(false);
+                if(!$story->save()) {
+                    //print_r($story->errors);
+                    Yii::error($story->errors);
+                }
             }
         }
 
@@ -423,7 +448,10 @@ class Request extends \yii\db\ActiveRecord
          */
         if(isset($changedAttributes['request_status'])) {
 
-            if($this->request_status == self::STATUS_CANCELLED) {
+            if($this->request_status == self::STATUS_CANCELLED) 
+            {
+                //todo: check story activity time not getting added in velocity
+
                 Story::updateAll (['story_status' => Story::STATUS_CANCELLED], [
                     'request_uuid' => $this->request_uuid
                 ]);

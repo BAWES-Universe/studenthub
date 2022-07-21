@@ -261,7 +261,7 @@ class StoryController extends Controller
         return [
             "operation" => "success",
             "message" => Yii::$app->user->identity->staff_name . " started " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
-            "last_story_acitivty_model" => $last_story_acitivty_model,
+            //"last_story_acitivty_model" => $last_story_acitivty_model,
             "newStoryActivity" => $newStoryActivity,
             "totalDelivered" => $totalDelivered,
             "total" => $total,

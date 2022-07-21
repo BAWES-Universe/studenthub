@@ -88,7 +88,7 @@ class StoryActivity extends \yii\db\ActiveRecord
             return true;
         }
 
-        $lastActivity = $this->getStoryActivities()
+        $lastActivity = $this->story->getStoryActivities()
             ->orderBy('activity_created_at desc')
             ->one();
 
