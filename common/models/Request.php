@@ -80,6 +80,8 @@ class Request extends \yii\db\ActiveRecord
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
+            [['num_hours_followup_interval'], 'number', 'min' => 0],
+            [['request_number_of_employees'], 'number', 'min' => 1],
         ];
     }
 

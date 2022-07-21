@@ -141,6 +141,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                 return (int) $query
                     ->count();
             },
+            //todo: timeForDeliveredStory
             'timeForCompletedRequests' => function($model) {
                 $start_date = Yii::$app->request->get('start_date');
                 $end_date = Yii::$app->request->get('end_date');

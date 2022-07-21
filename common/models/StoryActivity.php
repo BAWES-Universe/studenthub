@@ -20,18 +20,16 @@ use yii\helpers\ArrayHelper;
  * @property string $activity_last_updated_at
  *
  * @property Staff $staff
- * @property Story $storyUu
+ * @property Story $story
  */
 class StoryActivity extends \yii\db\ActiveRecord
 {
-
     const STATUS_UNSTARTED = 0;
     const STATUS_STARTED = 1;
     const STATUS_FINISHED = 2;
     const STATUS_DELIVERED = 3;
     const STATUS_REJECTED = 4;
     const STATUS_ACCEPTED = 5;
-
 
     /**
      * {@inheritdoc}
@@ -72,6 +70,45 @@ class StoryActivity extends \yii\db\ActiveRecord
             'activity_created_at' => 'Activity Created At',
             'activity_last_updated_at' => 'Activity Datetime',
         ];
+    }
+
+    /**
+     * @param $insert
+     * @return bool
+     * @throws \Exception
+     */
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if($this->activity_status == self::STATUS_UNSTARTED) {
+            $this->activity_time_spent = 0;
+            return true;
+        }
+
+        $lastActivity = $this->getStoryActivities()
+            ->orderBy('activity_created_at desc')
+            ->one();
+
+        if($lastActivity)
+        {
+            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($lastActivity->activity_created_at)));
+
+            $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
+
+            $diff = $activity_created_at->diff ($activity_last_updated_at);
+            $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
+            $hoursInSecs = $diff->h * 60 * 60;
+            $minsInSecs = $diff->i * 60;
+
+            $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+
+            $this->activity_time_spent = $seconds;
+        }
+
+        return true;
     }
 
     /**
