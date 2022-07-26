@@ -199,6 +199,7 @@ return [
                         'GET suspicious' => 'suspicious-list',
                         'GET' => 'list',
                         'GET text' => 'text',
+                        'GET download-payment-advice' => 'download-payment-advice',
                         'GET payable-candidates' => 'payable-candidates',
                         'GET export-payable-candidates' => 'export-payable-candidates',
                         'GET invoices/<id>' => 'invoices',
@@ -213,6 +214,7 @@ return [
                         'PATCH mark-paid-all' => 'mark-paid-all',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTION download-payment-advice' => 'options',
                         'OPTIONS update-transfer-from-file/<id>' => 'options',
                         'OPTIONS payable-candidates' => 'options',
                         'OPTIONS invoices/<id>' => 'options',

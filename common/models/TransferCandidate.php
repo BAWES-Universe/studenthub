@@ -631,6 +631,65 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     /**
+     * get list of transferable candidate
+     * for text export
+     * @return array
+     */
+    public static function getPayableCandidateAdvice()
+    {
+        $totalAmount = 0;
+
+        $transferCandidates = self::find()
+            ->payable()
+            ->havingBankInfo()
+            ->all();
+
+        if (!$transferCandidates) {
+            return false;
+        }
+
+        $list = [];
+
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
+        foreach ($transferCandidates as $transferCandidate) {
+
+            $candidate = $transferCandidate->candidate;
+
+            if (
+                empty($candidate->bank) ||
+                !$transferCandidate->bank_id ||
+                !$transferCandidate->transfer_benef_iban ||
+                !$transferCandidate->transfer_benef_name ||
+                !$transferCandidate->invoiceNumber ||
+                !$candidate->isProfileCompleted
+            ) {
+                continue;
+            }
+
+            //todo: differece between candidate_total and totalPaidToCandidate
+
+            $totalAmount += $transferCandidate->totalPaidToCandidate;
+
+            $list[] = [
+                'Section Index' => 'D',
+                'Reference Number' => $transferCandidate->transfer_id,//Debit Narrative 1
+                'Email ID' => $candidate->candidate_email,
+                'Invoice Date' => date('dmY'),
+                'Invoice Info' => $transferCandidate->tc_id,
+                //'Invoice No' => $transferCandidate->tc_id,
+                'Invoice Currency' => 'KWD',
+                'Invoice Amount' => number_format($transferCandidate->totalPaidToCandidate, 3, '.', '')
+            ];
+        }
+
+        return [
+            'candidate_list' => $list,
+            'total_amount' => number_format($totalAmount, 3, '.', ''),
+        ];
+    }
+
+    /**
      * get invoice number 
      * @return string
      */
