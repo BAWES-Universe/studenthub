@@ -759,6 +759,45 @@ class TransferController extends Controller
     }
 
     /**
+     * Payment Advice file
+     */
+    public function actionDownloadPaymentAdvice()
+    {
+        $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
+        $batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        //todo: replace time() with reference number
+        $s1 = 'H,'.$batchId.','.time().PHP_EOL; // header line
+        $s2 = '';
+
+        $candidates = TransferCandidate::getPayableCandidateAdvice();
+
+        if(!$candidates) {
+            return [
+                "operation" => "error",
+                "message" => 'No Payable Candidates!'
+            ];
+        }
+
+        foreach ($candidates['candidate_list'] as $detail) {
+            $s2 .=  implode(',',$detail).",".PHP_EOL;
+        }
+
+        $s3 = 'T,'.count($candidates['candidate_list']).','.$candidates['total_amount']; // Footer
+        $sAll = $s1.$s2.$s3;
+
+        $path = sys_get_temp_dir() .DIRECTORY_SEPARATOR. $fileName;
+
+        $handle = fopen($path, "w");
+        fwrite($handle, $sAll);
+        fclose($handle);
+
+        Yii::$app->response->headers->add('filename', $fileName);
+
+        return Yii::$app->response->sendFile($path);
+    }
+
+    /**
      * Export Transfer detail as Excel
      * @param $id
      * @return array
