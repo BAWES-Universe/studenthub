@@ -88,70 +88,70 @@ class RequestCest
      * Try to create new request
      * @param FunctionalTester $I
      */
-    public function tryToCreate(FunctionalTester $I)
-    {
-        $I->wantTo('create a request via API');
-
-        $I->sendPOST(
-            'v1/requests',
-            [
-               	'company_id' => $this->company->company_id,
-                'contact_uuid' => $this->contact->contact_uuid,
-                'position_type' => 1,//full time
-                'position_title' => 'Android developer',
-                'number_of_employees' => 1,
-                'job_description' => 'Autem.',
-                'compensation' => 'Dolor.',
-                'additional_info' => 'la la lala la'
-            ]
-        );
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        
-        $I->seeResponseContainsJson([
-            "operation" => "success"
-        ]);
-    }
-
-    /**
-     * Try to update
-     * @param FunctionalTester $I
-     */
-    public function tryToUpdate(FunctionalTester $I)
-    {
-        $I->wantTo('update a request via API');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH(
-            'v1/requests/' . $this->request->request_uuid,
-            [
-            	'company_id' => $this->company->company_id,
-                'contact_uuid' => $this->contact->contact_uuid,
-                'position_type' => 1,//full time
-                'position_title' => 'Android developer',
-                'number_of_employees' => 1,
-                'job_description' => 'Autem.',
-                'compensation' => 'Dolor.',
-                'additional_info' => 'la la lala  la'
-            ]
-        );
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            "operation" => "success"
-        ]);
-    }
-
-    /**
-     * Try to cancel 
-     * @param FunctionalTester $I
-     */
-    public function tryToCancel(FunctionalTester $I)
-    {
-        $I->wantTo('cancel request via API');
-        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $I->sendPATCH('v1/requests/cancel/' . $this->request->request_uuid, [
-        	'feedback' => 'Lorem isuem...'
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
+//    public function tryToCreate(FunctionalTester $I)
+//    {
+//        $I->wantTo('create a request via API');
+//
+//        $I->sendPOST(
+//            'v1/requests',
+//            [
+//               	'company_id' => $this->company->company_id,
+//                'contact_uuid' => $this->contact->contact_uuid,
+//                'position_type' => 1,//full time
+//                'position_title' => 'Android developer',
+//                'number_of_employees' => 1,
+//                'job_description' => 'Autem.',
+//                'compensation' => 'Dolor.',
+//                'additional_info' => 'la la lala la'
+//            ]
+//        );
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//
+//        $I->seeResponseContainsJson([
+//            "operation" => "success"
+//        ]);
+//    }
+//
+//    /**
+//     * Try to update
+//     * @param FunctionalTester $I
+//     */
+//    public function tryToUpdate(FunctionalTester $I)
+//    {
+//        $I->wantTo('update a request via API');
+//        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+//        $I->sendPATCH(
+//            'v1/requests/' . $this->request->request_uuid,
+//            [
+//            	'company_id' => $this->company->company_id,
+//                'contact_uuid' => $this->contact->contact_uuid,
+//                'position_type' => 1,//full time
+//                'position_title' => 'Android developer',
+//                'number_of_employees' => 1,
+//                'job_description' => 'Autem.',
+//                'compensation' => 'Dolor.',
+//                'additional_info' => 'la la lala  la'
+//            ]
+//        );
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//        $I->seeResponseContainsJson([
+//            "operation" => "success"
+//        ]);
+//    }
+//
+//    /**
+//     * Try to cancel
+//     * @param FunctionalTester $I
+//     */
+//    public function tryToCancel(FunctionalTester $I)
+//    {
+//        $I->wantTo('cancel request via API');
+//        $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
+//        $I->sendPATCH('v1/requests/cancel/' . $this->request->request_uuid, [
+//        	'feedback' => 'Lorem isuem...'
+//        ]);
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//    }
 
     /**
      * Try to deliver 
