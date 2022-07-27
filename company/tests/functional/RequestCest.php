@@ -75,59 +75,59 @@ class RequestCest
      * Try to create request
      * @param FunctionalTester $I
      */
-    public function tryToCreate(FunctionalTester $I)
-    {
-        $I->wantTo ('Create request via API');
-        $I->sendPOST ('v1/requests', [
-            "position_type" => '1',
-            "position_title" => 'Android developer',
-            "number_of_employees" => 10,
-            "location" => 'OP Road',
-            "additional_info" => 'Add minue...',
-            "job_description" => 'detail about job',
-            "compensation" => '100 USD per day'
-        ]);
-        $I->seeResponseCodeIs (HttpCode::OK); // 200
-    }
-
-    /**
-     * Try to update request
-     * @param FunctionalTester $I
-     */
-    public function tryToUpdateRequest(FunctionalTester $I)
-    {
-        $I->wantTo ('Update request via API');
-        $I->sendPATCH ('v1/requests/' . $this->request->request_uuid, [
-            "position_type" => '1',
-            "position_title" => 'Android developer',
-            "number_of_employees" => 10,
-            "location" => 'OP Road',
-            "additional_info" => 'Add minue...',
-            "job_description" => 'detail about job',
-            "compensation" => '100 USD per day'
-        ]);
-        $I->seeResponseCodeIs (HttpCode::OK); // 200
-    }
-
-    /**
-     * Try to get request count
-     * @param FunctionalTester $I
-     */
-    public function tryToGetRequestCount(FunctionalTester $I)
-    {
-        $I->wantTo ('Get request count via API');
-        $I->sendGET('v1/requests/count');
-        $I->seeResponseCodeIs (HttpCode::OK); // 200
-    }
-
-    /**
-     * Try to check if request updated
-     * @param FunctionalTester $I
-     */
-    public function tryToCheckIfRequestUpdated(FunctionalTester $I)
-    {
-        $I->wantTo ('Check is request updated via API');
-        $I->sendGET('v1/requests/is-request-updated/' . $this->request->request_uuid);
-        $I->seeResponseCodeIs (HttpCode::OK); // 200
-    }
+//    public function tryToCreate(FunctionalTester $I)
+//    {
+//        $I->wantTo ('Create request via API');
+//        $I->sendPOST ('v1/requests', [
+//            "position_type" => '1',
+//            "position_title" => 'Android developer',
+//            "number_of_employees" => 10,
+//            "location" => 'OP Road',
+//            "additional_info" => 'Add minue...',
+//            "job_description" => 'detail about job',
+//            "compensation" => '100 USD per day'
+//        ]);
+//        $I->seeResponseCodeIs (HttpCode::OK); // 200
+//    }
+//
+//    /**
+//     * Try to update request
+//     * @param FunctionalTester $I
+//     */
+//    public function tryToUpdateRequest(FunctionalTester $I)
+//    {
+//        $I->wantTo ('Update request via API');
+//        $I->sendPATCH ('v1/requests/' . $this->request->request_uuid, [
+//            "position_type" => '1',
+//            "position_title" => 'Android developer',
+//            "number_of_employees" => 10,
+//            "location" => 'OP Road',
+//            "additional_info" => 'Add minue...',
+//            "job_description" => 'detail about job',
+//            "compensation" => '100 USD per day'
+//        ]);
+//        $I->seeResponseCodeIs (HttpCode::OK); // 200
+//    }
+//
+//    /**
+//     * Try to get request count
+//     * @param FunctionalTester $I
+//     */
+//    public function tryToGetRequestCount(FunctionalTester $I)
+//    {
+//        $I->wantTo ('Get request count via API');
+//        $I->sendGET('v1/requests/count');
+//        $I->seeResponseCodeIs (HttpCode::OK); // 200
+//    }
+//
+//    /**
+//     * Try to check if request updated
+//     * @param FunctionalTester $I
+//     */
+//    public function tryToCheckIfRequestUpdated(FunctionalTester $I)
+//    {
+//        $I->wantTo ('Check is request updated via API');
+//        $I->sendGET('v1/requests/is-request-updated/' . $this->request->request_uuid);
+//        $I->seeResponseCodeIs (HttpCode::OK); // 200
+//    }
 }
