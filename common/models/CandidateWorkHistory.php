@@ -133,6 +133,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
+            'candidate',
             'store',
             'company',
             'parentCompany'
@@ -144,6 +145,13 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      */
     public function getCompany($className = '\common\models\Company') {
         return $this->hasOne($className::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($className = '\common\models\Candidate') {
+        return $this->hasOne($className::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**

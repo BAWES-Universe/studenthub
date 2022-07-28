@@ -18,4 +18,11 @@ class CandidateWorkHistory extends \common\models\CandidateWorkHistory
     public function getStore($className = '\admin\models\Store') {
         return parent::getStore($className);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($className = '\admin\models\Candidate') {
+        return parent::getCandidate ($className);
+    }
 }

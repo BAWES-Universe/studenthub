@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Company;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -86,6 +87,14 @@ class CandidateController extends Controller
         if (Yii::$app->request->get('phone', null)) {
             $query->filterEmail(Yii::$app->request->get('phone'));
         }
+        if (Yii::$app->request->get('assigned', null)) {
+            $query->totalAssigned();
+        }
+
+        if (Yii::$app->request->get('company_id', null)) {
+            $company = Company::findOne(Yii::$app->request->get('company_id'));
+            $query->filterCompany($company);
+        }
 
         switch ($by) {
             case 'country_id' :
@@ -103,6 +112,45 @@ class CandidateController extends Controller
             default:
                 $query->byApprovalStatus(0);
                 break;
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Candidate Accounts by
+     * search criteria
+     */
+    public function actionReportSearch()
+    {
+        $query = CandidateWorkHistory::find();
+
+        if (Yii::$app->request->get('start', null) || Yii::$app->request->get('end', null)) {
+            $query->filterByJoiningDate(
+                Yii::$app->request->get('start',null),
+                Yii::$app->request->get('end',null),
+                Yii::$app->request->get('company_id',null)
+            );
+        }
+        if (Yii::$app->request->get('currently_working')) { // reason in case if candidate were hired but not working now that we need to check
+            $query->notDeleted();
+            $query->totalAssigned();
+            $company = Company::findOne(Yii::$app->request->get('company_id'));
+            $query->filterCompanyByCandidate($company);
+            $query->filterByJoiningDate(
+                Yii::$app->request->get('start',null),
+                Yii::$app->request->get('end',null),
+                Yii::$app->request->get('company_id',null)
+            );
+        } else if(Yii::$app->request->get('company_id',null)) {
+            $query->filterCompany(Yii::$app->request->get('company_id'));
+            $query->notDeleted();
+            $query->totalAssigned();
+        } else {
+            $query->notDeleted();
+            $query->totalAssigned();
         }
 
         return new ActiveDataProvider([
