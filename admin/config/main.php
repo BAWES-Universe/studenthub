@@ -163,6 +163,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET search' => 'search',
+                        'GET report-search' => 'report-search',
                         'GET total-to-review' => 'total-to-review',
                         'PATCH approve/<id>' => 'approve',
                         'GET transfers/<id>' => 'transfers',
@@ -171,6 +172,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
+                        'OPTIONS report-search' => 'options',
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
