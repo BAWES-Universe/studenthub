@@ -68,8 +68,14 @@ class UniversityController extends Controller
      */
     public function actionList()
     {
+        $keyword = Yii::$app->request->get("keyword",null);
+
         $query = University::find()
             ->listWithCandidateCount();
+
+        if($keyword) {
+            $query->filterName($keyword);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
