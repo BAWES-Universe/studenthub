@@ -40,7 +40,6 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function filterCompany($company)
     {
         // create company_id array from all sub companies and self
-
         $companies = $company->subCompanies;
 
         $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
@@ -48,15 +47,12 @@ class CandidateQuery extends \yii\db\ActiveQuery
         $company_ids[] = $company->company_id;
 
         // create store_id array 
-
         $stores = Store::find()
             ->andWhere(['in', 'company_id', $company_ids])
             ->all();
 
-        $store_ids = ArrayHelper::map($stores, '{{%candidate}}.store_id', 'store_id');
+        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
 
-        // return candidate list for given company 
-        
         return $this->andWhere(['in', '{{%candidate}}.store_id', $store_ids]);
     }
 
@@ -155,6 +151,26 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this
             ->joinWith('candidateIdCard')
             ->andWhere('DATE(expiry_date) < DATE(NOW())');
+    }
+
+    /**
+     * @return $this
+     */
+    public function filterByJoiningDate($startDate = null, $endDate = null, $companyID = null)
+    {
+        $this->joinWith('workHistory');
+        if ($startDate) {
+            $startDate = date('Y-m-d', strtotime($startDate));
+            $this->andWhere("DATE(candidate_work_history.start_date) >= '$startDate'");
+        }
+        if ($endDate) {
+            $endDate = date('Y-m-d', strtotime($endDate));
+            $this->andWhere("DATE(candidate_work_history.start_date) <= '$endDate'");
+        }
+        if ($companyID) {
+            $this->andWhere(["`candidate_work_history`.`parent_company_id`" => $companyID]);
+        }
+        return $this;
     }
 
     /**
