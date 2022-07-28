@@ -128,7 +128,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
-            [['candidate_phone'], 'unique'],
+            //[['candidate_phone'], 'unique'],
             ['candidate_video_processed', 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
