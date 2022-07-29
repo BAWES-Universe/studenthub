@@ -12,6 +12,7 @@ use Yii;
  * @property integer $store_id
  * @property integer $company_id
  * @property integer $parent_company_id
+ * @property integer $staff_id
  * @property string $start_date
  * @property string $end_date
  * @property string $candidate_hourly_rate
@@ -38,6 +39,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['candidate_hourly_rate'], 'number'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 
@@ -52,6 +54,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             'store_id' => Yii::t('app', 'Store ID'),
             'parent_company_id' => Yii::t('app', 'parent company ID'),
             'company_id' => Yii::t('app', 'company ID'),
+            'staff_id' => Yii::t('app', 'staff ID'),
             'start_date' => Yii::t('app', 'Start Date'),
             'end_date' => Yii::t('app', 'End Date'),
             'candidate_hourly_rate' => Yii::t('app', 'Candidate Hourly Rate'),
@@ -67,6 +70,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
 
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
+        $model->staff_id = Yii::$app->user->identity->getId();
         $model->store_id = $candidate->store_id;
         $model->company_id = (isset($candidate->company->company_id)) ? $candidate->company->company_id : null;
         $model->parent_company_id = (isset($candidate->company->parent_company_id)) ? $candidate->company->parent_company_id : $candidate->company->company_id;
