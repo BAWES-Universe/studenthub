@@ -293,7 +293,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      */
     public function getRequests($modelClass = "\common\models\Request")
     {
-        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+        return $this->hasMany($modelClass::className(), ['request_created_by' => 'staff_id']);
     }
 
     /**
@@ -302,6 +302,14 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function getNotes($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
