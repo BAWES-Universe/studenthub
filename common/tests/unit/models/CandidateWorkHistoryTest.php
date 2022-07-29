@@ -38,8 +38,8 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
     }
 
     protected function _before(){
-        $staff = Staff::find()->one();
-        Yii::$app->user->login($staff);
+//        $staff = Staff::find()->one();
+//        Yii::$app->user->login($staff);
     }
 
     protected function _after(){}
