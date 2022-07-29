@@ -71,7 +71,7 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
         }
         if ($endDate) {
             $endDate = date('Y-m-d', strtotime($endDate));
-            $this->andWhere("DATE(candidate_work_history.start_dates) <= '$endDate'");
+            $this->andWhere("DATE(candidate_work_history.start_date) <= '$endDate'");
         }
         if ($companyID) {
             $this->andWhere(["`candidate_work_history`.`parent_company_id`" => $companyID]);
