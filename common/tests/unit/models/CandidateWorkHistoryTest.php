@@ -1,7 +1,10 @@
 <?php
 namespace common\tests;
 
+use common\fixtures\StaffTokenFixture;
 use common\models\CandidateWorkHistory;
+use common\models\Staff;
+use common\models\StaffToken;
 use Yii;
 use common\models\Store;
 use common\models\Candidate;
@@ -29,11 +32,15 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
             'country' => CountryFixture::className(),
             'university' => UniversityFixture::className(),
             'store' => StoreFixture::className(),
-            'candidateWorkHistory' => CandidateWorkHistoryFixture::className()
+            'candidateWorkHistory' => CandidateWorkHistoryFixture::className(),
+            'staffToken' => StaffTokenFixture::className(),
         ];
     }
 
-    protected function _before(){}
+    protected function _before(){
+        $staff = Staff::find()->one();
+        Yii::$app->user->login($staff);
+    }
 
     protected function _after(){}
 
@@ -92,6 +99,7 @@ class CandidateWorkHistoryTest extends \Codeception\Test\Unit
      * test case to test SaveUnAssignedHistory
      */
     public function testSaveUnAssignedHistory(){
+
 
         $this->specify('no record found testing', function() {
             $candidate = Candidate::findOne(4);
