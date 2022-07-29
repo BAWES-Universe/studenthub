@@ -137,13 +137,15 @@ class CandidateController extends Controller
         if (Yii::$app->request->get('currently_working')) { // reason in case if candidate were hired but not working now that we need to check
             $query->notDeleted();
             $query->totalAssigned();
-            $company = Company::findOne(Yii::$app->request->get('company_id'));
-            $query->filterCompanyByCandidate($company);
-            $query->filterByJoiningDate(
-                Yii::$app->request->get('start',null),
-                Yii::$app->request->get('end',null),
-                Yii::$app->request->get('company_id',null)
-            );
+            if (Yii::$app->request->get('company_id')) {
+                $company = Company::findOne(Yii::$app->request->get('company_id'));
+                $query->filterCompanyByCandidate($company);
+                $query->filterByJoiningDate(
+                    Yii::$app->request->get('start', null),
+                    Yii::$app->request->get('end', null),
+                    Yii::$app->request->get('company_id', null)
+                );
+            }
         } else if(Yii::$app->request->get('company_id',null)) {
             $query->filterCompany(Yii::$app->request->get('company_id'));
             $query->notDeleted();
