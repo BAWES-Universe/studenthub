@@ -121,6 +121,27 @@ class InvitationController extends Controller
     }
 
     /**
+     * check if candidate already invited
+     */
+    public function actionIsAlreadyInvited()
+    {
+        $candidate_id = Yii::$app->request->get('candidate_id');
+        //$story_uuid = Yii::$app->request->get('story_uuid');
+        $request_uuid = Yii::$app->request->get('request_uuid');
+
+        $query = Invitation::find()
+            ->andWhere([
+                //'invitation_status' => self::STATUS_INVITED,
+                'request_uuid' => $request_uuid,
+                'candidate_id' => $candidate_id
+            ]);
+
+        return [
+            'isAlreadyInvited' => $query->exists()
+        ];
+    }
+
+    /**
      * Create a Suggestion
      * @return array
      */
@@ -144,10 +165,10 @@ class InvitationController extends Controller
             'staff_id' => Yii::$app->user->getId ()
         ]);
 
-
         //$request = Request::findOne(['request_uuid' => $request_uuid]);
 
-        if(!$story) {
+        if(!$story)
+        {
             return [
                 "operation" => "error",
                 "message" => 'No active story found for this request'
@@ -158,14 +179,15 @@ class InvitationController extends Controller
 
         //create a "Note" of type "suggested"
 
-
         $query = Invitation::find()
             ->andWhere(['candidate_id'=>$candidate_id])
             ->andWhere(new Expression('DATE(`invitation_created_at`) = CURDATE()'))
             ->one();
 
         //BP-1194 candidate can only receive one invitation in a day
-        if ($query) {
+
+        if ($query)
+        {
             $transaction->rollBack();
 
             return [

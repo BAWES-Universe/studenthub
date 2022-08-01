@@ -162,6 +162,7 @@ class Story extends \yii\db\ActiveRecord
             'request',
             'company',
             'staff',
+            'staffs',
             'story',
             'storyActivities',
             'latestStoryActivity'
@@ -215,6 +216,17 @@ class Story extends \yii\db\ActiveRecord
     public function getStory($modelClass = "\common\models\Story")
     {
         return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
+    }
+
+    /**
+     * all staffs who have worked in this request
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaffs($modelClass = "\common\models\Staff")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id'])
+            ->andWhere(['staff.deleted'=>'0'])
+            ->via('storyActivities');
     }
 
     /**

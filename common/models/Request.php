@@ -392,6 +392,17 @@ class Request extends \yii\db\ActiveRecord
     }
 
     /**
+     * all staffs who have worked in this request
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryStaffs($modelClass = "\common\models\Staff")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id'])
+            ->andWhere(['staff.deleted'=>'0'])
+            ->via('stories');
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getStoryOwners($modelClass = "\common\models\Staff")
