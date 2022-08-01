@@ -2,6 +2,9 @@
 
 namespace common\models\query;
 
+use common\models\Store;
+use yii\helpers\ArrayHelper;
+
 /**
  * This is the ActiveQuery class for [[CandidateWorkHistory]].
  *
@@ -44,6 +47,15 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * compare candidate id
+     * @param $candidate_id
+     * @return $this
+     */
+    public function filterStaff($staff_id) {
+        return $this->andWhere(['staff_id'=>$staff_id]);
+    }
+
+    /**
      * compare date
      * @param $date
      * @return $this
@@ -58,5 +70,58 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
      */
     public function emptyEndDate() {
         return $this->andWhere('end_date is null');
+    }
+
+    public function filterByJoiningDate($startDate = null, $endDate = null, $companyID = null)
+    {
+        if ($startDate) {
+            $startDate = date('Y-m-d', strtotime($startDate));
+            $this->andWhere("DATE(candidate_work_history.start_date) >= '$startDate'");
+        }
+        if ($endDate) {
+            $endDate = date('Y-m-d', strtotime($endDate));
+            $this->andWhere("DATE(candidate_work_history.start_date) <= '$endDate'");
+        }
+        if ($companyID) {
+            $this->andWhere(["`candidate_work_history`.`parent_company_id`" => $companyID]);
+        }
+        return $this;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function totalAssigned()
+    {
+        return $this->joinWith('candidate')
+                ->andWhere('{{%candidate}}.store_id > 0');
+    }
+
+    public function notDeleted() {
+        return $this->joinWith('candidate')
+            ->andWhere(['{{%candidate}}.deleted'=>0]);
+    }
+
+    public function filterCompany($companyID) {
+        $this->andWhere(["`candidate_work_history`.`parent_company_id`" => $companyID]);
+    }
+
+    public function filterCompanyByCandidate($company) {
+        // create company_id array from all sub companies and self
+        $companies = $company->subCompanies;
+
+        $company_ids = ArrayHelper::map($companies, 'company_id', 'company_id');
+
+        $company_ids[] = $company->company_id;
+
+        // create store_id array
+        $stores = Store::find()
+            ->andWhere(['in', 'company_id', $company_ids])
+            ->all();
+
+        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
+        $this->joinWith('candidate');
+        $this->andWhere(['in', '{{%candidate}}.store_id', $store_ids]);
+        return $this->groupBy('{{%candidate}}.candidate_id');
     }
 }

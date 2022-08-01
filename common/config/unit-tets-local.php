@@ -14,7 +14,8 @@ return yii\helpers\ArrayHelper::merge(
             ],
             //to fix error for BlamableBehaviour in unit testing
             'user' => [
-                'class' => 'common\models\Staff'
+                'identityClass' => 'common\models\Staff', // User must implement the IdentityInterface
+                'enableAutoLogin' => true,
             ]
         ],
     ]

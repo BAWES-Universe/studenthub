@@ -21,7 +21,16 @@ class Staff extends \common\models\Staff {
         unset($fields['staff_auth_key'],
         $fields['staff_password_hash'],
         $fields['staff_password_reset_token']);
+        $fields['total_assigned'] = function ($model) {
+            return $model->getCandidateWorkHistories()->count();
+        };
+        $fields['total_requests'] = function ($model) {
+            return $model->getRequests()->count();
+        };
 
+        $fields['total_notes'] = function ($model) {
+            return $model->getNotes()->count();
+        };
         return $fields;
     }
 

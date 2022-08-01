@@ -163,6 +163,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET search' => 'search',
+                        'GET report-search' => 'report-search',
                         'GET total-to-review' => 'total-to-review',
                         'PATCH approve/<id>' => 'approve',
                         'GET transfers/<id>' => 'transfers',
@@ -171,6 +172,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS search' => 'options',
+                        'OPTIONS report-search' => 'options',
                         'OPTIONS total-to-review' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
@@ -366,6 +368,25 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // CandidateWorkHistoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'pluralize' => false,
+                    'controller' => 'v1/candidate-work-history',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // CandidateWorkHistoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                     ]
                 ],
             ],
