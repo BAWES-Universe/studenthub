@@ -1,8 +1,8 @@
 <?php
 
-namespace staff\modules\v1\controllers;
+namespace admin\modules\v1\controllers;
 
-use staff\models\Staff;
+use admin\models\Staff;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -75,7 +75,11 @@ class RequestController extends Controller
     public function actionList()
     {
         $query = Request::find();
-        
+
+        if (Yii::$app->request->get('staff_id', null)) {
+            $query->filterByStaff(Yii::$app->request->get('staff_id'));
+        }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);

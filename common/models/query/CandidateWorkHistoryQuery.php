@@ -47,6 +47,15 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * compare candidate id
+     * @param $candidate_id
+     * @return $this
+     */
+    public function filterStaff($staff_id) {
+        return $this->andWhere(['staff_id'=>$staff_id]);
+    }
+
+    /**
      * compare date
      * @param $date
      * @return $this
