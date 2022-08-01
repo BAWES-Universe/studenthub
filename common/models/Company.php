@@ -230,6 +230,7 @@ class Company extends \yii\db\ActiveRecord
         return [
 //            'company',
             'candidates',
+            'suggestions',
             'subCompanies',
             'stores',
             'files',
@@ -273,6 +274,16 @@ class Company extends \yii\db\ActiveRecord
     public function getRequests($modelClass = "\common\models\Request")
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSuggestions($modelClass = "\common\models\Suggestion")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
+                    ->via('requests');
     }
 
     /**
