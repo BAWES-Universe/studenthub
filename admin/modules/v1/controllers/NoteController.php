@@ -79,6 +79,10 @@ class NoteController extends Controller
             $query->filterCompany(Yii::$app->request->get("company_id"));
         }
 
+        if (Yii::$app->request->get('staff_id', null)) {
+            $query->filterCreatedBy(Yii::$app->request->get('staff_id'));
+        }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);

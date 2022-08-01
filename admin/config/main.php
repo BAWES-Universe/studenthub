@@ -356,6 +356,25 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CandidateWorkHistoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'pluralize' => false,
+                    'controller' => 'v1/candidate-work-history',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // CandidateWorkHistoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
             ],
         ],
     ],

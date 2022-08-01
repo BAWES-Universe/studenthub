@@ -52,6 +52,10 @@ class RequestQuery extends ActiveQuery
         return $this->andWhere(['!=','request_created_by', 0]);
     }
 
+    public function filterByStaff($staff_id){
+        return $this->andWhere(['request_created_by' => $staff_id]);
+    }
+
     /**
      * requests that need attentions
      * @return RequestQuery
