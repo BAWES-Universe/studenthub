@@ -384,6 +384,7 @@ return [
                     'controller' => 'v1/invitation',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET is-already-invited' => 'is-already-invited',
                         'POST' => 'create',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
