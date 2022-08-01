@@ -35,6 +35,7 @@ class Company extends \common\models\Company {
             'company_last_followup_datetime'
         ];
 
+
         return $scenarios;
     }
 
@@ -58,6 +59,14 @@ class Company extends \common\models\Company {
                 $url = "http://" . $model->company_website;
             }
             return $url;
+        };
+
+        $field['total_suggestions'] = function($model) {
+            return $model->getSuggestions()->count();
+        };
+
+        $field['total_candidates'] = function($model) {
+            return $model->getCandidates()->count();
         };
 
         return $field;
