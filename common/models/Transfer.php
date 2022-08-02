@@ -1005,6 +1005,7 @@ class Transfer extends ActiveRecord
 
         //Old Child Transfers
         $old_child_transfers = $this->childTransfers;
+
         //Old Invoices
         $old_invoices = $this->invoices;
 
@@ -1248,18 +1249,17 @@ class Transfer extends ActiveRecord
                 'userId' => Yii::$app->user->getId(),
                 'event' => 'Transfer Updated',
                 'properties' => [
-                    'transfer_id' => $transfer->transfer_id,
-                    'company_id' => $transfer->company_id,
-                    'company_name' => $transfer->company?$transfer->company->company_name: null,
-                    'total' => $transfer->total
+                    'transfer_id' => $this->transfer_id,
+                    'company_id' => $this->company_id,
+                    'company_name' => $this->company?$this->company->company_name: null,
+                    'total' => $this->total
                 ]
             ]);
         }
 
         return [
             "operation" => "success",
-            "message" => "Your transfer has been updated.",
-            'execution_time'=>Yii::getLogger()->getElapsedTime()
+            "message" => "Your transfer has been updated."
         ];
     }
 
