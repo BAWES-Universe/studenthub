@@ -385,8 +385,10 @@ return [
                     'controller' => 'v1/request',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],
