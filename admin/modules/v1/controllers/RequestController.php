@@ -79,7 +79,7 @@ class RequestController extends Controller
         if (Yii::$app->request->get('staff_id', null)) {
             $query->filterByStaff(Yii::$app->request->get('staff_id'));
         }
-
+        $query->orderByDateDESC();
         return new ActiveDataProvider([
             'query' => $query
         ]);
