@@ -52,6 +52,9 @@ class Company extends \common\models\Company {
             },
             'total_stores' => function($model) {
                 return (int)$model->getStores()->count();
+            },
+            'total_suggestions' => function($model) {
+                return $model->getSuggestions()->count();
             }
         ]);
     }
