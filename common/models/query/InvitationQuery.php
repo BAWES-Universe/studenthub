@@ -35,4 +35,8 @@ class InvitationQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere(['invitation_status' => Invitation::STATUS_REJECTED]);
     }
+
+    public function filterRequest($request_uuid) {
+        return $this->andWhere (['request_uuid' => $request_uuid]);
+    }
 }
