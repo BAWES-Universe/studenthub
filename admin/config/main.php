@@ -393,6 +393,24 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CandidateWorkHistoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/invitation',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // CandidateWorkHistoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/suggestion',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
