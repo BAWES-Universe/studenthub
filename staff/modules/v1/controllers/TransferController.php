@@ -3,6 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -70,6 +71,45 @@ class TransferController extends Controller
         return $actions;
     }
 
+    /**
+     * Return a List of Transfer.
+     */
+    public function actionList()
+    {
+        $company_name = Yii::$app->request->get('company_name');
+        $transfer_status = Yii::$app->request->get('transfer_status');
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+        $suspicious = Yii::$app->request->get('suspicious');
+
+        $query = Transfer::find()
+            ->isParentTransfer();
+
+        if ($company_name) {
+            $query->companyJoin()
+                ->filterCompany($company_name);
+        }
+
+        if($transfer_status)
+            $query->filterStatus($transfer_status);
+
+        if($suspicious) {
+            $query->filterSuspicious();
+        }
+
+        if($start_date)
+            $query->startDate($start_date);
+
+        if($end_date)
+            $query->endDate($end_date);
+
+        $query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
     /**
      * Return Transfer detail.
      * @param $id

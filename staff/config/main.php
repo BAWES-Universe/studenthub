@@ -387,6 +387,7 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/transfer',
                     'patterns' => [
+                        'GET' => 'list',
                         'GET transfer-excel-template/<id>' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',
                         'GET <id>' => 'view',
