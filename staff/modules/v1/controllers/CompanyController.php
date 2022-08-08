@@ -99,6 +99,10 @@ class CompanyController extends Controller
                 ->filterByActive40DaysPassedWithoutRequest();
         }
 
+        if ($status == 5) {
+            $query->filterActiveWithOnlyStaff();
+        }
+
         if ($name) {
             $query->filterByName($name);
         }
