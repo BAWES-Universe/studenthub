@@ -81,41 +81,6 @@ class StaffController extends Controller
     {
         $role = Yii::$app->request->get('role');
 
-        $totalPendingRequests = Request::find()
-            ->andWhere(new Expression('staff_id IS NOT NULL'))
-            ->andWhere(['not in', 'request_status', [
-                Request::STATUS_DELIVERED,
-                Request::STATUS_CANCELLED
-            ]])
-            ->count();
-
-        Yii::$app->response->headers->set ('X-totalPendingRequests', $totalPendingRequests);
-
-        $totalClosedRequests = Request::find()
-            ->andWhere(new Expression('staff_id IS NOT NULL'))
-            ->andWhere(['in', 'request_status', [
-                Request::STATUS_DELIVERED,
-                Request::STATUS_CANCELLED
-            ]])
-            ->count();
-
-        Yii::$app->response->headers->set ('X-totalClosedRequests', $totalClosedRequests);
-
-        $totalInvitations = Invitation::find()->count();
-
-        Yii::$app->response->headers->set ('X-totalInvitations', $totalInvitations);
-
-        $totalNoOfHours = Staff::getTotalNoOfHours();
-
-        Yii::$app->response->headers->set ('X-totalNoOfHours', $totalNoOfHours);
-
-        if($totalClosedRequests > 0) {
-
-            $days = ceil ($totalNoOfHours /  24);
-
-            Yii::$app->response->headers->set ('X-totalVelocity', $totalClosedRequests / $days);
-        }
-
         $query = Staff::find()
             ->active();
 
