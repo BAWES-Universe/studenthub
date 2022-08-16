@@ -41,7 +41,6 @@ class StoryTest extends \Codeception\Test\Unit
         $this->specify('model fields validation', function () {
             $model = new Story();
 
-            expect('should not accept empty story_uuid', $model->validate(['story_uuid']))->false();
             expect('should not accept empty request_uuid', $model->validate(['request_uuid']))->false();
             //expect('should not accept empty suggestion_uuid', $model->validate(['suggestion_uuid']))->false();
 
