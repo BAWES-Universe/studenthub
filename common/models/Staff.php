@@ -141,7 +141,6 @@ class Staff extends ActiveRecord implements IdentityInterface
                 return (int) $query
                     ->count();
             },
-            //todo: timeForDeliveredStory
             'timeForCompletedRequests' => function($model) {
                 $start_date = Yii::$app->request->get('start_date');
                 $end_date = Yii::$app->request->get('end_date');
@@ -181,6 +180,66 @@ class Staff extends ActiveRecord implements IdentityInterface
 
                 return (int) $query
                     ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
+            },
+            'totalCompletedStories' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getStories()
+                    ->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return $query->count();
+            },
+            'totalStoryEmployees' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getStories()
+                    ->joinWith(['request'], 'left')
+                    ->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query->sum('request.no_of_employees_per_story');
+            },
+            'timeForCompletedStories' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getStoryActivities()
+                    ->joinWith(['story'], 'left')
+                    ->andWhere(['activity_status' => StoryActivity::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->sum('story_activity.activity_time_spent');
             },
             /*'totalRequests' => function($model) {
                 return $model->getRequests()->count();
