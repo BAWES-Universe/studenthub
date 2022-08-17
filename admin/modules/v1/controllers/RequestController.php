@@ -79,6 +79,21 @@ class RequestController extends Controller
         if (Yii::$app->request->get('staff_id', null)) {
             $query->filterByStaff(Yii::$app->request->get('staff_id'));
         }
+
+        if (Yii::$app->request->get('name', null)) {
+            $query->filterByTitle(Yii::$app->request->get('name'));
+        }
+        if (Yii::$app->request->get('status', null)) {
+            $query->filterByStatus(Yii::$app->request->get('status'));
+        }
+        if (Yii::$app->request->get('type', null)) {
+            $query->filterByType(Yii::$app->request->get('type'));
+        }
+        if (Yii::$app->request->get('company_id', null)) {
+            $query->filterByCompany(Yii::$app->request->get('company_id'));
+        }
+
+
         $query->orderByDateDESC();
         return new ActiveDataProvider([
             'query' => $query

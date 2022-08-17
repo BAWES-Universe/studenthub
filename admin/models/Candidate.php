@@ -258,4 +258,13 @@ class Candidate extends \common\models\Candidate {
     {
         return parent::getSuggestion ($modelClass);
     }
+
+    /**
+     * its experiment
+     * @return query\CandidateQuery
+     */
+    public static function findCustom()
+    {
+        return new \admin\models\query\CandidateQuery(get_called_class());
+    }
 }

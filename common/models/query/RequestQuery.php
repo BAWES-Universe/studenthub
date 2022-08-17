@@ -2,7 +2,6 @@
 
 namespace common\models\query;
 
-use common\models\Invitation;
 use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;
@@ -51,12 +50,38 @@ class RequestQuery extends ActiveQuery
     }
 
     /**
+     * @param $param
+     * @return RequestQuery
+     */
+    public function filterByTitle($param)
+    {
+        return $this->andWhere("{{%request}}.request_position_title like '%".$param."%'");
+    }
+
+    /**
      * @param $type
      * @return RequestQuery
      */
     public function filterByType($type)
     {
         return $this->andWhere(['request_position_type' => $type]);
+    }
+    /**
+     * @param $type
+     * @return RequestQuery
+     */
+    public function filterByCompany($param)
+    {
+        return $this->andWhere(['company_id' => $param]);
+    }
+
+    /**
+     * @param $param
+     * @return RequestQuery
+     */
+    public function filterByStatus($param)
+    {
+        return $this->andWhere(['request_status' => $param]);
     }
 
     /**
@@ -67,6 +92,10 @@ class RequestQuery extends ActiveQuery
         return $this->andWhere(['!=','request_created_by', 0]);
     }
 
+    /**
+     * @param $staff_id
+     * @return RequestQuery
+     */
     public function filterByStaff($staff_id){
         return $this->andWhere(['request_created_by' => $staff_id]);
     }
@@ -129,6 +158,9 @@ class RequestQuery extends ActiveQuery
         return $this->addOrderBy('(TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP())-(num_hours_followup_interval*60)) DESC');
     }
 
+    /**
+     * @return RequestQuery
+     */
     public function orderByDateDESC() {
         return $this->addOrderBy('request_created_datetime DESC');
     }
