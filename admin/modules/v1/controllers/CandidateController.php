@@ -74,7 +74,7 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-        $query = Candidate::find();
+        $query = Candidate::findCustom();
 
         $by = Yii::$app->request->get('by');
 
@@ -85,7 +85,10 @@ class CandidateController extends Controller
             $query->filterEmail(Yii::$app->request->get('email'));
         }
         if (Yii::$app->request->get('phone', null)) {
-            $query->filterEmail(Yii::$app->request->get('phone'));
+            $query->filterPhone(Yii::$app->request->get('phone'));
+        }
+        if (Yii::$app->request->get('civil', null)) {
+            $query->filterCivil(Yii::$app->request->get('civil'));
         }
         if (Yii::$app->request->get('assigned', null)) {
             $query->totalAssigned();
