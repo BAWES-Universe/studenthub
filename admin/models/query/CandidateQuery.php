@@ -1,6 +1,6 @@
 <?php
 
-namespace common\models\query;
+namespace admin\models\query;
 
 use Yii;
 use yii\db\Expression;
@@ -11,7 +11,7 @@ use common\models\Store;
 /**
  * This is the ActiveQuery class for [[Candidate]].
  */
-class CandidateQuery extends \yii\db\ActiveQuery 
+class CandidateQuery extends \yii\db\ActiveQuery
 {
     /**
      * @inheritdoc
@@ -19,7 +19,6 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%candidate}}.deleted'=>0]);
         return parent::all($db);
     }
 
@@ -46,7 +45,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
         $company_ids[] = $company->company_id;
 
-        // create store_id array 
+        // create store_id array
         $stores = Store::find()
             ->andWhere(['in', 'company_id', $company_ids])
             ->all();
@@ -135,7 +134,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['{{%candidate}}.university_id' => $university_id]);
     }
     /**
-     * @param $university_id
+     * @param $civil_id
      * @return $this
      */
     public function filterCivil($civil_id)
