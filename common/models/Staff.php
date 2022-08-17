@@ -109,6 +109,10 @@ class Staff extends ActiveRecord implements IdentityInterface
             $fields['staff_password_reset_token']
         );
 
+        $fields['store_total_candidates'] = function($model) {
+            return (int) $model->store_total_candidates;
+        };
+
         return $fields;
     }
 
@@ -182,6 +186,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                     ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
             },
             'totalCompletedStories' => function($model) {
+
                 $start_date = Yii::$app->request->get('start_date');
                 $end_date = Yii::$app->request->get('end_date');
 
