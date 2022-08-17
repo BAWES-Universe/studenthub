@@ -37,11 +37,19 @@ class m211215_105556_request_to_stories extends Migration
                 $request_uuid = $request['request_uuid'];
                 $suggestion_uuid = NULL;
                 $story_status = 0;
-                if ($request['request_status'] == 'started') {
+
+//                const STATUS_PENDING = 'pending';
+//                const STATUS_STARTED = 'started';
+//                const STATUS_DELIVERED = 'delivered';
+//                const STATUS_CANCELLED = 'cancelled';
+//                const STATUS_FINISHED = 'finished_by_recruitment';
+//                const STATUS_RE_WORK = 're_work';
+
+                if ($request['request_status'] == \staff\models\Request::STATUS_STARTED) {
                     $story_status = \common\models\Story::STATUS_STARTED;
-                } else if ($request['request_status'] == 'delivered') {
+                } else if ($request['request_status'] == \staff\models\Request::STATUS_DELIVERED || $request['request_status'] == \staff\models\Request::STATUS_FINISHED) {
                     $story_status = \common\models\Story::STATUS_DELIVERED;
-                } else if ($request['request_status'] == 'cancelled') {
+                } else if ($request['request_status']  == \staff\models\Request::STATUS_CANCELLED) {
                     $story_status = \common\models\Story::STATUS_REJECTED;
                 }
 
