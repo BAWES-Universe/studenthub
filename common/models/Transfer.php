@@ -80,7 +80,7 @@ class Transfer extends ActiveRecord
             [['start_date','end_date'], 'required'],
             [['transfer_status'], 'validateTransferStatus'],
             [['total', 'company_total'], 'number'],
-            ['start_date','validateDates'],
+            ['start_date', 'validateDates'],
             [['transfer_created_at', 'transfer_updated_at', 'payment_received_on','start_date','end_date'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];

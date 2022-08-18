@@ -20,6 +20,8 @@ use yii\web\IdentityInterface;
  * @property string $staff_gmail_password
  * @property string $staff_password_reset_token
  * @property number $staff_role
+ * @property number $staff_salary
+ * @property number $staff_salary_currency
  * @property integer $staff_status
  * @property integer $staff_notification
  * @property integer $staff_created_at
@@ -49,10 +51,10 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
-            [['staff_role','staff_hourly_rate'], 'number'],
+            [['staff_role','staff_hourly_rate', 'staff_salary'], 'number'],
             [['staff_status','staff_notification'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
-            [['staff_auth_key'], 'string', 'max' => 32],
+            [['staff_auth_key', 'staff_salary_currency'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
             [['staff_email'], 'email'],
             [['staff_password_reset_token'], 'unique'],
@@ -88,6 +90,8 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_gmail_password' => Yii::t('app','Staff Gmail Password'),
             'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
             'staff_role' => Yii::t('app', 'Role'),
+            'staff_salary' => Yii::t('app', 'Salary'),
+            'staff_salary_currency' => Yii::t('app', 'Salary currency'),
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_notification' => Yii::t('app','Staff Notification'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
@@ -108,10 +112,6 @@ class Staff extends ActiveRecord implements IdentityInterface
             $fields['staff_password_hash'],
             $fields['staff_password_reset_token']
         );
-
-        $fields['store_total_candidates'] = function($model) {
-            return (int) $model->store_total_candidates;
-        };
 
         return $fields;
     }
@@ -391,6 +391,10 @@ class Staff extends ActiveRecord implements IdentityInterface
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getStoryActivities($modelClass = "\common\models\StoryActivity") {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
@@ -399,6 +403,14 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @return \yii\db\ActiveQuery
      */
     public function getStories($modelClass = "\common\models\Story")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaffSalaries($modelClass = "\common\models\StaffSalary")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }

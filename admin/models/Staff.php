@@ -11,6 +11,19 @@ use yii\helpers\Url;
 class Staff extends \common\models\Staff {
 
     /**
+     * @return array|string[]
+     */
+    public function extraFields()
+    {
+        return array_merge(
+            [
+                'staffSalaries',
+            ],
+            parent::extraFields()
+        );
+    }
+
+    /**
      * @inheritdoc
      */
     public function fields()

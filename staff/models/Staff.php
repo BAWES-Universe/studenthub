@@ -40,6 +40,7 @@ class Staff extends \common\models\Staff {
     public function extraFields()
     {
         return array_merge(parent::extraFields(),[
+            'staffSalaries',
             'storyActivities',
             'groupStoryActivities',
             'activeStory',
