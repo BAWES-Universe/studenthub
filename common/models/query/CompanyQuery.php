@@ -153,7 +153,6 @@ class CompanyQuery extends \yii\db\ActiveQuery {
     /**
      * @param $id
      * @return $this
-     * store_total_candidates
      */
     public function filterInActive() {
         return $this->andWhere([

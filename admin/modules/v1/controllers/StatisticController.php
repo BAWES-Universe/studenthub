@@ -5,6 +5,7 @@ namespace admin\modules\v1\controllers;
 use admin\models\Candidate;
 use admin\models\TransferCandidate;
 use admin\models\University;
+use common\models\StaffSalary;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -99,10 +100,13 @@ class StatisticController extends Controller
             "code" => Transfer::STATUS_LOCK,
             "total" => (isset($lockedTransfers['total']))? (int)$lockedTransfers['total'] : 0
         ];
+
         $result['transfers']['paymentSent'] = [
             "code" => Transfer::STATUS_PAYMENT_SENT,
             "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
         ];
+
+        $result['totalSalaryPaid'] = StaffSalary::find()->sum('salary');
 
         return $result;
     }
