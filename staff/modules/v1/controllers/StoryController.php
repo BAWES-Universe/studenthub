@@ -140,8 +140,12 @@ class StoryController extends Controller
         $query = Story::find()
             ->joinWith('request');
 
-        if ($status || $status == '0')
+        if ($status) {
+            $status = ($status == '9' ? 0 : $status);
             $query->andWhere(['story_status' => $status]);
+        } else {
+            $query->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED,Request::STATUS_PENDING,Request::STATUS_RE_WORK]]);
+        }
 
         if ($position_type) {
             $query->andWhere(['request.request_position_type' => $position_type]);

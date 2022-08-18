@@ -12,7 +12,15 @@ class m220721_153915_no_of_eml_story extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn ('request', 'no_of_employees_per_story', $this->smallInteger (6)->after('request_number_of_employees'));
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('request')
+            ->getColumn('no_of_employees_per_story');
+
+        if (!$columnData) {
+            $this->addColumn ('request', 'no_of_employees_per_story', $this->smallInteger (6)->defaultValue(0)->after('request_number_of_employees'));
+        }
     }
 
     /**

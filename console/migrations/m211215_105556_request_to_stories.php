@@ -1,7 +1,8 @@
 <?php
 
 use yii\db\Migration;
-
+use common\models\Story;
+use staff\models\Request;
 /**
  * Class m211215_105556_request_to_stories
  */
@@ -22,14 +23,23 @@ class m211215_105556_request_to_stories extends Migration
             $this->addColumn('story', 'is_old', $this->tinyInteger(1)->defaultValue(0)->after('story_status'));
         }
 
+        $no_of_employees_per_story = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('request')
+            ->getColumn('no_of_employees_per_story');
+
+        if (!$no_of_employees_per_story) {
+            $this->addColumn ('request', 'no_of_employees_per_story', $this->smallInteger (6)->defaultValue(0)->after('request_number_of_employees'));
+        }
+
         $sql = "select * from request where 1";
 
         $requests = Yii::$app->db->createCommand ($sql)->queryAll ();
 
         foreach ($requests as $request) {
 
-            for ($i = 0; $i < $request['request_number_of_employees']; $i++) {
-
+                $request['request_number_of_employees'];
                 $noteQuery = "SELECT * FROM `note` where (note_type='Suggested' OR note_type='Internal Note') and request_uuid='".$request['request_uuid']."' group by updated_by";
 
                 $notes = Yii::$app->db->createCommand ($noteQuery)->queryAll ();
@@ -38,19 +48,12 @@ class m211215_105556_request_to_stories extends Migration
                 $suggestion_uuid = NULL;
                 $story_status = 0;
 
-//                const STATUS_PENDING = 'pending';
-//                const STATUS_STARTED = 'started';
-//                const STATUS_DELIVERED = 'delivered';
-//                const STATUS_CANCELLED = 'cancelled';
-//                const STATUS_FINISHED = 'finished_by_recruitment';
-//                const STATUS_RE_WORK = 're_work';
-
-                if ($request['request_status'] == \staff\models\Request::STATUS_STARTED) {
-                    $story_status = \common\models\Story::STATUS_STARTED;
-                } else if ($request['request_status'] == \staff\models\Request::STATUS_DELIVERED || $request['request_status'] == \staff\models\Request::STATUS_FINISHED) {
-                    $story_status = \common\models\Story::STATUS_DELIVERED;
-                } else if ($request['request_status']  == \staff\models\Request::STATUS_CANCELLED) {
-                    $story_status = \common\models\Story::STATUS_REJECTED;
+                if ($request['request_status'] == Request::STATUS_STARTED || $request['request_status'] == Request::STATUS_RE_WORK) {
+                    $story_status = Story::STATUS_STARTED;
+                } else if ($request['request_status'] == Request::STATUS_DELIVERED || $request['request_status'] == Request::STATUS_FINISHED) {
+                    $story_status = Story::STATUS_DELIVERED;
+                } else if ($request['request_status']  == Request::STATUS_CANCELLED) {
+                    $story_status = Story::STATUS_REJECTED;
                 }
 
                 if ($notes) {
@@ -76,7 +79,6 @@ class m211215_105556_request_to_stories extends Migration
                 $storyDetailInsert = "INSERT INTO `story_activity` (`story_activity_uuid`, `story_uuid`, `staff_id`, `activity_time_spent`, `activity_status`, `activity_created_at`, `activity_last_updated_at`) VALUES
                 ('$story_activity_uuid', '$story_uuid', $staff_id, 1, $story_status, NOW(), NOW())";
                 Yii::$app->db->createCommand ($storyDetailInsert)->execute();
-            }
         }
     }
 

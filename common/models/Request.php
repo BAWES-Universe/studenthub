@@ -435,19 +435,18 @@ class Request extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if($insert) 
+        if($insert)
         {
             //Add stories based on request_number_of_employees
 
             $count = ceil($this->request_number_of_employees / $this->no_of_employees_per_story);
 
-            for ($i=0; $i < $count; $i++) 
-            {
+            for ($i=0; $i < $count; $i++) {
                 $story = new Story();
+                $story->staff_id = $this->staff_id;
                 $story->request_uuid = $this->request_uuid;
                 $story->story_status = Story::STATUS_UNSTARTED;
                 if(!$story->save()) {
-                    //print_r($story->errors);
                     Yii::error($story->errors);
                 }
             }

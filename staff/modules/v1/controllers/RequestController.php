@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\Story;
 use Yii;
 use staff\models\Staff;
 use staff\models\Note;
@@ -302,6 +303,7 @@ class RequestController extends Controller
         $model = new Request();
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->staff_id = Yii::$app->user->getId();
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
@@ -327,7 +329,6 @@ class RequestController extends Controller
                 ];
             }
         }
-
         //save activity
         $model->createRequestActivity('I have created this request');
         $model->requestNotification();
@@ -336,7 +337,8 @@ class RequestController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Request created successfully"
+            "message" => "Request created successfully",
+            "request" => $model
         ];
     }
 
@@ -349,7 +351,7 @@ class RequestController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->setScenario ('staffUpdate');
+        $model->setScenario('staffUpdate');
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
