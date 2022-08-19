@@ -179,7 +179,7 @@ class StoryController extends Controller
     public function actionChangeStoryStatus()
     {
         $status = (int) Yii::$app->request->getBodyParam("status");
-
+        $status_lbl = 'started';
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
 
         $arrStatus = [
@@ -215,6 +215,13 @@ class StoryController extends Controller
         }
 
         $story =  $this->findModel($storyUuid);
+
+        if ($story->story_status == StoryActivity::STATUS_DELIVERED) { // re work scenarios
+            if ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED) {
+                \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
+                $status_lbl = 'Re-started';
+            }
+        }
 
         // Attempt to create new request
 
@@ -264,7 +271,7 @@ class StoryController extends Controller
 
         return [
             "operation" => "success",
-            "message" => Yii::$app->user->identity->staff_name . " started " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
+            "message" => Yii::$app->user->identity->staff_name . " $status_lbl " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
             //"last_story_acitivty_model" => $last_story_acitivty_model,
             "newStoryActivity" => $newStoryActivity,
             "totalDelivered" => $totalDelivered,
@@ -277,7 +284,7 @@ class StoryController extends Controller
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Request the loaded model
+     * @return Story the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
