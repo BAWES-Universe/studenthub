@@ -421,6 +421,23 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // StoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/story',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET list' => 'list',
+                        'GET active-story' => 'active-story',
+                        'GET all-old-stories' => 'all-old-stories',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list' => 'options',
+                        'OPTIONS active-story' => 'options',
+                        'OPTIONS all-old-stories' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],

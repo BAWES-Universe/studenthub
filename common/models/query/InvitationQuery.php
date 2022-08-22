@@ -39,4 +39,12 @@ class InvitationQuery extends \yii\db\ActiveQuery
     public function filterRequest($request_uuid) {
         return $this->andWhere (['request_uuid' => $request_uuid]);
     }
+
+    /**
+     * @param $story_uuid
+     * @return InvitationQuery
+     */
+    public function filterStory($story_uuid) {
+        return $this->andWhere (['story_uuid' => $story_uuid]);
+    }
 }
