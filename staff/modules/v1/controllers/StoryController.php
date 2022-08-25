@@ -140,13 +140,6 @@ class StoryController extends Controller
         $query = Story::find()
             ->joinWith('request');
 
-        if ($status) {
-            $status = ($status == '9' ? 0 : $status);
-            $query->andWhere(['story_status' => $status]);
-        } else {
-            $query->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED,Request::STATUS_PENDING,Request::STATUS_RE_WORK]]);
-        }
-
         if ($position_type) {
             $query->andWhere(['request.request_position_type' => $position_type]);
         }
@@ -158,13 +151,27 @@ class StoryController extends Controller
             ]);
         }
 
+        if ($status == 10) {
+            $query->orderBy('request.request_created_datetime DESC');
+            $query->needUpdate();//activeRequest
+        } else {
+            if ($status) {
+                $status = ($status == '9' ? 0 : $status);
+                $query->andWhere(['story_status' => $status]);
+            } else {
+                $query->needUpdate();//activeRequest
+            }
 
-        $query->orderBy(
-            [
-                'request.request_priority' => SORT_ASC,
-                new \yii\db\Expression('FIELD (story_status, 4,0)'),
-                'request_created_datetime' => SORT_ASC
-            ]);
+            $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
+            $query->orderBy(new yii\db\Expression(sprintf("FIELD(request.request_status, %s)", implode(",", $statusOrder))));
+
+//            $query->orderBy(
+//                [
+//                    'request.request_priority' => SORT_ASC,
+//                    new \yii\db\Expression('FIELD (story_status, 4,0)'),
+//                    'request_created_datetime' => SORT_ASC
+//                ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

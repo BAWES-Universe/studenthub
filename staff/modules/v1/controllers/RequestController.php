@@ -204,28 +204,21 @@ class RequestController extends Controller
         if($request_status) {
             if($request_status == 'need-update')
                 $query->needUpdate();
-            else
+            else if ($request_status != 'latest') {
                 $query->andWhere(['request_status' => $request_status]);
+            }
         }
 
-        $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
+        if ($request_status != 'latest') {
+            $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
+            $query->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+        }
 
-        $query->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
-
-
-        if ($followup_interval) {
+        if ($followup_interval && $request_status != 'latest') {
             $query->orderByFollowupInterval();
         } else {
             $query->addOrderBy('request_created_datetime DESC');
         }
-        /*if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
-            $query->joinWith (['stories'])
-                ->andWhere ([
-                    //'request.staff_id' => Yii::$app->user->getId (),
-                    'story.staff_id' => Yii::$app->user->getId ()
-                ]);
-            //$query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
-        }*/
 
         return new ActiveDataProvider([
             'query' => $query

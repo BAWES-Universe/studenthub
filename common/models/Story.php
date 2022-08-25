@@ -270,4 +270,13 @@ class Story extends \yii\db\ActiveRecord
     {
         return $this->getStoryActivities()->orderBy('activity_created_at DESC')->one();
     }
+
+    /**
+     * @inheritdoc
+     * @return query\RequestQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\StoryQuery(get_called_class());
+    }
 }
