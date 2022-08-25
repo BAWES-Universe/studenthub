@@ -1,6 +1,7 @@
 <?php
 
 use yii\db\Migration;
+use yii\db\Expression;
 
 /**
  * Class m220816_114432_no_of_employee
@@ -12,11 +13,15 @@ class m220816_114432_no_of_employee extends Migration
      */
     public function safeUp()
     {
-        $this->alterColumn('request', 'no_of_employees_per_story', $this->smallInteger(6)->defaultValue(1)->notNull());
 
         \admin\models\Request::updateAll(['no_of_employees_per_story' => 1], [
-            'no_of_employees_per_story' => 0
+            'OR',
+            ['no_of_employees_per_story' => 0],
+            new Expression('no_of_employees_per_story IS NULL')
         ]);
+
+        $this->alterColumn('request', 'no_of_employees_per_story', $this->smallInteger(6)->defaultValue(1)->notNull());
+
     }
 
     /**
