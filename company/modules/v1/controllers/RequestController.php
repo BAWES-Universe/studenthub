@@ -118,6 +118,7 @@ class RequestController extends BaseController
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
+        $model->no_of_employees_per_story = Yii::$app->request->getBodyParam("no_of_employees_per_story", $model->request_number_of_employees);
         $model->request_location = Yii::$app->request->getBodyParam("location");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_status = Request::STATUS_PENDING;
