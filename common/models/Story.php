@@ -47,13 +47,13 @@ class Story extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['request_uuid','staff_id'], 'required'],
+            [['request_uuid'], 'required'],
             ['story_status', 'in', 'range' => [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_FINISHED,self::STATUS_DELIVERED,self::STATUS_REJECTED,self::STATUS_ACCEPTED]],
             [['story_status', 'story_time_spent','is_old', 'staff_id'], 'integer'],
             [['story_created_at','story_last_updated_at'], 'safe'],
             [['story_uuid', 'request_uuid','suggestion_uuid'], 'string', 'max' => 60],
             [['story_uuid'], 'unique'],
-            [['staff_id'], 'exist', 'skipOnError' => false, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
             [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
