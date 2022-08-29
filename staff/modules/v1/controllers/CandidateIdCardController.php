@@ -133,7 +133,7 @@ class CandidateIdCardController extends Controller
 
         $query = Candidate::find()
             ->idNeedGenerated();
-
+        $query->notDeleted();
         if($candidate_name)
         {
             $query->filterName($candidate_name);
