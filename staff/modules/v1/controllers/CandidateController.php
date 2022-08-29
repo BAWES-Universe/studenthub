@@ -1121,10 +1121,11 @@ class CandidateController extends Controller
 
     public function actionExportCandidateData()
     {
-        $limit = 20000;
-        ini_set('max_execution_time', '200');
+
+        ini_set('max_execution_time', '300');
         ini_set('memory_limit', '-1');
         $name = Yii::$app->request->get("name");
+        $limit = Yii::$app->request->get("export_limit",5000);
         $email = Yii::$app->request->get("email");
         $phone = Yii::$app->request->get("phone");
         $type = Yii::$app->request->get("type");
