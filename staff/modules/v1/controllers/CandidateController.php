@@ -1119,6 +1119,84 @@ class CandidateController extends Controller
         return $pdf->render();
     }
 
+    public function actionExportCandidateData()
+    {
+
+        ini_set('max_execution_time', '300');
+        ini_set('memory_limit', '-1');
+        $name = Yii::$app->request->get("name");
+        $limit = Yii::$app->request->get("export_limit",5000);
+        $email = Yii::$app->request->get("email");
+        $phone = Yii::$app->request->get("phone");
+        $type = Yii::$app->request->get("type");
+        $page = Yii::$app->request->get("export_page");
+        $updatedAfter = Yii::$app->request->get("updatedAfter");
+
+        $query = Candidate::find();
+
+        if ($type == 'assigned') {
+            $query->filterAssigned();
+        } else if ($type == 'un-assigned'){
+            $query->filterNotAssigned();
+        }
+
+        if($name) {
+            $query->filterName($name);
+        }
+
+        if($email) {
+            $query->filterEmail($email);
+        }
+
+        if($phone) {
+            $query->filterPhone($phone);
+        }
+        if($updatedAfter) {
+            $query->filterUpdatedAfter($updatedAfter);
+        }
+        $query->limit($limit);
+        $query->offset(($page-1) * $limit);
+        $candidates = $query
+            ->all();
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'columns' => [
+                'candidate_id',
+                'candidate_name',
+                'bank_account_name',
+                'candidate_email',
+                'candidate_email',
+                'candidate_phone',
+                [
+                    'header' => 'company name',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->store) ? $model->store->company->company_name : 'Un-Assigned';
+                    },
+                ],
+                [
+                    'header' => 'Store name',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->store) ? $model->store->store_name : 'Un-Assigned';
+                    },
+                ],
+                'candidate_iban',
+                [
+                    'header' => 'Bank name',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->bank) ? $model->bank->bank_name : '-';
+                    },
+                ]
+            ]
+        ]);
+    }
+
     /**
      * Finds the Candidate model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
