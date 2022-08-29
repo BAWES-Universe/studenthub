@@ -1129,7 +1129,8 @@ class CandidateController extends Controller
         $email = Yii::$app->request->get("email");
         $phone = Yii::$app->request->get("phone");
         $type = Yii::$app->request->get("type");
-        $page = Yii::$app->request->get("export_page");
+        $task = Yii::$app->request->get("task");
+        $page = Yii::$app->request->get("export_page", 1);
         $updatedAfter = Yii::$app->request->get("updatedAfter");
 
         $query = Candidate::find();
@@ -1154,6 +1155,30 @@ class CandidateController extends Controller
         if($updatedAfter) {
             $query->filterUpdatedAfter($updatedAfter);
         }
+
+        if ($task == 'expired_ids') {
+            $query->idExpired()->filterAssigned(); // only candidate with assigned work
+        }
+
+        if ($task == 'generate_ids') {
+            $query->idNeedGenerated()->filterAssigned();
+        }
+
+        if ($task == 'missing_bank_info') {
+            $query->withoutBankInfo();
+        }
+
+        if ($task == 'expired_civil_id') {
+            $query->civilIdExpired()->filterAssigned();
+        }
+        if ($task == 'assigned_idle') {
+            $query->filterAssigned()->getTwoMonthBeforeTransfers();
+        }
+        if ($task == 'incomplete_profile') {
+            $query->filterAssigned()->incompletedProfile();
+        }
+
+        $query->notDeleted();
         $query->limit($limit);
         $query->offset(($page-1) * $limit);
         $candidates = $query
@@ -1167,8 +1192,6 @@ class CandidateController extends Controller
             'columns' => [
                 'candidate_id',
                 'candidate_name',
-                'bank_account_name',
-                'candidate_email',
                 'candidate_email',
                 'candidate_phone',
                 [
@@ -1185,14 +1208,6 @@ class CandidateController extends Controller
                         return ($model && $model->store) ? $model->store->store_name : 'Un-Assigned';
                     },
                 ],
-                'candidate_iban',
-                [
-                    'header' => 'Bank name',
-                    "format" => "raw",
-                    "value" => function ($model) {
-                        return ($model && $model->bank) ? $model->bank->bank_name : '-';
-                    },
-                ]
             ]
         ]);
     }
