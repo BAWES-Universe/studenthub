@@ -2,6 +2,7 @@
 
 namespace status\modules\v1\controllers;
 
+use Yii;
 use admin\models\Country;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
@@ -35,9 +36,6 @@ class CountryController extends Controller
                 ],
             ],
         ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }

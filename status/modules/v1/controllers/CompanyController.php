@@ -2,6 +2,7 @@
 
 namespace status\modules\v1\controllers;
 
+use Yii;
 use admin\models\Company;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
@@ -25,9 +26,6 @@ class CompanyController extends Controller
                 'Access-Control-Max-Age' => 86400,
             ],
         ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }

@@ -2,6 +2,7 @@
 
 namespace status\modules\v1\controllers;
 
+use Yii;
 use admin\models\Transfer;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
@@ -33,9 +34,6 @@ class TransferController extends Controller
                 ],
             ],
         ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options','text'];
 
         return $behaviors;
     }

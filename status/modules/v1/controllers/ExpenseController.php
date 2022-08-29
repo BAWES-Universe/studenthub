@@ -41,9 +41,6 @@ class ExpenseController extends Controller
             ],
         ];
 
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
-
         return $behaviors;
     }
 

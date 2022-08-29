@@ -2,6 +2,7 @@
 
 namespace status\modules\v1\controllers;
 
+use Yii;
 use admin\models\Candidate;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
@@ -39,9 +40,6 @@ class StatisticController extends Controller
                 ],
             ],
         ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }

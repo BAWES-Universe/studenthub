@@ -2,12 +2,14 @@
 
 namespace status\modules\v1\controllers;
 
+use Yii;
 use admin\models\Bank;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
+
 
 class BankController extends Controller
 {
@@ -35,9 +37,6 @@ class BankController extends Controller
                 ],
             ],
         ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }

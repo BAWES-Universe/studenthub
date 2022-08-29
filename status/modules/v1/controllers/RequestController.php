@@ -2,6 +2,7 @@
 
 namespace status\modules\v1\controllers;
 
+use Yii;
 use admin\models\Request;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
@@ -34,9 +35,6 @@ class RequestController
                 ],
             ],
         ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
 
         return $behaviors;
     }
