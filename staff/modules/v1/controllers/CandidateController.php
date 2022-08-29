@@ -1121,12 +1121,14 @@ class CandidateController extends Controller
 
     public function actionExportCandidateData()
     {
+        $limit = 20000;
         ini_set('max_execution_time', '200');
         ini_set('memory_limit', '-1');
         $name = Yii::$app->request->get("name");
         $email = Yii::$app->request->get("email");
         $phone = Yii::$app->request->get("phone");
         $type = Yii::$app->request->get("type");
+        $page = Yii::$app->request->get("export_page");
         $updatedAfter = Yii::$app->request->get("updatedAfter");
 
         $query = Candidate::find();
@@ -1151,7 +1153,8 @@ class CandidateController extends Controller
         if($updatedAfter) {
             $query->filterUpdatedAfter($updatedAfter);
         }
-
+        $query->limit($limit);
+        $query->offset(($page-1) * $limit);
         $candidates = $query
             ->all();
 
