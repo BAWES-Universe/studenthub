@@ -2,6 +2,8 @@
 
 namespace common\models\query;
 
+use staff\models\Candidate;
+use staff\models\Transfer;
 use Yii;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
@@ -313,5 +315,15 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function candidateMomKuwaitiFieldIsNull() {
         return $this->andWhere('{{%candidate}}.`candidate_mom_kuwaiti` IS NULL');
+    }
+
+    public function withoutBankInfo() {
+        return $this
+            ->joinWith('transferCandidate')
+            ->joinWith('transfers')
+            ->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL')
+            ->orWhere('{{%transfer_candidate}}.deleted = 0 && {{%transfer_candidate}}.paid = 0 && {{%candidate}}.bank_id IS NULL && {{%transfer}}.transfer_status in ('.Transfer::STATUS_TRANSFER_COMPLETE.','.Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS.')')
+            ->groupBy('{{%candidate}}.candidate_id')
+            ->notDeleted();
     }
 }
