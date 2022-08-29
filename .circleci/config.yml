@@ -145,8 +145,18 @@ jobs:
           command: cd ./inspector && ../vendor/bin/codecept run functional --xml --html --fail-fast
 
       - run:
-         name: Run inspector app Codeception unit tests and store result output
-         command: cd ./inspector && ../vendor/bin/codecept run unit --xml --html --fail-fast
+          name: Run inspector app Codeception unit tests and store result output
+          command: cd ./inspector && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- status app --------------#
+
+      - run:
+          name: Run status app Codeception functional tests and store result output
+          command: cd ./status && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run status app Codeception unit tests and store result output
+         command: cd ./status && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
       #---------- common --------------#
 
