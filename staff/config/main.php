@@ -119,6 +119,7 @@ return [
                         'GET work-history/<id>' => 'work-history',
                         'GET total-to-review' => 'total-to-review',
                         'GET assigned-idle-candidate' => 'assigned-idle-candidates',
+                        'GET export-candidate' => 'export-candidate-data',
                         'POST' => 'create',
                         'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH merge' => 'merge',
@@ -160,6 +161,7 @@ return [
                         'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options',
                         'OPTIONS update-email/<id>' => 'options',
+                        'OPTIONS export-candidate' => 'options',
                     ]
                 ],
                 [ // StoreController
