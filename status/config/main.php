@@ -54,9 +54,13 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET sub-companies/<id>' => 'sub-companies',
+                        'GET year-report' => 'year-report',
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS sub-companies/<id>' => 'options',
+                        'OPTIONS year-report' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -65,15 +69,89 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET search' => 'search',
+                        'GET transfers/<id>' => 'transfers',
+                        'GET work-history/<id>' => 'work-history',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS search' => 'options',
+                        'OPTIONS transfers/<id>' => 'options',
+                        'OPTIONS work-history/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // TransferController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer',
+                    'patterns' => [
+                        'GET suspicious' => 'suspicious-list',
+                        'GET' => 'list',
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS suspicious' => 'options'
+                    ]
+                ],
+                [ // TransferCandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer-candidate',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET by-transfer/<id>' => 'by-transfer',
+                        'GET by-transfer-file/<id>' => 'by-transfer-file',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS by-transfer/<id>' => 'options',
+                        'OPTIONS by-transfer-file/<id>' => 'options',
                     ]
                 ],
                 [ // StaffController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/staff',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET list-salaries/<id>' => 'list-salaries',
+                        //'GET view-salary/<id>' => 'view-salary',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list-salaries/<id>' => 'options',
+                        'OPTIONS view-salary/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+
+                [ // StoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/story',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET list' => 'list',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+
+                [ // CandidateWorkHistoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'pluralize' => false,
+                    'controller' => 'v1/candidate-work-history',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // NoteController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/note',
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',

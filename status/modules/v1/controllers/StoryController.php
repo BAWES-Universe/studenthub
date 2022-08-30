@@ -3,14 +3,19 @@
 namespace status\modules\v1\controllers;
 
 use Yii;
-use admin\models\Request;
-use yii\data\ActiveDataProvider;
-use yii\filters\auth\HttpBearerAuth;
-use yii\filters\Cors;
+use common\models\StoryActivity;
+use common\models\Story;
 use yii\rest\Controller;
+use yii\data\ActiveDataProvider;
+use admin\models\Request;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
-class RequestController extends Controller
+/**
+ * Story controller - Manage brand as Admin
+ */
+class StoryController extends Controller
 {
     public function behaviors()
     {
@@ -56,38 +61,6 @@ class RequestController extends Controller
     }
 
     /**
-     * Return a List of requests available.
-     * @return ActiveDataProvider
-     */
-    public function actionList()
-    {
-        $query = Request::find();
-
-        if (Yii::$app->request->get('staff_id', null)) {
-            $query->filterByStaff(Yii::$app->request->get('staff_id'));
-        }
-
-        if (Yii::$app->request->get('name', null)) {
-            $query->filterByTitle(Yii::$app->request->get('name'));
-        }
-        if (Yii::$app->request->get('status', null)) {
-            $query->filterByStatus(Yii::$app->request->get('status'));
-        }
-        if (Yii::$app->request->get('type', null)) {
-            $query->filterByType(Yii::$app->request->get('type'));
-        }
-        if (Yii::$app->request->get('company_id', null)) {
-            $query->filterByCompany(Yii::$app->request->get('company_id'));
-        }
-
-
-        $query->orderByDateDESC();
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
      * @param $id
      * @return Request
      * @throws NotFoundHttpException
@@ -98,15 +71,63 @@ class RequestController extends Controller
     }
 
     /**
+     * Return a List of stories.
+     * @return ActiveDataProvider
+     */
+    public function actionList()
+    {
+        $status = Yii::$app->request->get('story_status');
+        $position_type = Yii::$app->request->get('position_type');
+        $keyword = Yii::$app->request->get("name");
+        $staff_id = Yii::$app->request->get("staff_id");
+        $company_id = Yii::$app->request->get("company_id");
+
+        $query = Story::find()
+            ->joinWith('request');
+
+        if ($status) {
+            $status = ($status == '9' ? 0 : $status);
+            $query->andWhere(['story_status' => $status]);
+        }
+
+        if ($position_type) {
+            $query->andWhere(['request.request_position_type' => $position_type]);
+        }
+
+        if ($company_id) {
+            $query->andWhere(['request.company_id' => $company_id]);
+        }
+
+        if ($staff_id) {
+            $query->andWhere(['story.staff_id' => $staff_id]);
+        }
+
+        if ($keyword) {
+            $query->andWhere([
+                'OR',
+                ['like', 'request.request_position_title', $keyword]
+            ]);
+        }
+
+        $query->orderBy('story_created_at DESC');
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Request the loaded model
+     * @return Story the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Request::findOne($id)) !== null) {
+        $model = Story::findOne($id);
+
+        if ($model !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

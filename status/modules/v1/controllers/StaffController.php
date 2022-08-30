@@ -6,6 +6,7 @@ use Yii;
 use admin\models\Staff;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
+use yii\web\NotFoundHttpException;
 
 
 class StaffController extends Controller
@@ -57,5 +58,45 @@ class StaffController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * Return a List of Staff Salaries available.
+     */
+    public function actionListSalaries($id)
+    {
+        $staff = $this->findModel($id);
+
+        $query = $staff->getStaffSalaries();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * load staff details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+
+    /**
+     * Finds the Staff model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Staff the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Staff::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

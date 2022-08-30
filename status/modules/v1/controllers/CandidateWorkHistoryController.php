@@ -2,15 +2,21 @@
 
 namespace status\modules\v1\controllers;
 
+use admin\models\Company;
 use Yii;
-use admin\models\Request;
-use yii\data\ActiveDataProvider;
-use yii\filters\auth\HttpBearerAuth;
-use yii\filters\Cors;
 use yii\rest\Controller;
+use yii\data\ActiveDataProvider;
+use admin\models\Candidate;
+use admin\models\CandidateWorkHistory;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
-class RequestController extends Controller
+
+/**
+ * Candidate Work History controller - Manage Candidate accounts as Admin
+ */
+class CandidateWorkHistoryController extends Controller
 {
     public function behaviors()
     {
@@ -56,57 +62,32 @@ class RequestController extends Controller
     }
 
     /**
-     * Return a List of requests available.
-     * @return ActiveDataProvider
+     * Return a List of Candidate Accounts by
+     * search criteria
      */
     public function actionList()
     {
-        $query = Request::find();
+        $query = CandidateWorkHistory::find();
 
         if (Yii::$app->request->get('staff_id', null)) {
-            $query->filterByStaff(Yii::$app->request->get('staff_id'));
+            $query->filterStaff(Yii::$app->request->get('staff_id'));
         }
 
-        if (Yii::$app->request->get('name', null)) {
-            $query->filterByTitle(Yii::$app->request->get('name'));
-        }
-        if (Yii::$app->request->get('status', null)) {
-            $query->filterByStatus(Yii::$app->request->get('status'));
-        }
-        if (Yii::$app->request->get('type', null)) {
-            $query->filterByType(Yii::$app->request->get('type'));
-        }
-        if (Yii::$app->request->get('company_id', null)) {
-            $query->filterByCompany(Yii::$app->request->get('company_id'));
-        }
-
-
-        $query->orderByDateDESC();
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
 
     /**
-     * @param $id
-     * @return Request
-     * @throws NotFoundHttpException
-     */
-    public function actionView($id)
-    {
-        return $this->findModel($id);
-    }
-
-    /**
-     * Finds the Request model based on its primary key value.
+     * Finds the Candidate model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Request the loaded model
+     * @return Transfer the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Request::findOne($id)) !== null) {
+        if (($model = CandidateWorkHistory::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

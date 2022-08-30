@@ -2,11 +2,13 @@
 
 namespace status\modules\v1\controllers;
 
+use admin\models\CandidateWorkHistory;
 use Yii;
 use admin\models\Candidate;
 use admin\models\Company;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
+use yii\web\NotFoundHttpException;
 
 class CandidateController extends Controller
 {
@@ -98,5 +100,58 @@ class CandidateController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * load candidate details
+     * @param type $id
+     * @return type
+     */
+    public function actionView($id)
+    {
+        return $this->findModel($id);
+    }
+
+    /**
+     * Return candidate's salary transfer with status
+     */
+    public function actionTransfers($id)
+    {
+        $model = $this->findModel((int) $id);
+
+        return $model->getPaidTransferCandidate();
+    }
+
+    /**
+     * get candidate work history
+     * @param $id
+     * @return array|\admin\modules\v1\controllers\CandidateController[]
+     */
+    public function actionWorkHistory($id)
+    {
+        $model = CandidateWorkHistory::find()
+            ->filterCandidate($id)
+            ->all();
+
+        if(!$model)
+            return [];
+
+        return $model;
+    }
+
+    /**
+     * Finds the Candidate model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Transfer the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Candidate::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

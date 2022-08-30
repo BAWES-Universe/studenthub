@@ -3,14 +3,18 @@
 namespace status\modules\v1\controllers;
 
 use Yii;
-use admin\models\Request;
-use yii\data\ActiveDataProvider;
-use yii\filters\auth\HttpBearerAuth;
-use yii\filters\Cors;
 use yii\rest\Controller;
+use yii\data\ActiveDataProvider;
+use staff\models\Note;
+use yii\filters\Cors;
+use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
-class RequestController extends Controller
+
+/**
+ * Note controller - Manage brand as Admin
+ */
+class NoteController extends Controller
 {
     public function behaviors()
     {
@@ -56,32 +60,29 @@ class RequestController extends Controller
     }
 
     /**
-     * Return a List of requests available.
+     * Return a List of Brand Accounts available.
      * @return ActiveDataProvider
      */
     public function actionList()
     {
-        $query = Request::find();
+        $query = Note::find()
+            ->orderBy('note_created_datetime DESC');
+
+        if (Yii::$app->request->get("company_id")) {
+            $query->filterCompany(Yii::$app->request->get("company_id"));
+        }
 
         if (Yii::$app->request->get('staff_id', null)) {
-            $query->filterByStaff(Yii::$app->request->get('staff_id'));
+            $query->filterCreatedBy(Yii::$app->request->get('staff_id'));
         }
 
-        if (Yii::$app->request->get('name', null)) {
-            $query->filterByTitle(Yii::$app->request->get('name'));
+        if (Yii::$app->request->get('request_uuid', null)) {
+            $query->filterRequest(Yii::$app->request->get('request_uuid'));
         }
-        if (Yii::$app->request->get('status', null)) {
-            $query->filterByStatus(Yii::$app->request->get('status'));
-        }
-        if (Yii::$app->request->get('type', null)) {
-            $query->filterByType(Yii::$app->request->get('type'));
-        }
-        if (Yii::$app->request->get('company_id', null)) {
-            $query->filterByCompany(Yii::$app->request->get('company_id'));
+        if (Yii::$app->request->get('story_uuid', null)) {
+            $query->filterStory(Yii::$app->request->get('story_uuid'));
         }
 
-
-        $query->orderByDateDESC();
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -89,7 +90,7 @@ class RequestController extends Controller
 
     /**
      * @param $id
-     * @return Request
+     * @return Note
      * @throws NotFoundHttpException
      */
     public function actionView($id)
@@ -98,15 +99,15 @@ class RequestController extends Controller
     }
 
     /**
-     * Finds the Request model based on its primary key value.
+     * Finds the Brand model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Request the loaded model
+     * @return Note the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Request::findOne($id)) !== null) {
+        if (($model = Note::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

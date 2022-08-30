@@ -392,7 +392,7 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
-                [ // CandidateWorkHistoryController
+                [ // RequestController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/request',
                     'patterns' => [
@@ -403,7 +403,7 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
-                [ // CandidateWorkHistoryController
+                [ // InvitationController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invitation',
                     'patterns' => [
@@ -412,7 +412,7 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
-                [ // CandidateWorkHistoryController
+                [ // SuggestionController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/suggestion',
                     'patterns' => [
