@@ -3,7 +3,7 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=payroll',
+            'dsn' => 'mysql:host=localhost:8889;dbname=pogi_studenthub',
             'username' => 'root',
             'password' => 'root',
             'charset' => 'utf8',
