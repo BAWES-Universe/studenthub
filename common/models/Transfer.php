@@ -234,6 +234,89 @@ class Transfer extends ActiveRecord
     }
 
     /**
+     * generate graph data
+     * @param $months
+     * @return array
+     */
+    public static function getTotalsByMonths($months)
+    {
+        $data = [];
+
+        $date_start = date('Y') . '-' . date('m', strtotime('-'.$months.' month')) . '-1';
+        $date_end = date('Y-m-d', strtotime('last day of previous month'));
+
+        for ($i = 0; $i <= $months; $i++) {
+
+            $month = date('m', strtotime('-'.($months - $i).' month'));
+
+            $data[$month] = array(
+                'month' => date('F', strtotime('-'.($months - $i).' month')),
+                'gross_profit' => 0,
+                'revenue' => 0,
+                'salary' => 0,
+                'expense' => 0,
+                'net_profit' => 0
+            );
+        }
+
+        $rows = self::find()
+            ->filterPaymentReceived()
+            ->select(new Expression('transfer_created_at, SUM(transfer.company_total) as revenue, SUM(transfer.company_total - transfer.total) as total'))
+            //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
+            ->andWhere('DATE(`transfer_created_at`) >= DATE("'.$date_start.'") AND DATE(`transfer_created_at`) <= DATE("'.$date_end.'")')
+            ->groupBy(new Expression('MONTH(transfer_created_at)'))
+            ->asArray()
+            ->all();
+
+        foreach ($rows as $result) {
+
+            $data[date ('m', strtotime ($result['transfer_created_at']))] = array(
+                'month' => date ('F', strtotime ($result['transfer_created_at'])),
+                'gross_profit' => (double) $result['total'],
+                'revenue' => (double) $result['revenue'],
+                'salary' => 0,
+                'expense' => 0,
+                'net_profit' => 0
+            );
+        }
+
+        $salaries = StaffSalary::find()
+            ->select(new Expression('salary_date, SUM(salary) as salary'))
+            //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
+            ->andWhere('DATE(`salary_date`) >= DATE("'.$date_start.'") AND DATE(`salary_date`) <= DATE("'.$date_end.'")')
+            ->groupBy(new Expression('MONTH(salary_date)'))
+            ->asArray()
+            ->all();
+
+        foreach ($salaries as $result) {
+
+            $data[date ('m', strtotime ($result['salary_date']))] = array_merge ([
+                    'salary' => (double) $result['salary'],
+                ], $data[date ('m', strtotime ($result['salary_date']))]
+            );
+        }
+
+        $expenses = Expense::find()
+            ->select(new Expression('created_at, SUM(amount) as expense'))
+            //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
+            ->andWhere('DATE(`created_at`) >= DATE("'.$date_start.'") AND DATE(`created_at`) <= DATE("'.$date_end.'")')
+            ->groupBy(new Expression('MONTH(created_at)'))
+            ->asArray()
+            ->all();
+
+        foreach ($expenses as $result) {
+
+            $data[date ('m', strtotime ($result['created_at']))] = array_merge ([
+                    'expense' => (double) $result['expense'],
+                    'net_profit'=> $result['gross_profit'] - $result['salary'] - $result['expense']
+                ], $data[date ('m', strtotime ($result['created_at']))]
+            );
+        }
+
+        return array_values($data);
+    }
+
+    /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */

@@ -2,6 +2,7 @@
 
 namespace status\modules\v1\controllers;
 
+use common\models\Expense;
 use Yii;
 use admin\models\Candidate;
 use admin\models\Transfer;
@@ -96,7 +97,39 @@ class StatisticController extends Controller
             "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
         ];
 
-        $result['totalSalaryPaid'] = StaffSalary::find()->sum('salary');
+        $result['totalSalaryPaid'] = (double) fStaffSalary::find()->sum('salary');
+
+        $result['totalTransferCandidate'] = TransferCandidate::find()
+            ->joinWith(['transfer'])
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            ->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            //->filterPaid()
+            ->count();
+
+        $result['totalPaymentAmountReceived'] = Transfer::find()
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            ->filterPaymentReceived()
+            ->sum('company_total');
+
+        $result['totalBelongingToCandidates'] = Transfer::find()
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            //->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            ->filterPaymentReceived()
+            ->sum('total');
+
+        $result['totalProfit'] = Transfer::find()
+            //ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            ->filterPaymentReceived()
+            ->sum('company_total - total');
+
+        $result['totalExpense'] = (double) Expense::find()
+            ->sum('amount');
+
+        $result['totalNetProfit'] = (double) $result['totalProfit'] - $result['totalExpense'] - $result['totalSalaryPaid'];
 
         return $result;
     }
@@ -134,6 +167,8 @@ class StatisticController extends Controller
             ->andWhere('transfer.parent_transfer_id IS NULL')
             ->filterPaymentReceived()
             ->sum('company_total - total');
+
+        $data['graphData'] = Transfer::getTotalsByMonths(12);
 
         return $data;
     }
