@@ -251,6 +251,8 @@ class Company extends \yii\db\ActiveRecord
             'malls',
             'companyContacts',
             'contacts',
+            'profit',
+            'revenue',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -433,6 +435,28 @@ class Company extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['contact_uuid' => 'contact_uuid'])
             ->via('companyContacts');
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getRevenue()
+    {
+        return (double) $this->getTransfers ()
+            ->filterPaymentReceived()
+            ->sum ('transfer.company_total');
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getProfit()
+    {
+        return (double) $this->getTransfers ()
+            ->filterPaymentReceived()
+            ->sum ('transfer.company_total - transfer.total');
     }
 
     /**

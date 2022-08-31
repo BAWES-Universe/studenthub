@@ -227,7 +227,9 @@ class Transfer extends ActiveRecord
             'childTransfers',
             'paidTransferCandidates',
             'isSuspicious',
-            'transferFileTotal'
+            'transferFileTotal',
+            'profit',
+            'revenue'
         ];
     }
 
@@ -639,6 +641,24 @@ class Transfer extends ActiveRecord
                 $transfer->generateTransferInvoice();
             }
         }
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getRevenue()
+    {
+        return $this->company_total;
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getProfit()
+    {
+        return $this->company_total - $this->total;
     }
 
     /**
