@@ -28,14 +28,14 @@ class AccountCest
     public function _after(FunctionalTester $I){}
 
     // tests
-    public function testChangePassword(FunctionalTester $I)
-    {
-        $I->wantTo('trying to change password');
-        $I->amBearerAuthenticated($this->token);
-        $I->sendPOST('v1/account/update-password', [
-            'password' => '12345',
-            'newPassword' => 'newPassword'
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-    }
+//    public function testChangePassword(FunctionalTester $I)
+//    {
+//        $I->wantTo('trying to change password');
+//        $I->amBearerAuthenticated($this->token);
+//        $I->sendPOST('v1/account/update-password', [
+//            'password' => '12345',
+//            'newPassword' => 'newPassword'
+//        ]);
+//        $I->seeResponseCodeIs(HttpCode::OK); // 200
+//    }
 }
