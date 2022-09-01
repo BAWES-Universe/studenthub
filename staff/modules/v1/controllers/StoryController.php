@@ -287,6 +287,19 @@ class StoryController extends Controller
         ];
     }
 
+
+    /**
+     * check if request updated
+     */
+    public function actionIsStoryUpdated($id) {
+
+        $request = $this->findModel ($id);
+
+        return [
+            "story_last_updated_at" => $request->story_last_updated_at
+        ];
+    }
+
     /**
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

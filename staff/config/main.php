@@ -292,6 +292,7 @@ return [
                         'GET list' => 'list',
                         'GET active-story' => 'active-story',
                         'GET all-old-stories' => 'all-old-stories',
+                        'GET is-story-updated/<id>' => 'is-story-updated',
                         'GET <id>' => 'view',
                         'POST change-story-status' => 'change-story-status',
                         // OPTIONS VERBS
@@ -301,6 +302,7 @@ return [
                         'OPTIONS all-old-stories' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS change-story-status>' => 'options',
+                        'OPTIONS is-story-updated/<id>' => 'options',
                     ]
                 ],
                 [ // RequestController
