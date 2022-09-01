@@ -753,7 +753,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'notes',
             'workHistory',
             'acceptanceRatio',
-            'rejectionRatio'
+            'rejectionRatio',
+            'profit',
+            'revenue'
         ];
     }
 
@@ -2588,6 +2590,37 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getSuggestion($modelClass = "\common\models\Suggestion")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getRevenue()
+    {
+        return (double) $this->getTransferCandidates ()
+            ->filterPaymentReceived()
+            ->sum ('transfer_candidate.company_total');
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getProfit()
+    {
+        return (double) $this->getTransferCandidates ()
+            ->filterPaymentReceived()
+            ->sum ('transfer_candidate.company_total - transfer_candidate.candidate_total');
     }
 
     /**

@@ -159,11 +159,19 @@ class TransferQuery extends ActiveQuery
         return $this->orderBy('transfer_id DESC');
     }
 
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
     public function startDate($date)
     {
         return $this->andWhere("DATE(transfer_created_at) > '$date'");
     }
 
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
     public function endDate($date)
     {
         return $this->andWhere("DATE(transfer_created_at) < '$date'");

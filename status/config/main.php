@@ -43,9 +43,11 @@ return [
                     'controller' => 'v1/statistic',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET graph' => 'graph',
                         'GET transfer' => 'transfer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS graph' => 'options',
                         'OPTIONS transfer' => 'options',
                     ]
                 ],

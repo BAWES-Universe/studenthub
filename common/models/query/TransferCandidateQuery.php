@@ -32,6 +32,20 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
     }
 
     /**
+     * filter transfers where company paid
+     * @return TransferQuery
+     */
+    public function filterPaymentReceived()
+    {
+        return $this->joinWith(['transfer'])
+            ->andWhere(['in', '{{%transfer}}.transfer_status', [
+                Transfer::STATUS_PAYMENT_SENT,
+                Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                Transfer::STATUS_TRANSFER_COMPLETE
+            ]]);
+    }
+
+    /**
      * @return $this
      */
     public function filterPaid() {
