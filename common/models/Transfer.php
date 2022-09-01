@@ -242,12 +242,13 @@ class Transfer extends ActiveRecord
     {
         $data = [];
 
-        $date_start = date('Y') . '-' . date('m', strtotime('-'.$months.' month')) . '-1';
+        $date_start = date('Y-m-d', strtotime('first day of -'.$months.' month'));
+
         $date_end = date('Y-m-d', strtotime('last day of previous month'));
 
         for ($i = 0; $i <= $months; $i++) {
 
-            $month = date('m', strtotime('-'.($months - $i).' month'));
+            $month = date('F', strtotime('-'.($months - $i).' month'));
 
             $data[$month] = array(
                 'month' => date('F', strtotime('-'.($months - $i).' month')),
@@ -260,8 +261,8 @@ class Transfer extends ActiveRecord
         }
 
         $rows = self::find()
-            ->filterPaymentReceived()
-            ->select(new Expression('transfer_created_at, SUM(transfer.company_total) as revenue, SUM(transfer.company_total - transfer.total) as total'))
+            //->filterPaymentReceived()
+            ->select(new Expression('transfer_created_at, SUM(transfer.company_total) as revenue, SUM(transfer.company_total - transfer.total) as gross_profit'))
             //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
             ->andWhere('DATE(`transfer_created_at`) >= DATE("'.$date_start.'") AND DATE(`transfer_created_at`) <= DATE("'.$date_end.'")')
             ->groupBy(new Expression('MONTH(transfer_created_at)'))
@@ -270,13 +271,13 @@ class Transfer extends ActiveRecord
 
         foreach ($rows as $result) {
 
-            $data[date ('m', strtotime ($result['transfer_created_at']))] = array(
+            $data[date ('F', strtotime ($result['transfer_created_at']))] = array(
                 'month' => date ('F', strtotime ($result['transfer_created_at'])),
-                'gross_profit' => (double) $result['total'],
+                'gross_profit' => (double) $result['gross_profit'],
                 'revenue' => (double) $result['revenue'],
                 'salary' => 0,
                 'expense' => 0,
-                'net_profit' => 0
+                'net_profit' => $result['gross_profit']
             );
         }
 
@@ -290,9 +291,12 @@ class Transfer extends ActiveRecord
 
         foreach ($salaries as $result) {
 
-            $data[date ('m', strtotime ($result['salary_date']))] = array_merge ([
+            $row = $data[date ('F', strtotime ($result['salary_date']))];
+
+            $data[date ('F', strtotime ($result['salary_date']))] = array_merge ([
                     'salary' => (double) $result['salary'],
-                ], $data[date ('m', strtotime ($result['salary_date']))]
+                    'net_profit'=> $row['gross_profit'] - $result['salary']
+                ], $row
             );
         }
 
@@ -306,14 +310,44 @@ class Transfer extends ActiveRecord
 
         foreach ($expenses as $result) {
 
-            $data[date ('m', strtotime ($result['created_at']))] = array_merge ([
+            $row = $data[date ('F', strtotime ($result['created_at']))];
+
+            $data[date ('F', strtotime ($result['created_at']))] = array_merge ([
                     'expense' => (double) $result['expense'],
-                    'net_profit'=> $result['gross_profit'] - $result['salary'] - $result['expense']
-                ], $data[date ('m', strtotime ($result['created_at']))]
+                    'net_profit'=> $row['gross_profit'] - $row['salary'] - $result['expense']
+                ], $row
             );
         }
 
-        return array_values($data);
+        //format for graph
+
+        $series = [
+            [
+                "name" => "Revenue",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'revenue'))
+            ],
+            [
+                "name" => "Gross Profit",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'gross_profit'))
+            ],
+            [
+                "name" => "Salary",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'salary'))
+            ],
+            [
+                "name" => "Expense",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'expense'))
+            ],
+            [
+                "name" => "Net Profit",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'net_profit'))
+            ],
+        ];
+
+        return [
+            'series' => $series,
+            'categories' => array_keys ($data)
+        ];
     }
 
     /**

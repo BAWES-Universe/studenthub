@@ -97,7 +97,7 @@ class StatisticController extends Controller
             "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
         ];
 
-        $result['totalSalaryPaid'] = (double) fStaffSalary::find()->sum('salary');
+        $result['totalSalaryPaid'] = (double) StaffSalary::find()->sum('salary');
 
         $result['totalTransferCandidate'] = TransferCandidate::find()
             ->joinWith(['transfer'])
@@ -168,8 +168,15 @@ class StatisticController extends Controller
             ->filterPaymentReceived()
             ->sum('company_total - total');
 
-        $data['graphData'] = Transfer::getTotalsByMonths(12);
-
         return $data;
+    }
+
+    /**
+     * return graph data
+     * @return array
+     */
+    public function actionGraph()
+    {
+        return Transfer::getTotalsByMonths(12);
     }
 }
