@@ -258,7 +258,7 @@ class SuggestionController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Suggestion created successfully",
+            "message" => "Candidate Suggested successfully",
             "suggestionCount" => $suggestions
         ];
     }
