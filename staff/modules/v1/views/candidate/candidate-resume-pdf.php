@@ -61,7 +61,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                         </p>
                     </div>
                 </div>
-            <?php } if ($candidate->candidate_driving_license) { ?>
+            <?php } if ($candidate->candidate_driving_license == 1) { ?>
                 <div>
                     <div class="pull-left" style="width: 18%">
                         <?=Html::img('images/car_icons.png')?>
