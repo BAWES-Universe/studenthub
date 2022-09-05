@@ -98,7 +98,7 @@ class CompanyController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => Yii::t('company', "Company update successfully")
+            "message" => Yii::t('company', "Company account updated successfully")
         ];
     }
 
