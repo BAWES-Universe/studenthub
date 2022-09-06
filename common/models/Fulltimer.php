@@ -205,28 +205,28 @@ class Fulltimer extends \yii\db\ActiveRecord
 
         $this->updateAlgoliaIndex($insert);
 
-        if(YII_ENV == 'prod') {
-            if ($insert)
-            {
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Fulltimer Created',
-                    'properties' => [
-                        'fulltimer_uuid' => $this->fulltimer_uuid
-                    ]
-                ]);
-            }
-            else
-            {
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Fulltimer Updated',
-                    'properties' => [
-                        'fulltimer_uuid' => $this->fulltimer_uuid
-                    ]
-                ]);
-            }
-        }
+//        if(YII_ENV == 'prod') {
+//            if ($insert)
+//            {
+//                Segment::track([
+//                    'userId' => Yii::$app->user->getId(),
+//                    'event' => 'Fulltimer Created',
+//                    'properties' => [
+//                        'fulltimer_uuid' => $this->fulltimer_uuid
+//                    ]
+//                ]);
+//            }
+//            else
+//            {
+//                Segment::track([
+//                    'userId' => Yii::$app->user->getId(),
+//                    'event' => 'Fulltimer Updated',
+//                    'properties' => [
+//                        'fulltimer_uuid' => $this->fulltimer_uuid
+//                    ]
+//                ]);
+//            }
+//        }
 
         return true;
     }

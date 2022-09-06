@@ -1087,16 +1087,16 @@ class Transfer extends ActiveRecord
 
         if(YII_ENV == 'prod') {
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Transfer Created',
-                'properties' => [
-                    'transfer_id' => $transfer->transfer_id,
-                    'company_id' => $transfer->company_id,
-                    'company_name' => $company->company_name,
-                    'total' => $transfer->total
-                ]
-            ]);
+//            Segment::track([
+//                'userId' => Yii::$app->user->getId(),
+//                'event' => 'Transfer Created',
+//                'properties' => [
+//                    'transfer_id' => $transfer->transfer_id,
+//                    'company_id' => $transfer->company_id,
+//                    'company_name' => $company->company_name,
+//                    'total' => $transfer->total
+//                ]
+//            ]);
         }
 
         return [
@@ -1382,16 +1382,16 @@ class Transfer extends ActiveRecord
 
         if(YII_ENV == 'prod') {
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Transfer Updated',
-                'properties' => [
-                    'transfer_id' => $this->transfer_id,
-                    'company_id' => $this->company_id,
-                    'company_name' => $this->company?$this->company->company_name: null,
-                    'total' => $this->total
-                ]
-            ]);
+//            Segment::track([
+//                'userId' => Yii::$app->user->getId(),
+//                'event' => 'Transfer Updated',
+//                'properties' => [
+//                    'transfer_id' => $this->transfer_id,
+//                    'company_id' => $this->company_id,
+//                    'company_name' => $this->company?$this->company->company_name: null,
+//                    'total' => $this->total
+//                ]
+//            ]);
         }
 
         return [

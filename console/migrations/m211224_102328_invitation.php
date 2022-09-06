@@ -13,24 +13,31 @@ class m211224_102328_invitation extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn ('invitation', 'story_uuid', $this->char(60)->after('request_uuid'));
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('invitation')
+            ->getColumn('story_uuid');
 
-        $this->createIndex (
-            'idx-invitation-story_uuid',
-            'invitation',
-            'story_uuid'
-        );
+        if (!$columnData) {
+            $this->addColumn('invitation', 'story_uuid', $this->char(60)->after('request_uuid'));
 
-        $this->addForeignKey (
-            'fk-invitation-story_uuid',
-            'invitation',
-            'story_uuid',
-            'story',
-            'story_uuid',
-            'RESTRICT',
-            'RESTRICT'
-        );
+            $this->createIndex(
+                'idx-invitation-story_uuid',
+                'invitation',
+                'story_uuid'
+            );
 
+            $this->addForeignKey(
+                'fk-invitation-story_uuid',
+                'invitation',
+                'story_uuid',
+                'story',
+                'story_uuid',
+                'RESTRICT',
+                'RESTRICT'
+            );
+        }
         $invitations = \common\models\Invitation::find ()->all();
 
         foreach($invitations as $invitation) {
