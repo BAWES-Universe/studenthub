@@ -153,34 +153,34 @@ class Suggestion extends \yii\db\ActiveRecord
                 else
                     $fulltimer = null;
 
-//                Segment::track([
-//                    'userId' => Yii::$app->user->getId(),
-//                    'event' => 'Suggestion Created',
-//                    'properties' => [
-//                        'suggestion_uuid' => $this->suggestion_uuid,
-//                        'request_uuid' => $this->request_uuid,
-//                        'candidate_id' => $this->candidate_id,
-//                        'by' => $this->note? $this->note->created_by: null,
-//                        'candidate' => $name,
-//                        'fulltimer_uuid' => $this->fulltimer_uuid,
-//                        'fulltimer' => $fulltimer,
-//                        'staff_id' => $this->note? $this->note->created_by: null,
-//                        'staff_name' => $staff? $staff->staff_name: null
-//                    ]
-//                ]);
+                Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Suggestion Created',
+                    'properties' => [
+                        'suggestion_uuid' => $this->suggestion_uuid,
+                        'request_uuid' => $this->request_uuid,
+                        'candidate_id' => $this->candidate_id,
+                        'by' => $this->note? $this->note->created_by: null,
+                        'candidate' => $name,
+                        'fulltimer_uuid' => $this->fulltimer_uuid,
+                        'fulltimer' => $fulltimer,
+                        'staff_id' => $this->note? $this->note->created_by: null,
+                        'staff_name' => $staff? $staff->staff_name: null
+                    ]
+                ]);
             }
             else
             {
-//                Segment::track([
-//                    'userId' => Yii::$app->user->getId(),
-//                    'event' => 'Suggestion Updated',
-//                    'properties' => [
-//                        'suggestion_uuid' => $this->suggestion_uuid,
-//                        'request_uuid' => $this->request_uuid,
-//                        'candidate_id' => $this->candidate_id,
-//                        'fulltimer_uuid' => $this->fulltimer_uuid,
-//                    ]
-//                ]);
+                Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Suggestion Updated',
+                    'properties' => [
+                        'suggestion_uuid' => $this->suggestion_uuid,
+                        'request_uuid' => $this->request_uuid,
+                        'candidate_id' => $this->candidate_id,
+                        'fulltimer_uuid' => $this->fulltimer_uuid,
+                    ]
+                ]);
             }
         }
 

@@ -336,18 +336,18 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         if(YII_ENV == 'prod') {
 
-//            Segment::track([
-//                'userId' => Yii::$app->user->getId(),
-//                'event' => 'Candidate Transfer Paid',
-//                'properties' => [
-//                    'tc_id' => $this->tc_id,
-//                    'transfer_id' => $this->transfer_id,
-//                    'candidate_id' => $this->candidate_id,
-//                    'name' => $name,
-//                    'revenue' => $this->getProfit(),
-//                    'currency' => 'KWD'
-//                ]
-//            ]);
+            Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Candidate Transfer Paid',
+                'properties' => [
+                    'tc_id' => $this->tc_id,
+                    'transfer_id' => $this->transfer_id,
+                    'candidate_id' => $this->candidate_id,
+                    'name' => $name,
+                    'revenue' => $this->getProfit(),
+                    'currency' => 'KWD'
+                ]
+            ]);
         }
 
         Yii::$app->mailer->compose('candidate/transfer-success',[
@@ -371,26 +371,26 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function sendTransferUnpaidNotification() 
     {
-//        if(YII_ENV == 'prod') {
-//
-//            $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
-//
-//            Segment::track([
-//                'userId' => Yii::$app->user->getId(),
-//                'event' => 'Candidate Transfer Paid',//Un-Paid
-//                'properties' => [
-//                    'tc_id' => $this->tc_id,
-//                    'transfer_id' => $this->transfer_id,
-//                    'candidate_id' => $this->candidate_id,
-//                    'name' => $name,
-//                    'revenue' => 0 - $this->getProfit(),
-//                    'currency' => 'KWD',
-//                    'transfer_cost' => $this->transfer_cost,
-//                    'candidate_total' => $this->candidate_total,
-//                    'company_total' => $this->company_total,
-//                ]
-//            ]);
-//        }
+        if(YII_ENV == 'prod') {
+
+            $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
+
+            Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Candidate Transfer Paid',//Un-Paid
+                'properties' => [
+                    'tc_id' => $this->tc_id,
+                    'transfer_id' => $this->transfer_id,
+                    'candidate_id' => $this->candidate_id,
+                    'name' => $name,
+                    'revenue' => 0 - $this->getProfit(),
+                    'currency' => 'KWD',
+                    'transfer_cost' => $this->transfer_cost,
+                    'candidate_total' => $this->candidate_total,
+                    'company_total' => $this->company_total,
+                ]
+            ]);
+        }
 
         $heading = Yii::t('app', 'Transfer marked as unpaid');
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;

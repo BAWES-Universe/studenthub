@@ -205,19 +205,19 @@ class Invitation extends \yii\db\ActiveRecord
                     $staff = null;
                 }
 
-//                Segment::track([
-//                    'userId' => Yii::$app->user->getId(),
-//                    'event' => 'Candidate Invited',
-//                    'properties' => [
-//                        'candidate' => $name,
-//                        'staff' => $staff,
-//                        'candidate_id' => $this->candidate_id,
-//                        'request_uuid' => $this->request_uuid,
-//                        'invitation_created_by_staff' => $this->invitation_created_by_staff,
-//                        'invitation_created_by_company' => $this->invitation_created_by_company,
-//                        'invitation_created_at' => $this->invitation_created_at
-//                    ]
-//                ]);
+                Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Candidate Invited',
+                    'properties' => [
+                        'candidate' => $name,
+                        'staff' => $staff,
+                        'candidate_id' => $this->candidate_id,
+                        'request_uuid' => $this->request_uuid,
+                        'invitation_created_by_staff' => $this->invitation_created_by_staff,
+                        'invitation_created_by_company' => $this->invitation_created_by_company,
+                        'invitation_created_at' => $this->invitation_created_at
+                    ]
+                ]);
             }
         }
 

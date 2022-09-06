@@ -281,20 +281,20 @@ class TransferController extends Controller
         // Sending receipt to company via email
         $transfer->notify('receipt');
 
-//        if(YII_ENV == 'prod') {
-//
-//                Segment::track([
-//                    'userId' => Yii::$app->user->getId(),
-//                    'event' => 'Transfer Marked As Payment Received',
-//                    'properties' => [
-//                        'transfer_id' => $id,
-//                        'total' => $transfer->total,
-//                        'company_total' => $transfer->company_total,
-//                        'revenue' => $transfer->company_total - $transfer->total,
-//                        'currency' => 'KWD'
-//                    ]
-//                ]);
-//        }
+        if(YII_ENV == 'prod') {
+
+                Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Transfer Marked As Payment Received',
+                    'properties' => [
+                        'transfer_id' => $id,
+                        'total' => $transfer->total,
+                        'company_total' => $transfer->company_total,
+                        'revenue' => $transfer->company_total - $transfer->total,
+                        'currency' => 'KWD'
+                    ]
+                ]);
+        }
 
         return [
             "operation" => "success",
@@ -373,13 +373,13 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-//            Segment::track([
-//                'userId' => Yii::$app->user->getId(),
-//                'event' => 'Transfer Locked',
-//                'properties' => [
-//                    'transfer_id' => $id
-//                ]
-//            ]);
+            Segment::track([
+                'userId' => Yii::$app->user->getId(),
+                'event' => 'Transfer Locked',
+                'properties' => [
+                    'transfer_id' => $id
+                ]
+            ]);
         }
 
         return [

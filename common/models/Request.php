@@ -481,34 +481,34 @@ class Request extends \yii\db\ActiveRecord
 
         Company::updateRequest($this->company_id);
 
-//        if(YII_ENV == 'prod') {
-//            if ($insert)
-//            {
-//                Segment::track([
-//                    'userId' => Yii::$app->user->getId(),
-//                    'event' => 'Request Created',
-//                    'properties' => [
-//                        'company_id' => $this->company_id,
-//                        'company' => $this->company->company_name,
-//                        'request_uuid' => $this->request_uuid
-//                    ]
-//                ]);
-//            }
-//            else
-//            {
-//                Segment::track([
-//                    'userId' => Yii::$app->user->getId(),
-//                    'event' => 'Request Updated',
-//                    'properties' => [
-//                        'company_id' => $this->company_id,
-//                        'company' => $this->company->company_name,
-//                        'request_uuid' => $this->request_uuid,
-//                        'request_status' => $this->request_status,
-//                        'staff_id' => $this->staff_id
-//                    ]
-//                ]);
-//            }
-//        }
+        if(YII_ENV == 'prod') {
+            if ($insert)
+            {
+                Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Request Created',
+                    'properties' => [
+                        'company_id' => $this->company_id,
+                        'company' => $this->company->company_name,
+                        'request_uuid' => $this->request_uuid
+                    ]
+                ]);
+            }
+            else
+            {
+                Segment::track([
+                    'userId' => Yii::$app->user->getId(),
+                    'event' => 'Request Updated',
+                    'properties' => [
+                        'company_id' => $this->company_id,
+                        'company' => $this->company->company_name,
+                        'request_uuid' => $this->request_uuid,
+                        'request_status' => $this->request_status,
+                        'staff_id' => $this->staff_id
+                    ]
+                ]);
+            }
+        }
     }
 
     public static function activeRequestCount() 
