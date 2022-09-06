@@ -111,6 +111,7 @@ class StoryController extends Controller
     {
         $model = Story::find()->andWhere(['staff_id' => Yii::$app->user->getId()])
             ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+            ->orderBy('story_last_updated_at DESC')
             ->all();
 
         if ($model !== null) {
