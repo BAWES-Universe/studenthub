@@ -10,7 +10,7 @@ The platform enables the admin to create `Corporate` accounts and `Studenthub St
 * student.api.dev.studenthub.co
 * admin.api.dev.studenthub.co
 * employer.api.dev.studenthub.co
-* inspector.api.dev.studenthub.co
+* status.api.dev.studenthub.co
 * v.dev.studenthub.co
 
 ## Types of Users

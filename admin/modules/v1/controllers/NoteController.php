@@ -83,9 +83,11 @@ class NoteController extends Controller
             $query->filterCreatedBy(Yii::$app->request->get('staff_id'));
         }
 
-
         if (Yii::$app->request->get('request_uuid', null)) {
             $query->filterRequest(Yii::$app->request->get('request_uuid'));
+        }
+        if (Yii::$app->request->get('story_uuid', null)) {
+            $query->filterStory(Yii::$app->request->get('story_uuid'));
         }
 
         return new ActiveDataProvider([
@@ -176,17 +178,17 @@ class NoteController extends Controller
      */
     public function actionDelete($id)
     {
-        $brand = $this->findModel($id);
+        $model = $this->findModel($id);
 
-        if(!$brand) {
+        if(!$model) {
             return [
                 "operation" => "error",
                 "message" => "Note not found or already deleted"
             ];
         }
 
-        // Delete brand
-        $brand->delete();
+        // Delete note
+        $model->delete();
 
         return [
             "operation" => "success",

@@ -80,6 +80,10 @@ class SuggestionController extends Controller
             $query->filterRequest(Yii::$app->request->get('request_uuid'));
         }
 
+        if (Yii::$app->request->get('story_uuid', null)) {
+            $query->filterStory(Yii::$app->request->get('story_uuid'));
+        }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);

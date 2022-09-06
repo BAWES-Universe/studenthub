@@ -2,8 +2,11 @@
 
 namespace staff\modules\v1\controllers;
 
+use company\models\Invitation;
+use company\models\Request;
 use staff\models\Staff;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -35,7 +38,12 @@ class StaffController extends Controller
                     'X-Pagination-Current-Page',
                     'X-Pagination-Page-Count',
                     'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
+                    'X-Pagination-Total-Count',
+                    'X-totalPendingRequests',
+                    'X-totalClosedRequests',
+                    'X-totalInvitations',
+                    'X-totalNoOfHours',
+                    'X-totalVelocity'
                 ],
             ],
         ];

@@ -79,7 +79,7 @@ class NoteController extends Controller
         $company_id = Yii::$app->request->get('company_id');
         $staff_id = Yii::$app->request->get('staff_id');
         $contact_uuid = Yii::$app->request->get('contact_uuid');
-        $staff_id = Yii::$app->request->get('staff_id');
+        $story_id = Yii::$app->request->get('story_uuid');
 
         $page = Yii::$app->request->get('page');
 
@@ -112,6 +112,10 @@ class NoteController extends Controller
 
         if($contact_uuid) {
             $query->filterContact($contact_uuid);
+        }
+
+        if($story_id) {
+            $query->filterStory($story_id);
         }
 
         if(!$page) 
@@ -148,9 +152,11 @@ class NoteController extends Controller
         $model->note_type = Yii::$app->request->getBodyParam("type");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
+        $model->story_uuid = Yii::$app->request->getBodyParam("story_uuid");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+        $model->request_checklist_uuid = Yii::$app->request->getBodyParam("request_checklist_uuid");
 
         if (!$model->save())
         {
@@ -197,7 +203,8 @@ class NoteController extends Controller
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
-        
+        $model->request_checklist_uuid = Yii::$app->request->getBodyParam("request_checklist_uuid");
+
         if (!$model->save())
         {
             if(isset($model->errors)){

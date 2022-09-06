@@ -79,6 +79,8 @@ class CompanyController extends BaseController
     {
         $model = Yii::$app->companyManager->getCompany();
 
+        $model->setScenario('update');
+        
         $model->company_name = ucfirst(Yii::$app->request->getBodyParam("name"));
         $model->company_common_name_en = ucfirst(Yii::$app->request->getBodyParam("common_name_en"));
         $model->company_common_name_ar = ucfirst(Yii::$app->request->getBodyParam("common_name_ar"));
@@ -96,7 +98,7 @@ class CompanyController extends BaseController
 
         return [
             "operation" => "success",
-            "message" => Yii::t('company', "Company update successfully")
+            "message" => Yii::t('company', "Company account updated successfully")
         ];
     }
 

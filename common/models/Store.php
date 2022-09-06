@@ -46,14 +46,13 @@ class Store extends \yii\db\ActiveRecord
             [['store_name', 'store_location'], 'required'],
             [['store_created_at', 'store_updated_at','deleted','brand_uuid'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
-            [['company_id'], 'validateCompanyHasSubcompanies'],            
+            [['company_id'], 'validateCompanyHasSubcompanies'],
             [['store_manager_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['store_manager_uuid' => 'contact_uuid']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['brand_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::className(), 'targetAttribute' => ['brand_uuid' => 'brand_uuid']],
             [['mall_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Mall::className(), 'targetAttribute' => ['mall_uuid' => 'mall_uuid']],
         ];
     }
-
 
     /**
      * Scenarios for validation and massive assignment
@@ -68,7 +67,6 @@ class Store extends \yii\db\ActiveRecord
         $scenarios['update_manager'] = ['store_manager_uuid'];
         return $scenarios;
     }
-
 
     /**
      * Find if company linked to store has subcompanies.
@@ -132,6 +130,37 @@ class Store extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getRevenue()
+    {
+        return (double) $this->getTransferCandidates ()
+            ->filterPaymentReceived()
+            ->sum ('transfer_candidate.company_total');
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getProfit()
+    {
+        return (double) $this->getTransferCandidates ()
+            ->filterPaymentReceived()
+            ->sum ('transfer_candidate.company_total - transfer_candidate.candidate_total');
+    }
+
+    /**
      * @inheritdoc
      */
     public function extraFields()
@@ -144,7 +173,9 @@ class Store extends \yii\db\ActiveRecord
             'brand',
             'mall',
             'candidateWorkHistory',
-            'candidateWorkHistoryByLast40Days'
+            'candidateWorkHistoryByLast40Days',
+            'profit',
+            'revenue'
         ];
     }
 

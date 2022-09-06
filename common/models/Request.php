@@ -25,6 +25,7 @@ use Segment\Segment;
  * @property string $request_job_description
  * @property string $request_compensation
  * @property int $request_number_of_employees
+ * @property int $no_of_employees_per_story
  * @property string $request_location
  * @property string $request_additional_info
  * @property string $request_status
@@ -38,7 +39,9 @@ use Segment\Segment;
  * @property string $request_cancelled_at
  * @property string $request_created_datetime
  * @property string $request_updated_datetime
- *
+ * @property int $request_priority
+ * @property int $is_old
+ * @property int $request_time_spent
  * @property Company $company
  * @property CompanyContact $contactUu
  * @property Staff $requestCreatedBy
@@ -52,6 +55,7 @@ class Request extends \yii\db\ActiveRecord
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_FINISHED = 'finished_by_recruitment';
     const STATUS_RE_WORK = 're_work';
+
     /**
      * {@inheritdoc}
      */
@@ -66,9 +70,9 @@ class Request extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id','request_job_description','request_compensation'], 'required'],
-            [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval'], 'integer'],
-            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED, self::STATUS_FINISHED, self::STATUS_RE_WORK]],
+            [['company_id', 'request_position_title', 'request_job_description','request_compensation'], 'required'],
+            [['company_id', 'request_position_type', 'request_number_of_employees','num_hours_followup_interval', 'request_priority', 'request_time_spent','is_old'], 'integer'],
+            ['request_status', 'in', 'range' => [self::STATUS_STARTED, self::STATUS_DELIVERED, self::STATUS_CANCELLED, self::STATUS_PENDING, self::STATUS_FINISHED, self::STATUS_RE_WORK]],
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
@@ -77,9 +81,26 @@ class Request extends \yii\db\ActiveRecord
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
+            [['num_hours_followup_interval'], 'number', 'min' => 0],
+            [['request_number_of_employees', 'no_of_employees_per_story'], 'number', 'min' => 1],
+            ['no_of_employees_per_story', 'validateNoOfEmplPerStory']
         ];
     }
 
+    /**
+     * Validate no of employees per story
+     */
+    public function validateNoOfEmplPerStory($attribute, $params, $validator) {
+
+        if ($this->no_of_employees_per_story > $this->request_number_of_employees) {
+
+            $this->addError('no_of_employees_per_story', "No of employees per story can not be greater than no of employees in request.");
+        }
+    }
+
+    /**
+     * Validate contact belong to request owner
+     */ 
     public function validateContact($attribute, $params, $validator) {
 
         if ($this->contact_uuid && $this->company_id) {
@@ -138,6 +159,7 @@ class Request extends \yii\db\ActiveRecord
         }
 
         if($this->request_status == self::STATUS_CANCELLED && !$this->request_cancelled_at) {
+            $this->staff_id = null;
             $this->request_cancelled_at = new Expression('NOW()');
         }
 
@@ -177,6 +199,7 @@ class Request extends \yii\db\ActiveRecord
             'request_job_description' => Yii::t('app', 'Job Description'),
             'request_compensation' => Yii::t('app', 'Compensation'),
             'request_number_of_employees' => Yii::t('app', 'Request Number Of Employees'),
+            'no_of_employees_per_story' => Yii::t('app', 'Number Of Employees per Story'),
             'request_location' => Yii::t('app', 'Request Location'),
             'request_additional_info' => Yii::t('app', 'Request Additional Info'),
             'request_status' => Yii::t('app', 'Request Status'),
@@ -190,6 +213,9 @@ class Request extends \yii\db\ActiveRecord
             'request_cancelled_at' => Yii::t('app', 'Request cancelled at'),
             'request_created_datetime' => Yii::t('app', 'Request Created Datetime'),
             'request_updated_datetime' => Yii::t('app', 'Request Updated Datetime'),
+            'request_priority' => Yii::t('app', 'Request Priority'),
+            'is_old' => Yii::t('app', 'Is Old'),
+            'request_time_spent' => Yii::t('app', 'Request Time Spent'),
         ];
     }
 
@@ -212,8 +238,24 @@ class Request extends \yii\db\ActiveRecord
             'invitations',
             'stats',
             'staff',
-            'staffs'
+            'staffs',
+            'stories',
+            'storyOwners'
         ];
+    }
+
+    /**
+     * Scenarios for validation and massive assignment
+     */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios ();
+
+        $scenarios['staffUpdate'] = ['company_id', 'contact_uuid', 'request_position_type', 'request_position_title',
+            'request_location', 'request_additional_info', 'request_job_description', 'request_compensation'
+        ];
+
+        return $scenarios;
     }
 
     /**
@@ -314,19 +356,59 @@ class Request extends \yii\db\ActiveRecord
             ->orderBy('note_created_datetime DESC');
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getSuggestions($modelClass = "\common\models\Suggestion") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->orderBy('suggestion_datetime DESC');
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getInvitations($modelClass = "\common\models\Invitation") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->orderBy('invitation_created_at DESC');
     }
 
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getActiveSuggestions($modelClass = "\common\models\Suggestion") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\common\models\Story")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid']);
+    }
+
+    /**
+     * all staffs who have worked in this request
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryStaffs($modelClass = "\common\models\Staff")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id'])
+            ->andWhere(['staff.deleted'=>'0'])
+            ->via('stories');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryOwners($modelClass = "\common\models\Staff")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id'])
+            ->via('stories');
     }
 
     /**
@@ -351,7 +433,51 @@ class Request extends \yii\db\ActiveRecord
      */
     public function afterSave($insert, $changedAttributes)
     {
-        parent::afterSave($insert, $changedAttributes); // TODO: Change the autogenerated stub
+        parent::afterSave($insert, $changedAttributes);
+
+        if($insert)
+        {
+            //Add stories based on request_number_of_employees
+
+            $count = ceil($this->request_number_of_employees / $this->no_of_employees_per_story);
+
+            for ($i=0; $i < $count; $i++) {
+                $story = new Story();
+                $story->staff_id = $this->staff_id;
+                $story->request_uuid = $this->request_uuid;
+                $story->story_status = Story::STATUS_UNSTARTED;
+                if(!$story->save()) {
+                    Yii::error($story->errors);
+                }
+            }
+        }
+
+        /**
+         * If they close the request then all stories () under that
+         * request will change its status to closed
+         */
+        if(isset($changedAttributes['request_status'])) {
+
+            if($this->request_status == self::STATUS_CANCELLED) 
+            {
+                //todo: check story activity time not getting added in velocity
+
+                Story::updateAll (['story_status' => Story::STATUS_CANCELLED], [
+                    'request_uuid' => $this->request_uuid
+                ]);
+                /**
+                 [
+                    'IN',
+                    'story_status',
+                    [
+                        Story::STATUS_STARTED,
+                        Story::STATUS_UNSTARTED,
+                        Story::STATUS_DELIVERED,
+                        Story::STATUS_REJECTED
+                    ]
+                 ]*/
+            }
+        }
 
         Company::updateRequest($this->company_id);
 
@@ -385,7 +511,8 @@ class Request extends \yii\db\ActiveRecord
         }
     }
 
-    public static function activeRequestCount() {
+    public static function activeRequestCount() 
+    {
         return Request::find()
             ->needUpdate()
             ->count();

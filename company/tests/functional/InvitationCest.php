@@ -54,7 +54,7 @@ class InvitationCest
             'company_id' => $this->company->company_id
         ])->one ();
 
-        $candidate = Candidate::find ()->one ();
+        $candidate = Candidate::find()->one ();
 
         $I->wantTo ('create a invitation via API');
         $I->sendPOST (

@@ -2,14 +2,16 @@
 
 namespace staff\modules\v1\controllers;
 
-use staff\models\Candidate;
-use staff\models\Fulltimer;
+
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Suggestion;
+use staff\models\Candidate;
+use staff\models\Fulltimer;
 use staff\models\Note;
 use staff\models\Request;
+use staff\models\Story;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
@@ -79,7 +81,9 @@ class SuggestionController extends Controller
         $request_uuid = Yii::$app->request->get("request_uuid");
         $fulltimer_uuid = Yii::$app->request->get("fulltimer_uuid");
         $candidate_id = Yii::$app->request->get("candidate_id");
+        $story_uuid = Yii::$app->request->get("story_uuid");
         $status = Yii::$app->request->get("status");
+        $withPagination = Yii::$app->request->get("withPagination");
 
         $query = Suggestion::find()
             ->joinWith(['fulltimer', 'candidate'])
@@ -87,9 +91,8 @@ class SuggestionController extends Controller
                 'or',
                 'candidate.candidate_id is not null',
                 'fulltimer.fulltimer_uuid is not null'
-                ])
-
-        ->orderBy('suggestion_datetime DESC');
+            ])
+            ->orderBy('suggestion_datetime DESC');
 
         if($request_uuid) {
             $query->andWhere(['request_uuid' => $request_uuid]);
@@ -107,12 +110,18 @@ class SuggestionController extends Controller
             $query->andWhere(['suggestion_status' => $status]);
         }
 
-        $page = Yii::$app->request->get("page",null);
-        if ($page) {
+
+        if($story_uuid) {
+            $query->andWhere(['suggestion.story_uuid' => $story_uuid]);
+        }
+
+        if($withPagination)
+        {
             return new ActiveDataProvider([
-                'query' => $query
+                'query' => $query,
             ]);
-        } else {
+        }
+        else {
             return new ActiveDataProvider([
                 'query' => $query,
                 'pagination' => false
@@ -138,20 +147,48 @@ class SuggestionController extends Controller
     public function actionCreate()
     {   
         $suggestion = Yii::$app->request->getBodyParam("suggestion");
+        $story_uuid = Yii::$app->request->getBodyParam("story_uuid");
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
 
-        $request = Request::findOne(['request_uuid' => $request_uuid]);
+        $story = $story_uuid? Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_uuid' => $story_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]): Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]);
 
-        if(!$request) {
+        if(!$story) {
             return [
                 "operation" => "error",
-                "message" => 'Invalid Request ID'
+                "message" => 'You need to start story on selected request'
             ];
-        } 
+        }
 
-        $transaction = Yii::$app->db->beginTransaction();
+        $request = Request::findOne(['request_uuid' => $request_uuid]);
+
+        // only check if candidate is rejected case
+
+        $exist = $story->getSuggestions()->andWhere(
+            ['or',
+                ['suggestion_status'=>Suggestion::TYPE_SUGGESTED],
+                ['suggestion_status'=>Suggestion::TYPE_ACCEPTED]
+            ]
+        )->exists();
+
+        if ($exist) {
+            return [
+                "operation" => "error",
+                "message" => 'Candidate Already suggested. only one candidate suggestion allowed per story',
+            ];
+        }
+
+        //$transaction = Yii::$app->db->beginTransaction();
 
         //create a "Note" of type "suggested"
 
@@ -165,7 +202,7 @@ class SuggestionController extends Controller
 
         if(!$note->save()) 
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($note->errors)){
                 return [
@@ -187,11 +224,12 @@ class SuggestionController extends Controller
         $model->fulltimer_uuid = $fulltimer_uuid;
         $model->candidate_id = $candidate_id;
         $model->note_uuid = $note->note_uuid;
+        $model->story_uuid = $story->story_uuid;
         $model->suggestion_status = Suggestion::TYPE_SUGGESTED;
 
         if (!$model->save())
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($model->errors)){
                 return [
@@ -206,19 +244,21 @@ class SuggestionController extends Controller
             }
         }
 
-        $note->suggestion_uuid = $model->suggestion_uuid;
-        $note->save(false);
-        
-        $transaction->commit();
+        //$transaction->commit();
+
+        Note::updateAll(['suggestion_uuid' => $model->suggestion_uuid], [
+            'note_uuid' => $note->note_uuid
+        ]);
 
         if ($candidate_id) {
             $suggestions = Candidate::findOne($candidate_id)->getSuggestion()->count();
         } else if ($fulltimer_uuid) {
             $suggestions = Fulltimer::findOne($fulltimer_uuid)->getSuggestion()->count();
         }
+
         return [
             "operation" => "success",
-            "message" => "Suggestion created successfully",
+            "message" => "Candidate Suggested successfully",
             "suggestionCount" => $suggestions
         ];
     }

@@ -17,6 +17,7 @@ use common\fixtures\StoreFixture;
 use common\fixtures\CandidateIdCardFixture;
 use common\fixtures\CandidateSkillFixture;
 use common\fixtures\TransferFixture;
+use common\fixtures\BankFixture;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\CandidateWorkHistoryFixture;
 use common\fixtures\CandidateTokenFixture;
@@ -38,6 +39,7 @@ class CandidateTest extends \Codeception\Test\Unit
         return [
             'candidates' => CandidateFixture::className(),
             'country'    => CountryFixture::className(),
+            'bank'    => BankFixture::className(),
             'university' => UniversityFixture::className(),
             'store'      => StoreFixture::className(),
             'transfer'      => TransferFixture::className(),
@@ -50,10 +52,11 @@ class CandidateTest extends \Codeception\Test\Unit
         ];
     }
 
-   public function _before()
+    public function _before()
     {
         \Yii::$app->params['algolia_candidate_index'] = 'test_candidate_public';
     }
+
     protected function _after()
     {
     }
@@ -90,12 +93,21 @@ class CandidateTest extends \Codeception\Test\Unit
 
         $this->specify('Candidate model integer field validation', function() {
             $candidate = new Candidate;
+
             $candidate->store_id = 'test';
             expect('String value passed for store_id', $candidate->validate(['store_id']))->false();
+
             $candidate->candidate_status = 'test';
             expect('String value passed for candidate_status', $candidate->validate(['candidate_status']))->false();
+
             $candidate->approved = 'test';
             expect('String value passed for approved', $candidate->validate(['approved']))->false();
+
+            $candidate->candidate_gender = 'test';
+            expect('String value passed for candidate_gender', $candidate->validate(['candidate_gender']))->false();
+
+            $candidate->candidate_gender = 1;
+            expect('Valid value passed for candidate_gender', $candidate->validate(['candidate_gender']))->true();
         });
 
         $this->specify('Candidate model string field validation', function() {
@@ -117,16 +129,29 @@ class CandidateTest extends \Codeception\Test\Unit
         $this->specify('Candidate model foreign key validation', function() {
             $candidate = new Candidate;
 
+            //bank
+            $bank = $this->tester->grabFixture('bank', 0);
+
+            $candidate->bank_id = 9999;
+            expect('Invalid Bank ID passed', $candidate->validate(['bank_id']))->false();
+
+            $candidate->bank_id = $bank->bank_id;
+            expect('Valid Bank ID passed', $candidate->validate(['bank_id']))->true();
+
             //country
+            $country = $this->tester->grabFixture('country', 0);
+
             $candidate->country_id = 9999;
             expect('Invalid Country ID passed', $candidate->validate(['country_id']))->false();
-            $candidate->country_id = $this->tester->grabFixture('country', 0);
+            $candidate->country_id = $country->country_id;
             expect('Valid Country ID passed', $candidate->validate(['country_id']))->true();
 
             //university
+            $univesity = $this->tester->grabFixture('university', 0);
+
             $candidate->university_id = 9999;
             expect('Invalid University ID passed', $candidate->validate(['university_id']))->false();
-            $candidate->university_id = $this->tester->grabFixture('university', 0);
+            $candidate->university_id = $univesity->university_id;
             expect('Valid University ID passed', $candidate->validate(['university_id']))->true();
         });
 
@@ -168,6 +193,7 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidateData = Candidate::findOne(['deleted'=>'0']);
 
             $candidate = new Candidate;
+
             $candidate->candidate_email = $candidateData->candidate_email;
             expect('Duplicate email passed', $candidate->validate(['candidate_email']))->false();
 
@@ -176,6 +202,18 @@ class CandidateTest extends \Codeception\Test\Unit
 
             $candidate->candidate_email = 'candidate1@unique.net';
             expect('Valid email passed', $candidate->validate(['candidate_email']))->true();
+
+            //candidate_new_email
+
+            $candidate->candidate_new_email = $candidateData->candidate_email;
+            expect('Duplicate new email passed', $candidate->validate(['candidate_new_email']))->false();
+
+            $candidate->candidate_new_email = 'test';
+            expect('Random string passed for candidate new email ', $candidate->validate(['candidate_new_email']))->false();
+
+            $candidate->candidate_new_email = 'candidate2@unique.net';
+            expect('Valid new email passed', $candidate->validate(['candidate_new_email']))->true();
+
         });
 
         $this->specify('Candidate civil id validation', function() {

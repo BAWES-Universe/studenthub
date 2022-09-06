@@ -355,10 +355,38 @@ class AuthController extends Controller
             ];
         }
 
+        /*should not be in use
+
+        $exists = Contact::find()
+            ->andWhere(['contact_email' => $email])
+            ->exists();
+
+        if($exists) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address already registered")
+            ];
+        }*/
+
         $model = Contact::verifyEmail($email, $code);
 
-        if ($model) {
+        if(!$model)
+        {
+            //add entry for invalid attempt
 
+            $model = new ContactEmailVerifyAttempt;
+            $model->code = $code;
+            $model->email = $email;
+            $model->ip_address = Yii::$app->getRequest()->getUserIP();
+            $model->save();
+
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('company', 'Invalid email verification code.')
+            ];
+        }
+        else if ($model->save())
+        {
             //remove otp
 
             //$model->contact_otp = null;
@@ -372,19 +400,12 @@ class AuthController extends Controller
             ]);
 
             return $this->_loginResponse($model);
-
-        } else {
-            //add entry for invalid attempt
-
-            $model = new ContactEmailVerifyAttempt;
-            $model->code = $code;
-            $model->email = $email;
-            $model->ip_address = Yii::$app->getRequest()->getUserIP();
-            $model->save();
-
+        }
+        else
+        {
             return [
                 'operation' => 'error',
-                'message' => Yii::t('company', 'Invalid email verification code.')
+                'message' => $model->getErrors()
             ];
         }
     }
@@ -435,6 +456,19 @@ class AuthController extends Controller
             return [
                 "operation" => "error",
                 "message" => Yii::t('company', "Contact new email address is same as old email")
+            ];
+        }
+
+        //should not be in use
+
+        $exists = Contact::find()
+            ->andWhere(['contact_email' => $new_email])
+            ->exists();
+
+        if($exists) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Contact new email address already registered")
             ];
         }
 

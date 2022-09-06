@@ -35,7 +35,7 @@ class RequestQuery extends ActiveQuery
      * @param $date
      * @return RequestQuery
      */
-    public function startDate($date)
+	public function startDate($date)
     {
         return $this->andWhere("DATE(request_created_datetime) > '".$date."'");
     }
@@ -114,6 +114,29 @@ class RequestQuery extends ActiveQuery
 //                    "request_updated_datetime < DATE_SUB(NOW(),INTERVAL 24 HOUR) OR request_updated_datetime = request_created_datetime"
 //                )
 //            );
+    }
+
+    /**
+     * filter by query string
+     */
+    public function filterByKeyword($keyword)
+    {
+        return $this->andWhere([
+            'OR',
+            ['like', 'request_job_description', $keyword],
+            ['like', 'request_compensation', $keyword],
+            ['like', 'request_additional_info', $keyword],
+            ['like', 'request_location', $keyword],
+        ]);
+    }
+
+    /**
+     * pending requests
+     * @return RequestQuery
+     */
+    public function pendingRequest()
+    {
+        return $this->andWhere(['request.request_status' => Request::STATUS_PENDING]);
     }
 
     /**

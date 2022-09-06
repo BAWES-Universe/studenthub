@@ -133,9 +133,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
             [['candidate_new_email', 'candidate_email'], 'validateEmail'],
+            [['candidate_new_email'], 'validateNewEmail'],
             ['candidate_limit_email', 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
+            ['candidate_pending_profile', 'string'],
             [
                 ['candidate_civil_id'],
                 'number',
@@ -165,6 +167,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
 
             ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
 
@@ -264,6 +267,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
 
+        $scenarios['verifyEmail'] = ['candidate_email', 'candidate_new_email', 'candidate_email_verification'];
+
         $scenarios['updateCandidateEmail'] = ['candidate_email'];
 
         $scenarios['changeProfilePhoto'] = ['profile_photo'];
@@ -314,6 +319,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid'];
 
+        $scenarios['updatePendingProfile'] = ['candidate_pending_profile'];
+
+        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token'];
+
         return $scenarios;
     }
 
@@ -338,9 +347,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * new email can not be same as old
+     * @param $attribute
+     */
+    public function validateNewEmail($attribute) {
+
+        if ($this->candidate_new_email == $this->candidate_email) {
+            $this->addError('candidate_new_email', Yii::t('app', 'Email already registered'));
+        }
+    }
+
+    /**
      * Validate email in new_email field
      */
     public function validateEmail($attribute) {
+
         $query = self::find()
             ->andWhere([
                 'or',
@@ -599,7 +620,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $this->scenario, [
                     'updateLanguagePref', //as not saving language preference in algolia
                     'signup', //as will have incomplete profile
-                    'updateEmail'//as not saving email in algolia
+                    'updateEmail',//as not saving email in algolia
+                    'updatePendingProfile',
+                    'changePassword',
+                    'updatePasswordToken',
+                    //'verifyEmail'
                 ]
             )
         ) {
@@ -688,11 +713,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         };
 
         $fields['isProfileCompleted'] = function($model) {
-            return $model->isProfileCompleted();
+            return !$model->candidate_pending_profile ||
+                strlen ($model->candidate_pending_profile) == 0;
+            //return $model->isProfileCompleted();
         };
 
         $fields['pendingField'] = function($model) {
-            return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
+            return $model->candidate_pending_profile && strlen ($model->candidate_pending_profile) > 0 ?
+                explode (',', $model->candidate_pending_profile): null;
+            //return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
 
         unset(
@@ -724,7 +753,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'notes',
             'workHistory',
             'acceptanceRatio',
-            'rejectionRatio'
+            'rejectionRatio',
+            'profit',
+            'revenue'
         ];
     }
 
@@ -823,6 +854,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 break;
             }
         }
+
+        //update profile status
+
+        $this->isInCompleteProfile();
+
+        $this->candidate_pending_profile = implode(',', array_keys($this->pendingProfile));
 
         return true;
     }
@@ -1042,13 +1079,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function sendPasswordResetEmail()
     {
+        $this->setScenario('updatePasswordToken');
         $this->generatePasswordResetToken();
         $this->save(false);
 
         //Yii::$app->mailer->htmlLayout = 'layouts/html';
 
         $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
+
         $name = explode(' ',$this->candidate_name);
+
         return Yii::$app->mailer->compose("candidate/password-reset-html",
             [
                 "webUrl" => $webUrl,
@@ -1079,7 +1119,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        $token = CandidateToken::find()->andWhere(['token_value' => $token])->with('candidate')->one();
+        $token = CandidateToken::find()->andWhere(['token_value' => $token])
+            ->with('candidate')->one();
         if($token){
             return $token->candidate;
         }
@@ -1410,6 +1451,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ];
         }
 
+        $candidate->setScenario('verifyEmail');
+
         if ($candidate->candidate_auth_key && $code && $candidate->candidate_auth_key == $code) { //to cope with sql case insensitivity
             //If not verified
             if ($candidate->candidate_email_verification == Candidate::EMAIL_NOT_VERIFIED) {
@@ -1425,7 +1468,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
 
             $candidate->candidate_auth_key = ''; //remove auth key
+
             $candidate->save(false);
+
             return [
                 'success' => true,
                 'data' => $candidate
@@ -2545,6 +2590,37 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getSuggestion($modelClass = "\common\models\Suggestion")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getRevenue()
+    {
+        return (double) $this->getTransferCandidates ()
+            ->filterPaymentReceived()
+            ->sum ('transfer_candidate.company_total');
+    }
+
+    /**
+     * Revenue
+     * @return string
+     */
+    public function getProfit()
+    {
+        return (double) $this->getTransferCandidates ()
+            ->filterPaymentReceived()
+            ->sum ('transfer_candidate.company_total - transfer_candidate.candidate_total');
     }
 
     /**

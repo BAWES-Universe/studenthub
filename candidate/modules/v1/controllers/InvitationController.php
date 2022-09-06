@@ -51,6 +51,7 @@ class InvitationController extends Controller
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::className(),
         ];
+        
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = [
             'options',

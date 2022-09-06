@@ -62,13 +62,15 @@ class Fulltimer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email'], 'required'],
+            [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_current_salary', 'fulltimer_expected_salary'], 'required'],
+            [['fulltimer_current_salary', 'fulltimer_expected_salary'], 'number', 'min' => 0],
             [['nationality_id', 'country_id', 'fulltimer_gender'], 'integer'],
             [['fulltimer_latitude', 'fulltimer_longitude'], 'number'],
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
             [['fulltimer_employed', 'fulltimer_driving_license'], 'boolean'],
             [['fulltimer_birth_date'], 'date', 'format' => 'yyyy-M-d'],
+            ['fulltimer_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
             [['fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv','fulltimer_current_salary','fulltimer_expected_salary'], 'string', 'max' => 255],
             [
                 ['fulltimer_pdf_cv'],

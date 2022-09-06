@@ -62,7 +62,7 @@ return [
              * https://studenthub-uploads-dev-server.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
-        'log' => [
+        /*'log' => [
             'targets' => [
                 [
                     'class' => 'notamedia\sentry\SentryTarget',
@@ -89,6 +89,6 @@ return [
                     'categories' => ['admin\*', 'candidate\*', 'company\*', 'staff\*', 'remail\*', 'common\*', 'console\*'],
                 ],
             ],
-        ],
+        ],*/
     ],
 ];

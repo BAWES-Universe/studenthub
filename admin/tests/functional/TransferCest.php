@@ -412,9 +412,34 @@ class TransferCest
             'excel' => basename($response['ObjectURL'])
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
-    } 
+    }
+
+    /**
+     * List Suspicious Transfers
+     * @param FunctionalTester $I
+     */
+    public function tryToListSuspicious(FunctionalTester $I)
+    {
+        $I->wantTo('Validate admin > transfer > List suspicious transfers api');
+        $I->sendGET('v1/transfers/suspicious');
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
+
+    /**
+     * Update transfer from file
+     * @param FunctionalTester $I
+     */
+    public function tryToUpdateFromFile(FunctionalTester $I)
+    {
+        $model = Transfer::find()
+            ->isParentTransfer()
+            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+            ->one();
+
+        $I->wantTo('Validate admin > transfer > update transfer from file api');
+        $I->sendPOST('v1/transfers/update-transfer-from-file/' . $model->transfer_id, [
+        ]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+    }
 }
 
-                    
-                      
-                        

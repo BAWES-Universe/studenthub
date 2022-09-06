@@ -286,7 +286,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'transfer',
             'invoice',
             'bank',
-            'transferFile'
+            'transferFile',
+            'profit',
+            'revenue'
         ];
     }
     
@@ -457,7 +459,16 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     /**
-     * Total amount that will be sent to the candidate
+     * Revenue
+     * @return string
+     */
+    public function getRevenue()
+    {
+        return $this->totalPaidByCompany;
+    }
+
+    /**
+     * Revenue - Total amount that will be sent to the candidate
      * @return string
      */
     public function getTotalPaidByCompany()
@@ -465,6 +476,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
         return ($this->company_hourly_rate * $this->hours) + $this->bonus;
     }
 
+    /**
+     * gross profit
+     * @return decimal|float|int
+     */
     public function getProfit()
     {
         return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost + $this->bonus_commission;

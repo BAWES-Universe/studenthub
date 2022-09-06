@@ -26,6 +26,10 @@ use Segment\Segment;
  */
 class CronController extends \yii\console\Controller {
 
+    public function actionIndex() {
+
+    }
+
     /**
      * todo: mail on transfer total mismatch?
      * Check if candidate total mismatch

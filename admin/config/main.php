@@ -72,14 +72,24 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/staff',
                     'patterns' => [
-                        'GET' => 'list',
+                        'GET list-salaries/<id>' => 'list-salaries',
+                        'GET view-salary/<id>' => 'view-salary',
                         'GET <id>' => 'view',
+                        'GET' => 'list',
+                        'POST import-salary' => 'import-salary',
+                        'POST add-salary/<id>' => 'add-salary',
+                        'PATCH update-salary/<id>' => 'update-salary',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS list-salaries/<id>' => 'options',
+                        'OPTIONS add-salary/<id>' => 'options',
+                        'OPTIONS update-salary/<id>' => 'options',
+                        'OPTIONS view-salary/<id>' => 'options',
+                        'OPTIONS import-salary' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                     ]
@@ -331,6 +341,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // RequestChecklistController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request-checklist',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // UniversityController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/university',
@@ -368,7 +392,7 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
-                [ // CandidateWorkHistoryController
+                [ // RequestController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/request',
                     'patterns' => [
@@ -379,7 +403,7 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
-                [ // CandidateWorkHistoryController
+                [ // InvitationController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invitation',
                     'patterns' => [
@@ -388,13 +412,30 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
-                [ // CandidateWorkHistoryController
+                [ // SuggestionController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/suggestion',
                     'patterns' => [
                         'GET' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // StoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/story',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET list' => 'list',
+                        'GET active-story' => 'active-story',
+                        'GET all-old-stories' => 'all-old-stories',
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list' => 'options',
+                        'OPTIONS active-story' => 'options',
+                        'OPTIONS all-old-stories' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],

@@ -10,17 +10,12 @@ class Store extends \common\models\Store {
 
     /**
      * @inheritdoc
-     */
+     *
     public function fields()
     {
         // Whitelisted fields to return
-        return [
-            'store_id',
-            'company_id',
-            'store_name',
-            'store_status'
-        ];
-    }
+        return parent::fields();
+    }*/
 
     /**
      * @param string $modelClass

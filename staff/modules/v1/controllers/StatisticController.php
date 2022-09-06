@@ -71,9 +71,9 @@ class StatisticController extends Controller
     {
         // # of candidates requiring ID card to be renewed
 
-    	$result['totalExpiredCards'] =  Candidate::totalExpiredCards()->count();
+    	$result['totalExpiredCards'] =  (int) Candidate::totalExpiredCards()->count();
 
-        $result['assignedExpiredCivilID'] =  Candidate::assignedExpiredCivilID()->count();
+        $result['assignedExpiredCivilID'] =  (int) Candidate::assignedExpiredCivilID()->count();
 
     	// # of candidates that need id generated
 
@@ -85,25 +85,25 @@ class StatisticController extends Controller
 
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
-        $result['profileApprovalRequire'] = Candidate::profileApprovalRequire()->count();
+        $result['profileApprovalRequire'] = (int) Candidate::profileApprovalRequire()->count();
 
         //Candidates are assigned to work but have incomplete profiles.
 
-        $result['incompleteAssignedToWork'] = Candidate::incompleteAssignedToWork()->count();
+        $result['incompleteAssignedToWork'] = (int) Candidate::incompleteAssignedToWork()->count();
 
-        $result['missingBankInfo'] = Candidate::withoutBankInfoOrWithPayment()->count();
+        $result['missingBankInfo'] = (int) Candidate::withoutBankInfoOrWithPayment()->count();
 
-        $result['requireFollowup'] = Company::companyFollowupCount();
+        $result['requireFollowup'] = (int) Company::companyFollowupCount();
 
-        $result['activeRequests'] = Request::activeRequestCount();
+        $result['activeRequests'] = (int) Request::activeRequestCount();
 
-        $result['totalRequests'] = Request::totalRequestCount();
+        $result['totalRequests'] = (int) Request::totalRequestCount();
 
-        $result['assignedIdleCandidates'] = Candidate::getAssignedIdleCandidate()->count();
+        $result['assignedIdleCandidates'] = (int) Candidate::getAssignedIdleCandidate()->count();
 
-        $result['companyMoreThen40DaysWithoutPayment'] = Company::companiesCountWithNoPaymentIn40Days();
+        $result['companyMoreThen40DaysWithoutPayment'] = (int)  Company::companiesCountWithNoPaymentIn40Days();
 
-        $result['last40daysNoRequest'] = Company::last40daysWithoutRequest();
+        $result['last40daysNoRequest'] = (int)  Company::last40daysWithoutRequest();
 
         return $result;
     }

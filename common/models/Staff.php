@@ -20,6 +20,8 @@ use yii\web\IdentityInterface;
  * @property string $staff_gmail_password
  * @property string $staff_password_reset_token
  * @property number $staff_role
+ * @property number $staff_salary
+ * @property number $staff_salary_currency
  * @property integer $staff_status
  * @property integer $staff_notification
  * @property integer $staff_created_at
@@ -49,10 +51,10 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             [['staff_name', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
-            [['staff_role'], 'number'],
+            [['staff_role','staff_hourly_rate', 'staff_salary'], 'number'],
             [['staff_status','staff_notification'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
-            [['staff_auth_key'], 'string', 'max' => 32],
+            [['staff_auth_key', 'staff_salary_currency'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
             [['staff_email'], 'email'],
             [['staff_password_reset_token'], 'unique'],
@@ -88,6 +90,8 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_gmail_password' => Yii::t('app','Staff Gmail Password'),
             'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
             'staff_role' => Yii::t('app', 'Role'),
+            'staff_salary' => Yii::t('app', 'Salary'),
+            'staff_salary_currency' => Yii::t('app', 'Salary currency'),
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_notification' => Yii::t('app','Staff Notification'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
@@ -181,10 +185,86 @@ class Staff extends ActiveRecord implements IdentityInterface
                 return (int) $query
                     ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
             },
+            'totalCompletedStories' => function($model) {
+
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getStories()
+                    ->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return $query->count();
+            },
+            'totalStoryEmployees' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getStories()
+                    ->joinWith(['request'], 'left')
+                    ->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query->sum('request.no_of_employees_per_story');
+            },
+            'timeForCompletedStories' => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getStoryActivities()
+                    ->joinWith(['story'], 'left')
+                    ->andWhere(['activity_status' => StoryActivity::STATUS_DELIVERED]);
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query
+                    ->sum('story_activity.activity_time_spent');
+            },
             /*'totalRequests' => function($model) {
                 return $model->getRequests()->count();
             }*/
         ];
+    }
+
+    public static function getTotalNoOfHours()
+    {
+        $timeForCompletedRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        $timeForCancelledRequests = (int) Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_CANCELLED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        return ($timeForCancelledRequests + $timeForCompletedRequests) / 3600;
     }
 
     /**
@@ -307,12 +387,43 @@ class Staff extends ActiveRecord implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
+    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory"){
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoryActivities($modelClass = "\common\models\StoryActivity") {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\common\models\Story")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaffSalaries($modelClass = "\common\models\StaffSalary")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    public function getCurrentStory() {
+        return Story::find()->andWhere(['story.staff_id' => Yii::$app->user->getId(),'story.story_status' => Story::STATUS_STARTED])
+            ->joinWith(['request','company'])
+            ->asArray()
+            ->one();
+    }
+
+    /**
+
      * Signs user up.
      * @return static|null the saved model or null if saving fails
      */

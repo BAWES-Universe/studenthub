@@ -44,6 +44,8 @@ return [
             'verification/web/assets',
             'inspector/runtime',
             'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -55,6 +57,7 @@ return [
             'company/config/main-local.php',
             'staff/config/main-local.php',
             'inspector/config/main-local.php',
+            'status/config/main-local.php',
             'verification/config/main-local.php',
         ],
     ],
@@ -74,6 +77,8 @@ return [
             'verification/web/assets',
             'inspector/runtime',
             'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -86,6 +91,7 @@ return [
             'staff/config/main-local.php',
             'verification/config/main-local.php',
             'inspector/config/main-local.php',
+            'status/config/main-local.php',
         ],
     ],
 
@@ -104,6 +110,8 @@ return [
             'verification/web/assets',
             'inspector/runtime',
             'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -116,6 +124,7 @@ return [
             'staff/config/main-local.php',
             'verification/config/main-local.php',
             'inspector/config/main-local.php',
+            'status/config/main-local.php',
         ],
     ],
     'dev-saoud' => [
@@ -133,6 +142,8 @@ return [
             'verification/web/assets',
             'inspector/runtime',
             'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -145,6 +156,7 @@ return [
             'staff/config/main-local.php',
             'verification/config/main-local.php',
             'inspector/config/main-local.php',
+            'status/config/main-local.php',
         ],
     ],
     'Dev-Server' => [
@@ -162,6 +174,8 @@ return [
             'verification/web/assets',
             'inspector/runtime',
             'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -173,6 +187,7 @@ return [
             'staff/config/main-local.php',
             'verification/config/main-local.php',
             'inspector/config/main-local.php',
+            'status/config/main-local.php',
         ],
     ],
     'Circle-CI' => [
@@ -190,6 +205,8 @@ return [
             'verification/web/assets',
             'inspector/runtime',
             'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -202,6 +219,7 @@ return [
             'staff/config/main-local.php',
             'verification/config/main-local.php',
             'inspector/config/main-local.php',
+            'status/config/main-local.php',
         ],
     ],
     'Production' => [
@@ -219,6 +237,8 @@ return [
             'verification/web/assets',
             'inspector/runtime',
             'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
         ],
         'setExecutable' => [
             'yii',
@@ -230,6 +250,7 @@ return [
             'staff/config/main-local.php',
             'verification/config/main-local.php',
             'inspector/config/main-local.php',
+            'status/config/main-local.php',
         ],
     ],
 ];

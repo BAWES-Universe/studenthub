@@ -147,7 +147,7 @@ class Request extends \common\models\Request
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
             ])
-            ->setFrom([\Yii::$app->user->identity->contact_email => \Yii::$app->user->identity->contact_name])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
             ->setSubject($subject)
             ->send();

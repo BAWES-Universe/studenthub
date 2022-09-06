@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\Staff;
 use Yii;
 use yii\rest\Controller;
 
@@ -63,8 +64,23 @@ class AccountController extends Controller
         $staff = Yii::$app->user->identity;
         
         $password = Yii::$app->request->getBodyParam("password");
-        $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
+        if ($staff && !$staff->validatePassword($password)) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid current password'
+            ];
+        }
+
+        $newPassword = Yii::$app->request->getBodyParam("newPassword");
+        $confirmNewPassword = Yii::$app->request->getBodyParam("confirmNewPassword");
+
+        if ($newPassword != $confirmNewPassword) {
+            return [
+                'operation' => 'error',
+                'message' => 'confirm password does not match'
+            ];
+        }
         //update password 
         
         $staff->setPassword($newPassword);
@@ -73,6 +89,24 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'message' => 'Your password has been reset'
+        ];
+    }
+
+    public function actionAccount()
+    {
+        $staff = Yii::$app->user->identity;
+
+        // Return Staff access token if everything valid
+        $accessToken = $staff->accessToken->token_value;
+
+        return [
+            "operation" => "success",
+            "token" => $accessToken,
+            "staff_id" => $staff->staff_id,
+            "name" => $staff->staff_name,
+            "email" => $staff->staff_email,
+            "story" => $staff->currentStory,
+            "role" => $staff->staff_role
         ];
     }
 }

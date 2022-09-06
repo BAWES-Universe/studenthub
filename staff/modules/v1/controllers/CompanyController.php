@@ -231,9 +231,48 @@ class CompanyController extends Controller
     }
 
     /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionChangeStatus($id) {
+
+        $model = $this->findModel((int) $id);
+
+        $model->scenario = 'updateStatus';
+
+        $model->company_status_override = Yii::$app->request->getBodyParam("status");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->company_name.' Company Account Updated] Company status updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
      * Send payroll email
      * @param $id
-     * @return array
+     * @return array|string[]
+     * @throws NotFoundHttpException
      */
     public function actionPayrollEmail($id)
     {

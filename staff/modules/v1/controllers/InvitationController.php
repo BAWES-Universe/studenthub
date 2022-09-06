@@ -10,6 +10,7 @@ use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Invitation;
+use common\models\Story;
 use staff\models\Request;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -78,6 +79,7 @@ class InvitationController extends Controller
     public function actionList()
     {
         $request_uuid = Yii::$app->request->get("request_uuid");
+        $story_uuid = Yii::$app->request->get("story_uuid");
         $candidate_id = Yii::$app->request->get("candidate_id");
         $status = Yii::$app->request->get("status");
 
@@ -90,6 +92,10 @@ class InvitationController extends Controller
             $query->andWhere(['request_uuid' => $request_uuid]);
         }
 
+        if($story_uuid) {
+            $query->andWhere(['story_uuid' => $story_uuid]);
+        }
+
         if($candidate_id) {
             $query->andWhere(['candidate.candidate_id' => $candidate_id]);
         }
@@ -99,8 +105,7 @@ class InvitationController extends Controller
         }
 
         return new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => false
+            'query' => $query
         ]);
     }
 
@@ -116,6 +121,27 @@ class InvitationController extends Controller
     }
 
     /**
+     * check if candidate already invited
+     */
+    public function actionIsAlreadyInvited()
+    {
+        $candidate_id = Yii::$app->request->get('candidate_id');
+        //$story_uuid = Yii::$app->request->get('story_uuid');
+        $request_uuid = Yii::$app->request->get('request_uuid');
+
+        $query = Invitation::find()
+            ->andWhere([
+                //'invitation_status' => self::STATUS_INVITED,
+                'request_uuid' => $request_uuid,
+                'candidate_id' => $candidate_id
+            ]);
+
+        return [
+            'isAlreadyInvited' => $query->exists()
+        ];
+    }
+
+    /**
      * Create a Suggestion
      * @return array
      */
@@ -124,13 +150,28 @@ class InvitationController extends Controller
         $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $reason = Yii::$app->request->getBodyParam("reason");
+        $story_uuid = Yii::$app->request->getBodyParam("story_uuid");
 
-        $request = Request::findOne(['request_uuid' => $request_uuid]);
+        //story status should be active + own by login user
 
-        if(!$request) {
+        $story = $story_uuid? Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_uuid' => $story_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]): Story::findOne([
+            'request_uuid' => $request_uuid,
+            'story_status' => Story::STATUS_STARTED,
+            'staff_id' => Yii::$app->user->getId ()
+        ]);
+
+        //$request = Request::findOne(['request_uuid' => $request_uuid]);
+
+        if(!$story)
+        {
             return [
                 "operation" => "error",
-                "message" => 'Invalid Request ID'
+                "message" => 'No active story found for this request'
             ];
         }
 
@@ -138,14 +179,15 @@ class InvitationController extends Controller
 
         //create a "Note" of type "suggested"
 
-
         $query = Invitation::find()
             ->andWhere(['candidate_id'=>$candidate_id])
             ->andWhere(new Expression('DATE(`invitation_created_at`) = CURDATE()'))
             ->one();
 
         //BP-1194 candidate can only receive one invitation in a day
-        if ($query) {
+
+        if ($query)
+        {
             $transaction->rollBack();
 
             return [
@@ -158,6 +200,23 @@ class InvitationController extends Controller
         $model->request_uuid = $request_uuid;
         $model->candidate_id = $candidate_id;
         $model->invitation_status = Invitation::STATUS_INVITED;
+        $model->story_uuid = $story->story_uuid;
+
+        if (!$model->validate())
+        {
+            $transaction->rollBack();
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Invitation, please contact us for assistance."
+                ];
+            }
+        }
 
         if (!$model->save())
         {
@@ -176,7 +235,7 @@ class InvitationController extends Controller
         }
 
         $note = new Note;
-        $note->company_id = $request->company_id;
+        $note->company_id = $story->request->company_id;
         $note->candidate_id = $candidate_id;
         $note->request_uuid = $request_uuid;
         $note->invitation_uuid = $model->invitation_uuid;

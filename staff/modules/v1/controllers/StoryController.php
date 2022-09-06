@@ -111,6 +111,7 @@ class StoryController extends Controller
     {
         $model = Story::find()->andWhere(['staff_id' => Yii::$app->user->getId()])
             ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+            ->orderBy('story_last_updated_at DESC')
             ->all();
 
         if ($model !== null) {
@@ -140,9 +141,6 @@ class StoryController extends Controller
         $query = Story::find()
             ->joinWith('request');
 
-        if ($status || $status == '0')
-            $query->andWhere(['story_status' => $status]);
-
         if ($position_type) {
             $query->andWhere(['request.request_position_type' => $position_type]);
         }
@@ -154,13 +152,27 @@ class StoryController extends Controller
             ]);
         }
 
+        if ($status == 10) {
+            $query->orderBy('request.request_created_datetime DESC');
+            $query->needUpdate();//activeRequest
+        } else {
+            if ($status) {
+                $status = ($status == '9' ? 0 : $status);
+                $query->andWhere(['story_status' => $status]);
+            } else {
+                $query->needUpdate();//activeRequest
+            }
 
-        $query->orderBy(
-            [
-                'request.request_priority' => SORT_ASC,
-                new \yii\db\Expression('FIELD (story_status, 4,0)'),
-                'request_created_datetime' => SORT_ASC
-            ]);
+            $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
+            $query->orderBy(new yii\db\Expression(sprintf("FIELD(request.request_status, %s)", implode(",", $statusOrder))));
+
+//            $query->orderBy(
+//                [
+//                    'request.request_priority' => SORT_ASC,
+//                    new \yii\db\Expression('FIELD (story_status, 4,0)'),
+//                    'request_created_datetime' => SORT_ASC
+//                ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -175,7 +187,7 @@ class StoryController extends Controller
     public function actionChangeStoryStatus()
     {
         $status = (int) Yii::$app->request->getBodyParam("status");
-
+        $status_lbl = 'started';
         $storyUuid = Yii::$app->request->getBodyParam("story_uuid");
 
         $arrStatus = [
@@ -212,37 +224,19 @@ class StoryController extends Controller
 
         $story =  $this->findModel($storyUuid);
 
+        if ($story->story_status == StoryActivity::STATUS_DELIVERED) { // re work scenarios
+            if ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED) {
+                \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
+                $status_lbl = 'Re-started';
+            }
+        }
+
         // Attempt to create new request
 
         $model = new StoryActivity();
-
-        if($status != StoryActivity::STATUS_UNSTARTED)
-            $model->staff_id = Yii::$app->user->getId();
-
+        $model->staff_id = Yii::$app->user->getId();
         $model->story_uuid = $storyUuid;
         $model->activity_status = $status;
-
-        $last_story_acitivty_model = StoryActivity::find()
-            ->where(['story_uuid' => $storyUuid])
-            ->orderBy('activity_created_at desc')
-            ->one();
-
-        if($last_story_acitivty_model) {
-            
-            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($last_story_acitivty_model->activity_created_at)));
-
-            $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
-
-            $diff = $activity_created_at->diff ($activity_last_updated_at);
-            $daysInSecs = $diff->format ('%r%a') * 24 * 60 * 60;
-            $hoursInSecs = $diff->h * 60 * 60;
-            $minsInSecs = $diff->i * 60;
-
-            $seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
-
-            $last_story_acitivty_model->activity_time_spent = $seconds;
-            $last_story_acitivty_model->save (false);
-        }
 
         if (!$model->save())
         {
@@ -259,11 +253,51 @@ class StoryController extends Controller
             }
         }
 
+        $totalDelivered = $story->request->getStories()
+            ->andWhere(['story_status' => Story::STATUS_DELIVERED])
+            ->count();
+
+        $total = $story->request->getStories()->count();
+
+        $nextStory = $story->request->getStories()
+            ->andWhere(['story_status' => Story::STATUS_UNSTARTED])
+            ->one();
+
+        //if no story in current request, get story from other
+
+        if(!$nextStory)
+        {
+            $nextStory = Story::find()
+                ->andWhere(['story_status' => Story::STATUS_UNSTARTED])
+                ->one();
+        }
+
+        $newStoryActivity = StoryActivity::find()
+            ->where(['story_uuid' => $storyUuid])
+            ->orderBy('activity_created_at desc')
+            ->one();
+
         return [
             "operation" => "success",
-            "message" => Yii::$app->user->identity->staff_name . " started " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
-            "last_story_acitivty_model" => $last_story_acitivty_model,
-            "newStoryActivity" => $model
+            "message" => Yii::$app->user->identity->staff_name . " $status_lbl " . $story->request->request_position_title  . ' for ' . $model->company->company_name,
+            //"last_story_acitivty_model" => $last_story_acitivty_model,
+            "newStoryActivity" => $newStoryActivity,
+            "totalDelivered" => $totalDelivered,
+            "total" => $total,
+            "nextStory" => $nextStory
+        ];
+    }
+
+
+    /**
+     * check if request updated
+     */
+    public function actionIsStoryUpdated($id) {
+
+        $request = $this->findModel ($id);
+
+        return [
+            "story_last_updated_at" => $request->story_last_updated_at
         ];
     }
 
@@ -271,7 +305,7 @@ class StoryController extends Controller
      * Finds the Request model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Request the loaded model
+     * @return Story the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)

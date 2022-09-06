@@ -104,6 +104,15 @@ class NoteQuery extends ActiveQuery
     }
 
     /**
+     * filter by staff
+     * @param $staff_id
+     * @return NoteQuery
+     */
+    public function filterStory($story_id) {
+        return $this->andWhere (['story_uuid' => $story_id]);
+    }
+
+    /**
      * filter non internal notes
      * @return NoteQuery
      */

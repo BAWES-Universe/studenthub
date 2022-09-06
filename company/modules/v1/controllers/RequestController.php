@@ -118,9 +118,10 @@ class RequestController extends BaseController
         $model->request_position_type = Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
+        $model->no_of_employees_per_story = Yii::$app->request->getBodyParam("no_of_employees_per_story", $model->request_number_of_employees);
         $model->request_location = Yii::$app->request->getBodyParam("location");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
-        $model->request_status = Request::STATUS_STARTED;
+        $model->request_status = Request::STATUS_PENDING;
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
 
@@ -362,8 +363,25 @@ class RequestController extends BaseController
     public function actionRequestCount() {
         $company = Yii::$app->companyManager->getCompany();
 
+        $count = $company->getRequests()
+            ->activeRequest()
+            ->handleByStaff()
+            ->count();
+
         return [
-            "active_request_count" => $company->getRequests()->activeRequest()->handleByStaff()->count()
+            "active_request_count" => $count
+        ];
+    }
+
+    /**
+     * check if request updated
+     */
+    public function actionIsRequestUpdated($id) {
+
+        $request = $this->findModel ($id);
+
+        return [
+            "request_updated_datetime" => $request->request_updated_datetime
         ];
     }
 

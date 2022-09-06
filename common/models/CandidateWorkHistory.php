@@ -33,7 +33,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_id', 'store_id','parent_company_id','company_id'], 'integer'],
+            [['candidate_id', 'store_id', 'parent_company_id', 'company_id'], 'integer'],
+            [['candidate_id', 'store_id', 'company_id'], 'required'],
             [['start_date', 'end_date'], 'safe'],
             [['candidate_hourly_rate'], 'number'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],

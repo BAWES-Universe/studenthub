@@ -33,6 +33,8 @@ class ContactEmailVerifyAttempt extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['email','code','ip_address'], 'required'],
+            ['email', 'email'],
             [['created_at'], 'safe'],
             [['ceva_uuid'], 'string', 'max' => 60],
             [['code'], 'string', 'max' => 32],

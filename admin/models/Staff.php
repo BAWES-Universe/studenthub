@@ -11,6 +11,19 @@ use yii\helpers\Url;
 class Staff extends \common\models\Staff {
 
     /**
+     * @return array|string[]
+     */
+    public function extraFields()
+    {
+        return array_merge(
+            [
+                'staffSalaries',
+            ],
+            parent::extraFields()
+        );
+    }
+
+    /**
      * @inheritdoc
      */
     public function fields()
@@ -34,6 +47,10 @@ class Staff extends \common\models\Staff {
 
         $fields['total_notes'] = function ($model) {
             return $model->getNotes()->count();
+        };
+
+        $fields['total_stories'] = function ($model) {
+            return $model->getStories()->count();
         };
         return $fields;
     }
