@@ -87,9 +87,7 @@ class RequestController extends Controller
         $contact_uuid = Yii::$app->request->get("contact_uuid");
         $q = Yii::$app->request->get("query");
 
-
         $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
-
 
         $query = Request::find()
                   ->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
@@ -102,9 +100,11 @@ class RequestController extends Controller
 
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
-        } else {
-            $query->activeRequest();
         }
+
+        /*if(!$contact_uuid || !$company_id) {
+            $query->activeRequest();
+        }*/
 
         if ($q) {
             $query->joinWith('company');
