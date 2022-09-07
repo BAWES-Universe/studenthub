@@ -174,19 +174,19 @@ class SuggestionController extends Controller
 
         // only check if candidate is rejected case
 
-        $exist = $story->getSuggestions()->andWhere(
-            ['or',
-                ['suggestion_status'=>Suggestion::TYPE_SUGGESTED],
-                ['suggestion_status'=>Suggestion::TYPE_ACCEPTED]
-            ]
-        )->exists();
-
-        if ($exist) {
-            return [
-                "operation" => "error",
-                "message" => 'Candidate Already suggested. only one candidate suggestion allowed per story',
-            ];
-        }
+//        $exist = $story->getSuggestions()->andWhere(
+//            ['or',
+//                ['suggestion_status'=>Suggestion::TYPE_SUGGESTED],
+//                ['suggestion_status'=>Suggestion::TYPE_ACCEPTED]
+//            ]
+//        )->exists();
+//
+//        if ($exist) {
+//            return [
+//                "operation" => "error",
+//                "message" => 'Candidate Already suggested. only one candidate suggestion allowed per story',
+//            ];
+//        }
 
         //$transaction = Yii::$app->db->beginTransaction();
 
