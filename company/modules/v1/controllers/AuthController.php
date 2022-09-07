@@ -67,7 +67,8 @@ class AuthController extends Controller
             'signup',
             'resend-verification-email',
             'verify-email',
-            'is-email-verified'
+            'is-email-verified',
+            'login-auth0'
         ];
 
         return $behaviors;
@@ -91,6 +92,67 @@ class AuthController extends Controller
         return $actions;
     }
 
+    /**
+     * login with auth0 token
+     * @return array
+     */
+    public function actionLoginAuth0()
+    {
+        $accessToken = Yii::$app->request->getBodyParam('accessToken');
+
+        $response = Yii::$app->auth0->getUserInfo($accessToken);
+
+        if(!$response->isOk) {
+            return self::response('error',"Invalid access token");
+        }
+
+        $userInfo = $response->data;
+
+        if(!$userInfo || !$userInfo['email'])
+        {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "We've faced a problem creating your account, please contact us for assistance."),
+            ];
+        }
+
+        $contact = Contact::find()
+            ->andWhere(['contact_email' => $userInfo['email']])
+            ->one();
+
+        if(!$contact)
+        {
+            $contact = new Contact();
+
+            $contact->contact_name = $userInfo['name'];
+            $contact->contact_email = $userInfo['email'];
+            $contact->contact_receive_email = true;
+
+            if (!$contact->signUp(true)) {
+                return [
+                    "operation" => "error",
+                    "message" => $contact->errors
+                ];
+            }
+        }
+
+        // Email and password are correct, check if his email has been verified
+        // If email has been verified, then allow him to log in
+        if ($contact->contact_email_verification != Contact::EMAIL_VERIFIED) {
+
+            //$contact->generateOtp();
+            //$contact->save(false);
+
+            return [
+                "operation" => "error",
+                "errorType" => "email-not-verified",
+                "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
+                "unVerifiedToken" => $this->_loginResponse($contact)
+            ];
+        }
+
+        return $this->_loginResponse($contact);
+    }
 
     /**
      * Perform validation on the company account (check if he's allowed login to platform)

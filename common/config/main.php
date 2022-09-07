@@ -50,6 +50,9 @@ return [
             'url' => 'https://hooks.slack.com/services/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',
             'username' => 'StudentHub',
         ],
+        'auth0' => [
+            'class' => 'common\components\Auth0',
+        ],
         'httpclient' => [
             'class' =>'yii\httpclient\Client',
         ],
