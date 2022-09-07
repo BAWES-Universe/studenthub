@@ -14,6 +14,7 @@ use yii\behaviors\AttributeBehavior;
  * @property string $request_uuid
  * @property string $suggestion_uuid
  * @property int $staff_id
+ * @property int $number_of_employees
  * @property int $story_status
  * @property int $is_old
  * @property int $story_time_spent
@@ -49,7 +50,7 @@ class Story extends \yii\db\ActiveRecord
         return [
             [['request_uuid'], 'required'],
             ['story_status', 'in', 'range' => [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_FINISHED,self::STATUS_DELIVERED,self::STATUS_REJECTED,self::STATUS_ACCEPTED]],
-            [['story_status', 'story_time_spent','is_old', 'staff_id'], 'integer'],
+            [['story_status', 'story_time_spent','is_old', 'staff_id', 'number_of_employees'], 'integer'],
             [['story_created_at','story_last_updated_at'], 'safe'],
             [['story_uuid', 'request_uuid','suggestion_uuid'], 'string', 'max' => 60],
             [['story_uuid'], 'unique'],
@@ -58,7 +59,6 @@ class Story extends \yii\db\ActiveRecord
             [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
     }
-
 
     public function behaviors() {
         return [
@@ -178,6 +178,7 @@ class Story extends \yii\db\ActiveRecord
             'story_uuid' => 'Story Uuid',
             'request_uuid' => 'Request Uuid',
             'staff_id' => 'Staff id',
+            'number_of_employees' => 'Number of employees',
             'story_status' => 'Story Status',
             'is_old' => 'Is Old',
             'story_time_spent' => 'Story Time Spent',
