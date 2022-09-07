@@ -102,9 +102,11 @@ class RequestController extends Controller
 
         if($contact_uuid) {
             $query->andWhere(['contact_uuid' => $contact_uuid]);
-        } else {
-            $query->activeRequest();
         }
+
+//        else {
+//            $query->activeRequest();
+//        }
 
         if ($q) {
             $query->joinWith('company');
