@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\Staff;
 use Yii;
 use common\models\StoryActivity;
 use common\models\Story;
@@ -66,6 +67,48 @@ class StoryController extends Controller
         ];
         return $actions;
     }
+
+    /**
+     * Assign staff to story
+     * @param $id
+     * @return array
+     */
+    public function actionAssign($id)
+    {
+        $staff_id = Yii::$app->request->getBodyParam("staff_id");
+
+        $model = $this->findModel($id);
+
+        $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the Request, please contact us for assistance."
+                ];
+            }
+        }
+
+        $staff = Staff::find()->andWhere(['staff_id' => $staff_id])->one();
+
+        $model->request->createRequestActivity('I have assign story to '. $staff->staff_name);
+
+        Yii::info('[Story assigned to '.$staff->staff_name.'] '. $model->request->request_position_title. ' @' .$model->company->company_name .' By '. Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Story successfully updated",
+            //"request_updated_at" => Request::findOne($model->request_uuid)->request_updated_datetime
+        ];
+    }
+
 
     /**
      * @param $id
@@ -209,10 +252,11 @@ class StoryController extends Controller
 
         if ($status == Story::STATUS_STARTED ) {
 
-            $exist = Story::find()->andWhere([
-                'staff_id' => Yii::$app->user->getId(),
-                'story_status' => StoryActivity::STATUS_STARTED
-            ])->exists();
+            $exist = Story::find()
+                ->andWhere([
+                    'staff_id' => Yii::$app->user->getId(),
+                    'story_status' => StoryActivity::STATUS_STARTED
+                ])->exists();
 
             if ($exist) {
                 return [
@@ -287,7 +331,6 @@ class StoryController extends Controller
             "nextStory" => $nextStory
         ];
     }
-
 
     /**
      * check if request updated
