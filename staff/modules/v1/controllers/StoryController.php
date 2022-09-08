@@ -222,7 +222,9 @@ class StoryController extends Controller
         ]);
     }
 
-
+    /**
+     * create story in request
+     */
     public function actionCreateStory() {
 
         $request_uuid = Yii::$app->request->post('request_uuid');
@@ -243,6 +245,7 @@ class StoryController extends Controller
 
         $totalEmployee = $request->getStories()
             ->sum('number_of_employees');
+
         if (((int)$employee + (int)$totalEmployee) > (int)$request->request_number_of_employees) {
             $totalPending = (int)$request->request_number_of_employees - (int)$totalEmployee;
             $msg = "Employee limit cannot be greater then number of employee asked by client. maximum you can assign: $totalPending";
@@ -261,10 +264,11 @@ class StoryController extends Controller
         }
 
         $story = new Story();
-        $story->staff_id = Yii::$app->user->getId();
+        //$story->staff_id = Yii::$app->user->getId();
         $story->request_uuid = $request_uuid;
         $story->story_status = Story::STATUS_UNSTARTED;
         $story->number_of_employees = $employee;
+
         if (!$story->save())
         {
             if(isset($model->errors)) {
