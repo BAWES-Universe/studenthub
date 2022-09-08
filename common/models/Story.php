@@ -122,7 +122,7 @@ class Story extends \yii\db\ActiveRecord
             ->andWhere(['story_status' => self::STATUS_DELIVERED])
             ->count();
 
-        if($totalStories == $finished) {
+        if($totalStories == $finished && $this->story_status == self::STATUS_DELIVERED) {
             $request->request_status = Request::STATUS_DELIVERED;
         }
 
