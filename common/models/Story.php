@@ -33,6 +33,7 @@ class Story extends \yii\db\ActiveRecord
     const STATUS_REJECTED = 4;
     const STATUS_ACCEPTED = 5;
     const STATUS_CANCELLED = 6;
+    const STATUS_REWORK = 7;
 
     /**
      * {@inheritdoc}
@@ -105,22 +106,23 @@ class Story extends \yii\db\ActiveRecord
 
         $request = Request::findOne($this->request_uuid);
 
-        if(
-            isset($changedAttributes['story_status']) &&
-            $this->story_status == self::STATUS_STARTED &&
-            $request->request_status == Request::STATUS_PENDING
-        ) {
-            $request->request_status = Request::STATUS_STARTED;
+        if(isset($changedAttributes['story_status']) && $this->story_status == self::STATUS_STARTED) {
+            if ($request->request_status == Request::STATUS_PENDING) {
+                $request->request_status = Request::STATUS_STARTED;
+            } else if ($request->request_status == Request::STATUS_DELIVERED) {
+                $request->request_status = Request::STATUS_RE_WORK;
+            }
         }
 
         //request status to be deliver if all story delivered
+        $totalStories = $request->getStories()
+            ->count();
 
         $finished = $request->getStories()
             ->andWhere(['story_status' => self::STATUS_DELIVERED])
             ->count();
 
-        if($request->request_number_of_employees == $finished)
-        {
+        if($totalStories == $finished) {
             $request->request_status = Request::STATUS_DELIVERED;
         }
 

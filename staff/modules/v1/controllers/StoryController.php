@@ -239,7 +239,8 @@ class StoryController extends Controller
             StoryActivity::STATUS_FINISHED,
             StoryActivity::STATUS_DELIVERED,
             StoryActivity::STATUS_REJECTED,
-            StoryActivity::STATUS_ACCEPTED
+            StoryActivity::STATUS_ACCEPTED,
+            StoryActivity::STATUS_REWORK
         ];
 
         if (!in_array ($status, $arrStatus))
@@ -250,7 +251,7 @@ class StoryController extends Controller
             ];
         }
 
-        if ($status == Story::STATUS_STARTED ) {
+        if ($status == Story::STATUS_STARTED || $status == Story::STATUS_REWORK ) {
 
             $exist = Story::find()
                 ->andWhere([
@@ -268,11 +269,9 @@ class StoryController extends Controller
 
         $story =  $this->findModel($storyUuid);
 
-        if ($story->story_status == StoryActivity::STATUS_DELIVERED) { // re work scenarios
-            if ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED) {
-                \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
-                $status_lbl = 'Re-started';
-            }
+        if ($story->story_status == Story::STATUS_DELIVERED && ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED)) {
+            \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
+            $status_lbl = 'Re-started';
         }
 
         // Attempt to create new request
@@ -280,7 +279,7 @@ class StoryController extends Controller
         $model = new StoryActivity();
         $model->staff_id = Yii::$app->user->getId();
         $model->story_uuid = $storyUuid;
-        $model->activity_status = $status;
+        $model->activity_status = ($status == Story::STATUS_REWORK ) ? Story::STATUS_STARTED : $status;
 
         if (!$model->save())
         {
