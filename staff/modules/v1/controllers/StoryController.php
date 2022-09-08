@@ -269,10 +269,10 @@ class StoryController extends Controller
 
         $story =  $this->findModel($storyUuid);
 
-        if ($story->story_status == Story::STATUS_DELIVERED && ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED)) {
-            \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
-            $status_lbl = 'Re-started';
-        }
+//        if ($story->story_status == Story::STATUS_DELIVERED && ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED)) {
+//            \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
+//            $status_lbl = 'Re-started';
+//        }
 
         // Attempt to create new request
 

@@ -106,14 +106,6 @@ class Story extends \yii\db\ActiveRecord
 
         $request = Request::findOne($this->request_uuid);
 
-        if(isset($changedAttributes['story_status']) && $this->story_status == self::STATUS_STARTED) {
-            if ($request->request_status == Request::STATUS_PENDING) {
-                $request->request_status = Request::STATUS_STARTED;
-            } else if ($request->request_status == Request::STATUS_DELIVERED) {
-                $request->request_status = Request::STATUS_RE_WORK;
-            }
-        }
-
         //request status to be deliver if all story delivered
         $totalStories = $request->getStories()
             ->count();
@@ -122,7 +114,14 @@ class Story extends \yii\db\ActiveRecord
             ->andWhere(['story_status' => self::STATUS_DELIVERED])
             ->count();
 
-        if($totalStories == $finished && $this->story_status == self::STATUS_DELIVERED) {
+
+        if(isset($changedAttributes['story_status']) && $this->story_status == self::STATUS_STARTED) {
+            if ($request->request_status == Request::STATUS_PENDING) {
+                $request->request_status = Request::STATUS_STARTED;
+            } else if ($request->request_status == Request::STATUS_DELIVERED) {
+                $request->request_status = Request::STATUS_RE_WORK;
+            }
+        } elseif ($this->story_status == self::STATUS_DELIVERED && $totalStories == $finished) {
             $request->request_status = Request::STATUS_DELIVERED;
         }
 
