@@ -391,10 +391,12 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET is-already-invited' => 'is-already-invited',
+                        'PATCH resend/<id>' => 'resend',
                         'POST' => 'create',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS resend/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],

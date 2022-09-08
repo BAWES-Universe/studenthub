@@ -131,13 +131,13 @@ class InvitationController extends Controller
 
         $query = Invitation::find()
             ->andWhere([
-                //'invitation_status' => self::STATUS_INVITED,
                 'request_uuid' => $request_uuid,
                 'candidate_id' => $candidate_id
             ]);
 
         return [
-            'isAlreadyInvited' => $query->exists()
+            'isAlreadyInvited' => ($query->one()) ? true : false,
+            'model' => $query->one()
         ];
     }
 
@@ -270,6 +270,74 @@ class InvitationController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate invited successfully",
+            "invitedCount" => $invitedCount
+        ];
+    }
+
+    /**
+     * Create a Suggestion
+     * @return array
+     */
+    public function actionResend($id)
+    {
+        $model = $this->findModel($id);
+
+        $reason = Yii::$app->request->getBodyParam("reason");
+
+        if($model->invitation_status != Invitation::STATUS_REJECTED)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Invitation is still active or accepted by candidate'
+            ];
+        }
+
+        $model->invitation_status = Invitation::STATUS_INVITED;
+
+        if (!$model->save(false)) {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Invitation, please contact us for assistance."
+                ];
+            }
+        }
+
+        $note = new Note;
+        $note->company_id = $model->request->company_id;
+        $note->candidate_id = $model->candidate_id;
+        $note->request_uuid = $model->request_uuid;
+        $note->invitation_uuid = $model->invitation_uuid;
+        $note->note_type = Note::TYPE_INTERNAL_NOTE;
+        $note->note_text = $reason;
+
+        if(!$note->save())
+        {
+            if(isset($note->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $note->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Note, please contact us for assistance."
+                ];
+            }
+        }
+        $invitedCount = Candidate::findOne($model->candidate_id)
+            ->getInvitations()
+            ->filterInvited()
+            ->count();
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate has re-invited successfully",
             "invitedCount" => $invitedCount
         ];
     }
