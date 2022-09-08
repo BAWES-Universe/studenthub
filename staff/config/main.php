@@ -294,6 +294,7 @@ return [
                         'GET all-old-stories' => 'all-old-stories',
                         'GET is-story-updated/<id>' => 'is-story-updated',
                         'GET <id>' => 'view',
+                        'PATCH assign/<id>' => 'assign',
                         'POST change-story-status' => 'change-story-status',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
@@ -301,6 +302,7 @@ return [
                         'OPTIONS active-story' => 'options',
                         'OPTIONS all-old-stories' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS assign/<id>' => 'options',
                         'OPTIONS change-story-status>' => 'options',
                         'OPTIONS is-story-updated/<id>' => 'options',
                     ]

@@ -210,7 +210,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                 $end_date = Yii::$app->request->get('end_date');
 
                 $query = $model->getStories()
-                    ->joinWith(['request'], 'left')
+                    //->joinWith(['request'], 'left')
                     ->andWhere(['story_status' => Story::STATUS_DELIVERED]);
 
                 if($start_date) {
@@ -223,7 +223,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                         date('Y-m-d', strtotime ($end_date))."')"));
                 }
 
-                return (int) $query->sum('request.no_of_employees_per_story');
+                return (int) $query->sum('story.number_of_employees');
             },
             'timeForCompletedStories' => function($model) {
                 $start_date = Yii::$app->request->get('start_date');

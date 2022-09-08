@@ -30,6 +30,7 @@ use yii\helpers\Url;
  * @property boolean $company_last_followup_datetime
  * @property boolean $company_approved_to_hire
  * @property integer $company_status
+ * @property integer $company_status_override
  * @property integer $company_created_at
  * @property integer $company_updated_at
  * @property integer $deleted
@@ -92,7 +93,7 @@ class Company extends \yii\db\ActiveRecord
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
 
-            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website'], 'safe'],
+            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website','company_status_override'], 'safe'],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -182,6 +183,7 @@ class Company extends \yii\db\ActiveRecord
             'company_email' => Yii::t('app','Company Email'),
             'company_logo' => Yii::t('app','Company Logo'),
             'company_followup' => Yii::t('app','Company Followup'),
+            'company_status_override' => Yii::t('app','Status Override'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),
         ];

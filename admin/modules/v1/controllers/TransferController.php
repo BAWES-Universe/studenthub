@@ -326,13 +326,13 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Transfer UnLocked',
-                'properties' => [
-                    'transfer_id' => $id
-                ]
-            ]);
+//            Segment::track([
+//                'userId' => Yii::$app->user->getId(),
+//                'event' => 'Transfer UnLocked',
+//                'properties' => [
+//                    'transfer_id' => $id
+//                ]
+//            ]);
         }
 
         return [

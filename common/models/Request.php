@@ -441,11 +441,21 @@ class Request extends \yii\db\ActiveRecord
 
             $count = ceil($this->request_number_of_employees / $this->no_of_employees_per_story);
 
+            $total = 0;
+
             for ($i=0; $i < $count; $i++) {
+
+                //assigned to story
+
+                $total += $this->no_of_employees_per_story;
+
                 $story = new Story();
                 $story->staff_id = $this->staff_id;
                 $story->request_uuid = $this->request_uuid;
                 $story->story_status = Story::STATUS_UNSTARTED;
+                $story->number_of_employees = $total <= $this->request_number_of_employees ?
+                    $this->no_of_employees_per_story: $this->no_of_employees_per_story - ($total - $this->request_number_of_employees);
+
                 if(!$story->save()) {
                     Yii::error($story->errors);
                 }
