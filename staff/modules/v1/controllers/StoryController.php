@@ -222,6 +222,70 @@ class StoryController extends Controller
         ]);
     }
 
+
+    public function actionCreateStory() {
+
+        $request_uuid = Yii::$app->request->post('request_uuid');
+        $employee = Yii::$app->request->post('employee');
+        $request = Request::findOne($request_uuid);
+        if (!$request) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', "Invalid Request")
+            ];
+        }
+        if ($request->request_status == \common\models\Request::STATUS_CANCELLED) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', "This request has been cancelled already")
+            ];
+        }
+
+        $totalEmployee = $request->getStories()
+            ->sum('number_of_employees');
+        if (((int)$employee + (int)$totalEmployee) > (int)$request->request_number_of_employees) {
+            $totalPending = (int)$request->request_number_of_employees - (int)$totalEmployee;
+            $msg = "Employee limit cannot be greater then number of employee asked by client. maximum you can assign: $totalPending";
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', $msg)
+            ];
+        }
+
+        // TODO URGENT : this is temp solution due to all of sudden deployment. need to change role base
+        if (!in_array(Yii::$app->user->getId(),[98,106,102,119])) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', 'You are not allowed to perform this action')
+            ];
+        }
+
+        $story = new Story();
+        $story->staff_id = Yii::$app->user->getId();
+        $story->request_uuid = $request_uuid;
+        $story->story_status = Story::STATUS_UNSTARTED;
+        $story->number_of_employees = $employee;
+        if (!$story->save())
+        {
+            if(isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Story, please contact us for assistance."
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "body" => 'Story created successfully'
+        ];
+    }
+
     /**
      * change story status
      * @return array|string[]

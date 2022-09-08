@@ -296,6 +296,7 @@ return [
                         'GET <id>' => 'view',
                         'PATCH assign/<id>' => 'assign',
                         'POST change-story-status' => 'change-story-status',
+                        'POST create-story' => 'create-story',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS list' => 'options',
@@ -305,6 +306,7 @@ return [
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS change-story-status>' => 'options',
                         'OPTIONS is-story-updated/<id>' => 'options',
+                        'OPTIONS create-story' => 'options',
                     ]
                 ],
                 [ // RequestController
