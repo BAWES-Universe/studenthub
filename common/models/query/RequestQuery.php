@@ -127,6 +127,7 @@ class RequestQuery extends ActiveQuery
             ['like', 'request_compensation', $keyword],
             ['like', 'request_additional_info', $keyword],
             ['like', 'request_location', $keyword],
+            ['like', 'request_position_title', $keyword],
         ]);
     }
 
