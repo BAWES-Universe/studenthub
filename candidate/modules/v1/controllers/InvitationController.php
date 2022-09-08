@@ -85,12 +85,12 @@ class InvitationController extends Controller
         $count = Yii::$app->request->get("count");
 
         $query = Yii::$app->user->identity->getInvitations()
+            ->joinWith(['request'])
             ->orderBy('invitation_created_at DESC');
 
         if ($count) {
 
-            $query->joinWith(['request'])
-                ->andWhere(['invitation_status' => Invitation::STATUS_INVITED])
+            $query->andWhere(['invitation_status' => Invitation::STATUS_INVITED])
                 ->activeRequest();
 
             return $query->count();

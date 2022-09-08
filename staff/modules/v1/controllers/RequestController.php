@@ -87,6 +87,8 @@ class RequestController extends Controller
         $contact_uuid = Yii::$app->request->get("contact_uuid");
         $q = Yii::$app->request->get("query");
 
+        //todo: filter by contact_uuid
+
         $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
 
         $query = Request::find()
@@ -147,7 +149,6 @@ class RequestController extends Controller
         if($end_date) {
             $query->endDate(date('Y-m-d', strtotime ($end_date)));
         }
-
 
         if ($followup_interval) {
             $query->orderByFollowupInterval($followup_interval);

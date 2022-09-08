@@ -230,6 +230,7 @@ class StoryController extends Controller
         $request_uuid = Yii::$app->request->post('request_uuid');
         $employee = Yii::$app->request->post('employee');
         $request = Request::findOne($request_uuid);
+
         if (!$request) {
             return [
                 "operation" => "error",
