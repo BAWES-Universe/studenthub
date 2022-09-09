@@ -127,6 +127,7 @@ return [
                         'PATCH merge' => 'merge',
                         'PATCH assign/<id>' => 'assign',
                         'PATCH update-hour-rate/<id>' => 'update-candidate-hour-rate',
+                        'PATCH update-civil-expiry/<id>' => 'update-candidate-civil-expiry',
                         'PATCH job-search-status' => 'job-search-status',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
@@ -163,6 +164,7 @@ return [
                         'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options',
                         'OPTIONS update-email/<id>' => 'options',
+                        'OPTIONS update-civil-expiry/<id>' => 'options',
                         'OPTIONS export-candidate' => 'options',
                     ]
                 ],
