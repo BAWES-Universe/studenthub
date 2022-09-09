@@ -154,6 +154,20 @@ class Story extends \yii\db\ActiveRecord
         return true;
     }
 
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['invited'] = function($model) {
+            return $model->getInvitations()->count();
+        };
+        $fields['suggestion'] = function($model) {
+            return $model->getSuggestions()->count();
+        };
+
+        // remove fields that contain sensitive information
+        return $fields;
+    }
+    
     /**
      * @inheritdoc
      */
@@ -208,6 +222,14 @@ class Story extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      */
     public function getSuggestions($modelClass = "\common\models\Suggestion")
+    {
+        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\common\models\Invitation")
     {
         return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
     }

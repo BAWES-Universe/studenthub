@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use staff\models\Staff;
 use Yii;
 use common\models\StoryActivity;
-use common\models\Story;
+use staff\models\Story;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;

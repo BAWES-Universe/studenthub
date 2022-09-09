@@ -18,6 +18,12 @@ class Request extends \common\models\Request {
     public function fields()
     {
         $fields = parent::fields();
+        $fields['invited'] = function($model) {
+            return $model->getInvitations()->count();
+        };
+        $fields['suggestion'] = function($model) {
+            return $model->getSuggestions()->count();
+        };
 
         // remove fields that contain sensitive information
         return $fields;

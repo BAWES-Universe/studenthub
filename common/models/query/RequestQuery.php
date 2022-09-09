@@ -121,7 +121,8 @@ class RequestQuery extends ActiveQuery
      */
     public function filterByKeyword($keyword)
     {
-        return $this->andWhere([
+        $this->joinWith('request');
+        $this->andWhere([
             'OR',
             ['like', 'request_job_description', $keyword],
             ['like', 'request_compensation', $keyword],
@@ -129,6 +130,13 @@ class RequestQuery extends ActiveQuery
             ['like', 'request_location', $keyword],
             ['like', 'request_position_title', $keyword],
         ]);
+        $this->andWhere([
+            'or',
+            ['like', '{{%company}}.company_name', $name],
+            ['like', '{{%company}}.company_common_name_ar', $name],
+            ['like', '{{%company}}.company_common_name_en', $name]
+        ]);
+        return $this;
     }
 
     /**

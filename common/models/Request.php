@@ -258,6 +258,15 @@ class Request extends \yii\db\ActiveRecord
         return $scenarios;
     }
 
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['story_count'] = function($model) {
+            return $model->getStories()->count();
+        };
+        return $fields;
+    }
+
     /**
      * request owner
      * @return \yii\db\ActiveQuery
