@@ -258,6 +258,15 @@ class Request extends \yii\db\ActiveRecord
         return $scenarios;
     }
 
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['story_count'] = function($model) {
+            return $model->getStories()->count();
+        };
+        return $fields;
+    }
+
     /**
      * request owner
      * @return \yii\db\ActiveQuery
@@ -439,27 +448,37 @@ class Request extends \yii\db\ActiveRecord
         {
             //Add stories based on request_number_of_employees
 
-            $count = ceil($this->request_number_of_employees / $this->no_of_employees_per_story);
-
-            $total = 0;
-
-            for ($i=0; $i < $count; $i++) {
-
-                //assigned to story
-
-                $total += $this->no_of_employees_per_story;
+//            $count = ceil($this->request_number_of_employees / $this->no_of_employees_per_story);
+//
+//            $total = 0;
+//
+//            for ($i=0; $i < $count; $i++) {
+//
+//                //assigned to story
+//
+//                $total += $this->no_of_employees_per_story;
+//
+//                $story = new Story();
+//                $story->staff_id = $this->staff_id;
+//                $story->request_uuid = $this->request_uuid;
+//                $story->story_status = Story::STATUS_UNSTARTED;
+//                $story->number_of_employees = $total <= $this->request_number_of_employees ?
+//                    $this->no_of_employees_per_story: $this->no_of_employees_per_story - ($total - $this->request_number_of_employees);
+//
+//                if(!$story->save()) {
+//                    Yii::error($story->errors);
+//                }
+//            }
 
                 $story = new Story();
                 $story->staff_id = $this->staff_id;
                 $story->request_uuid = $this->request_uuid;
                 $story->story_status = Story::STATUS_UNSTARTED;
-                $story->number_of_employees = $total <= $this->request_number_of_employees ?
-                    $this->no_of_employees_per_story: $this->no_of_employees_per_story - ($total - $this->request_number_of_employees);
+                $story->number_of_employees = 1; // TODO need to change once team is easy, they can add as many as stories
 
                 if(!$story->save()) {
                     Yii::error($story->errors);
                 }
-            }
         }
 
         /**

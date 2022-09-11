@@ -12,8 +12,8 @@ class m220906_094922_story_invitation_suggestion extends Migration
      */
     public function safeUp()
     {
-        Yii::$app->db->createCommand('update `invitation` set story_uuid = (SELECT story_uuid FROM `story` WHERE `story`.`request_uuid` = `invitation`.`request_uuid`)')->execute();
-        Yii::$app->db->createCommand('update `suggestion` set story_uuid = (SELECT story_uuid FROM `story` WHERE `story`.`request_uuid` = `suggestion`.`request_uuid`)')->execute();
+        Yii::$app->db->createCommand('update `invitation` set story_uuid = (SELECT story_uuid FROM `story` WHERE `story`.`request_uuid` = `invitation`.`request_uuid` limit 1)')->execute();
+        Yii::$app->db->createCommand('update `suggestion` set story_uuid = (SELECT story_uuid FROM `story` WHERE `story`.`request_uuid` = `suggestion`.`request_uuid` limit 1)')->execute();
     }
 
     /**

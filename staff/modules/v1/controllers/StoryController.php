@@ -5,7 +5,7 @@ namespace staff\modules\v1\controllers;
 use staff\models\Staff;
 use Yii;
 use common\models\StoryActivity;
-use common\models\Story;
+use staff\models\Story;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
@@ -223,6 +223,75 @@ class StoryController extends Controller
     }
 
     /**
+     * create story in request
+     */
+    public function actionCreateStory() {
+
+        $request_uuid = Yii::$app->request->post('request_uuid');
+        $employee = Yii::$app->request->post('employee');
+        $request = Request::findOne($request_uuid);
+
+        if (!$request) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', "Invalid Request")
+            ];
+        }
+        if ($request->request_status == \common\models\Request::STATUS_CANCELLED) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', "This request has been cancelled already")
+            ];
+        }
+
+        $totalEmployee = $request->getStories()
+            ->sum('number_of_employees');
+
+        if (((int)$employee + (int)$totalEmployee) > (int)$request->request_number_of_employees) {
+            $totalPending = (int)$request->request_number_of_employees - (int)$totalEmployee;
+            $msg = "Employee limit cannot be greater then number of employee asked by client. maximum you can assign: $totalPending";
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', $msg)
+            ];
+        }
+
+        // TODO URGENT : this is temp solution due to all of sudden deployment. need to change role base
+        if (!in_array(Yii::$app->user->getId(),[98,106,102,119])) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t ('app', 'You are not allowed to perform this action')
+            ];
+        }
+
+        $story = new Story();
+        //$story->staff_id = Yii::$app->user->getId();
+        $story->request_uuid = $request_uuid;
+        $story->story_status = Story::STATUS_UNSTARTED;
+        $story->number_of_employees = $employee;
+
+        if (!$story->save())
+        {
+            if(isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem creating the Story, please contact us for assistance."
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "body" => 'Story created successfully'
+        ];
+    }
+
+    /**
      * change story status
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -239,7 +308,8 @@ class StoryController extends Controller
             StoryActivity::STATUS_FINISHED,
             StoryActivity::STATUS_DELIVERED,
             StoryActivity::STATUS_REJECTED,
-            StoryActivity::STATUS_ACCEPTED
+            StoryActivity::STATUS_ACCEPTED,
+            StoryActivity::STATUS_REWORK
         ];
 
         if (!in_array ($status, $arrStatus))
@@ -250,7 +320,7 @@ class StoryController extends Controller
             ];
         }
 
-        if ($status == Story::STATUS_STARTED ) {
+        if ($status == Story::STATUS_STARTED || $status == Story::STATUS_REWORK ) {
 
             $exist = Story::find()
                 ->andWhere([
@@ -268,19 +338,17 @@ class StoryController extends Controller
 
         $story =  $this->findModel($storyUuid);
 
-        if ($story->story_status == StoryActivity::STATUS_DELIVERED) { // re work scenarios
-            if ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED) {
-                \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
-                $status_lbl = 'Re-started';
-            }
-        }
+//        if ($story->story_status == Story::STATUS_DELIVERED && ($story->request->request_status = Request::STATUS_DELIVERED || $story->request->request_status = Request::STATUS_FINISHED)) {
+//            \common\models\Request::updateAll(['request_status'=>Request::STATUS_RE_WORK],['request_uuid'=>$story->request->request_uuid]);
+//            $status_lbl = 'Re-started';
+//        }
 
         // Attempt to create new request
 
         $model = new StoryActivity();
         $model->staff_id = Yii::$app->user->getId();
         $model->story_uuid = $storyUuid;
-        $model->activity_status = $status;
+        $model->activity_status = ($status == Story::STATUS_REWORK ) ? Story::STATUS_STARTED : $status;
 
         if (!$model->save())
         {

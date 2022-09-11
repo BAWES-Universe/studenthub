@@ -287,6 +287,41 @@ class CandidateController extends Controller
     }
 
     /**
+     * update candidate email
+     */
+    public function actionUpdateCandidateCivilExpiry($id) {
+
+        $date = Yii::$app->request->getBodyParam('date');
+
+        $model = $this->findModel($id);
+
+        if (strtotime($date) < time()) {
+            return [
+                "operation" => "error",
+                "message" => "Civil id should be future date"
+            ];
+        }
+
+        $model->candidate_civil_expiry_date = date('Y-m-d', strtotime($date));
+
+        $model->scenario = "updateCivilExpiryDate";
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        Yii::info('['.$model->candidate_name.' Candidate Civil ID Expiry Date Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            'operation' => 'success',
+            "message" => Yii::t('candidate',"Candidate Civil Expiry date updated successfully")
+        ];
+    }
+
+    /**
      * Set candidate candidate_hourly_rate
      * @param $id
      * @return array|string[]

@@ -127,6 +127,7 @@ return [
                         'PATCH merge' => 'merge',
                         'PATCH assign/<id>' => 'assign',
                         'PATCH update-hour-rate/<id>' => 'update-candidate-hour-rate',
+                        'PATCH update-civil-expiry/<id>' => 'update-candidate-civil-expiry',
                         'PATCH job-search-status' => 'job-search-status',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'PATCH <id>' => 'update',
@@ -163,6 +164,7 @@ return [
                         'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options',
                         'OPTIONS update-email/<id>' => 'options',
+                        'OPTIONS update-civil-expiry/<id>' => 'options',
                         'OPTIONS export-candidate' => 'options',
                     ]
                 ],
@@ -296,6 +298,7 @@ return [
                         'GET <id>' => 'view',
                         'PATCH assign/<id>' => 'assign',
                         'POST change-story-status' => 'change-story-status',
+                        'POST create-story' => 'create-story',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS list' => 'options',
@@ -305,6 +308,7 @@ return [
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS change-story-status>' => 'options',
                         'OPTIONS is-story-updated/<id>' => 'options',
+                        'OPTIONS create-story' => 'options',
                     ]
                 ],
                 [ // RequestController
@@ -391,10 +395,12 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET is-already-invited' => 'is-already-invited',
+                        'PATCH resend/<id>' => 'resend',
                         'POST' => 'create',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS resend/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],

@@ -87,6 +87,8 @@ class RequestController extends Controller
         $contact_uuid = Yii::$app->request->get("contact_uuid");
         $q = Yii::$app->request->get("query");
 
+        //todo: filter by contact_uuid
+
         $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
 
         $query = Request::find()
@@ -132,7 +134,7 @@ class RequestController extends Controller
         if($request_status) {
             if($request_status == 'need-update')
                 $query->needUpdate();
-            else
+            else if ($request_status != 'latest')
                 $query->andWhere(['request_status' => $request_status]);
         }
 
@@ -148,9 +150,15 @@ class RequestController extends Controller
             $query->endDate(date('Y-m-d', strtotime ($end_date)));
         }
 
+        if ($request_status != 'latest') {
+            $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
+            $query->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+        }
 
-        if ($followup_interval) {
-            $query->orderByFollowupInterval($followup_interval);
+        if ($followup_interval && $request_status != 'latest') {
+            $query->orderByFollowupInterval();
+        } else {
+            $query->addOrderBy('request_created_datetime DESC');
         }
 
         /*if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT) {
@@ -194,7 +202,6 @@ class RequestController extends Controller
             $query->andWhere(['contact_uuid' => $contact_uuid]);
         } else {
             $query->needUpdate();//activeRequest
-
         }
 
         if($position_type) {
@@ -224,6 +231,7 @@ class RequestController extends Controller
             'query' => $query
         ]);
     }
+
     /**
      * Return a List of requests available.
      * @return ActiveDataProvider
@@ -406,6 +414,17 @@ class RequestController extends Controller
             return [
                 "operation" => "error",
                 "message" => "Please provide Feedback"
+            ];
+        }
+
+        $count = $model->getStories()
+            ->andWhere(['!=','story_status',Story::STATUS_DELIVERED])
+            ->count();
+
+        if ($count) {
+            return [
+                "operation" => "error",
+                "message" => "Please deliver all stories before deliver request"
             ];
         }
 
