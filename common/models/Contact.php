@@ -126,6 +126,8 @@ class Contact extends \yii\db\ActiveRecord
 
         $scenarios['signup'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_receive_suggestions','contact_otp'];
 
+        $scenarios['signupAuth0'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_email_verification', 'contact_receive_suggestions','contact_otp'];
+
         $scenarios['updateEmail'] = ['contact_email', 'contact_new_email'];
 
         $scenarios['verifyEmail'] = ['contact_email_verification', 'contact_email', 'contact_new_email', 'contact_auth_key'];

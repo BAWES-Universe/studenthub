@@ -103,7 +103,10 @@ class AuthController extends Controller
         $response = Yii::$app->auth0->getUserInfo($accessToken);
 
         if(!$response->isOk) {
-            return self::response('error',"Invalid access token");
+            return [
+                "operation" => "error",
+                "message" => "Invalid access token"
+            ];
         }
 
         $userInfo = $response->data;
@@ -122,18 +125,63 @@ class AuthController extends Controller
 
         if(!$contact)
         {
+            $transaction = Yii::$app->db->beginTransaction();
+
             $contact = new Contact();
+            $contact->setScenario('signupAuth0');
 
             $contact->contact_name = $userInfo['name'];
             $contact->contact_email = $userInfo['email'];
             $contact->contact_receive_email = true;
+            $contact->contact_email_verification = true;
 
             if (!$contact->signUp(true)) {
+                $transaction->rollBack();
+
                 return [
                     "operation" => "error",
                     "message" => $contact->errors
                 ];
             }
+
+            $company_name = $userInfo['name'] . "'s company";
+
+            $company = new Company();
+            $company->company_name = $company_name;
+            $company->company_common_name_en = $company_name;
+            $company->company_common_name_ar = $company_name;
+            $company->company_email = $contact->contact_email;
+            $company->company_bonus_commission = 0;
+            $company->company_approved_to_hire = false;
+            $company->company_followup = true;
+            $company->company_followup_interval_weeks = 1;
+            $company->company_last_followup_datetime = date('Y-m-d', strtotime ('-7 days'));
+
+            if (!$company->save()) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => $company->errors
+                ];
+            }
+
+            $companyContact = new CompanyContact();
+            $companyContact->company_id = $company->company_id;
+            $companyContact->contact_uuid = $contact->contact_uuid;
+            //$companyContact->contact_position = Yii::$app->request->getBodyParam("contact_position");
+            $companyContact->allow_access = true;
+
+            if (!$companyContact->save()) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => $companyContact->errors
+                ];
+            }
+
+            $transaction->commit();
         }
 
         // Email and password are correct, check if his email has been verified
@@ -264,10 +312,10 @@ class AuthController extends Controller
         return [
             "operation" => "success",
             "token" => $accessToken,
-            "company_id" => $company->company_id,
+            "company_id" => $company? $company->company_id: null,
             "profile_name" => $contact->contact_name,
             "email" => $contact->contact_email,
-            "active_request_count" => $company->getRequests()->activeRequest()->count()
+            "active_request_count" => $company? $company->getRequests()->activeRequest()->count() : 0
         ];
     }
 
