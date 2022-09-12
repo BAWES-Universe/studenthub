@@ -124,6 +124,8 @@ class AuthController extends Controller
      */
     public function actionLoginAuth0()
     {
+        $lang = Yii::$app->request->headers->get('language');
+
         $accessToken = Yii::$app->request->getBodyParam('accessToken');
 
         $response = Yii::$app->auth0->getUserInfo($accessToken);
@@ -143,14 +145,14 @@ class AuthController extends Controller
         }
 
         $candidate = Candidate::find()
-            ->andWhere(['contact_email' => $userInfo['email']])
+            ->andWhere(['candidate_email' => $userInfo['email']])
             ->one();
 
         if(!$candidate)
         {
             $candidate = new Candidate();
 
-            $candidate->scenario = "signup";
+            $candidate->scenario = "signupAuth0";
 
             if ($lang == 'ar') {
                 $candidate->candidate_name_ar = $userInfo['name'];
