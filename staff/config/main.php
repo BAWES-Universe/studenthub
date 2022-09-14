@@ -108,6 +108,8 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET assigned-history-list' => 'assigned-history-list',
+                        'GET export-assigned-history' => 'export-assigned-history',
                         'GET detail/<id>' => 'view',
                         'GET appreciation-certificate/<id>/<wid>' => 'appreciation-certificate',
                         'GET not-assigned' => 'list-not-assigned',
@@ -166,6 +168,8 @@ return [
                         'OPTIONS update-email/<id>' => 'options',
                         'OPTIONS update-civil-expiry/<id>' => 'options',
                         'OPTIONS export-candidate' => 'options',
+                        'OPTIONS assigned-history-list' => 'options',
+                        'OPTIONS export-assigned-history' => 'options',
                     ]
                 ],
                 [ // StoreController

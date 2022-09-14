@@ -82,6 +82,40 @@ class CandidateController extends Controller
         ]);
     }
 
+ /**
+     * Return a List of Candidate Accounts available.
+     */
+    public function actionAssignedHistoryList()
+    {
+        $query = CandidateWorkHistory::find();
+        $query->joinWith('candidate');
+        $query->orderBy('id DESC');
+
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+        $name = Yii::$app->request->get("name");
+        $email = Yii::$app->request->get("email");
+
+        if($name) {
+            $query->filterName($name);
+        }
+
+        if($email) {
+            $query->filterEmail($email);
+        }
+        if($start_date) {
+            $query->startDate($start_date);
+        }
+
+        if($end_date) {
+            $query->endDate($end_date);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
     /**
      * Create a Candidate account
      */
@@ -1229,6 +1263,72 @@ class CandidateController extends Controller
                 'candidate_name',
                 'candidate_email',
                 'candidate_phone',
+                [
+                    'header' => 'company name',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->store) ? $model->store->company->company_name : 'Un-Assigned';
+                    },
+                ],
+                [
+                    'header' => 'Store name',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->store) ? $model->store->store_name : 'Un-Assigned';
+                    },
+                ],
+            ]
+        ]);
+    }
+
+
+    public function actionExportAssignedHistory()
+    {
+        ini_set('max_execution_time', '300');
+        ini_set('memory_limit', '-1');
+        $name = Yii::$app->request->get("name");
+        $limit = Yii::$app->request->get("export_limit",5000);
+        $email = Yii::$app->request->get("email");
+        $start_date = Yii::$app->request->get("start_date");
+        $end_date = Yii::$app->request->get("end_date");
+        $type = Yii::$app->request->get("type");
+        $task = Yii::$app->request->get("task");
+        $page = Yii::$app->request->get("export_page", 1);
+        $updatedAfter = Yii::$app->request->get("updatedAfter");
+
+        $query = CandidateWorkHistory::find();
+        $query->joinWith(['candidate','company','store']);
+        if($name) {
+            $query->filterName($name);
+        }
+
+        if($email) {
+            $query->filterEmail($email);
+        }
+
+        if($start_date) {
+            $query->startDate($start_date);
+        }
+
+        if($end_date) {
+            $query->endDate($end_date);
+        }
+
+        $query->limit($limit);
+        $query->offset(($page-1) * $limit);
+        $candidates = $query
+            ->all();
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'columns' => [
+                'candidate_id',
+                'candidate.candidate_name',
+                'start_date',
+                'end_date',
                 [
                     'header' => 'company name',
                     "format" => "raw",

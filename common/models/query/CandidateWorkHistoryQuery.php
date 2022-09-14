@@ -124,4 +124,40 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
         $this->andWhere(['in', '{{%candidate}}.store_id', $store_ids]);
         return $this->groupBy('{{%candidate}}.candidate_id');
     }
+
+    /**
+     * @param $candidate_name
+     * @return $this
+     */
+    public function filterName($candidate_name)
+    {
+        return $this->joinWith(['candidate'])->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);
+    }
+
+    /**
+     * @param $candidate_email
+     * @return $this
+     */
+    public function filterEmail($candidate_email)
+    {
+        return $this->joinWith(['candidate'])->andWhere(['like', '{{%candidate}}.candidate_email', $candidate_email]);
+    }
+
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
+    public function startDate($date)
+    {
+        return $this->andWhere("DATE(candidate_work_history.start_date) > '$date'");
+    }
+
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
+    public function endDate($date)
+    {
+        return $this->andWhere("DATE(candidate_work_history.end_date) < '$date'");
+    }
 }
