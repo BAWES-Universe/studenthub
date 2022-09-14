@@ -523,6 +523,97 @@ class TransferController extends Controller
         ]);
     }
 
+    /**
+     * Excel template to initiate transfer
+     */
+    public function actionExportCompaniesTransfer()
+    {
+
+        $transfer_status = Yii::$app->request->get('transfer_status');
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
+        $query = Transfer::find()
+            ->isParentTransfer();
+
+        if($transfer_status)
+            $query->filterStatus($transfer_status);
+
+        if($start_date)
+            $query->startDate($start_date);
+
+        if($end_date)
+            $query->endDate($end_date);
+
+        $query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
+        ;
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $query->all(),
+            'columns' => [
+                [
+                    'header' => 'company name',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->company) ? $model->company->company_common_name_en : '-';
+                    },
+                ],
+                [
+                    'header' => 'Transfer',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return '# '.$model->transfer_id;
+                    },
+                ], [
+                    'header' => 'Invoice Amount',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->company_total;
+                    },
+                ],
+                [
+                    'header' => 'Cost',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->total;
+                    },
+                ],
+                [
+                    'header' => 'Profit',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->profit) ? $model->profit : '-';
+                    },
+                ],
+                [
+                    'header' => 'Type',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return '-';
+                    },
+                ],
+                [
+                    'header' => 'Hours',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return number_format($model->getTransferCandidates()->sum('hours'),3);
+                    },
+                ],
+                [
+                    'header' => 'Candidates',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->getTransferCandidates()->count();
+                    },
+                ],
+            ]
+        ]);
+    }
+
     protected function findCompany($id)
     {
         if (($model = Company::findOne($id)) !== null) {

@@ -430,6 +430,7 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET export-companies-transfer' => 'export-companies-transfer',
                         'GET transfer-excel-template/<id>' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',
                         'GET <id>' => 'view',
@@ -448,7 +449,8 @@ return [
                         'OPTIONS payment-sent/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS edit-by-excel/<id>' => 'options',
-                        'OPTIONS pdf/<id>' => 'options'
+                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS export-companies-transfer' => 'options'
                     ]
                 ],
                 [ // GoogleMapController
