@@ -108,6 +108,8 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET assigned-history-list' => 'assigned-history-list',
+                        'GET export-assigned-history' => 'export-assigned-history',
                         'GET detail/<id>' => 'view',
                         'GET appreciation-certificate/<id>/<wid>' => 'appreciation-certificate',
                         'GET not-assigned' => 'list-not-assigned',
@@ -166,6 +168,8 @@ return [
                         'OPTIONS update-email/<id>' => 'options',
                         'OPTIONS update-civil-expiry/<id>' => 'options',
                         'OPTIONS export-candidate' => 'options',
+                        'OPTIONS assigned-history-list' => 'options',
+                        'OPTIONS export-assigned-history' => 'options',
                     ]
                 ],
                 [ // StoreController
@@ -325,7 +329,7 @@ return [
                         'PATCH update-interval/<id>' => 'update-interval',
                         'PATCH update-status/<id>' => 'update-status',
                         'PATCH cancel/<id>' => 'cancel',
-                        //'PATCH deliver/<id>' => 'deliver',
+                        'PATCH deliver/<id>' => 'deliver',
                         'POST add-activity' => 'add-activity',
                         'PATCH assign/<id>' => 'assign',
                         'PATCH <id>' => 'update',
@@ -336,7 +340,7 @@ return [
                         'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS active' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
-                        //'OPTIONS deliver/<id>' => 'options',
+                        'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
                         'OPTIONS assign/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -426,6 +430,7 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET export-companies-transfer' => 'export-companies-transfer',
                         'GET transfer-excel-template/<id>' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',
                         'GET <id>' => 'view',
@@ -444,7 +449,8 @@ return [
                         'OPTIONS payment-sent/<id>' => 'options',
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS edit-by-excel/<id>' => 'options',
-                        'OPTIONS pdf/<id>' => 'options'
+                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS export-companies-transfer' => 'options'
                     ]
                 ],
                 [ // GoogleMapController
