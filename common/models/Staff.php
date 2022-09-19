@@ -33,7 +33,15 @@ use yii\web\IdentityInterface;
 class Staff extends ActiveRecord implements IdentityInterface
 {
     const ROlE_MANAGER = 1;
-    const ROlE_CONSULTANT = 2;
+    const ROLE_ENGINEER = 2;
+    const ROlE_SALE = 3;
+    const ROlE_BD_PR = 4;
+    const ROlE_MARKETING = 5;
+    const ROlE_RECRUITER = 6;
+    const ROlE_FINANCE = 7;
+    const ROlE_HR = 8;
+    const ROlE_CUSTOMER_CARE = 9;
+
 
     /**
      * @inheritdoc

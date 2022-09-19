@@ -265,7 +265,7 @@ class RequestController extends Controller
             $query->orderBy('request_created_datetime DESC');
         }
         
-        if(Yii::$app->user->identity->staff_role == Staff::ROlE_CONSULTANT)
+        if(Yii::$app->user->identity->staff_role == Staff::ROlE_SALE)
         {
             $query->andWhere(['staff_id' => Yii::$app->user->getId ()]);
         }
