@@ -46,8 +46,8 @@ class AuthController extends Controller
             'auth' => function ($email, $password) {
                 
                 $candidate = Candidate::findByEmail($email);
-                
-                if ($candidate) {
+
+                if ($candidate && $candidate->validatePassword($password)) {
                     return $candidate;
                 }
 
