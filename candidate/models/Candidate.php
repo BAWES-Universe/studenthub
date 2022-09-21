@@ -37,6 +37,10 @@ class Candidate extends \common\models\Candidate {
                 return 0;
             }
         };
+
+        $fields['working_hour_count'] = function($model) {
+            return $model->getCandidateWorkingHour()->count();
+        };
         return $fields;
     }
 

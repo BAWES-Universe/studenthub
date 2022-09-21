@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace common\models;
 
 use candidate\models\Candidate;
 use candidate\models\Store;
@@ -19,8 +19,8 @@ use yii\db\Expression;
  * @property string $start_time
  * @property string $end_time
  * @property string $total_time
- * @property string $star_location_lat
- * @property string $star_location_long
+ * @property string $start_location_lat
+ * @property string $start_location_long
  * @property string $end_location_lat
  * @property string $end_location_long
  * @property string $created_at
@@ -46,14 +46,13 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     {
         return [
             [['store_id','candidate_id'], 'required'],
-            [['candidate_id', 'store_id'], 'integer'],
+            [['candidate_id', 'store_id','total_time'], 'integer'],
             [['date', 'start_time', 'end_time', 'created_at', 'updated_at'], 'safe'],
-            [['star_location_lat', 'star_location_long', 'end_location_lat', 'end_location_long'], 'number'],
+            [['start_location_lat', 'start_location_long', 'end_location_lat', 'end_location_long'], 'number'],
             [['candidate_working_hour_uuid'], 'string', 'max' => 60],
-            [['total_time'], 'string', 'max' => 10],
             [['candidate_working_hour_uuid'], 'unique'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['store_id'], 'exist', 'skipOnError' => false, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
 
@@ -92,12 +91,20 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             'start_time' => 'Start Time',
             'end_time' => 'End Time',
             'total_time' => 'Total Time',
-            'star_location_lat' => 'Star Location Lat',
-            'star_location_long' => 'Star Location Long',
+            'start_location_lat' => 'Star Location Lat',
+            'start_location_long' => 'Star Location Long',
             'end_location_lat' => 'End Location Lat',
             'end_location_long' => 'End Location Long',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+        ];
+    }
+
+    public function extraFields()
+    {
+        return [
+            'candidate',
+            'store',
         ];
     }
 
