@@ -726,6 +726,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             //return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
 
+        $fields['isWorking'] = function($model) {
+            return $model->getIsWorking();
+        };
+
         unset(
             $fields['deleted'],
             $fields['candidate_uid'],
@@ -2652,4 +2656,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getIsProfileCompleted() {
         return $this->isInCompleteProfile() ? false : true;
     }
+
+    public function getIsWorking() {
+        $model = CandidateWorkingHour::find()
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere('end_time is null')
+            ->one();
+
+        if ($model) {
+            return $model;
+        }
+        return null;
+    }
+
+    public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
 }

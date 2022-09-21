@@ -2,6 +2,7 @@
 
 namespace candidate\modules\v1\controllers;
 
+use common\models\CandidateWorkingHour;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
@@ -1361,6 +1362,87 @@ class AccountController extends Controller
         return [
             "operation" => "success",
             "message" => Yii::t('candidate', "Candidate kuwaiti National Info Updated Successfully"),
+        ];
+    }
+
+    /**
+     * start working
+     * @return array
+     */
+    public function actionStartWorkingTime() {
+
+        $model = CandidateWorkingHour::find()
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
+            ->andWhere('end_time is null')
+            ->one();
+
+        if ($model) {
+            return [
+                "operation" => "error",
+                "message" => 'You are already working'
+            ];
+        }
+
+        $model = new CandidateWorkingHour();
+        $model->start_time = date('H:i:s');
+        $model->candidate_id = Yii::$app->user->getId();
+        $model->store_id = Yii::$app->user->identity->store_id;
+        $model->date  = date('Y-m-d');
+        $model->start_location_lat = 0.0000000;
+        $model->start_location_long = 0.0000000;
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        $userWork = CandidateWorkingHour::find()
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
+            ->andWhere('end_time is null')
+            ->one();
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Started working successfully"),
+            "data" => $userWork,
+        ];
+    }
+
+    /**
+     * stopped working
+     * @return array|string[]
+     */
+    public function actionStopWorkingTime() {
+
+        $model = CandidateWorkingHour::find()
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
+            ->andWhere('end_time is null')
+            ->one();
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => 'You have not started working on any store'
+            ];
+        }
+        $model->end_time = date('H:i:s');
+        $model->total_time = (strtotime($model->end_time) - strtotime($model->start_time));
+        $model->end_location_lat = 0.0000000;
+        $model->end_location_long = 0.0000000;
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Stopped worked on store successfully"),
         ];
     }
 }

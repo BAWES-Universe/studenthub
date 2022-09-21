@@ -77,6 +77,8 @@ return [
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
                         'GET video-status' => 'video-status',
+                        'POST start-time' => 'start-working-time',
+                        'POST stop-time' => 'stop-working-time',
                         'POST video-by-webhook' => 'video-by-webhook',
                         'POST job-search-status' => 'job-search-status',
                         'POST change-password' => 'change-password',
@@ -147,6 +149,8 @@ return [
                         'OPTIONS update-kuwaiti-national' => 'options',
                         'OPTIONS update-civil-id-expiry-date' => 'options',
                         'OPTIONS update-preferred-time' => 'options',
+                        'OPTIONS start-time' => 'options',
+                        'OPTIONS stop-time' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
@@ -171,6 +175,17 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS work-history' => 'options',
                         'OPTIONS appreciation-certificate/<wid>' => 'options',
+                    ]
+                ],
+                [ // CandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-working-hour',
+                    'patterns' => [
+                        'GET date' => 'list-date',
+                        'GET hour' => 'list-hour',
+                        // OPTIONS VERBS
+                        'OPTIONS date' => 'options',
+                        'OPTIONS hour' => 'options',
                     ]
                 ],
                 [ // StatisticController

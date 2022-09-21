@@ -438,6 +438,17 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-working-hour',
+                    'patterns' => [
+                        'GET date' => 'list-date',
+                        'GET hour' => 'list-hour',
+                        // OPTIONS VERBS
+                        'OPTIONS date' => 'options',
+                        'OPTIONS hour' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
