@@ -20,7 +20,13 @@ return [
         'googleMap' => [
             'class' => 'common\components\GoogleMap', 
             'accessKey' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw'
-        ], 
+        ],
+        'jira' => [
+            'class' => 'common\components\JiraComponent',
+            'jiraUrl' => 'https://bawes.atlassian.net',
+            'email' => 'kk@bawes.net',
+            'apiToken' => 'eYVHMtAi16zN56M2PS3gB8AB'
+        ],
         'algolia' => [
             'class' => 'common\components\Algolia',
             'appId' => 'VQF0F2SG4Y',
