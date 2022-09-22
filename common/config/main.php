@@ -23,7 +23,7 @@ return [
         ],
         'jira' => [
             'class' => 'common\components\JiraComponent',
-            'jiraUrl' => 'https://bawes.atlassian.net',
+            'jiraUrl' => 'https://bawes-studenthub.atlassian.net',
             'email' => 'kk@bawes.net',
             'apiToken' => 'eYVHMtAi16zN56M2PS3gB8AB'
         ],

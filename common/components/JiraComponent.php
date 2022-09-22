@@ -52,25 +52,63 @@ class JiraComponent extends jira\Client
             return $result;
         }*/
 
-            $authString = base64_encode($this->email . ':' . $this->apiToken);
-            //$authString = base64_encode($this->username . ':' . $this->password);
+            //$authString = base64_encode($this->email . ':' . $this->apiToken);
+            $authString = base64_encode('kk@bawes.net' . ':'. $this->apiToken);//.
             //$request->addHeader("Authorization", "Basic " . $authString);
 
-            $client = new Client();
+            /*$client = new Client();
 
             return $client->createRequest()
                 ->setUrl($url)
                 ->setMethod($method)
                 ->addHeaders([
-                    'authorization' => 'Bearer '.$authString,
+                    'authorization' => 'Basic '.$authString,//Bearer
                     'content-type' => 'application/json',
                     "Accept" => "application/json"
                     //"Upgrade" => "HTTP/2.0, SHTTP/1.3, IRC/6.9, RTA/x11",
                     //"HTTP/2.0"
                 ])
-                ->send();
+                ->send();*/
 
         //Yii::$app->cache->set($cacheKey, $result, $this->cacheDuration);
 
+        //set POST variables
+
+        $fields = array('from' => 'markdown',
+            'to' => 'pdf',
+            'input_files[]' => "@/".realpath('markdown.md').";type=text/x-markdown; charset=UTF-8"
+        );
+
+//open connection
+        $ch = curl_init();
+
+//set options
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            //'Authorization' => 'Basic '.$authString,//
+            'content-type' => 'application/json',
+            "Accept" => "application/json"
+            //"Upgrade" => "HTTP/2.0, SHTTP/1.3, IRC/6.9, RTA/x11",
+            //"HTTP/2.0"
+        ]);
+        //curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        //curl_setopt($ch, CURLOPT_USERPWD, $this->email . ':'  );//
+
+        curl_setopt($ch, CURLOPT_USERPWD, $this->email . ":" . $this->apiToken);
+
+        //curl_setopt($ch, CURLOPT_HTTPHEADER,          [         	"Authorization: Basic ".base64_encode($this->username.":".$this->password),         ]);
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        //curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); //needed so that the $result=curl_exec() output is the file and isn't just true/false
+
+        //$status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);   //get status code
+
+//execute post
+        $result = curl_exec($ch);
+
+//close connection
+        curl_close($ch);
+
+        return json_decode ($result);
     }
 }

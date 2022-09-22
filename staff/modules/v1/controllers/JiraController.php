@@ -58,7 +58,7 @@ class JiraController extends Controller
 
         ]);
 
-        return $request->data;
+        return $request;
     }
 
     /**
@@ -66,12 +66,10 @@ class JiraController extends Controller
      * @return mixed
      */
     public function actionUsers() {
-        $request = Yii::$app->jira->get('search', [
+        $request = Yii::$app->jira->get('users/search', [
 
         ]);
 
-        //$request->statusCode;
-
-        return $request->data;
+        return $request;
     }
 }
