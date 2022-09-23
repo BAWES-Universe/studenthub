@@ -1,13 +1,9 @@
 <?php
 
-
 namespace common\components;
 
-use understeam\jira;
-use yii\httpclient\Client;
 
-
-class JiraComponent extends jira\Client
+class JiraComponent
 {
     public $jiraUrl;
     public $email;
@@ -27,12 +23,52 @@ class JiraComponent extends jira\Client
             }
         }
 
-        parent::init();
+        //parent::init();
     }
 
     public function getApiEndpointUrl()
     {
         return rtrim($this->jiraUrl, '/') . '/rest/api/3/';
+    }
+
+    public function getUrlOfPath($path)
+    {
+        return $this->getApiEndpointUrl() . ltrim($path, '/');
+    }
+
+    public function get($path, $params = [])
+    {
+        if (!empty($params)) {
+            $params = http_build_query($params);
+            $path .= '?' . $params;
+        }
+
+        return $this->request('GET', $path);
+    }
+
+    public function post($path, $body = [])
+    {
+        return $this->request('POST', $path, $body);
+    }
+
+    public function delete($path, $body = [])
+    {
+        return $this->request('DELETE', $path, $body);
+    }
+
+    public function put($path, $body = [])
+    {
+        return $this->request('PUT', $path, $body);
+    }
+
+    public function getProject($key)
+    {
+        $data = $this->get("project/{$key}");
+        if (!isset($data['id'])) {
+            return null;
+        } else {
+            return Project::populate($this, $data);
+        }
     }
 
     public function request($method, $path, $body = [])
