@@ -189,6 +189,30 @@ class CountryController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
+
+    public function actionDownloadListExcel()
+    {
+        $query = Country::find();
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $query->all(),
+            'columns' => [
+                'country_id',
+                'country_name_en',
+                'country_name_ar',
+                [
+                    'attribute'=>'Total Candidate',
+                    'label'=>'Total Candidate',
+                    'value'=>function($model) {
+                        return $model->getCandidates()->count();
+                    }
+                ],
+            ]
+        ]);
+    }
     
     /**
      * Finds the Country model based on its primary key value.

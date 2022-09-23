@@ -610,6 +610,20 @@ class TransferController extends Controller
                         return $model->getTransferCandidates()->count();
                     },
                 ],
+                [
+                    'header' => 'start_date',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->start_date;
+                    },
+                ],
+                [
+                    'header' => 'end_date',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->end_date;
+                    },
+                ],
             ]
         ]);
     }

@@ -213,7 +213,30 @@ class UniversityController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
-    
+
+    public function actionDownloadListExcel()
+    {
+        $query = University::find();
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $query->all(),
+            'columns' => [
+                'university_id',
+                'university_name_en',
+                'university_name_ar',
+                [
+                    'attribute'=>'Total Candidate',
+                    'label'=>'Total Candidate',
+                    'value'=>function($model) {
+                        return $model->getCandidates()->count();
+                    }
+                ],
+            ]
+        ]);
+    }
     /**
      * Finds the University model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
