@@ -685,6 +685,115 @@ class CompanyController extends Controller
         }
         return $stats;
     }
+
+    /**
+     * Return a List of Company Accounts available.
+     * @return ActiveDataProvider
+     */
+    public function actionDownloadListExcel()
+    {
+        $status = Yii::$app->request->getQueryParam("status",0);
+        $name = Yii::$app->request->getQueryParam("name",0);
+        $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
+
+        $query = Company::find()
+            ->filterParent();
+
+        if ($status == 1) {
+            $query->filterActive();
+        }
+
+        if ($status == 2) {
+            $query->filterInActive();
+        }
+
+        if ($status == 3) {
+            $query->filterByActive40DaysPassedWithoutPayment();
+        }
+
+        if ($name) {
+            $query->filterByName($name);
+        }
+
+        if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {
+            $query->filterByApprovedToHire($approved_to_hire);
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $query->all(),
+            'columns' => [
+                'company_id',
+                'company_name',
+                'company_common_name_en',
+                'company_common_name_ar',
+                [
+                    'attribute'=>'company_status',
+                    'label'=>'Company Status',
+                    'value'=>function($model) {
+                        return ($model->company_status) ? 'Active':'InActive';
+                    }
+                ],
+                [
+                    'attribute'=>'total_suggestions',
+                    'label'=>'Total Suggestions',
+                    'value'=>function($model) {
+                        return $model->getSuggestions()->count();
+                    }
+                ],
+                [
+                    'attribute'=>'company_bonus_commission',
+                    'label'=>'company bonus commission',
+                    'value'=>function($model) {
+                        if($model->company_bonus_commission)
+                            return (double)$model->company_bonus_commission;
+
+                        if($model->parentCompany)
+                            return (double)$model->parentCompany->company_bonus_commission;
+                    }
+                ],
+                [
+                    'attribute'=>'company_hourly_rate',
+                    'label'=>'Company Hourly Rate',
+                    'value'=>function($model) {
+                        if($model->company_hourly_rate)
+                            return (double)$model->company_hourly_rate;
+
+                        if($model->parentCompany)
+                            return (double)$model->parentCompany->company_hourly_rate;
+                    }
+                ],
+                [
+                    'attribute'=>'total_candidates',
+                    'label'=>'Total Candidates',
+                    'value'=>function($model) {
+                        return (int)\common\models\Company::getTotalCandidateCount($model->company_id);
+                    }
+                ],
+                [
+                    'attribute'=>'total_subcompanies',
+                    'label'=>'Total SubCompanies',
+                    'value'=>function($model) {
+                        return (int)$model->getSubCompanies()->count();
+                    }
+                ],
+                [
+                    'attribute'=>'total_subcompanies',
+                    'label'=>'Total SubCompanies',
+                    'value'=>function($model) {
+                        return (int)$model->getSubCompanies()->count();
+                    }
+                ],
+                [
+                    'attribute'=>'total_stores',
+                    'label'=>'Total Stores',
+                    'value'=>function($model) {
+                        return (int)$model->getStores()->count();
+                    }
+                ],
+            ]
+        ]);
+    }
 }
-
-
