@@ -290,6 +290,19 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // JiraController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/jira',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET users' => 'users',
+                        'GET issues' => 'issues',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS users' => 'options',
+                        'OPTIONS issues' => 'options',
+                    ]
+                ],
                 [ // StoryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/story',
