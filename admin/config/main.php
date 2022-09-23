@@ -131,6 +131,7 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET download-list-excel' => 'download-list-excel',
                         'GET followups' => 'followups',
                         'GET sub-companies/<id>' => 'sub-companies',
                         'GET year-report' => 'year-report',
@@ -157,6 +158,7 @@ return [
                         'OPTIONS change-status/<id>' => 'options',
                         'OPTIONS update-followup/<id>' => 'options',
                         'OPTIONS update-followup-interval/<id>' => 'options',
+                        'OPTIONS download-list-excel' => 'options',
                     ]
                 ],
                 [ // StoreController
@@ -360,6 +362,7 @@ return [
                     'controller' => 'v1/university',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET download-list-excel' => 'download-list-excel',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
@@ -367,6 +370,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS download-list-excel' => 'options',
                     ]
                 ],
                 [ // CountryController
@@ -374,12 +378,14 @@ return [
                     'controller' => 'v1/country',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET download-list-excel' => 'download-list-excel',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS download-list-excel' => 'options',
                     ]
                 ],
                 [ // CandidateWorkHistoryController
