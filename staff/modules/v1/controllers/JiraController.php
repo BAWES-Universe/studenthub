@@ -54,8 +54,23 @@ class JiraController extends Controller
      * @return mixed
      */
     public function actionIssues() {
-        $request = Yii::$app->jira->get('search', [
 
+        $accountId = Yii::$app->request->get('accountId');
+        $status = Yii::$app->request->get('status');
+
+        $jql = [];
+
+        if($accountId) {
+            //$jql[] = 'assignee = "'.$accountId.'"';
+            $jql[] = 'assignee in ('.$accountId.')';
+        }
+
+        if($status) {
+            $jql[] = 'status = "'.$status.'"';
+        }
+
+        $request = Yii::$app->jira->get('search', [
+            'jql' => implode (" AND ", $jql) . ' ORDER BY created DESC'
         ]);
 
         return $request;
@@ -66,8 +81,23 @@ class JiraController extends Controller
      * @return mixed
      */
     public function actionUsers() {
-        $request = Yii::$app->jira->get('users/search', [
 
+        $query = Yii::$app->request->get('query');
+
+        $jql = [
+            'accountType' => 'atlassian',
+            //'active' => true
+        ];
+
+        //users/search
+        //user/search/query
+        //user/assignable/search
+        //user/search?username=.
+
+        $request = Yii::$app->jira->get('users/search', [
+            'maxResults' => 1000,
+            //'query' => 'accountType.atlassian'
+            'jql' => implode (" AND ", $jql) . ' ORDER BY created DESC'
         ]);
 
         return $request;
