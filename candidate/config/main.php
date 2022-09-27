@@ -150,6 +150,7 @@ return [
                         'OPTIONS update-preferred-time' => 'options',
                         'OPTIONS start-time' => 'options',
                         'OPTIONS stop-time' => 'options',
+                        'OPTIONS working-status' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
