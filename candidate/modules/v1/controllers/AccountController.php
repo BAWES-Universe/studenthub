@@ -1371,6 +1371,9 @@ class AccountController extends Controller
      */
     public function actionStartWorkingTime() {
 
+        $lat = Yii::$app->request->post('lat');
+        $long = Yii::$app->request->post('long');
+
         $model = CandidateWorkingHour::find()
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
             ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
@@ -1389,8 +1392,8 @@ class AccountController extends Controller
         $model->candidate_id = Yii::$app->user->getId();
         $model->store_id = Yii::$app->user->identity->store_id;
         $model->date  = date('Y-m-d');
-        $model->start_location_lat = 0.0000000;
-        $model->start_location_long = 0.0000000;
+        $model->start_location_lat = $lat;
+        $model->start_location_long = $long;
         if (!$model->save()) {
             return [
                 "operation" => "error",
@@ -1417,6 +1420,9 @@ class AccountController extends Controller
      */
     public function actionStopWorkingTime() {
 
+        $lat = Yii::$app->request->post('lat');
+        $long = Yii::$app->request->post('long');
+
         $model = CandidateWorkingHour::find()
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
             ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
@@ -1431,8 +1437,8 @@ class AccountController extends Controller
         }
         $model->end_time = date('H:i:s');
         $model->total_time = (strtotime($model->end_time) - strtotime($model->start_time));
-        $model->end_location_lat = 0.0000000;
-        $model->end_location_long = 0.0000000;
+        $model->start_location_lat = $lat;
+        $model->start_location_long = $long;
         if (!$model->save()) {
             return [
                 "operation" => "error",
