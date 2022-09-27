@@ -1401,16 +1401,10 @@ class AccountController extends Controller
             ];
         }
 
-        $userWork = CandidateWorkingHour::find()
-            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
-            ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
-            ->andWhere('end_time is null')
-            ->one();
-
         return [
             "operation" => "success",
             "message" => Yii::t('candidate', "Started working successfully"),
-            "data" => $userWork,
+            "data" => Yii::$app->user->identity->getIsWorking(),
         ];
     }
 
