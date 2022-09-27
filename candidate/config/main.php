@@ -77,6 +77,7 @@ return [
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
                         'GET video-status' => 'video-status',
+                        'POST current-status' => 'working-status',
                         'POST start-time' => 'start-working-time',
                         'POST stop-time' => 'stop-working-time',
                         'POST video-by-webhook' => 'video-by-webhook',
@@ -151,6 +152,7 @@ return [
                         'OPTIONS update-preferred-time' => 'options',
                         'OPTIONS start-time' => 'options',
                         'OPTIONS stop-time' => 'options',
+                        'OPTIONS current-status' => 'options',
                     ]
                 ],
                 [ // GoogleMapController

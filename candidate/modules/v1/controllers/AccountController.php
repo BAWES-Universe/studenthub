@@ -1401,16 +1401,10 @@ class AccountController extends Controller
             ];
         }
 
-        $userWork = CandidateWorkingHour::find()
-            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
-            ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
-            ->andWhere('end_time is null')
-            ->one();
-
         return [
             "operation" => "success",
             "message" => Yii::t('candidate', "Started working successfully"),
-            "data" => $userWork,
+            "data" => Yii::$app->user->identity->getIsWorking(),
         ];
     }
 
@@ -1439,6 +1433,8 @@ class AccountController extends Controller
         $model->total_time = (strtotime($model->end_time) - strtotime($model->start_time));
         $model->end_location_lat = $lat;
         $model->end_location_long = $long;
+        $model->start_location_lat = $lat;
+        $model->start_location_long = $long;
         if (!$model->save()) {
             return [
                 "operation" => "error",
@@ -1450,5 +1446,9 @@ class AccountController extends Controller
             "operation" => "success",
             "message" => Yii::t('candidate', "Stopped worked on store successfully"),
         ];
+    }
+
+    public function actionWorkingStatus() {
+        return Yii::$app->user->identity->getIsWorking();
     }
 }
