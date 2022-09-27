@@ -71,11 +71,11 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET salary' => 'salary',
-                        'GET current-status' => 'working-status',
                         'GET profile' => 'profile',
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
                         'GET video-status' => 'video-status',
+                        'POST current-status' => 'working-status',
                         'POST start-time' => 'start-working-time',
                         'POST stop-time' => 'stop-working-time',
                         'POST video-by-webhook' => 'video-by-webhook',
