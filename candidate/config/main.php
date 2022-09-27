@@ -71,7 +71,7 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET salary' => 'salary',
-                        'GET working-status' => 'working-status',
+                        'GET current-status' => 'working-status',
                         'GET profile' => 'profile',
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
@@ -150,7 +150,7 @@ return [
                         'OPTIONS update-preferred-time' => 'options',
                         'OPTIONS start-time' => 'options',
                         'OPTIONS stop-time' => 'options',
-                        'OPTIONS working-status' => 'options',
+                        'OPTIONS current-status' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
