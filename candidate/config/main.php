@@ -71,6 +71,7 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET salary' => 'salary',
+                        'GET working-status' => 'working-status',
                         'GET profile' => 'profile',
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',

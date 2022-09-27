@@ -1445,4 +1445,8 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Stopped worked on store successfully"),
         ];
     }
+
+    public function actionWorkingStatus() {
+        return Yii::$app->user->identity->getIsWorking();
+    }
 }
