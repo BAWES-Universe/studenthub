@@ -44,6 +44,7 @@ class Staff extends \common\models\Staff {
             'storyActivities',
             'groupStoryActivities',
             'activeStory',
+            'oldStories'
         ]);
     }
     /**
@@ -89,6 +90,13 @@ class Staff extends \common\models\Staff {
     public function getActiveStory()
     {
         return $this->getStories()->andWhere(['story_status'=>Story::STATUS_STARTED])->all();
+    }
+
+    public function getOldStories()
+    {
+        return $this->getStories()
+            ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+            ->orderBy('story_last_updated_at DESC');
     }
 
     /**

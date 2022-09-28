@@ -127,8 +127,9 @@ class StoryController extends Controller
      */
     public function actionActiveStory()
     {
+        $id = Yii::$app->request->get('id', Yii::$app->user->getId());
         $model = Story::find()
-            ->where(['staff_id' => Yii::$app->user->getId(),'story_status' => Story::STATUS_STARTED])
+            ->where(['staff_id' => $id,'story_status' => Story::STATUS_STARTED])
             ->all();
 
         if ($model !== null) {
@@ -146,29 +147,19 @@ class StoryController extends Controller
     }
 
     /**
-     * @param $id
-     * @return Request
-     * @throws NotFoundHttpException
+     * @return ActiveDataProvider
      */
     public function actionAllOldStories()
     {
-        $model = Story::find()->andWhere(['staff_id' => Yii::$app->user->getId()])
+        $id = Yii::$app->request->get('id', Yii::$app->user->getId());
+        $query = Story::find();
+        $query->andWhere(['staff_id' => $id])
             ->andWhere(['<>','story_status',Story::STATUS_STARTED])
-            ->orderBy('story_last_updated_at DESC')
-            ->all();
+            ->orderBy('story_last_updated_at DESC');
 
-        if ($model !== null) {
-            return [
-                "operation" => "success",
-                "body" => $model
-            ];
-
-        } else {
-            return [
-                "operation" => "error",
-                "message" => Yii::t ('app', "There is no active story")
-            ];
-        }
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
