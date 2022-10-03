@@ -66,7 +66,7 @@ class JiraController extends Controller
         }
 
         if($status) {
-            $jql[] = 'status = "'.$status.'"';
+            $jql[] = 'status="'.$status.'"';
         }
 
         $request = Yii::$app->jira->get('search', [
