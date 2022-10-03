@@ -1,0 +1,1 @@
+import{r as s,h as r,H as a}from"./p-a94aef08.js";const t=class{constructor(r){s(this,r)}render(){return r(a,null,r("slot",null))}};t.style=":host{display:block}";export{t as team_salary}
