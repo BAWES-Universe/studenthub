@@ -51,6 +51,7 @@ return [
                         'POST update-email' => 'update-email',          
                         'POST resend-verification-email' => 'resend-verification-email',
                         'POST verify-email' => 'verify-email',
+                        'POST login-auth0' => 'login-auth0',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS name-by-civil-id' => 'options',
@@ -61,6 +62,7 @@ return [
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS is-email-verified' => 'options',
                         'OPTIONS update-email' => 'options',        
+                        'OPTIONS login-auth0' => 'options',
                         'OPTIONS resend-verification-email' => 'options',
                         'OPTIONS verify-email' => 'options'
                     ]

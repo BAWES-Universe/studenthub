@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c0b87f46eba974622b1f720f6287fc1",
+    "content-hash": "0f654da0359f16556192341f35a6ba68",
     "packages": [
         {
             "name": "2amigos/qrcode-library",
@@ -5623,6 +5623,84 @@
             "time": "2021-12-08T09:12:39+00:00"
         },
         {
+            "name": "understeam/yii2-httpclient",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Understeam/yii2-httpclient.git",
+                "reference": "ebaa00ffe1434e35fe127fc603ff52b65c15dc36"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Understeam/yii2-httpclient/zipball/ebaa00ffe1434e35fe127fc603ff52b65c15dc36",
+                "reference": "ebaa00ffe1434e35fe127fc603ff52b65c15dc36",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6.1",
+                "php": ">=5.4.0",
+                "yiisoft/yii2": ">=2.0.0"
+            },
+            "require-dev": {
+                "codeception/codeception": "~2.1",
+                "codeception/specify": "~0.4",
+                "codeception/verify": "~0.3"
+            },
+            "type": "extension",
+            "autoload": {
+                "psr-4": {
+                    "understeam\\httpclient\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-v3"
+            ],
+            "description": "Yii2 http client implementation based on Guzzle library",
+            "support": {
+                "issues": "https://github.com/understeam/yii2-httpclient/issues",
+                "source": "https://github.com/understeam/yii2-httpclient"
+            },
+            "time": "2016-03-20T00:46:21+00:00"
+        },
+        {
+            "name": "understeam/yii2-jira",
+            "version": "v0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Understeam/yii2-jira.git",
+                "reference": "f802ced699c0a102d7fc053eab2337c9e96ef042"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Understeam/yii2-jira/zipball/f802ced699c0a102d7fc053eab2337c9e96ef042",
+                "reference": "f802ced699c0a102d7fc053eab2337c9e96ef042",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "understeam/yii2-httpclient": ">=0.2",
+                "yiisoft/yii2": ">=2.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "understeam\\jira\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPLv3"
+            ],
+            "description": "Jira REST API integration for Yii2",
+            "homepage": "http://github.com/Understeam/yii2-jira",
+            "support": {
+                "issues": "https://github.com/Understeam/yii2-jira/issues",
+                "source": "https://github.com/Understeam/yii2-jira"
+            },
+            "time": "2016-05-12T19:48:04+00:00"
+        },
+        {
             "name": "understeam/yii2-slack",
             "version": "v0.3.0",
             "source": {
@@ -8917,5 +8995,5 @@
         "php": ">=5.4.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.2.0"
 }

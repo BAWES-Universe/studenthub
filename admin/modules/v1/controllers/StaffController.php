@@ -303,6 +303,9 @@ class StaffController extends Controller
         $model->staff_gmail_username = Yii::$app->request->getBodyParam("gmail_username");
         $model->staff_role = Yii::$app->request->getBodyParam("role");
         $model->staff_gmail_password = Staff::encryptPass(Yii::$app->request->getBodyParam("gmail_password"));
+        $model->staff_job_title = Yii::$app->request->getBodyParam("job_title");
+        $model->staff_salary = Yii::$app->request->getBodyParam("salary");
+        $model->staff_salary_currency = Yii::$app->request->getBodyParam("salary_currency");
 
         if (!$model->signup())
         {
@@ -353,6 +356,9 @@ class StaffController extends Controller
         $model->staff_gmail_username = Yii::$app->request->getBodyParam("gmail_username");
         $model->staff_role = Yii::$app->request->getBodyParam("role");
         $model->staff_gmail_password = Staff::encryptPass(Yii::$app->request->getBodyParam("gmail_password"));
+        $model->staff_job_title = Yii::$app->request->getBodyParam("job_title");
+        $model->staff_salary = Yii::$app->request->getBodyParam("salary");
+        $model->staff_salary_currency = Yii::$app->request->getBodyParam("salary_currency");
 
         if (!$model->save())
         {

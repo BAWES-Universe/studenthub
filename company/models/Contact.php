@@ -74,6 +74,8 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
 
             if ($this->getScenario() == 'signup-google')
                 $notification_message = "[Contact Signup: " . $this->contact_name . "] Signed up using Google";
+            else if ($this->getScenario() == 'signupAuth0')
+                $notification_message = "[Contact Signup: " . $this->contact_name . "] Signed up using Auth0";
             else
                 $notification_message = "[Contact Signup: " . $this->contact_name . "] Signed up using Manual";
 

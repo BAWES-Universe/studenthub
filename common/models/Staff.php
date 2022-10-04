@@ -13,6 +13,7 @@ use yii\web\IdentityInterface;
  *
  * @property integer $staff_id
  * @property string $staff_name
+ * @property string $staff_job_title
  * @property string $staff_email
  * @property string $staff_auth_key
  * @property string $staff_password_hash
@@ -60,7 +61,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['staff_name', 'staff_email'], 'required'],
+            [['staff_name', 'staff_job_title', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
             [['staff_role','staff_hourly_rate', 'staff_salary'], 'number'],
             [['staff_status','staff_notification'], 'integer'],
@@ -94,6 +95,7 @@ class Staff extends ActiveRecord implements IdentityInterface
         return [
             'staff_id' => Yii::t('app','Staff ID'),
             'staff_name' => Yii::t('app','Staff Name'),
+            'staff_job_title' => Yii::t('app','Staff Job Title'),
             'staff_email' => Yii::t('app','Staff Email'),
             'staff_auth_key' => Yii::t('app','Staff Auth Key'),
             'staff_password_hash' => Yii::t('app','Password'),

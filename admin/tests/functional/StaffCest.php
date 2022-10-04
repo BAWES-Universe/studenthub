@@ -23,6 +23,7 @@ class StaffCest
     {
         $this->token = AdminToken::find()
              ->one()->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 
@@ -75,7 +76,10 @@ class StaffCest
                 "name" => "Mohammed Kanso",
                 "email" => "staff@staff.com",
                 "password" => "12345",
-                "role" => 1//Staff::ROLE_MANAGER
+                "role" => 1,//Staff::ROLE_MANAGER
+                "job_title" => 'developer',
+                "salary" => 30000,
+                "salary_currency" => 'KWD'
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -99,7 +103,10 @@ class StaffCest
             [
                 "name" => "Mohammed Kanso",
                 "email" => "unique@staff.com",
-                "role" => 1//Staff::ROLE_MANAGER
+                "role" => 1, //Staff::ROLE_MANAGER,
+                "job_title" => 'developer',
+                "salary" => 30000,
+                "salary_currency" => 'KWD'
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200

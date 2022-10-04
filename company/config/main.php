@@ -66,6 +66,7 @@ return [
                         'POST is-email-verified' => 'is-email-verified',
                         'POST update-email' => 'update-email',
                         'POST resend-verification-email' => 'resend-verification-email',
+                        'POST login-auth0' => 'login-auth0',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
@@ -75,6 +76,7 @@ return [
                         'OPTIONS update-email' => 'options',
                         'OPTIONS resend-verification-email' => 'options',
                         'OPTIONS update-password' => 'options',
+                        'OPTIONS login-auth0' => 'options',
                         'OPTIONS create-account' => 'options',
                     ]
                 ],

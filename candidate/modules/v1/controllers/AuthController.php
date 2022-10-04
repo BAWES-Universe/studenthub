@@ -67,7 +67,8 @@ class AuthController extends Controller
             'resend-verification-email',
             'verify-email',
             'is-email-verified',
-            'name-by-civil-id'
+            'name-by-civil-id',
+            'login-auth0'
         ];
 
         return $behaviors;
@@ -113,6 +114,88 @@ class AuthController extends Controller
         }
 
         // Return candidate access token if everything valid
+
+        return $this->_loginResponse($candidate);
+    }
+
+    /**
+     * login with auth0 token
+     * @return array
+     */
+    public function actionLoginAuth0()
+    {
+        $lang = Yii::$app->request->headers->get('language');
+
+        $accessToken = Yii::$app->request->getBodyParam('accessToken');
+
+        $response = Yii::$app->auth0->getUserInfo($accessToken);
+
+        if(!$response->isOk) {
+            return self::response('error',"Invalid access token");
+        }
+
+        $userInfo = $response->data;
+
+        if(!$userInfo || !$userInfo['email'])
+        {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "We've faced a problem creating your account, please contact us for assistance."),
+            ];
+        }
+
+        $candidate = Candidate::find()
+            ->andWhere(['candidate_email' => $userInfo['email']])
+            ->one();
+
+        if(!$candidate)
+        {
+            $candidate = new Candidate();
+
+            $candidate->scenario = "signupAuth0";
+
+            if ($lang == 'ar') {
+                $candidate->candidate_name_ar = $userInfo['name'];
+                $candidate->candidate_name = null;
+            } else  {
+                $candidate->candidate_name = $userInfo['name'];
+                $candidate->candidate_name_ar = null;
+            }
+
+            $candidate->candidate_email = $userInfo['email'];
+            $candidate->candidate_phone = isset($userInfo['phone_number'])? $userInfo['phone_number']: '';
+            $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
+            $candidate->approved = true;
+            
+            if (!$candidate->signup()) {
+                if (isset($candidate->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $candidate->errors,
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => Yii::t('candidate', "We've faced a problem creating your account, please contact us for assistance.")
+                    ];
+                }
+            }
+        }
+
+        // Email and password are correct, check if his email has been verified
+        // If email has been verified, then allow him to log in
+        /*if ($candidate->contact_email_verification != Candidate::EMAIL_VERIFIED) {
+
+            //$candidate->generateOtp();
+            //$candidate->save(false);
+
+            return [
+                "operation" => "error",
+                "errorType" => "email-not-verified",
+                "message" => Yii::t('candidate', "Please click the verification link sent to you by email to activate your account"),
+                "unVerifiedToken" => $this->_loginResponse($candidate)
+            ];
+        }*/
 
         return $this->_loginResponse($candidate);
     }
