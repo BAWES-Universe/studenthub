@@ -93,6 +93,7 @@ class CandidateController extends Controller
 
         $start_date = Yii::$app->request->get('start_date');
         $end_date = Yii::$app->request->get('end_date');
+        $working_time = Yii::$app->request->get('working_time', null);
         $name = Yii::$app->request->get("name");
         $email = Yii::$app->request->get("email");
 
@@ -108,7 +109,7 @@ class CandidateController extends Controller
         }
 
         if($end_date) {
-            $query->endDate($end_date);
+            $query->endDate($end_date, $working_time);
         }
 
         return new ActiveDataProvider([
