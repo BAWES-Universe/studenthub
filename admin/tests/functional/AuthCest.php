@@ -32,6 +32,7 @@ class AuthCest {
         $admin->admin_name = 'Test';
         $admin->admin_email = 'test@me.admin';
         $admin->admin_auth_key = '';
+        $admin->admin_status = '10';
         $admin->setPassword('12345');
         $admin->save();
         
