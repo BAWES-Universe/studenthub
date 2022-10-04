@@ -4,6 +4,7 @@ namespace admin\modules\v1\controllers;
 
 use admin\models\Invitation;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -72,6 +73,9 @@ class InvitationController extends Controller
      */
     public function actionList()
     {
+        $start_date = Yii::$app->request->get('start_date', null);
+        $end_date = Yii::$app->request->get('end_date', null);
+
         $query = Invitation::find()
             ->orderBy('invitation_created_at DESC');
 
@@ -80,6 +84,22 @@ class InvitationController extends Controller
         }
         if (Yii::$app->request->get('story_uuid', null)) {
             $query->filterStory(Yii::$app->request->get('story_uuid'));
+        }
+        if (Yii::$app->request->get('invitation_status', null)) {
+            $query->andWhere(['invitation_status' => Yii::$app->request->get('invitation_status')]);
+        }
+        if (Yii::$app->request->get('staff_id', null)) {
+            $query->andWhere(['invitation_created_by_staff' => Yii::$app->request->get('staff_id')]);
+        }
+
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
         }
 
         return new ActiveDataProvider([

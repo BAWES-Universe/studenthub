@@ -82,7 +82,7 @@ class StaffController extends Controller
         $role = Yii::$app->request->get('role');
 
         $query = Staff::find()
-            ->active();
+            ->notDeleted();
 
         if($role) {
             $query->andWhere(['staff_role' => $role]);

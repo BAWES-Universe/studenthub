@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 use common\models\StaffSalary;
+use common\models\StaffToken;
 use company\models\TranferExcel;
 use Yii;
 use yii\rest\Controller;
@@ -72,8 +73,25 @@ class StaffController extends Controller
      */
     public function actionList()
     {
+        ini_set('max_execution_time', '300');
+        ini_set('memory_limit', '-1');
+        $role = Yii::$app->request->get('role', null);
+        $status = Yii::$app->request->get('status', null);
+        $name = Yii::$app->request->get('name', null);
+
         $query = Staff::find();
-        $query->active();
+        $query->notDeleted();
+
+        if($role) {
+            $query->andWhere(['staff_role' => $role]);
+        }
+        if($name) {
+            $query->filterName($name);
+        }
+
+        if($status || $status == '0') {
+            $query->andWhere(['staff_status' => $status]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -399,6 +417,40 @@ class StaffController extends Controller
         return [
             "operation" => "error",
             "message" => "Unknown error occured, please contact us for assistance."
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Delete an account
+     * @param  integer $id
+     * @return array
+     */
+    public function actionStatus($id)
+    {
+        $status = Yii::$app->request->post('status', 0);
+        $model = $this->findModel((int)$id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid Account"
+            ];
+        }
+        $model->staff_status = $status;
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+        // reset token
+        StaffToken::deleteAll(['staff_id'=>$id]);
+        return [
+            "operation" => "success",
+            "message" => "Staff status changed successfully"
         ];
 
         // Check SQL Query Count and Duration

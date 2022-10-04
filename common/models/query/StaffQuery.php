@@ -34,7 +34,14 @@ class StaffQuery extends ActiveQuery
         return $this->andWhere(['!=','staff_id', Yii::$app->user->id]);
     }
 
-    public function active() {
+    public function notDeleted() {
         return $this->andWhere(['{{%staff}}.deleted'=>0]);
+    }
+
+    public function filterName($name)
+    {
+        return $this->andWhere(
+                ['like', 'staff_name', $name]
+        );
     }
 }

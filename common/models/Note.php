@@ -263,6 +263,7 @@ class Note extends \yii\db\ActiveRecord
             'createdBy',
             'updatedBy',
             'companyContact',
+            'suggestion',
         ];
     }
 

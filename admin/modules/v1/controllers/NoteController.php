@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Note;
@@ -72,6 +73,9 @@ class NoteController extends Controller
      */
     public function actionList()
     {
+        $start_date = Yii::$app->request->get('start_date', null);
+        $end_date = Yii::$app->request->get('end_date', null);
+
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
 
@@ -89,7 +93,19 @@ class NoteController extends Controller
         if (Yii::$app->request->get('story_uuid', null)) {
             $query->filterStory(Yii::$app->request->get('story_uuid'));
         }
+        if (Yii::$app->request->get('type', null)) {
+            $query->andWhere(['note_type' => Yii::$app->request->get('type')]);
+        }
 
+        if($start_date) {
+            $query->andWhere(new Expression("DATE(note_created_datetime) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+
+        if($end_date) {
+            $query->andWhere(new Expression("DATE(note_created_datetime) <= DATE('".
+                date('Y-m-d', strtotime ($end_date))."')"));
+        }
         return new ActiveDataProvider([
             'query' => $query
         ]);

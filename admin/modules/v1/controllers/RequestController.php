@@ -4,6 +4,7 @@ namespace admin\modules\v1\controllers;
 
 use admin\models\Staff;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
@@ -75,6 +76,8 @@ class RequestController extends Controller
     public function actionList()
     {
         $query = Request::find();
+        $start_date = Yii::$app->request->get('start_date', null);
+        $end_date = Yii::$app->request->get('end_date', null);
 
         if (Yii::$app->request->get('staff_id', null)) {
             $query->filterByStaff(Yii::$app->request->get('staff_id'));
@@ -93,6 +96,14 @@ class RequestController extends Controller
             $query->filterByCompany(Yii::$app->request->get('company_id'));
         }
 
+       if ($start_date) {
+            $query->andWhere(new Expression("DATE(request_created_datetime) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+        if ($end_date) {
+            $query->andWhere(new Expression("DATE(request_created_datetime) <= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
 
         $query->orderByDateDESC();
         return new ActiveDataProvider([

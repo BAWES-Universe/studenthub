@@ -4,6 +4,7 @@ namespace admin\modules\v1\controllers;
 
 use admin\models\Company;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Candidate;
@@ -79,7 +80,16 @@ class CandidateWorkHistoryController extends Controller
         if (Yii::$app->request->get('staff_id', null)) {
             $query->filterStaff(Yii::$app->request->get('staff_id'));
         }
-
+        $start_date = Yii::$app->request->get('start_date', null);
+        $end_date = Yii::$app->request->get('end_date', null);
+        if ($start_date) {
+            $query->andWhere(new Expression("DATE(start_date) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+        if ($end_date) {
+            $query->andWhere(new Expression("DATE(start_date) <= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
         return new ActiveDataProvider([
             'query' => $query
         ]);
