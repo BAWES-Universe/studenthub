@@ -95,6 +95,7 @@ class StaffTest extends \Codeception\Test\Unit {
         $this->specify('Update staff Data', function () {
             $model = Staff::find()->one();
             $model->staff_name = 'Doe';
+            $model->staff_job_title = 'Developer';
             expect('updated successfully', $model->save())->true();
             expect('Updated Record is in database', $model->findOne(['staff_name' => 'Doe']))->notNull();
         });
