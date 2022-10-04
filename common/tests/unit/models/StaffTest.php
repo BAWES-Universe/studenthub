@@ -43,8 +43,8 @@ class StaffTest extends \Codeception\Test\Unit {
             expect('staff name is required', $model->errors)->hasKey('staff_name');
             expect('staff email is required', $model->errors)->hasKey('staff_email');
             expect('staff password is required', $model->errors)->hasntKey('staff_password_hash');
-            expect('staff job title is required', $model->errors)->hasntKey('staff_job_title');
-            expect('no more fields required', count($model->errors))->equals(2);
+            expect('staff job title is required', $model->errors)->hasKey('staff_job_title');
+            expect('no more fields required', count($model->errors))->equals(3);
         });
     }
 
