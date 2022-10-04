@@ -205,4 +205,9 @@ class Staff extends \common\models\Staff {
     {
         return parent::getNotes($modelClass);
     }
+
+    public static function find()
+    {
+        return new query\StaffQuery(get_called_class());
+    }
 }

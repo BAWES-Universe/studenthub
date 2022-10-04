@@ -120,7 +120,6 @@ class Staff extends ActiveRecord implements IdentityInterface
         $fields = parent::fields();
 
         unset(
-            $fields['deleted'],
             $fields['staff_auth_key'],
             $fields['staff_password_hash'],
             $fields['staff_password_reset_token']

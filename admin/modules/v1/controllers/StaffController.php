@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use agent\models\PaymentMethod;
 use common\models\StaffSalary;
 use common\models\StaffToken;
 use company\models\TranferExcel;
@@ -78,12 +79,19 @@ class StaffController extends Controller
         $role = Yii::$app->request->get('role', null);
         $status = Yii::$app->request->get('status', null);
         $name = Yii::$app->request->get('name', null);
+        $deleted = Yii::$app->request->get('deleted', null);
 
         $query = Staff::find();
-        $query->notDeleted();
 
         if($role) {
             $query->andWhere(['staff_role' => $role]);
+        }
+        if ($deleted) {
+            if ($deleted == 1) {
+                $query->andWhere(['deleted' => $deleted]);
+            } else {
+                $query->andWhere(['deleted' => 0]);
+            }
         }
         if($name) {
             $query->filterName($name);
@@ -446,7 +454,7 @@ class StaffController extends Controller
             ];
         }
         $model->staff_status = $status;
-        if (!$model->save()) {
+        if (!$model->save(false)) {
             return [
                 "operation" => "error",
                 "message" => $model->errors
