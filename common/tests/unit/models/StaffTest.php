@@ -43,7 +43,8 @@ class StaffTest extends \Codeception\Test\Unit {
             expect('staff name is required', $model->errors)->hasKey('staff_name');
             expect('staff email is required', $model->errors)->hasKey('staff_email');
             expect('staff password is required', $model->errors)->hasntKey('staff_password_hash');
-//            expect('no more fields required', count($model->errors))->equals(2);
+            expect('staff job title is required', $model->errors)->hasntKey('staff_job_title');
+            expect('no more fields required', count($model->errors))->equals(2);
         });
     }
 
@@ -79,6 +80,7 @@ class StaffTest extends \Codeception\Test\Unit {
             $model = new Staff();
             $model->staff_name = 'John';
             $model->staff_email = 'john@gmail.com';
+            $model->staff_job_title = 'Developer';
             $model->staff_auth_key = '';
             $model->staff_password_hash = \Yii::$app->getSecurity()->generatePasswordHash('123456');
             expect('Created successfully', $model->save())->true();
