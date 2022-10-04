@@ -20,7 +20,13 @@ return [
         'googleMap' => [
             'class' => 'common\components\GoogleMap', 
             'accessKey' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw'
-        ], 
+        ],
+        'jira' => [
+            'class' => 'common\components\JiraComponent',
+            'jiraUrl' => 'https://bawes-studenthub.atlassian.net',
+            'email' => 'kk@bawes.net',
+            'apiToken' => 'eYVHMtAi16zN56M2PS3gB8AB'
+        ],
         'algolia' => [
             'class' => 'common\components\Algolia',
             'appId' => 'VQF0F2SG4Y',
@@ -49,6 +55,9 @@ return [
             'class' => 'understeam\slack\Client',
             'url' => 'https://hooks.slack.com/services/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',
             'username' => 'StudentHub',
+        ],
+        'auth0' => [
+            'class' => 'common\components\Auth0',
         ],
         'httpclient' => [
             'class' =>'yii\httpclient\Client',

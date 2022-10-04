@@ -30,10 +30,16 @@ class StaffQuery extends ActiveQuery
         return parent::one($db);
     }
 
+    /**
+     * @return StaffQuery
+     */
     public function withoutCurrentUser() {
         return $this->andWhere(['!=','staff_id', Yii::$app->user->id]);
     }
 
+    /**
+     * @return StaffQuery
+     */
     public function active() {
         return $this->andWhere(['{{%staff}}.deleted'=>0]);
     }

@@ -305,6 +305,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
 
+        $scenarios['signupAuth0'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_language_pref'];
+
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref'];
 
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];

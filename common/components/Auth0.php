@@ -41,6 +41,7 @@ class Auth0 extends Component
         $url = $this->apiEndpoint."/userinfo";
 
         $client = new Client();
+
         $response = $client->createRequest()
             ->setUrl($url)
             ->addHeaders([

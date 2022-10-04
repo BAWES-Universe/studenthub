@@ -1431,6 +1431,8 @@ class AccountController extends Controller
         }
         $model->end_time = date('H:i:s');
         $model->total_time = (strtotime($model->end_time) - strtotime($model->start_time));
+        $model->end_location_lat = $lat;
+        $model->end_location_long = $long;
         $model->start_location_lat = $lat;
         $model->start_location_long = $long;
         if (!$model->save()) {
