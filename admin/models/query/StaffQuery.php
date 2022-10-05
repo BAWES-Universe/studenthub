@@ -1,6 +1,6 @@
 <?php
 
-namespace common\models\query;
+namespace admin\models\query;
 
 use Yii;
 use yii\db\ActiveQuery;
@@ -16,7 +16,6 @@ class StaffQuery extends ActiveQuery
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%staff}}.deleted'=>0]);
         return parent::all($db);
     }
 
@@ -26,7 +25,6 @@ class StaffQuery extends ActiveQuery
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%staff}}.deleted'=>0]);
         return parent::one($db);
     }
 

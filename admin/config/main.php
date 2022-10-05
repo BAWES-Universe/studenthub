@@ -79,12 +79,14 @@ return [
                         'POST import-salary' => 'import-salary',
                         'POST add-salary/<id>' => 'add-salary',
                         'PATCH update-salary/<id>' => 'update-salary',
+                        'PATCH status-change/<id>' => 'status',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS status-change/<id>' => 'options',
                         'OPTIONS list-salaries/<id>' => 'options',
                         'OPTIONS add-salary/<id>' => 'options',
                         'OPTIONS update-salary/<id>' => 'options',
@@ -102,12 +104,14 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'PATCH status-change/<id>' => 'status',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
+                        'OPTIONS status-change/<id>' => 'options',
                     ]
                 ],
                 [ // InspectorController

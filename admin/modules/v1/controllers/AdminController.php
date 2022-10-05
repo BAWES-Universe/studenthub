@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\AdminToken;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -256,7 +257,40 @@ class AdminController extends Controller
             "message" => "New password sent to registered email successfully"
         ];
     }
-    
+
+    /**
+     * Delete an account
+     * @param  integer $id
+     * @return array
+     */
+    public function actionStatus($id)
+    {
+        $status = Yii::$app->request->post('status', 0);
+        $model = $this->findModel((int)$id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid Account"
+            ];
+        }
+        $model->admin_status = $status;
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+        // reset token
+        AdminToken::deleteAll(['admin_id'=>$id]);
+        return [
+            "operation" => "success",
+            "message" => "Admin status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
     /**
      * Finds the admin model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

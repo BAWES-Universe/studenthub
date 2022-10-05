@@ -156,8 +156,12 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
      * @param $date
      * @return TransferQuery
      */
-    public function endDate($date)
+    public function endDate($date, $working_time)
     {
-        return $this->andWhere("DATE(candidate_work_history.end_date) < '$date'");
+        if (!$working_time) { // in case if we just want to check assigned candidate in time slot
+            return $this->andWhere("DATE(candidate_work_history.start_date) < '$date'");
+        } else  { // in case if we want to check candidate working slot
+            return $this->andWhere("DATE(candidate_work_history.end_date) < '$date'");
+        }
     }
 }

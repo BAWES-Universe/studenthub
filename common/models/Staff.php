@@ -43,6 +43,10 @@ class Staff extends ActiveRecord implements IdentityInterface
     const ROlE_HR = 8;
     const ROlE_CUSTOMER_CARE = 9;
 
+    const STATUS_ACTIVE = 10;
+    const ACCESS_LIMITED = 1;
+    const ACCESS_FULL = 0;
+
     /**
      * @inheritdoc
      */
@@ -116,7 +120,6 @@ class Staff extends ActiveRecord implements IdentityInterface
         $fields = parent::fields();
 
         unset(
-            $fields['deleted'],
             $fields['staff_auth_key'],
             $fields['staff_password_hash'],
             $fields['staff_password_reset_token']
@@ -482,7 +485,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @return static|null
      */
     public static function findByEmail($email) {
-        return static::findOne(['staff_email' => $email,'deleted'=>0]);
+        return static::findOne(['staff_email' => $email,'deleted'=>0, 'staff_status' => self::STATUS_ACTIVE ]);
     }
 
     /**
@@ -679,5 +682,11 @@ class Staff extends ActiveRecord implements IdentityInterface
         // Use openssl_decrypt() function to decrypt the data
         return openssl_decrypt($string, $ciphering,
             $decryption_key, $options, $decryption_iv);
+    }
+
+    public function getSuggestions($modelClass = "\common\models\Suggestion")
+    {
+        return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id'])
+            ->via('notes');
     }
 }
