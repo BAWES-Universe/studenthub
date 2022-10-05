@@ -317,12 +317,13 @@ class StoryController extends Controller
                 ->andWhere([
                     'staff_id' => Yii::$app->user->getId(),
                     'story_status' => StoryActivity::STATUS_STARTED
-                ])->exists();
+                ])->one();
 
             if ($exist) {
                 return [
                     "operation" => "error",
-                    "message" => "Please complete your existing story. You can only work one story at a time"
+                    "message" => "Please complete your existing story. You can only work one story at a time",
+                    "data" => $exist
                 ];
             }
         }
