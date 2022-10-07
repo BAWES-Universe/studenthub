@@ -101,6 +101,7 @@ class StaffController extends Controller
             $query->andWhere(['staff_status' => $status]);
         }
 
+        $query->orderBy('staff_status desc');
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -465,6 +466,35 @@ class StaffController extends Controller
         return [
             "operation" => "success",
             "message" => "Staff status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    public function actionRecoverAccount($id)
+    {
+        $model = $this->findModel((int)$id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid Account"
+            ];
+        }
+        $model->staff_status = Staff::STATUS_ACTIVE;
+        $model->deleted = 0;
+        if (!$model->save(false)) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+        // reset token
+        StaffToken::deleteAll(['staff_id'=>$id]);
+        return [
+            "operation" => "success",
+            "message" => "Staff recovered changed successfully"
         ];
 
         // Check SQL Query Count and Duration
