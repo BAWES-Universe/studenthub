@@ -625,7 +625,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      */
     public function softDelete() {
         $this->deleted = 1;
-
+        $this->staff_status = 0;
         //remove unique fields, so can create new account with same details
 
         $this->staff_email = 'deleted at ' . time() . '-' . $this->staff_email;
