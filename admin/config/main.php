@@ -80,6 +80,7 @@ return [
                         'POST add-salary/<id>' => 'add-salary',
                         'PATCH update-salary/<id>' => 'update-salary',
                         'PATCH status-change/<id>' => 'status',
+                        'PATCH recover-account/<id>' => 'recover-account',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
@@ -94,6 +95,7 @@ return [
                         'OPTIONS import-salary' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
+                        'OPTIONS recover-account/<id>' => 'options',
                     ]
                 ],
                 [ // AdminController
