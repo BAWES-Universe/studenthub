@@ -64,7 +64,7 @@ jobs:
       - run:
           name: Install puppeteer with chronium
           command: |
-            sudo npm install --global --unsafe-perm puppeteer
+            sudo npm install --location=global --unsafe-perm puppeteer
             sudo chmod -R o+rx /usr/local/lib/node_modules/puppeteer/.local-chromium
 
       #libappindicator1 build failed as package was not found
