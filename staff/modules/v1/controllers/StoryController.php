@@ -129,7 +129,11 @@ class StoryController extends Controller
     {
         $id = Yii::$app->request->get('id', Yii::$app->user->getId());
         $model = Story::find()
-            ->where(['staff_id' => $id,'story_status' => Story::STATUS_STARTED])
+            ->andWhere(['staff_id' => $id])
+            ->andWhere(['OR',
+                    ['story_status' => Story::STATUS_STARTED],
+                    ['story_status' => Story::STATUS_REWORK],
+                ])
             ->all();
 
         if ($model !== null) {
@@ -300,7 +304,8 @@ class StoryController extends Controller
             StoryActivity::STATUS_DELIVERED,
             StoryActivity::STATUS_REJECTED,
             StoryActivity::STATUS_ACCEPTED,
-            StoryActivity::STATUS_REWORK
+            StoryActivity::STATUS_REWORK,
+            StoryActivity::STATUS_STOPPED
         ];
 
         if (!in_array ($status, $arrStatus))
@@ -340,7 +345,7 @@ class StoryController extends Controller
         $model = new StoryActivity();
         $model->staff_id = Yii::$app->user->getId();
         $model->story_uuid = $storyUuid;
-        $model->activity_status = ($status == Story::STATUS_REWORK ) ? Story::STATUS_STARTED : $status;
+        $model->activity_status = $status;
 
         if (!$model->save())
         {
