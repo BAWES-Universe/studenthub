@@ -596,6 +596,7 @@ class TransferController extends Controller
 
                     return [
                         "operation" => "error",
+                        "model" => $tc,
                         "message" => $tc->getErrors()
                     ];
                 }
