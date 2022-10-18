@@ -461,6 +461,30 @@ return [
                         'OPTIONS hour' => 'options',
                     ]
                 ],
+                [ // PermissionSectionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/permission-section',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'GET user-permission/<type>/<id>' => 'user-permission',
+                        'GET sub/<id>' => 'view',
+                        'POST' => 'create',
+                        'POST sub' => 'create-sub-section',
+                        'PATCH <id>' => 'update',
+                        'PATCH sub/<id>' => 'update-sub-section',
+                        'PATCH set-permission/<id>' => 'set-permission',
+                        'DELETE <id>' => 'delete',
+                        'DELETE sub/<id>' => 'delete-sub-section',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS user-permission/<type>/<id>' => 'options',
+                        'OPTIONS sub/<id>' => 'options',
+                        'OPTIONS set-permission/<id>' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
