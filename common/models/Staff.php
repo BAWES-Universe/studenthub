@@ -258,6 +258,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                 return (int) $query
                     ->sum('story_activity.activity_time_spent');
             },
+            'permissions'
             /*'totalRequests' => function($model) {
                 return $model->getRequests()->count();
             }*/
@@ -688,5 +689,9 @@ class Staff extends ActiveRecord implements IdentityInterface
     {
         return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id'])
             ->via('notes');
+    }
+
+    public function getPermissions($modelClass = "\common\models\PermissionUser") {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 }
