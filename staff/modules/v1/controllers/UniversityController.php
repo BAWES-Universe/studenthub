@@ -68,6 +68,7 @@ class UniversityController extends Controller
      */
     public function actionList()
     {
+        ini_set('memory_limit', '-1');
         $keyword = Yii::$app->request->get("keyword",null);
 
         $query = University::find()
@@ -88,6 +89,7 @@ class UniversityController extends Controller
      */
     public function actionAll()
     {
+        ini_set('memory_limit', '-1');
         return University::find()
             ->all();
     }
