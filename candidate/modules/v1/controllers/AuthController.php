@@ -571,6 +571,7 @@ class AuthController extends Controller
      * @return array
      */
     public function actionSignup() {
+
         $model = new Candidate();
         $model->scenario = "signup";
 
@@ -598,7 +599,8 @@ class AuthController extends Controller
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
         $model->candidate_status = \candidate\models\Candidate::STATUS_PENDING;
         $model->approved = false;
-        
+
+
         if (!$model->signup()) {
             if (isset($model->errors)) {
                 return [
@@ -612,7 +614,18 @@ class AuthController extends Controller
                 ];
             }
         }
-        
+
+        if (YII_ENV == 'prod') {
+            $param = [
+                'email' => Yii::$app->request->getBodyParam('email'),
+                'password' => Yii::$app->request->getBodyParam('password'),
+                'name' => $firstname,
+                'nickname' => $firstname,
+                'user_metadata' => ['app' => 'SH-candidate', 'user_id' => $model->candidate_id]
+            ];
+            Yii::$app->auth0->createUser($param);
+        }
+
         return [
             "operation" => "success",
             "candidate_uuid" => $model->candidate_id,
