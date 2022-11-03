@@ -249,7 +249,6 @@ class Story extends \yii\db\ActiveRecord
     public function getStaffs($modelClass = "\common\models\Staff")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id'])
-            ->andWhere(['staff.deleted'=>'0'])
             ->via('storyActivities');
     }
 

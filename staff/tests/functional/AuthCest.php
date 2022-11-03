@@ -37,6 +37,8 @@ class AuthCest
     public function tryToLogin(FunctionalTester $I)
     {
     	$staff = Staff::find()->one();
+        $staff->staff_status = '10';
+        $staff->save(false);
         $I->wantTo('Validate auth > login api');
         $I->amHttpAuthenticated($staff->staff_email, '12345');
         $I->sendGET('v1/auth/login');

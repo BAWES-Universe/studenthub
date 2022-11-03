@@ -596,6 +596,8 @@ class TransferController extends Controller
 
                     return [
                         "operation" => "error",
+                        "transfer_confirmation_id" => $value['transfer_confirmation_id'],
+                        "transfer_file_id" => $tf->transfer_file_id,
                         "message" => $tc->getErrors()
                     ];
                 }

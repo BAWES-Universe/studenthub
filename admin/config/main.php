@@ -79,12 +79,15 @@ return [
                         'POST import-salary' => 'import-salary',
                         'POST add-salary/<id>' => 'add-salary',
                         'PATCH update-salary/<id>' => 'update-salary',
+                        'PATCH status-change/<id>' => 'status',
+                        'PATCH recover-account/<id>' => 'recover-account',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS status-change/<id>' => 'options',
                         'OPTIONS list-salaries/<id>' => 'options',
                         'OPTIONS add-salary/<id>' => 'options',
                         'OPTIONS update-salary/<id>' => 'options',
@@ -92,6 +95,7 @@ return [
                         'OPTIONS import-salary' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
+                        'OPTIONS recover-account/<id>' => 'options',
                     ]
                 ],
                 [ // AdminController
@@ -102,12 +106,14 @@ return [
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'PATCH status-change/<id>' => 'status',
                         'PATCH reset-password/<id>' => 'reset-password',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
+                        'OPTIONS status-change/<id>' => 'options',
                     ]
                 ],
                 [ // InspectorController
@@ -453,6 +459,30 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                    ]
+                ],
+                [ // PermissionSectionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/permission-section',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'GET user-permission/<type>/<id>' => 'user-permission',
+                        'GET sub/<id>' => 'view',
+                        'POST' => 'create',
+                        'POST sub' => 'create-sub-section',
+                        'PATCH <id>' => 'update',
+                        'PATCH sub/<id>' => 'update-sub-section',
+                        'PATCH set-permission/<id>' => 'set-permission',
+                        'DELETE <id>' => 'delete',
+                        'DELETE sub/<id>' => 'delete-sub-section',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS user-permission/<type>/<id>' => 'options',
+                        'OPTIONS sub/<id>' => 'options',
+                        'OPTIONS set-permission/<id>' => 'options'
                     ]
                 ],
             ],

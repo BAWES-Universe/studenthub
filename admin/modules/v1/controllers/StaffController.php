@@ -2,7 +2,9 @@
 
 namespace admin\modules\v1\controllers;
 
+use agent\models\PaymentMethod;
 use common\models\StaffSalary;
+use common\models\StaffToken;
 use company\models\TranferExcel;
 use Yii;
 use yii\rest\Controller;
@@ -72,9 +74,34 @@ class StaffController extends Controller
      */
     public function actionList()
     {
-        $query = Staff::find();
-        $query->active();
+        ini_set('max_execution_time', '300');
+        ini_set('memory_limit', '-1');
+        $role = Yii::$app->request->get('role', null);
+        $status = Yii::$app->request->get('status', null);
+        $name = Yii::$app->request->get('name', null);
+        $deleted = Yii::$app->request->get('deleted', null);
 
+        $query = Staff::find();
+
+        if($role) {
+            $query->andWhere(['staff_role' => $role]);
+        }
+        if ($deleted) {
+            if ($deleted == 1) {
+                $query->andWhere(['deleted' => $deleted]);
+            } else {
+                $query->andWhere(['deleted' => 0]);
+            }
+        }
+        if($name) {
+            $query->filterName($name);
+        }
+
+        if($status || $status == '0') {
+            $query->andWhere(['staff_status' => $status]);
+        }
+
+        $query->orderBy('staff_status desc');
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -304,11 +331,21 @@ class StaffController extends Controller
             }
         }
 
-        if(YII_ENV == 'prod')
-            Yii::$app->eventManager->setUser('staff' .$model->staff_id, [
+        if(YII_ENV == 'prod') {
+            Yii::$app->eventManager->setUser('staff' . $model->staff_id, [
                 '$first_name' => $model->staff_name,
                 '$email' => $model->staff_email
             ]);
+
+            $param = [
+                'email' => Yii::$app->request->getBodyParam('email'),
+                'password' => Yii::$app->request->getBodyParam('password'),
+                'name' => $model->staff_name,
+                'nickname' => $model->staff_name
+            ];
+            Yii::$app->auth0->createUser($param);
+
+        }
 
         Yii::info('[Staff Account Created] Staff "'.$model->staff_email.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
@@ -405,6 +442,69 @@ class StaffController extends Controller
         return [
             "operation" => "error",
             "message" => "Unknown error occured, please contact us for assistance."
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * Delete an account
+     * @param  integer $id
+     * @return array
+     */
+    public function actionStatus($id)
+    {
+        $status = Yii::$app->request->post('status', 0);
+        $model = $this->findModel((int)$id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid Account"
+            ];
+        }
+        $model->staff_status = $status;
+        if (!$model->save(false)) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+        // reset token
+        StaffToken::deleteAll(['staff_id'=>$id]);
+        return [
+            "operation" => "success",
+            "message" => "Staff status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    public function actionRecoverAccount($id)
+    {
+        $model = $this->findModel((int)$id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid Account"
+            ];
+        }
+        $model->staff_status = Staff::STATUS_ACTIVE;
+        $model->deleted = 0;
+        if (!$model->save(false)) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+        // reset token
+        StaffToken::deleteAll(['staff_id'=>$id]);
+        return [
+            "operation" => "success",
+            "message" => "Staff recovered changed successfully"
         ];
 
         // Check SQL Query Count and Duration

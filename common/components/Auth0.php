@@ -9,6 +9,8 @@ use yii\httpclient\Client;
 class Auth0 extends Component
 {
     private $apiEndpoint = "https://bawes.us.auth0.com";
+    private $client_id = "sDIOpy1be7Y59ocKoXxHVL5euFNdJN3e";
+    private $connection = "Username-Password-Authentication";
 
     /**
      * @inheritdoc
@@ -48,6 +50,26 @@ class Auth0 extends Component
                 'authorization' => 'Bearer '.$accessToken,
                 'content-type' => 'application/json',
             ])
+            ->send();
+
+        return $response;
+    }
+
+    /**
+     * @param $userData
+     * @return \yii\httpclient\Response
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\httpclient\Exception
+     */
+    public function createUser($userData) {
+        $url = $this->apiEndpoint."/dbconnections/signup";
+
+        $client = new Client();
+
+        $response = $client->createRequest()
+            ->setUrl($url)
+            ->setMethod('POST')
+            ->setData(array_merge($userData,['client_id'=>$this->client_id,'connection'=>$this->connection]))
             ->send();
 
         return $response;

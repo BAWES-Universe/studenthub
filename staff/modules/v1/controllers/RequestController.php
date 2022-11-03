@@ -417,16 +417,16 @@ class RequestController extends Controller
             ];
         }
 
-        $count = $model->getStories()
-            ->andWhere(['!=','story_status',Story::STATUS_DELIVERED])
-            ->count();
-
-        if ($count) {
-            return [
-                "operation" => "error",
-                "message" => "Please deliver all stories before deliver request"
-            ];
-        }
+//        $count = $model->getStories()
+//            ->andWhere(['!=','story_status',Story::STATUS_DELIVERED])
+//            ->count();
+//
+//        if ($count) {
+//            return [
+//                "operation" => "error",
+//                "message" => "Please deliver all stories before deliver request"
+//            ];
+//        }
 
         //feel new not null fields for old requests
 

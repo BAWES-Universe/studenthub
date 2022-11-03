@@ -30,7 +30,9 @@ class StoryActivity extends \yii\db\ActiveRecord
     const STATUS_DELIVERED = 3;
     const STATUS_REJECTED = 4;
     const STATUS_ACCEPTED = 5;
+    const STATUS_CANCELLED = 6;
     const STATUS_REWORK = 7;
+    const STATUS_STOPPED = 8;
 
     /**
      * {@inheritdoc}
@@ -47,7 +49,7 @@ class StoryActivity extends \yii\db\ActiveRecord
     {
         return [
             [['story_uuid'], 'required'],
-            ['activity_status', 'in', 'range' => [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_FINISHED,self::STATUS_DELIVERED,self::STATUS_REJECTED,self::STATUS_ACCEPTED]],
+            ['activity_status', 'in', 'range' => [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_FINISHED,self::STATUS_DELIVERED,self::STATUS_REJECTED,self::STATUS_ACCEPTED,self::STATUS_STOPPED,self::STATUS_REWORK]],
             [['staff_id', 'activity_time_spent', 'activity_status'], 'integer'],
             [['activity_last_updated_at','activity_created_at'], 'safe'],
             [['story_activity_uuid', 'story_uuid'], 'string', 'max' => 60],

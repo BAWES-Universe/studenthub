@@ -1,6 +1,6 @@
 <?php
 
-namespace common\models\query;
+namespace admin\models\query;
 
 use Yii;
 use yii\db\ActiveQuery;

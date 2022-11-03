@@ -5,6 +5,7 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use common\models\StoryActivity;
 use common\models\Story;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Request;
@@ -139,6 +140,9 @@ class StoryController extends Controller
         $staff_id = Yii::$app->request->get("staff_id");
         $company_id = Yii::$app->request->get("company_id");
 
+        $start_date = Yii::$app->request->get('start_date', null);
+        $end_date = Yii::$app->request->get('end_date', null);
+
         $query = Story::find()
             ->joinWith('request');
 
@@ -164,6 +168,16 @@ class StoryController extends Controller
                 'OR',
                 ['like', 'request.request_position_title', $keyword]
             ]);
+        }
+
+
+        if ($start_date) {
+            $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
+                date('Y-m-d', strtotime ($start_date)) ."')"));
+        }
+        if ($end_date) {
+            $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
+                date('Y-m-d', strtotime ($end_date)) ."')"));
         }
 
         $query->orderBy('story_created_at DESC');
