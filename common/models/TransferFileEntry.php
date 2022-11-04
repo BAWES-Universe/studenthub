@@ -101,8 +101,8 @@ class TransferFileEntry extends \yii\db\ActiveRecord
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'tfe_uuid',
                 ],
                 'value' => function() {
-                    if (!$this->request_uuid)
-                        $this->request_uuid = 'tfe_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+                    if (!$this->tfe_uuid)
+                        $this->tfe_uuid = 'tfe_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
 
                     return $this->tfe_uuid;
                 }
