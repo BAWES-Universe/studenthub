@@ -402,7 +402,6 @@ class CandidateController extends Controller
             return [
                 "operation" => "error",
                 "message" => "Please remove old Store before assign new store",
-                "code" => 1
             ];
         }
 
@@ -418,7 +417,6 @@ class CandidateController extends Controller
             return [
                 "operation" => "error",
                 "message" => "Same Store not possible to assign on same day",
-                "code" => 1
             ];
         }
 
@@ -430,7 +428,6 @@ class CandidateController extends Controller
             return [
                 "operation" => "error",
                 "message" => "Store not found",
-                "code" => 1
             ];
         }
 
@@ -438,19 +435,17 @@ class CandidateController extends Controller
 
         $model->candidate_hourly_rate = $hourly_rate;
 
-        if (!$model->save()) {
+        if (!$model->save(false)) {
 
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
                     "message" => $model->errors,
-                    "code" => 2
                 ];
             }else{
                 return [
                     "operation" => "error",
                     "message" => "We've faced a problem updating the account, please contact us for assistance.",
-                    "code" => 3
                 ];
             }
         }
@@ -467,7 +462,6 @@ class CandidateController extends Controller
         $noteModel->save(false);
 
         // saving candidate work history
-
         CandidateWorkHistory::saveAssignedHistory($model);
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$storeName.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
