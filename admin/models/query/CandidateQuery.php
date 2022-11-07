@@ -15,7 +15,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
 {
     /**
      * @inheritdoc
-     * @return CandidateWorkHistory[]|array
+     * @return Candidate[]|array
      */
     public function all($db = null)
     {
@@ -24,11 +24,10 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
     /**
      * @inheritdoc
-     * @return CandidateWorkHistory|array|null
+     * @return Candidate|array|null
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%candidate}}.deleted'=>0]);
         return parent::one($db);
     }
 

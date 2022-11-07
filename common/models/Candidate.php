@@ -731,7 +731,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         };
 
         unset(
-            $fields['deleted'],
             $fields['candidate_uid'],
             $fields['candidate_password_hash'],
             $fields['candidate_password_reset_token']
