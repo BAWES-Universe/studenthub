@@ -715,15 +715,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         };
 
         $fields['isProfileCompleted'] = function($model) {
-            return !$model->candidate_pending_profile ||
-                strlen ($model->candidate_pending_profile) == 0;
-            //return $model->isProfileCompleted();
+            return $model->isProfileCompleted();
         };
 
         $fields['pendingField'] = function($model) {
-            return $model->candidate_pending_profile && strlen ($model->candidate_pending_profile) > 0 ?
-                explode (',', $model->candidate_pending_profile): null;
-            //return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
+            return ($model->pendingProfile) ? array_keys($model->pendingProfile) : null;
         };
 
         $fields['isWorking'] = function($model) {
@@ -2117,6 +2113,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if ($this->getCandidateSkills()->count() == 0) {
+            echo "<pre>";
+            print_r($this->getCandidateSkills()->count());
+            exit;
             $this->pendingProfile['skill'] = false;
         }
 

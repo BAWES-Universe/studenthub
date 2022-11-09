@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use staff\models\Note;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\BlameableBehavior;
@@ -262,7 +263,8 @@ class Invitation extends \yii\db\ActiveRecord
             'candidate',
             'suggestion',
             'notes',
-            'note' // in case user accept invitation then show invitation
+            'note', // in case user accept invitation then show invitation
+            'reply' // in case user accept invitation then show invitation
         ];
     }
 
@@ -381,5 +383,14 @@ class Invitation extends \yii\db\ActiveRecord
             ->setTo($this->candidate->candidate_email)
             ->setSubject("You’re invited to apply for a job opening")
             ->send();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getReply($modelClass = "\common\models\Note")
+    {
+        return $this->hasOne($modelClass::className(), ['invitation_uuid' => 'invitation_uuid'])
+            ->andWhere(['note_type' => Note::TYPE_INVITATION_ACCEPTED]);
     }
 }
