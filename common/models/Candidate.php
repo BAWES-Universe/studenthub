@@ -2113,9 +2113,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if ($this->getCandidateSkills()->count() == 0) {
-            echo "<pre>";
-            print_r($this->getCandidateSkills()->count());
-            exit;
             $this->pendingProfile['skill'] = false;
         }
 
