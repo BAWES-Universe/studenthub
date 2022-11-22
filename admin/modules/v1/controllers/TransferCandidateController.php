@@ -2,6 +2,8 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\BalanceAccount;
+use common\models\Loan;
 use Yii;
 use yii\rest\Controller;
 use admin\models\Transfer;
@@ -166,8 +168,20 @@ class TransferCandidateController extends Controller
     public function actionPaid($id)
     {
         $transfer_confirmation_id = Yii::$app->request->getBodyParam('transfer_confirmation_id');
-        
+
         return TransferCandidate::markPaid($id, $transfer_confirmation_id);
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function actionPayByWallet($id)
+    {
+        $transfer_confirmation_id = Yii::$app->request->getBodyParam('transfer_confirmation_id');
+        $initTransfer = Yii::$app->request->getBodyParam('init_transfer');
+
+        return TransferCandidate::markPaid($id, $transfer_confirmation_id, true, $initTransfer);
     }
 
     /**
