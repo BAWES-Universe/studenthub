@@ -114,7 +114,6 @@ class Transfer extends \common\models\Transfer
         #https://www.pivotaltracker.com/story/show/174315865 adding lock otion also due to this ticket.
         if (($this->transfer_status == Transfer::STATUS_PAYMENT_SENT) || ($this->transfer_status == Transfer::STATUS_LOCK)) {
 
-
             // Set payment received date and update transfer status
             $this->payment_received_on = date('Y-m-d');
             $this->transfer_status = Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS;

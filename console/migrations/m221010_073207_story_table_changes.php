@@ -13,7 +13,9 @@ class m221010_073207_story_table_changes extends Migration
     public function safeUp()
     {
         Yii::$app->db->createCommand('SET foreign_key_checks = 0')->execute();
+
         $records = Yii::$app->db->createCommand('select * from story where story_status = 0')->queryAll(); // unstarted
+
         foreach ($records as $record) {
             $story_uuid = $record['story_uuid'];
 

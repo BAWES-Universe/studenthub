@@ -8,6 +8,13 @@ return [
             'password' => 'pay',
             'charset' => 'utf8',
         ],
+        'walletDb' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=localhost;dbname=wallet',//todo: replace with wallet db from sandbox
+            'username' => 'payrollUser',
+            'password' => 'pay',
+            'charset' => 'utf8',
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',

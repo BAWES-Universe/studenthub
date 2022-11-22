@@ -3,6 +3,9 @@
 namespace admin\models;
 
 use common\models\Staff;
+use common\models\BalanceAccount;
+use common\models\WalletUser;
+use common\models\WalletTransfer;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
@@ -125,7 +128,7 @@ class TransferCandidate extends \common\models\TransferCandidate
      * @param $transfer_confirmation_id string
      * @return array
      */
-    public static function markPaid($tc_id, $transfer_confirmation_id)
+    public static function markPaid($tc_id, $transfer_confirmation_id = null, $payByWallet = false, $initTransfer = false)
     {
         $TransferCandidate = TransferCandidate::findOne($tc_id);
 
@@ -134,6 +137,57 @@ class TransferCandidate extends \common\models\TransferCandidate
                 "operation" => "error",
                 "message" => 'Candidate Transfer not found'
             ];
+        }
+
+        if (!($transfer_confirmation_id || $payByWallet)) {
+            return [
+                "operation" => "error",
+                "message" => 'Missing transfer confirmation ID'
+            ];
+        }
+
+        if($payByWallet) {
+
+            // get wallet user by email
+
+            $walletUser = WalletUser::findByEmail($TransferCandidate->candidate->candidate_email);
+
+            // add money to wallet
+
+            $account = $walletUser->balanceAccount;
+
+            if(!$walletUser->bank_uuid || !$walletUser->bank_account_name || !$walletUser->iban)
+            {
+                return [
+                    "operation" => "error",
+                    "message" => 'Missing bank detail in wallet'
+                ];
+            }
+
+            BalanceAccount::addEntry($walletUser, $TransferCandidate->candidate_total, "Salary");
+
+            // initialise transfer in plus
+
+            if($initTransfer) {
+
+                $transfer = new \common\models\WalletTransfer();
+
+                $transfer->bank_uuid = $walletUser->bank_uuid;
+                $transfer->transfer_benef_name = $walletUser->bank_account_name;
+                $transfer->transfer_benef_iban = $walletUser->iban;
+                $transfer->transfer_total = $TransferCandidate->candidate_total;
+                $transfer->user_uuid = $walletUser->user_uuid;
+                $transfer->transfer_status = WalletTransfer::STATUS_INITIATED;
+                $transfer->transfer_cost = 0;
+
+                if (!$transfer->save(false))
+                {
+                    return [
+                        "operation" => "error",
+                        "message" => $transfer->errors
+                    ];
+                }
+            }
         }
 
         $TransferCandidate->paid = TransferCandidate::PAID;

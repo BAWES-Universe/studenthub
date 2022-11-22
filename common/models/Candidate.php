@@ -608,6 +608,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'paid' => 0,
                 'candidate_id' => $this->candidate_id
             ]);
+
+            $walletUser = WalletUser::findByEmail($this->candidate_email)
+                ->one();
+
+            \common\models\WalletTransfer::updateAll([
+                'bank_uuid' => $walletUser->bank_uuid,
+                'transfer_benef_name' => $walletUser->bank_account_name,
+                'transfer_benef_iban' => $walletUser->iban
+            ], [
+                'transfer_status' => WalletTransfer::STATUS_INITIATED,
+                'user_uuid' => $walletUser->user_uuid
+            ]);
         }
 
         if(!$insert && array_key_exists('candidate_password_hash', $changedAttributes)) {
