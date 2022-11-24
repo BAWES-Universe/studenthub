@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f654da0359f16556192341f35a6ba68",
+    "content-hash": "63b5a189183d8d9f4a89dd286ee72aa7",
     "packages": [
         {
             "name": "2amigos/qrcode-library",
@@ -5737,6 +5737,62 @@
             "time": "2016-09-23T08:50:27+00:00"
         },
         {
+            "name": "yii2tech/balance",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yii2tech/balance.git",
+                "reference": "43c8e990b52460dce227af6d199ace6206a72afa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yii2tech/balance/zipball/43c8e990b52460dce227af6d199ace6206a72afa",
+                "reference": "43c8e990b52460dce227af6d199ace6206a72afa",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "~2.0.14"
+            },
+            "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "yii2tech\\balance\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Paul Klimov",
+                    "email": "klimov.paul@gmail.com"
+                }
+            ],
+            "description": "Provides support for Balance accounting system based on debit and credit principle",
+            "keywords": [
+                "Accounting",
+                "balance",
+                "bookkeeping",
+                "credit",
+                "debit",
+                "yii2"
+            ],
+            "support": {
+                "forum": "http://www.yiiframework.com/forum/",
+                "issues": "https://github.com/yii2tech/balance/issues",
+                "source": "https://github.com/yii2tech/balance",
+                "wiki": "https://github.com/yii2tech/balance/wiki"
+            },
+            "abandoned": true,
+            "time": "2018-09-19T10:14:35+00:00"
+        },
+        {
             "name": "yiisoft/yii2",
             "version": "2.0.45",
             "source": {
@@ -8995,5 +9051,5 @@
         "php": ">=5.4.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.1.0"
 }

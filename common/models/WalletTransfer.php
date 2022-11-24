@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use api\models\BalanceAccount;
+use common\models\BalanceAccount;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;

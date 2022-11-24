@@ -128,9 +128,17 @@ class TransferCandidate extends \common\models\TransferCandidate
      * @param $transfer_confirmation_id string
      * @return array
      */
-    public static function markPaid($tc_id, $transfer_confirmation_id = null, $payByWallet = false, $initTransfer = false)
+    public static function markPaid(
+        $tc_id,
+        $transfer_confirmation_id = null,
+        $payByWallet = false,
+        $initTransfer = false,
+        $TransferCandidate = null,
+        $updateTransferStatus = true
+    )
     {
-        $TransferCandidate = TransferCandidate::findOne($tc_id);
+        if(!$TransferCandidate)
+            $TransferCandidate = TransferCandidate::findOne($tc_id);
 
         if (!$TransferCandidate) {
             return [
@@ -152,7 +160,7 @@ class TransferCandidate extends \common\models\TransferCandidate
 
             $walletUser = WalletUser::findByEmail($TransferCandidate->candidate->candidate_email);
 
-            // add money to wallet
+            //add account if not exists
 
             $account = $walletUser->balanceAccount;
 
@@ -164,30 +172,43 @@ class TransferCandidate extends \common\models\TransferCandidate
                 ];
             }
 
-            BalanceAccount::addEntry($walletUser, $TransferCandidate->candidate_total, "Salary");
+            $amount = $TransferCandidate->candidate_total == 0 ? $TransferCandidate->totalPaidToCandidate: $TransferCandidate->candidate_total;
 
-            // initialise transfer in plus
+            if($amount > 0)
+            {
+                // add money to wallet
 
-            if($initTransfer) {
+                BalanceAccount::addEntry($walletUser, $amount, "Salary");
 
-                $transfer = new \common\models\WalletTransfer();
+                // initialise transfer in plus
 
-                $transfer->bank_uuid = $walletUser->bank_uuid;
-                $transfer->transfer_benef_name = $walletUser->bank_account_name;
-                $transfer->transfer_benef_iban = $walletUser->iban;
-                $transfer->transfer_total = $TransferCandidate->candidate_total;
-                $transfer->user_uuid = $walletUser->user_uuid;
-                $transfer->transfer_status = WalletTransfer::STATUS_INITIATED;
-                $transfer->transfer_cost = 0;
+                if ($initTransfer) {
 
-                if (!$transfer->save(false))
-                {
-                    return [
-                        "operation" => "error",
-                        "message" => $transfer->errors
-                    ];
+                    $transfer = new \common\models\WalletTransfer();
+
+                    $transfer->bank_uuid = $walletUser->bank_uuid;
+                    $transfer->transfer_benef_name = $walletUser->bank_account_name;
+                    $transfer->transfer_benef_iban = $walletUser->iban;
+                    $transfer->transfer_total = $amount;
+                    $transfer->user_uuid = $walletUser->user_uuid;
+                    $transfer->transfer_status = WalletTransfer::STATUS_INITIATED;
+                    $transfer->transfer_cost = 0;
+
+                    if (!$transfer->save(false)) {
+                        return [
+                            "operation" => "error",
+                            "message" => $transfer->errors
+                        ];
+                    }
                 }
-            }
+            }/*
+            else
+            {
+                return [
+                    "operation" => "error",
+                    "message" => "Amount can not be zero: " . $amount
+                ];
+            }*/
         }
 
         $TransferCandidate->paid = TransferCandidate::PAID;
@@ -195,11 +216,13 @@ class TransferCandidate extends \common\models\TransferCandidate
         
         if ($TransferCandidate->save()) {
 
-            Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
+            if($updateTransferStatus)
+                Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
 
             return [
                 "operation" => "success",
-                "message" => 'Candidate Transfer marked as "paid" successfully'
+                "message" => 'Candidate Transfer marked as "paid" successfully',
+                'amount' => $amount
             ];
         } else {
             return [

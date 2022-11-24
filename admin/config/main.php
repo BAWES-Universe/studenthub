@@ -234,6 +234,7 @@ return [
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
                         'PATCH mark-paid-all' => 'mark-paid-all',
+                        'PATCH pay-by-wallet/<id>' => 'pay-by-wallet',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTION download-payment-advice' => 'options',
@@ -250,7 +251,8 @@ return [
                         'OPTIONS text' => 'options',
                         'OPTIONS export/<id>' => 'options',
                         'OPTIONS pdf/<id>/<type>' => 'options',
-                        'OPTIONS suspicious' => 'options'
+                        'OPTIONS suspicious' => 'options',
+                        'OPTIONS pay-by-wallet/<id>' => 'options',
                     ]
                 ],
                 [ // TransferCandidateController

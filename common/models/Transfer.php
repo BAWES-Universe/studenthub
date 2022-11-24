@@ -418,6 +418,7 @@ class Transfer extends ActiveRecord
         }
 
         // Otherwise return all TransferCandidate records belonging to this transfer
+
         return $this->hasMany($modelClass::className(), ['transfer_id' => 'transfer_id']);
     }
 

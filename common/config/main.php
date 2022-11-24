@@ -61,6 +61,7 @@ return [
         ],
         'balanceManager' => [
             'class' => 'yii2tech\balance\ManagerDb',
+            'db' => 'walletDb',
             'accountTable' => '{{%balance_account}}',
             'transactionTable' => '{{%balance_transaction}}',
             'autoCreateAccount' => 'true',
