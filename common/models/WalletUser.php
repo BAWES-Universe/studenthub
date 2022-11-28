@@ -214,7 +214,7 @@ class WalletUser extends ActiveRecord implements IdentityInterface
         $walletUser = static::findOne(['email' => $email]);
 
         if($walletUser)
-           return $walletUser;
+            return $walletUser;
 
         // if no user add wallet user account
 
@@ -227,25 +227,81 @@ class WalletUser extends ActiveRecord implements IdentityInterface
 
             //add wallet bank if not
 
-            $bank = new WalletBank;
-            $bank->bank_name = $user->bank->bank_name;
-            $bank->bank_iban_code = $user->bank->bank_iban_code;
-            $bank->bank_swift_code = $user->bank->bank_swift_code;
-            $bank->bank_address = $user->bank->bank_address;
-            $bank->bank_transfer_type = $user->bank->bank_transfer_type;
-            $bank->save();
+            if(!$bank) {
+                $bank = new WalletBank;
+                $bank->bank_name = $user->bank->bank_name;
+                $bank->bank_iban_code = $user->bank->bank_iban_code;
+                $bank->bank_swift_code = $user->bank->bank_swift_code;
+                $bank->bank_address = $user->bank->bank_address;
+                $bank->bank_transfer_type = $user->bank->bank_transfer_type;
+                $bank->save();
+            }
         }
 
+        $walletUser = new WalletUser();
+        $walletUser->username = $user->candidate_name;
+        $walletUser->email = $user->candidate_email;
+        $walletUser->password_hash = $user->candidate_password_hash;
+        $walletUser->generateAuthKey();
+        $walletUser->status = WalletUser::STATUS_ACTIVE;
+        $walletUser->bank_uuid = $bank? $bank->bank_uuid: null;
+        $walletUser->bank_account_name = $user->bank_account_name;
+        $walletUser->iban = $user->candidate_iban;
+
+        $walletUser->save();
+
+        return $walletUser;
+    }
+
+    /**
+     * Finds user by email
+     * @param string $email
+     * @return static|null
+     */
+    public static function findByAdminEmail($email) {
+
+        $walletUser = static::findOne(['email' => $email]);
+
+        if($walletUser)
+            return $walletUser;
+
+        // if no user add wallet user account
+
+        $user = Admin::findOne(['admin_email' => $email]);
+
+        $walletUser = new WalletUser();
+        $walletUser->username = $user->admin_name;
+        $walletUser->email = $user->admin_email;
+        $walletUser->password_hash = $user->admin_password_hash;
+        $walletUser->generateAuthKey();
+        $walletUser->status = WalletUser::STATUS_ACTIVE;
+        $walletUser->save();
+
+        return $walletUser;
+    }
+
+    /**
+     * Finds user by email
+     * @param string $email
+     * @return static|null
+     */
+    public static function findByContactEmail($email) {
+
+        $walletUser = static::findOne(['email' => $email]);
+
+        if($walletUser)
+           return $walletUser;
+
+        // if no user add wallet user account
+
+        $user = Contact::findOne(['contact_email' => $email]);
+
             $walletUser = new WalletUser();
-            $walletUser->username = $user->candidate_name;
-            $walletUser->email = $user->candidate_email;
-            $walletUser->bank_uuid = $bank? $bank->bank_uuid: null;
-            $walletUser->password_hash = $user->candidate_password_hash;
+            $walletUser->username = $user->contact_name;
+            $walletUser->email = $user->contact_email;
+            $walletUser->password_hash = $user->contact_password_hash;
             $walletUser->generateAuthKey();
             $walletUser->status = WalletUser::STATUS_ACTIVE;
-            $walletUser->bank_account_name = $user->bank_account_name;
-            $walletUser->iban = $user->candidate_iban;
-
             $walletUser->save();
 
             return $walletUser;
