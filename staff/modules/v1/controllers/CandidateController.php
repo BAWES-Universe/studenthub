@@ -732,6 +732,7 @@ class CandidateController extends Controller
         $email = Yii::$app->request->get("email");
         $phone = Yii::$app->request->get("phone");
         $type = Yii::$app->request->get("type");
+        $civil = Yii::$app->request->get("civil");
         $updatedAfter = Yii::$app->request->get("updatedAfter");
 
         $query = Candidate::find();
@@ -753,10 +754,21 @@ class CandidateController extends Controller
         if($phone) {
             $query->filterPhone($phone);
         }
+
+        if ($civil) {
+            if ($civil == 1) {
+                $query->activeCivilId();
+            } else if ($civil == 2) {
+                $query->civilIdExpired();
+            }
+
+        }
+
         if($updatedAfter) {
             $query->filterUpdatedAfter($updatedAfter);
         }
 
+        $query->notDeleted();
         return new ActiveDataProvider([
             'query' => $query
         ]);
