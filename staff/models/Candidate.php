@@ -28,6 +28,11 @@ class Candidate extends \common\models\Candidate {
         $fields['candidate_name'] = function($model){
             return strtolower($model->candidate_name);
         };
+
+        $fields['civilExpired'] = function ($model) {
+            return (strtotime($model->candidate_civil_expiry_date) < strtotime(date('Y-m-d')));
+        };
+
         return $fields;
     }
 
