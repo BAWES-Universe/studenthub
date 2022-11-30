@@ -1388,7 +1388,7 @@ class AccountController extends Controller
         }
 
         $model = new CandidateWorkingHour();
-        $model->start_time = date('H:i:s');
+        $model->start_time = date('Y-m-d H:i:s');
         $model->candidate_id = Yii::$app->user->getId();
         $model->store_id = Yii::$app->user->identity->store_id;
         $model->date  = date('Y-m-d');
@@ -1429,8 +1429,7 @@ class AccountController extends Controller
                 "message" => 'You have not started working on any store'
             ];
         }
-        $model->end_time = date('H:i:s');
-        $model->total_time = (strtotime($model->end_time) - strtotime($model->start_time));
+        $model->end_time = date('Y-m-d H:i:s');
         $model->end_location_lat = $lat;
         $model->end_location_long = $long;
         $model->start_location_lat = $lat;
