@@ -522,9 +522,11 @@ return [
                     'patterns' => [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
+                        'GET date/<date>/<candidateId>' => 'hours-detail',
                         // OPTIONS VERBS
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        'OPTIONS date/<date>/<candidateId>' => 'options',
                     ]
                 ],
             ],
