@@ -77,8 +77,7 @@ class BalanceController extends Controller
      */
     public function actionPayableList()
     {
-        $user = WalletUser::findByEmail(Yii::$app->user->identity->candidate_email)
-            ->one();
+        $user = WalletUser::findByEmail(Yii::$app->user->identity->candidate_email);
 
         $account = \common\models\BalanceAccount::find()
             ->andWhere([

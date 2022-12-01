@@ -3,7 +3,6 @@
 namespace common\models;
 
 use Segment\Segment;
-use user\models\Payment;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 
