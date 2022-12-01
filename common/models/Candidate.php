@@ -523,7 +523,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     public function afterSave($insert, $changedAttributes) {
 
-
         parent::afterSave($insert, $changedAttributes);
 
         if($insert)
@@ -541,25 +540,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         /*else if (array_key_exists('candidate_hourly_rate', $changedAttributes))
         {
             //recalculate transfer total
-
             $transferCandidatesQuery = TransferCandidate::find()
                 ->andWhere ([
                     'paid' => 0,
                     'candidate_id' => $this->candidate_id
                 ])
                 ->select('transfer_id');
-
             $transfers = Transfer::find()
                 ->andWhere (['transfer_status' => Transfer::STATUS_INITIATED])
                 ->andWhere (['in', 'transfer_id', $transferCandidatesQuery])
                 ->all();
-
             $transaction = Yii::$app->db->beginTransaction ();
-
             foreach($transfers as $transfer) {
-
                 $total = 0;
-
                 foreach ($transfer->transferCandidates as $transferCandidate)
                 {
                     if($transferCandidate->candidate_id == $this->candidate_id)
@@ -572,7 +565,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             throw new \yii\web\BadRequestHttpException('Error updating hourly rate for transfer candidate #' . $transferCandidate->tc_id);
                         }
                     }
-
                     if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0)
                     {
                         //total amount we will pay to bank
@@ -581,16 +573,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             + $transferCandidate['transfer_cost'];
                     }
                 }
-
                 $transfer->total = $total;
-
                 if(!$transfer->save()) {
                     $transaction->rollBack ();
                     Yii::error ($transfer->getErrors ());
                     throw new \yii\web\BadRequestHttpException('Error updating total for transfer #' . $transfer->transfer_id);
                 }
             }
-
             $transaction->commit ();
         }*/
         else if (
@@ -607,6 +596,47 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ], [
                 'paid' => 0,
                 'candidate_id' => $this->candidate_id
+            ]);
+
+            $walletUser = WalletUser::findByEmail($this->candidate_email)
+                ->one();
+
+            \common\models\WalletTransfer::updateAll([
+                'bank_uuid' => $walletUser->bank_uuid,
+                'transfer_benef_name' => $walletUser->bank_account_name,
+                'transfer_benef_iban' => $walletUser->iban
+            ], [
+                'transfer_status' => WalletTransfer::STATUS_INITIATED,
+                'user_uuid' => $walletUser->user_uuid
+            ]);
+
+            //update bank details in wallet user db table
+
+            $bank = null;
+
+            if($this->bank)
+            {
+                $bank = WalletBank::findOne(['bank_iban_code' => $this->bank->bank_iban_code]);
+
+                //add wallet bank if not
+
+                if(!$bank) {
+                    $bank = new WalletBank;
+                    $bank->bank_name = $this->bank->bank_name;
+                    $bank->bank_iban_code = $this->bank->bank_iban_code;
+                    $bank->bank_swift_code = $this->bank->bank_swift_code;
+                    $bank->bank_address = $this->bank->bank_address;
+                    $bank->bank_transfer_type = $this->bank->bank_transfer_type;
+                    $bank->save();
+                }
+            }
+
+            \common\models\WalletUser::updateAll([
+                'bank_uuid' => $bank? $bank->bank_uuid: null,
+                'bank_account_name' => $this->bank_account_name,
+                'iban' => $this->candidate_iban
+            ], [
+                'user_uuid' => $walletUser->user_uuid
             ]);
         }
 
@@ -686,7 +716,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]);
             }
         }
-        
+
         return true;
     }
 
