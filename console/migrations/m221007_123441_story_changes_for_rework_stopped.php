@@ -13,7 +13,6 @@ class m221007_123441_story_changes_for_rework_stopped extends Migration
     public function safeUp()
     {
         Yii::$app->db->createCommand('SET foreign_key_checks = 0')->execute();
-
         $records = Yii::$app->db->createCommand('select * from story')->queryAll();
 
         foreach ($records as $record) {

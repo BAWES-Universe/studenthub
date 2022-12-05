@@ -545,25 +545,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         /*else if (array_key_exists('candidate_hourly_rate', $changedAttributes))
         {
             //recalculate transfer total
-
             $transferCandidatesQuery = TransferCandidate::find()
                 ->andWhere ([
                     'paid' => 0,
                     'candidate_id' => $this->candidate_id
                 ])
                 ->select('transfer_id');
-
             $transfers = Transfer::find()
                 ->andWhere (['transfer_status' => Transfer::STATUS_INITIATED])
                 ->andWhere (['in', 'transfer_id', $transferCandidatesQuery])
                 ->all();
-
             $transaction = Yii::$app->db->beginTransaction ();
-
             foreach($transfers as $transfer) {
-
                 $total = 0;
-
                 foreach ($transfer->transferCandidates as $transferCandidate)
                 {
                     if($transferCandidate->candidate_id == $this->candidate_id)
@@ -576,7 +570,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             throw new \yii\web\BadRequestHttpException('Error updating hourly rate for transfer candidate #' . $transferCandidate->tc_id);
                         }
                     }
-
                     if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0)
                     {
                         //total amount we will pay to bank
@@ -585,16 +578,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                             + $transferCandidate['transfer_cost'];
                     }
                 }
-
                 $transfer->total = $total;
-
                 if(!$transfer->save()) {
                     $transaction->rollBack ();
                     Yii::error ($transfer->getErrors ());
                     throw new \yii\web\BadRequestHttpException('Error updating total for transfer #' . $transfer->transfer_id);
                 }
             }
-
             $transaction->commit ();
         }*/
         else if (
@@ -731,7 +721,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]);
             }
         }
-        
+
         return true;
     }
 
