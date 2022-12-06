@@ -105,6 +105,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
         return [
             'candidate',
             'store',
+            'dateListByCandidate',
         ];
     }
 
@@ -122,5 +123,15 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     public function getStore()
     {
         return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getDateListByCandidate() {
+        return self::find()
+            ->andWhere(['date' => $this->date,'candidate_id'=>$this->candidate_id])
+            ->orderBy('created_at')
+            ->all();
     }
 }

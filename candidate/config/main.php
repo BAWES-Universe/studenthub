@@ -185,9 +185,11 @@ return [
                     'patterns' => [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
+                        'GET date/<date>' => 'hours-detail',
                         // OPTIONS VERBS
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        'OPTIONS date/<date>' => 'options',
                     ]
                 ],
                 [ // StatisticController
@@ -236,6 +238,20 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS is-exists' => 'options',
+                    ]
+                ],
+                [ // BalanceController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/balance',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET payable-list' => 'payable-list',
+                        'POST init-transfer' => 'init-transfer',
+                        'PATCH pay-by-wallet' => 'pay-by-wallet',
+                        // OPTIONS VERBS
+                        'OPTIONS pay-by-wallet' => 'options',
+                        'OPTIONS init-transfer' => 'options',
+                        'OPTIONS payable-list' => 'options',
                     ]
                 ],
             ],

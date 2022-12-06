@@ -113,4 +113,18 @@ class CandidateWorkingHourController extends Controller
             'query' => $query
         ]);
     }
+
+    /**
+     * @param $date
+     * @param $candidateId
+     * @return array|\yii\db\ActiveRecord|null
+     */
+    public function actionHoursDetail($date,$candidateId)
+    {
+        return CandidateWorkingHour::find()
+            ->addSelect('*,sum(total_time) as total_time')
+            ->andWhere(['date'=>$date])
+            ->andWhere(['candidate_id'=>$candidateId])
+            ->one();
+    }
 }
