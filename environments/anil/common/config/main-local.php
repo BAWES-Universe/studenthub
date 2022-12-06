@@ -8,6 +8,13 @@ return [
             'password' => 'root',
             'charset' => 'utf8',
         ],
+        'walletDb' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=localhost:8889;dbname=pogi_wallet',
+            'username' => 'root',
+            'password' => 'root',
+            'charset' => 'utf8',
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',

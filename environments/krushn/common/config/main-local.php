@@ -8,6 +8,13 @@ return [
             'password' => 'root',
             'charset' => 'utf8',
         ],
+        'walletDb' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'mysql:host=localhost;dbname=wallet',
+            'username' => 'root',
+            'password' => '',
+            'charset' => 'utf8',
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',

@@ -33,6 +33,18 @@ return [
             // Name of the cache component used to store schema information
             'schemaCache' => 'cache',
         ],
+        'walletDb' => [
+            'dsn' => 'mysql:host=wallet-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=bawes_wallet',
+            'username' => 'wll3t1232',
+            'password' => '24uJQLOx55q$',
+            'charset' => 'utf8',
+            // Enable Caching of Schema to Reduce SQL Queries
+            'enableSchemaCache' => true,
+            // Duration of schema cache.
+            'schemaCacheDuration' => 3600, // 1 hr
+            // Name of the cache component used to store schema information
+            'schemaCache' => 'cache',
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',
