@@ -395,6 +395,7 @@ class CandidateController extends Controller
     {
         $store_id = Yii::$app->request->getBodyParam("store_id");
         $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        $start_date = Yii::$app->request->getBodyParam("start_date");
 
         $model = $this->findModel($id);
 
@@ -462,7 +463,7 @@ class CandidateController extends Controller
         $noteModel->save(false);
 
         // saving candidate work history
-        CandidateWorkHistory::saveAssignedHistory($model);
+        CandidateWorkHistory::saveAssignedHistory($model, $start_date);
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$storeName.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 

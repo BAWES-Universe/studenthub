@@ -66,7 +66,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      * @param $candidate
      * @return bool
      */
-    public static function saveAssignedHistory($candidate) {
+    public static function saveAssignedHistory($candidate, $start_date = null) {
 
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
@@ -74,7 +74,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->store_id = $candidate->store_id;
         $model->company_id = (isset($candidate->company->company_id)) ? $candidate->company->company_id : null;
         $model->parent_company_id = (isset($candidate->company->parent_company_id)) ? $candidate->company->parent_company_id : $candidate->company->company_id;
-        $model->start_date  = new \yii\db\Expression('NOW()');
+        $model->start_date = $start_date != null ? date('Y-m-d', strtotime($start_date)): new \yii\db\Expression('NOW()');
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
 
         if ($model->save()) {
