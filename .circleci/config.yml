@@ -114,6 +114,10 @@ jobs:
           name: Grant priviledges to database for wallet
           command: mysql -h 127.0.0.1 -u root -prootpw -e "GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd'"
 
+      #- run:
+      #    name: Seed secondary database for wallet
+      #    command: ./yii cron/
+
       #---------- staff app --------------#
 
       - run:
