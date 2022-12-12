@@ -72,6 +72,17 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['like', '{{%candidate}}.candidate_name', $candidate_name]);
     }
 
+    public function filterNameOfId($candidate_name)
+    {
+        return $this->andWhere(
+            [
+                'or',
+                ['like', '{{%candidate}}.candidate_name', $candidate_name],
+                ['like', '{{%candidate}}.candidate_id', $candidate_name]
+            ]
+        );
+    }
+
     /**
      * @param $candidate_email
      * @return $this
