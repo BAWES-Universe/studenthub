@@ -78,6 +78,9 @@ class CandidateController extends Controller
 
         $by = Yii::$app->request->get('by');
 
+        if (Yii::$app->request->get('id', null)) {
+            $query->filterById(Yii::$app->request->get('id'));
+        }
         if (Yii::$app->request->get('name', null)) {
             $query->filterName(Yii::$app->request->get('name'));
         }
