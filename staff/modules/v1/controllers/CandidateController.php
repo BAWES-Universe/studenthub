@@ -735,6 +735,7 @@ class CandidateController extends Controller
         $type = Yii::$app->request->get("type");
         $civil = Yii::$app->request->get("civil");
         $updatedAfter = Yii::$app->request->get("updatedAfter");
+        $civilId = Yii::$app->request->get('civilId');
 
         $query = Candidate::find();
 
@@ -762,7 +763,10 @@ class CandidateController extends Controller
             } else if ($civil == 2) {
                 $query->civilIdExpired();
             }
+        }
 
+        if($civilId) {
+            $query->filterCivil($civilId);
         }
 
         if($updatedAfter) {

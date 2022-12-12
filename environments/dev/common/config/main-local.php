@@ -10,7 +10,7 @@ return [
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=wallet',//todo: replace with wallet db from sandbox
+            'dsn' => 'mysql:host=localhost;dbname=wallet',
             'username' => 'payrollUser',
             'password' => 'pay',
             'charset' => 'utf8',

@@ -10,7 +10,7 @@ return [
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=pogi_wallet',
+            'dsn' => 'mysql:host=localhost:8889;dbname=pogi_wallet',
             'username' => 'root',
             'password' => 'root',
             'charset' => 'utf8',

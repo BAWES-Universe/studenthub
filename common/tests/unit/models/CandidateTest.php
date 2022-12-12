@@ -1,5 +1,6 @@
 <?php
-namespace common\tests;
+
+namespace common\tests\unit\models;
 
 use Yii;
 use common\models\Store;
@@ -247,7 +248,7 @@ class CandidateTest extends \Codeception\Test\Unit
         });
     }
 
-    public function testAccountMerge()
+    /*public function testAccountMerge()
     {
         $this->specify ('Merge source account to target', function () {
 
@@ -333,7 +334,7 @@ class CandidateTest extends \Codeception\Test\Unit
                  CandidateExperience::findOne (['candidate_id' => $source->candidate_id])
              )->null ();
          });
-    }
+    }*/
 
     /**
      * test case to check
