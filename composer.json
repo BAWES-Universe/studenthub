@@ -27,6 +27,7 @@
         "algolia/algoliasearch-client-php": "^2.4",
         "cloudinary/cloudinary_php": "^1.8",
         "php-ffmpeg/php-ffmpeg": "^0.16.0",
+        "yii2tech/balance": "^1.0",
         "mixpanel/mixpanel-php": "^2.8",
         "spatie/browsershot": "^3.40",
         "segmentio/analytics-php": "^2.0",

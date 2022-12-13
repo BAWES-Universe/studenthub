@@ -116,7 +116,8 @@ class BalanceController extends Controller
         $username = Yii::$app->request->getBodyParam('username');
         $amount = Yii::$app->request->getBodyParam('amount');
 
-        $user = WalletUser::findByEmail(Yii::$app->user->identity->candidate_email);
+        $user = WalletUser::findByEmail(Yii::$app->user->identity->candidate_email)
+            ->one();
 
         $to = null;
 
@@ -184,7 +185,8 @@ class BalanceController extends Controller
      */
     public function actionInitTransfer()
     {
-        $user = WalletUser::findByEmail(Yii::$app->user->identity->candidate_email);
+        $user = WalletUser::findByEmail(Yii::$app->user->identity->candidate_email)
+            ->one();
 
         $transfer = new Transfer();
         $transfer->user_uuid = $user->user_uuid;

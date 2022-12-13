@@ -515,7 +515,50 @@ class TransferController extends Controller
             'candidates' => $candidatesTransfers
         ];
     }
-    
+
+    /**
+     * pay candidate by wallet
+     * @param $id
+     * @return string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionPayByWallet($id)
+    {
+        $initTransfer = Yii::$app->request->getBodyParam('init_transfer');//true;
+
+        $model = $this->findModel($id);
+
+        $transferCandidates = $model->getTransferCandidates()
+            ->filterUnpaid()
+            ->all();
+
+        //todo: transaction not working as balance component already using
+        //$transaction = Yii::$app->db->beginTransaction();
+
+        foreach ($transferCandidates as $transferCandidate)
+        {
+            $result = TransferCandidate::markPaid(
+                $transferCandidate->tc_id, null, true,
+                $initTransfer, $transferCandidate, false);
+
+            if($result['operation'] == 'error') {
+               // $transaction->rollBack();
+                return $result;
+            }
+        }
+
+        //update transfer status
+
+        Transfer::markTransferCompleteOnCandidatePaid($model->transfer_id);
+
+       // $transaction->commit();
+
+        return [
+            'operation' => 'success',
+            'message' => 'Transfer paid by wallet'
+        ];
+    }
+
     /**
      * Method linked with payable candidate
      * section option to mark all candidate at one time

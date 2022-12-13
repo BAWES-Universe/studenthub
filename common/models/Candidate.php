@@ -521,6 +521,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ];
     }
 
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @return bool|void
+     */
     public function afterSave($insert, $changedAttributes) {
 
         parent::afterSave($insert, $changedAttributes);
