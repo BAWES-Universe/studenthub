@@ -154,27 +154,28 @@ class TransferCandidate extends \common\models\TransferCandidate
             ];
         }
 
-        /*if($transferCandidate->paid == TransferCandidate::PAID)
+        if($transferCandidate->paid == TransferCandidate::PAID)
         {
             return [
                 "operation" => "error",
                 "message" => 'Already marked as paid'
             ];
-        } */
-        
+        }
+
+        $amount = $transferCandidate->candidate_total == 0 ? $transferCandidate->totalPaidToCandidate: $transferCandidate->candidate_total;
+
         if($payByWallet) {
 
             // get wallet user by email
 
             $walletUser = WalletUser::findByEmail($transferCandidate->candidate->candidate_email);
 
-            $amount = $transferCandidate->candidate_total == 0 ? $transferCandidate->totalPaidToCandidate: $transferCandidate->candidate_total;
-
             Yii::$app->walletManager->addEntry([
                 'amount' => $amount,
                 'data' => 'Salary #' . $transferCandidate->tc_id,
                 'tagNames' => 'Salary',
-                'user_uuid' => $walletUser->user_uuid
+                'user_uuid' => $walletUser->user_uuid,
+                'initTransfer' => $initTransfer
             ]);
         }
 
@@ -188,7 +189,7 @@ class TransferCandidate extends \common\models\TransferCandidate
 
             if(true || YII_ENV == 'prod') {
                 Yii::$app->walletManager->addEntry([
-                    'amount' => 0 - $transferCandidate->candidate_total,
+                    'amount' => 0 - $amount,
                     'data' => 'Studenthub candidate paid #' . $transferCandidate->tc_id,
                     'tagNames' => 'Studenthub candidate paid',
                     'user_uuid' => Yii::$app->walletManager->companyWalletUserID
