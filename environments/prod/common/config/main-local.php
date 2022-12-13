@@ -45,6 +45,10 @@ return [
             // Name of the cache component used to store schema information
             'schemaCache' => 'cache',
         ],
+        'walletManager' => [
+            'class' => 'common\components\walletManager',
+            'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',
