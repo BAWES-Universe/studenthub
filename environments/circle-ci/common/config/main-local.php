@@ -15,12 +15,11 @@ return [
             'password' => 'passw0rd',
             'charset' => 'utf8',
         ],
-        'walletDb' => [
-            'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=127.0.0.1;dbname=payroll',
-            'username' => 'bawes',
-            'password' => 'passw0rd',
-            'charset' => 'utf8',
+        'walletManager' => [
+            'class' => 'common\components\walletManager',
+            'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
+            'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',
+            'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',

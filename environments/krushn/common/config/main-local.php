@@ -15,6 +15,12 @@ return [
             'password' => '',
             'charset' => 'utf8',
         ],
+        'walletManager' => [
+            'class' => 'common\components\walletManager',
+            'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
+            'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',
+            'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
+        ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',

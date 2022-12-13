@@ -66,35 +66,35 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public static function markUnpaid($tc_id)
     {
-        $TransferCandidate = TransferCandidate::findOne($tc_id);
+        $transferCandidate = TransferCandidate::findOne($tc_id);
 
-        if (!$TransferCandidate) {
+        if (!$transferCandidate) {
             return [
                 "operation" => "error",
                 "message" => 'Candidate Transfer not found'
             ];
         }
 
-        if (!($TransferCandidate->hours > 0)) {
+        if (!($transferCandidate->hours > 0)) {
             return [
                 "operation" => "error",
                 "message" => "Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero"
             ];
         }
 
-        $TransferCandidate->paid = TransferCandidate::UNPAID;
-        $TransferCandidate->transfer_benef_iban = null;
-        $TransferCandidate->transfer_benef_name = null;
-        $TransferCandidate->bank_id = null;
+        $transferCandidate->paid = TransferCandidate::UNPAID;
+        $transferCandidate->transfer_benef_iban = null;
+        $transferCandidate->transfer_benef_name = null;
+        $transferCandidate->bank_id = null;
 
-        if ($TransferCandidate->save(false)) {
+        if ($transferCandidate->save(false)) {
 
-            $TransferCandidate->candidate->bank_id = null;
-            $TransferCandidate->candidate->bank_account_name = null;
-            $TransferCandidate->candidate->candidate_iban = null;
-            $TransferCandidate->candidate->save(false);
+            $transferCandidate->candidate->bank_id = null;
+            $transferCandidate->candidate->bank_account_name = null;
+            $transferCandidate->candidate->candidate_iban = null;
+            $transferCandidate->candidate->save(false);
 
-            $Transfer = Transfer::findOne($TransferCandidate->transfer_id);
+            $Transfer = Transfer::findOne($transferCandidate->transfer_id);
 
             // in case if transfer is paid
 
@@ -133,14 +133,14 @@ class TransferCandidate extends \common\models\TransferCandidate
         $transfer_confirmation_id = null,
         $payByWallet = false,
         $initTransfer = false,
-        $TransferCandidate = null,
+        $transferCandidate = null,
         $updateTransferStatus = true
     )
     {
-        if(!$TransferCandidate)
-            $TransferCandidate = TransferCandidate::findOne($tc_id);
+        if(!$transferCandidate)
+            $transferCandidate = TransferCandidate::findOne($tc_id);
 
-        if (!$TransferCandidate) {
+        if (!$transferCandidate) {
             return [
                 "operation" => "error",
                 "message" => 'Candidate Transfer not found'
@@ -154,71 +154,47 @@ class TransferCandidate extends \common\models\TransferCandidate
             ];
         }
 
+        /*if($transferCandidate->paid == TransferCandidate::PAID)
+        {
+            return [
+                "operation" => "error",
+                "message" => 'Already marked as paid'
+            ];
+        } */
+        
         if($payByWallet) {
 
             // get wallet user by email
 
-            $walletUser = WalletUser::findByEmail($TransferCandidate->candidate->candidate_email);
+            $walletUser = WalletUser::findByEmail($transferCandidate->candidate->candidate_email);
 
-            //add account if not exists
+            $amount = $transferCandidate->candidate_total == 0 ? $transferCandidate->totalPaidToCandidate: $transferCandidate->candidate_total;
 
-            $account = $walletUser->balanceAccount;
-
-            if(!$walletUser->bank_uuid || !$walletUser->bank_account_name || !$walletUser->iban)
-            {
-                return [
-                    "operation" => "error",
-                    "message" => 'Missing bank detail in wallet'
-                ];
-            }
-
-            $amount = $TransferCandidate->candidate_total == 0 ? $TransferCandidate->totalPaidToCandidate: $TransferCandidate->candidate_total;
-
-            if($amount > 0)
-            {
-                // add money to wallet
-
-                BalanceAccount::addEntry($walletUser, $amount, "Salary");
-
-                // initialise transfer in plus
-
-                if ($initTransfer) {
-
-                    $transfer = new \common\models\WalletTransfer();
-
-                    $transfer->bank_uuid = $walletUser->bank_uuid;
-                    $transfer->transfer_benef_name = $walletUser->bank_account_name;
-                    $transfer->transfer_benef_iban = $walletUser->iban;
-                    $transfer->transfer_total = $amount;
-                    $transfer->user_uuid = $walletUser->user_uuid;
-                    $transfer->transfer_status = WalletTransfer::STATUS_INITIATED;
-                    $transfer->transfer_cost = 0;
-
-                    if (!$transfer->save(false)) {
-                        return [
-                            "operation" => "error",
-                            "message" => $transfer->errors
-                        ];
-                    }
-                }
-            }/*
-            else
-            {
-                return [
-                    "operation" => "error",
-                    "message" => "Amount can not be zero: " . $amount
-                ];
-            }*/
+            Yii::$app->walletManager->addEntry([
+                'amount' => $amount,
+                'data' => 'Salary #' . $transferCandidate->tc_id,
+                'tagNames' => 'Salary',
+                'user_uuid' => $walletUser->user_uuid
+            ]);
         }
 
-        $TransferCandidate->paid = TransferCandidate::PAID;
-        $TransferCandidate->transfer_confirmation_id = $transfer_confirmation_id;
+        $transferCandidate->paid = TransferCandidate::PAID;
+        $transferCandidate->transfer_confirmation_id = $transfer_confirmation_id;
         
-        if ($TransferCandidate->save()) {
+        if ($transferCandidate->save()) {
 
             if($updateTransferStatus)
-                Transfer::markTransferCompleteOnCandidatePaid($TransferCandidate->transfer_id);
+                Transfer::markTransferCompleteOnCandidatePaid($transferCandidate->transfer_id);
 
+            if(true || YII_ENV == 'prod') {
+                Yii::$app->walletManager->addEntry([
+                    'amount' => 0 - $transferCandidate->candidate_total,
+                    'data' => 'Studenthub candidate paid #' . $transferCandidate->tc_id,
+                    'tagNames' => 'Studenthub candidate paid',
+                    'user_uuid' => Yii::$app->walletManager->companyWalletUserID
+                ]);
+            }
+            
             return [
                 "operation" => "success",
                 "message" => 'Candidate Transfer marked as "paid" successfully',
@@ -227,7 +203,7 @@ class TransferCandidate extends \common\models\TransferCandidate
         } else {
             return [
                 "operation" => "error",
-                "message" => $TransferCandidate->errors
+                "message" => $transferCandidate->errors
             ];
         }
     }
@@ -256,6 +232,19 @@ class TransferCandidate extends \common\models\TransferCandidate
             ->all();
         
         foreach($transferCandidates as $transferCandidate) {
+
+            if($transferCandidate->paid == TransferCandidate::PAID)
+                continue;
+
+            if(YII_ENV == 'prod') {
+                Yii::$app->walletManager->addEntry([
+                    'amount' => $transferCandidate->candidate_total,
+                    'data' => 'Studenthub candidate paid #' . $transferCandidate->tc_id,
+                    'tagNames' => 'Studenthub candidate paid',
+                    'user_uuid' => Yii::$app->walletManager->companyWalletUserID
+                ]);
+            }
+            
             $transferCandidate->paid = TransferCandidate::PAID;
             $transferCandidate->save();
         }
