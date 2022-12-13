@@ -46,7 +46,7 @@ return [
             'schemaCache' => 'cache',
         ],
         'walletManager' => [
-            'class' => 'common\components\walletManager',
+            'class' => 'common\components\WalletManager',
             'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
         ],
         'mailer' => [
