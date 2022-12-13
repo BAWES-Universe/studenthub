@@ -34,6 +34,7 @@ return [
             'schemaCache' => 'cache',
         ],
         'walletDb' => [
+            'class' => 'yii\db\Connection',
             'dsn' => 'mysql:host=wallet-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=bawes_wallet',
             'username' => 'wll3t1232',
             'password' => '24uJQLOx55q$',
@@ -46,7 +47,7 @@ return [
             'schemaCache' => 'cache',
         ],
         'walletManager' => [
-            'class' => 'common\components\walletManager',
+            'class' => 'common\components\WalletManager',
             'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
         ],
         'mailer' => [
