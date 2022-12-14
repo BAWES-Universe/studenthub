@@ -170,13 +170,15 @@ class TransferCandidate extends \common\models\TransferCandidate
 
             $walletUser = WalletUser::findByEmail($transferCandidate->candidate->candidate_email);
 
-            Yii::$app->walletManager->addEntry([
-                'amount' => $amount,
-                'data' => 'Salary #' . $transferCandidate->tc_id,
-                'tagNames' => 'Salary',
-                'user_uuid' => $walletUser->user_uuid,
-                'initTransfer' => $initTransfer
-            ]);
+            if(YII_ENV == 'prod') {
+                Yii::$app->walletManager->addEntry([
+                    'amount' => $amount,
+                    'data' => 'Salary #' . $transferCandidate->tc_id,
+                    'tagNames' => 'Salary',
+                    'user_uuid' => $walletUser->user_uuid,
+                    'initTransfer' => $initTransfer
+                ]);
+            }
         }
 
         $transferCandidate->paid = TransferCandidate::PAID;
@@ -187,7 +189,7 @@ class TransferCandidate extends \common\models\TransferCandidate
             if($updateTransferStatus)
                 Transfer::markTransferCompleteOnCandidatePaid($transferCandidate->transfer_id);
 
-            if(true || YII_ENV == 'prod') {
+            if(YII_ENV == 'prod') {
                 Yii::$app->walletManager->addEntry([
                     'amount' => 0 - $amount,
                     'data' => 'Studenthub candidate paid #' . $transferCandidate->tc_id,
