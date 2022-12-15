@@ -30,6 +30,18 @@ class CronController extends \yii\console\Controller {
 
     }
 
+    public function actionTestw($value='')
+    {
+       $a = Yii::$app->walletManager->addEntry([
+                    'amount' => 1,
+                    'data' => 'Testing ',
+                    'tagNames' => '',
+                    'user_uuid' => Yii::$app->walletManager->companyWalletUserID
+                ]);
+
+       var_dump($a);
+    }
+
     /**
      * todo: mail on transfer total mismatch?
      * Check if candidate total mismatch
