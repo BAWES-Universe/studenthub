@@ -8,6 +8,7 @@ use admin\models\Candidate;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use admin\models\University;
+use admin\models\Staff;
 use common\models\StaffSalary;
 use yii\db\Expression;
 use yii\filters\auth\HttpBearerAuth;
@@ -66,6 +67,7 @@ class StatisticController extends Controller
     public function actionList()
     {
         $payableDetail = Candidate::getTotalPayableCandidate();
+
         // Candidates
         $totalCandidate = Candidate::candidateCountByCondition();
         $totalAssignedToWork = Candidate::candidateCountByCondition('assigned');
@@ -74,6 +76,7 @@ class StatisticController extends Controller
         $result['candidates']['total_candidate'] = $totalCandidate;
         $result['candidates']['total_assigned'] = $totalAssignedToWork;
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
+
         $result['payable']['total'] = $payableDetail['payable'];
         $result['payable']['amount'] = $payableDetail['amount'];
 
@@ -96,6 +99,11 @@ class StatisticController extends Controller
             "code" => Transfer::STATUS_PAYMENT_SENT,
             "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
         ];
+
+        $result['totalSalaryPaying'] = (double) Staff::find()->sum('staff_salary');
+
+        $result['totalSalaryMissing'] = (double) Staff::find()->andWhere(new Expression('staff_salary IS NULL'))
+            ->count();
 
         $result['totalSalaryPaid'] = (double) StaffSalary::find()->sum('salary');
 
