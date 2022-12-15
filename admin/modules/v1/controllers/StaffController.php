@@ -315,6 +315,9 @@ class StaffController extends Controller
         $model->staff_job_title = Yii::$app->request->getBodyParam("job_title");
         $model->staff_salary = Yii::$app->request->getBodyParam("salary");
         $model->staff_salary_currency = Yii::$app->request->getBodyParam("salary_currency");
+        $model->week_start_day = Yii::$app->request->getBodyParam("week_start_day");
+        $model->work_days = Yii::$app->request->getBodyParam("work_days");
+        $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
 
         if (!$model->signup())
         {
@@ -378,6 +381,9 @@ class StaffController extends Controller
         $model->staff_job_title = Yii::$app->request->getBodyParam("job_title");
         $model->staff_salary = Yii::$app->request->getBodyParam("salary");
         $model->staff_salary_currency = Yii::$app->request->getBodyParam("salary_currency");
+        $model->week_start_day = Yii::$app->request->getBodyParam("week_start_day");
+        $model->work_days = Yii::$app->request->getBodyParam("work_days");
+        $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
 
         if (!$model->save())
         {

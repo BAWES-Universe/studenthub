@@ -23,6 +23,9 @@ use yii\web\IdentityInterface;
  * @property number $staff_role
  * @property number $staff_salary
  * @property number $staff_salary_currency
+ * @property integer $week_start_day
+ * @property integer $work_days
+ * @property integer $hours_per_day
  * @property integer $staff_status
  * @property integer $staff_notification
  * @property integer $staff_created_at
@@ -64,7 +67,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             [['staff_name', 'staff_job_title', 'staff_email'], 'required'],
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
             [['staff_role','staff_hourly_rate', 'staff_salary'], 'number'],
-            [['staff_status','staff_notification'], 'integer'],
+            [['staff_status','staff_notification', 'week_start_day', 'work_days', 'hours_per_day'], 'integer'],
             [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
             [['staff_auth_key', 'staff_salary_currency'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
@@ -105,6 +108,9 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_role' => Yii::t('app', 'Role'),
             'staff_salary' => Yii::t('app', 'Salary'),
             'staff_salary_currency' => Yii::t('app', 'Salary currency'),
+            'week_start_day' => Yii::t('app', 'Week start day'),
+            'work_days' => Yii::t('app', 'Work days'),
+            'hours_per_day'  => Yii::t('app', 'Hours per day'),
             'staff_status' => Yii::t('app','Staff Status'),
             'staff_notification' => Yii::t('app','Staff Notification'),
             'staff_created_at' => Yii::t('app','Staff Created At'),
