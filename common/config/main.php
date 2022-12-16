@@ -21,6 +21,9 @@ return [
             'class' => 'common\components\GoogleMap', 
             'accessKey' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw'
         ],
+        'jwt' => [
+            'class' => 'common\components\JWT'
+        ],
         'jira' => [
             'class' => 'common\components\JiraComponent',
             'jiraUrl' => 'https://bawes-studenthub.atlassian.net',
