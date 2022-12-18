@@ -72,6 +72,26 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // DailyStandupController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/daily-standup',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'POST start-session' => 'start-session',
+                        'PATCH end-session' => 'end-session',
+                        'POST leave-request' => 'leave-request',
+                        'POST answer/<question_uuid>' => 'answer',
+                        'GET question' => 'question',
+                        'GET session' => 'session',
+                        // OPTIONS VERBS
+                        'OPTIONS question' => 'options',
+                        'OPTIONS session' => 'options',
+                        'OPTIONS start-session' => 'options',
+                        'OPTIONS end-session' => 'options',
+                        'OPTIONS leave-request' => 'options',
+                        'OPTIONS answer/<question_uuid>' => 'options'
+                    ]
+                ],
                 [ // StatisticController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/statistic',
