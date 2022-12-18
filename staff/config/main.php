@@ -82,8 +82,10 @@ return [
                         'POST leave-request' => 'leave-request',
                         'POST answer/<question_uuid>' => 'answer',
                         'GET question' => 'question',
+                        'GET session' => 'session',
                         // OPTIONS VERBS
                         'OPTIONS question' => 'options',
+                        'OPTIONS session' => 'options',
                         'OPTIONS start-session' => 'options',
                         'OPTIONS end-session' => 'options',
                         'OPTIONS leave-request' => 'options',

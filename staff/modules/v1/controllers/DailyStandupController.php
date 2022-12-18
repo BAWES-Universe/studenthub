@@ -2,13 +2,11 @@
 
 namespace staff\modules\v1\controllers;
 
+use Yii;
 use common\models\DailyStandupAnswer;
 use common\models\DailyStandupQuestion;
 use common\models\StaffLeave;
 use common\models\StaffWorkSession;
-use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
-use staff\models\Country;
-use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 use yii\rest\Controller;
 
@@ -73,7 +71,7 @@ class DailyStandupController extends Controller
         $subQuery = Yii::$app->user->identity
             ->getDailyStandupAnswers()
             ->select('question_uuid')
-            ->andWhere(['created_at' => date('Y-m-d')]);
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."')"));
 
         return DailyStandupQuestion::find()
              ->andWhere(['NOT IN', 'question_uuid', $subQuery])
@@ -128,6 +126,21 @@ class DailyStandupController extends Controller
     }
 
     /**
+     * return current session
+     * @return array|\yii\db\ActiveRecord|null
+     */
+    public function actionSession()
+    {
+        return StaffWorkSession::find()
+            ->andWhere([
+                'staff_id' => Yii::$app->user->getId()
+            ])
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
+                AND total_minutes IS NULL"))
+            ->one();
+    }
+
+    /**
      * Start session
      * @return array|string[]
      */
@@ -145,7 +158,8 @@ class DailyStandupController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => "Session started!"
+            'message' => "Session started!",
+            "model" => StaffWorkSession::findOne($model->work_session_uuid)
         ];
     }
 
@@ -157,14 +171,14 @@ class DailyStandupController extends Controller
     {
         /*$minutes = StaffWorkSession::find()
             ->andWhere(['work_session_uuid' => $id])
-            ->select(new Expression("TIMESTAMPDIFF('created_at', NOW())"))
+            ->select(new Expression("TIMESTAMPDIFF(created_at, NOW())"))
             ->scalar();*/
 
         $model = StaffWorkSession::find()
             ->andWhere([
                 'staff_id' => Yii::$app->user->getId()
             ])
-            ->andWhere(new Expression("DATE('created_at') = DATE('".date('Y-m-d')."') 
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
                 AND total_minutes IS NULL"))
             ->one();
 
@@ -175,7 +189,11 @@ class DailyStandupController extends Controller
             ];
         }
 
-        $model->total_minutes = time() - strtotime($model->created_at)/ 60;
+        //$model->total_minutes = (int) ((strtotime($model->created_at) - time())/ 60);
+
+        $time = Yii::$app->db->createCommand("SELECT current_timestamp()")->queryScalar();
+
+        $model->total_minutes = (int) ((strtotime($time) - strtotime($model->created_at))/ 60);
 
         if(!$model->save()) {
             return [
@@ -186,7 +204,8 @@ class DailyStandupController extends Controller
 
         return [
             'operation' => 'success',
-            'message' => "Session ended!"
+            'message' => "Session ended!",
+            "model" => $model
         ];
     }
 

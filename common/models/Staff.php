@@ -697,6 +697,11 @@ class Staff extends ActiveRecord implements IdentityInterface
             ->via('notes');
     }
 
+    public function getDailyStandupAnswers($modelClass = "\common\models\DailyStandupAnswer")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
     public function getPermissions($modelClass = "\common\models\PermissionUser") {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }

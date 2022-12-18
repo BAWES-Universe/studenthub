@@ -305,6 +305,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // DailyStandupQuestionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/daily-standup-question',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // BankController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/bank',
