@@ -44,8 +44,10 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'POST login-auth0' => 'login-auth0',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS login-auth0' => 'options',
                     ]
                 ],
                 [ // StatisticController

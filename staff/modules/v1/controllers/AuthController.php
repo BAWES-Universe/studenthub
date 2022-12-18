@@ -52,7 +52,8 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',            
-            'update-password'
+            'update-password',
+            'login-auth0'
         ];
 
         return $behaviors;
@@ -86,9 +87,80 @@ class AuthController extends Controller
     {
         $staff = Yii::$app->user->identity;
 
+        return $this->_loginResponse($staff);
+    }
+
+    /**
+     * login with auth0 token
+     * @return array
+     */
+    public function actionLoginAuth0()
+    {
+        $accessToken = Yii::$app->request->getBodyParam('accessToken');
+
+        $response = Yii::$app->auth0->getUserInfo($accessToken);
+
+        if(!$response->isOk) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid access token"
+            ];
+        }
+
+        $userInfo = $response->data;
+
+        if(!$userInfo || !$userInfo['email'])
+        {
+            return [
+                "operation" => "error",
+                "message" => "We've faced a problem creating your account, please contact us for assistance.",
+            ];
+        }
+
+        $user = Staff::find()
+            ->andWhere(['staff_email' => $userInfo['email']])
+            ->one();
+
+        /**
+         * redirect to signup page if no account
+         */
+        if(!$user)
+        {
+            return [
+                "operation" => "error",
+                "code" => 1,
+                "message" => "Account not found"
+            ];
+        }
+
+        // Email and password are correct, check if his email has been verified
+        // If email has been verified, then allow him to log in
+        /*if ($candidate->contact_email_verification != Candidate::EMAIL_VERIFIED) {
+
+            //$candidate->generateOtp();
+            //$candidate->save(false);
+
+            return [
+                "operation" => "error",
+                "errorType" => "email-not-verified",
+                "message" => Yii::t('candidate', "Please click the verification link sent to you by email to activate your account"),
+                "unVerifiedToken" => $this->_loginResponse($candidate)
+            ];
+        }*/
+
+        return $this->_loginResponse($user);
+    }
+
+    /**
+     * login token details
+     * @param $staff
+     * @return array
+     */
+    private function _loginResponse($staff) {
+
         // Return Staff access token if everything valid
         $accessToken = $staff->accessToken->token_value;
-        
+
         return [
             "operation" => "success",
             "token" => $accessToken,

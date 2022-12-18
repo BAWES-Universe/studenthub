@@ -54,9 +54,11 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'POST login-auth0' => 'login-auth0',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS login-auth0' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
                 ],
