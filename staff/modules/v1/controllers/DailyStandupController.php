@@ -126,18 +126,46 @@ class DailyStandupController extends Controller
     }
 
     /**
+     * list staff on leave
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function actionAbsences()
+    {
+        $subQuery = StaffLeave::find()
+            ->select('staff_id')
+            ->andWhere(['staff_id' => Yii::$app->user->getId()])
+            ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
+                DATE(to_date) >= DATE('".date('Y-m-d')."')"));
+
+        return Staff::find()
+            ->andWhere(['NOT IN', 'staff_id', $subQuery])
+            ->all();
+    }
+
+    /**
      * return current session
      * @return array|\yii\db\ActiveRecord|null
      */
     public function actionSession()
     {
-        return StaffWorkSession::find()
+         $session = StaffWorkSession::find()
             ->andWhere([
                 'staff_id' => Yii::$app->user->getId()
             ])
             ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
                 AND total_minutes IS NULL"))
             ->one();
+
+         $leave = StaffLeave::find()
+             ->andWhere(['staff_id' => Yii::$app->user->getId()])
+             ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
+                DATE(to_date) >= DATE('".date('Y-m-d')."')"))
+             ->one();
+
+         return [
+             'session' => $session,
+             'leave' => $leave
+         ];
     }
 
     /**

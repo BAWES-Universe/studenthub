@@ -83,7 +83,9 @@ return [
                         'POST answer/<question_uuid>' => 'answer',
                         'GET question' => 'question',
                         'GET session' => 'session',
+                        'GET absences' => 'absences',
                         // OPTIONS VERBS
+                        'OPTIONS absences' => 'options',
                         'OPTIONS question' => 'options',
                         'OPTIONS session' => 'options',
                         'OPTIONS start-session' => 'options',

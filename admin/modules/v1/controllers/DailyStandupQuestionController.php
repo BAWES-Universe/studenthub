@@ -2,9 +2,11 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\StaffLeave;
 use Yii;
 use common\models\DailyStandupQuestion;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
 use yii\rest\Controller;
@@ -73,6 +75,19 @@ class DailyStandupQuestionController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * list staff on leave
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function actionAbsences()
+    {
+        return StaffLeave::find()
+           // ->andWhere(['staff_id' => $id])
+            ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
+                DATE(to_date) >= DATE('".date('Y-m-d')."')"))
+            ->all();
     }
 
     /**
