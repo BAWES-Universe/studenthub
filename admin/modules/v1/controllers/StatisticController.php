@@ -5,7 +5,10 @@ namespace admin\modules\v1\controllers;
 use admin\models\Candidate;
 use admin\models\TransferCandidate;
 use admin\models\University;
+use common\models\Staff;
+use common\models\StaffLeave;
 use common\models\StaffSalary;
+use common\models\StaffWorkSession;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -107,6 +110,21 @@ class StatisticController extends Controller
         ];
 
         $result['totalSalaryPaid'] = StaffSalary::find()->sum('salary');
+
+        $result['absent'] = StaffLeave::find()
+            ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
+                DATE(to_date) >= DATE('".date('Y-m-d')."')"))
+            ->count();
+
+        $result['attended'] = StaffWorkSession::find()
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."')"))
+            ->count();
+
+        $totalStaff = Staff::find()
+            ->andWhere(['staff_status' => Staff::STATUS_ACTIVE])
+            ->count();
+
+        $result['didnt_attended'] = $totalStaff - $result['attended'] - $result['absent'];
 
         return $result;
     }

@@ -4,6 +4,7 @@ namespace console\controllers;
 
 use admin\models\Expense;
 use admin\models\TransferCandidate;
+use common\models\DailyStandupQuestion;
 use common\models\Note;
 use common\models\Suggestion;
 use common\models\Transfer;
@@ -80,6 +81,8 @@ class CronController extends \yii\console\Controller {
 
         //check salary transfer not paid
         //Invoice::unpaidAlert();
+
+        DailyStandupQuestion::standupReport();
 
     }
 

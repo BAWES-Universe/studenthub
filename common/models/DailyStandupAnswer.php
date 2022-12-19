@@ -92,6 +92,15 @@ class DailyStandupAnswer extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     * @return query\DailyStandupAnswerQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\DailyStandupAnswerQuery(get_called_class());
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getQuestion($modelClass = "\common\models\DailyStandupQuestion")

@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\DailyStandupAnswer;
 use common\models\StaffLeave;
 use Yii;
 use common\models\DailyStandupQuestion;
@@ -71,6 +72,31 @@ class DailyStandupQuestionController extends Controller
     public function actionList()
     {
         $query = DailyStandupQuestion::find();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of DailyStandupAnswers available.
+     * @return ActiveDataProvider
+     */
+    public function actionListAnswers()
+    {
+        $staff_id = Yii::$app->request->get('staff_id');
+        $created_at = Yii::$app->request->get('created_at');
+
+        $query = DailyStandupAnswer::find();
+
+        if($staff_id) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
+
+        if($created_at) {
+            $query->andWhere(new Expression("DATE(created_at) = 
+                DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
+        }
 
         return new ActiveDataProvider([
             'query' => $query

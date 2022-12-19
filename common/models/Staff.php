@@ -47,6 +47,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     const ROlE_CUSTOMER_CARE = 9;
 
     const STATUS_ACTIVE = 10;
+
     const ACCESS_LIMITED = 1;
     const ACCESS_FULL = 0;
 

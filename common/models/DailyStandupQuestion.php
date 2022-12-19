@@ -6,6 +6,7 @@ use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "daily_standup_question".
@@ -78,6 +79,39 @@ class DailyStandupQuestion extends \yii\db\ActiveRecord
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
+    }
+
+    public static function standupReport()
+    {
+        $absents = StaffLeave::find()
+            ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
+                DATE(to_date) >= DATE('".date('Y-m-d')."')"))
+            ->all();
+
+        $attended = StaffWorkSession::find()
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."')"))
+            ->all();
+
+        $staffIds = array_merge(
+            ArrayHelper::getColumn($absents, 'staff_id'),
+            ArrayHelper::getColumn($attended, 'staff_id')
+        );
+
+        $didnt_attended = Staff::find()
+            ->andWhere(['NOT IN', 'staff_id', $staffIds])
+            ->all();
+
+            Yii::$app->mailer->compose("stand-up-report",
+                [
+                    'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                    'absents' => $absents,
+                    'attended' => $attended,
+                    'didnt_attended' => $didnt_attended
+                ])
+                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                ->setTo(Yii::$app->params['adminEmail'])
+                ->setSubject('Stand-up report')
+                ->send();
     }
 
     /**

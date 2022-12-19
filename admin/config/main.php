@@ -312,6 +312,8 @@ return [
                     'controller' => 'v1/daily-standup-question',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET list-answers' => 'list-answers',
+                        'GET absences' => 'absences',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
