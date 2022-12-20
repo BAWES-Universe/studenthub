@@ -745,7 +745,11 @@ class CandidateController extends Controller
             $query->filterNotAssigned();
         }
 
-        if($name) {
+        if($name && is_numeric($name)) {
+            $query->filterById($name);
+        }
+
+        if($name && !is_numeric($name)) {
             $query->filterName($name);
         }
 
