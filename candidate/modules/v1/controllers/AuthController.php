@@ -65,6 +65,7 @@ class AuthController extends Controller
             'request-reset-password',
             'update-email',
             'resend-verification-email',
+            'login-by-apple',
             'verify-email',
             'is-email-verified',
             'name-by-civil-id',
@@ -669,5 +670,74 @@ class AuthController extends Controller
             'operation' => $type,
             'message' => ($translate) ? Yii::t('user', $msg) : $msg
         ];
+    }
+
+    /**
+     *
+     * Sign up with apple login
+     */
+    public function actionLoginByApple() {
+
+        try {
+
+            $jwt = Yii::$app->request->getBodyParam("identityToken");
+
+            //will throw error on invalid token
+
+            $payload = Yii::$app->jwt->decode($jwt);
+
+        } catch(\ErrorException $e) {
+
+            return [
+                'operation' => 'error',
+                'message' => $e->getMessage()
+            ];
+
+        }
+
+        if(empty($payload->email)) {
+            return [
+                'operation' => 'error',
+                'message' => Yii::t('job', 'Invalid Token')
+            ];
+        }
+
+        $email = $payload->email;
+
+        $familyName = Yii::$app->request->getBodyParam("familyName");
+        $givenName = Yii::$app->request->getBodyParam("givenName");
+
+
+
+        $candidate = Candidate::find()
+            ->andWhere(['candidate_email' => $email])
+            ->one();
+
+        if (!$candidate) {
+            $candidate = new Candidate();
+
+            $candidate->scenario = "signupAuth0";
+            $candidate->candidate_name = $givenName." ".$familyName;
+            $candidate->candidate_name_ar = null;
+
+            $candidate->candidate_email = $email;
+            $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
+            $candidate->approved = true;
+
+            if (!$candidate->signup()) {
+                if (isset($candidate->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $candidate->errors,
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => Yii::t('candidate', "We've faced a problem creating your account, please contact us for assistance.")
+                    ];
+                }
+            }
+        }
+        return $this->_loginResponse($candidate);
     }
 }

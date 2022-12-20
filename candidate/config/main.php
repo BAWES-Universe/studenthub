@@ -50,6 +50,7 @@ return [
                         'POST is-email-verified' => 'is-email-verified',
                         'POST update-email' => 'update-email',          
                         'POST resend-verification-email' => 'resend-verification-email',
+                        'POST login-by-apple' => 'login-by-apple',
                         'POST verify-email' => 'verify-email',
                         'POST login-auth0' => 'login-auth0',
                         'PATCH update-password' => 'update-password',
@@ -60,6 +61,7 @@ return [
                         'OPTIONS email-check' => 'options',
                         'OPTIONS update-password' => 'options',
                         'OPTIONS request-reset-password' => 'options',
+                        'OPTIONS login-by-apple' => 'options',
                         'OPTIONS is-email-verified' => 'options',
                         'OPTIONS update-email' => 'options',        
                         'OPTIONS login-auth0' => 'options',
@@ -112,6 +114,7 @@ return [
                         'DELETE remove-video' => 'remove-video',
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
                         'DELETE remove-civil-photo-back' => 'remove-civil-photo-back',
+                        'DELETE remove-candidate-profile' => 'delete-profile',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS video-status' => 'options',
@@ -153,6 +156,7 @@ return [
                         'OPTIONS start-time' => 'options',
                         'OPTIONS stop-time' => 'options',
                         'OPTIONS current-status' => 'options',
+                        'OPTIONS remove-candidate-profile' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
