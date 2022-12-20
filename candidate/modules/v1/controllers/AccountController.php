@@ -2,6 +2,7 @@
 
 namespace candidate\modules\v1\controllers;
 
+use candidate\models\CandidateToken;
 use common\models\CandidateWorkingHour;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -1449,5 +1450,37 @@ class AccountController extends Controller
 
     public function actionWorkingStatus() {
         return Yii::$app->user->identity->getIsWorking();
+    }
+
+    /**
+     * delete profile
+     * @return array
+     */
+    public function actionDeleteProfile() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        $candidate->scenario = 'deleteCandidate';
+        $candidate->candidate_phone = null;
+        $candidate->candidate_email = 'deleted_'.date('Y-m-d').'_'.$candidate->candidate_email;
+        $candidate->candidate_civil_id = null;
+        $candidate->deleted = 1;
+
+        if (!$candidate->save()) {
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+        Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $candidate->candidate_id);
+
+        CandidateToken::deleteAll(['candidate_id'=>Yii::$app->user->getId()]);
+
+        Yii::info('['.$candidate->candidate_email.' Account Deleted] Candidate account Deleted by candidate itself', __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "profile deleted successfully"),
+        ];
     }
 }

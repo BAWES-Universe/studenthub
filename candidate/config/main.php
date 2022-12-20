@@ -114,6 +114,7 @@ return [
                         'DELETE remove-video' => 'remove-video',
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
                         'DELETE remove-civil-photo-back' => 'remove-civil-photo-back',
+                        'DELETE remove-candidate-profile' => 'delete-profile',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS video-status' => 'options',
@@ -155,6 +156,7 @@ return [
                         'OPTIONS start-time' => 'options',
                         'OPTIONS stop-time' => 'options',
                         'OPTIONS current-status' => 'options',
+                        'OPTIONS remove-candidate-profile' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
