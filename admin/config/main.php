@@ -188,6 +188,7 @@ return [
                         'GET report-search' => 'report-search',
                         'GET total-to-review' => 'total-to-review',
                         'PATCH approve/<id>' => 'approve',
+                        'PATCH restore/<id>' => 'restore',
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
                         'GET <id>' => 'view',
@@ -199,6 +200,7 @@ return [
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        'OPTIONS restore/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
