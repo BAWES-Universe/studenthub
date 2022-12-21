@@ -77,12 +77,12 @@ class CandidateController extends Controller
         $query = Candidate::findCustom();
 
         $by = Yii::$app->request->get('by');
-
-        if (Yii::$app->request->get('id', null)) {
-            $query->filterById(Yii::$app->request->get('id'));
+        $name = Yii::$app->request->get('name', null);
+        if ($name && !is_numeric($name)) {
+            $query->filterName($name);
         }
-        if (Yii::$app->request->get('name', null)) {
-            $query->filterName(Yii::$app->request->get('name'));
+        if ($name && is_numeric($name)) {
+            $query->filterById($name);
         }
         if (Yii::$app->request->get('email', null)) {
             $query->filterEmail(Yii::$app->request->get('email'));
@@ -117,6 +117,7 @@ class CandidateController extends Controller
                 break;
             default:
                 $query->byApprovalStatus(0);
+                $query->orderById();
                 break;
         }
 

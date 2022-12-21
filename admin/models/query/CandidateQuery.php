@@ -242,6 +242,14 @@ class CandidateQuery extends \yii\db\ActiveQuery
      * @param $status
      * @return $this
      */
+    public function orderById() {
+        return $this->addOrderBy('{{%candidate}}.candidate_id DESC');
+    }
+
+    /**
+     * @param $status
+     * @return $this
+     */
     public function verifiedProfile() {
         return $this->andWhere(['{{%candidate}}.candidate_email_verification' => 1]);
     }
