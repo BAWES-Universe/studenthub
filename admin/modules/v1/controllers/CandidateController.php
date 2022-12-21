@@ -117,7 +117,7 @@ class CandidateController extends Controller
                 break;
             default:
                 $query->byApprovalStatus(0);
-                $query->orderById();
+//                $query->orderById();
                 break;
         }
 
@@ -222,6 +222,49 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate account approved successfully"
+        ];
+    }
+
+
+    /**
+     * Approve candidate account
+     * @param $id
+     * @return array
+     */
+    public function actionRestore($id)
+    {
+        $model = $this->findModel((int) $id);
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found"
+            ];
+        }
+
+        $model->scenario = 'deleteCandidate';
+        $model->deleted = 0;
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$model->candidate_email.' Account Approved] Candidate account restored by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account restored successfully"
         ];
     }
 
