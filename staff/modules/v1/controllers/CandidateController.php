@@ -1279,6 +1279,8 @@ class CandidateController extends Controller
                 'candidate_name',
                 'candidate_email',
                 'candidate_phone',
+                'candidate_civil_id',
+                'candidate_civil_expiry_date',
                 [
                     'header' => 'company name',
                     "format" => "raw",
