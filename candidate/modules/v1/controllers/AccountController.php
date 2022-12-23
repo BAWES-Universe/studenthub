@@ -1384,7 +1384,7 @@ class AccountController extends Controller
         if ($model) {
             return [
                 "operation" => "error",
-                "message" => 'You are already working'
+                "message" => Yii::t('candidate', 'You are already working')
             ];
         }
 
@@ -1427,7 +1427,7 @@ class AccountController extends Controller
         if (!$model) {
             return [
                 "operation" => "error",
-                "message" => 'You have not started working on any store'
+                "message" => Yii::t('candidate','You have not started working on any store')
             ];
         }
         $model->end_time = date('Y-m-d H:i:s');

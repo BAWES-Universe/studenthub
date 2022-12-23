@@ -85,5 +85,9 @@ return [
     "We've faced a problem creating the Note, please contact us for assistance." => "لقد واجهنا مشكلة في إنشاء الملاحظة ، يرجى الاتصال بنا للحصول على المساعدة.",
     "We've faced a problem updating the Invitation, please contact us for assistance." => "لقد واجهنا مشكلة أثناء تحديث الدعوة ، يرجى الاتصال بنا للحصول على المساعدة.",
     "Invitation marked as accepted successfully" => "تم وضع علامة على الدعوة على أنها مقبولة بنجاح",
-    "Invitation marked as rejected successfully" => "تم وضع علامة على الدعوة على أنها مرفوضة بنجاح"
+    "Invitation marked as rejected successfully" => "تم وضع علامة على الدعوة على أنها مرفوضة بنجاح",
+    "Started working successfully" => "بدأ العمل بنجاح",
+    "You are already working" => "أنت تعمل بالفعل",
+    "Stopped worked on store successfully" => "توقفت عملت في المتجر بنجاح",
+    "You have not started working on any store" => "لم تبدأ العمل في أي متجر"
 ];
