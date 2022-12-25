@@ -153,7 +153,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
     public function activeCivilId()
     {
-        return $this->andWhere('DATE(candidate_civil_expiry_date) >= DATE(NOW())');
+        return $this->andWhere('DATE({{%candidate}}.candidate_civil_expiry_date) >= DATE(NOW())');
     }
 
     /**

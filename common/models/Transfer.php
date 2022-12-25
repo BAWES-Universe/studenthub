@@ -1012,6 +1012,7 @@ class Transfer extends ActiveRecord
             $candidate = Candidate::find()
                 ->with(['store', 'company'])
                 ->andWhere(['candidate_id' => $value['candidate_id']])
+                ->activeCivilId()
                 ->asArray()
                 ->one();
 
