@@ -75,7 +75,7 @@ class AlgoliaController extends Controller
                 Yii::$app->params['algolia_fulltimer_index'],
             ],
             'filters' => '',
-            'validUntil' => time() + $ttl,
+            //'validUntil' => time() + $ttl,
             'userToken' => Yii::$app->user->getId(),
             //'getRankingInfo' => true,
             //'aroundLatLngViaIP' => true,
