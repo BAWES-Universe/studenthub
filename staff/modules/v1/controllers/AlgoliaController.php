@@ -86,7 +86,8 @@ class AlgoliaController extends Controller
         
         return [
             'securedApiKey' => $securedApiKey,
-            'securedApiKeyValidUntil' => $params['validUntil'],
+//            'securedApiKeyValidUntil' => $params['validUntil'],
+            'securedApiKeyValidUntil' => null,
             'appId' => Yii::$app->algolia->appId
         ];
     }
