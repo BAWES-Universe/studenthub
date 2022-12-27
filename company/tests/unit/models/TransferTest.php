@@ -211,538 +211,538 @@ class TransferTest extends \Codeception\Test\Unit
     /**
      * For company with sub companies
      */
-    public function testSaveTransfer()
-    {
-        // Test Save Transfer With Child ================================================
-
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Company fixture loaded', Company::findOne(['company_id' => 1]))->notNull();
-            expect('Store fixture loaded', Store::findOne(['store_id' => 1]))->notNull();
-            expect('Candidate fixture loaded', Candidate::findOne(['candidate_id' => 1]))->notNull();
-        });
-
-        $this->specify('Add new transfer for company with child', function() {
-
-            $company = Company::find()
-                ->andWhere('parent_company_id > 0')
-                ->one()
-                ->parentCompany;
-
-            $candidates = $company
-                ->getCandidates()
-                ->all();
-
-            $arrCandidate = [];
-            $total = 0;
-            $company_total = 0;
-
-            foreach ($candidates as $value)
-            {
-                $data = [
-                    'bonus' => rand(0, 10),
-                    'hours' => rand(0, 100),
-                    'candidate_id' => $value->candidate_id
-                ];
-                
-                $company_bonus_commission = $value->company->company_bonus_commission;
-                $company_hourly_rate = $value->company->company_hourly_rate;
-
-                //if value not set take from parent company 
-
-                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
-                {
-                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
-                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
-                }
-
-                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
-                
-                if ((int)$data['hours'] > 0 || $data['bonus'] > 0) {
-                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
-                }
-
-                $arrCandidate[] = $data;
-            }
-
-            $start_date = '2010/10/10';
-            $end_date = '2010/12/10';
-            $result = Transfer::saveTransfer($company, $arrCandidate,$start_date,$end_date);
-
-            expect('Transfer should saved', $result)->hasKey('transfer_id');
-
-            $transfer = Transfer::findOne($result['transfer_id']);
-
-            expect('Transfer total - admin will pay', $transfer->total)
-                ->equals(number_format($total, 3, '.', ''));
-
-            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
-        });
-
-
-        // For company without sub companies ================================================
-        // Save Transfer Without Child
-        $this->specify('Add new transfer for company without child', function() {
-
-            $company = Company::findOne(3);
-
-            $candidates = $company
-                ->getCandidates()
-                ->all();
-
-            $arrCandidate = [];
-            $total = 0;
-            $company_total = 0;
-
-            foreach ($candidates as $value)
-            {
-                $data = [
-                    'bonus' => rand(0, 10),
-                    'hours' => rand(0, 100),
-                    'candidate_id' => $value->candidate_id
-                ];
-                
-                $company_bonus_commission = $value->company->company_bonus_commission;
-                $company_hourly_rate = $value->company->company_hourly_rate;
-
-                //if value not set take from parent company 
-
-                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
-                {
-                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
-                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
-                }
-
-                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
-                
-                if ((int)$data['hours']>0 || $data['bonus'] > 0) {
-                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
-                }
-
-                $arrCandidate[] = $data;
-            }
-
-            $start_date = '2010/10/10';
-            $end_date = '2010/12/10';
-            $result = Transfer::saveTransfer($company, $arrCandidate,$start_date,$end_date);
-
-            expect('Transfer should saved', $result)->hasKey('transfer_id');
-
-            $transfer = Transfer::findOne($result['transfer_id']);
-
-            expect('Transfer total - admin will pay', $transfer->total)
-                ->equals(number_format($total, 3, '.', ''));
-
-            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
-        });
-    }
-
-    /**
-     * success test case For company with child
-     */
-    public function testSuccessUpdateTransferWithChild()
-    {
-
-        // test Success Update Transfer With Child ============================================================
-
-        $this->specify ('fixture loaded data', function () {
-            expect ('is file exist', Transfer::find ()->one ())->notNull ();
-        });
-
-        $this->specify ('Update transfer for company with child', function () {
-
-            $child = Company::find ()
-                ->filterChild ()
-                ->one ();
-
-            $company = $child->parentCompany;
-
-            $candidates = $company
-                ->getCandidates ()
-                ->all ();
-
-            $transfer = $company
-                ->getTransfers ()
-                ->andWhere (['transfer_status' => Transfer::STATUS_INITIATED])
-                ->one ();
-
-            $arrCandidate = [];
-            $total = 0;
-            $company_total = 0;
-
-            foreach ($candidates as $value) {
-                $data = [
-                    'bonus' => rand (0, 10),
-                    'hours' => rand (0, 100),
-                    'candidate_id' => $value->candidate_id
-                ];
-
-                $company_bonus_commission = $value->company->company_bonus_commission;
-                $company_hourly_rate = $value->company->company_hourly_rate;
-
-                //if value not set take from parent company 
-
-                if (($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany) {
-                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
-                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
-                }
-
-                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
-
-                if ((int)$data['hours'] > 0 || $data['bonus'] > 0) {
-                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
-                }
-
-                $arrCandidate[] = $data;
-            }
-            $start_date = '2010/10/10';
-            $end_date = '2010/12/10';
-
-            $result = $transfer->updateTransfer ($arrCandidate, $start_date, $end_date);
-
-            expect ('Transfer should updated', $result['message'])->contains ('Your transfer has been updated.');
-
-            $transfer = Transfer::findOne ($transfer->transfer_id);
-
-            expect ('Transfer total - admin will pay', $transfer->total)
-                ->equals (number_format ($total, 3, '.', ''));
-
-            expect ('Transfer company total - company will pay', $transfer->company_total)->equals (number_format ($company_total, 3, '.', ''));
-
-            //check invoice after update
-
-            $transfer->lock ();//generate invoices
-
-            //expect('Should generate transfer for each sub company', sizeof($transfer->invoices))
-            //    ->equals(sizeof($company->subCompanies));
-        });
-
-    }
-
-    /**
-     * success test case For company without child/parent
-     */
-    public function testSuccessUpdateTransferWithoutChild() {
-
-        // test Success Update Transfer Without Child ============================================================
-
-        $this->specify('Update transfer for company without child', function() {
-
-            $company = Company::find()
-                ->filterWithoutChild()
-                ->one();
-
-            $transfer = $company
-                ->getTransfers()
-                ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-                ->one();
-
-            $candidates = $company
-                ->getCandidates()
-                ->all();
-
-            $arrCandidate = [];
-            $total = 0;
-            $company_total = 0;
-
-            foreach ($candidates as $value)
-            {
-                $data = [
-                    'bonus' => rand(0, 10),
-                    'hours' => rand(0, 100),
-                    'candidate_id' => $value->candidate_id
-                ];
-
-                $company_bonus_commission = $value->company->company_bonus_commission;
-                $company_hourly_rate = $value->company->company_hourly_rate;
-
-                //if value not set take from parent company 
-
-                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
-                {
-                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
-                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
-                }
-
-                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
-                
-                if ((int)$data['hours']>0 || $data['bonus'] > 0) {
-                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
-                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
-                }
-
-                $arrCandidate[] = $data;
-            }
-
-            $start_date = '2010/10/10';
-            $end_date = '2010/12/10';
-
-            $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
-
-            expect('Transfer should updated', $result['message'])->contains('Your transfer has been updated.');
-
-            $transfer = Transfer::findOne($transfer->transfer_id);
-            
-            expect('Transfer total - admin will pay', $transfer->total)
-                ->equals(number_format($total, 3, '.', ''));
-
-            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
-
-            //check invoice after update
-
-            $transfer->lock();//generate invoices
-
-            expect('Should generate invoice for transfer', $transfer->invoices)->notNull();
-        });
-
-    }
-
-    public function testFixtureLoaded(){
-        expect('is file exist',Transfer::findOne(9))->notNull();
-    }
-
-    /**
-     * fail test case For company with sub companies
-     * when transfer is with empty candidate
-     */
-    public function testFailUpdateTransferForEmptyCandidateWhenCompanyWithoutChild()
-    {
-        $company = Company::find()
-            ->filterWithoutChild()
-            ->one();//a company without parent + child
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer([], $start_date, $end_date);
-
-        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-    }
-
-    /**
-     * Fail For Invalid Candidates
-     */
-    public function testFailUpdateTransferForInvalidCandidateWhenCompanyWithoutChild()
-    {
-        $company = Company::find()
-            ->filterWithoutChild()
-            ->one();//a company without parent + child
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $arrCandidate = [
-            [
-                'bonus' => rand(0, 10),
-                'hours' => rand(0, 100),
-                'candidate_id' => 205
-            ]
-        ];
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
-
-        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-    }
-
-    /**
-     * Fail For Zero Total
-     */
-    public function testFailUpdateTransferForTotalZeroWhenCompanyWithoutChild()
-    {
-        $company = Company::find()
-            ->filterWithoutChild()
-            ->one();//a company without parent + child
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $arrCandidate = [];
-
-        foreach($transfer->transferCandidates as $transferCandidate) {
-            $arrCandidate[] = [
-                'bonus' => 0,
-                'hours' => 0,
-                'candidate_id' => $transferCandidate->candidate_id
-            ];
-        }
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
-
-        expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
-    }
-
-    /**
-     * Fail For Negative Hours
-     */
-    public function testFailUpdateTransferWithNegativeHoursWhenCompanyWithChild()
-    {
-        $child = Company::find()
-            ->filterChild ()
-            ->one();
-
-        $company = $child->parentCompany;
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $arrCandidate = [];
-
-        foreach($transfer->transferCandidates as $transferCandidate) {
-            $arrCandidate[] = [
-                'bonus' => 0,
-                'hours' => -2,
-                'candidate_id' => $transferCandidate->candidate_id
-            ];
-        }
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
-
-        expect('Transfer should return error', $result['operation'])->equals ('error');
-    }
-
-    /**
-     * Fail For Negative Bonus
-     */
-    public function testFailUpdateTransferWithNegativeBonusWhenCompanyWithChild()
-    {
-        $child = Company::find()
-            ->filterChild ()
-            ->one();
-
-        $company = $child->parentCompany;
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $arrCandidate = [];
-
-        foreach($transfer->transferCandidates as $transferCandidate) {
-            $arrCandidate[] = [
-                'bonus' => -10,
-                'hours' => 2,
-                'candidate_id' => $transferCandidate->candidate_id
-            ];
-        }
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
-
-        expect('Transfer should return error', $result['message'])->hasKey('candidates');
-    }
-
-    /**
-     * Fail For Empty Candidates
-     */
-    public function testFailUpdateTransferWithEmptyCandidatesWhenCompanyWithChild()
-    {
-        $child = Company::find()
-            ->filterChild ()
-            ->one();
-
-        $company = $child->parentCompany;
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer([], $start_date, $end_date);
-
-        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-    }
-
-    /**
-     * Fail For Invalid Candidates
-     */
-    public function testFailUpdateTransferWithInvalidCandidatesWhenCompanyWithChild()
-    {
-        $child = Company::find()
-            ->filterChild ()
-            ->one();
-
-        $company = $child->parentCompany;
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $arrCandidate = [
-            [
-                'bonus' => rand(0, 10),
-                'hours' => rand(0, 100),
-                'candidate_id' => 205
-            ]
-        ];
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
-
-        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
-    }
-
-    /**
-     * Fail For Zero Total
-     */
-    public function testFailUpdateTransferWithZeroTotalWhenCompanyWithChild()
-    {
-        $child = Company::find()
-            ->filterChild ()
-            ->one();
-
-        $company = $child->parentCompany;
-
-        $transfer = $company
-            ->getTransfers()
-            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
-            ->one();
-
-        $arrCandidate = [];
-
-        foreach($transfer->transferCandidates as $transferCandidate) {
-            $arrCandidate[] = [
-                'bonus' => 0,
-                'hours' => 0,
-                'candidate_id' => $transferCandidate->candidate_id
-            ];
-        }
-
-        $start_date = '2010/10/10';
-        $end_date = '2010/12/10';
-
-        $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
-
-        expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
-    }
+//    public function testSaveTransfer()
+//    {
+//        // Test Save Transfer With Child ================================================
+//
+//        $this->specify('Fixtures should be loaded', function() {
+//            expect('Company fixture loaded', Company::findOne(['company_id' => 1]))->notNull();
+//            expect('Store fixture loaded', Store::findOne(['store_id' => 1]))->notNull();
+//            expect('Candidate fixture loaded', Candidate::findOne(['candidate_id' => 1]))->notNull();
+//        });
+//
+//        $this->specify('Add new transfer for company with child', function() {
+//
+//            $company = Company::find()
+//                ->andWhere('parent_company_id > 0')
+//                ->one()
+//                ->parentCompany;
+//
+//            $candidates = $company
+//                ->getCandidates()
+//                ->all();
+//
+//            $arrCandidate = [];
+//            $total = 0;
+//            $company_total = 0;
+//
+//            foreach ($candidates as $value)
+//            {
+//                $data = [
+//                    'bonus' => rand(0, 10),
+//                    'hours' => rand(0, 100),
+//                    'candidate_id' => $value->candidate_id
+//                ];
+//
+//                $company_bonus_commission = $value->company->company_bonus_commission;
+//                $company_hourly_rate = $value->company->company_hourly_rate;
+//
+//                //if value not set take from parent company
+//
+//                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
+//                {
+//                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+//                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+//                }
+//
+//                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+//
+//                if ((int)$data['hours'] > 0 || $data['bonus'] > 0) {
+//                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+//                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
+//                }
+//
+//                $arrCandidate[] = $data;
+//            }
+//
+//            $start_date = '2010/10/10';
+//            $end_date = '2010/12/10';
+//            $result = Transfer::saveTransfer($company, $arrCandidate,$start_date,$end_date);
+//
+//            expect('Transfer should saved', $result)->hasKey('transfer_id');
+//
+//            $transfer = Transfer::findOne($result['transfer_id']);
+//
+//            expect('Transfer total - admin will pay', $transfer->total)
+//                ->equals(number_format($total, 3, '.', ''));
+//
+//            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
+//        });
+//
+//
+//        // For company without sub companies ================================================
+//        // Save Transfer Without Child
+//        $this->specify('Add new transfer for company without child', function() {
+//
+//            $company = Company::findOne(3);
+//
+//            $candidates = $company
+//                ->getCandidates()
+//                ->all();
+//
+//            $arrCandidate = [];
+//            $total = 0;
+//            $company_total = 0;
+//
+//            foreach ($candidates as $value)
+//            {
+//                $data = [
+//                    'bonus' => rand(0, 10),
+//                    'hours' => rand(0, 100),
+//                    'candidate_id' => $value->candidate_id
+//                ];
+//
+//                $company_bonus_commission = $value->company->company_bonus_commission;
+//                $company_hourly_rate = $value->company->company_hourly_rate;
+//
+//                //if value not set take from parent company
+//
+//                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
+//                {
+//                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+//                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+//                }
+//
+//                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+//
+//                if ((int)$data['hours']>0 || $data['bonus'] > 0) {
+//                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+//                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
+//                }
+//
+//                $arrCandidate[] = $data;
+//            }
+//
+//            $start_date = '2010/10/10';
+//            $end_date = '2010/12/10';
+//            $result = Transfer::saveTransfer($company, $arrCandidate,$start_date,$end_date);
+//
+//            expect('Transfer should saved', $result)->hasKey('transfer_id');
+//
+//            $transfer = Transfer::findOne($result['transfer_id']);
+//
+//            expect('Transfer total - admin will pay', $transfer->total)
+//                ->equals(number_format($total, 3, '.', ''));
+//
+//            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
+//        });
+//    }
+//
+//    /**
+//     * success test case For company with child
+//     */
+//    public function testSuccessUpdateTransferWithChild()
+//    {
+//
+//        // test Success Update Transfer With Child ============================================================
+//
+//        $this->specify ('fixture loaded data', function () {
+//            expect ('is file exist', Transfer::find ()->one ())->notNull ();
+//        });
+//
+//        $this->specify ('Update transfer for company with child', function () {
+//
+//            $child = Company::find ()
+//                ->filterChild ()
+//                ->one ();
+//
+//            $company = $child->parentCompany;
+//
+//            $candidates = $company
+//                ->getCandidates ()
+//                ->all ();
+//
+//            $transfer = $company
+//                ->getTransfers ()
+//                ->andWhere (['transfer_status' => Transfer::STATUS_INITIATED])
+//                ->one ();
+//
+//            $arrCandidate = [];
+//            $total = 0;
+//            $company_total = 0;
+//
+//            foreach ($candidates as $value) {
+//                $data = [
+//                    'bonus' => rand (0, 10),
+//                    'hours' => rand (0, 100),
+//                    'candidate_id' => $value->candidate_id
+//                ];
+//
+//                $company_bonus_commission = $value->company->company_bonus_commission;
+//                $company_hourly_rate = $value->company->company_hourly_rate;
+//
+//                //if value not set take from parent company
+//
+//                if (($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany) {
+//                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+//                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+//                }
+//
+//                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+//
+//                if ((int)$data['hours'] > 0 || $data['bonus'] > 0) {
+//                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+//                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
+//                }
+//
+//                $arrCandidate[] = $data;
+//            }
+//            $start_date = '2010/10/10';
+//            $end_date = '2010/12/10';
+//
+//            $result = $transfer->updateTransfer ($arrCandidate, $start_date, $end_date);
+//
+//            expect ('Transfer should updated', $result['message'])->contains ('Your transfer has been updated.');
+//
+//            $transfer = Transfer::findOne ($transfer->transfer_id);
+//
+//            expect ('Transfer total - admin will pay', $transfer->total)
+//                ->equals (number_format ($total, 3, '.', ''));
+//
+//            expect ('Transfer company total - company will pay', $transfer->company_total)->equals (number_format ($company_total, 3, '.', ''));
+//
+//            //check invoice after update
+//
+//            $transfer->lock ();//generate invoices
+//
+//            //expect('Should generate transfer for each sub company', sizeof($transfer->invoices))
+//            //    ->equals(sizeof($company->subCompanies));
+//        });
+//
+//    }
+//
+//    /**
+//     * success test case For company without child/parent
+//     */
+//    public function testSuccessUpdateTransferWithoutChild() {
+//
+//        // test Success Update Transfer Without Child ============================================================
+//
+//        $this->specify('Update transfer for company without child', function() {
+//
+//            $company = Company::find()
+//                ->filterWithoutChild()
+//                ->one();
+//
+//            $transfer = $company
+//                ->getTransfers()
+//                ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//                ->one();
+//
+//            $candidates = $company
+//                ->getCandidates()
+//                ->all();
+//
+//            $arrCandidate = [];
+//            $total = 0;
+//            $company_total = 0;
+//
+//            foreach ($candidates as $value)
+//            {
+//                $data = [
+//                    'bonus' => rand(0, 10),
+//                    'hours' => rand(0, 100),
+//                    'candidate_id' => $value->candidate_id
+//                ];
+//
+//                $company_bonus_commission = $value->company->company_bonus_commission;
+//                $company_hourly_rate = $value->company->company_hourly_rate;
+//
+//                //if value not set take from parent company
+//
+//                if(($company_bonus_commission + $company_hourly_rate == 0) && $value->company->parentCompany)
+//                {
+//                    $company_bonus_commission = $value->company->parentCompany->company_bonus_commission;
+//                    $company_hourly_rate = $value->company->parentCompany->company_hourly_rate;
+//                }
+//
+//                $bonus_commission = $data['bonus'] * $company_bonus_commission / 100;
+//
+//                if ((int)$data['hours']>0 || $data['bonus'] > 0) {
+//                    $total += $data['bonus'] - $bonus_commission + ($data['hours'] * $value->candidate_hourly_rate) + Yii::$app->params['transfer_cost'];
+//                    $company_total += $data['bonus'] + ($data['hours'] * $company_hourly_rate);
+//                }
+//
+//                $arrCandidate[] = $data;
+//            }
+//
+//            $start_date = '2010/10/10';
+//            $end_date = '2010/12/10';
+//
+//            $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
+//
+//            expect('Transfer should updated', $result['message'])->contains('Your transfer has been updated.');
+//
+//            $transfer = Transfer::findOne($transfer->transfer_id);
+//
+//            expect('Transfer total - admin will pay', $transfer->total)
+//                ->equals(number_format($total, 3, '.', ''));
+//
+//            expect('Transfer company total - company will pay', $transfer->company_total)->equals(number_format($company_total, 3, '.', ''));
+//
+//            //check invoice after update
+//
+//            $transfer->lock();//generate invoices
+//
+//            expect('Should generate invoice for transfer', $transfer->invoices)->notNull();
+//        });
+//
+//    }
+//
+//    public function testFixtureLoaded(){
+//        expect('is file exist',Transfer::findOne(9))->notNull();
+//    }
+//
+//    /**
+//     * fail test case For company with sub companies
+//     * when transfer is with empty candidate
+//     */
+//    public function testFailUpdateTransferForEmptyCandidateWhenCompanyWithoutChild()
+//    {
+//        $company = Company::find()
+//            ->filterWithoutChild()
+//            ->one();//a company without parent + child
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer([], $start_date, $end_date);
+//
+//        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+//    }
+//
+//    /**
+//     * Fail For Invalid Candidates
+//     */
+//    public function testFailUpdateTransferForInvalidCandidateWhenCompanyWithoutChild()
+//    {
+//        $company = Company::find()
+//            ->filterWithoutChild()
+//            ->one();//a company without parent + child
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $arrCandidate = [
+//            [
+//                'bonus' => rand(0, 10),
+//                'hours' => rand(0, 100),
+//                'candidate_id' => 205
+//            ]
+//        ];
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+//
+//        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+//    }
+//
+//    /**
+//     * Fail For Zero Total
+//     */
+//    public function testFailUpdateTransferForTotalZeroWhenCompanyWithoutChild()
+//    {
+//        $company = Company::find()
+//            ->filterWithoutChild()
+//            ->one();//a company without parent + child
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $arrCandidate = [];
+//
+//        foreach($transfer->transferCandidates as $transferCandidate) {
+//            $arrCandidate[] = [
+//                'bonus' => 0,
+//                'hours' => 0,
+//                'candidate_id' => $transferCandidate->candidate_id
+//            ];
+//        }
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+//
+//        expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
+//    }
+//
+//    /**
+//     * Fail For Negative Hours
+//     */
+//    public function testFailUpdateTransferWithNegativeHoursWhenCompanyWithChild()
+//    {
+//        $child = Company::find()
+//            ->filterChild ()
+//            ->one();
+//
+//        $company = $child->parentCompany;
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $arrCandidate = [];
+//
+//        foreach($transfer->transferCandidates as $transferCandidate) {
+//            $arrCandidate[] = [
+//                'bonus' => 0,
+//                'hours' => -2,
+//                'candidate_id' => $transferCandidate->candidate_id
+//            ];
+//        }
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+//
+//        expect('Transfer should return error', $result['operation'])->equals ('error');
+//    }
+//
+//    /**
+//     * Fail For Negative Bonus
+//     */
+//    public function testFailUpdateTransferWithNegativeBonusWhenCompanyWithChild()
+//    {
+//        $child = Company::find()
+//            ->filterChild ()
+//            ->one();
+//
+//        $company = $child->parentCompany;
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $arrCandidate = [];
+//
+//        foreach($transfer->transferCandidates as $transferCandidate) {
+//            $arrCandidate[] = [
+//                'bonus' => -10,
+//                'hours' => 2,
+//                'candidate_id' => $transferCandidate->candidate_id
+//            ];
+//        }
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+//
+//        expect('Transfer should return error', $result['message'])->hasKey('candidates');
+//    }
+//
+//    /**
+//     * Fail For Empty Candidates
+//     */
+//    public function testFailUpdateTransferWithEmptyCandidatesWhenCompanyWithChild()
+//    {
+//        $child = Company::find()
+//            ->filterChild ()
+//            ->one();
+//
+//        $company = $child->parentCompany;
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer([], $start_date, $end_date);
+//
+//        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+//    }
+//
+//    /**
+//     * Fail For Invalid Candidates
+//     */
+//    public function testFailUpdateTransferWithInvalidCandidatesWhenCompanyWithChild()
+//    {
+//        $child = Company::find()
+//            ->filterChild ()
+//            ->one();
+//
+//        $company = $child->parentCompany;
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $arrCandidate = [
+//            [
+//                'bonus' => rand(0, 10),
+//                'hours' => rand(0, 100),
+//                'candidate_id' => 205
+//            ]
+//        ];
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer($arrCandidate, $start_date, $end_date);
+//
+//        expect('Transfer should return error', $result['message'])->contains('Candidate not found');
+//    }
+//
+//    /**
+//     * Fail For Zero Total
+//     */
+//    public function testFailUpdateTransferWithZeroTotalWhenCompanyWithChild()
+//    {
+//        $child = Company::find()
+//            ->filterChild ()
+//            ->one();
+//
+//        $company = $child->parentCompany;
+//
+//        $transfer = $company
+//            ->getTransfers()
+//            ->andWhere(['transfer_status' => Transfer::STATUS_INITIATED])
+//            ->one();
+//
+//        $arrCandidate = [];
+//
+//        foreach($transfer->transferCandidates as $transferCandidate) {
+//            $arrCandidate[] = [
+//                'bonus' => 0,
+//                'hours' => 0,
+//                'candidate_id' => $transferCandidate->candidate_id
+//            ];
+//        }
+//
+//        $start_date = '2010/10/10';
+//        $end_date = '2010/12/10';
+//
+//        $result = $transfer->updateTransfer($arrCandidate,$start_date,$end_date);
+//
+//        expect('Transfer should return error', $result['message'])->contains('transfer total can not be zero!');
+//    }
 }
