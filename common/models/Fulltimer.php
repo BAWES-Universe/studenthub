@@ -44,6 +44,9 @@ class Fulltimer extends \yii\db\ActiveRecord
     public $tags;
 
     //Gender values for `gender`
+    const YES = 1;
+    const NO = 2;
+
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
     const GENDER_OTHER = 3;
@@ -68,9 +71,10 @@ class Fulltimer extends \yii\db\ActiveRecord
             [['fulltimer_latitude', 'fulltimer_longitude'], 'number'],
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
-            [['fulltimer_employed', 'fulltimer_driving_license'], 'boolean'],
+            [['fulltimer_employed'], 'boolean'],
             [['fulltimer_birth_date'], 'date', 'format' => 'yyyy-M-d'],
             ['fulltimer_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
+            ['fulltimer_driving_license', 'in', 'range' => [self::YES, self::NO]],
             [['fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'fulltimer_pdf_cv','fulltimer_current_salary','fulltimer_expected_salary'], 'string', 'max' => 255],
             [
                 ['fulltimer_pdf_cv'],
