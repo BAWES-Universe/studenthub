@@ -151,13 +151,7 @@ class DailyStandupController extends Controller
      */
     public function actionSession()
     {
-         $session = StaffWorkSession::find()
-            ->andWhere([
-                'staff_id' => Yii::$app->user->getId()
-            ])
-            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
-                AND total_minutes IS NULL"))
-            ->one();
+         $session = Yii::$app->user->activeSession();
 
          $leave = StaffLeave::find()
              ->andWhere(['staff_id' => Yii::$app->user->getId()])
@@ -177,13 +171,7 @@ class DailyStandupController extends Controller
      */
     public function actionStartSession()
     {
-        $model = StaffWorkSession::find()
-            ->andWhere([
-                'staff_id' => Yii::$app->user->getId()
-            ])
-            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
-                AND total_minutes IS NULL"))
-            ->one();
+        $model = Yii::$app->user->activeSession();
 
         if ($model) {
             return [
@@ -210,7 +198,7 @@ class DailyStandupController extends Controller
                 'operation' => 'success',
                 'message' => "Session started!",
                 "time" => date('Y-m-d H:i:s'),
-                "model" => StaffWorkSession::findOne(['work_session_uuid' => $model->work_session_uuid])
+                "model" => Yii::$app->user->activeSession()
             ];
         }
 
@@ -231,13 +219,7 @@ class DailyStandupController extends Controller
             ->select(new Expression("TIMESTAMPDIFF(created_at, NOW())"))
             ->scalar();*/
 
-        $model = StaffWorkSession::find()
-            ->andWhere([
-                'staff_id' => Yii::$app->user->getId()
-            ])
-            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
-                AND total_minutes IS NULL"))
-            ->one();
+        $model = Yii::$app->user->activeSession();
 
         if(!$model) {
             return [
