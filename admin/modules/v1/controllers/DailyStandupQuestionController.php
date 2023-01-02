@@ -167,7 +167,7 @@ class DailyStandupQuestionController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
         $model->question = Yii::$app->request->getBodyParam("question");
 
@@ -202,7 +202,7 @@ class DailyStandupQuestionController extends Controller
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel((int)$id);
+        $model = $this->findModel($id);
 
         // Delete bank
         $model->delete();
