@@ -190,7 +190,7 @@ class DailyStandupController extends Controller
         return [
             'operation' => 'success',
             'message' => "Session started!",
-            "savedModel" => $model,
+            "time" => date('Y-m-d H:i:s'),
             "model" => StaffWorkSession::findOne(['work_session_uuid' => $model->work_session_uuid])
         ];
     }
