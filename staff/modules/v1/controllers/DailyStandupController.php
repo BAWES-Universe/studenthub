@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use staff\models\Staff;
 use Yii;
 use common\models\DailyStandupAnswer;
 use common\models\DailyStandupQuestion;
