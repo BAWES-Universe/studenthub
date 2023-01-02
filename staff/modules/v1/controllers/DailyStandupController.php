@@ -8,6 +8,7 @@ use common\models\DailyStandupAnswer;
 use common\models\DailyStandupQuestion;
 use common\models\StaffLeave;
 use common\models\StaffWorkSession;
+use yii\data\ActiveDataProvider;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -176,6 +177,23 @@ class DailyStandupController extends Controller
      */
     public function actionStartSession()
     {
+        $model = StaffWorkSession::find()
+            ->andWhere([
+                'staff_id' => Yii::$app->user->getId()
+            ])
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
+                AND total_minutes IS NULL"))
+            ->one();
+
+        if ($model) {
+            return [
+                'operation' => 'success',
+                'message' => "Session started!",
+                "time" => date('Y-m-d H:i:s'),
+                "model" => $model
+            ];
+        }
+
         $model = new StaffWorkSession();
         $model->staff_id = Yii::$app->user->getId();
 
@@ -246,6 +264,38 @@ class DailyStandupController extends Controller
             'message' => "Session ended!",
             "model" => $model
         ];
+    }
+
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public function actionListWorkSession()
+    {
+        $created_at = Yii::$app->request->get('created_at');
+        $groupBy = Yii::$app->request->get('groupBy');
+
+        $query = StaffWorkSession::find();
+        $query->andWhere(['staff_id' => Yii::$app->user->getId()]);
+
+        if ($groupBy) {
+            if ($groupBy == 'staff') {
+                $query->addSelect("sum(total_minutes) as total_minutes");
+                $query->addGroupBy('staff_id');
+            }
+            if ($groupBy == 'date') {
+                $query->addGroupBy('created_at');
+            }
+        }
+
+        if($created_at) {
+            $query->andWhere(new Expression("DATE(created_at) = 
+                DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**

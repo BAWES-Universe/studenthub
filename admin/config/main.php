@@ -314,6 +314,7 @@ return [
                     'controller' => 'v1/daily-standup-question',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET work-session' => 'list-work-session',
                         'GET list-answers' => 'list-answers',
                         'GET absences' => 'absences',
                         'GET <id>' => 'view',
@@ -323,6 +324,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS work-session' => 'options',
                     ]
                 ],
                 [ // BankController

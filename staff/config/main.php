@@ -79,6 +79,7 @@ return [
                     'controller' => 'v1/daily-standup',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET work-session' => 'list-work-session',
                         'POST start-session' => 'start-session',
                         'PATCH end-session' => 'end-session',
                         'POST leave-request' => 'leave-request',
@@ -93,6 +94,7 @@ return [
                         'OPTIONS start-session' => 'options',
                         'OPTIONS end-session' => 'options',
                         'OPTIONS leave-request' => 'options',
+                        'OPTIONS work-session' => 'options',
                         'OPTIONS answer/<question_uuid>' => 'options'
                     ]
                 ],

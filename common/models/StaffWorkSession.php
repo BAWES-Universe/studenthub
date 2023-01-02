@@ -69,6 +69,13 @@ class StaffWorkSession extends \yii\db\ActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'staff'
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
