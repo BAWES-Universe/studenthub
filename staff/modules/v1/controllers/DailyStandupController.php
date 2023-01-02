@@ -8,6 +8,7 @@ use common\models\DailyStandupAnswer;
 use common\models\DailyStandupQuestion;
 use common\models\StaffLeave;
 use common\models\StaffWorkSession;
+use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\rest\Controller;
 
@@ -184,12 +185,12 @@ class DailyStandupController extends Controller
                 'message' => $model->errors
             ];
         }
+        $model->refresh();
 
         return [
             'operation' => 'success',
             'message' => "Session started!",
-            "savedModel" => $model,
-            "model" => StaffWorkSession::findOne(['work_session_uuid' => $model->work_session_uuid])
+            "model" => $model
         ];
     }
 
