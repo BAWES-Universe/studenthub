@@ -187,11 +187,18 @@ class DailyStandupController extends Controller
         }
         $model->refresh();
 
+        if ($model) {
+            return [
+                'operation' => 'success',
+                'message' => "Session started!",
+                "time" => date('Y-m-d H:i:s'),
+                "model" => StaffWorkSession::findOne(['work_session_uuid' => $model->work_session_uuid])
+            ];
+        }
+
         return [
-            'operation' => 'success',
-            'message' => "Session started!",
-            "time" => date('Y-m-d H:i:s'),
-            "model" => StaffWorkSession::findOne(['work_session_uuid' => $model->work_session_uuid])
+            'operation' => 'error',
+            'message' => "Error while fetching the details",
         ];
     }
 
