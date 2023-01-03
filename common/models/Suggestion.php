@@ -576,10 +576,11 @@ class Suggestion extends \yii\db\ActiveRecord
                             //continue;
                             throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                         }
-                    } else {
-                        //continue;
-                        throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                     }
+//                    else {
+//                        //continue;
+//                        throw new \yii\console\Exception('Candidate Profile not available #'. $eachSuggestion->fulltimer_uuid);
+//                    }
 
                     $noOfAttachments++;
 
