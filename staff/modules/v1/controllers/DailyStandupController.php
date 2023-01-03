@@ -151,7 +151,7 @@ class DailyStandupController extends Controller
      */
     public function actionSession()
     {
-         $session = Yii::$app->user->activeSession();
+         $session = Yii::$app->user->identity->getActiveSession();
 
          $leave = StaffLeave::find()
              ->andWhere(['staff_id' => Yii::$app->user->getId()])
@@ -171,7 +171,7 @@ class DailyStandupController extends Controller
      */
     public function actionStartSession()
     {
-        $model = Yii::$app->user->activeSession();
+        $model = Yii::$app->user->identity->getActiveSession();
 
         if ($model) {
             return [
@@ -198,7 +198,7 @@ class DailyStandupController extends Controller
                 'operation' => 'success',
                 'message' => "Session started!",
                 "time" => date('Y-m-d H:i:s'),
-                "model" => Yii::$app->user->activeSession()
+                "model" => Yii::$app->user->identity->getActiveSession()
             ];
         }
 
@@ -219,7 +219,7 @@ class DailyStandupController extends Controller
             ->select(new Expression("TIMESTAMPDIFF(created_at, NOW())"))
             ->scalar();*/
 
-        $model = Yii::$app->user->activeSession();
+        $model = Yii::$app->user->identity->getActiveSession();
 
         if(!$model) {
             return [
