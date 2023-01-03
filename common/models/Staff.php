@@ -412,7 +412,6 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getStoryActivities($modelClass = "\common\models\StoryActivity") {
@@ -705,5 +704,15 @@ class Staff extends ActiveRecord implements IdentityInterface
 
     public function getPermissions($modelClass = "\common\models\PermissionUser") {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    public function getActiveSession() {
+        return StaffWorkSession::find()
+            ->andWhere([
+                'staff_id' => Yii::$app->user->getId()
+            ])
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
+                AND total_minutes IS NULL"))
+            ->one();
     }
 }

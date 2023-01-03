@@ -12,7 +12,7 @@ use common\fixtures\CandidateIdCardFixture;
 use Codeception\Util\HttpCode;
 
 
-class fCandidateIdCardCest {
+class CandidateIdCardCest {
 
     public $token;
 
@@ -120,4 +120,3 @@ class fCandidateIdCardCest {
         $I->seeResponseCodeIs(HttpCode::OK);
     }*/
 }                      
-                   
