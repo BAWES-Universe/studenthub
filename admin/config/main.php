@@ -537,6 +537,15 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // DailyStandupAnswerController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/daily-standup-answer',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
