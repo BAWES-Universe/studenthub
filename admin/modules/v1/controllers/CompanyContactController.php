@@ -76,7 +76,8 @@ class CompanyContactController extends Controller
      */
     public function actionList()
     {
-        $company_id = Yii::$app->request->get('company_id');
+        $company_id = Yii::$app->request->get('company_id', null);
+        $name = Yii::$app->request->get('name', null);
 
         $query = CompanyContact::find()
             ->orderBy('created_at ASC');
@@ -84,7 +85,18 @@ class CompanyContactController extends Controller
         if($company_id) {
             $query->andWhere(['company_id' => $company_id]);
         }
-        
+
+        if($name) {
+            $query->joinWith('contact');
+            $query->andFilterWhere(
+                [
+                    'or',
+                    ['like','{{contact}}.contact_name',$name],
+                    ['like','{{contact}}.contact_email',$name]
+                ]
+            );
+        }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
