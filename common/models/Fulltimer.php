@@ -676,4 +676,9 @@ class Fulltimer extends \yii\db\ActiveRecord
         $rejected = $this->getSuggestion()->andWhere(['suggestion_status'=>Suggestion::TYPE_REJECTED])->count();
         return ($total && $rejected) ? round(($rejected/$total) * 100): null;
     }
+
+    public static function find()
+    {
+        return new query\FulltimerQuery(get_called_class());
+    }
 }
