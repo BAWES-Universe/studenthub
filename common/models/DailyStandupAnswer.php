@@ -91,6 +91,14 @@ class DailyStandupAnswer extends \yii\db\ActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'question',
+            'staff',
+        ];
+    }
+
     /**
      * @inheritdoc
      * @return query\DailyStandupAnswerQuery the active query used by this AR class.
