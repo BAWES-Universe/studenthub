@@ -546,6 +546,15 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // StaffWorkSessionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-work-session',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
