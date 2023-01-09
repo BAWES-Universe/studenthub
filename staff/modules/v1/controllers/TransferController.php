@@ -496,6 +496,12 @@ class TransferController extends Controller
                     }
                 ],
                 [
+                    'header' => 'candidate_civil_id',
+                    'value' => function($data) {
+                        return $data->candidate_civil_id;
+                    }
+                ],
+                [
                     'header' => 'company_name',
                     'value' => function($data) {
                         return $data->company->company_name;
