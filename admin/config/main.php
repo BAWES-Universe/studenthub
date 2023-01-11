@@ -79,8 +79,6 @@ return [
                         'GET <id>' => 'view',
                         'GET' => 'list',
                         'POST import-salary' => 'import-salary',
-                        'POST add-salary/<id>' => 'add-salary',
-                        'PATCH update-salary/<id>' => 'update-salary',
                         'PATCH status-change/<id>' => 'status',
                         'PATCH recover-account/<id>' => 'recover-account',
                         'POST' => 'create',
@@ -91,8 +89,6 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS status-change/<id>' => 'options',
                         'OPTIONS list-salaries/<id>' => 'options',
-                        'OPTIONS add-salary/<id>' => 'options',
-                        'OPTIONS update-salary/<id>' => 'options',
                         'OPTIONS view-salary/<id>' => 'options',
                         'OPTIONS import-salary' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -553,6 +549,24 @@ return [
                         'GET' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                    ]
+                ],
+                [ // StaffSalaryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-salary',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST create-salary' => 'create-salary',
+                        'POST add-salary/<id>' => 'add-salary',
+                        'PATCH update-salary/<id>' => 'update-salary',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS create-salary' => 'options',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS add-salary/<id>' => 'options',
+                        'OPTIONS update-salary/<id>' => 'options',
                     ]
                 ],
             ],
