@@ -285,6 +285,7 @@ class CandidateController extends Controller
      */
     public function actionView($id)
     {
+        ini_set('memory_limit','-1');
         return $this->findModel($id);
     }
     
