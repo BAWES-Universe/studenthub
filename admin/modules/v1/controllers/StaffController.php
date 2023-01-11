@@ -122,53 +122,6 @@ class StaffController extends Controller
     }
 
     /**
-     * Add staff salary
-     */
-    public function actionAddSalary($id)
-    {
-        $staff = $this->findModel($id);
-
-        $model = new StaffSalary();
-
-        $model->staff_id = $staff->staff_id;
-        $model->salary =Yii::$app->request->getBodyParam("salary");
-        $model->salary_currency = Yii::$app->request->getBodyParam("salary_currency");
-        $model->comment = Yii::$app->request->getBodyParam("comment");
-        $model->salary_date = date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("salary_date")));
-
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem adding salary, please contact us for assistance."
-                ];
-            }
-        }
-
-        /*if(YII_ENV == 'prod') {
-            Yii::$app->eventManager->setUser('admin_' . Yii::$app->user->getId(), [
-                '$first_name' => Yii::$app->user->identity->admin_name,
-                '$email' => Yii::$app->user->identity->admin_email
-            ]);
-        }*/
-
-        //todo: send to segment
-
-        Yii::info('[Staff Salary Added] For "'.$staff->staff_email.'" by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
-
-        return [
-            "operation" => "success",
-            "message" => "Staff salary successfully added"
-        ];
-    }
-
-    /**
      * import bank excel to extract candidate data
      * @return type
      */
