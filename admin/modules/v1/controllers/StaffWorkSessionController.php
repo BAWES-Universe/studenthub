@@ -2,11 +2,8 @@
 
 namespace admin\modules\v1\controllers;
 
-use common\models\DailyStandupAnswer;
-use common\models\StaffLeave;
 use common\models\StaffWorkSession;
 use Yii;
-use common\models\DailyStandupQuestion;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 use yii\filters\auth\HttpBearerAuth;
@@ -72,31 +69,19 @@ class StaffWorkSessionController extends Controller
      */
     public function actionList()
     {
-        $groupBy = Yii::$app->request->get('groupBy');
-        $staff_id = Yii::$app->request->get('staff_id');
-        $created_at = Yii::$app->request->get('created_at');
-
         $query = StaffWorkSession::find();
 
-        if($staff_id) {
+        if($staff_id = Yii::$app->request->get('staff_id')) {
             $query->andWhere(['staff_id' => $staff_id]);
         }
 
-        if ($groupBy) {
-            if ($groupBy == 'staff') {
-                $query->addGroupBy('staff_id');
-            }
-            if ($groupBy == 'date') {
-                $query->addGroupBy('created_at');
-            }
-        }
-
-        if($created_at) {
+        if($created_at = Yii::$app->request->get('date')) {
             $query->andWhere(new Expression("DATE(created_at) = 
                 DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
         }
 
-        $query->orderBy('created_at DESC');
+        $query->filterByGroup();
+        $query->filterByOrder();
 
         return new ActiveDataProvider([
             'query' => $query
@@ -104,9 +89,9 @@ class StaffWorkSessionController extends Controller
     }
 
     /**
-     * load StaffWorkSession details
-     * @param type $id
-     * @return type
+     * @param $id
+     * @return StaffWorkSession
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
