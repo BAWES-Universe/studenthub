@@ -86,11 +86,26 @@ class DailyStandupAnswerController extends Controller
             $query->filterByDate($date);
         }
 
+        $query->filterByGroup();
+        $query->filterByOrder();
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
 
+    /**
+     * @param $staffId
+     * @param $date
+     * @return array|\yii\db\ActiveRecord|null
+     * @throws NotFoundHttpException
+     */
+    public function actionViewAnswer($staffId, $date){
+        return $query = DailyStandupAnswer::find()
+        ->andWhere(['staff_id'=>$staffId])
+        ->andWhere(new \yii\db\Expression("DATE(created_at)= DATE('$date')"))
+        ->all();
+    }
     /**
      * Return a List of DailyStandupAnswers available.
      * @return ActiveDataProvider
