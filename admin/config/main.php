@@ -538,8 +538,10 @@ return [
                     'controller' => 'v1/daily-standup-answer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET <staffId>/<date>' => 'view-answer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS <staffId>/<date>' => 'options',
                     ]
                 ],
                 [ // StaffWorkSessionController
