@@ -38,4 +38,16 @@ class DailyStandupAnswerQuery extends \yii\db\ActiveQuery
     public function filterByDate($date) {
         return $this->andWhere(new Expression("DATE(created_at) = DATE('".$date."')"));
     }
+
+    public function filterByGroup() {
+        return $this->addGroupBy(new Expression("staff_id,DATE(created_at)"));
+    }
+
+    public function filterByOrder() {
+        return $this->addOrderBy(new Expression("created_at desc"));
+    }
+
+    public function getSqlQuery() {
+        return $this->createCommand()->getRawSql();
+    }
 }
