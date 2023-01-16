@@ -571,6 +571,30 @@ return [
                         'OPTIONS update-salary/<id>' => 'options',
                     ]
                 ],
+                [ // CandidateEvaluationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-evaluation',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET question' => 'list-question',
+                        'GET question/<id>' => 'view-question',
+                        'GET list-assigned-question' => 'list-assigned-question',
+                        'GET list-candidate-report' => 'list-candidate-report',
+                        'POST create-question' => 'create-question',
+                        'PATCH update-question/<id>' => 'update-question',
+                        'PUT assign-question/<id>' => 'assign-question',
+                        'DELETE question/<id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS question' => 'options',
+                        'OPTIONS question/<id>' => 'options',
+                        'OPTIONS list-assigned-question' => 'options',
+                        'OPTIONS list-candidate-report' => 'options',
+                        'OPTIONS create-question' => 'options',
+                        'OPTIONS update-question/<id>' => 'options',
+                        'OPTIONS assign-question/<id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
