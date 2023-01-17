@@ -81,8 +81,12 @@ class CandidateEvalDeptQues extends \yii\db\ActiveRecord
      * 1-Sales Associate,2-IT,3-Call Centre Agent, 4-Social Media, 5-Outdoor Sales Representative
      */
     public function getDepartment() {
+        return self::getDepartmentDetail($this->dept_id);
+    }
+
+    public static function getDepartmentDetail($id) {
         $department = null;
-        switch ($this->dept_id) {
+        switch ($id) {
             case self::DEPT_SALE:
                 $department = 'Sales Associate';
                 break;
