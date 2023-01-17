@@ -45,7 +45,8 @@ class m230113_065332_candidate_evaluation extends Migration
             'created_at' => $this->datetime()->notNull(),
             'updated_at' => $this->datetime()->notNull()
         ], $tableOptions);
-        $this->addPrimaryKey('PK', 'candidate_evaluation', 'can_eval_uuid');
+
+        Yii::$app->db->createCommand('ALTER TABLE `candidate_evaluation` ADD PRIMARY KEY(`can_eval_uuid`);')->execute();
 
         $this->createIndex('idx_candidate_eval_dept_ques_ceq_uuid','candidate_eval_dept_ques','ceq_uuid');
 

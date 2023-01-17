@@ -569,6 +569,22 @@ return [
                         'OPTIONS payable-list' => 'options',
                     ]
                 ],
+                [ // CandidateEvaluationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-evaluation',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET question-by-dept/<id>' => 'list-question-by-dept',
+                        'GET list-report/<id>' => 'list-report',
+                        'GET report/<id>' => 'view-report',
+                        'POST' => 'create',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS question-by-dept/<id>' => 'options',
+                        'OPTIONS list-report/<id>' => 'options',
+                        'OPTIONS report/<id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
