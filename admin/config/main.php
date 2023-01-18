@@ -580,6 +580,7 @@ return [
                         'GET question/<id>' => 'view-question',
                         'GET list-assigned-question' => 'list-assigned-question',
                         'GET list-candidate-report' => 'list-candidate-report',
+                        'GET report/<id>' => 'view-report',
                         'POST create-question' => 'create-question',
                         'PATCH update-question/<id>' => 'update-question',
                         'PUT assign-question/<id>' => 'assign-question',
@@ -587,6 +588,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS question' => 'options',
+                        'OPTIONS report/<id>' => 'options',
                         'OPTIONS question/<id>' => 'options',
                         'OPTIONS list-assigned-question' => 'options',
                         'OPTIONS list-candidate-report' => 'options',

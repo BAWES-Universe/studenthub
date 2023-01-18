@@ -99,6 +99,15 @@ class CandidateEvaluationController extends Controller
     {
         $query = CandidateEvaluation::find();
 
+        if ($staffID = Yii::$app->request->get('staffID',null))
+            $query->andWhere(['staff_id'=>$staffID]);
+
+        if ($candidateID = Yii::$app->request->get('candidateID',null))
+            $query->andWhere(['candidate_id'=>$candidateID]);
+
+        if ($departmentID = Yii::$app->request->get('departmentID',null))
+            $query->andWhere(['dept_id'=>$departmentID]);
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -131,6 +140,15 @@ class CandidateEvaluationController extends Controller
             'operation' => 'success',
             'message' => 'Candidate Evaluation question created success'
         ];
+    }
+
+    /**
+     * @param $id
+     * @return CandidateEvaluation|null
+     */
+    public function actionViewReport($id)
+    {
+        return CandidateEvaluation::findOne($id);
     }
 
     /**
