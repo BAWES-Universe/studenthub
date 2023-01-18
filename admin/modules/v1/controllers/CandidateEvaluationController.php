@@ -108,6 +108,7 @@ class CandidateEvaluationController extends Controller
         if ($departmentID = Yii::$app->request->get('departmentID',null))
             $query->andWhere(['dept_id'=>$departmentID]);
 
+        $query->orderBy('created_at desc');
         return new ActiveDataProvider([
             'query' => $query
         ]);
