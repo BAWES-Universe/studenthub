@@ -577,12 +577,14 @@ return [
                         'GET question-by-dept/<id>' => 'list-question-by-dept',
                         'GET list-report/<id>' => 'list-report',
                         'GET report/<id>' => 'view-report',
+                        'GET pdf/<id>' => 'pdf',
                         'POST' => 'create',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS question-by-dept/<id>' => 'options',
                         'OPTIONS list-report/<id>' => 'options',
                         'OPTIONS report/<id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options',
                     ]
                 ],
             ],

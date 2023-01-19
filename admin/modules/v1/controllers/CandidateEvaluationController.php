@@ -4,6 +4,7 @@ namespace admin\modules\v1\controllers;
 
 use common\models\CandidateEvalDeptQues;
 use common\models\CandidateEvaluation;
+use kartik\mpdf\Pdf;
 use Yii;
 use yii\db\BaseActiveRecord;
 use yii\rest\Controller;
@@ -247,6 +248,45 @@ class CandidateEvaluationController extends Controller
             'operation' => 'success',
             'message' => 'Candidate Evaluation question deleted successfully'
         ];
+    }
+
+    /**
+     * Download Transfer as PDF
+     * @param $id
+     * @return array|mixed
+     */
+    public function actionPdf($id)
+    {
+        $report = CandidateEvaluation::find()
+            ->joinWith(['candidate','staff','questionAnswer'])
+            ->andWhere(['candidate_evaluation.can_eval_uuid'=>$id])
+            ->one();
+
+        $this->layout = 'pdf';
+
+        $content = $this->render('@admin/modules/v1/views/candidate/candidate-evaluation-report-pdf.php', [
+            'report' => $report,
+        ]);
+
+        $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+            // call mPDF methods on the fly
+        ]);
+
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
     }
 
     /**

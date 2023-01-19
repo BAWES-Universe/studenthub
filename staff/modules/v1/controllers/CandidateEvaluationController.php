@@ -6,6 +6,8 @@ use common\models\CandidateEvalDeptQues;
 use common\models\CandidateEvaluation;
 use common\models\CandidateEvaluationAnswer;
 use common\models\Item;
+use kartik\mpdf\Pdf;
+use staff\models\Invoice;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
@@ -88,7 +90,8 @@ class CandidateEvaluationController extends Controller
         $model = new CandidateEvaluation();
         $model->candidate_id = Yii::$app->request->post('candidateID');
         $model->dept_id = Yii::$app->request->post('dept');
-        $model->date = Yii::$app->request->post('date');
+        $model->start_date = Yii::$app->request->post('start_date');
+        $model->end_date = Yii::$app->request->post('end_date');
         if (!$model->save()) {
             $transaction->rollBack();
             return [
@@ -143,6 +146,44 @@ class CandidateEvaluationController extends Controller
         return CandidateEvaluation::findOne($id);
     }
 
+    /**
+     * Download Transfer as PDF
+     * @param $id
+     * @return array|mixed
+     */
+    public function actionPdf($id)
+    {
+        $report = CandidateEvaluation::find()
+            ->joinWith(['candidate','staff','questionAnswer'])
+            ->andWhere(['candidate_evaluation.can_eval_uuid'=>$id])
+            ->one();
+
+        $this->layout = 'pdf';
+
+        $content = $this->render('@staff/modules/v1/views/candidate/candidate-evaluation-report-pdf.php', [
+            'report' => $report,
+        ]);
+
+        $pdf = new Pdf([
+            'mode' => Pdf::MODE_UTF8,
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            // your html content input
+            'content' => $content,
+            // any css to be embedded if required
+            'cssInline' => 'body {line-height: 1.85714286em;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #666666;} h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {font-family: \'Open Sans\', \'Helvetica\', \'Arial\', sans-serif;color: #252525;font-variant-ligatures: common-ligatures;margin-top: 0;margin-bottom: 0;}',
+            // set mPDF properties on the fly
+            'options' => [],//['title' => 'Booking #'.$id],
+            // call mPDF methods on the fly
+        ]);
+
+        header('Access-Control-Allow-Origin: *');
+        return $pdf->render();
+    }
     /**
      * Finds the Candidate model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

@@ -15,7 +15,8 @@ use yii\db\Expression;
  * @property string $can_eval_uuid candidate_evaluation_uuid
  * @property int $candidate_id
  * @property int $dept_id 1-Sales Associate,2-IT,3-Call Centre Agent, 4-Social Media, 5-Outdoor Sales Representative, 
- * @property string $date
+ * @property string $start_date
+ * @property string $end_date
  * @property int $staff_id
  * @property string $created_at
  * @property string $updated_at
@@ -40,8 +41,8 @@ class CandidateEvaluation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_id', 'dept_id'], 'required'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['candidate_id', 'dept_id','start_date','end_date'], 'required'],
+            [['created_at', 'updated_at','start_date','end_date'], 'safe'],
             [['can_eval_uuid'], 'string', 'max' => 60],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
@@ -100,6 +101,8 @@ class CandidateEvaluation extends \yii\db\ActiveRecord
             'can_eval_uuid' => 'Can Eval Uuid',
             'candidate_id' => 'Candidate ID',
             'dept_id' => 'Dept ID',
+            'start_date' => 'Start Date',
+            'end_date' => 'End Date',
             'staff_id' => 'Staff ID',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
