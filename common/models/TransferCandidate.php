@@ -66,7 +66,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         return [
             [['transfer_id', 'candidate_id', 'store_id', 'bank_id', 'company_id', 'transfer_file_id'], 'integer'],
-            [['store_name', 'company_name'], 'string', 'max' => 100],
+            [['store_name', 'company_name'], 'string', 'max' => 225],
             [['company_email'], 'email'],
             [['transfer_confirmation_id'], 'string', 'max' => 128],
             [['transfer_benef_iban'], 'string', 'max' => 50],
