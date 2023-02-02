@@ -599,6 +599,21 @@ return [
                         'OPTIONS assign-question/<id>' => 'options',
                     ]
                 ],
+                [ // StaffExpensesController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-expenses',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH change-status/<id>' => 'change-status',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS change-status/<id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
