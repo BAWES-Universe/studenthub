@@ -105,7 +105,7 @@ class StaffExpensesController extends Controller
         $model->total_amount = Yii::$app->request->getBodyParam("total_amount");
         $model->currency = Yii::$app->request->getBodyParam("currency");
         $model->vat = Yii::$app->request->getBodyParam("vat");
-        $model->reimbursable = Yii::$app->request->getBodyParam("reimbursable");
+        $model->reimbursable = (Yii::$app->request->getBodyParam("reimbursable")) ? 1 : 0;
         $model->description = Yii::$app->request->getBodyParam("description");
         $model->file = Yii::$app->request->getBodyParam("file");
         $model->staff_id = Yii::$app->user->getId();
