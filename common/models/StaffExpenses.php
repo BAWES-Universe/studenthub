@@ -55,6 +55,18 @@ class StaffExpenses extends \yii\db\ActiveRecord
             [['supplier', 'file'], 'string', 'max' => 225],
             [['staff_expense_uuid'], 'unique'],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [
+                ['file'],
+                '\common\components\S3FileExistValidator',
+                'skipOnError' => true,
+                'filePath' => '',
+                'message' => "Please upload attachment",
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'extensions' => 'pdf,doc,docx',
+                'when' => function($model, $attribute) {
+                    return (trim($model->file) && $model->{$attribute} !== $model->getOldAttribute($attribute));
+                }
+            ],
         ];
     }
 
@@ -187,5 +199,58 @@ class StaffExpenses extends \yii\db\ActiveRecord
 
     public function getStatus() {
         return $this->getStatusDetail($this->status);
+    }
+
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave ($insert)) {
+            return false;
+        }
+
+        //on resume uploaded
+
+        if($insert && $this->file) {
+            return $this->updateAttachment();
+        }
+
+        return true;
+    }
+
+    /**
+     * save resume to permanent bucket
+     * @return boolean
+     */
+    public function updateAttachment() {
+
+        $fileName = $this->file;
+
+        $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
+
+        $targetPath = "staff-expenses/" . $fileName;
+
+        // Copy using S3ResourceManager Component
+
+        try {
+
+            Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+            Yii::error($e->getMessage(), 'staff');
+
+            $this->addError('file', Yii::t('app', 'file not available to save.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'staff');
+
+            $this->addError('file', Yii::t('app', 'file not available to save.'));
+
+            return false;
+        }
+
+        return true;
     }
 }
