@@ -729,6 +729,7 @@ class CompanyController extends Controller
                 'company_name',
                 'company_common_name_en',
                 'company_common_name_ar',
+                'company_email',
                 [
                     'attribute'=>'company_status',
                     'label'=>'Company Status',
