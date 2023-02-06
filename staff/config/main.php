@@ -602,6 +602,20 @@ return [
                     ]
                 ],
 
+                [ // staffLeaveController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-leave',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET ' => 'list',
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+
             ],
         ],
     ],

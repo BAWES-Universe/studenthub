@@ -114,6 +114,7 @@ class DailyStandupController extends Controller
         $model->from_date = Yii::$app->request->getBodyParam('from_date');
         $model->to_date = Yii::$app->request->getBodyParam('to_date');
         $model->note = Yii::$app->request->getBodyParam('note');
+        $model->category = Yii::$app->request->getBodyParam('type');
 
         if(!$model->save()) {
             return [
