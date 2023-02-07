@@ -31,6 +31,7 @@ class Staff extends \common\models\Staff {
         $fields['total_notes'] = function ($model) {
             return $model->getNotes()->count();
         };
+
         return $fields;
     }
 

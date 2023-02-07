@@ -132,6 +132,16 @@ class Staff extends ActiveRecord implements IdentityInterface
             $fields['staff_password_reset_token']
         );
 
+        $fields['staff_salary'] = function ($model) {
+            // only for meet and khalid..
+            // TODO will change to permission base
+            $id = Yii::$app->user->getId();
+            if ($id == 1 || $id == 7 || $id == 10) {
+                return $model->staff_salary;
+            }
+            return 0.0;
+        };
+
         return $fields;
     }
 
