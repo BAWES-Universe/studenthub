@@ -1,16 +1,11 @@
 <?php
 
-namespace staff\modules\v1\controllers;
+namespace admin\modules\v1\controllers;
 
-use staff\models\Staff;
 use Yii;
-use common\models\DailyStandupAnswer;
 use common\models\DailyStandupQuestion;
 use common\models\StaffLeave;
-use common\models\StaffWorkSession;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
 use yii\rest\Controller;
 
 
@@ -98,7 +93,7 @@ class StaffLeaveController extends Controller
     public function actionList()
     {
         $query = StaffLeave::find();
-        $query->andWhere(['staff_id'=>Yii::$app->user->getId()]);
+        $query->orderBy('created_at desc');
         return new ActiveDataProvider([
             'query' => $query
         ]);
@@ -121,6 +116,30 @@ class StaffLeaveController extends Controller
         return [
             'operation' => 'error',
             'message' => 'error while deleting request'
+        ];
+    }
+
+    /**
+     * @param $id
+     * @return string[]
+     * @throws \yii\db\StaleObjectException
+     * @throws \yii\web\NotFoundHttpException
+     */
+    public function actionChangeStatus($id)
+    {
+        $model = $this->_findModel($id);
+        $model->status = Yii::$app->request->getBodyParam('status');
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->errors
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => "Request status changed successfully!"
         ];
     }
 

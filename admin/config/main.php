@@ -614,6 +614,20 @@ return [
                         'OPTIONS change-status/<id>' => 'options',
                     ]
                 ],
+                [ // staffLeaveController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-leave',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET ' => 'list',
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        'PATCH <id>' => 'change-status',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
             ],
         ],
     ],
