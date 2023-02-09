@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Staff;
 use common\models\DailyStandupAnswer;
 use common\models\StaffLeave;
 use common\models\StaffWorkSession;
@@ -83,11 +84,35 @@ class DailyStandupAnswerController extends Controller
         }
 
         if ($date = Yii::$app->request->get('date',null)) {
-            $query->filterByDate($date);
+            $query->filterByDate(date('Y-m-d', strtotime($date)));
         }
 
         $query->filterByGroup();
         $query->filterByOrder();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of StaffWorkSession available.
+     * @return ActiveDataProvider
+     */
+    public function actionListInactive()
+    {
+        $query = Staff::find();
+
+        if($staff_id = Yii::$app->request->get('staff_id')) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
+
+        if($created_at = Yii::$app->request->get('date')) {
+            $subQuery = DailyStandupAnswer::find()->select('staff_id')
+                ->andWhere(new Expression("DATE(created_at) = DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
+            $query->andWhere(['not in', 'staff_id', $subQuery]);
+            $query->andWhere(['deleted' => '0']);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
