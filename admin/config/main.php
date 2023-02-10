@@ -538,9 +538,11 @@ return [
                     'controller' => 'v1/daily-standup-answer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET list-inactive' => 'list-inactive',
                         'GET <staffId>/<date>' => 'view-answer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS list-inactive' => 'options',
                         'OPTIONS <staffId>/<date>' => 'options',
                     ]
                 ],
@@ -549,8 +551,10 @@ return [
                     'controller' => 'v1/staff-work-session',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET list-inactive' => 'list-inactive',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS list-inactive' => 'options',
                     ]
                 ],
                 [ // StaffSalaryController

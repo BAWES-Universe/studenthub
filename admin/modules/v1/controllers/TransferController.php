@@ -90,6 +90,7 @@ class TransferController extends Controller
         if ($company_name) {
             $query->companyJoin()
                 ->filterCompany($company_name);
+            $query->orFilterWhere(['LIKE','{{%transfer}}.transfer_id',$company_name]);
         }
 
         if($transfer_status)
@@ -1003,6 +1004,7 @@ class TransferController extends Controller
         if ($company_name) {
             $query->companyJoin()
                 ->filterCompany($company_name);
+            $query->orFilterWhere(['LIKE','{{%transfer}}.transfer_id',$company_name]);
         }
 
         if($transfer_status)

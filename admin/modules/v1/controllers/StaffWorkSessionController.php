@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Staff;
 use common\models\StaffWorkSession;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -82,6 +83,31 @@ class StaffWorkSessionController extends Controller
 
         $query->filterByGroup();
         $query->filterByOrder();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of StaffWorkSession available.
+     * @return ActiveDataProvider
+     */
+    public function actionListInactive()
+    {
+        $query = Staff::find();
+
+        if($staff_id = Yii::$app->request->get('staff_id')) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
+
+        if($created_at = Yii::$app->request->get('date')) {
+            $subQuery = StaffWorkSession::find()->select('staff_id')
+            ->andWhere(new Expression("DATE(created_at) = 
+                DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
+            $query->andWhere(['not in', 'staff_id', $subQuery]);
+            $query->andWhere(['deleted' => '0']);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
