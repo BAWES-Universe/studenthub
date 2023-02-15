@@ -178,4 +178,24 @@ class Company extends \common\models\Company {
     {
         return parent::getFiles($modelClass);
     }
+
+    public static function getCompanyByCondition($condition = null) {
+        $query = Company::find()
+            ->filterParent();
+
+        if ($condition == 'status') {
+            $query->filterActive();
+        }
+        $query->notDeleted();
+        return $query->count();
+    }
+
+    public static function request($status = null) {
+        $query = Request::find();
+
+        if ($status) {
+            $query->filterByStatus($status);
+        }
+        return $query->count();
+    }
 }
