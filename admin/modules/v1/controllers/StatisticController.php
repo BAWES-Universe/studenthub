@@ -93,7 +93,7 @@ class StatisticController extends Controller
         $result['candidates']['suggested'] = Candidate::suggested($startDate, $endDate);
         $result['company']['activeClient'] = Company::getCompanyByCondition('status',$startDate, $endDate);
         $result['company']['all'] = Company::getCompanyByCondition(null, $startDate, $endDate);
-        $result['company']['request']['all'] = Company::request($startDate, $endDate);
+        $result['company']['request']['all'] = Company::request(null,$startDate, $endDate);
         $result['company']['request']['delivered'] = Company::request('delivered', $startDate, $endDate);
         $result['payable']['total'] = $payableDetail['payable'];
         $result['payable']['amount'] = $payableDetail['amount'];
