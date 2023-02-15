@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 use admin\models\Candidate;
+use admin\models\Company;
 use admin\models\TransferCandidate;
 use admin\models\University;
 use common\models\Staff;
@@ -86,6 +87,12 @@ class StatisticController extends Controller
         $result['candidates']['total_candidate'] = $totalCandidate;
         $result['candidates']['total_assigned'] = $totalAssignedToWork;
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
+        $result['candidates']['invited'] = Candidate::invited();
+        $result['candidates']['suggested'] = Candidate::suggested();
+        $result['company']['activeClient'] = Company::getCompanyByCondition('status');
+        $result['company']['all'] = Company::getCompanyByCondition();
+        $result['company']['request']['all'] = Company::request();
+        $result['company']['request']['delivered'] = Company::request('delivered');
         $result['payable']['total'] = $payableDetail['payable'];
         $result['payable']['amount'] = $payableDetail['amount'];
 

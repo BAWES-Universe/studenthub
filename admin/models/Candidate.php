@@ -267,4 +267,12 @@ class Candidate extends \common\models\Candidate {
     {
         return new \admin\models\query\CandidateQuery(get_called_class());
     }
+
+    public static function invited() {
+        return Invitation::find()->count();
+    }
+
+    public static function suggested() {
+        return Suggestion::find()->count();
+    }
 }
