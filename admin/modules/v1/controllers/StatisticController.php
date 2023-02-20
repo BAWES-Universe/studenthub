@@ -160,10 +160,10 @@ class StatisticController extends Controller
         $totalPaymentAmountReceived->andWhere('transfer.parent_transfer_id IS NULL');
         $totalPaymentAmountReceived->filterPaymentReceived();
         if($startDate) {
-            $totalPaymentAmountReceived->andWhere(new Expression("DATE(transfer_created_at) >= DATE('" . $startDate . "')"));
+            $totalPaymentAmountReceived->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
         }
         if($endDate) {
-            $totalPaymentAmountReceived->andWhere(new Expression("DATE(transfer_created_at) <= DATE('" . $endDate . "')"));
+            $totalPaymentAmountReceived->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
         $data['totalPaymentAmountReceived'] = $totalPaymentAmountReceived->sum('company_total');
 
@@ -174,10 +174,10 @@ class StatisticController extends Controller
             //->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
         $totalBelongingToCandidates->filterPaymentReceived();
         if($startDate) {
-            $totalBelongingToCandidates->andWhere(new Expression("DATE(transfer_created_at) >= DATE('" . $startDate . "')"));
+            $totalBelongingToCandidates->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
         }
         if($endDate) {
-            $totalBelongingToCandidates->andWhere(new Expression("DATE(transfer_created_at) <= DATE('" . $endDate . "')"));
+            $totalBelongingToCandidates->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
         $data['totalBelongingToCandidates'] = $totalBelongingToCandidates->sum('total');
 
@@ -187,11 +187,11 @@ class StatisticController extends Controller
         $totalProfit->andWhere('transfer.parent_transfer_id IS NULL');//ignore duplicate entries of child transfers
         $totalProfit->filterPaymentReceived();
         if($startDate) {
-            $totalProfit->andWhere(new Expression("DATE(transfer_created_at) >= DATE('" . $startDate . "')"));
+            $totalProfit->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
         }
 
         if($endDate) {
-            $totalProfit->andWhere(new Expression("DATE(transfer_created_at) <= DATE('" . $endDate . "')"));
+            $totalProfit->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
 
         $data['totalProfit'] =$totalProfit->sum('company_total - total');
