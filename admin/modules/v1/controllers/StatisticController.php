@@ -104,8 +104,8 @@ class StatisticController extends Controller
             ->count();
 
         // Transfers
-        $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK);
-        $paymentSentTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_PAYMENT_SENT);
+        $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK, $startDate, $endDate);
+        $paymentSentTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_PAYMENT_SENT, $startDate, $endDate);
 
         $result['transfers'] = [];
         $result['transfers']['locked'] = [
@@ -118,8 +118,15 @@ class StatisticController extends Controller
             "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
         ];
 
-        $result['totalSalaryPaid'] = StaffSalary::find()->sum('salary');
+        $salaryQuery = StaffSalary::find();
+        if($startDate) {
+            $salaryQuery->andWhere(new Expression("DATE(salary_date) >= DATE('" . $startDate . "')"));
+        }
+        if($endDate) {
+            $salaryQuery->andWhere(new Expression("DATE(salary_date) <= DATE('" . $endDate . "')"));
+        }
 
+        $result['totalSalaryPaid'] = $salaryQuery->sum('salary');;
         $result['absent'] = StaffLeave::find()
             ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
                 DATE(to_date) >= DATE('".date('Y-m-d')."')"))
