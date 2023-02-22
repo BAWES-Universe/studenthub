@@ -275,7 +275,8 @@ class Staff extends ActiveRecord implements IdentityInterface
                 return (int) $query
                     ->sum('story_activity.activity_time_spent');
             },
-            'permissions'
+            'permissions',
+            'companies'
             /*'totalRequests' => function($model) {
                 return $model->getRequests()->count();
             }*/
@@ -724,5 +725,13 @@ class Staff extends ActiveRecord implements IdentityInterface
             ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
                 AND total_minutes IS NULL"))
             ->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanies($modelClass = "\common\models\Company")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 }

@@ -215,4 +215,12 @@ class Company extends \common\models\Company {
         }
         return $query->count();
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaff($modelClass = "\admin\models\Staff")
+    {
+        return parent::getStaff($modelClass);
+    }
 }

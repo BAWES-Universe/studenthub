@@ -75,6 +75,7 @@ return [
                     'controller' => 'v1/staff',
                     'patterns' => [
                         'GET list-salaries/<id>' => 'list-salaries',
+                        'GET list-companies/<id>' => 'list-companies',
                         'GET view-salary/<id>' => 'view-salary',
                         'GET <id>' => 'view',
                         'GET' => 'list',
@@ -94,6 +95,7 @@ return [
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS recover-account/<id>' => 'options',
+                        'OPTIONS list-companies/<id>' => 'options',
                     ]
                 ],
                 [ // AdminController
@@ -145,6 +147,7 @@ return [
                         'PATCH file-update/<id>' => 'update-file',
                         'PATCH change-status/<id>' => 'change-status',
                         'PATCH update-followup/<id>' => 'update-followup',
+                        'PATCH update-staff/<id>' => 'update-staff',
                         'PATCH update-followup-interval/<id>' => 'update-followup-interval',
                         'PATCH <id>' => 'update',
                         'DELETE remove-file/<id>' => 'delete-file',
@@ -160,6 +163,7 @@ return [
                         'OPTIONS file-update/<id>' => 'options',
                         'OPTIONS remove-file/<id>' => 'options',
                         'OPTIONS change-status/<id>' => 'options',
+                        'OPTIONS update-staff/<id>' => 'options',
                         'OPTIONS update-followup/<id>' => 'options',
                         'OPTIONS update-followup-interval/<id>' => 'options',
                         'OPTIONS download-list-excel' => 'options',
