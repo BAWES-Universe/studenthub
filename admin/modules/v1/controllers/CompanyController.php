@@ -78,6 +78,7 @@ class CompanyController extends Controller
     {
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
+        $staff_id = Yii::$app->request->getQueryParam("staff_id",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
 
         $query = Company::find()
@@ -97,6 +98,10 @@ class CompanyController extends Controller
 
         if ($name) {
             $query->filterByName($name);
+        }
+
+        if ($staff_id) {
+            $query->filterByStaff($staff_id);
         }
 
         if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {
@@ -548,6 +553,44 @@ class CompanyController extends Controller
         return [
             "operation" => "success",
             "message" => "Company account status changed successfully"
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionUpdateStaff($id) {
+
+        $model = $this->findModel((int) $id);
+
+        $model->scenario = 'updateStaff';
+
+        $model->staff_id = Yii::$app->request->getBodyParam("staff_id");
+
+        if (!$model->save()) {
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance"
+                ];
+            }
+        }
+
+        Yii::info('['.$model->company_name.' Company Account Updated] Company Manage by updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Company account staff changed successfully"
         ];
 
         // Check SQL Query Count and Duration

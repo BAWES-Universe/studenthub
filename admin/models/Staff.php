@@ -141,7 +141,8 @@ class Staff extends \common\models\Staff {
 
                     return (int) $query
                         ->count();
-                }
+                },
+                'companies'
             ],
             parent::extraFields()
         );
@@ -204,6 +205,14 @@ class Staff extends \common\models\Staff {
     public function getNotes($modelClass = "\admin\models\Note")
     {
         return parent::getNotes($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanies($modelClass = "\admin\models\Company")
+    {
+        return parent::getCompanies($modelClass);
     }
 
     public static function find()

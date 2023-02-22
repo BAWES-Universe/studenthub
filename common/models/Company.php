@@ -12,6 +12,7 @@ use yii\helpers\Url;
  *
  * @property integer $company_id
  * @property integer $parent_company_id
+ * @property integer $staff_id
  * @property string $company_name
  * @property string $company_common_name_en
  * @property string $company_common_name_ar
@@ -92,7 +93,7 @@ class Company extends \yii\db\ActiveRecord
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
-
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website','company_status_override'], 'safe'],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -158,9 +159,8 @@ class Company extends \yii\db\ActiveRecord
         $scenarios = parent::scenarios();
 
         $scenarios['updateFollowup'] = ['company_followup'];
-
+        $scenarios['updateStaff'] = ['staff_id'];
         $scenarios['updateStatus'] = ['company_status_override'];
-
         $scenarios['updateFollowupInterval'] = ['company_followup_interval_weeks'];
 
         return $scenarios;
@@ -174,6 +174,7 @@ class Company extends \yii\db\ActiveRecord
         return [
             'company_id' => Yii::t('app','Company ID'),
             'parent_company_id' => Yii::t('app','Parent Company'),
+            'staff_id' => Yii::t('app','staff id'),
             'company_name' => Yii::t('app','Company Name'),
             'company_common_name_en' => Yii::t('app','Company Common Name English'),
             'company_common_name_ar' => Yii::t('app','Company Common Name Arabic'),
@@ -255,6 +256,7 @@ class Company extends \yii\db\ActiveRecord
             'contacts',
             'profit',
             'revenue',
+            'staff',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -740,5 +742,13 @@ class Company extends \yii\db\ActiveRecord
             ->filterByActive40DaysPassedWithoutRequest()
             ->notDeleted()
             ->count();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaff($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 }

@@ -122,6 +122,18 @@ class StaffController extends Controller
     }
 
     /**
+     * Return a List of Staff Salaries available.
+     */
+    public function actionListCompanies($id)
+    {
+        $staff = $this->findModel($id);
+
+        return new ActiveDataProvider([
+            'query' => $staff->getCompanies()
+        ]);
+    }
+
+    /**
      * import bank excel to extract candidate data
      * @return type
      */

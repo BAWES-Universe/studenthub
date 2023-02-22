@@ -121,6 +121,14 @@ class CompanyQuery extends \yii\db\ActiveQuery {
         return $this->andWhere(['like', '{{%company}}.company_common_name_en', $name]);
     }
 
+ /**
+     * @param $staffID
+     * @return $this
+     */
+    public function filterByStaff($staffID) {
+        return $this->andWhere(['{{%company}}.staff_id' => $staffID]);
+    }
+
     /**
      * filter by ability to invite candidates
      * @param $approved_to_hire
