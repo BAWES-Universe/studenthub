@@ -221,6 +221,7 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET assigned-list' => 'assigned-list',
                         'GET followups' => 'followups',
                         'GET payroll-email/<id>' => 'payroll-email',
                         'GET <id>' => 'view',
@@ -233,6 +234,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS followups' => 'options',
+                        'OPTIONS assigned-list' => 'options',
                         'OPTIONS payroll-email/<id>' => 'options',
                         'OPTIONS update-followup/<id>' => 'options',
                         'OPTIONS update-followup-interval/<id>' => 'options',

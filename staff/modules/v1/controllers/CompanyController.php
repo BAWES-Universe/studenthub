@@ -122,6 +122,55 @@ class CompanyController extends Controller
     }
 
     /**
+     * Return a List of Company Accounts available.
+     */
+    public function actionAssignedList()
+    {
+        $status = Yii::$app->request->getQueryParam("status",0);
+        $name = Yii::$app->request->getQueryParam("name",0);
+        $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
+
+        $query = Yii::$app->user->identity->getCompanies()
+            ->filterParent();
+
+        if ($status == 1) {
+            $query->filterActive();
+        }
+
+        if ($status == 2) {
+            $query->filterInActive();
+        }
+
+        if ($status == 3) {
+            $query->filterByActive40DaysPassedWithoutPayment();
+        }
+
+        if ($status == 4) {
+            $query->filterActive()
+                ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+                ->filterByActive40DaysPassedWithoutRequest();
+        }
+
+        if ($status == 5) {
+            $query->filterActiveWithOnlyStaff();
+        }
+
+        if ($name) {
+            $query->filterByName($name);
+        }
+
+        if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {
+            $query->filterByApprovedToHire($approved_to_hire);
+        }
+
+        $query->notDeleted();
+
+        return new ActiveDataProvider([
+            'query' => $query,
+        ]);
+    }
+
+    /**
      * Return a List of Company Accounts need followups.
      * @return ActiveDataProvider
      */
