@@ -331,4 +331,25 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function candidateMomKuwaitiFieldIsNull() {
         return $this->andWhere('{{%candidate}}.`candidate_mom_kuwaiti` IS NULL');
     }
+
+    /**
+     * @param $condition
+     * @param $startDate
+     * @param $endDate
+     * @return CandidateQuery
+     */
+    public function dateFilterBy($condition, $startDate, $endDate)
+    {
+        if ($condition == '')
+        if ($startDate) {
+            $this->andWhere(new Expression("DATE(request_created_datetime) >= DATE('".
+                date('Y-m-d', strtotime ($startDate)) ."')"));
+        }
+        if ($endDate) {
+            $this->andWhere(new Expression("DATE(request_created_datetime) <= DATE('".
+                date('Y-m-d', strtotime ($endDate)) ."')"));
+        }
+
+    }
+
 }

@@ -91,7 +91,6 @@ class Candidate extends \common\models\Candidate {
         if($endDate) {
             $query->andWhere(new Expression("DATE(candidate_created_at) <= DATE('" . $endDate . "')"));
         }
-        $query->andWhere(['deleted' => 0]);
         return $query->count();
     }
 

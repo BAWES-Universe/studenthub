@@ -96,6 +96,9 @@ class CandidateController extends Controller
         if (Yii::$app->request->get('assigned', null)) {
             $query->totalAssigned();
         }
+        if ($dateFilterBy = Yii::$app->request->get('dateFilterBy', null)) {
+            $query->dateFilterBy($dateFilterBy);
+        }
 
         if (Yii::$app->request->get('company_id', null)) {
             $company = Company::findOne(Yii::$app->request->get('company_id'));
