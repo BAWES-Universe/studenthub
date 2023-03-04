@@ -340,16 +340,17 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function dateFilterBy($condition, $startDate, $endDate)
     {
-        if ($condition == '')
-        if ($startDate) {
-            $this->andWhere(new Expression("DATE(request_created_datetime) >= DATE('".
-                date('Y-m-d', strtotime ($startDate)) ."')"));
+        if ($condition == 'employed') {
+            $this->totalAssigned();
+            if ($startDate || $endDate) {
+                $this->filterByJoiningDate($startDate, $endDate);
+            }
         }
-        if ($endDate) {
-            $this->andWhere(new Expression("DATE(request_created_datetime) <= DATE('".
-                date('Y-m-d', strtotime ($endDate)) ."')"));
-        }
+        return $this;
+    }
 
+    public function getSqlQuery() {
+        return $this->createCommand()->getRawSql();
     }
 
 }

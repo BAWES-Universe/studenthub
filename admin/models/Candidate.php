@@ -79,6 +79,7 @@ class Candidate extends \common\models\Candidate {
         switch ($condition) {
             case 'assigned':
                 $query->filterAssigned();
+                $query->filterByJoiningDate($startDate, $endDate);
                 break;
             case 'approved':
                 $query->byApprovalStatus(1);
@@ -91,6 +92,7 @@ class Candidate extends \common\models\Candidate {
         if($endDate) {
             $query->andWhere(new Expression("DATE(candidate_created_at) <= DATE('" . $endDate . "')"));
         }
+        return $query->getSqlQuery();
         return $query->count();
     }
 
