@@ -6,11 +6,13 @@ use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\DailyStandupQuestion;
 use common\models\Note;
+use common\models\StaffWorkSession;
 use common\models\Suggestion;
 use common\models\Transfer;
 use kartik\mpdf\Pdf;
 use Yii;
 use yii\base\BaseObject;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 use common\models\Staff;
@@ -483,7 +485,6 @@ class CronController extends \yii\console\Controller {
         Segment::flush();
     }
 
-
     public function actionTest() 
     {
         $a = \Yii::$app->mailer->compose([
@@ -497,5 +498,46 @@ class CronController extends \yii\console\Controller {
 
         var_dump($a);
         die();    
+    }
+
+    /*
+     * php yii cron/check-daily-attendance
+     * */
+    public function actionCheckDailyAttendance() {
+        $day = date('l');
+        if ($day == 'Friday' || $day == 'Saturday') {
+            return true;
+        }
+        $currentlyWorking = StaffWorkSession::find()
+            ->andWhere(new Expression("DATE(created_at) = CURDATE()"))
+            ->groupBy('staff_id')
+            ->asArray()
+            ->all();
+        $query = Staff::find();
+
+        if ($day != 'Friday' && $day != 'Saturday') {
+            $query->andWhere(['NOT IN', 'staff_id', $currentlyWorking]);
+        }
+        $query->andWhere(['deleted'=>0]);
+        $staffList = $query->all();
+        $count = 0;
+        Console::startProgress(0, count($staffList));
+        if (count($staffList) > 0) {
+            foreach($staffList as $staff) {
+                $count ++;
+                Yii::$app->mailer->compose("staff/timer-notification",
+                    [
+                        "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                        "staff" => $staff,
+                    ])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setTo($staff->staff_email)
+                    ->setSubject("Daily Attendance notification")
+                    ->send();
+
+
+                Console::updateProgress($count, count($staffList));
+            }
+        }
     }
 }

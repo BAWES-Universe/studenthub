@@ -83,7 +83,7 @@ class StatisticController extends Controller
         $payableDetail = Candidate::getTotalPayableCandidate();
         // Candidates
         $totalCandidate = Candidate::candidateCountByCondition(false, $startDate, $endDate);
-        $totalAssignedToWork = Candidate::candidateCountByCondition('assigned', $startDate, $endDate);
+        $totalAssignedToWork = Candidate::candidateCountByAssigned($startDate, $endDate);
         $approved = Candidate::candidateCountByCondition('approved', $startDate, $endDate);
 
         $result['candidates']['total_candidate'] = $totalCandidate;

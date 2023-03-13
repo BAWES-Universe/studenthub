@@ -96,6 +96,9 @@ class CandidateController extends Controller
         if (Yii::$app->request->get('assigned', null)) {
             $query->totalAssigned();
         }
+        if ($dateFilterBy = Yii::$app->request->get('type', null)) {
+            $query->dateFilterBy($dateFilterBy,Yii::$app->request->get('start_date', null),Yii::$app->request->get('end_date', null));
+        }
 
         if (Yii::$app->request->get('company_id', null)) {
             $company = Company::findOne(Yii::$app->request->get('company_id'));
@@ -116,14 +119,16 @@ class CandidateController extends Controller
                 $query->filterStore(Yii::$app->request->get('store_id'));
                 break;
             default:
-                $query->byApprovalStatus(0);
+//                $query->byApprovalStatus(0);
 //                $query->orderById();
                 break;
         }
-
+//        return $query->getSqlQuery();
         return new ActiveDataProvider([
             'query' => $query
         ]);
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
     }
 
     /**

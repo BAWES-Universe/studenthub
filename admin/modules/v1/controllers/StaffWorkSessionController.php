@@ -76,13 +76,26 @@ class StaffWorkSessionController extends Controller
             $query->andWhere(['staff_id' => $staff_id]);
         }
 
-        if($created_at = Yii::$app->request->get('date')) {
-            $query->andWhere(new Expression("DATE(created_at) = 
-                DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
+//        if($created_at = Yii::$app->request->get('date') && !Yii::$app->request->get('filterBy', null)) {
+//            $query->andWhere(new Expression("DATE(created_at) =
+//                DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
+//        }
+
+        $startDate = Yii::$app->request->get('startDate', null);
+        $endDate = Yii::$app->request->get('endDate', null);
+        if ($startDate) {
+            $query->andWhere(new Expression("DATE(created_at) >= DATE('".
+                date('Y-m-d', strtotime ($startDate)) ."')"));
+        }
+        if ($endDate) {
+            $query->andWhere(new Expression("DATE(created_at) <= DATE('".
+                date('Y-m-d', strtotime ($endDate)) ."')"));
         }
 
         $query->filterByGroup();
         $query->filterByOrder();
+
+//        return $query->getSqlQuery();
 
         return new ActiveDataProvider([
             'query' => $query

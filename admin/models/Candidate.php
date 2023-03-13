@@ -79,6 +79,7 @@ class Candidate extends \common\models\Candidate {
         switch ($condition) {
             case 'assigned':
                 $query->filterAssigned();
+                $query->filterByJoiningDate($startDate, $endDate);
                 break;
             case 'approved':
                 $query->byApprovalStatus(1);
@@ -91,7 +92,22 @@ class Candidate extends \common\models\Candidate {
         if($endDate) {
             $query->andWhere(new Expression("DATE(candidate_created_at) <= DATE('" . $endDate . "')"));
         }
-        $query->andWhere(['deleted' => 0]);
+//        return $query->getSqlQuery();
+        return $query->count();
+    }
+
+    /**
+     * @param false $condition
+     * @param null $startDate
+     * @param null $endDate
+     * @return bool|int|string|null
+     */
+     public static function candidateCountByAssigned($startDate = null, $endDate = null) {
+        $query = Candidate::find();
+
+         $query->filterAssigned();
+         $query->filterByJoiningDate($startDate, $endDate);
+//        return $query->getSqlQuery();
         return $query->count();
     }
 

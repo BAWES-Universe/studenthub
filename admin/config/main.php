@@ -455,8 +455,10 @@ return [
                     'controller' => 'v1/suggestion',
                     'patterns' => [
                         'GET' => 'list',
+                        'PATCH change-status/<id>' => 'change-status',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS change-status/<id>' => 'options',
                     ]
                 ],
                 [ // StoryController

@@ -90,6 +90,33 @@ class SuggestionController extends Controller
     }
 
     /**
+     * Return a List of Brand Accounts available.
+     * @return ActiveDataProvider
+     */
+    public function actionChangeStatus($id)
+    {
+        $data = Suggestion::findOne($id);
+        if (!$data) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid Suggestion'
+            ];
+        }
+        $data->suggestion_status = Yii::$app->request->getBodyParam('status');
+        if (!$data->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $data->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'message' => 'Suggestion status updated successfully'
+        ];
+    }
+
+    /**
      * Finds the Brand model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
