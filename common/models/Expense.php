@@ -98,10 +98,7 @@ class Expense extends \yii\db\ActiveRecord
             $datetime = $this->transaction_datetime?
                 new \DateTime($this->transaction_datetime): new \DateTime($this->created_at);
 
-            Segment::track ([
-                'userId' => Yii::$app->user->getId (),
-                'event' => 'Expense Added',
-                'properties' => [
+            Yii::$app->eventManager->track ('Expense Added', [
                     'expense_uuid' => $this->expense_uuid,
                     'title' => $this->title,
                     'type' => $this->type,
@@ -111,8 +108,8 @@ class Expense extends \yii\db\ActiveRecord
                     'revenue' => $this->amount,//just for beautiful graphs
                     'created_by' => $this->createdBy->admin_name
                 ],
-                'timestamp' => $datetime->format('c')
-            ]);
+                $datetime->format('c')
+            );
         }
     }
 
