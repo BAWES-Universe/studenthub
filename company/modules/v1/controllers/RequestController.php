@@ -339,15 +339,12 @@ class RequestController extends BaseController
 
         if(YII_ENV == 'prod') {
 
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Request Activity Added',
-                    'properties' => [
+            Yii::$app->eventManager->track('Request Activity Added',
+                    [
                         'contact_uuid' => $modelActivity->contact_uuid,
                         'request_uuid' => $modelActivity->request_uuid,
                         'note_text' => $modelActivity->note_text
-                    ]
-                ]);
+                    ]);
         }
 
         return [

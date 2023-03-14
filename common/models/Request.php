@@ -513,29 +513,21 @@ class Request extends \yii\db\ActiveRecord
         if(YII_ENV == 'prod' && !Yii::$app->user->isGuest) {
             if ($insert)
             {
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Request Created',
-                    'properties' => [
+                Yii::$app->eventManager->track('Request Created', [
                         'company_id' => $this->company_id,
                         'company' => $this->company->company_name,
                         'request_uuid' => $this->request_uuid
-                    ]
-                ]);
+                    ]);
             }
             else
             {
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Request Updated',
-                    'properties' => [
+                Yii::$app->eventManager->track('Request Updated', [
                         'company_id' => $this->company_id,
                         'company' => $this->company->company_name,
                         'request_uuid' => $this->request_uuid,
                         'request_status' => $this->request_status,
                         'staff_id' => $this->staff_id
-                    ]
-                ]);
+                    ]);
             }
         }
     }

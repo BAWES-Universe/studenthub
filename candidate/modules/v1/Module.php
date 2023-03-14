@@ -31,16 +31,16 @@ class Module extends \yii\base\Module
 
         if(YII_ENV == 'prod') {
 
-            Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
+            Yii::$app->eventManager->initSegment('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
             if(!Yii::$app->user->isGuest)
             {
                 $user = Yii::$app->user->identity;
 
-                Segment::identify([Yii::$app->user->getId(), [
+                Yii::$app->eventManager->setUser(Yii::$app->user->getId(), [
                     "name" => $user->candidate_name,
                     "email" => $user->candidate_email
-                ]]);
+                ]);
             }
         }
     }
