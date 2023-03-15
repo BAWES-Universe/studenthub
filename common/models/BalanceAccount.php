@@ -133,7 +133,15 @@ class BalanceAccount extends \yii\db\ActiveRecord
 
         if(YII_ENV == 'prod')
         {
-            Yii::$app->eventManager->initSegment('j18MpMF6fvZzmc6bvF0VjlTajAlKwai2');
+
+            $segmentStatus = Yii::$app->config->get('Segment-Status');
+
+            $segmentKey = Yii::$app->config->get('Segment-Key');
+            $walletSegmentKey = Yii::$app->config->get('Segment-Key-Wallet');
+
+            if($segmentStatus) {
+                Yii::$app->eventManager->initSegment($walletSegmentKey);
+            }
 
             if (!Yii::$app->user->isGuest)
             {
@@ -157,6 +165,10 @@ class BalanceAccount extends \yii\db\ActiveRecord
                 ],
                 $transaction_datetime
             );
+
+            if($segmentStatus) {
+                Yii::$app->eventManager->initSegment($segmentKey);
+            }
         }
     }
 
@@ -196,7 +208,14 @@ class BalanceAccount extends \yii\db\ActiveRecord
 
         if(YII_ENV == 'prod')
         {
-            Yii::$app->eventManager->initSegment('j18MpMF6fvZzmc6bvF0VjlTajAlKwai2');
+            $segmentStatus = Yii::$app->config->get('Segment-Status');
+
+            $segmentKey = Yii::$app->config->get('Segment-Key');
+            $walletSegmentKey = Yii::$app->config->get('Segment-Key-Wallet');
+
+            if($segmentStatus) {
+                Yii::$app->eventManager->initSegment($walletSegmentKey);
+            }
 
             if (!Yii::$app->user->isGuest)
             {
@@ -221,6 +240,11 @@ class BalanceAccount extends \yii\db\ActiveRecord
                 ],
                 $transaction_datetime
             );
+            
+            if($segmentStatus) {
+                Yii::$app->eventManager->initSegment($segmentKey);
+            }
+
         }
     }
 

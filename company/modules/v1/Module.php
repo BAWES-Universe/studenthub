@@ -37,8 +37,6 @@ class Module extends \yii\base\Module
 
         if(YII_ENV == 'prod') {
 
-            Yii::$app->eventManager->initSegment('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
-
             if(!Yii::$app->user->isGuest)
             {
                 $user = Yii::$app->user->identity;

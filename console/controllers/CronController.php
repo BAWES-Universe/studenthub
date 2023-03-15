@@ -325,8 +325,6 @@ class CronController extends \yii\console\Controller {
      */
     public function actionSegmentTransfer() {
 
-        Yii::$app->eventManager->initSegment('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
-
         $query = TransferCandidate::find()
             ->with('candidate')
             ->andWhere(['paid' => TransferCandidate::PAID]);
@@ -383,8 +381,6 @@ class CronController extends \yii\console\Controller {
      */
     public function actionSegmentSuggestion() {
 
-        Yii::$app->eventManager->initSegment('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
-
         $query = Suggestion::find();
 
         $count = 0;
@@ -439,8 +435,6 @@ class CronController extends \yii\console\Controller {
      * sync expense with segment
      */
     public function actionSegmentExpense() {
-
-        Yii::$app->eventManager->initSegment('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
         $query = Expense::find();
 
