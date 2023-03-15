@@ -11,13 +11,34 @@ class EventManager extends Component
 	private $_client;
 
 	/**
-     * @var string Amazon access key
+     * @var string Mixpanel key
      */
     public $key;
 
+    /**
+     * @var string | null Mixpanel status
+     */
+    public $mixpanelStatus;
+
+    /**
+     * @var string | null Segment status
+     */
+    public $segmentStatus;
+
+    /**
+     * @var string | null Segment key
+     */
     public $segmentKey;
 
+    /**
+     * @var string | null Segment key for wallet app
+     */
     public $walletSegmentKey;
+
+    /**
+     * @var boolean Whether segment identity defined
+     */
+    private $segmentIdentify;
 
      /**
      * @inheritdoc
@@ -69,13 +90,23 @@ class EventManager extends Component
      */		
     public function setUser($id, $data) 
     {
-    	$ip = Yii::$app->getRequest()->getUserIP();
+        try {
+            $ip = Yii::$app->getRequest()->getUserIP();
+        } catch (yii\base\UnknownMethodException $exception) {
+            $ip = "192.168.0.1";
+        }
 
         if($this->_client)
     	    $this->_client->people->set($id, $data, $ip, $ignore_time = false);
 
-        if($this->segmentKey)
-            Segment::identify([$id, data]);
+        if($this->segmentKey) {
+            Segment::identify([
+                "userId" => $id,
+                "traits" => $data
+            ]);
+
+            $this->segmentIdentify = true;
+        }
     }
 
     /**
@@ -88,19 +119,26 @@ class EventManager extends Component
 
         if($this->segmentKey) {
 
-            if(is_null($userId))
-                $userId = Yii::$app->user->getId();
-
             $data = [
                 'event' => $event,
                 'properties' => $eventData,
                 'timestamp' => $timestamp
             ];
 
-            if(Yii::$app->user->isGuest)  {
-                $data['anonymousId'] = $userId;
-            } else {
+            //if login and userId not provided
+
+            if(is_null($userId) && isset(Yii::$app->user) && !Yii::$app->user->isGuest) {
+                $userId = Yii::$app->user->getId();
+            }
+
+            if(!$userId) {
+                $userId = "anonymous";
+            }
+
+            if($this->segmentIdentify)  {
                 $data['userId'] = $userId;
+            } else {
+                $data['anonymousId'] = $userId;
             }
 
             Segment::track($data);

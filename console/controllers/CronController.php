@@ -33,16 +33,18 @@ class CronController extends \yii\console\Controller {
 
     }
 
-    public function actionTestw($value='')
+    public function actionTestt()
     {
-       $a = Yii::$app->walletManager->addEntry([
-                    'amount' => 1,
-                    'data' => 'Testing ',
-                    'tagNames' => '',
-                    'user_uuid' => Yii::$app->walletManager->companyWalletUserID
-                ]);
+        Yii::$app->eventManager->setUser(1, [
+            "name" => "ramji"
+        ]);
 
-       var_dump($a);
+        Yii::$app->eventManager->track('Test Event Manager',
+            [
+                'name' => "Ramji"
+            ],
+            null
+        );
     }
 
     /**

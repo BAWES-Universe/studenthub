@@ -32,7 +32,7 @@ class Config extends Component
      *
      * @return	mixed
      */
-    public function get(string $key): mixed  {
+    public function get(string $key)  {
         return isset($this->data[$key]) ? $this->data[$key] : '';
     }
 
@@ -42,7 +42,7 @@ class Config extends Component
      * @param	string	$key
      * @param	string	$value
      */
-    public function set(string $key, mixed $value): void {
+    public function set(string $key, mixed $value) {
         $this->data[$key] = $value;
     }
 
@@ -53,7 +53,7 @@ class Config extends Component
      *
      * @return	mixed
      */
-    public function has(string $key): bool {
+    public function has(string $key) {
         return isset($this->data[$key]);
     }
 
@@ -75,7 +75,7 @@ class Config extends Component
             $data = Setting::find()
                 ->all();
 
-            return ArrayHelper::index($data, 'key');
+            return ArrayHelper::map($data, 'key', 'value');
 
         }, $cacheDuration, $cacheDependency);
     }
