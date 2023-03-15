@@ -15,7 +15,9 @@ class EventManager extends Component
      */
     public $key;
 
-    private $segmentKey;
+    public $segmentKey;
+
+    public $walletSegmentKey;
 
      /**
      * @inheritdoc
@@ -31,11 +33,32 @@ class EventManager extends Component
 
         parent::init();
 
-        if($this->key)
+        //'key' => 'bfe2ac5e039a3d8d1c8e281967d6f954',//test: ac62dbe81767f8871f754c7bdf6669d6
+        //'segmentKey' => 'WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15'//test: 7oEpdGxjwBMlwBQYuXD7NpYWp4HzDJWh
+        //'walletSegmentKey' => 'j18MpMF6fvZzmc6bvF0VjlTajAlKwai2'//test: 7oEpdGxjwBMlwBQYuXD7NpYWp4HzDJWh
+
+        $this->segmentStatus = Yii::$app->config->get('Segment-Status');
+        $this->mixpanelStatus = Yii::$app->config->get('Mixpanel-Status');
+
+        if($this->mixpanelStatus) {
+
+            $this->key = Yii::$app->config->get('Mixpanel-Key');
+
             $this->_client = \Mixpanel::getInstance($this->key);
+        }
+
+        if($this->segmentStatus) {
+
+            $this->segmentKey = Yii::$app->config->get('Segment-Key');
+            $this->walletSegmentKey = Yii::$app->config->get('Segment-Key-Wallet');
+
+            if($this->segmentKey)
+                Segment::init($this->segmentKey);
+        }
     }
 
     public function initSegment($key) {
+
         $this->segmentKey = $key;
 
         Segment::init($key);
