@@ -33,16 +33,18 @@ class CronController extends \yii\console\Controller {
 
     }
 
-    public function actionTestw($value='')
+    public function actionTestt()
     {
-       $a = Yii::$app->walletManager->addEntry([
-                    'amount' => 1,
-                    'data' => 'Testing ',
-                    'tagNames' => '',
-                    'user_uuid' => Yii::$app->walletManager->companyWalletUserID
-                ]);
+        Yii::$app->eventManager->setUser(1, [
+            "name" => "ramji"
+        ]);
 
-       var_dump($a);
+        Yii::$app->eventManager->track('Test Event Manager',
+            [
+                'name' => "Ramji"
+            ],
+            null
+        );
     }
 
     /**
@@ -325,8 +327,6 @@ class CronController extends \yii\console\Controller {
      */
     public function actionSegmentTransfer() {
 
-        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
-
         $query = TransferCandidate::find()
             ->with('candidate')
             ->andWhere(['paid' => TransferCandidate::PAID]);
@@ -354,10 +354,9 @@ class CronController extends \yii\console\Controller {
                 
                 $datetime = new \DateTime($tc->tc_updated_at);
 
-                Segment::track([
-                    'userId' => 'cron',//Yii::$app->user->getId()
-                    'event' => 'Candidate Transfer Paid',
-                    'properties' => [
+                Yii::$app->eventManager->track(
+                    'Candidate Transfer Paid',
+                    [
                         'tc_id' => $tc->tc_id,
                         'transfer_id' => $tc->transfer_id,
                         'candidate_id' => $tc->candidate_id,
@@ -368,22 +367,21 @@ class CronController extends \yii\console\Controller {
                         'candidate_total' => $tc->candidate_total,
                         'company_total' => $tc->company_total,
                     ],
-                    'timestamp' => $datetime->format('c')
-                ]);
+                    $datetime->format('c'),
+                    'cron'
+                );
             }
 
             Console::updateProgress($count, $total);
         }
 
-        Segment::flush();
+        Yii::$app->eventManager->flush();
     }
 
     /**
      * sync suggestion with segment
      */
     public function actionSegmentSuggestion() {
-
-        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
         $query = Suggestion::find();
 
@@ -414,10 +412,8 @@ class CronController extends \yii\console\Controller {
                 else
                     $fulltimer = null;
 
-                Segment::track([
-                    'userId' => 'cron',
-                    'event' => 'Suggestion Created',
-                    'properties' => [
+                Yii::$app->eventManager->track('Suggestion Created',
+                    [
                         'suggestion_uuid' => $suggestion->suggestion_uuid,
                         'request_uuid' => $suggestion->request_uuid,
                         'candidate_id' => $suggestion->candidate_id,
@@ -427,22 +423,20 @@ class CronController extends \yii\console\Controller {
                         'staff_id' => $suggestion->note ? $suggestion->note->created_by : null,
                         'staff_name' => $staff? $staff->staff_name: null
                     ],
-                    'timestamp' => $datetime->format('c')
-                ]);
+                    $datetime->format('c')
+                );
             }
 
             Console::updateProgress($count, $total);
         }
 
-        Segment::flush();
+        Yii::$app->eventManager->flush();
     }
 
     /**
      * sync expense with segment
      */
     public function actionSegmentExpense() {
-
-        Segment::init('WZc7uvfkM1uhsjT1Eie6PONXFZK3ME15');
 
         $query = Expense::find();
 
@@ -462,10 +456,9 @@ class CronController extends \yii\console\Controller {
                 $datetime = $expense->transaction_datetime?
                     new \DateTime($expense->transaction_datetime): new \DateTime($expense->created_at);
 
-                Segment::track([
-                    'userId' => 'cron',
-                    'event' => 'Expense Added',
-                    'properties' => [
+                Yii::$app->eventManager->track(
+                    'Expense Added',
+                    [
                         'expense_uuid' => $expense->expense_uuid,
                         'title' => $expense->title,
                         'type' => $expense->type,
@@ -475,14 +468,14 @@ class CronController extends \yii\console\Controller {
                         'revenue' => $expense->amount,//just for beautiful graphs
                         'created_by' => $expense->createdBy?$expense->createdBy->admin_name: null
                     ],
-                    'timestamp' => $datetime->format('c')
-                ]);
+                    $datetime->format('c')
+                );
             }
 
             Console::updateProgress($count, $total);
         }
 
-        Segment::flush();
+        Yii::$app->eventManager->flush();
     }
 
     public function actionTest() 

@@ -649,40 +649,32 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
 
         if(YII_ENV == 'prod') {
+
+            $userId = Yii::$app->user->isGuest ? $this->candidate_id: Yii::$app->user->getId();
+
             if ($insert) {
 
-                $data = Yii::$app->user->isGuest ? [
-                    'anonymousId' => $this->candidate_id,
-                    'event' => 'Candidate Profile Created',
-                    'properties' => [
+                Yii::$app->eventManager->track(
+                    'Candidate Profile Created',
+                    [
                         'candidate_id' => $this->candidate_id,
                         'name' => $this->candidate_name,
                         'email' => $this->candidate_email
-                    ]
-                ]:[
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Candidate Profile Created',
-                    'properties' => [
-                        'candidate_id' => $this->candidate_id,
-                        'name' => $this->candidate_name,
-                        'email' => $this->candidate_email
-                    ]
-                ];
-
-                Segment::track($data);
-
+                    ],
+                    null,
+                    $userId);
             }
             else
             {
-                Segment::track([
-                    'userId' => Yii::$app->user->isGuest? $this->candidate_id: Yii::$app->user->getId(),
-                    'event' => 'Candidate Profile Updated',
-                    'properties' => [
+                Yii::$app->eventManager->track(
+                    'Candidate Profile Updated',
+                    [
                         'candidate_id' => $this->candidate_id,
                         'name' => $this->candidate_name,
                         'email' => $this->candidate_email
-                    ]
-                ]);
+                    ],
+                    null,
+                    $userId);
             }
         }
 

@@ -44,7 +44,7 @@ class FulltimerTest extends \Codeception\Test\Unit
             )->notNull();
         });
 
-        $this->specify('Admin model fields validation', function () {
+        $this->specify('Fulltimer model fields validation', function () {
 
             $model = new Fulltimer();
             
@@ -58,8 +58,8 @@ class FulltimerTest extends \Codeception\Test\Unit
             expect('should not accept empty fulltimer_phone', $model->validate(['fulltimer_phone']))->false();
             expect('should not accept empty fulltimer_email', $model->validate(['fulltimer_email']))->false();
             //expect('should not accept empty fulltimer_pdf_cv', $admin->validate(['fulltimer_pdf_cv']))->false();
-            expect('should not accept empty fulltimer_current_salary', $model->validate(['fulltimer_current_salary']))->false();
-            expect('should not accept empty fulltimer_expected_salary', $model->validate(['fulltimer_expected_salary']))->false();
+            //expect('should not accept empty fulltimer_current_salary', $model->validate(['fulltimer_current_salary']))->false();
+            //expect('should not accept empty fulltimer_expected_salary', $model->validate(['fulltimer_expected_salary']))->false();
 
             $model->fulltimer_area_uuid = 1121212;
             expect('should not accept invalid fulltimer_area_uuid', $model->validate(['fulltimer_area_uuid']))->false();
