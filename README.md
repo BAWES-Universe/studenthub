@@ -98,29 +98,6 @@ Production ---> `* * * * * cd ~/www && ./init --env=Production --overwrite=All >
 
 for `urlManagerStaff` component's `baseUrl` property for files at environments/*/common/config/main-local.php
 
-# List of events we sending to segment 
-
-* Request Activity Added (public)
-* Transfer Created (public)
-* Transfer Updated (public)
-* Fulltimer Created (public)
-* Fulltimer Updated (public)
-* Request Created
-* Request Updated
-* Suggestion Created (public)
-* Suggestion Updated (public)
-* Transfer Marked As Payment Received (public)
-* Transfer Locked
-* Transfer UnLocked
-* Candidate Transfer Paid (Can calculate profit from this) (public)
-* Candidate Profile Created (public)
-* Candidate Profile Updated (public)
-* Candidate Invitation Accepted (public)
-* Candidate Invitation Rejected (public)
-* Candidate Invited (public)
-
-There can be other custom events fired manually, use `Datetime` column in excel to upload past events
-
 ## Set up Docker Dev Environment -1
 
 Run the following command after installing Docker
@@ -167,3 +144,38 @@ docker-compose run --rm backend vendor/bin/codecept run --fail-fast --html repor
 # to docker-compose and check the test results in the
 # outputted report-web.html
 ```
+ 
+# List of events we sending to segment
+
+* Request Activity Added (public)
+* Transfer Created (public)
+* Transfer Updated (public)
+* Fulltimer Created (public)
+* Fulltimer Updated (public)
+* Request Created
+* Request Updated
+* Suggestion Created (public)
+* Suggestion Updated (public)
+* Transfer Marked As Payment Received (public)
+* Transfer Locked
+* Transfer UnLocked
+* Candidate Transfer Paid (Can calculate profit from this) (public)
+* Candidate Profile Created (public)
+* Candidate Profile Updated (public)
+* Candidate Invitation Accepted (public)
+* Candidate Invitation Rejected (public)
+* Candidate Invited (public)
+* New Wallet Entry (public)
+* Paid By Wallet (public)
+* Expense Added (public)
+
+Public events are the events that can be fired manually by uploading event excel sheet.
+
+There can be other custom events fired manually, use `Datetime` column in excel to upload past events
+    
+## Need to do 
+
+- ability to configure mixpanel account/key etc from admin 
+- ability to configure segment account/key etc from admin
+- ability to enable/ disable segment/mixpanel from admin
+- test in production mode for segment/ mixpanel integration

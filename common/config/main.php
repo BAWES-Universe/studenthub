@@ -62,6 +62,9 @@ return [
         'auth0' => [
             'class' => 'common\components\Auth0',
         ],
+        'config' => [
+            'class' => 'common\components\Config',
+        ],
         'balanceManager' => [
             'class' => 'yii2tech\balance\ManagerDb',
             'db' => 'walletDb',

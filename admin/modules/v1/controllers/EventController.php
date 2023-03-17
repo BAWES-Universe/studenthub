@@ -191,17 +191,12 @@ class EventController extends Controller
             $datetime = isset($value['Datetime'])?
                     new \DateTime(strtotime($value['Datetime'])): new \DateTime();
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => $event,
-                'properties' => $value,
-                'timestamp' => $datetime->format('c')
-            ]);
+            Yii::$app->eventManager->track($event, $value, $datetime->format('c'));
 
             $total++;
         }
 
-        Segment::flush();
+        Yii::$app->eventManager->flush();
 
         return [
             'total' => $total,

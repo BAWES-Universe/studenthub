@@ -190,17 +190,14 @@ class InvitationController extends Controller
         {
             $name = $model->candidate->candidate_name? $model->candidate->candidate_name: $model->candidate->candidate_name_ar;
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Candidate Invitation Accepted',
-                'properties' => [
+            Yii::$app->eventManager->track('Candidate Invitation Accepted',
+                [
                     'invitation_uuid' => $model->invitation_uuid,
                     'company_id' => $note->company_id,
                     'request_uuid' => $model->request_uuid,
                     'candidate' => $name,
                     'reason' => $reason
-                ]
-            ]);
+                ]);
         }
 
         return [
@@ -284,17 +281,15 @@ class InvitationController extends Controller
 
             $name = $model->candidate->candidate_name? $model->candidate->candidate_name: $model->candidate->candidate_name_ar;
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Candidate Invitation Rejected',
-                'properties' => [
+            Yii::$app->eventManager->track(
+                'Candidate Invitation Rejected',
+                [
                     'invitation_uuid' => $model->invitation_uuid,
                     'company_id' => $note->company_id,
                     'request_uuid' => $model->request_uuid,
                     'candidate' => $name,
                     'reason' => $reason
-                ]
-            ]);
+                ]);
         }
 
         return [

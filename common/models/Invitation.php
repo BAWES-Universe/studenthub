@@ -206,10 +206,7 @@ class Invitation extends \yii\db\ActiveRecord
                     $staff = null;
                 }
 
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Candidate Invited',
-                    'properties' => [
+                Yii::$app->eventManager->track('Candidate Invited', [
                         'candidate' => $name,
                         'staff' => $staff,
                         'candidate_id' => $this->candidate_id,
@@ -217,8 +214,7 @@ class Invitation extends \yii\db\ActiveRecord
                         'invitation_created_by_staff' => $this->invitation_created_by_staff,
                         'invitation_created_by_company' => $this->invitation_created_by_company,
                         'invitation_created_at' => $this->invitation_created_at
-                    ]
-                ]);
+                    ]);
             }
         }
 

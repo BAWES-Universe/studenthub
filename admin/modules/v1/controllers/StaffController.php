@@ -305,6 +305,7 @@ class StaffController extends Controller
         }
 
         if(YII_ENV == 'prod') {
+
             Yii::$app->eventManager->setUser('staff' . $model->staff_id, [
                 '$first_name' => $model->staff_name,
                 '$email' => $model->staff_email
@@ -316,8 +317,8 @@ class StaffController extends Controller
                 'name' => $model->staff_name,
                 'nickname' => $model->staff_name
             ];
-            Yii::$app->auth0->createUser($param);
 
+            Yii::$app->auth0->createUser($param);
         }
 
         Yii::info('[Staff Account Created] Staff "'.$model->staff_email.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);

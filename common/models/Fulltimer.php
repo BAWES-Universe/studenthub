@@ -212,23 +212,15 @@ class Fulltimer extends \yii\db\ActiveRecord
         if(YII_ENV == 'prod') {
             if ($insert)
             {
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Fulltimer Created',
-                    'properties' => [
+                Yii::$app->eventManager->track('Fulltimer Created', [
                         'fulltimer_uuid' => $this->fulltimer_uuid
-                    ]
-                ]);
+                    ]);
             }
             else
             {
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Fulltimer Updated',
-                    'properties' => [
+                Yii::$app->eventManager->track('Fulltimer Updated', [
                         'fulltimer_uuid' => $this->fulltimer_uuid
-                    ]
-                ]);
+                    ]);
             }
         }
 
