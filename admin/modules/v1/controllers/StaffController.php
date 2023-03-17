@@ -284,6 +284,11 @@ class StaffController extends Controller
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
 
+        $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+
+        if($staff_photo)
+            $model->setLogo($staff_photo);
+
         if (!$model->signup())
         {
             if(isset($model->errors)){
@@ -349,6 +354,11 @@ class StaffController extends Controller
         $model->week_start_day = Yii::$app->request->getBodyParam("week_start_day");
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
+
+        $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+
+        if($staff_photo)
+            $model->setLogo($staff_photo);
 
         if (!$model->save())
         {
