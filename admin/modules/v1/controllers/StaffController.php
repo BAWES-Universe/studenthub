@@ -284,6 +284,11 @@ class StaffController extends Controller
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
 
+        $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+
+        if($staff_photo)
+            $model->setLogo($staff_photo);
+
         if (!$model->signup())
         {
             if(isset($model->errors)){
@@ -300,6 +305,7 @@ class StaffController extends Controller
         }
 
         if(YII_ENV == 'prod') {
+
             Yii::$app->eventManager->setUser('staff' . $model->staff_id, [
                 '$first_name' => $model->staff_name,
                 '$email' => $model->staff_email
@@ -311,8 +317,8 @@ class StaffController extends Controller
                 'name' => $model->staff_name,
                 'nickname' => $model->staff_name
             ];
-            Yii::$app->auth0->createUser($param);
 
+            Yii::$app->auth0->createUser($param);
         }
 
         Yii::info('[Staff Account Created] Staff "'.$model->staff_email.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
@@ -349,6 +355,11 @@ class StaffController extends Controller
         $model->week_start_day = Yii::$app->request->getBodyParam("week_start_day");
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
+
+        $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+
+        if($staff_photo)
+            $model->setLogo($staff_photo);
 
         if (!$model->save())
         {

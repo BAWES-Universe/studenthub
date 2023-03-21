@@ -70,6 +70,17 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // SettingController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/setting',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'PATCH' => 'update',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // StaffController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/staff',

@@ -89,7 +89,6 @@ return [
         ],*/
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            'key' => 'bfe2ac5e039a3d8d1c8e281967d6f954'
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',

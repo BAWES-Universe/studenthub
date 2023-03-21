@@ -23,7 +23,7 @@ class InvitationQuery extends \yii\db\ActiveQuery
      */
     public function activeRequest()
     {
-        return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, 'pending']]);
+        return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, Request::STATUS_PENDING, Request::STATUS_RE_WORK]]);
     }
 
     public function accepted()
