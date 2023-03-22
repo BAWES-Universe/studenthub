@@ -7,7 +7,14 @@ return yii\helpers\ArrayHelper::merge(
         'components' => [
             'db' => [
                 'dsn' => 'mysql:host=localhost;dbname=payroll_test',
-            ]
+            ],
+            'walletDb' => [
+                'class' => 'yii\db\Connection',
+                'dsn' => 'mysql:host=localhost;dbname=wallet_test',
+                'username' => 'root',
+                'password' => '',
+                'charset' => 'utf8',
+            ],
         ],
     ]
 );

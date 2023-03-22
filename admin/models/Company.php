@@ -2,6 +2,8 @@
 namespace admin\models;
 
 
+use yii\db\Expression;
+
 /**
  * This is the model class for table "Company".
  * It extends from \common\models\Company but with custom functionality for this application module
@@ -177,5 +179,48 @@ class Company extends \common\models\Company {
     public function getFiles($modelClass = "\common\models\File")
     {
         return parent::getFiles($modelClass);
+    }
+
+    public static function getCompanyByCondition($condition = null, $startDate = null, $endDate = null) {
+        $query = Company::find()
+            ->filterParent();
+
+        if ($condition == 'status') {
+            $query->filterActive();
+        }
+        $query->notDeleted();
+        if($startDate) {
+            $query->andWhere(new Expression("DATE(company_created_at) >= DATE('" . $startDate . "')"));
+        }
+
+        if($endDate) {
+            $query->andWhere(new Expression("DATE(company_created_at) <= DATE('" . $endDate . "')"));
+        }
+
+        return $query->count();
+    }
+
+    public static function request($status = null, $startDate = null, $endDate = null) {
+        $query = Request::find();
+
+        if ($status) {
+            $query->filterByStatus($status);
+        }
+        if($startDate) {
+            $query->andWhere(new Expression("DATE(request_created_datetime) >= DATE('" . $startDate . "')"));
+        }
+
+        if($endDate) {
+            $query->andWhere(new Expression("DATE(request_created_datetime) <= DATE('" . $endDate . "')"));
+        }
+        return $query->count();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaff($modelClass = "\admin\models\Staff")
+    {
+        return parent::getStaff($modelClass);
     }
 }

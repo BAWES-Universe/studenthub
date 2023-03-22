@@ -79,6 +79,7 @@ return [
                     'controller' => 'v1/daily-standup',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET work-session' => 'list-work-session',
                         'POST start-session' => 'start-session',
                         'PATCH end-session' => 'end-session',
                         'POST leave-request' => 'leave-request',
@@ -93,6 +94,7 @@ return [
                         'OPTIONS start-session' => 'options',
                         'OPTIONS end-session' => 'options',
                         'OPTIONS leave-request' => 'options',
+                        'OPTIONS work-session' => 'options',
                         'OPTIONS answer/<question_uuid>' => 'options'
                     ]
                 ],
@@ -219,6 +221,7 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET assigned-list' => 'assigned-list',
                         'GET followups' => 'followups',
                         'GET payroll-email/<id>' => 'payroll-email',
                         'GET <id>' => 'view',
@@ -231,6 +234,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS followups' => 'options',
+                        'OPTIONS assigned-list' => 'options',
                         'OPTIONS payroll-email/<id>' => 'options',
                         'OPTIONS update-followup/<id>' => 'options',
                         'OPTIONS update-followup-interval/<id>' => 'options',
@@ -567,6 +571,53 @@ return [
                         'OPTIONS payable-list' => 'options',
                     ]
                 ],
+                [ // CandidateEvaluationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-evaluation',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET question-by-dept/<id>' => 'list-question-by-dept',
+                        'GET list-report/<id>' => 'list-report',
+                        'GET report/<id>' => 'view-report',
+                        'GET pdf/<id>' => 'pdf',
+                        'POST' => 'create',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS question-by-dept/<id>' => 'options',
+                        'OPTIONS list-report/<id>' => 'options',
+                        'OPTIONS report/<id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options',
+                    ]
+                ],
+                [ // StaffExpensesController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-expenses',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+//                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+
+                [ // staffLeaveController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-leave',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET ' => 'list',
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+
             ],
         ],
     ],

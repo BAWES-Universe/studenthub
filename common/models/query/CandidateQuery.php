@@ -329,4 +329,8 @@ class CandidateQuery extends \yii\db\ActiveQuery
             ->groupBy('{{%candidate}}.candidate_id')
             ->notDeleted();
     }
+
+    public function getSqlQuery() {
+        return $this->createCommand()->getRawSql();
+    }
 }

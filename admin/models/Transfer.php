@@ -3,6 +3,7 @@ namespace admin\models;
 
 use Yii;
 use yii\base\Exception;
+use yii\db\Expression;
 
 
 /**
@@ -321,14 +322,23 @@ class Transfer extends \common\models\Transfer
      * @param int $statusCode
      * @return array|bool|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
      */
-    public static function getTransferStatusRecordDetail($statusCode = 0) {
+    public static function getTransferStatusRecordDetail($statusCode = 0, $startDate = null, $endDate = null) {
         
-        $queryResult = Transfer::find()
+        $query = Transfer::find()
             ->select('count(*) as total,transfer_status')
             ->andWhere(['transfer_status'=>$statusCode])
             ->isParentTransfer()
-            ->groupBy('transfer_status')
-            ->asArray()
+            ->groupBy('transfer_status');
+
+
+        if($startDate) {
+            $query->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
+        }
+        if($endDate) {
+            $query->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
+        }
+
+        $queryResult = $query->asArray()
             ->one();
 
         if ($queryResult) {

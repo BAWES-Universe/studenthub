@@ -70,17 +70,27 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // SettingController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/setting',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'PATCH' => 'update',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // StaffController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/staff',
                     'patterns' => [
                         'GET list-salaries/<id>' => 'list-salaries',
+                        'GET list-companies/<id>' => 'list-companies',
                         'GET view-salary/<id>' => 'view-salary',
                         'GET <id>' => 'view',
                         'GET' => 'list',
                         'POST import-salary' => 'import-salary',
-                        'POST add-salary/<id>' => 'add-salary',
-                        'PATCH update-salary/<id>' => 'update-salary',
                         'PATCH status-change/<id>' => 'status',
                         'PATCH recover-account/<id>' => 'recover-account',
                         'POST' => 'create',
@@ -91,13 +101,12 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS status-change/<id>' => 'options',
                         'OPTIONS list-salaries/<id>' => 'options',
-                        'OPTIONS add-salary/<id>' => 'options',
-                        'OPTIONS update-salary/<id>' => 'options',
                         'OPTIONS view-salary/<id>' => 'options',
                         'OPTIONS import-salary' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS recover-account/<id>' => 'options',
+                        'OPTIONS list-companies/<id>' => 'options',
                     ]
                 ],
                 [ // AdminController
@@ -149,6 +158,7 @@ return [
                         'PATCH file-update/<id>' => 'update-file',
                         'PATCH change-status/<id>' => 'change-status',
                         'PATCH update-followup/<id>' => 'update-followup',
+                        'PATCH update-staff/<id>' => 'update-staff',
                         'PATCH update-followup-interval/<id>' => 'update-followup-interval',
                         'PATCH <id>' => 'update',
                         'DELETE remove-file/<id>' => 'delete-file',
@@ -164,6 +174,7 @@ return [
                         'OPTIONS file-update/<id>' => 'options',
                         'OPTIONS remove-file/<id>' => 'options',
                         'OPTIONS change-status/<id>' => 'options',
+                        'OPTIONS update-staff/<id>' => 'options',
                         'OPTIONS update-followup/<id>' => 'options',
                         'OPTIONS update-followup-interval/<id>' => 'options',
                         'OPTIONS download-list-excel' => 'options',
@@ -314,6 +325,7 @@ return [
                     'controller' => 'v1/daily-standup-question',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET work-session' => 'list-work-session',
                         'GET list-answers' => 'list-answers',
                         'GET absences' => 'absences',
                         'GET <id>' => 'view',
@@ -323,6 +335,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS work-session' => 'options',
                     ]
                 ],
                 [ // BankController
@@ -453,8 +466,10 @@ return [
                     'controller' => 'v1/suggestion',
                     'patterns' => [
                         'GET' => 'list',
+                        'PATCH change-status/<id>' => 'change-status',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS change-status/<id>' => 'options',
                     ]
                 ],
                 [ // StoryController
@@ -521,6 +536,117 @@ return [
                         'OPTIONS pay-by-wallet' => 'options',
                         'OPTIONS init-transfer' => 'options',
                         'OPTIONS payable-list' => 'options',
+                    ]
+                ],
+                [ // CandidateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/fulltimer',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // DailyStandupAnswerController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/daily-standup-answer',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET list-inactive' => 'list-inactive',
+                        'GET <staffId>/<date>' => 'view-answer',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list-inactive' => 'options',
+                        'OPTIONS <staffId>/<date>' => 'options',
+                    ]
+                ],
+                [ // StaffWorkSessionController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-work-session',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET list-inactive' => 'list-inactive',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list-inactive' => 'options',
+                    ]
+                ],
+                [ // StaffSalaryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-salary',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST create-salary' => 'create-salary',
+                        'POST add-salary/<id>' => 'add-salary',
+                        'PATCH update-salary/<id>' => 'update-salary',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS create-salary' => 'options',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS add-salary/<id>' => 'options',
+                        'OPTIONS update-salary/<id>' => 'options',
+                    ]
+                ],
+                [ // CandidateEvaluationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-evaluation',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET question' => 'list-question',
+                        'GET question/<id>' => 'view-question',
+                        'GET list-assigned-question' => 'list-assigned-question',
+                        'GET list-candidate-report' => 'list-candidate-report',
+                        'GET report/<id>' => 'view-report',
+                        'GET pdf/<id>' => 'pdf',
+                        'POST create-question' => 'create-question',
+                        'PATCH update-question/<id>' => 'update-question',
+                        'PUT assign-question/<id>' => 'assign-question',
+                        'DELETE question/<id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS question' => 'options',
+                        'OPTIONS report/<id>' => 'options',
+                        'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS question/<id>' => 'options',
+                        'OPTIONS list-assigned-question' => 'options',
+                        'OPTIONS list-candidate-report' => 'options',
+                        'OPTIONS create-question' => 'options',
+                        'OPTIONS update-question/<id>' => 'options',
+                        'OPTIONS assign-question/<id>' => 'options',
+                    ]
+                ],
+                [ // StaffExpensesController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-expenses',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH change-status/<id>' => 'change-status',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS change-status/<id>' => 'options',
+                    ]
+                ],
+                [ // staffLeaveController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/staff-leave',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET ' => 'list',
+                        'POST' => 'create',
+                        'DELETE <id>' => 'delete',
+                        'PATCH <id>' => 'change-status',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
             ],

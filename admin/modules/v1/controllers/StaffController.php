@@ -122,50 +122,15 @@ class StaffController extends Controller
     }
 
     /**
-     * Add staff salary
+     * Return a List of Staff Salaries available.
      */
-    public function actionAddSalary($id)
+    public function actionListCompanies($id)
     {
         $staff = $this->findModel($id);
 
-        $model = new StaffSalary();
-
-        $model->staff_id = $staff->staff_id;
-        $model->salary =Yii::$app->request->getBodyParam("salary");
-        $model->salary_currency = Yii::$app->request->getBodyParam("salary_currency");
-        $model->comment = Yii::$app->request->getBodyParam("comment");
-        $model->salary_date = date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("salary_date")));
-
-        if (!$model->save())
-        {
-            if(isset($model->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $model->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem adding salary, please contact us for assistance."
-                ];
-            }
-        }
-
-        /*if(YII_ENV == 'prod') {
-            Yii::$app->eventManager->setUser('admin_' . Yii::$app->user->getId(), [
-                '$first_name' => Yii::$app->user->identity->admin_name,
-                '$email' => Yii::$app->user->identity->admin_email
-            ]);
-        }*/
-
-        //todo: send to segment
-
-        Yii::info('[Staff Salary Added] For "'.$staff->staff_email.'" by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
-
-        return [
-            "operation" => "success",
-            "message" => "Staff salary successfully added"
-        ];
+        return new ActiveDataProvider([
+            'query' => $staff->getCompanies()
+        ]);
     }
 
     /**
@@ -319,6 +284,11 @@ class StaffController extends Controller
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
 
+        $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+
+        if($staff_photo)
+            $model->setLogo($staff_photo);
+
         if (!$model->signup())
         {
             if(isset($model->errors)){
@@ -335,6 +305,7 @@ class StaffController extends Controller
         }
 
         if(YII_ENV == 'prod') {
+
             Yii::$app->eventManager->setUser('staff' . $model->staff_id, [
                 '$first_name' => $model->staff_name,
                 '$email' => $model->staff_email
@@ -346,8 +317,8 @@ class StaffController extends Controller
                 'name' => $model->staff_name,
                 'nickname' => $model->staff_name
             ];
-            Yii::$app->auth0->createUser($param);
 
+            Yii::$app->auth0->createUser($param);
         }
 
         Yii::info('[Staff Account Created] Staff "'.$model->staff_email.'" created by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
@@ -384,6 +355,11 @@ class StaffController extends Controller
         $model->week_start_day = Yii::$app->request->getBodyParam("week_start_day");
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
+
+        $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+
+        if($staff_photo)
+            $model->setLogo($staff_photo);
 
         if (!$model->save())
         {

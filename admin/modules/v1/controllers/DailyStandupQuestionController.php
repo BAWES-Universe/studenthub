@@ -4,6 +4,7 @@ namespace admin\modules\v1\controllers;
 
 use common\models\DailyStandupAnswer;
 use common\models\StaffLeave;
+use common\models\StaffWorkSession;
 use Yii;
 use common\models\DailyStandupQuestion;
 use yii\data\ActiveDataProvider;
@@ -104,6 +105,41 @@ class DailyStandupQuestionController extends Controller
     }
 
     /**
+     * @return ActiveDataProvider
+     */
+    public function actionListWorkSession()
+    {
+        $groupBy = Yii::$app->request->get('groupBy');
+        $staff_id = Yii::$app->request->get('staff_id');
+        $created_at = Yii::$app->request->get('created_at');
+
+        $query = StaffWorkSession::find();
+
+        if($staff_id) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
+
+        if ($groupBy) {
+            if ($groupBy == 'staff') {
+                $query->addGroupBy('staff_id');
+            }
+            if ($groupBy == 'date') {
+                $query->addGroupBy('created_at');
+            }
+        }
+
+        if($created_at) {
+            $query->andWhere(new Expression("DATE(created_at) = 
+                DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+
+    /**
      * list staff on leave
      * @return array|\yii\db\ActiveRecord[]
      */
@@ -167,7 +203,7 @@ class DailyStandupQuestionController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
         $model->question = Yii::$app->request->getBodyParam("question");
 
@@ -202,7 +238,7 @@ class DailyStandupQuestionController extends Controller
      */
     public function actionDelete($id)
     {
-        $model = $this->findModel((int)$id);
+        $model = $this->findModel($id);
 
         // Delete bank
         $model->delete();

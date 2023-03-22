@@ -153,10 +153,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 else
                     $fulltimer = null;
 
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Suggestion Created',
-                    'properties' => [
+                Yii::$app->eventManager->track('Suggestion Created', [
                         'suggestion_uuid' => $this->suggestion_uuid,
                         'request_uuid' => $this->request_uuid,
                         'candidate_id' => $this->candidate_id,
@@ -166,21 +163,16 @@ class Suggestion extends \yii\db\ActiveRecord
                         'fulltimer' => $fulltimer,
                         'staff_id' => $this->note? $this->note->created_by: null,
                         'staff_name' => $staff? $staff->staff_name: null
-                    ]
-                ]);
+                    ]);
             }
             else
             {
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Suggestion Updated',
-                    'properties' => [
+                Yii::$app->eventManager->track('Suggestion Updated', [
                         'suggestion_uuid' => $this->suggestion_uuid,
                         'request_uuid' => $this->request_uuid,
                         'candidate_id' => $this->candidate_id,
                         'fulltimer_uuid' => $this->fulltimer_uuid,
-                    ]
-                ]);
+                    ]);
             }
         }
 
@@ -576,10 +568,11 @@ class Suggestion extends \yii\db\ActiveRecord
                             //continue;
                             throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                         }
-                    } else {
-                        //continue;
-                        throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
                     }
+//                    else {
+//                        //continue;
+//                        throw new \yii\console\Exception('Candidate Profile not available #'. $eachSuggestion->fulltimer_uuid);
+//                    }
 
                     $noOfAttachments++;
 

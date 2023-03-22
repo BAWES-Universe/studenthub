@@ -66,7 +66,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         return [
             [['transfer_id', 'candidate_id', 'store_id', 'bank_id', 'company_id', 'transfer_file_id'], 'integer'],
-            [['store_name', 'company_name'], 'string', 'max' => 100],
+            [['store_name', 'company_name'], 'string', 'max' => 225],
             [['company_email'], 'email'],
             [['transfer_confirmation_id'], 'string', 'max' => 128],
             [['transfer_benef_iban'], 'string', 'max' => 50],
@@ -336,18 +336,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         if(YII_ENV == 'prod') {
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Candidate Transfer Paid',
-                'properties' => [
+            Yii::$app->eventManager->track('Candidate Transfer Paid',  [
                     'tc_id' => $this->tc_id,
                     'transfer_id' => $this->transfer_id,
                     'candidate_id' => $this->candidate_id,
                     'name' => $name,
                     'revenue' => $this->getProfit(),
                     'currency' => 'KWD'
-                ]
-            ]);
+                ]);
         }
 
         Yii::$app->mailer->compose('candidate/transfer-success',[
@@ -375,10 +371,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
             $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Candidate Transfer Paid',//Un-Paid
-                'properties' => [
+            //Un-Paid
+            Yii::$app->eventManager->track('Candidate Transfer Paid',  [
                     'tc_id' => $this->tc_id,
                     'transfer_id' => $this->transfer_id,
                     'candidate_id' => $this->candidate_id,
@@ -388,8 +382,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                     'transfer_cost' => $this->transfer_cost,
                     'candidate_total' => $this->candidate_total,
                     'company_total' => $this->company_total,
-                ]
-            ]);
+                ]);
         }
 
         $heading = Yii::t('app', 'Transfer marked as unpaid');

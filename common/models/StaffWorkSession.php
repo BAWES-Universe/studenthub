@@ -69,6 +69,14 @@ class StaffWorkSession extends \yii\db\ActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return [
+            'staff',
+            'dayActivity'
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -89,5 +97,18 @@ class StaffWorkSession extends \yii\db\ActiveRecord
     public function getStaff($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    public function getDayActivity($modelClass = "\common\models\StaffWorkSession") {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id'])
+            ->andWhere(['DATE(created_at)'=> new \yii\db\Expression("DATE('$this->created_at')")]);
+    }
+    /**
+     * @inheritdoc
+     * @return query\StaffWorkSessionQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\StaffWorkSessionQuery(get_called_class());
     }
 }

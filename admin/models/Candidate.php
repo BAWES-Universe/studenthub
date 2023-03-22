@@ -2,6 +2,7 @@
 namespace admin\models;
 
 use Yii;
+use yii\db\Expression;
 
 
 /**
@@ -67,21 +68,46 @@ class Candidate extends \common\models\Candidate {
     }
 
     /**
-     * @param bool $condition
-     * @return int|string
+     * @param false $condition
+     * @param null $startDate
+     * @param null $endDate
+     * @return bool|int|string|null
      */
-    public static function candidateCountByCondition($condition = false) {
+    public static function candidateCountByCondition($condition = false, $startDate = null, $endDate = null) {
         $query = Candidate::find();
 
         switch ($condition) {
             case 'assigned':
                 $query->filterAssigned();
+                $query->filterByJoiningDate($startDate, $endDate);
                 break;
             case 'approved':
                 $query->byApprovalStatus(1);
                 break;
         }
-        $query->andWhere(['deleted' => 0]);
+        if($startDate) {
+            $query->andWhere(new Expression("DATE(candidate_created_at) >= DATE('" . $startDate . "')"));
+        }
+
+        if($endDate) {
+            $query->andWhere(new Expression("DATE(candidate_created_at) <= DATE('" . $endDate . "')"));
+        }
+//        return $query->getSqlQuery();
+        return $query->count();
+    }
+
+    /**
+     * @param false $condition
+     * @param null $startDate
+     * @param null $endDate
+     * @return bool|int|string|null
+     */
+     public static function candidateCountByAssigned($startDate = null, $endDate = null) {
+        $query = Candidate::find();
+
+         $query->filterAssigned();
+         $query->filterByJoiningDate($startDate, $endDate);
+//        return $query->getSqlQuery();
         return $query->count();
     }
 
@@ -266,5 +292,30 @@ class Candidate extends \common\models\Candidate {
     public static function findCustom()
     {
         return new \admin\models\query\CandidateQuery(get_called_class());
+    }
+
+    public static function invited($startDate = null, $endDate = null) {
+        $query = Invitation::find();
+         if($startDate) {
+             $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('" . $startDate . "')"));
+         }
+
+        if($endDate) {
+            $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('" . $endDate . "')"));
+        }
+        return $query->count();
+    }
+
+    public static function suggested($startDate = null, $endDate = null) {
+
+        $query = Suggestion::find();
+        if($startDate) {
+            $query->andWhere(new Expression("DATE(suggestion_datetime) >= DATE('" . $startDate . "')"));
+        }
+
+        if($endDate) {
+            $query->andWhere(new Expression("DATE(suggestion_datetime) <= DATE('" . $endDate . "')"));
+        }
+        return $query->count();
     }
 }

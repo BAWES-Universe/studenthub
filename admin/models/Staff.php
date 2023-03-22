@@ -141,7 +141,8 @@ class Staff extends \common\models\Staff {
 
                     return (int) $query
                         ->count();
-                }
+                },
+                'companies'
             ],
             parent::extraFields()
         );
@@ -206,8 +207,105 @@ class Staff extends \common\models\Staff {
         return parent::getNotes($modelClass);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanies($modelClass = "\admin\models\Company")
+    {
+        return parent::getCompanies($modelClass);
+    }
+
     public static function find()
     {
         return new query\StaffQuery(get_called_class());
+    }
+
+    /**
+     * Set logo from S3 temp url
+     * @param string $url
+     */
+    public function setLogo($staff_photo) {
+
+        if(!Yii::$app->temporaryBucketResourceManager->fileExists($staff_photo)) {
+            $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+
+        $url = Yii::$app->temporaryBucketResourceManager->getUrl($staff_photo);
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+
+        if ($this->staff_photo) {
+            $this->deleteLogoFromCloudinary();
+        }
+
+        try {
+            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/" ;
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url,
+                [
+                    'public_id' =>  $path . $filename,
+                    "eager" => [
+                        [
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
+                ]
+            );
+
+            if ($result) {
+                $this->staff_photo = basename($result['url']);
+                return true;
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            $this->addError('staff_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete old logo from cloudinary
+     * @return boolean
+     */
+    public function deleteLogoFromCloudinary() {
+
+        try {
+            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/" ;
+            $response = Yii::$app->cloudinaryManager->delete( $path . $this->staff_photo);
+            if ($response && $response['result'] == 'not found') {
+                $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
+                return false;
+            }
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            //$this->addError('brand_logo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            //$this->addError('brand_logo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
     }
 }

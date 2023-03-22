@@ -23,6 +23,7 @@ use yii\web\IdentityInterface;
  * @property number $staff_role
  * @property number $staff_salary
  * @property number $staff_salary_currency
+ * @property string $staff_photo
  * @property integer $week_start_day
  * @property integer $work_days
  * @property integer $hours_per_day
@@ -69,7 +70,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             [['staff_password_hash'], 'required', 'on'=>'newAccount'],
             [['staff_role','staff_hourly_rate', 'staff_salary'], 'number'],
             [['staff_status','staff_notification', 'week_start_day', 'work_days', 'hours_per_day'], 'integer'],
-            [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password'], 'string', 'max' => 255],
+            [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password','staff_photo'], 'string', 'max' => 255],
             [['staff_auth_key', 'staff_salary_currency'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
             [['staff_email'], 'email'],
@@ -108,6 +109,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
             'staff_role' => Yii::t('app', 'Role'),
             'staff_salary' => Yii::t('app', 'Salary'),
+            'staff_photo' => Yii::t('app', 'Staff Photo'),
             'staff_salary_currency' => Yii::t('app', 'Salary currency'),
             'week_start_day' => Yii::t('app', 'Week start day'),
             'work_days' => Yii::t('app', 'Work days'),
@@ -131,6 +133,16 @@ class Staff extends ActiveRecord implements IdentityInterface
             $fields['staff_password_hash'],
             $fields['staff_password_reset_token']
         );
+
+        $fields['staff_salary'] = function ($model) {
+            // only for meet and khalid..
+            // TODO will change to permission base
+            $id = Yii::$app->user->getId();
+            if ($id == 1 || $id == 7 || $id == 10) {
+                return $model->staff_salary;
+            }
+            return 0.0;
+        };
 
         return $fields;
     }
@@ -265,7 +277,8 @@ class Staff extends ActiveRecord implements IdentityInterface
                 return (int) $query
                     ->sum('story_activity.activity_time_spent');
             },
-            'permissions'
+            'permissions',
+            'companies'
             /*'totalRequests' => function($model) {
                 return $model->getRequests()->count();
             }*/
@@ -412,7 +425,6 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getStoryActivities($modelClass = "\common\models\StoryActivity") {
@@ -704,6 +716,24 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     public function getPermissions($modelClass = "\common\models\PermissionUser") {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    public function getActiveSession() {
+        return StaffWorkSession::find()
+            ->andWhere([
+                'staff_id' => Yii::$app->user->getId()
+            ])
+            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
+                AND total_minutes IS NULL"))
+            ->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanies($modelClass = "\common\models\Company")
+    {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 }

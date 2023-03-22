@@ -90,6 +90,7 @@ class TransferController extends Controller
         if ($company_name) {
             $query->companyJoin()
                 ->filterCompany($company_name);
+            $query->orFilterWhere(['LIKE','{{%transfer}}.transfer_id',$company_name]);
         }
 
         if($transfer_status)
@@ -283,16 +284,14 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-                Segment::track([
-                    'userId' => Yii::$app->user->getId(),
-                    'event' => 'Transfer Marked As Payment Received',
-                    'properties' => [
+            Yii::$app->eventManager->track(
+                'Transfer Marked As Payment Received',
+                [
                         'transfer_id' => $id,
                         'total' => $transfer->total,
                         'company_total' => $transfer->company_total,
                         'revenue' => $transfer->company_total - $transfer->total,
                         'currency' => 'KWD'
-                    ]
                 ]);
         }
 
@@ -326,13 +325,10 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-//            Segment::track([
-//                'userId' => Yii::$app->user->getId(),
-//                'event' => 'Transfer UnLocked',
-//                'properties' => [
+//            Yii::$app->eventManager->track('Transfer UnLocked',
+//                [
 //                    'transfer_id' => $id
-//                ]
-//            ]);
+//                ]);
         }
 
         return [
@@ -373,13 +369,10 @@ class TransferController extends Controller
 
         if(YII_ENV == 'prod') {
 
-            Segment::track([
-                'userId' => Yii::$app->user->getId(),
-                'event' => 'Transfer Locked',
-                'properties' => [
+            Yii::$app->eventManager->track(
+                'Transfer Locked', [
                     'transfer_id' => $id
-                ]
-            ]);
+                ]);
         }
 
         return [
@@ -1003,6 +996,7 @@ class TransferController extends Controller
         if ($company_name) {
             $query->companyJoin()
                 ->filterCompany($company_name);
+            $query->orFilterWhere(['LIKE','{{%transfer}}.transfer_id',$company_name]);
         }
 
         if($transfer_status)
