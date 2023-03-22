@@ -778,6 +778,7 @@ class CandidateController extends Controller
         }
 
         $query->notDeleted();
+        $query->addOrderBy('candidate.candidate_id DESC');
         return new ActiveDataProvider([
             'query' => $query
         ]);

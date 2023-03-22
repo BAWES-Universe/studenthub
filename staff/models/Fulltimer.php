@@ -54,4 +54,12 @@ class Fulltimer extends \common\models\Fulltimer {
     {
         return parent::getSuggestion ($modelClass);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversity($modelClass = "\staff\models\University")
+    {
+        return parent::getUniversity ($modelClass);
+    }
 }

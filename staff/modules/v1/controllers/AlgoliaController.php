@@ -75,7 +75,7 @@ class AlgoliaController extends Controller
                 Yii::$app->params['algolia_fulltimer_index'],
             ],
             'filters' => '',
-            'validUntil' => time() + $ttl,
+            //'validUntil' => time() + $ttl,
             'userToken' => Yii::$app->user->getId(),
             //'getRankingInfo' => true,
             //'aroundLatLngViaIP' => true,
@@ -86,7 +86,8 @@ class AlgoliaController extends Controller
         
         return [
             'securedApiKey' => $securedApiKey,
-            'securedApiKeyValidUntil' => $params['validUntil'],
+//            'securedApiKeyValidUntil' => $params['validUntil'],
+            'securedApiKeyValidUntil' => null,
             'appId' => Yii::$app->algolia->appId
         ];
     }

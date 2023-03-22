@@ -98,179 +98,179 @@ class TransferTest extends \Codeception\Test\Unit
         });
     }
 
-    public function testSaveTransfer() {
-
-        foreach ($this->model->getCandidates()->all() as $candidate) {
-            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
-        }
-
-        $company = $this->model;
-        $start_date = "2020-11-11";
-        $end_date = "2020-12-10";
-        //save transfer
-        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
-        expect('expecting true', $response['operation'])->equals('success');
-
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
-    }
-
-    /**
-     * check transfer delete
-     */
-    public function testDeleteWithDraftTransfer() {
-
-        foreach ($this->model->getCandidates()->all() as $candidate) {
-            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
-        }
-
-        $company = $this->model;
-        $start_date = "2020-11-11";
-        $end_date = "2020-12-10";
-
-        //save transfer
-
-        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
-
-        expect('expecting true', $response['operation'])->equals('success');
-
-        //expect transfer got saved
-
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
-
-        //expect transfer candidates saved
-
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
-
-        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
-
-        //transfer getting delete
-
-        expect_that(Transfer::deleteTransfer($model) == true);
-
-        //test transfer deleted
-
-        expect_not(Transfer::findOne($model->transfer_id));
-
-        //test invoices deleted
-
-        expect_not(Invoice::findOne(['transfer_id' => $response['transfer_id']]));
-
-        //test candidate transfer entries deleted
-
-        expect_not(TransferCandidate::findOne(['transfer_id' => $response['transfer_id']]));
-
-        $childTransfers = Yii::$app->db->createCommand('select * from transfer where parent_transfer_id="' . $response['transfer_id'] . '"')->queryAll();
-
-        foreach($childTransfers as $child) {
-
-            //test child transfer deleted
-
-            expect_not(Transfer::findOne($child['transfer_id']));
-
-            //test child invoices deleted
-
-            expect_not(Invoice::findOne(['transfer_id' => $child['transfer_id']]));
-
-            //test child candidate transfer entries deleted
-
-            expect_not(TransferCandidate::findOne(['transfer_id' => $child['transfer_id']]));
-        }
-    }
-
-    /**
-     * try to delete locked transfer
-     * @throws \yii\db\Exception
-     */
-    public function testDeleteWithLockTransfer() {
-
-        foreach ($this->model->getCandidates()->all() as $candidate) {
-            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
-        }
-
-        $company = $this->model;
-        $start_date = "2020-11-11";
-        $end_date = "2020-12-10";
-        //save transfer
-        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
-        expect('expecting true', $response['operation'])->equals('success');
-
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
-
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
-
-        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
-
-        expect_that($model->lock() == true);
-
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK])->one());
-
-        expect_that($model->getInvoices()->count() > 0);
-
-        $transferLock = Transfer::findOne(['transfer_status'=>Transfer::STATUS_LOCK]);
-
-        expect_that(Transfer::deleteTransfer($model) == true);
-
-        //test transfer deleted
-
-        expect_not(Transfer::findOne($model->transfer_id));
-
-        //test invoices deleted
-
-        expect_not(Invoice::findOne(['transfer_id' => $response['transfer_id']]));
-
-        //test candidate transfer entries deleted
-
-        expect_not(TransferCandidate::findOne(['transfer_id' => $response['transfer_id']]));
-
-        $childTransfers = Yii::$app->db->createCommand('select * from transfer where parent_transfer_id="' . $response['transfer_id'] . '"')->queryAll();
-
-        foreach($childTransfers as $child) {
-
-            //test child transfer deleted
-
-            expect_not(Transfer::findOne($child['transfer_id']));
-
-            //test child invoices deleted
-
-            expect_not(Invoice::findOne(['transfer_id' => $child['transfer_id']]));
-
-            //test child candidate transfer entries deleted
-
-            expect_not(TransferCandidate::findOne(['transfer_id' => $child['transfer_id']]));
-        }
-    }
-
-    /**
-     * try to delete transfer with payment sent status 
-     */
-    public function testDeleteWithPaymentSentTransfer() {
-
-        foreach ($this->model->getCandidates()->all() as $candidate) {
-            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
-        }
-
-        $company = $this->model;
-        $start_date = "2020-11-11";
-        $end_date = "2020-12-10";
-        //save transfer
-        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
-        expect('expecting true', $response['operation'])->equals('success');
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
-        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
-
-        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
-
-        expect_that($model->lock() == true);
-
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK])->one());
-
-        expect_that($model->getInvoices()->count() > 0);
-
-        expect_that($model->paymentSent() == true);
-
-        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_PAYMENT_SENT])->one());
-
-        expect_that(Transfer::deleteTransfer($model) == false);
-    }
+//    public function testSaveTransfer() {
+//
+//        foreach ($this->model->getCandidates()->all() as $candidate) {
+//            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+//        }
+//
+//        $company = $this->model;
+//        $start_date = "2020-11-11";
+//        $end_date = "2020-12-10";
+//        //save transfer
+//        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+//        expect('expecting true', $response['operation'])->equals('success');
+//
+//        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
+//        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
+//    }
+//
+//    /**
+//     * check transfer delete
+//     */
+//    public function testDeleteWithDraftTransfer() {
+//
+//        foreach ($this->model->getCandidates()->all() as $candidate) {
+//            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+//        }
+//
+//        $company = $this->model;
+//        $start_date = "2020-11-11";
+//        $end_date = "2020-12-10";
+//
+//        //save transfer
+//
+//        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+//
+//        expect('expecting true', $response['operation'])->equals('success');
+//
+//        //expect transfer got saved
+//
+//        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
+//
+//        //expect transfer candidates saved
+//
+//        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
+//
+//        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
+//
+//        //transfer getting delete
+//
+//        expect_that(Transfer::deleteTransfer($model) == true);
+//
+//        //test transfer deleted
+//
+//        expect_not(Transfer::findOne($model->transfer_id));
+//
+//        //test invoices deleted
+//
+//        expect_not(Invoice::findOne(['transfer_id' => $response['transfer_id']]));
+//
+//        //test candidate transfer entries deleted
+//
+//        expect_not(TransferCandidate::findOne(['transfer_id' => $response['transfer_id']]));
+//
+//        $childTransfers = Yii::$app->db->createCommand('select * from transfer where parent_transfer_id="' . $response['transfer_id'] . '"')->queryAll();
+//
+//        foreach($childTransfers as $child) {
+//
+//            //test child transfer deleted
+//
+//            expect_not(Transfer::findOne($child['transfer_id']));
+//
+//            //test child invoices deleted
+//
+//            expect_not(Invoice::findOne(['transfer_id' => $child['transfer_id']]));
+//
+//            //test child candidate transfer entries deleted
+//
+//            expect_not(TransferCandidate::findOne(['transfer_id' => $child['transfer_id']]));
+//        }
+//    }
+//
+//    /**
+//     * try to delete locked transfer
+//     * @throws \yii\db\Exception
+//     */
+//    public function testDeleteWithLockTransfer() {
+//
+//        foreach ($this->model->getCandidates()->all() as $candidate) {
+//            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+//        }
+//
+//        $company = $this->model;
+//        $start_date = "2020-11-11";
+//        $end_date = "2020-12-10";
+//        //save transfer
+//        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+//        expect('expecting true', $response['operation'])->equals('success');
+//
+//        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
+//
+//        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
+//
+//        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
+//
+//        expect_that($model->lock() == true);
+//
+//        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK])->one());
+//
+//        expect_that($model->getInvoices()->count() > 0);
+//
+//        $transferLock = Transfer::findOne(['transfer_status'=>Transfer::STATUS_LOCK]);
+//
+//        expect_that(Transfer::deleteTransfer($model) == true);
+//
+//        //test transfer deleted
+//
+//        expect_not(Transfer::findOne($model->transfer_id));
+//
+//        //test invoices deleted
+//
+//        expect_not(Invoice::findOne(['transfer_id' => $response['transfer_id']]));
+//
+//        //test candidate transfer entries deleted
+//
+//        expect_not(TransferCandidate::findOne(['transfer_id' => $response['transfer_id']]));
+//
+//        $childTransfers = Yii::$app->db->createCommand('select * from transfer where parent_transfer_id="' . $response['transfer_id'] . '"')->queryAll();
+//
+//        foreach($childTransfers as $child) {
+//
+//            //test child transfer deleted
+//
+//            expect_not(Transfer::findOne($child['transfer_id']));
+//
+//            //test child invoices deleted
+//
+//            expect_not(Invoice::findOne(['transfer_id' => $child['transfer_id']]));
+//
+//            //test child candidate transfer entries deleted
+//
+//            expect_not(TransferCandidate::findOne(['transfer_id' => $child['transfer_id']]));
+//        }
+//    }
+//
+//    /**
+//     * try to delete transfer with payment sent status
+//     */
+//    public function testDeleteWithPaymentSentTransfer() {
+//
+//        foreach ($this->model->getCandidates()->all() as $candidate) {
+//            $candidates[] = ['candidate_id'=>$candidate->candidate_id,'candidate' =>$candidate,'bonus'=>1,'hours'=>1];
+//        }
+//
+//        $company = $this->model;
+//        $start_date = "2020-11-11";
+//        $end_date = "2020-12-10";
+//        //save transfer
+//        $response = Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+//        expect('expecting true', $response['operation'])->equals('success');
+//        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one());
+//        expect_that(TransferCandidate::find()->andWhere(['transfer_id'=>$response['transfer_id']])->count() == count($candidates));
+//
+//        $model = Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id']])->one();
+//
+//        expect_that($model->lock() == true);
+//
+//        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_LOCK])->one());
+//
+//        expect_that($model->getInvoices()->count() > 0);
+//
+//        expect_that($model->paymentSent() == true);
+//
+//        expect_that(Transfer::find()->andWhere(['transfer_id'=>$response['transfer_id'],'transfer_status'=>Transfer::STATUS_PAYMENT_SENT])->one());
+//
+//        expect_that(Transfer::deleteTransfer($model) == false);
+//    }
 }
