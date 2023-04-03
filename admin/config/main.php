@@ -569,9 +569,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET list-inactive' => 'list-inactive',
+                        'GET download-list-excel' => 'download-list-excel',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS list-inactive' => 'options',
+                        'OPTIONS download-list-excel' => 'options',
                     ]
                 ],
                 [ // StaffSalaryController

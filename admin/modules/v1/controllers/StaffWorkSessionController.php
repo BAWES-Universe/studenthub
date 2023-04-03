@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Company;
 use admin\models\Staff;
 use common\models\StaffWorkSession;
 use Yii;
@@ -137,6 +138,83 @@ class StaffWorkSessionController extends Controller
         return $this->findModel($id);
     }
 
+
+    /**
+     * Return a List of Company Accounts available.
+     * @return ActiveDataProvider
+     */
+    public function actionDownloadListExcel()
+    {
+        $query = StaffWorkSession::find();
+
+        if($staff_id = Yii::$app->request->get('staff_id')) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
+
+        $startDate = Yii::$app->request->get('startDate', null);
+        $endDate = Yii::$app->request->get('endDate', null);
+        if ($startDate) {
+            $query->andWhere(new Expression("DATE(created_at) >= DATE('".
+                date('Y-m-d', strtotime ($startDate)) ."')"));
+        }
+        if ($endDate) {
+            $query->andWhere(new Expression("DATE(created_at) <= DATE('".
+                date('Y-m-d', strtotime ($endDate)) ."')"));
+        }
+
+        $query->filterByGroup();
+        $query->filterByOrder();
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $query->all(),
+            'columns' => [
+                'staff_id',
+                [
+                    'attribute'=>'Name',
+                    'label'=>'staff name',
+                    'value'=>function($model) {
+                        return $model->staff->staff_name;
+                    }
+                ],[
+                    'attribute'=>'Email',
+                    'label'=>'Staff Email',
+                    'value'=>function($model) {
+                        return $model->staff->staff_email;
+                    }
+                ],
+                [
+                    'attribute'=>'total_minutes',
+                    'label'=>'Total Min.',
+                    'value'=>function($model) {
+                        return (!$model->total_minutes) ? ($model->staff->hours_per_day*60) : $model->total_minutes;
+                    }
+                ],
+                [
+                    'attribute'=>'total_minutes',
+                    'label'=>'Total Hours.',
+                    'value'=>function($model) {
+                        return (!round($model->total_minutes/60, 3)) ? $model->staff->hours_per_day : round($model->total_minutes/60, 3);
+                    }
+                ],
+                [
+                    'attribute'=>'created_at',
+                    'label'=>'From',
+                    'value'=>function($model) {
+                        return date('Y-m-d',strtotime($model->created_at));
+                    }
+                ],
+                [
+                    'attribute'=>'updated_at',
+                    'label'=>'To',
+                    'value'=>function($model) {
+                        return date('Y-m-d',strtotime($model->updated_at));
+                    }
+                ],
+            ]
+        ]);
+    }
     /**
      * Finds the DailyStandupQuestion model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
