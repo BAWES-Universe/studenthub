@@ -200,6 +200,7 @@ return [
                         'GET total-to-review' => 'total-to-review',
                         'PATCH approve/<id>' => 'approve',
                         'PATCH restore/<id>' => 'restore',
+                        'PATCH reset-password/<id>' => 'reset-password',
                         'GET transfers/<id>' => 'transfers',
                         'GET work-history/<id>' => 'work-history',
                         'GET <id>' => 'view',
@@ -212,6 +213,7 @@ return [
                         'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS restore/<id>' => 'options',
+                        'OPTIONS reset-password/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],

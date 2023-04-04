@@ -3,6 +3,7 @@ namespace admin\models;
 
 use Yii;
 use yii\db\Expression;
+use yii\helpers\Url;
 
 
 /**
@@ -317,5 +318,28 @@ class Candidate extends \common\models\Candidate {
             $query->andWhere(new Expression("DATE(suggestion_datetime) <= DATE('" . $endDate . "')"));
         }
         return $query->count();
+    }
+
+    /**
+     * Send new password to customer
+     * @param Candidate $model
+     * @param $password
+     * @return bool
+     */
+    public static function passwordMail($model, $password)
+    {
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        return Yii::$app->mailer->compose("candidate/candidate-password",
+            [
+                "model" => $model,
+                "password" => $password,
+                'logo_1' => Url::to('@web/images/logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($model->candidate_email)
+            ->setSubject('Your account password has been reset')
+            ->send();
     }
 }
