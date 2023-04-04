@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 use admin\models\Company;
+use admin\models\Staff;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -357,6 +358,39 @@ class CandidateController extends Controller
         return [
             "operation" => "success",
             "message" => "Candidate account deleted successfully"
+        ];
+    }
+
+    /**
+     * Reset staff password
+     * @param $id
+     * @return array
+     */
+    public function actionResetPassword($id)
+    {
+        $model = $this->findModel((int) $id);
+        $password = Yii::$app->request->getBodyParam("password", null);
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Candidate not found",
+                "code" => 1
+            ];
+        }
+
+        if (!$password) {
+            $password = Yii::$app->security->generateRandomString(5);
+        }
+
+        $model->password = $password;
+        $model->save(false);
+
+        //Send Email to user
+        Candidate::passwordMail($model, $password);
+
+        return [
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
         ];
     }
 
