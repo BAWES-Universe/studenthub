@@ -109,4 +109,16 @@ class AccountController extends Controller
             "role" => $staff->staff_role
         ];
     }
+
+
+    /**
+     * validate user password
+     * @return mixed
+     */
+    public function actionValidateUserPassword() {
+        $password = Yii::$app->request->getBodyParam("password");
+        if ($password) {
+            return Yii::$app->user->identity->validatePassword($password);
+        }
+    }
 }
