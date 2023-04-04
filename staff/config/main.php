@@ -68,9 +68,11 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'POST update-password' => 'update-password',
+                        'POST validate-password' => 'validate-user-password',
                         'GET' => 'account',
                         // OPTIONS VERBS
                         'OPTIONS update-password' => 'options',
+                        'OPTIONS validate-password' => 'options',
                         'OPTIONS' => 'options',
                     ]
                 ],

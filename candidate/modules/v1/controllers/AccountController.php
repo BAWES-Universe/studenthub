@@ -1483,4 +1483,15 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "profile deleted successfully"),
         ];
     }
+
+    /**
+     * validate user password
+     * @return mixed
+     */
+    public function actionValidateUserPassword() {
+        $password = Yii::$app->request->getBodyParam("password");
+        if ($password) {
+            return Yii::$app->user->identity->validatePassword($password);
+        }
+    }
 }

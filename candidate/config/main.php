@@ -115,6 +115,7 @@ return [
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
                         'DELETE remove-civil-photo-back' => 'remove-civil-photo-back',
                         'DELETE remove-candidate-profile' => 'delete-profile',
+                        'POST validate-password' => 'validate-user-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS video-status' => 'options',
@@ -157,6 +158,7 @@ return [
                         'OPTIONS stop-time' => 'options',
                         'OPTIONS current-status' => 'options',
                         'OPTIONS remove-candidate-profile' => 'options',
+                        'OPTIONS validate-password' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
