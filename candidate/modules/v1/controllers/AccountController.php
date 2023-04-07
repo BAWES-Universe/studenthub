@@ -827,7 +827,38 @@ class AccountController extends Controller
             "message" => Yii::t('candidate', "Candidate Name Info Updated Successfully"),
         ];
     }
-    
+
+    /**
+     * update Profile Url
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionProfileUrl() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $candidate->profile_url = Yii::$app->request->getBodyParam('url');
+
+        $candidate->scenario = "updateProfileUrl";
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Candidate Profile Url Updated Successfully"),
+        ];
+    }
+
     /**
      * update candidate name - arabic
      * @return type

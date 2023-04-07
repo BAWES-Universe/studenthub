@@ -89,5 +89,6 @@ return [
     "Started working successfully" => "بدأ العمل بنجاح",
     "You are already working" => "أنت تعمل بالفعل",
     "Stopped worked on store successfully" => "توقفت عملت في المتجر بنجاح",
-    "You have not started working on any store" => "لم تبدأ العمل في أي متجر"
+    "You have not started working on any store" => "لم تبدأ العمل في أي متجر",
+    "Candidate Profile Url Updated Successfully" => 'تم تحديث عنوان Url لملف تعريف المرشح بنجاح'
 ];

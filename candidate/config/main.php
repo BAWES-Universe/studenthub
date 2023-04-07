@@ -110,6 +110,7 @@ return [
                         'POST update-civil-expiry-date' => 'update-civil-expiry-date',
                         'POST update-civil-id-expiry-date' => 'update-civil-id-expiry-date',
                         'POST update-preferred-time' => 'update-preferred-time',
+                        'POST update-profile-url' => 'profile-url',
                         'DELETE remove-photo' => 'remove-photo',
                         'DELETE remove-video' => 'remove-video',
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
@@ -159,6 +160,7 @@ return [
                         'OPTIONS current-status' => 'options',
                         'OPTIONS remove-candidate-profile' => 'options',
                         'OPTIONS validate-password' => 'options',
+                        'OPTIONS update-profile-url' => 'options',
                     ]
                 ],
                 [ // GoogleMapController
