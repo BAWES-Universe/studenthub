@@ -308,4 +308,21 @@ class Staff extends \common\models\Staff {
             return false;
         }
     }
+
+    public function sendVerificationEmail() {
+
+        $webUrl = Yii::$app->params['staffAppUrl'] . 'update-password/' . $this->staff_password_reset_token;
+
+        return Yii::$app->mailer->compose("staff/password-reset-html",
+            [
+                "webUrl" => $webUrl,
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "email" => $this->staff_email,
+                "name" => $this->staff_name
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->staff_email)
+            ->setSubject('Reset your StudentHub password')
+            ->send();
+    }
 }
