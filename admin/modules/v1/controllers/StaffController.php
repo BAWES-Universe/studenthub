@@ -501,6 +501,35 @@ class StaffController extends Controller
     public function actionResetPassword($id)
     {
         $model = $this->findModel((int) $id);
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Staff not found",
+                "code" => 1
+            ];
+        }
+        $model->generatePasswordResetToken();
+        if (!$model->save(false)) {
+            return [
+                "operation" => "error",
+                "message" => $model->getErrors(),
+            ];
+        }
+        $model->sendVerificationEmail();
+        return [
+            "operation" => "success",
+            "message" => "New password sent to registered email successfully"
+        ];
+    }
+
+    /**
+     * Reset staff password
+     * @param $id
+     * @return array
+     */
+    public function actionResetPasswordDirect($id)
+    {
+        $model = $this->findModel((int) $id);
         $password = Yii::$app->request->getBodyParam("password", null);
         if(!$model) {
             return [
