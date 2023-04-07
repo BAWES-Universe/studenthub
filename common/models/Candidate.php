@@ -58,6 +58,7 @@ use Segment\Segment;
  * @property integer $candidate_status
  * @property integer $approved
  * @property integer $candidate_mom_kuwaiti
+ * @property string $profile_url
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
  * @property integer $deleted
@@ -134,7 +135,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             //['approved', 'default', 'value'=> false],
             [['candidate_new_email', 'candidate_email'], 'validateEmail'],
             [['candidate_new_email'], 'validateNewEmail'],
-            ['candidate_limit_email', 'safe'],
+            [['candidate_limit_email','profile_url'], 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
             [['candidate_civil_id'], 'unique'],
             ['candidate_pending_profile', 'string'],
@@ -324,6 +325,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updatePendingProfile'] = ['candidate_pending_profile'];
 
         $scenarios['updatePasswordToken'] = ['candidate_password_reset_token'];
+        $scenarios['updateProfileUrl'] = ['profile_url'];
 
         return $scenarios;
     }
@@ -517,7 +519,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_created_at' => Yii::t('candidate','Created At'),
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
             'employee_id' => Yii::t('candidate','Employee ID'),
-            'candidate_mom_kuwaiti' => Yii::t('candidate','Candidate Mom Kuwaiti')
+            'candidate_mom_kuwaiti' => Yii::t('candidate','Candidate Mom Kuwaiti'),
+            'profile_url' => Yii::t('candidate','Profile Url')
         ];
     }
 
@@ -2706,5 +2709,4 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
-
 }
