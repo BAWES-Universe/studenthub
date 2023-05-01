@@ -370,7 +370,10 @@ class TransferController extends Controller
         }
 
         // send invoice mail
-        $transfer->notify('invoice');
+        // https://bawescompany.atlassian.net/browse/ENG-166 condition for only two
+        if ($transfer->company->company_id != 40 && $transfer->company->company_id != 72) {
+            $transfer->notify('invoice');
+        }
 
         $info = '[ Staff '.Yii::$app->user->identity->staff_name.' has locked transfer #'.$transfer->transfer_id.'] ';
         $info .= '[ for Company '.$transfer->company->company_name.'] ';
