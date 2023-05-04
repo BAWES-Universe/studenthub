@@ -163,7 +163,7 @@ class CandidateController extends Controller
 
         if (!$model->signup(true))
         {
-            if(isset($model->errors)){
+            if(isset($model->errors)) {
                 return [
                     "operation" => "error",
                     "message" => $model->errors
@@ -178,15 +178,13 @@ class CandidateController extends Controller
 
         $model->updateExperiences(Yii::$app->request->getBodyParam("experience"));
         $model->updateSkills(Yii::$app->request->getBodyParam("skill"));
+        $model->updateTags(Yii::$app->request->getBodyParam("tags"));
 
         return [
             "operation" => "success",
             "message" => "Candidate account successfully created",
             "candidate" => $model
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
@@ -247,6 +245,8 @@ class CandidateController extends Controller
 
         $model->updateSkills(Yii::$app->request->getBodyParam("skill"));
 
+        $model->updateTags(Yii::$app->request->getBodyParam("tags"));
+
         Yii::info('['.$model->candidate_name.' Candidate Account Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
@@ -255,6 +255,23 @@ class CandidateController extends Controller
             "candidate" => $model,
             "store" => $model->store,
             "company" => $model->company
+        ];
+    }
+
+    public function actionUpdateTags($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->updateTags(Yii::$app->request->getBodyParam("tags"));
+
+        Yii::info('['.$model->candidate_name.' Candidate Account Updated] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        $model->updateAlgoliaIndex();
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account updated successfully",
+            "candidateTags" => $model->getCandidateTags()->all(),
         ];
     }
 

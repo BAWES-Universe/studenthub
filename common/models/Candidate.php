@@ -790,6 +790,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'area',
             'bank',
             'candidateSkills',
+            'candidateTags',
             'candidateExperiences',
             'candidateIdCard',
             'notes',
@@ -2452,6 +2453,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ];
         }
 
+        //candidate_tag
+
+        $data['candidateTags'] = [];
+
+        foreach ($this->getCandidateTags()->select('tag')->all() as $candidateTag) {
+            $data['candidateTags'][] = [
+                'tag' => $candidateTag->tag
+            ];
+        }
+
         return $data;
     }
 
@@ -2532,6 +2543,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function find()
     {
         return new query\CandidateQuery(get_called_class());
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateTags($modelClass = "\common\models\CandidateTag")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**

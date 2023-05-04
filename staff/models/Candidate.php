@@ -3,6 +3,7 @@ namespace staff\models;
 
 use common\models\CandidateExperience;
 use common\models\CandidateSkill;
+use common\models\CandidateTag;
 use common\models\Suggestion;
 use Yii;
 
@@ -316,6 +317,48 @@ class Candidate extends \common\models\Candidate {
             $model = new CandidateExperience;
             $model->candidate_id = $this->candidate_id;
             $model->experience = $experience;
+
+            if(!$model->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->getErrors()
+                ];
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * update candidate tags
+     * @param $tags
+     * @return array|bool
+     */
+    public function updateTags($tags)
+    {
+        CandidateTag::deleteAll([
+            'candidate_id' => $this->candidate_id
+        ]);
+
+        $tags_array = explode(',', $tags);
+
+        if (empty($tags) || count($tags_array) == 0)
+        {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate',"Tags Required")
+            ];
+        }
+
+        foreach ($tags_array as $tag)
+        {
+            if (empty($tag)) {
+                continue;
+            }
+
+            $model = new CandidateTag;
+            $model->candidate_id = $this->candidate_id;
+            $model->tag = $tag;
 
             if(!$model->save()) {
                 return [
