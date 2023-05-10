@@ -259,6 +259,17 @@ return [
                         'OPTIONS all' => 'options'
                     ]
                 ],
+                [ // TagController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/tag',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET list' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS list' => 'options',
+                    ]
+                ],
                 [ // UniversityController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/university',
