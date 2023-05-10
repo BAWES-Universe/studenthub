@@ -354,6 +354,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // TagController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/tag',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // BrandController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/brand',
