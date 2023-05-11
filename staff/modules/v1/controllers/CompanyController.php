@@ -314,7 +314,7 @@ class CompanyController extends Controller
             }
         }
 
-        Yii::info('['.$model->company_name.' Company Account Updated] Company status updated by '.Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('['.$model->company_name.' Company Account Updated] Company status updated by '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",

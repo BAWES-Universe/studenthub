@@ -88,9 +88,9 @@ class Company extends \yii\db\ActiveRecord
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
-            [['company_followup', 'company_status_override'], 'boolean'],
+            [['company_followup'], 'boolean'],
             ['company_last_followup_datetime', 'safe'],
-            [['company_bonus_commission', 'company_hourly_rate'], 'number'],
+            [['company_bonus_commission', 'company_hourly_rate', 'company_status_override'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],

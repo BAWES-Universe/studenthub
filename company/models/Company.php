@@ -29,6 +29,7 @@ class Company extends \common\models\Company {
             'company_logo',
             'company_website',
             'company_approved_to_hire',
+            'company_status_override'=> 'company_status_override',
             'company_status'=> function($model) {
 
                 if(
