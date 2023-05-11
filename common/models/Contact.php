@@ -23,6 +23,7 @@ use yii\helpers\Url;
  * @property string $contact_receive_email
  * @property string $contact_receive_suggestions
  * @property string $contact_receive_notification
+ * @property string $contact_status
  * @property string $contact_created_at
  * @property string $contact_updated_at
  *
@@ -35,6 +36,9 @@ class Contact extends \yii\db\ActiveRecord
     //Email verification values for `contact_email_verification`
     const EMAIL_VERIFIED = 1;
     const EMAIL_NOT_VERIFIED = 0;
+
+    const STATUS_ACTIVE = 10;
+    const STATUS_INACTIVE = 0;
 
     /**
      * {@inheritdoc}
@@ -59,6 +63,7 @@ class Contact extends \yii\db\ActiveRecord
             [['contact_name', 'contact_password_reset_token',], 'string', 'max' => 255],
             [['contact_uuid'], 'unique'],//'contact_email'
             [['contact_password_reset_token'], 'unique'],
+            [['contact_status'], 'number'],
         ];
     }
 
@@ -124,13 +129,15 @@ class Contact extends \yii\db\ActiveRecord
 
         $scenarios = parent::scenarios();
 
-        $scenarios['signup'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_receive_suggestions','contact_otp'];
+        $scenarios['signup'] = ['contact_status', 'contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_receive_suggestions','contact_otp'];
 
-        $scenarios['signupAuth0'] = ['contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_email_verification', 'contact_receive_suggestions','contact_otp'];
+        $scenarios['signupAuth0'] = ['contact_status', 'contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_email_verification', 'contact_receive_suggestions','contact_otp'];
 
         $scenarios['updateEmail'] = ['contact_email', 'contact_new_email'];
 
         $scenarios['verifyEmail'] = ['contact_email_verification', 'contact_email', 'contact_new_email', 'contact_auth_key'];
+
+        $scenarios['updateStatus'] = ['contact_status'];
 
         return $scenarios;
     }
@@ -174,6 +181,7 @@ class Contact extends \yii\db\ActiveRecord
             'contact_password_reset_token' => Yii::t('app','Password Reset Token'),
             'contact_created_datetime' => Yii::t('app', 'Contact Created Datetime'),
             'contact_updated_datetime' => Yii::t('app', 'Contact Updated Datetime'),
+            'contact_status' => Yii::t('app', 'Contact Status')
         ];
     }
 

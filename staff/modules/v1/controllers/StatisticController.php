@@ -105,6 +105,10 @@ class StatisticController extends Controller
 
         $result['last40daysNoRequest'] = (int)  Company::last40daysWithoutRequest();
 
+        $result['companyUnderReview'] = (int) Company::find()
+            ->andWhere(['company_status_override' => Company::STATUS_UNDER_REVIEW])
+            ->count();
+
         return $result;
     }
 }

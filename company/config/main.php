@@ -157,8 +157,8 @@ return [
                         'GET' => 'list',
                         'GET list-child' => 'list-child',
                         'GET <id>' => 'view',
-                        'PATCH' => 'update',
                         'PATCH update-logo' => 'update-logo',
+                        'PATCH' => 'update',
                         'DELETE remove-logo' => 'remove-logo',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',

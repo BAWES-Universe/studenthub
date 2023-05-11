@@ -61,6 +61,7 @@ use yii\helpers\Url;
 class Company extends \yii\db\ActiveRecord
 {
     const STATUS_ACTIVE = 10;
+    const STATUS_UNDER_REVIEW = 9;
     const STATUS_INACTIVE = 0;
 
     /**
@@ -87,14 +88,15 @@ class Company extends \yii\db\ActiveRecord
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
-            [['company_followup', 'company_status_override'], 'boolean'],
+            [['company_followup'], 'boolean'],
             ['company_last_followup_datetime', 'safe'],
-            [['company_bonus_commission', 'company_hourly_rate'], 'number'],
+            [['company_bonus_commission', 'company_hourly_rate', 'company_status_override'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
-            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website','company_status_override'], 'safe'],
+            [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website',
+                'company_status_override'], 'safe'],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -202,7 +204,7 @@ class Company extends \yii\db\ActiveRecord
         $fields['company_status'] = function($model) {
 
             if($this->company_status_override) {
-                return self::STATUS_ACTIVE;
+                return $this->company_status_override;
             }
 
             if(
@@ -220,8 +222,9 @@ class Company extends \yii\db\ActiveRecord
     }
 
     public function getCompany_status() {
+
         if($this->company_status_override) {
-            return self::STATUS_ACTIVE;
+            return $this->company_status_override;
         }
 
         if(
@@ -742,6 +745,23 @@ class Company extends \yii\db\ActiveRecord
             ->filterByActive40DaysPassedWithoutRequest()
             ->notDeleted()
             ->count();
+    }
+
+    public function notifyUnderReview() {
+
+        Yii::$app->mailer->compose ([
+            'html' => 'company/under-review-email-html',
+          //  'text' => 'company/under-review-email-text',
+        ], [
+            'contact' => $this->getContacts ()->one(),
+            'company' => $this
+        ])
+            ->setFrom ([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            //->setTo ($model->contact_email)
+            ->setTo('sales@bawes.net')
+            ->setCc (['meet@bawes.net'])
+            ->setSubject ('[Studenthub] Company under review!')
+            ->send ();
     }
 
     /**
