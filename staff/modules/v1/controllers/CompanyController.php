@@ -81,6 +81,10 @@ class CompanyController extends Controller
         $query = Company::find()
             ->filterParent();
 
+        if ($status == 9) {
+            $query->filterUnderReview();
+        }
+
         if ($status == 1) {
             $query->filterActive();
         }
@@ -132,6 +136,10 @@ class CompanyController extends Controller
 
         $query = Yii::$app->user->identity->getCompanies()
             ->filterParent();
+
+        if ($status == 9) {
+            $query->filterUnderReview();
+        }
 
         if ($status == 1) {
             $query->filterActive();
@@ -310,7 +318,9 @@ class CompanyController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Company account status changed successfully"
+            "message" => "Company account status changed successfully",
+            "company_status" => $model->company_status,
+            "company_status_override" => $model->company_status_override,
         ];
 
         // Check SQL Query Count and Duration

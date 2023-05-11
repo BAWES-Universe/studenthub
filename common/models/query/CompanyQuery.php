@@ -158,6 +158,10 @@ class CompanyQuery extends \yii\db\ActiveQuery {
         return $this->andWhere(['>','{{%company}}.total_candidate',0]);
     }
 
+    public function filterUnderReview() {
+        return $this->andWhere(['company_status_override' => Company::STATUS_UNDER_REVIEW]);
+    }
+
     /**
      * @param $id
      * @return $this

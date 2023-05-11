@@ -70,6 +70,8 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
 
         $this->setPassword($this->contact_password_hash);
 
+        //$this->contact_status = self::STATUS_INACTIVE;
+
         if ($this->save($validate)) {
 
             if ($this->getScenario() == 'signup-google')
