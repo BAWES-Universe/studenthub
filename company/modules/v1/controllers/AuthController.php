@@ -156,6 +156,7 @@ class AuthController extends Controller
             $company->company_followup = true;
             $company->company_followup_interval_weeks = 1;
             $company->company_last_followup_datetime = date('Y-m-d', strtotime ('-7 days'));
+            $company->company_status_override = Company::STATUS_UNDER_REVIEW;
 
             if (!$company->save()) {
                 $transaction->rollBack();
@@ -180,6 +181,8 @@ class AuthController extends Controller
                     "message" => $companyContact->errors
                 ];
             }
+
+            $company->notifyUnderReview();
 
             $transaction->commit();
         }
@@ -370,6 +373,7 @@ class AuthController extends Controller
         $company->company_followup = true;
         $company->company_followup_interval_weeks = 1;
         $company->company_last_followup_datetime = date('Y-m-d', strtotime ('-7 days'));
+        $company->company_status_override = Company::STATUS_UNDER_REVIEW;
 
         if (!$company->save()) {
             $transaction->rollBack();
@@ -409,6 +413,8 @@ class AuthController extends Controller
         }
 
         $transaction->commit();
+
+        $company->notifyUnderReview();
 
         return [
             "operation" => "success",
