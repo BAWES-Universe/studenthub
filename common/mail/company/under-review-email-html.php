@@ -177,9 +177,11 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                     >
                                                         New account created under review! <br /> <br />
 
+                                                        <?php if($contact) { ?>
                                                         <?= $contact->contact_email ?>
                                                         <?= $contact->contact_name ?><br />
-
+                                                        <?php } ?>
+                                                        
                                                         Company: <?= $company->company_name ?> <br />
 
                                                         Please activate by visiting following link. <br /> <br />
