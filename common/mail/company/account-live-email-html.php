@@ -1,9 +1,8 @@
-
 <?php
 /* @var $this yii\web\View */
 /* @var $contact company\models\Contact */
 
-$webUrl = Yii::$app->params['staffAppUrl'] . 'company-view/' . $company->company_id;
+$webUrl = Yii::$app->params['companyAppUrl'];
 
 $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
 
@@ -12,7 +11,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <title>
-        [Studenthub] Account created under review!
+        [Studenthub] Your  account is live now!
     </title>
     <!--[if !mso]><!-- -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -175,31 +174,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                     <div
                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;"
                                                     >
-                                                        New account created under review! <br /> <br />
-
-                                                        Company: <?= $company->company_name ?> <br /> <br />
-
-                                                        <h5>Contact</h5>
-
-                                                        <?php foreach($company->contacts as $contact) { ?>
-
-                                                            <?= $contact->contact_name ?><br />
-                                                            <?= $contact->contact_email ?><br />
-
-                                                            <?php foreach($contact->contactEmails as $companyContactEmail) { ?>
-                                                                <?= $companyContactEmail->email_address ?> <br />
-                                                            <?php } ?>
-
-                                                            <?php foreach($contact->contactPhones as $companyContactPhone) { ?>
-                                                                <?= $companyContactPhone->phone_number ?> <br />
-                                                            <?php } ?>
-
-                                                        <?php } ?>
-
-
-                                                        Please activate by visiting following link. <br /> <br />
-
-                                                        Thank you
+                                                        Your  account is live now!
 
                                                     </div>
 
@@ -222,7 +197,7 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                                 <a
                                                                     href="<?= $webUrl ?>" style="background:#4354A4;color:white;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;font-weight:bold;line-height:120%;Margin:0;text-decoration:none;text-transform:none;" target="_blank"
                                                                 >
-                                                                    View account
+                                                                    Let's explore
                                                                 </a>
                                                             </td>
                                                         </tr>

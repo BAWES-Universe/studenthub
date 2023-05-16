@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
 /**
@@ -284,6 +285,38 @@ class Company extends \yii\db\ActiveRecord
                     ->count();
             }
         ];
+    }
+
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return void
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if (array_key_exists('company_status_override', $changedAttributes) &&
+            $changedAttributes['company_status_override'] == self::STATUS_UNDER_REVIEW
+        ) {
+            $contacts = $this->getContacts()
+                ->andWhere(['!=', 'contact_email', $this->company_email])
+                ->all();
+
+            $contactEmails = ArrayHelper::getColumn($contacts, 'contact_email');
+
+            Yii::$app->mailer->compose ([
+                'html' => 'company/account-live-email-html',
+                //  'text' => 'company/account-live-email-text',
+            ], [
+                'company' => $this
+            ])
+                ->setFrom ([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+                ->setSubject ('Your account is live now, let’s explore')
+                ->setTo ($this->company_email)
+                ->setCc($contactEmails)
+                ->send ();
+        }
     }
 
     /**
@@ -753,7 +786,6 @@ class Company extends \yii\db\ActiveRecord
             'html' => 'company/under-review-email-html',
           //  'text' => 'company/under-review-email-text',
         ], [
-            'contact' => $this->getContacts ()->one(),
             'company' => $this
         ])
             ->setFrom ([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
