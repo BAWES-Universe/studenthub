@@ -9,6 +9,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use staff\models\Note;
+use common\models\CandidateTag;
 use staff\models\Store;
 use staff\models\CandidateWorkHistory;
 use yii\web\NotFoundHttpException;
@@ -255,6 +256,33 @@ class CandidateController extends Controller
             "candidate" => $model,
             "store" => $model->store,
             "company" => $model->company
+        ];
+    }
+
+    public function actionAddTag($id)
+    {
+        $model = $this->findModel($id);
+
+        $tag = new CandidateTag;
+        $tag->candidate_id = $model->candidate_id;
+        $tag->tag = Yii::$app->request->getBodyParam("tag");
+        $tag->reason = Yii::$app->request->getBodyParam("reason");
+
+        if(!$tag->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $tag->errors
+            ];
+        }
+
+        Yii::info('['.$model->candidate_name."'s tag updated] By ".Yii::$app->user->identity->staff_name, __METHOD__);
+
+        $model->updateAlgoliaIndex();
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate account updated successfully",
+            //"candidateTags" => $model->getCandidateTags()->all(),
         ];
     }
 

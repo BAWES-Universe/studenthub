@@ -27,8 +27,8 @@ class m210108_092910_rename_company_contact_to_contact extends Migration
             $this->addColumn('contact','contact_password_reset_token',$this->string()->unique()->null()->after('contact_auth_key'));
         }
 
-            $this->renameColumn('contact','contact_created_datetime','contact_created_at');
-            $this->renameColumn('contact','contact_updated_datetime','contact_updated_at');
+        $this->renameColumn('contact','contact_created_datetime','contact_created_at');
+        $this->renameColumn('contact','contact_updated_datetime','contact_updated_at');
 
 //         add foreign key for table `company_id`
         if (isset($tableData->foreignKeys['fk-company_contact-CASCADE'])) {
