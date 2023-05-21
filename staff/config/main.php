@@ -152,6 +152,7 @@ return [
                         'GET total-to-review' => 'total-to-review',
                         'GET assigned-idle-candidate' => 'assigned-idle-candidates',
                         'GET export-candidate' => 'export-candidate-data',
+                        'POST add-tag/<id>' => 'add-tag',
                         'POST' => 'create',
                         'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH merge' => 'merge',
@@ -171,6 +172,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS toggle-committed' => 'options',
+                        'OPTIONS add-tag/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-tags/<id>' => 'options',
                         'OPTIONS merge' => 'options',
