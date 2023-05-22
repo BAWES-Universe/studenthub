@@ -27,6 +27,7 @@ use Segment\Segment;
  * @property string $candidate_name_ar
  * @property string $candidate_gender
  * @property string $candidate_objective
+ * @property string $candidate_intro
  * @property string $candidate_personal_photo
  * @property string $candidate_video
  * @property string $candidate_video_job_id
@@ -178,6 +179,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             [['candidate_objective', 'candidate_preferred_time'], 'string', 'max' => 100],
 
+            [['candidate_intro'], 'string'],
+
             [['candidate_latitude', 'candidate_longitude'], 'number'],
 
             [['candidate_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['candidate_area_uuid' => 'area_uuid']],
@@ -291,6 +294,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateKuwaitiNational'] = ['candidate_mom_kuwaiti'];
 
         $scenarios['updateObjective'] = ['candidate_objective'];
+
+        $scenarios['updateIntro'] = ['candidate_intro'];
 
         $scenarios['updateGender'] = ['candidate_gender'];
 
@@ -487,6 +492,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_name_ar' => Yii::t('candidate','Name [Arabic]'),
             'candidate_gender' => Yii::t('candidate','Gender'),
             'candidate_objective' => Yii::t('candidate','Objective'),
+            'candidate_intro' => Yii::t('candidate', 'Introduction'),
             'candidate_personal_photo' => Yii::t('candidate','Personal Photo'),
             'candidate_video' => Yii::t('candidate', 'Video'),
             'candidate_video_job_id' => Yii::t('candidate', 'Video Job ID'),

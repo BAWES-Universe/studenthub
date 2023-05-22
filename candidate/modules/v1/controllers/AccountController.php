@@ -973,6 +973,38 @@ class AccountController extends Controller
         ];
     }
     
+    
+    /**
+     * update candidate intro
+     * @return type
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdateIntro() {
+        
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+        
+        $candidate->candidate_intro = Yii::$app->request->getBodyParam('intro');
+
+        $candidate->scenario = "updateIntro";
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Candidate Introduction Updated Successfully"),
+        ];
+    }
+
     /**
      * update candidate objective
      * @return type
