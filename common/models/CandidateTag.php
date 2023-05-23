@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+use yii\behaviors\BlameableBehavior;
 
 
 /**
@@ -13,8 +14,10 @@ use yii\db\Expression;
  * @property string $candidate_tag_id
  * @property string $candidate_id
  * @property string $tag
+ * @property string $reason
  * @property string $deleted
  * @property string $created_at
+ * @property string $created_by
  *
  * @property Candidate $candidate
  */
@@ -37,7 +40,9 @@ class CandidateTag extends \yii\db\ActiveRecord
             [['candidate_id', 'tag'], 'required'],
             [['created_at'], 'safe'],
             [['tag'], 'string', 'max' => 128],
+            [['reason'], 'string'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'created_by']],
         ];
     }
 
@@ -50,7 +55,9 @@ class CandidateTag extends \yii\db\ActiveRecord
             'candidate_tag_id' => Yii::t('app', 'Candidate Tag ID'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
             'tag' => Yii::t('app', 'Tag'),
+            'reason' => Yii::t('app', 'Reason'),
             'created_at' => Yii::t('app', 'Candidate Tag Created At'),
+            'created_by' => Yii::t('app', 'Candidate Tag Created By'),
         ];
     }
 
@@ -66,7 +73,17 @@ class CandidateTag extends \yii\db\ActiveRecord
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),
             ],
+            [
+                'class' => BlameableBehavior::class,
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => false,
+            ],
         ];
+    }
+
+    public function extraFields()
+    {
+        return array_merge(['createdBy'], parent::extraFields());
     }
 
     /**
@@ -96,6 +113,14 @@ class CandidateTag extends \yii\db\ActiveRecord
         //$this->candidate->candidate_pending_profile = implode(',', array_keys($this->candidate->pendingProfile));
         //$this->candidate->setScenario('updatePendingProfile');
         //$this->candidate->save(false);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by']);
     }
 
     /**
