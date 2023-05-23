@@ -179,3 +179,5 @@ There can be other custom events fired manually, use `Datetime` column in excel 
 - ability to configure segment account/key etc from admin
 - ability to enable/ disable segment/mixpanel from admin
 - test in production mode for segment/ mixpanel integration
+
+yii fixture "*, -WalletBankFixture, -WalletTransferFixture, -WalletUserFixture"
