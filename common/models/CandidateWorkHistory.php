@@ -78,6 +78,9 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
 
         if ($model->save()) {
+
+            $candidate->updateAlgoliaIndex();
+
             return true;
         } else {
             return $model->errors;

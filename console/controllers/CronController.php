@@ -109,6 +109,15 @@ class CronController extends \yii\console\Controller {
     }
 
     /**
+     * Method called by cron at the end of month
+     */
+    public function actionEndOfMonth(){
+        //Code here
+
+        return 0;
+    }
+
+    /**
      * reviewed candidate profiles and remove duplicate experience data which is same as skill raised due to
      * coding issue.
      */

@@ -2375,6 +2375,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ]
             ];
             $data['assigned'] = 1;
+
+            $candidateWorkHistory = $this->getCandidateWorkHistories()
+                ->orderBy('start_date DESC')
+                ->asArray()
+                ->one();
+
+            if($candidateWorkHistory) {
+                $data['start_date_timestamp'] = strtotime($candidateWorkHistory['start_date']);
+                $data['end_date_timestamp'] = strtotime($candidateWorkHistory['end_date']);
+                //could be `new Expression('NOW()')` on update
+
+                $data['candidateWorkHistory'] = $candidateWorkHistory;
+            }
         }
 
         if($this->bank) {
@@ -2665,6 +2678,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return \yii\db\ActiveQuery
      */
     public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
