@@ -2750,6 +2750,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if ($model) {
             return $model;
         }
+
         return null;
     }
 

@@ -112,7 +112,8 @@ class CronController extends \yii\console\Controller {
      * Method called by cron at the end of month
      */
     public function actionEndOfMonth(){
-        //Code here
+
+        Company::requestForAttendance();
 
         return 0;
     }
