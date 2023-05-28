@@ -336,6 +336,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // WebhookController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/webhook',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // JiraController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/jira',

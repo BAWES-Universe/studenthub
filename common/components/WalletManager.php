@@ -20,6 +20,7 @@ class WalletManager
      * @throws \yii\httpclient\Exception
      */
     public function addEntry($data) {
+
         $client = new Client();
         $response = $client->createRequest()
             ->setMethod('POST')
