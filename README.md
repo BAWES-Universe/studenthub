@@ -168,6 +168,7 @@ docker-compose run --rm backend vendor/bin/codecept run --fail-fast --html repor
 * New Wallet Entry (public)
 * Paid By Wallet (public)
 * Expense Added (public)
+* Company Profile Created (public)
 
 Public events are the events that can be fired manually by uploading event excel sheet.
 

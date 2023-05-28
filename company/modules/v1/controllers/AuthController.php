@@ -48,7 +48,7 @@ class AuthController extends Controller
             'auth' => function ($email, $password) {
 
                 $contact = Contact::findByEmail($email);
-                
+
                 if ($contact && $contact->validatePassword($password)) {
                     return $contact;
                 }
@@ -415,6 +415,20 @@ class AuthController extends Controller
         $transaction->commit();
 
         $company->notifyUnderReview();
+
+        if(YII_ENV == 'prod')
+        {
+            Yii::$app->eventManager->track('Company Profile Created',
+                [
+                    'contact_uuid' => $model->contact_uuid,
+                    'contact_name' => $model->contact_name,
+                    'contact_email' => $model->contact_email,
+                    'company_id' => $company->company_id,
+                    'company_name' => $company->company_name,
+                    'company_email' => $company->company_email,
+                    'phone_number' => $contactPhone->phone_number
+                ]);
+        }
 
         return [
             "operation" => "success",

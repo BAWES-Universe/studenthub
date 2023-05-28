@@ -1,6 +1,7 @@
 <?php 
 namespace common\components;
 
+use common\models\Webhook;
 use Segment\Segment;
 use Yii;
 use yii\base\Component;
@@ -142,6 +143,14 @@ class EventManager extends Component
             }
 
             Segment::track($data);
+        }
+
+        //find webhook for this event and fire
+
+        $webhooks = Webhook::findAll(['event' => $event]);
+
+        foreach ($webhooks as $webhook) {
+            $webhook->callWebhook($eventData);
         }
     }
 
