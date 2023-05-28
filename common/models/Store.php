@@ -203,7 +203,8 @@ class Store extends \yii\db\ActiveRecord
      */
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])->andWhere(['deleted'=>0]);
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+            ->andWhere(['deleted'=>0]);
     }
 
     /**

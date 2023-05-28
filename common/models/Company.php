@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -393,6 +394,38 @@ class Company extends \yii\db\ActiveRecord
             return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
                 ->via('stores');
         }        
+    }
+
+    public static function requestForAttendance() {
+
+        $subject = "Request for Attendance and Working Hours for Part-Time Employees";
+
+        if(YII_ENV != 'prod') {
+            $subject = '[Fake] [Ignore] ' . $subject;
+        }
+
+        Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+        $mailer = Yii::$app->mailer->compose("company/request-working-hours",
+            [
+                'logo' => Yii::$app->urlManagerStaff->createUrl(
+                    '../images/logo.png'
+                )
+            ])
+            ->setFrom([Yii::$app->params['finance_transfer'] => Yii::$app->params['appName']])
+            ->setSubject($subject);
+
+        $companiesQuery = Company::find()
+            ->andWhere(new Expression('parent_company_id IS NULL AND total_candidate > 0'));
+
+        foreach ($companiesQuery->batch(100) as $companies) {
+
+            foreach ($companies as $company) {
+                $mailer
+                    ->setTo($company->company_email)
+                    ->send();
+            }
+        }
     }
 
     /**
