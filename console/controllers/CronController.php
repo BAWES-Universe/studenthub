@@ -102,8 +102,16 @@ class CronController extends \yii\console\Controller {
     /**
      * Method called by cron once a week
      */
-    public function actionWeekly(){
+    public function actionWeekly() {
         //Code here
+
+        return 0;
+    }
+
+    /**
+     * Method called by cron at the mid of month
+     */
+    public function actionMidMonth() {
 
         return 0;
     }
@@ -111,9 +119,13 @@ class CronController extends \yii\console\Controller {
     /**
      * Method called by cron at the end of month
      */
-    public function actionEndOfMonth(){
+    public function actionEndOfMonth() {
 
         Company::requestForAttendance();
+
+        Candidate::notifyMissingBankInfo();
+
+        Candidate::notifyCivilIDExpiring();
 
         return 0;
     }

@@ -2754,6 +2754,70 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return null;
     }
 
+    public static function notifyCivilIDExpiring() {
+
+        $query = Candidate::find()
+            ->andWhere('DATE(candidate_civil_expiry_date) < DATE(NOW() + INTERVAL 25 DAY)');
+
+        $subject = "Civil ID is expiring";
+
+        if(YII_ENV != 'prod') {
+            $subject = '[Fake] [Ignore] ' . $subject;
+        }
+
+        Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+        $mailer = Yii::$app->mailer->compose("candidate/civil-id-expiring",
+            [
+                'logo' => Yii::$app->urlManagerStaff->createUrl(
+                    '../images/logo.png'
+                )
+            ])
+            ->setFrom([Yii::$app->params['finance_transfer'] => Yii::$app->params['appName']])
+            ->setSubject($subject);
+
+        foreach ($query->batch(100) as $candidates) {
+
+            foreach ($candidates as $candidate) {
+                $mailer
+                    ->setTo($candidate->candidate_email)
+                    ->send();
+            }
+        }
+    }
+
+    public static function notifyMissingBankInfo () {
+
+        $query = self::find()
+            ->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL');
+
+        $subject = "Bank information is missing";
+
+        if(YII_ENV != 'prod') {
+            $subject = '[Fake] [Ignore] ' . $subject;
+        }
+
+        Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+        $mailer = Yii::$app->mailer->compose("candidate/request-bank-information",
+            [
+                'logo' => Yii::$app->urlManagerStaff->createUrl(
+                    '../images/logo.png'
+                )
+            ])
+            ->setFrom([Yii::$app->params['finance_transfer'] => Yii::$app->params['appName']])
+            ->setSubject($subject);
+
+        foreach ($query->batch(100) as $candidates) {
+
+            foreach ($candidates as $candidate) {
+                $mailer
+                    ->setTo($candidate->candidate_email)
+                    ->send();
+            }
+        }
+    }
+
     public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
