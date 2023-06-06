@@ -149,10 +149,13 @@ return [
                         'GET transfers/<id>' => 'transfers',
                         'GET candidate-resume-pdf/<id>' => 'candidate-resume-pdf',
                         'GET work-history/<id>' => 'work-history',
+                        'GET candidate-warnings/<id>' => 'candidate-warnings',
                         'GET total-to-review' => 'total-to-review',
                         'GET assigned-idle-candidate' => 'assigned-idle-candidates',
                         'GET export-candidate' => 'export-candidate-data',
                         'POST add-tag/<id>' => 'add-tag',
+                        'POST warn-candidate/<id>' => 'warn-candidate',
+                        'PATCH update-warning/<id>' => 'update-warning',
                         'POST' => 'create',
                         'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH merge' => 'merge',
@@ -171,6 +174,8 @@ return [
 
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS update-warning/<id>' => 'options',
+                        'OPTIONS warn-candidate/<id>' => 'options',
                         'OPTIONS toggle-committed' => 'options',
                         'OPTIONS add-tag/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -196,6 +201,7 @@ return [
                         'OPTIONS update-hour-rate/<id>' => 'options',
                         'OPTIONS expire-card/<id>' => 'options',
                         'OPTIONS appreciation-certificate/<id>/<wid>' => 'options',
+                        'OPTIONS candidate-warnings/<id>' => 'options',
                         'OPTIONS list-expired-civil-id' => 'options',
                         'OPTIONS update-email/<id>' => 'options',
                         'OPTIONS update-civil-expiry/<id>' => 'options',
@@ -576,7 +582,7 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
-                [ // CandidateController
+                [ // CandidateWorkingHourController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-working-hour',
                     'patterns' => [
