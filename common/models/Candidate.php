@@ -801,6 +801,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidateIdCard',
             'notes',
             'workHistory',
+            'candidateWarnings',
             'acceptanceRatio',
             'rejectionRatio',
             'profit',
@@ -2816,6 +2817,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ->send();
             }
         }
+    }
+
+    public function getCandidateWarnings($modelClass = "\common\models\CandidateWarning")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")

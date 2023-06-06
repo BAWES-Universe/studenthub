@@ -3,6 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use common\models\CandidateToken;
+use common\models\CandidateWarning;
 use kartik\mpdf\Pdf;
 use Yii;
 use yii\rest\Controller;
@@ -664,54 +665,6 @@ class CandidateController extends Controller
             "message" => "Candidate committed status updated successfully"
         ];
     }
-    
-    /**
-     * Expire candidate id by setting expiry as now 
-     * @param $id
-     * @return array
-     */
-    public function actionExpireCandidateCard($id)
-    {
-        // Attempt to create new account
-        $model = $this->findModel($id);
-
-        $card  = $model->getCandidateIdCard()->one();
-        
-        if(!$card) {
-            return [
-                "operation" => "error",
-                "message" => "No card found to mark as expired"
-            ];
-        }
-        
-        $card->expiry_date = date('Y-m-d', strtotime('-1 day'));
-
-        if (!$card->save(false))
-        {
-            if(isset($card->errors)){
-                return [
-                    "operation" => "error",
-                    "message" => $card->errors
-                ];
-            }else{
-                return [
-                    "operation" => "error",
-                    "message" => "We've faced a problem updating the account, please contact us for assistance."
-                ];
-            }
-        }
-
-        Yii::info('['.$model->candidate_name.' ID Card mark as expired] By '.Yii::$app->user->identity->staff_name, __METHOD__);
-
-        return [
-            "operation" => "success",
-            "message" => "Candidate card expired successfully",
-            "candidate_detail" => $model,
-        ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
-    }
 
     /**
      * Return a List of Candidate not assigned to store
@@ -913,6 +866,146 @@ class CandidateController extends Controller
         return $model->paidTransferCandidate;
     }
 
+    /**
+     * Warn candidate
+     * @param $id
+     * @return array
+     */
+    public function actionWarnCandidate($id)
+    {
+        $candidate = $this->findModel($id);
+
+        $model = new CandidateWarning();
+        $model->candidate_id = $id;
+        $model->title = Yii::$app->request->getBodyParam ('title');
+        $model->message = Yii::$app->request->getBodyParam ('message');
+        $model->created_by = Yii::$app->user->getId();
+
+        if (!$model->save(false))
+        {
+            if(isset($card->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $card->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$candidate->candidate_name.' warned] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate warned successfully",
+        ];
+    }
+
+    /**
+     * update warning
+     * @param $id
+     * @return array
+     */
+    public function actionUpdateWarning($id)
+    {
+        $candidate = $this->findModel($id);
+
+        $model = CandidateWarning::findOne($id);
+        $model->title = Yii::$app->request->getBodyParam ('title');
+        $model->message = Yii::$app->request->getBodyParam ('message');
+        $model->updated_by = Yii::$app->user->getId();
+
+        if (!$model->save())
+        {
+            if(isset($card->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $card->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$candidate->candidate_name."'s warning updated] By ".Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate warning updated successfully",
+        ];
+    }
+
+    /**
+     * get candidate's warnings
+     * @param $id
+     * @return array|static[]
+     */
+    public function actionCandidateWarnings($id)
+    {
+        $model = $this->findModel($id);
+
+        $query = $model->getCandidateWarnings()
+            ->orderBy('created_at DESC');
+
+        return new ActiveDataProvider([
+            'query' => $query,
+            //'pagination' => false
+        ]);
+    }
+    /**
+     * Expire candidate id by setting expiry as now
+     * @param $id
+     * @return array
+     */
+    public function actionExpireCandidateCard($id)
+    {
+        // Attempt to create new account
+        $model = $this->findModel($id);
+
+        $card  = $model->getCandidateIdCard()->one();
+
+        if(!$card) {
+            return [
+                "operation" => "error",
+                "message" => "No card found to mark as expired"
+            ];
+        }
+
+        $card->expiry_date = date('Y-m-d', strtotime('-1 day'));
+
+        if (!$card->save(false))
+        {
+            if(isset($card->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $card->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        Yii::info('['.$model->candidate_name.' ID Card mark as expired] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Candidate card expired successfully",
+            "candidate_detail" => $model,
+        ];
+
+        // Check SQL Query Count and Duration
+        return Yii::getLogger()->getDbProfiling();
+    }
+    
     /**
      * get candidate work history
      * @param $id

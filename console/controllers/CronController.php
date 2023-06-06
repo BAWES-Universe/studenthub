@@ -113,6 +113,10 @@ class CronController extends \yii\console\Controller {
      */
     public function actionMidMonth() {
 
+        Candidate::notifyMissingBankInfo();
+
+        Candidate::notifyCivilIDExpiring();
+
         return 0;
     }
 
