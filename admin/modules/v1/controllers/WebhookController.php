@@ -89,6 +89,24 @@ class WebhookController extends Controller
     }
 
     /**
+     * @param $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionTest($id)
+    {
+        $webhook = $this->findModel($id);
+
+        $webhook->endpoint = Yii::$app->request->getBodyParam("endpoint");
+        $webhook->method = Yii::$app->request->getBodyParam("method");
+
+        $eventData = Yii::$app->request->getBodyParam ("data");
+
+        return $webhook->callWebhook($eventData? json_decode ($eventData): ["data1" => "value1"]);
+    }
+
+    /**
      * Create a webhook account
      */
     public function actionCreate()
@@ -98,7 +116,6 @@ class WebhookController extends Controller
 
         $model->event = Yii::$app->request->getBodyParam("event");
         $model->endpoint = Yii::$app->request->getBodyParam("endpoint");
-        $model->event = Yii::$app->request->getBodyParam("event");
         $model->method = Yii::$app->request->getBodyParam("method");
 
         if (!$model->save())
@@ -139,7 +156,6 @@ class WebhookController extends Controller
 
         $model->event = Yii::$app->request->getBodyParam("event");
         $model->endpoint = Yii::$app->request->getBodyParam("endpoint");
-        $model->event = Yii::$app->request->getBodyParam("event");
         $model->method = Yii::$app->request->getBodyParam("method");
 
         if (!$model->save())
