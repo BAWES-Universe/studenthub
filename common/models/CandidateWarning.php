@@ -50,6 +50,17 @@ class CandidateWarning extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'createdBy',
+            'updatedBy',
+        ];
+    }
+
+    /**
      * @return array
      */
     public function behaviors() {
