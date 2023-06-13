@@ -32,7 +32,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
         
         <?php if($candidate->candidate_personal_photo) { ?>
             <!-- c_thumb,g_face -->
-            <img src="https://res.cloudinary.com/studenthub/image/upload/w_400/v1596525812/<?= $path.$candidate->candidate_personal_photo ?>" 
+            <img src="https://res.cloudinary.com/studenthub/image/upload/c_thumb,w_200,h_200,g_face,q_auto/v1596525812/<?= $path.$candidate->candidate_personal_photo ?>" 
             style='width:200px' />
         <?php } ?>
         
