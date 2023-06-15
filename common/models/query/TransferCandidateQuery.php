@@ -48,6 +48,20 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
     /**
      * @return $this
      */
+    public function filterSameRate() {
+        return $this->andWhere(new Expression("transfer_candidate.candidate_hourly_rate=transfer_candidate.company_hourly_rate"));
+    }
+
+    /**
+     * @return $this
+     */
+    public function filterNoProfit() {
+        return $this->andWhere(new Expression("transfer_candidate.candidate_total=transfer_candidate.company_total"));
+    }
+
+    /**
+     * @return $this
+     */
     public function filterPaid() {
         return $this->andWhere([
             '{{%transfer_candidate}}.paid' => 1

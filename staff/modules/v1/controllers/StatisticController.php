@@ -4,6 +4,7 @@ namespace staff\modules\v1\controllers;
 
 use staff\models\Request;
 use staff\models\Company;
+use staff\models\TransferCandidate;
 use Yii;
 use yii\rest\Controller;
 use staff\models\Candidate;
@@ -107,6 +108,20 @@ class StatisticController extends Controller
 
         $result['companyUnderReview'] = (int) Company::find()
             ->andWhere(['company_status_override' => Company::STATUS_UNDER_REVIEW])
+            ->count();
+
+        $result['transfersWithNoProfitInProgress'] = (int) TransferCandidate::find()
+            ->filterNoProfit ()
+            ->filterUnpaid ()
+            ->select('transfer_id')
+            ->distinct()
+            ->count();
+
+        $result['transfersWithSameRateInProgress'] = (int) TransferCandidate::find()
+            ->filterSameRate ()
+            ->filterUnpaid ()
+            ->select('transfer_id')
+            ->distinct()
             ->count();
 
         return $result;

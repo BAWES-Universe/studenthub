@@ -81,6 +81,8 @@ class TransferController extends Controller
         $start_date = Yii::$app->request->get('start_date');
         $end_date = Yii::$app->request->get('end_date');
         $suspicious = Yii::$app->request->get('suspicious');
+        $filterSameRate = Yii::$app->request->get('filterSameRate');
+        $filterNoProfit = Yii::$app->request->get('filterNoProfit');
 
         $query = Transfer::find()
             ->isParentTransfer();
@@ -92,6 +94,14 @@ class TransferController extends Controller
 
         if($transfer_status)
             $query->filterStatus($transfer_status);
+
+        if($filterSameRate) {
+            $query->filterSameRate();
+        }
+
+        if($filterNoProfit) {
+            $query->filterNoProfit();
+        }
 
         if($suspicious) {
             $query->filterSuspicious();
