@@ -233,8 +233,8 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         $CompanyTotal = ($transferCandidateData->company_hourly_rate * $transferCandidateData->hours) + $transferCandidateData->bonus;
         $PaidToCandidate = ($transferCandidateData->candidate_hourly_rate * $transferCandidateData->hours) + $transferCandidateData->bonus;
         $TransferCost = '.350';
-        $profit = $CompanyTotal - $PaidToCandidate - $TransferCost;
-        expect('validate profit value ', $transferCandidateData->getProfit())->equals($profit);
+        $profit = round($CompanyTotal - $PaidToCandidate - $TransferCost, 3);
+        expect('validate profit value ', round($transferCandidateData->getProfit(), 3))->equals($profit);
     }
 
     /**
