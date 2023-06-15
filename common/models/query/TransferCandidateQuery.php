@@ -35,6 +35,34 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      * filter transfers where company paid
      * @return TransferQuery
      */
+    public function filterStatus($status)
+    {
+        return $this->joinWith(['transfer'])
+            ->andWhere(['{{%transfer}}.transfer_status' => $status]);
+    }
+
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
+    public function startDate($date)
+    {
+        return $this->joinWith(['transfer'])->andWhere("DATE(transfer_created_at) > '$date'");
+    }
+
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
+    public function endDate($date)
+    {
+        return $this->joinWith(['transfer'])->andWhere("DATE(transfer_created_at) < '$date'");
+    }
+
+    /**
+     * filter transfers where company paid
+     * @return TransferQuery
+     */
     public function filterPaymentReceived()
     {
         return $this->joinWith(['transfer'])
