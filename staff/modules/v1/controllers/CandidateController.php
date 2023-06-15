@@ -6,6 +6,7 @@ use common\models\CandidateToken;
 use common\models\CandidateWarning;
 use kartik\mpdf\Pdf;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
@@ -98,14 +99,20 @@ class CandidateController extends Controller
         $working_time = Yii::$app->request->get('working_time', null);
         $name = Yii::$app->request->get("name");
         $email = Yii::$app->request->get("email");
+        $filterSameRate = Yii::$app->request->get("filterSameRate");
 
         if($name) {
             $query->filterName($name);
         }
 
+        if($filterSameRate) {
+            $query->andWhere(new Expression("candidate.candidate_hourly_rate = candidate_work_history.candidate_hourly_rate"));
+        }
+
         if($email) {
             $query->filterEmail($email);
         }
+
         if($start_date) {
             $query->startDate($start_date);
         }
