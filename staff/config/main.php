@@ -523,6 +523,7 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET candidates' => 'list-candidate',
                         'GET export-companies-transfer' => 'export-companies-transfer',
                         'GET transfer-excel-template/<id>' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',
@@ -536,6 +537,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS candidates' => 'options',
                         'OPTIONS transfer-excel-template/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS create-by-excel' => 'options',

@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\TransferCandidate;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
@@ -74,6 +75,55 @@ class TransferController extends Controller
     /**
      * Return a List of Transfer.
      */
+    public function actionListCandidate()
+    {
+        $company_name = Yii::$app->request->get('company_name');
+        $transfer_status = Yii::$app->request->get('transfer_status');
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+        $suspicious = Yii::$app->request->get('suspicious');
+        $filterSameRate = Yii::$app->request->get('filterSameRate');
+        $filterNoProfit = Yii::$app->request->get('filterNoProfit');
+        $transfer_id = Yii::$app->request->get('transfer_id');
+
+        $query = TransferCandidate::find();
+
+        if($transfer_id)
+            $query->andWhere(['transfer_id' => $transfer_id]);
+
+        if ($company_name) {
+            $query->joinWith(['company'])
+                ->filterCompany($company_name);
+        }
+
+        if($transfer_status)
+            $query->filterStatus($transfer_status);
+
+        if($filterSameRate) {
+            $query->filterSameRate();
+        }
+
+        if($filterNoProfit) {
+            $query->filterNoProfit();
+        }
+
+        if($start_date)
+            $query->startDate($start_date);
+
+        if($end_date)
+            $query->endDate($end_date);
+
+        //$query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer_candidate}}.tc_updated_at DESC');
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Return a List of Transfer.
+     */
     public function actionList()
     {
         $company_name = Yii::$app->request->get('company_name');
@@ -81,6 +131,8 @@ class TransferController extends Controller
         $start_date = Yii::$app->request->get('start_date');
         $end_date = Yii::$app->request->get('end_date');
         $suspicious = Yii::$app->request->get('suspicious');
+        $filterSameRate = Yii::$app->request->get('filterSameRate');
+        $filterNoProfit = Yii::$app->request->get('filterNoProfit');
 
         $query = Transfer::find()
             ->isParentTransfer();
@@ -92,6 +144,14 @@ class TransferController extends Controller
 
         if($transfer_status)
             $query->filterStatus($transfer_status);
+
+        if($filterSameRate) {
+            $query->filterSameRate();
+        }
+
+        if($filterNoProfit) {
+            $query->filterNoProfit();
+        }
 
         if($suspicious) {
             $query->filterSuspicious();
@@ -110,6 +170,7 @@ class TransferController extends Controller
             'query' => $query
         ]);
     }
+
     /**
      * Return Transfer detail.
      * @param $id

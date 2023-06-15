@@ -35,6 +35,34 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      * filter transfers where company paid
      * @return TransferQuery
      */
+    public function filterStatus($status)
+    {
+        return $this->joinWith(['transfer'])
+            ->andWhere(['{{%transfer}}.transfer_status' => $status]);
+    }
+
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
+    public function startDate($date)
+    {
+        return $this->joinWith(['transfer'])->andWhere("DATE(transfer_created_at) > '$date'");
+    }
+
+    /**
+     * @param $date
+     * @return TransferQuery
+     */
+    public function endDate($date)
+    {
+        return $this->joinWith(['transfer'])->andWhere("DATE(transfer_created_at) < '$date'");
+    }
+
+    /**
+     * filter transfers where company paid
+     * @return TransferQuery
+     */
     public function filterPaymentReceived()
     {
         return $this->joinWith(['transfer'])
@@ -43,6 +71,20 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
                 Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
                 Transfer::STATUS_TRANSFER_COMPLETE
             ]]);
+    }
+
+    /**
+     * @return $this
+     */
+    public function filterSameRate() {
+        return $this->andWhere(new Expression("transfer_candidate.candidate_hourly_rate=transfer_candidate.company_hourly_rate"));
+    }
+
+    /**
+     * @return $this
+     */
+    public function filterNoProfit() {
+        return $this->andWhere(new Expression("transfer_candidate.candidate_total=transfer_candidate.company_total"));
     }
 
     /**
