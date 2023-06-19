@@ -182,3 +182,7 @@ There can be other custom events fired manually, use `Datetime` column in excel 
 - test in production mode for segment/ mixpanel integration
 
 yii fixture "*, -WalletBankFixture, -WalletTransferFixture, -WalletUserFixture"
+
+# verification url in local 
+
+http://localhost/studenthub/verification/web/index.php?r=site/index&candidate_uid=30609122319

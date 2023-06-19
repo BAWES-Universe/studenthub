@@ -118,10 +118,6 @@ jobs:
       #    name: Seed secondary database for wallet
       #    command: ./yii cron/
 
-      - run:
-          name: Codeception test packages
-          command: composer require codeception/module-rest --dev
-
       #---------- staff app --------------#
 
       - run:

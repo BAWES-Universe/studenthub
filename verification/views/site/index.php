@@ -25,8 +25,12 @@ $nameSections = mb_split(' ', $candidate->candidate_name_ar);
     </div>
 
     <?php if($id) { ?>
+
         <div class="txt-id txt-valid-id">
+            <div class="container">
+                <span class="pull-left">هوية صالحه لمدة ٣ شهور</span>
             هوية صالحه
+            </div>
         </div>
         <?php } else { ?>
         <div class="txt-id txt-invalid-id">

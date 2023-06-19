@@ -9,3 +9,8 @@ paths:
     log: console/runtime/logs
 settings:
     colors: true
+enabled:
+    - Asserts
+    - Yii2
+    - rest
+    - filesystem
