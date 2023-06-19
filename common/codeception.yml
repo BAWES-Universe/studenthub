@@ -5,11 +5,16 @@ paths:
     log: tests/_output
     data: tests/_data
     helpers: tests/_support
+bootstrap: _bootstrap.php
 settings:
-    bootstrap: _bootstrap.php
     colors: true
     memory_limit: 1024M
 modules:
+    enabled:
+        - Asserts
+        - Yii2
+        - rest
+        - filesystem
     config:
         Yii2:
             configFile: 'config/unit-test-local.php'
