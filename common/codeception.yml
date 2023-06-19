@@ -13,8 +13,6 @@ modules:
     enabled:
         - Asserts
         - Yii2
-        - rest
-        - filesystem
     config:
         Yii2:
             configFile: 'config/unit-test-local.php'
