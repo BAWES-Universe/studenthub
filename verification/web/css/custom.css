@@ -163,3 +163,7 @@ p {
     font-size: 12px;
 }
 
+.txt-valid-id .container {
+    max-width: 375px;
+}
+

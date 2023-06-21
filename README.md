@@ -186,3 +186,5 @@ yii fixture "*, -WalletBankFixture, -WalletTransferFixture, -WalletUserFixture"
 # verification url in local 
 
 http://localhost/studenthub/verification/web/index.php?r=site/index&candidate_uid=30609122319
+
+http://localhost:8888/studenthub/verification/web/index.php?r=site/index&candidate_uid=yac7ANlKJWOeigWlY7Xf
