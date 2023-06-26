@@ -699,11 +699,12 @@ class AuthController extends Controller
         if (!$model) {
 
             $model = new Candidate;
-            $model->scenario = "signup-google";
+            $model->scenario = "signupGoogle";
 
             $data = [
                 'candidate_email' => $response->email,
                 'candidate_name' => $response->given_name . ' ' .$response->family_name ,
+                'candidate_name_ar' => $response->given_name . ' ' .$response->family_name ,
                 'candidate_email_verification' => Candidate::EMAIL_VERIFIED,
                 'candidate_status' => Candidate::STATUS_ACTIVE,
                 'approved' => true
