@@ -130,7 +130,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
-            [['candidate_phone'], 'unique'],
             ['candidate_video_processed', 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
@@ -138,7 +137,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_new_email'], 'validateNewEmail'],
             [['candidate_limit_email','profile_url'], 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
-            [['candidate_civil_id'], 'unique'],
+            ['candidate_phone', 'unique', 'comboNotUnique' => 'Phone no. already exist.', 'targetAttribute' => ['candidate_phone', 'deleted']],
+            ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => ['candidate_civil_id', 'deleted']],
             ['candidate_pending_profile', 'string'],
             [
                 ['candidate_civil_id'],
