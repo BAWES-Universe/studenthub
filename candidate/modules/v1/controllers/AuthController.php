@@ -66,6 +66,7 @@ class AuthController extends Controller
             'update-email',
             'resend-verification-email',
             'login-by-apple',
+            'login-by-google',
             'verify-email',
             'is-email-verified',
             'name-by-civil-id',
@@ -673,6 +674,68 @@ class AuthController extends Controller
     }
 
     /**
+     * Sign up with google login
+     */
+    public function actionLoginByGoogle() {
+        $token = Yii::$app->request->getBodyParam("idToken");
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" . $token);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = json_decode(curl_exec($ch));
+
+        if (empty($response->email)) {
+            return [
+                'operation' => 'error',
+                "code" => 1,
+                'message' => Yii::t('job', 'Invalid Token')
+            ];
+        }
+
+        $model = Candidate::find()->where([
+            'candidate_email' => $response->email
+        ])->one();
+
+        if (!$model) {
+
+            $model = new Candidate;
+            $model->scenario = "signup-google";
+
+            $data = [
+                'candidate_email' => $response->email,
+                'candidate_name' => $response->given_name . ' ' .$response->family_name ,
+                'candidate_email_verification' => Candidate::EMAIL_VERIFIED,
+                'candidate_status' => Candidate::STATUS_ACTIVE,
+                'approved' => true
+            ];
+
+            $model->setAttributes($data);
+
+            if(isset($response->picture)) {
+                $model->setProfileByUrl(str_replace('s96', 's250', $response->picture));
+            }
+
+            if (!$model->signup(false)) {
+                if (isset($model->errors)) {
+                    return [
+                        "operation" => "error",
+                        "code" => 2,
+                        "message" => $model->errors,
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "code" => 3,
+                        "message" => Yii::t('job', "We've faced a problem creating your account, please contact us for assistance."),
+                    ];
+                }
+            }
+        }
+
+        return $this->_loginResponse($model);
+    }
+
+    /**
      *
      * Sign up with apple login
      */
@@ -707,8 +770,6 @@ class AuthController extends Controller
         $familyName = Yii::$app->request->getBodyParam("familyName");
         $givenName = Yii::$app->request->getBodyParam("givenName");
 
-
-
         $candidate = Candidate::find()
             ->andWhere(['candidate_email' => $email])
             ->one();
@@ -738,6 +799,7 @@ class AuthController extends Controller
                 }
             }
         }
+
         return $this->_loginResponse($candidate);
     }
 }
