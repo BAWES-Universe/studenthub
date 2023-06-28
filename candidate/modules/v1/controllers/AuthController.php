@@ -701,13 +701,18 @@ class AuthController extends Controller
             $model = new Candidate;
             $model->scenario = "signupGoogle";
 
+            $candidate_name = $response->given_name;
+
+            if(isset($response->family_name))
+                $candidate_name .= ' ' .$response->family_name;
+
             $data = [
                 'candidate_email' => $response->email,
-                'candidate_name' => $response->given_name . ' ' .$response->family_name ,
-                'candidate_name_ar' => $response->given_name . ' ' .$response->family_name ,
+                'candidate_name' => $candidate_name ,
+                //'candidate_name_ar' => $candidate_name,
                 'candidate_email_verification' => Candidate::EMAIL_VERIFIED,
                 'candidate_status' => Candidate::STATUS_ACTIVE,
-                'approved' => true
+                'approved' => 1
             ];
 
             $model->setAttributes($data);
@@ -784,7 +789,7 @@ class AuthController extends Controller
 
             $candidate->candidate_email = $email;
             $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
-            $candidate->approved = true;
+            $candidate->approved = 1;
 
             if (!$candidate->signup()) {
                 if (isset($candidate->errors)) {
