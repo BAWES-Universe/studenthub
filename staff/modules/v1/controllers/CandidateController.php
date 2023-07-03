@@ -705,6 +705,43 @@ class CandidateController extends Controller
     }
 
     /**
+     * mark candidates as deleted
+     * @param $id
+     * @return array|string[]
+     */
+    public function actionMarkDuplicate($id)
+    {
+        $candidate = Candidate::find()
+            ->filterNotAssigned()
+            ->notDeleted()
+            ->andWhere(['candidate_id' => $id])
+            ->one();
+
+        if(!$candidate) {
+            return [
+                "operation" => "error",
+                "message" => "No candidate found!"
+            ];
+        }
+
+        $candidate->is_duplicate = true;
+
+        if(!$candidate->softDelete()) {
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        Yii::info('['.$candidate->candidate_email.' Account marked as duplicate] Candidate account marked as duplicate and removed by '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Account marked as deleted!"
+        ];
+    }
+
+    /**
      * Return a List of Candidate assigned to store
      */
     public function actionListAssigned()

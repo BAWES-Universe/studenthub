@@ -63,6 +63,7 @@ use Segment\Segment;
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
  * @property integer $deleted
+ * @property integer $is_duplicate
  *
  * @property Bank $bank
  * @property Country $country
@@ -130,7 +131,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_auth_key'], 'string', 'max' => 32],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
-            ['candidate_video_processed', 'boolean'],
+            [['candidate_video_processed', 'is_duplicate'], 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
             [['candidate_new_email', 'candidate_email'], 'validateEmail'],
@@ -253,7 +254,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function scenarios() {
         $scenarios = parent::scenarios();
 
-        $scenarios['deleteCandidate'] = ['deleted'];
+        $scenarios['deleteCandidate'] = ['deleted', 'is_duplicate'];
 
         $scenarios['updateName'] = ['candidate_name'];
 
