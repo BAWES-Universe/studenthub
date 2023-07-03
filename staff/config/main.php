@@ -171,9 +171,10 @@ return [
                         'PATCH expire-card/<id>' => 'expire-candidate-card',
                         'PATCH update-email/<id>' => 'update-candidate-email',
                         'DELETE unassign/<id>' => 'unassign',
-
+                        'DELETE mark-duplicate/<id>' => 'mark-duplicate',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS mark-duplicate/<id>' => 'options',
                         'OPTIONS update-warning/<id>' => 'options',
                         'OPTIONS warn-candidate/<id>' => 'options',
                         'OPTIONS toggle-committed' => 'options',
