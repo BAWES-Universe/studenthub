@@ -77,6 +77,7 @@ class CompanyController extends Controller
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
+        $have_students = Yii::$app->request->getQueryParam("have_students");
 
         $query = Company::find()
             ->filterParent();
@@ -109,6 +110,10 @@ class CompanyController extends Controller
 
         if ($name) {
             $query->filterByName($name);
+        }
+
+        if (!is_null($have_students) && in_array ($have_students, [0, 1])) {
+            $query->filterByHaveStudents($have_students);
         }
 
         if (!is_null($approved_to_hire) && in_array ($approved_to_hire, [0, 1])) {

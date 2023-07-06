@@ -542,7 +542,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         parent::afterSave($insert, $changedAttributes);
 
-        if($insert)
+        if($insert && $this->store_id)
         {
             Store::updateAllCounters(['store_total_candidates' => 1], ['store_id' => $this->store_id]);
             Company::updateCandidate($this->store_id, 1);

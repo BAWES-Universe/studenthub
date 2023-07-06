@@ -190,6 +190,18 @@ class CompanyQuery extends \yii\db\ActiveQuery {
     }
 
     /**
+     * filter company having candidate assigned
+     * @param $have_students
+     * @return CompanyQuery
+     */
+    public function filterByHaveStudents($have_students) {
+        if($have_students)
+            return $this->andWhere(['>', 'total_candidate', 0]);
+
+        return $this->andWhere(['=', 'total_candidate', 0]);
+    }
+
+    /**
      * @param $id
      * @return $this
      */
