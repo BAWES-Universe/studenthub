@@ -94,6 +94,14 @@ class AuthController extends Controller
     }
 
     /**
+     * return user location detail by user ip address
+     * @return type
+     */
+    public function actionLocate() {
+        return Yii::$app->ipstack->locate();
+    }
+
+    /**
      * Perform validation on the candidate account (check if he's allowed login to platform)
      * If everything is alright,
      * Returns the BEARER access token required for futher requests to the API

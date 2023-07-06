@@ -39,6 +39,9 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function filterCompany($company)
     {
+        if(!$company)
+            return $this;
+
         // create company_id array from all sub companies and self
         $companies = $company->subCompanies;
 

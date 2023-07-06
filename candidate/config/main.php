@@ -44,6 +44,7 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'GET locate' => 'locate',
                         'POST email-check' => 'email-check',
                         'POST register' => 'signup',
                         'POST request-reset-password' => 'request-reset-password',
@@ -58,6 +59,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS name-by-civil-id' => 'options',
                         'OPTIONS login' => 'options',
+                        'OPTIONS locate' => 'options',
                         'OPTIONS register' => 'options',
                         'OPTIONS email-check' => 'options',
                         'OPTIONS update-password' => 'options',

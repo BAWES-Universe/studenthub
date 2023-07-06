@@ -2,6 +2,7 @@
 
 namespace company\modules\v1\controllers;
 
+use common\models\CompanyRequest;
 use company\models\Company;
 use company\models\Contact;
 use company\models\ContactPhone;
@@ -125,6 +126,11 @@ class AuthController extends Controller
 
         if(!$contact)
         {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('company', "Account not found, please contact us for assistance."),
+            ];
+            /*
             $transaction = Yii::$app->db->beginTransaction();
 
             $contact = new Contact();
@@ -184,7 +190,7 @@ class AuthController extends Controller
 
             $company->notifyUnderReview();
 
-            $transaction->commit();
+            $transaction->commit();*/
         }
 
         // Email and password are correct, check if his email has been verified
@@ -330,14 +336,14 @@ class AuthController extends Controller
 
         //$invitationOtp = Yii::$app->request->getBodyParam("otp");
 
-        $transaction = Yii::$app->db->beginTransaction ();
+        //$transaction = Yii::$app->db->beginTransaction ();
 
-        $model = new Contact();
+        /*$model = new Contact();
 
         $model->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
         $model->contact_email = Yii::$app->request->getBodyParam("email");
         $model->contact_password_hash = Yii::$app->request->getBodyParam("password");
-        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");*/
 
         //Generate OTP for Candidate
         //$model->generateOTP();
@@ -353,6 +359,7 @@ class AuthController extends Controller
             $model->contact_position = $invitation->role;
         }*/
 
+        /*
         if (!$model->signUp(true)) {
 
             $transaction->rollBack();
@@ -361,9 +368,30 @@ class AuthController extends Controller
                 "operation" => "error",
                 "message" => $model->errors
             ];
+        }*/
+
+        //create new request for staff to review
+
+        $companyRequest = new CompanyRequest();
+        $companyRequest->company_name = ucfirst(Yii::$app->request->getBodyParam("company_name"));
+        $companyRequest->company_email = Yii::$app->request->getBodyParam("email");
+        $companyRequest->contact_position = Yii::$app->request->getBodyParam("contact_position");
+
+        $companyRequest->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
+        $companyRequest->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
+        $companyRequest->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $companyRequest->phone_number = Yii::$app->request->getBodyParam("phone_number");
+
+        if (!$companyRequest->save()) {
+            //$transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => $companyRequest->errors
+            ];
         }
 
-        $company = new Company();
+        /*$company = new Company();
         $company->company_name = ucfirst(Yii::$app->request->getBodyParam("company_name"));
         $company->company_common_name_en = ucfirst(Yii::$app->request->getBodyParam("company_name"));
         $company->company_common_name_ar = ucfirst(Yii::$app->request->getBodyParam("company_name"));
@@ -412,9 +440,9 @@ class AuthController extends Controller
             ];
         }
 
-        $transaction->commit();
+        $transaction->commit();*/
 
-        $company->notifyUnderReview();
+        /*$company->notifyUnderReview();
 
         if(YII_ENV == 'prod')
         {
@@ -428,13 +456,25 @@ class AuthController extends Controller
                     'company_email' => $company->company_email,
                     'phone_number' => $contactPhone->phone_number
                 ]);
+        }*/
+
+        if(YII_ENV == 'prod')
+        {
+            Yii::$app->eventManager->track('Company Registration Request Created',
+                [
+                    'contact_name' => $companyRequest->contact_name,
+                    'company_request_uuid' => $companyRequest->company_request_uuid,
+                    'company_name' => $companyRequest->company_name,
+                    'company_email' => $companyRequest->company_email,
+                    'phone_number' => $contactPhone->phone_number
+                ]);
         }
 
         return [
             "operation" => "success",
-            "contact_uuid" => $model->contact_uuid,
-            "message" => Yii::t('company', "Please click on the link sent to you by email to verify your account"),
-            "unVerifiedToken" => $this->_loginResponse($model)
+            "company_request_uuid" => $companyRequest->company_request_uuid,
+            "message" => Yii::t('company', "Our sales team will contact you soon!"),
+            //"unVerifiedToken" => $this->_loginResponse($model)
         ];
 
         /*if($invitation) {
