@@ -5,6 +5,7 @@ namespace staff\modules\v1\controllers;
 use common\models\CandidateToken;
 use common\models\CandidateWarning;
 use kartik\mpdf\Pdf;
+use staff\models\Company;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -85,7 +86,7 @@ class CandidateController extends Controller
         ]);
     }
 
- /**
+    /**
      * Return a List of Candidate Accounts available.
      */
     public function actionAssignedHistoryList()
@@ -772,6 +773,7 @@ class CandidateController extends Controller
     public function actionFilter()
     {
         $name = Yii::$app->request->get("name");
+        $company_id = Yii::$app->request->get("company_id");
         $email = Yii::$app->request->get("email");
         $phone = Yii::$app->request->get("phone");
         $type = Yii::$app->request->get("type");
@@ -780,6 +782,11 @@ class CandidateController extends Controller
         $civilId = Yii::$app->request->get('civilId');
 
         $query = Candidate::find();
+
+        if($company_id) {
+            $company = Company::find()->andWhere(['company_id' => $company_id])->one();
+            $query->filterCompany($company);
+        }
 
         if ($type == 'assigned') {
             $query->filterAssigned();
@@ -850,8 +857,8 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-
         $country_id = Yii::$app->request->get('country_id');
+
         $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
