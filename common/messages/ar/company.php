@@ -1,6 +1,7 @@
 <?php
 
 return [
+    "Account not found, please contact us for assistance." => "الحساب غير موجود ، يرجى الاتصال بنا للحصول على المساعدة.",
     "Contact new email address already registered" => "الاتصال بعنوان البريد الإلكتروني الجديد مسجل بالفعل",
     "Please click on the link sent to you by email to verify your account" => 'يرجى النقر على الرابط المرسل إليك عبر البريد الإلكتروني لإثبات ملكية حسابك',
     "Contact Account not found" => "حساب جهة الاتصال غير موجود",

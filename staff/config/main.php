@@ -258,6 +258,23 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CompanyRequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/company-request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST accept/<id>' => 'approve',
+                        'POST approve/<id>' => 'approve',
+                        'POST reject/<id>' => 'reject',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
+                        'OPTIONS approve/<id>' => 'options',
+                        'OPTIONS accept/<id>' => 'options'
+                    ]
+                ],
                 [ // BankController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/bank',
