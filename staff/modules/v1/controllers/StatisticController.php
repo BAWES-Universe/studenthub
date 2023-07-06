@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CompanyRequest;
 use staff\models\Request;
 use staff\models\Company;
 use staff\models\TransferCandidate;
@@ -106,8 +107,12 @@ class StatisticController extends Controller
 
         $result['last40daysNoRequest'] = (int)  Company::last40daysWithoutRequest();
 
-        $result['companyUnderReview'] = (int) Company::find()
+        /*$result['companyUnderReview'] = (int) Company::find()
             ->andWhere(['company_status_override' => Company::STATUS_UNDER_REVIEW])
+            ->count();*/
+
+        $result['companyUnderReview'] = (int) CompanyRequest::find()
+            ->andWhere(['status' => CompanyRequest::STATUS_PENDING])
             ->count();
 
         $result['transfersWithNoProfitInProgress'] = (int) TransferCandidate::find()

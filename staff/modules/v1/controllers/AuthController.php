@@ -40,7 +40,7 @@ class AuthController extends Controller
             'auth' => function ($email, $password) {
             
                 $staff = Staff::findByEmail($email);
-                
+              
                 if ($staff && $staff->validatePassword($password)) {
                     return $staff;
                 }
