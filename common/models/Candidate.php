@@ -138,8 +138,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_new_email'], 'validateNewEmail'],
             [['candidate_limit_email','profile_url'], 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
+
             ['candidate_phone', 'unique', 'comboNotUnique' => 'Phone no. already exist.', 'targetAttribute' => ['candidate_phone', 'deleted']],
             ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => ['candidate_civil_id', 'deleted']],
+
             ['candidate_pending_profile', 'string'],
             [
                 ['candidate_civil_id'],
@@ -379,7 +381,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 'or',
                 ['candidate_new_email' => $this->$attribute],
                 ['candidate_email' => $this->$attribute]
-            ]);
+            ])
+            ->andWhere(['deleted' => 0]);
 
         if($this->candidate_id) {
             $query->andWhere(['!=', 'candidate_id', $this->candidate_id]);
