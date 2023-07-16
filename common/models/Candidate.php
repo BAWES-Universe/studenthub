@@ -134,12 +134,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_video_processed', 'is_duplicate'], 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
+
+            ['deleted', 'default', 'value'=> 0],
+
             [['candidate_new_email', 'candidate_email'], 'validateEmail'],
             [['candidate_new_email'], 'validateNewEmail'],
             [['candidate_limit_email','profile_url'], 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
 
             ['candidate_phone', 'unique', 'comboNotUnique' => 'Phone no. already exist.', 'targetAttribute' => ['candidate_phone', 'deleted']],
+
             ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => ['candidate_civil_id', 'deleted']],
 
             ['candidate_pending_profile', 'string'],
@@ -314,11 +318,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
 
-        $scenarios['signupGoogle'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_email_verification', 'candidate_status', 'candidate_personal_photo', 'approved'];
+        $scenarios['signupGoogle'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_email_verification', 'candidate_status', 'candidate_personal_photo', 'approved', 'deleted'];
 
-        $scenarios['signupAuth0'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_language_pref'];
+        $scenarios['signupAuth0'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
 
-        $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref'];
+        $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
 
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
 
@@ -1087,6 +1091,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function signup($byStaff = false)
     {
+
         $this->setPassword($this->candidate_password_hash);
         $this->generateAuthKey();
 
