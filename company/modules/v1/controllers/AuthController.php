@@ -376,6 +376,7 @@ class AuthController extends Controller
         $companyRequest->company_name = ucfirst(Yii::$app->request->getBodyParam("company_name"));
         $companyRequest->company_email = Yii::$app->request->getBodyParam("email");
         $companyRequest->contact_position = Yii::$app->request->getBodyParam("contact_position");
+        $companyRequest->requesting_for = Yii::$app->request->getBodyParam("requesting_for");
 
         $companyRequest->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
         $companyRequest->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));

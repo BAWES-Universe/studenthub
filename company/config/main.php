@@ -157,11 +157,13 @@ return [
                         'GET' => 'list',
                         'GET list-child' => 'list-child',
                         'GET <id>' => 'view',
+                        'PATCH activate' => 'activate',
                         'PATCH update-logo' => 'update-logo',
                         'PATCH' => 'update',
                         'DELETE remove-logo' => 'remove-logo',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS activate' => 'options',
                         'OPTIONS list-child' => 'options',
                         'OPTIONS remove-logo' => 'options',
                         'OPTIONS update-logo' => 'options',

@@ -18,7 +18,8 @@ use yii\db\Expression;
  * @property string $contact_name 
  * @property string $contact_password_hash 
  * @property string $contact_receive_email 
- * @property string $phone_number 
+ * @property string $phone_number
+ * @property string $requesting_for
  * @property int $status pending=0, processing=1,  accepted=2, rejected=3
  * @property string $created_at
  * @property string $updated_at
@@ -52,7 +53,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
             [['created_at', 'updated_at'], 'safe'],
             [['company_request_uuid'], 'string', 'max' => 60],
             [['company_name', 'contact_position'], 'string', 'max' => 100],
-            [['company_email'], 'string', 'max' => 255],
+            [['company_email', 'requesting_for'], 'string', 'max' => 255],
         ];
     }
 
@@ -107,9 +108,42 @@ class CompanyRequest extends \yii\db\ActiveRecord
             'company_email' => Yii::t('app', 'Company Email'),
             'contact_position' => Yii::t('app', 'Contact Position'),
             'status' => Yii::t('app', 'Status'),
+            'requesting_for' => Yii::t('app', 'Requesting for'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
+    }
+
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return void
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if($insert)
+            $this->notifyStaff();
+    }
+
+    /**
+     * notify staff for new account request
+     * @return bool
+     */
+    private function notifyStaff() {
+
+        return Yii::$app->mailer->compose([
+            'html' => 'staff/company-account-request-html',
+            'text' => 'staff/company-account-request-text',
+        ], [
+            'model' => $this,
+            "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+        ])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setTo("sales@bawes.net")
+            ->setSubject('New company account request')
+            ->send();
     }
 
     /**
@@ -137,6 +171,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $model->contact_password_hash = $this->contact_password_hash;
         $model->contact_receive_email = $this->contact_receive_email;
         $model->contact_email_verification = true;
+        $model->generateAuthKey();
 
         if (!$model->save()) {
 
@@ -159,7 +194,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $company->company_followup = true;
         $company->company_followup_interval_weeks = 1;
         $company->company_last_followup_datetime = date('Y-m-d', strtotime ('-7 days'));
-        $company->company_status_override = Company::STATUS_ACTIVE;
+        //$company->company_status_override = Company::STATUS_ACTIVE;
 
         if (!$company->save()) {
             $transaction->rollBack();
