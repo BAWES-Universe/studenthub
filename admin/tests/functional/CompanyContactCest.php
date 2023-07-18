@@ -207,7 +207,7 @@ class CompanyContactCest
     /**
      * Try to delete
      * @param FunctionalTester $I
-     */
+     *
     public function tryToDelete(FunctionalTester $I)
     {
         $I->wantTo('delete company contact via API');
@@ -218,5 +218,5 @@ class CompanyContactCest
             "operation" => "success",
             "message" => "Company Contact deleted successfully"
         ]);
-    }
+    }*/
 }

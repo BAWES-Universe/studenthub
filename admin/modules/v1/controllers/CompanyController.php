@@ -182,7 +182,6 @@ class CompanyController extends Controller
             $contactModel->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
             $contactModel->contact_receive_email = 1;
 
-
             if (!$contactModel->sendVerificationEmail()) {
 
                 $transaction->rollBack();
@@ -203,6 +202,7 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if (!$model->save()) {
@@ -296,6 +296,7 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
 
         if (!$model->save()) {
