@@ -6,12 +6,27 @@ use company\models\Contact;
 use Yii;
 use yii\data\ActiveDataProvider;
 use company\models\Company;
+use yii\filters\auth\HttpBearerAuth;
+use yii\filters\Cors;
 
 /**
  * Company controller - Manage company accounts as Admin
  */
 class CompanyController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+
+        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
+        $behaviors['authenticator']['except'] = ['activate', 'options'];
+
+        return $behaviors;
+    }
+
     /**
      * @inheritdoc
      */
@@ -259,9 +274,14 @@ class CompanyController extends BaseController
 
         $model->company_logo = $company_logo;
         $model->commercial_licence = $commercial_licence;
-        $model->company_description_en = $model->company_description_ar = Yii::$app->request->getBodyParam('description');
         $model->company_website = Yii::$app->request->getBodyParam('website');
-        $model->company_status = \common\models\Company::STATUS_ACTIVE;
+        $model->company_status_override = \common\models\Company::STATUS_ACTIVE;
+
+        if(Yii::$app->language == "ar") {
+            $model->company_description_ar = Yii::$app->request->getBodyParam('description');
+        } else {
+            $model->company_description_en = Yii::$app->request->getBodyParam('description');
+        }
 
         if(!$model->commercial_licence || $model->company_logo == "commercial_licence")
         {
@@ -276,7 +296,7 @@ class CompanyController extends BaseController
             ];
         }
 
-        //upload logo
+        /*//upload logo
 
         if($model->company_logo && !$model->updateCompanyLogo())
         {
@@ -302,7 +322,7 @@ class CompanyController extends BaseController
                 'code' => 3,
                 'message' => $model->errors
             ];
-        }
+        }*/
 
         if(!$model->save()) {
             $transaction->rollBack();

@@ -68,6 +68,7 @@ class Company extends \yii\db\ActiveRecord
     const STATUS_INACTIVE = 0;
 
     const SCENARIO_ACTIVATE = "activate";
+    const SCENARIO_APPROVE = "approve";
 
     /**
      * @var mixed|null
@@ -179,7 +180,11 @@ class Company extends \yii\db\ActiveRecord
         $scenarios = parent::scenarios();
 
         $scenarios[self::SCENARIO_ACTIVATE] = ['company_logo', 'commercial_licence', 'company_description_en',
-            'company_description_ar', 'company_website', 'company_status'];
+            'company_description_ar', 'company_website', 'company_status_override'];
+
+        $scenarios[self::SCENARIO_APPROVE] = ["company_name", "company_common_name_en", "company_common_name_ar",
+            "company_email", "company_bonus_commission", "company_approved_to_hire", "company_followup", "company_followup_interval_weeks",
+            "company_last_followup_datetime"];
 
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];
@@ -316,6 +321,14 @@ class Company extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
+        /*if (array_key_exists('company_logo', $changedAttributes)) {
+            $this->updateCompanyLogo();
+        }
+
+        if (array_key_exists('commercial_licence', $changedAttributes)) {
+            $this->updateLicence();
+        }*/
 
         if (array_key_exists('company_status_override', $changedAttributes) &&
             $changedAttributes['company_status_override'] == self::STATUS_UNDER_REVIEW
@@ -597,7 +610,7 @@ class Company extends \yii\db\ActiveRecord
 
             $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->commercial_licence);
 
-            return $this->setCompanyLogo($url);
+            return $this->setLicence($url);
 
         } catch (\Exception $e) {
 
@@ -782,7 +795,9 @@ class Company extends \yii\db\ActiveRecord
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
+
             $path = (YII_ENV == 'prod') ? "" : "dev/";
+
             if(isset($this->oldAttributes['company_logo'])) {
                 return Yii::$app->cloudinaryManager->delete($path . $this->oldAttributes['company_logo']);
             } else {
@@ -811,7 +826,7 @@ class Company extends \yii\db\ActiveRecord
         if (!parent::beforeSave($insert)) {
             return false;
         }
-        
+
         // in case update
 
         if (
@@ -826,6 +841,23 @@ class Company extends \yii\db\ActiveRecord
         // in case create
 
         if ($this->isNewRecord && $this->company_logo && !$this->updateCompanyLogo()) {
+            return false;
+        }
+
+        // in case update
+
+        if (
+            !$this->isNewRecord &&
+            $this->commercial_licence &&
+            $this->commercial_licence != $this->oldAttributes['commercial_licence'] &&
+            !$this->updateLicence()
+        ) {
+            return false;
+        }
+
+        // in case create
+
+        if ($this->isNewRecord && $this->commercial_licence && !$this->updateLicence()) {
             return false;
         }
 

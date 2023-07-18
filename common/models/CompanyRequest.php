@@ -147,6 +147,46 @@ class CompanyRequest extends \yii\db\ActiveRecord
     }
 
     /**
+     * notify company for new account approval
+     * @return bool
+     */
+    private function notifyApprove($contact, $company) {
+
+        return Yii::$app->mailer->compose([
+            'html' => 'company/account-approved-html',
+            'text' => 'company/account-approved-text',
+        ], [
+            'model' => $this,
+            "contact" => $contact,
+            "company" => $company,
+            "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+        ])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setTo($this->company_email)
+            ->setSubject('Congratulation! Your account request approved!')
+            ->send();
+    }
+
+    /**
+     * notify company for new account rejection
+     * @return bool
+     */
+    private function notifyReject() {
+
+        return Yii::$app->mailer->compose([
+            'html' => 'company/account-rejected-html',
+            'text' => 'company/account-rejected-text',
+        ], [
+            'model' => $this,
+            "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+        ])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setTo($this->company_email)
+            ->setSubject('New company account request not approved!')
+            ->send();
+    }
+
+    /**
      * approve company registration request
      * @return array|string[]
      * @throws \yii\db\Exception
@@ -185,6 +225,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
         }
 
         $company = new Company();
+        $company->setScenario(Company::SCENARIO_APPROVE);
         $company->company_name = $this->company_name;
         $company->company_common_name_en = $this->company_name;
         $company->company_common_name_ar = $this->company_name;
@@ -240,7 +281,6 @@ class CompanyRequest extends \yii\db\ActiveRecord
 
         }
 
-
         $transaction->commit();
 
         if(YII_ENV == 'prod')
@@ -256,6 +296,8 @@ class CompanyRequest extends \yii\db\ActiveRecord
                     'phone_number' => $this->phone_number
                 ]);
         }
+
+        $this->notifyApprove($model, $company);
 
         return [
             "operation" => "success",
@@ -277,6 +319,8 @@ class CompanyRequest extends \yii\db\ActiveRecord
                 "message" => $this->errors
             ];
         }
+
+        $this->notifyReject();
 
         return [
             "operation" => "success",
