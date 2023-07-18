@@ -22,6 +22,7 @@ use yii\helpers\Url;
  * @property string $company_description_ar
  * @property string $company_website
  * @property string $company_logo
+ * @property string $commercial_licence
  * @property string $company_email
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
@@ -66,6 +67,9 @@ class Company extends \yii\db\ActiveRecord
     const STATUS_UNDER_REVIEW = 9;
     const STATUS_INACTIVE = 0;
 
+    const SCENARIO_ACTIVATE = "activate";
+    const SCENARIO_APPROVE = "approve";
+
     /**
      * @var mixed|null
      */
@@ -84,8 +88,8 @@ class Company extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
-            [['company_email', 'company_hourly_rate'], 'required', 'on'=>'newAccount'],
+            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission', 'commercial_licence'], 'required'],
+            [['company_email', 'company_hourly_rate'], 'required', 'on' => 'newAccount'],
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
@@ -99,6 +103,19 @@ class Company extends \yii\db\ActiveRecord
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website',
                 'company_status_override'], 'safe'],
+            /**
+             *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
+             */
+            [
+                ['commercial_licence'],
+                '\common\components\S3FileExistValidator',
+                'filePath' => '',
+                'message' => Yii::t('app',"Please upload commercial licence"),
+                'resourceManager' => Yii::$app->temporaryBucketResourceManager,
+                'when' => function($model, $attribute) {
+                    return $model->{$attribute} !== $model->getOldAttribute($attribute);
+                }
+            ],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -162,6 +179,13 @@ class Company extends \yii\db\ActiveRecord
     public function scenarios() {
         $scenarios = parent::scenarios();
 
+        $scenarios[self::SCENARIO_ACTIVATE] = ['company_logo', 'commercial_licence', 'company_description_en',
+            'company_description_ar', 'company_website', 'company_status_override'];
+
+        $scenarios[self::SCENARIO_APPROVE] = ["company_name", "company_common_name_en", "company_common_name_ar",
+            "company_email", "company_bonus_commission", "company_approved_to_hire", "company_followup", "company_followup_interval_weeks",
+            "company_last_followup_datetime"];
+
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];
         $scenarios['updateStatus'] = ['company_status_override'];
@@ -187,6 +211,7 @@ class Company extends \yii\db\ActiveRecord
             'company_website' => Yii::t('app','Company Website'),
             'company_email' => Yii::t('app','Company Email'),
             'company_logo' => Yii::t('app','Company Logo'),
+            'commercial_licence'  => Yii::t('app','Commercial Licence'),
             'company_followup' => Yii::t('app','Company Followup'),
             'company_status_override' => Yii::t('app','Status Override'),
             'company_created_at' => Yii::t('app','Company Created At'),
@@ -296,6 +321,14 @@ class Company extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
+        /*if (array_key_exists('company_logo', $changedAttributes)) {
+            $this->updateCompanyLogo();
+        }
+
+        if (array_key_exists('commercial_licence', $changedAttributes)) {
+            $this->updateLicence();
+        }*/
 
         if (array_key_exists('company_status_override', $changedAttributes) &&
             $changedAttributes['company_status_override'] == self::STATUS_UNDER_REVIEW
@@ -568,6 +601,114 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
+     * Update licence photo from temp s3 bucket
+     * @return type
+     */
+    public function updateLicence() {
+
+        try {
+
+            $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->commercial_licence);
+
+            return $this->setLicence($url);
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('commercial_licence', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * Set licence photo by url
+     * @param string $url
+     */
+    public function setLicence($url) {
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+
+        if ($this->commercial_licence) {
+            $this->deleteLicenceFromCloudinary();
+        }
+
+        try {
+            $path = (YII_ENV == 'prod') ?  "commercial-licence/" : "dev/commercial-licence/";
+
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url,
+                [
+                    'public_id' => $path . $filename,
+                    "eager" => [
+                        [
+                            //id card thumbnail
+                            "width" => 319, "height" => 319, "crop" => "thumb", "gravity" => "face",
+                        ],
+                        [
+                            //profile pic in apps
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
+                ]
+            );
+
+            if ($result) {
+                $this->commercial_licence = "commercial-licence/" . basename($result['url']);
+
+                return true;
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('commercial_licence', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            $this->addError('commercial_licence', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete old licence photo from cloudinary
+     * @return boolean
+     */
+    public function deleteLicenceFromCloudinary() {
+
+        try {
+            $path = (YII_ENV == 'prod') ? "" : "dev/";
+
+            if(isset($this->oldAttributes['commercial_licence'])) {
+                return Yii::$app->cloudinaryManager->delete($path . $this->oldAttributes['commercial_licence']);
+            } else {
+                return Yii::$app->cloudinaryManager->delete($path . $this->commercial_licence);
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'company');
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'company');
+            return false;
+        }
+    }
+
+    /**
      * Update profile photo from temp s3 bucket
      * @return type
      */
@@ -633,7 +774,7 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('candidate_personal_photo', Yii::t('app', 'Please try again.'));
+            $this->addError('company_logo', Yii::t('app', 'Please try again.'));
 
             return false;
 
@@ -654,7 +795,9 @@ class Company extends \yii\db\ActiveRecord
     public function deleteProfilePhotoFromCloudinary() {
 
         try {
+
             $path = (YII_ENV == 'prod') ? "" : "dev/";
+
             if(isset($this->oldAttributes['company_logo'])) {
                 return Yii::$app->cloudinaryManager->delete($path . $this->oldAttributes['company_logo']);
             } else {
@@ -674,7 +817,6 @@ class Company extends \yii\db\ActiveRecord
         }
     }
 
-
     /**
      * @param bool $insert
      * @return bool
@@ -684,7 +826,7 @@ class Company extends \yii\db\ActiveRecord
         if (!parent::beforeSave($insert)) {
             return false;
         }
-        
+
         // in case update
 
         if (
@@ -699,6 +841,23 @@ class Company extends \yii\db\ActiveRecord
         // in case create
 
         if ($this->isNewRecord && $this->company_logo && !$this->updateCompanyLogo()) {
+            return false;
+        }
+
+        // in case update
+
+        if (
+            !$this->isNewRecord &&
+            $this->commercial_licence &&
+            $this->commercial_licence != $this->oldAttributes['commercial_licence'] &&
+            !$this->updateLicence()
+        ) {
+            return false;
+        }
+
+        // in case create
+
+        if ($this->isNewRecord && $this->commercial_licence && !$this->updateLicence()) {
             return false;
         }
 

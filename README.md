@@ -188,3 +188,10 @@ yii fixture "*, -WalletBankFixture, -WalletTransferFixture, -WalletUserFixture"
 http://localhost/studenthub/verification/web/index.php?r=site/index&candidate_uid=30609122319
 
 http://localhost:8888/studenthub/verification/web/index.php?r=site/index&candidate_uid=yac7ANlKJWOeigWlY7Xf
+
+todo 
+
+- company account password set 
+- activation 
+- approve/reject emails 
+- team invitation
