@@ -453,6 +453,8 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
+
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
@@ -536,6 +538,7 @@ class CompanyController extends Controller
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_logo = Yii::$app->request->getBodyParam("logo");
+        $model->commercial_licence = Yii::$app->request->getBodyParam("commercial_licence");
         $model->company_followup = Yii::$app->request->getBodyParam("followup");
         $model->company_followup_interval_weeks = Yii::$app->request->getBodyParam("followup_interval_weeks");
         $model->company_approved_to_hire = Yii::$app->request->getBodyParam("approved_to_hire");
