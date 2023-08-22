@@ -319,9 +319,14 @@ class CandidateQuery extends \yii\db\ActiveQuery
      * second one check if user's started the job passed two months
      */
     public function getTwoMonthBeforeTransfers() {
-        return $this->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `transfer_candidate` where (`transfer_candidate`.tc_created_at > DATE_SUB(NOW(),INTERVAL 2 MONTH)) group by candidate_id)')
-        ->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `candidate_work_history` where (`candidate_work_history`.`start_date` > DATE_SUB(NOW(),INTERVAL 2 MONTH)) and end_date IS NUll group by candidate_id)');
+        $date = date('Y-m-d', strtotime('-2 month'));
+
+        return $this->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `candidate_work_history` where DATE(`candidate_work_history`.`start_date`) > DATE("'.$date.'") and end_date IS NUll group by candidate_id)')
+            ->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `transfer_candidate` where DATE(`transfer_candidate`.tc_created_at) > DATE("'.$date.'") group by candidate_id)');
         //last 2 MONTH
+
+        //store_id IS NOT NULL
+
     }
 
     /**
