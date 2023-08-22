@@ -252,6 +252,7 @@ class CompanyController extends Controller
         return [
             "operation" => "success",
             "message" => "Note created successfully",
+            "company_next_followup_datetime" => $company->company_next_followup_datetime,
             "company_last_followup_datetime" => $company->company_last_followup_datetime
         ];
     }

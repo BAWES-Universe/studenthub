@@ -41,9 +41,14 @@ class CompanyQuery extends \yii\db\ActiveQuery {
         return $this->andWhere(['company_followup' => 1])
             ->andWhere(
                 new \yii\db\Expression(
-                    'DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK) <= NOW()'
+                    'DATE(company_next_followup_datetime) < DATE("'.date('Y-m-d', strtotime("tomorrow")).'")'
                 )
             );
+            /*->andWhere(
+                new \yii\db\Expression(
+                    'DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK) <= NOW()'
+                )
+            );*/
     }
 
     /**
