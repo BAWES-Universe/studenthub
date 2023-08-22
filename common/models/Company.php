@@ -31,7 +31,8 @@ use yii\helpers\Url;
  * @property integer $no_of_active_requests
  * @property integer $is_request_updates_in_30_days
  * @property boolean $company_followup_interval_weeks
- * @property boolean $company_last_followup_datetime
+ * @property datetime $company_last_followup_datetime
+ * @property datetime $company_next_followup_datetime
  * @property boolean $company_approved_to_hire
  * @property integer $company_status
  * @property integer $company_status_override
@@ -96,6 +97,7 @@ class Company extends \yii\db\ActiveRecord
             [['parent_company_id', 'company_followup_interval_weeks','total_candidate','no_of_active_requests','is_request_updates_in_30_days'], 'integer'],
             [['company_followup'], 'boolean'],
             ['company_last_followup_datetime', 'safe'],
+            ['company_next_followup_datetime', 'safe'],
             [['company_bonus_commission', 'company_hourly_rate', 'company_status_override'], 'number'],
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
@@ -184,7 +186,7 @@ class Company extends \yii\db\ActiveRecord
 
         $scenarios[self::SCENARIO_APPROVE] = ["company_name", "company_common_name_en", "company_common_name_ar",
             "company_email", "company_bonus_commission", "company_approved_to_hire", "company_followup", "company_followup_interval_weeks",
-            "company_last_followup_datetime"];
+            "company_last_followup_datetime", "company_next_followup_datetime"];
 
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];
@@ -828,6 +830,16 @@ class Company extends \yii\db\ActiveRecord
         }
 
         // in case update
+
+        if(
+            !$insert && (
+                $this->company_last_followup_datetime != $this->oldAttributes['company_last_followup_datetime'] ||
+                $this->company_followup_interval_weeks != $this->oldAttributes['company_followup_interval_weeks']
+            )
+        ) {
+            $this->company_next_followup_datetime = new Expression("DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK)");
+            //UPDATE company SET company_next_followup_datetime = DATE_ADD(company_last_followup_datetime,INTERVAL company_followup_interval_weeks WEEK)
+        }
 
         if (
             !$this->isNewRecord &&

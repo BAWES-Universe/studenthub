@@ -16,6 +16,7 @@ class m221130_112329_candidate_working_hour_update_time extends Migration
         $this->alterColumn('candidate_working_hour', 'end_time', $this->dateTime());
 
         $records = Yii::$app->db->createCommand('select * from candidate_working_hour')->queryAll();
+
         foreach ($records as $record) {
 
             $candidate_working_hour_uuid = $record['candidate_working_hour_uuid'];
