@@ -610,8 +610,12 @@ class AuthController extends Controller
         $model->candidate_status = \candidate\models\Candidate::STATUS_PENDING;
         $model->approved = false;
 
-
         if (!$model->signup()) {
+
+            Yii::error("[Student Registration Failed] by Student, Email: ".$model->candidate_email
+                . ", Phone: ".$model->candidate_phone. ", Name: ".$model->candidate_name. " " .$model->candidate_name_ar,
+                __METHOD__);
+
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",
@@ -685,6 +689,7 @@ class AuthController extends Controller
      * Sign up with google login
      */
     public function actionLoginByGoogle() {
+
         $token = Yii::$app->request->getBodyParam("idToken");
 
         $ch = curl_init();
