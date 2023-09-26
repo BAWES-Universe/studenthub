@@ -393,7 +393,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if ($query->exists()) {
-            $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
+            $this->addError('candidate_email', Yii::t('app',
+                'We found account with same email, Please login with same email!'));
         }
     }
 

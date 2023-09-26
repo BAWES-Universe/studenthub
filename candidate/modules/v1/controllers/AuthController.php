@@ -591,6 +591,7 @@ class AuthController extends Controller
         if (!$firstname) {
             return [
                 "operation" => "error",
+                "code" => 1,
                 "message" => Yii::t('candidate', "Name is required")
             ];
         }
@@ -619,11 +620,13 @@ class AuthController extends Controller
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",
+                    "code" => 2,
                     "message" => $model->errors,
                 ];
             } else {
                 return [
                     "operation" => "error",
+                    "code" => 3,
                     "message" => Yii::t('candidate', "We've faced a problem creating your account, please contact us for assistance.")
                 ];
             }
