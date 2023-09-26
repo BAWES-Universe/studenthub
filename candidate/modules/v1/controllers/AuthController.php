@@ -178,7 +178,7 @@ class AuthController extends Controller
             $candidate->approved = true;
             
             if (!$candidate->signup()) {
-                
+
                 Yii::error("[Student Registration Failed] by Student, Email: ".$candidate->candidate_email
                     . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar .
                     json_encode($candidate->errors),
