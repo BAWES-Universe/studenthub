@@ -178,11 +178,10 @@ class AuthController extends Controller
             $candidate->approved = true;
             
             if (!$candidate->signup()) {
-
-
+                
                 Yii::error("[Student Registration Failed] by Student, Email: ".$candidate->candidate_email
-                    . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar . 
-                    printf($candidate->errors, true),
+                    . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar .
+                    json_encode($candidate->errors),
                     __METHOD__);
 
                 if (isset($candidate->errors)) {
@@ -621,8 +620,8 @@ class AuthController extends Controller
         if (!$model->signup()) {
 
             Yii::error("[Student Registration Failed] by Student, Email: ".$model->candidate_email
-                . ", Phone: ".$model->candidate_phone. ", Name: ".$model->candidate_name. " " .$model->candidate_name_ar . 
-                printf($model->errors, true),
+                . ", Phone: ".$model->candidate_phone. ", Name: ".$model->candidate_name. " " .$model->candidate_name_ar .
+                json_encode($model->errors),
                 __METHOD__);
 
             if (isset($model->errors)) {
@@ -818,8 +817,8 @@ class AuthController extends Controller
             if (!$candidate->signup()) {
                 
                 Yii::error("[Student Registration Failed] by Student, Email: ".$candidate->candidate_email
-                    . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar . 
-                    printf($candidate->errors, true),
+                    . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar .
+                    json_encode($candidate->errors),
                     __METHOD__);
 
                 if (isset($candidate->errors)) {
