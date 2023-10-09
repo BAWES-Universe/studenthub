@@ -5,10 +5,12 @@ namespace console\controllers;
 use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\DailyStandupQuestion;
+use common\models\EmailCampaign;
 use common\models\Note;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
 use common\models\Transfer;
+use common\models\VendorCampaign;
 use kartik\mpdf\Pdf;
 use Yii;
 use yii\base\BaseObject;
@@ -87,7 +89,6 @@ class CronController extends \yii\console\Controller {
         //Invoice::unpaidAlert();
 
         DailyStandupQuestion::standupReport();
-
     }
 
     /**
@@ -97,6 +98,17 @@ class CronController extends \yii\console\Controller {
     public function actionEveryMinute() {
         Suggestion::suggestionCandidateNotification();
         Suggestion::suggestionFulltimerNotification();
+
+        $campaigns = EmailCampaign::find()
+            ->andWhere(['status' => EmailCampaign::STATUS_READY])
+            ->all();
+
+        foreach ($campaigns as $campaign) {
+            $campaign->process();
+        }
+
+        $this->stdout( sizeof($campaigns) . " Email Campaign processed \n", Console::FG_RED, Console::BOLD);
+
     }
 
     /**

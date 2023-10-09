@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "{{%candidate_work_history}}".
@@ -96,15 +97,25 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
 
         // check if candidate assigned today then delete assigned history
         if (CandidateWorkHistory::checkTotalHistory($candidate)) {
-            return CandidateWorkHistory::deleteAll(['candidate_id'=>$candidate->candidate_id,'start_date'=>date('Y-m-d')]);
+            //['candidate_id'=>$candidate->candidate_id,'start_date'=>date('Y-m-d')]
+
+            $expression = "candidate_id='".$candidate->candidate_id."' AND 
+                DATE(start_date) >= DATE('".date('Y-m-d')."')";
+
+            return CandidateWorkHistory::deleteAll(new Expression($expression));
+
         } else {
+            
             // else save unassigned history
             $model = CandidateWorkHistory::find()
                 ->filterCandidate($candidate->candidate_id)
                 ->emptyEndDate()
                 ->one();
+
             if ($model) {
+                
                 $model->end_date  = new \yii\db\Expression('NOW()');
+
                 if ($model->save()) {
                     return [
                         'operation' =>'success',
@@ -132,10 +143,13 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      * @return mixed
      */
     public static function checkTotalHistory($candidate) {
+        $expression = "DATE(start_date) >= DATE('".date('Y-m-d')."')";
+
         return CandidateWorkHistory::find()
-        ->filterCandidate($candidate->candidate_id)
-        ->filterDate(date('Y-m-d'))
-        ->exists();
+            ->filterCandidate($candidate->candidate_id)
+            //->filterDate(date('Y-m-d'))
+            ->andWhere(new Expression($expression))
+            ->exists();
     }
 
     public function extraFields()
