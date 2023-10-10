@@ -189,6 +189,20 @@ http://localhost/studenthub/verification/web/index.php?r=site/index&candidate_ui
 
 http://localhost:8888/studenthub/verification/web/index.php?r=site/index&candidate_uid=yac7ANlKJWOeigWlY7Xf
 
+## Email campaign 
+
+### Filter 
+filterAssigned
+filterNotAssigned
+filterStore
+filterCountry
+filterUniversity
+idExpired
+byApprovalStatus
+verifiedProfile
+withoutBankInfo
+candidateMomKuwaitiFieldIsNull
+
 todo 
 
 - company account password set 
