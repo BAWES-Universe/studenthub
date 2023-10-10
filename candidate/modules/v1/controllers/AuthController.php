@@ -178,6 +178,12 @@ class AuthController extends Controller
             $candidate->approved = true;
             
             if (!$candidate->signup()) {
+
+                Yii::error("[Student Registration Failed] by Student, Email: ".$candidate->candidate_email
+                    . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar .
+                    json_encode($candidate->errors),
+                    __METHOD__);
+
                 if (isset($candidate->errors)) {
                     return [
                         "operation" => "error",
@@ -591,6 +597,7 @@ class AuthController extends Controller
         if (!$firstname) {
             return [
                 "operation" => "error",
+                "code" => 1,
                 "message" => Yii::t('candidate', "Name is required")
             ];
         }
@@ -610,16 +617,23 @@ class AuthController extends Controller
         $model->candidate_status = \candidate\models\Candidate::STATUS_PENDING;
         $model->approved = false;
 
-
         if (!$model->signup()) {
+
+            Yii::error("[Student Registration Failed] by Student, Email: ".$model->candidate_email
+                . ", Phone: ".$model->candidate_phone. ", Name: ".$model->candidate_name. " " .$model->candidate_name_ar .
+                json_encode($model->errors),
+                __METHOD__);
+
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",
+                    "code" => 2,
                     "message" => $model->errors,
                 ];
             } else {
                 return [
                     "operation" => "error",
+                    "code" => 3,
                     "message" => Yii::t('candidate', "We've faced a problem creating your account, please contact us for assistance.")
                 ];
             }
@@ -685,6 +699,7 @@ class AuthController extends Controller
      * Sign up with google login
      */
     public function actionLoginByGoogle() {
+
         $token = Yii::$app->request->getBodyParam("idToken");
 
         $ch = curl_init();
@@ -800,6 +815,12 @@ class AuthController extends Controller
             $candidate->approved = 1;
 
             if (!$candidate->signup()) {
+                
+                Yii::error("[Student Registration Failed] by Student, Email: ".$candidate->candidate_email
+                    . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar .
+                    json_encode($candidate->errors),
+                    __METHOD__);
+
                 if (isset($candidate->errors)) {
                     return [
                         "operation" => "error",

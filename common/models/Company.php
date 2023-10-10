@@ -90,7 +90,7 @@ class Company extends \yii\db\ActiveRecord
     {
         return [
             [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
-            [['company_email', 'company_hourly_rate', 'commercial_licence'], 'required', 'on' => 'newAccount'],
+            [['company_email', 'company_hourly_rate'], 'required', 'on' => 'newAccount'],//, 'commercial_licence'
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
             [['company_hourly_rate'], 'required', 'on'=>'newSubAccount'], // for sub account
