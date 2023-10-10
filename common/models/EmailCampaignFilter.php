@@ -56,12 +56,6 @@ class EmailCampaignFilter extends \yii\db\ActiveRecord
                     return $this->cf_uuid;
                 }
             ],
-            [
-                'class' => TimestampBehavior::className(),
-                'createdAtAttribute' => 'created_at',
-                'updatedAtAttribute' => 'updated_at',
-                'value' => new Expression('NOW()'),
-            ],
         ];
     }
 

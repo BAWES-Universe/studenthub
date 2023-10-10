@@ -2,9 +2,10 @@
 
 namespace admin\modules\v1\controllers;
 
-use common\models\CampaignFilter;
+use common\models\EmailCampaignFilter;
 use common\models\EmailCampaign;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -80,6 +81,20 @@ class EmailCampaignController extends Controller
         ]);
     }
 
+    public function actionStatusList()
+    {
+        $campaignIDs = Yii::$app->request->getBodyParam('campaignIDs');
+
+        $query = EmailCampaign::find()
+            ->andWhere(['NOT IN', 'status', [EmailCampaign::STATUS_DRAFT]]);
+
+        if($campaignIDs) {
+            $query->andWhere(['IN', 'campaign_uuid', $campaignIDs]);
+        }
+
+        return ArrayHelper::index($query->all(), 'campaign_uuid');
+    }
+
     /**
      * load details
      * @param type $id
@@ -141,18 +156,18 @@ class EmailCampaignController extends Controller
             }
         }
 
-        $campaignFilter = Yii::$app->request->post('CampaignFilter');
+        $campaignFilters = Yii::$app->request->post('emailCampaignFilters');
 
-        foreach ($campaignFilter as $key => $value) {
+        foreach ($campaignFilters as $key => $campaignFilter) {
 
-            if(!$value || strlen($value) == 0) {
+            if(!$campaignFilter['param'] || strlen($campaignFilter['param']) == 0) {
                 continue;
             }
 
-            $cf = new CampaignFilter();
+            $cf = new EmailCampaignFilter();
             $cf->campaign_uuid = $model->campaign_uuid;
-            $cf->param = $key;
-            $cf->value = $value;
+            $cf->param = $campaignFilter['param'];
+            $cf->value = $campaignFilter['value'];
 
             if (!$cf->save()) { 
                 break;
@@ -193,6 +208,44 @@ class EmailCampaignController extends Controller
                 ];
             }
         }
+
+        $campaignFilters = Yii::$app->request->post('emailCampaignFilters');
+
+        if(!$campaignFilters) {
+            $campaignFilters = [];
+        }
+
+        $cf_uuids = [];
+
+        foreach ($campaignFilters as $key => $campaignFilter) {
+
+            if(!$campaignFilter['param'] || strlen($campaignFilter['param']) == 0) {
+                continue;
+            }
+
+            if(empty($campaignFilter['cf_uuid'])) {
+                $cf = new EmailCampaignFilter();
+            } else {
+                $cf = EmailCampaignFilter::find()
+                    ->andWhere(['cf_uuid' => $campaignFilter['cf_uuid']]);
+            }
+
+            $cf->campaign_uuid = $model->campaign_uuid;
+            $cf->param = $campaignFilter['param'];
+            $cf->value = $campaignFilter['value'];
+
+            if (!$cf->save()) {
+                break;
+            }
+
+            $cf_uuids[] = $cf->cf_uuid;
+        }
+
+        EmailCampaignFilter::deleteAll([
+            'AND',
+            ['NOT IN', 'cf_uuid', $cf_uuids],
+            ['campaign_uuid' => $id]
+        ]);
 
         Yii::info('[Email Campaign Updated: ' . $model->subject . '] By ' . Yii::$app->user->identity->admin_name, __METHOD__);
 

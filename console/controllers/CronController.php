@@ -99,6 +99,10 @@ class CronController extends \yii\console\Controller {
         Suggestion::suggestionCandidateNotification();
         Suggestion::suggestionFulltimerNotification();
 
+    }
+
+    public function actionProcessCampaign()
+    {
         $campaigns = EmailCampaign::find()
             ->andWhere(['status' => EmailCampaign::STATUS_READY])
             ->all();
@@ -108,7 +112,6 @@ class CronController extends \yii\console\Controller {
         }
 
         $this->stdout( sizeof($campaigns) . " Email Campaign processed \n", Console::FG_RED, Console::BOLD);
-
     }
 
     /**

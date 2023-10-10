@@ -361,13 +361,16 @@ return [
                     'controller' => 'v1/email-campaign',
                     'patterns' => [
                         'GET' => 'list',
+                        'POST status-list' => 'status-list',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
+                        'PATCH run/<id>' => 'run',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS run/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

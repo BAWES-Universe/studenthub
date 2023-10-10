@@ -7,6 +7,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\console\Exception;
 use yii\db\Expression;
+use yii\helpers\Console;
 
 /**
  * This is the model class for table "email_campaign".
@@ -167,10 +168,19 @@ class EmailCampaign extends \yii\db\ActiveRecord
             else if ($filter['param'] == "candidateMomKuwaitiFieldIsNull")
             {
                 $query->candidateMomKuwaitiFieldIsNull();
-            } 
+            }
+            else if($filter['param'] == "ageRange")
+            {
+                $values = explode(":", $filter['value']);
+
+                $query->andWhere(new Expression("YEAR(CURDATE()) - YEAR(candidate_birth_date) BETWEEN ".$values[0].
+                    " AND ".$values[1]));
+            }
         }
 
         $total = $query->count();
+ 
+        Console::startProgress(0, $total);
 
         $processed = 0;
 
@@ -193,6 +203,8 @@ class EmailCampaign extends \yii\db\ActiveRecord
                 throw new Exception(print_r($this->errors, true));
             }
 
+            Console::updateProgress($processed, $total);
+
             sleep(10);
         }
 
@@ -210,10 +222,22 @@ class EmailCampaign extends \yii\db\ActiveRecord
      */
     public function sendEmail($candidate) {
 
-        //todo: ability to have variables like candidate_email, candidate_name etc,...
+        $arrSearch = [
+            "[candidate_name]",
+            "[candidate_name_ar]",
+            "[candidate_email]"
+        ];
+
+        $arrReplace = [
+            $candidate->candidate_name,
+            $candidate->candidate_name_ar,
+            $candidate->candidate_email
+        ];
+
+        $message = str_replace($arrSearch, $arrReplace, $this->message);
 
         $mailer = \Yii::$app->mailer->compose()
-            ->setHtmlBody($this->message)
+            ->setHtmlBody($message)
             ->setSubject($this->subject)
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($candidate->candidate_email);
