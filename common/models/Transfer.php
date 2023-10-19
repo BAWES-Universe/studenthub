@@ -42,6 +42,7 @@ class Transfer extends ActiveRecord
     //for transfer create form
     public $candidates = [];
 
+    const STATUS_CANCEL = 0;
     const STATUS_PAYMENT_SENT = 1;
     const STATUS_SALARY_DISTRIBUTION_IN_PROGRESS = 3;
     const STATUS_TRANSFER_COMPLETE = 4;
@@ -54,6 +55,7 @@ class Transfer extends ActiveRecord
     public static function statusList()
     {
         return [
+            self::STATUS_CANCEL => 'Cancel',
             self::STATUS_INITIATED => 'Draft',
             self::STATUS_LOCK => 'Locked',
             self::STATUS_PAYMENT_SENT => 'Payment Sent',
@@ -856,6 +858,31 @@ class Transfer extends ActiveRecord
         return $this->save(false);
     }
 
+    public function cancel()
+    {
+        if($this->transfer_status == Transfer::STATUS_CANCEL)
+        {
+            throw new Exception('Transfer already cancelled.');
+        }
+
+        if($this->transfer_status != Transfer::STATUS_INITIATED)
+        {
+            throw new Exception('Transfer status need to be "Initiated" to cancel it!');
+        }
+
+        $this->transfer_status = Transfer::STATUS_CANCEL;
+
+        if(isset(Yii::$app->components['user']['identityClass']) && Yii::$app->user->identity instanceof Staff) {
+            $note = new Note;
+            $note->note_type = Note::TYPE_INTERNAL_NOTE;
+            $note->company_id = $this->company_id;
+            $note->note_text = "I have cancelled a transfer for " . $this->company->company_common_name_en . " with a total of " . $this->company_total . " KD";
+            $note->save();
+        }
+
+        return $this->save(false);
+    }
+
     /**
      * Mark transfer status to locked
      * This is only possible after the status has been marked as `Payment Sent` by mistake
@@ -915,6 +942,7 @@ class Transfer extends ActiveRecord
 
         //transfer status should be "Initiated" or "Locked" to delete it
         $allowedStatus = [
+            Transfer::STATUS_CANCEL,
             Transfer::STATUS_INITIATED,
             Transfer::STATUS_LOCK
         ];

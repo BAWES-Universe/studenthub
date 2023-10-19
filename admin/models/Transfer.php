@@ -99,6 +99,7 @@ class Transfer extends \common\models\Transfer
         }
         
         $this->transfer_status = Transfer::STATUS_INITIATED;
+
         return $this->save(false);        
     }
 

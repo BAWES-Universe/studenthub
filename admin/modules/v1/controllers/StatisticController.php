@@ -159,7 +159,7 @@ class StatisticController extends Controller
             ->joinWith(['transfer'])
             //ignore duplicate entries of child transfers
             ->andWhere('transfer.parent_transfer_id IS NULL')
-            ->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            ->andWhere(['NOT IN', 'transfer_status', [Transfer::STATUS_INITIATED, Transfer::STATUS_CANCEL]])//no draft
             //->filterPaid()
             ->count();
 
@@ -178,7 +178,8 @@ class StatisticController extends Controller
 
         $totalBelongingToCandidates = Transfer::find();//ignore duplicate entries of child transfers
         $totalBelongingToCandidates->andWhere('transfer.parent_transfer_id IS NULL');
-            //->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            //->andWhere(['NOT IN', 'transfer_status', [Transfer::STATUS_INITIATED, Transfer::STATUS_CANCEL]])//no draft
+        //
         $totalBelongingToCandidates->filterPaymentReceived();
         if($startDate) {
             $totalBelongingToCandidates->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));

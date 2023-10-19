@@ -250,8 +250,10 @@ return [
                         'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
+                        'PATCH cancel/<id>' => 'cancel',
                         'PATCH mark-paid-all' => 'mark-paid-all',
                         'PATCH pay-by-wallet/<id>' => 'pay-by-wallet',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTION download-payment-advice' => 'options',
@@ -269,6 +271,7 @@ return [
                         'OPTIONS export/<id>' => 'options',
                         'OPTIONS pdf/<id>/<type>' => 'options',
                         'OPTIONS suspicious' => 'options',
+                        'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS pay-by-wallet/<id>' => 'options',
                     ]
                 ],
