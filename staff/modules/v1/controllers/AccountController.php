@@ -106,7 +106,55 @@ class AccountController extends Controller
             "name" => $staff->staff_name,
             "email" => $staff->staff_email,
             "story" => $staff->currentStory,
-            "role" => $staff->staff_role
+            "role" => $staff->staff_role,
+            "staff_job_title" => $staff->staff_job_title,
+            "staff_notification" => $staff->staff_notification,
+            "staff_photo" => $staff->staff_photo,
+        ];
+    }
+
+    /**
+     * Create a staff account
+     */
+    public function actionUpdate()
+    {
+        $model = Yii::$app->user->identity;
+
+        $model->staff_name = Yii::$app->request->getBodyParam("name");
+        $model->staff_notification = Yii::$app->request->getBodyParam("staff_notification");
+        $model->staff_job_title = Yii::$app->request->getBodyParam("staff_job_title");
+
+        $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
+
+        if($staff_photo)
+            $model->setLogo($staff_photo);
+
+        if (!$model->save())
+        {
+            if(isset($model->errors)){
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem updating the account, please contact us for assistance."
+                ];
+            }
+        }
+
+        if(YII_ENV == 'prod')
+            Yii::$app->eventManager->setUser('staff' .$model->staff_id, [
+                '$first_name' => $model->staff_name,
+                '$email' => $model->staff_email
+            ]);
+
+        Yii::info('[Staff Account Updated] Staff "'.$model->staff_email.'" updated', __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Staff account successfully updated"
         ];
     }
 
