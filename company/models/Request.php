@@ -138,7 +138,7 @@ class Request extends \common\models\Request
     {
         $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
 
-        $staffList = Staff::findAll(['deleted'=>'0']);
+        $staffList = Staff::findAll(['deleted'=>'0', 'staff_notification' => true]);
 
         $subject =  $company_name." is looking to hire ".$this->request_position_title;
 

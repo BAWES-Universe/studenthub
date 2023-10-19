@@ -1354,7 +1354,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if(!$candidates)
             return null;
 
-        $allStaff = Staff::findAll(['deleted'=>'0']);
+        $allStaff = Staff::findAll(['deleted' => false, 'staff_notification' => true]);
 
         $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
