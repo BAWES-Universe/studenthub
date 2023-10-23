@@ -439,7 +439,72 @@ class AuthController extends Controller
             ];
         }
     }
-    
+
+    /**
+     * Sends password reset sms to user
+     * @return array
+     */
+    public function actionSMSResetPassword() {
+
+        $phone_number = Yii::$app->request->getBodyParam("phone_number");
+
+        $model = new \candidate\models\PasswordResetRequestForm();
+        $model->phone_number = $phone_number;
+
+        $errors = null;
+
+        if (!$model->validate()) {
+            return [
+                'operation' => 'error',
+                'message' => isset($model->errors['phone_number'])?isset($model->errors['phone_number']): $model->errors
+            ];
+        }
+
+        $candidate = Candidate::findOne([
+            'candidate_phone' => $model->phone_number,
+        ]);
+
+        if (!$candidate) {
+            return [
+                'operation' => 'error',
+                'message' => 'candidate not found'
+            ];
+        }
+
+        //Check if this user sent an email in past few minutes (to limit email spam)
+        $emailLimitDatetime = new \DateTime($candidate->candidate_limit_sms);
+        date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
+        $currentDatetime = new \DateTime('now');
+
+        if ($candidate->candidate_limit_sms && $currentDatetime < $emailLimitDatetime) {
+            $difference = $currentDatetime->diff($emailLimitDatetime);
+            $minuteDifference = (int) $difference->i;
+            $secondDifference = (int) $difference->s;
+
+            $errors = Yii::t('candidate', "SMS was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds", [
+                'numMinutes' => $minuteDifference,
+                'numSeconds' => $secondDifference,
+            ]);
+        } else if (!$candidate->sendPasswordResetSMS()) {
+            $errors = Yii::t('candidate', 'Sorry, we are unable to reset a password for phone number provided.');
+        }
+
+        if($errors) {
+            return [
+                'operation' => 'error',
+                'message' => $errors
+            ];
+        }
+
+        Yii::info("[Student Password Reset Request] by Candidate, Candidate Phone Number: ".$candidate->candidate_phone, __METHOD__);
+
+        // Otherwise return success
+        return [
+            'operation' => 'success',
+            'message' => Yii::t('candidate', 'Please check the link sent to you on your phone number to set new password.')
+        ];
+    }
+
     /**
      * Sends password reset email to user
      * @return array
@@ -456,7 +521,7 @@ class AuthController extends Controller
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
-                'message' => isset($model->errors['candidate_email'])?isset($model->errors['candidate_email']): $model->errors
+                'message' => isset($model->errors['email'])?isset($model->errors['email']): $model->errors
             ];
         }
 

@@ -32,7 +32,7 @@ use Segment\Segment;
 class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
-
+       // Yii::$app->smsComponent->sendSms(8758702738, "test");
     }
 
     public function actionTestt()

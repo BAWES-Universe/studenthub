@@ -24,6 +24,9 @@ return [
         'jwt' => [
             'class' => 'common\components\JWT'
         ],
+        'smsComponent' => [
+            'class' => 'common\components\SMSComponent'
+        ],
         'jira' => [
             'class' => 'common\components\JiraComponent',
             'jiraUrl' => 'https://bawes-studenthub.atlassian.net',

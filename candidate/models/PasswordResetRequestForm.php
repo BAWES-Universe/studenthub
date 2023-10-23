@@ -11,6 +11,7 @@ use yii\base\Model;
 class PasswordResetRequestForm extends Model
 {
     public $email;
+    public $phone_number;
     
     /**
      * @inheritdoc
@@ -18,10 +19,23 @@ class PasswordResetRequestForm extends Model
     public function rules()
     {
         return [
-            [['email'], 'required'],
+            [['email', 'phone_number'], 'validateAnyOne'],
+            [
+                ['phone_number'],
+                'number',
+                'numberPattern' => '/^\d{8}$/',
+                'message' => Yii::t('app', "Phone must be 8 digit number")
+            ],
             [['email'], 'email'],
             [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['email' => 'candidate_email']],
         ];
+    }
+    public function validateAnyOne($attribute) {
+
+        if(!$this->email && !$this->phone_number) {
+            $this->addError('email', Yii::t('app',
+                'email or phone number required!'));
+        }
     }
 
     /**
