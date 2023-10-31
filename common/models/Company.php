@@ -2,12 +2,10 @@
 
 namespace common\models;
 
-use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
-use yii\helpers\Url;
 
 /**
  * This is the model class for table "company".
@@ -352,6 +350,12 @@ class Company extends \yii\db\ActiveRecord
                 ->setTo ($this->company_email)
                 ->setCc($contactEmails)
                 ->send ();
+        }
+
+        if(YII_ENV == 'prod' && !$insert) {
+            Yii::$app->eventManager->track(
+                'Company Profile Updated',
+                $this->attributes);
         }
     }
 

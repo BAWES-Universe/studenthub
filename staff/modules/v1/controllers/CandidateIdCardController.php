@@ -97,6 +97,7 @@ class CandidateIdCardController extends Controller
                 ->setSize(500)
                 ->setMargin(5);
         }
+        
         return $this->renderPartial('view', [
             'model' => $model,
             'qrCode' => $qrCode,

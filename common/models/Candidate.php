@@ -474,6 +474,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    public static function getGenderText($candidate_gender) {
+        switch ($candidate_gender) {
+            case self::GENDER_MALE:
+                return "Male";
+            case self::GENDER_FEMALE:
+                return "Female";
+            default:
+                return "Other";
+        }
+    }
+
     /**
      * @return array
      */
@@ -679,7 +690,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     [
                         'candidate_id' => $this->candidate_id,
                         'name' => $this->candidate_name,
-                        'email' => $this->candidate_email
+                        'email' => $this->candidate_email,
+                        'age' => $this->getAge(),
+                        'gender' => self::getGenderText($this->candidate_gender),
+                        "university" => $this->university? $this->university->university_name_en: null,
+                        "country" => $this->country? $this->country->country_name_en: null
                     ],
                     null,
                     $userId);
@@ -691,11 +706,35 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     [
                         'candidate_id' => $this->candidate_id,
                         'name' => $this->candidate_name,
-                        'email' => $this->candidate_email
+                        'email' => $this->candidate_email,
+                        'age' => $this->getAge(),
+                        'gender' => self::getGenderText($this->candidate_gender),
+                        "university" => $this->university? $this->university->university_name_en: null,
+                        "country" => $this->country? $this->country->country_name_en: null
                     ],
                     null,
                     $userId);
             }
+
+            if(
+                !empty($this->getOldAttribute("candidate_pending_profile")) &&
+                empty($this->candidate_pending_profile)
+            ) {
+                Yii::$app->eventManager->track(
+                    'Candidate Profile Completed',
+                    [
+                        'candidate_id' => $this->candidate_id,
+                        'name' => $this->candidate_name,
+                        'email' => $this->candidate_email,
+                        'age' => $this->getAge(),
+                        'gender' => self::getGenderText($this->candidate_gender),
+                        "university" => $this->university? $this->university->university_name_en: null,
+                        "country" => $this->country? $this->country->country_name_en: null
+                    ],
+                    null,
+                    $userId);
+            }
+
         }
 
         return true;
