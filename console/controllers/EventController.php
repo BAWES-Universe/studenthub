@@ -135,7 +135,10 @@ class EventController extends \yii\console\Controller {
 
                 Yii::$app->eventManager->track(
                     'Staff Updated',
-                    $staff->attributes,
+                    [
+                        "staff_name" => $staff->staff_name,
+                        "staff_email" => $staff->staff_email
+                    ],
                     $datetime->format('c')
                 );
             }
@@ -167,9 +170,13 @@ class EventController extends \yii\console\Controller {
 
                 $datetime = new \DateTime($staff->staff_created_at);
 
+                //$staff->attributes,
                 Yii::$app->eventManager->track(
                     'Staff Created',
-                    $staff->attributes,
+                    [
+                        "staff_name" => $staff->staff_name,
+                        "staff_email" => $staff->staff_email
+                    ],
                     $datetime->format('c')
                 );
             }

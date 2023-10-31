@@ -317,12 +317,18 @@ class Staff extends ActiveRecord implements IdentityInterface
         if ($insert) {
             Yii::$app->eventManager->track(
                 'Staff Created',
-                $this->attributes
+                [
+                    "staff_name" => $this->staff_name,
+                    "staff_email" => $this->staff_email
+                ]
             );
         } else {
             Yii::$app->eventManager->track(
                 'Staff Updated',
-                $this->attributes
+                [
+                    "staff_name" => $this->staff_name,
+                    "staff_email" => $this->staff_email
+                ]
             );
         }
     }
