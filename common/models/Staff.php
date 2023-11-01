@@ -316,7 +316,7 @@ class Staff extends ActiveRecord implements IdentityInterface
 
         if ($insert) {
             Yii::$app->eventManager->track(
-                'Staff Created',
+                'Staff Created v2',
                 [
                     "staff_name" => $this->staff_name,
                     "staff_email" => $this->staff_email
@@ -324,7 +324,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             );
         } else {
             Yii::$app->eventManager->track(
-                'Staff Updated',
+                'Staff Updated v2',
                 [
                     "staff_name" => $this->staff_name,
                     "staff_email" => $this->staff_email
