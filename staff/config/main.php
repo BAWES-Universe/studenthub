@@ -568,6 +568,7 @@ return [
                         'POST create-by-excel' => 'create-by-excel',
                         'PATCH payment-sent/<id>' => 'payment-sent',
                         'PATCH lock/<id>' => 'lock',
+                        'PATCH cancel/<id>' => 'cancel',
                         'PATCH edit-by-excel/<id>' => 'edit-by-excel',
                         'PATCH <id>' => 'edit',
                         'DELETE <id>' => 'delete',
@@ -581,6 +582,7 @@ return [
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS edit-by-excel/<id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS export-companies-transfer' => 'options'
                     ]
                 ],

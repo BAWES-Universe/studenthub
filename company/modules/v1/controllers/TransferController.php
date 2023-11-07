@@ -331,6 +331,39 @@ class TransferController extends Controller
     }
 
     /**
+     * Cancel transfer
+     * @param $id
+     * @return array
+     */
+    public function actionCancel($id)
+    {
+        $transfer = $this->findModel ($id);
+
+        try{
+            $transfer->cancel();
+        }
+        catch(\Exception $e)
+        {
+            return [
+                "operation" => "error",
+                "message" => $e->getMessage()
+            ];
+        }
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        $info = '[Agent '.Yii::$app->user->identity->contact_name.' has cancel transfer #'.$transfer->transfer_id.' ] ';
+        $info .= '[ for Company '.$company->company_name.'] ';
+
+        Yii::info($info, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('company',"Transfer has been cancelled.")
+        ];
+    }
+
+    /**
      * Delete transfer with "Initiated" or "Locked" status
      * @param $id
      * @return array

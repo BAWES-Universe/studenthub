@@ -338,7 +338,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updatePendingProfile'] = ['candidate_pending_profile'];
 
-        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token'];
+        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token', 'candidate_limit_email'];
+
         $scenarios['updateProfileUrl'] = ['profile_url'];
 
         return $scenarios;
@@ -1186,6 +1187,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $this->setScenario('updatePasswordToken');
         $this->generatePasswordResetToken();
+
+        //Update candidate last email limit timestamp
+        $this->candidate_limit_email = new Expression('NOW()');
+
         $this->save(false);
 
         //Yii::$app->mailer->htmlLayout = 'layouts/html';
@@ -1205,6 +1210,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo($this->candidate_email)
             ->setSubject('Reset your StudentHub password')
             ->send();
+    }
+
+    /**
+     * Send link in sms to reset password
+     * @param Candidate $model
+     * @param $password
+     * @return bool
+     */
+    public function sendPasswordResetSMS()
+    {
+        $this->setScenario('updatePasswordToken');
+        $this->generatePasswordResetToken();
+        $this->save(false);
+
+        //Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
+
+        $name = explode(' ',$this->candidate_name);
+
+        $message = "Hello {{name}}, Your StudentHub password reset link {{link}}";
+
+        return Yii::$app->smsComponent->sendSms($this->candidate_phone, str_replace([
+            "{{name}}", "{{link}}"
+        ], [
+            $name, $webUrl
+        ], $message));
     }
 
     /**
