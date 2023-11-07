@@ -115,15 +115,29 @@ class EventManager extends Component
      */
     public function track($event, $eventData, $timestamp = null, $userId = null)
     {
-        if($this->_client)
-            $this->_client->track($event, $eventData);
+        if($this->_client) {
+
+            $mixpanelData = $eventData;
+
+            if($timestamp) {
+                $mixpanelData =  array_merge([
+                    "\$time" => strtotime($timestamp),
+                    "\$created" => $timestamp,
+                ], $eventData);
+            }
+
+            if($userId)
+                $mixpanelData['$distinct_id'] = $userId;
+
+            $this->_client->track($event, $mixpanelData);
+        }
 
         if($this->segmentKey) {
 
             $data = [
                 'event' => $event,
                 'properties' => $eventData,
-                'timestamp' => $timestamp
+                'timestamp' => $timestamp,
             ];
 
             //if login and userId not provided

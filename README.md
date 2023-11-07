@@ -170,6 +170,20 @@ docker-compose run --rm backend vendor/bin/codecept run --fail-fast --html repor
 * Expense Added (public)
 * Company Profile Created (public)
 
+New events: 
+* Story Created 
+* Story Updated
+* Staff Created 
+* Staff Updated
+* Candidate Profile Completed - - Country/Region, Age, Gender, and Other Demographic Data
+* Company Profile Updated - company_approved_to_hire 
+
+implement mixpanel + segment in frontend apps 
+
+campaing like plugn to calculate campaign cost, ROI, Conversion Rate from Campaign Traffic, 
+Customer Acquisition Cost etc
+
+
 Public events are the events that can be fired manually by uploading event excel sheet.
 
 There can be other custom events fired manually, use `Datetime` column in excel to upload past events

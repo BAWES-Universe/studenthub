@@ -8,6 +8,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+
 /**
  * This is the model class for table "staff".
  *
@@ -298,6 +299,38 @@ class Staff extends ActiveRecord implements IdentityInterface
             ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
 
         return ($timeForCancelledRequests + $timeForCompletedRequests) / 3600;
+    }
+
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return void|null
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if(YII_ENV != 'prod') {
+            return null;
+        }
+
+        if ($insert) {
+            Yii::$app->eventManager->track(
+                'Staff Created v2',
+                [
+                    "staff_name" => $this->staff_name,
+                    "staff_email" => $this->staff_email
+                ]
+            );
+        } else {
+            Yii::$app->eventManager->track(
+                'Staff Updated v2',
+                [
+                    "staff_name" => $this->staff_name,
+                    "staff_email" => $this->staff_email
+                ]
+            );
+        }
     }
 
     /**
