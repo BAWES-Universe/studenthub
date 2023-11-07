@@ -748,6 +748,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $walletUser = WalletUser::findByEmail($this->candidate_email);
 
+        if(!$walletUser) {
+            return true;
+        }
+
         \common\models\WalletTransfer::updateAll([
             'bank_uuid' => $walletUser->bank_uuid,
             'transfer_benef_name' => $walletUser->bank_account_name,
