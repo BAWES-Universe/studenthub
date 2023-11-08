@@ -59,6 +59,8 @@ class WalletUser extends ActiveRecord implements IdentityInterface
         //todo: add name?
         return [
             ['password', 'safe'],
+            [['username', 'email'], 'required'],
+            [['username', 'email'], 'unique'],
             [['username', 'email', 'bank_uuid', 'bank_account_name', 'iban'], 'string'],
             ['auth_key', 'default', 'value' => ""],
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
