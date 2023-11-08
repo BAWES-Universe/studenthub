@@ -486,6 +486,14 @@ class TransferController extends Controller
         
         $keys = \yii\helpers\ArrayHelper::remove($excelData, '2');
 
+        if(empty($keys)) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        }
+
         //create array with key to read data 
         
         $data = [];
