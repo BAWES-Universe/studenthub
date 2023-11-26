@@ -54,19 +54,19 @@ return [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',
             'transport' => [
-                'class' => 'Swift_SmtpTransport',
+                /*'class' => 'Swift_SmtpTransport',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
                 'username' => 'AKIAWMITDJRKTH5HBB2O',
                 'password' => 'BKyPcINpZJsEVnUrMGymff27eaIztgNwSWN7xI2960eJ',
                 'port' => '587',
-                'encryption' => 'tls',
-                /*
+                'encryption' => 'tls',,*/
+
                 'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.eu.mailgun.org',
                 'username' => 'postmaster@studenthub.co',
                 'password' => '345f8ffa2c7eb8af3c398e53976f67b0-18e06deb-bdad79c2',
                 'port' => '587',
-                'encryption' => 'tls',*/
+                'encryption' => 'tls'
                 // 'plugins' => [
                 //     [
                 //         'class' => 'Openbuildings\Swiftmailer\CssInlinerPlugin',

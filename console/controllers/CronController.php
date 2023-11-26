@@ -33,6 +33,15 @@ class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
        // Yii::$app->smsComponent->sendSms(8758702738, "test");
+
+       /* Yii::$app->mailer->compose ([
+            'text' => 'test',
+        ])
+            ->setFrom ([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setSubject ('Test email')
+            ->setTo ("kathrechakrushn@gmail.com")
+            //->setCc($contactEmails)
+            ->send ();*/
     }
 
     public function actionTestt()
