@@ -466,8 +466,13 @@ class Suggestion extends \yii\db\ActiveRecord
                     ->setTo($setTo)
                     ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])
-                    ->setSubject($request->suggestionEmailSubject)
-                    ->send();
+                    ->setSubject($request->suggestionEmailSubject);
+
+                try {
+                    $message->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "password-reset-token");
+                }
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
             }
@@ -615,8 +620,13 @@ class Suggestion extends \yii\db\ActiveRecord
                     ->setTo($setTo)
                     ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])
-                    ->setSubject($request->suggestionEmailSubject)
-                    ->send();
+                    ->setSubject($request->suggestionEmailSubject);
+
+                try {
+                    $message->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "password-reset-token");
+                }
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
             }

@@ -670,10 +670,15 @@ class Transfer extends ActiveRecord
             $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
         }
 
-        return $message->setTo(array_unique($emails))//remove duplicate 
+        $message->setTo(array_unique($emails))//remove duplicate
             ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
-            ->setSubject($subjectLine)
-            ->send();
+            ->setSubject($subjectLine);
+
+        try {
+            $message->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**

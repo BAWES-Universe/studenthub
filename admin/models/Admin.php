@@ -19,9 +19,13 @@ class Admin extends \common\models\Admin {
      */
     public static function passwordMail($model, $password)
     {
+        /*if(!str_contains($model->admin_email, "bawes.net")) {
+            return false;
+        }*/
+
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-        return Yii::$app->mailer->compose("admin-password",
+        $mailer = Yii::$app->mailer->compose("admin-password",
             [
                 "model" => $model,
                 "password" => $password,
@@ -30,8 +34,13 @@ class Admin extends \common\models\Admin {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($model->admin_email)
-            ->setSubject('Your account password has been reset')
-            ->send();
+            ->setSubject('Your account password has been reset');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**

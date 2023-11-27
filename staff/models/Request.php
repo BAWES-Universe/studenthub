@@ -176,7 +176,7 @@ class Request extends \common\models\Request {
         $subject =  "I've updated the request for ".$this->request_position_title." for ".$company_name;
 
 
-        return \Yii::$app->mailer->compose("company/request-updated",
+        $mailer =  \Yii::$app->mailer->compose("company/request-updated",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
@@ -186,8 +186,13 @@ class Request extends \common\models\Request {
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
-            ->setSubject($subject)
-            ->send();
+            ->setSubject($subject);
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     public function requestNotification()
@@ -202,7 +207,7 @@ class Request extends \common\models\Request {
 
         $subject =  "I've added a request for ".$this->request_position_title." for ".$company_name;
 
-        return \Yii::$app->mailer->compose("company/request-created",
+        $mailer = \Yii::$app->mailer->compose("company/request-created",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
@@ -210,7 +215,12 @@ class Request extends \common\models\Request {
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
-            ->setSubject($subject)
-            ->send();
+            ->setSubject($subject);
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 }

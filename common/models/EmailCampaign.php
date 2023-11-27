@@ -222,6 +222,10 @@ class EmailCampaign extends \yii\db\ActiveRecord
      */
     public function sendEmail($candidate) {
 
+        if(!$candidate->candidate_email_verification) {
+            return false;
+        }
+
         $arrSearch = [
             "[candidate_name]",
             "[candidate_name_ar]",

@@ -177,7 +177,7 @@ class Staff extends \common\models\Staff {
     {
         Yii::$app->mailer->htmlLayout = 'layouts/html';
         
-        return Yii::$app->mailer->compose("staff-password",
+        $mailer = Yii::$app->mailer->compose("staff-password",
             [
                 "model" => $model,
                 "password" => $password,
@@ -186,8 +186,13 @@ class Staff extends \common\models\Staff {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($model->staff_email)
-            ->setSubject('Your account password has been reset')
-            ->send();
+            ->setSubject('Your account password has been reset');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password");
+        }
     }
 
     /**
@@ -224,7 +229,7 @@ class Staff extends \common\models\Staff {
 
         $webUrl = Yii::$app->params['staffAppUrl'] . 'update-password/' . $this->staff_password_reset_token;
 
-        return Yii::$app->mailer->compose("staff/password-reset-html",
+        $mailer = Yii::$app->mailer->compose("staff/password-reset-html",
             [
                 "webUrl" => $webUrl,
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -233,7 +238,12 @@ class Staff extends \common\models\Staff {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->staff_email)
-            ->setSubject('Reset your StudentHub password')
-            ->send();
+            ->setSubject('Reset your StudentHub password');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password");
+        }
     }
 }

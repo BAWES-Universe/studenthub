@@ -88,7 +88,7 @@ class CronController extends \yii\console\Controller {
 
         //check for birthday
 
-        Candidate::birthdayAlert();
+        //Candidate::birthdayAlert();
 
         //check civil ID expiry date
 
@@ -229,14 +229,19 @@ class CronController extends \yii\console\Controller {
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'summary',
         ], $data)
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['invoiceFrom'])
             ->setCc($emails)
-            ->setSubject('Morning Report for ' . date('F j, Y'))
-            ->send();
+            ->setSubject('Morning Report for ' . date('F j, Y'));
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**
@@ -348,8 +353,13 @@ class CronController extends \yii\console\Controller {
                 ->attachContent(file_get_contents($file), [
                     'fileName' => $fileName,
                     'contentType' => $mimeTypes[$extension]
-                ])
-                ->send();
+                ]);
+
+            try {
+                $send->send();
+            } catch (\Swift_TransportException $e) {
+                Yii::error($e->getMessage(), "email_campaign");
+            }
 
             @unlink(sys_get_temp_dir() . '/' . $fileName);
             return $send;
@@ -530,17 +540,19 @@ class CronController extends \yii\console\Controller {
 
     public function actionTest() 
     {
-        $a = \Yii::$app->mailer->compose([
+        $mailer = \Yii::$app->mailer->compose([
             'message' => 'test',
         ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo(['a.aljasser@trolley.com.kw' => 'Plugn'])//\Yii::$app->params['supportEmail']
             ->setTo(['kathrechakrushn@gmail.com'])
-            ->setSubject('Test email')
-            ->send();
+            ->setSubject('Test email');
 
-        var_dump($a);
-        die();    
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /*
@@ -568,16 +580,21 @@ class CronController extends \yii\console\Controller {
         if (count($staffList) > 0) {
             foreach($staffList as $staff) {
                 $count ++;
-                Yii::$app->mailer->compose("staff/timer-notification",
+
+                $mailer = Yii::$app->mailer->compose("staff/timer-notification",
                     [
                         "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                         "staff" => $staff,
                     ])
                     ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setTo($staff->staff_email)
-                    ->setSubject("Daily Attendance notification")
-                    ->send();
+                    ->setSubject("Daily Attendance notification");
 
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "email_campaign");
+                }
 
                 Console::updateProgress($count, count($staffList));
             }
