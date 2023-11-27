@@ -600,7 +600,7 @@ class Contact extends \yii\db\ActiveRecord
             $email = $this->contact_email;
         }
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'company/verify-email-html',
             'text' => 'company/verify-email-text',
         ], [
@@ -608,7 +608,12 @@ class Contact extends \yii\db\ActiveRecord
         ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($email)
-            ->setSubject('Please confirm your email address')
-            ->send();
+            ->setSubject('Please confirm your email address');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 }

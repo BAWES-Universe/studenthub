@@ -154,7 +154,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
      */
     public function sendPasswordUpdatedEmail()
     {
-        Yii::$app->mailer->compose("inspector/password-updated-html",
+        $mailer = Yii::$app->mailer->compose("inspector/password-updated-html",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "email" => $this->inspector_email,
@@ -162,8 +162,13 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->inspector_email)
-            ->setSubject('Your password reset was a success')
-            ->send();
+            ->setSubject('Your password reset was a success');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**
@@ -179,7 +184,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
 
         $webUrl = Yii::$app->params['inspectorAppUrl'] . 'update-password/' . $this->inspector_password_reset_token;
 
-        return Yii::$app->mailer->compose("inspector/password-reset-html",
+        $mailer = Yii::$app->mailer->compose("inspector/password-reset-html",
             [
                 "webUrl" => $webUrl,
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -188,8 +193,13 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->inspector_email)
-            ->setSubject('Reset your StudentHub password')
-            ->send();
+            ->setSubject('Reset your StudentHub password');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**

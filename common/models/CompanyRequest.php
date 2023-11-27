@@ -133,7 +133,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
      */
     private function notifyStaff() {
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'staff/company-account-request-html',
             'text' => 'staff/company-account-request-text',
         ], [
@@ -142,8 +142,13 @@ class CompanyRequest extends \yii\db\ActiveRecord
         ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo("sales@bawes.net")
-            ->setSubject('New company account request')
-            ->send();
+            ->setSubject('New company account request');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**
@@ -152,7 +157,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
      */
     private function notifyApprove($contact, $company) {
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-approved-html',
             'text' => 'company/account-approved-text',
         ], [
@@ -163,8 +168,13 @@ class CompanyRequest extends \yii\db\ActiveRecord
         ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($this->company_email)
-            ->setSubject('Congratulation! Your account request approved!')
-            ->send();
+            ->setSubject('Congratulation! Your account request approved!');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**
@@ -173,7 +183,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
      */
     private function notifyReject() {
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-rejected-html',
             'text' => 'company/account-rejected-text',
         ], [
@@ -182,8 +192,13 @@ class CompanyRequest extends \yii\db\ActiveRecord
         ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($this->company_email)
-            ->setSubject('New company account request not approved!')
-            ->send();
+            ->setSubject('New company account request not approved!');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**

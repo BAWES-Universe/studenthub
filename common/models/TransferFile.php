@@ -148,7 +148,7 @@ class TransferFile extends \yii\db\ActiveRecord
 
         Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
 
-        return Yii::$app->mailer->compose("successfull-transfer",
+        $mailer = Yii::$app->mailer->compose("successfull-transfer",
             [
                 "transfer" => $transfer,
                 "count" => $count,
@@ -163,8 +163,13 @@ class TransferFile extends \yii\db\ActiveRecord
             ->attachContent(file_get_contents($url), [
                 'fileName' => $fileName, 
                 'contentType' => $mimeTypes[$extension]
-            ])
-            ->send();
+            ]);
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**
