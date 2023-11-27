@@ -142,14 +142,19 @@ class Request extends \common\models\Request
 
         $subject =  $company_name." is looking to hire ".$this->request_position_title;
 
-        return \Yii::$app->mailer->compose("company/request-created-bycompany",
+        $mailer = \Yii::$app->mailer->compose("company/request-created-bycompany",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
             ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
-            ->setSubject($subject)
-            ->send();
+            ->setSubject($subject);
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 }

@@ -103,11 +103,14 @@ class CandidateWarning extends \yii\db\ActiveRecord
      */
     public function sendWarningEmail()
     {
+        if(!$this->candidate->candidate_email_verification)
+            return false;
+
         $f_name = $this->candidate->candidate_name ? $this->candidate->candidate_name : $this->candidate->candidate_name_ar;
 
         $name = explode(' ', $f_name)[0];
 
-        Yii::$app->mailer->compose("candidate/warning",
+        $mailer = Yii::$app->mailer->compose("candidate/warning",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                 "name" => $name,
@@ -115,8 +118,13 @@ class CandidateWarning extends \yii\db\ActiveRecord
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate->candidate_email)
-            ->setSubject($this->title)
-            ->send();
+            ->setSubject($this->title);
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "warning");
+        }
     }
 
     /**

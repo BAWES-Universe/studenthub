@@ -461,8 +461,13 @@ class Company extends \yii\db\ActiveRecord
 
             foreach ($companies as $company) {
                 $mailer
-                    ->setTo($company->company_email)
-                    ->send();
+                    ->setTo($company->company_email);
+
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "request-hours");
+                }
             }
         }
     }

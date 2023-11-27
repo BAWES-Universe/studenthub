@@ -33,15 +33,20 @@ class PasswordResetRequestForm extends Model
         $staff->generatePasswordResetToken();
         $staff->save();
 
-        Yii::$app->mailer->compose("passwordResetRequest",
+        $mailer = Yii::$app->mailer->compose("passwordResetRequest",
             [
                 "name" => $staff->staff_name,
                 "token" => $staff->staff_password_reset_token,
             ])
             ->setFrom(Yii::$app->params['supportEmail'])
             ->setTo($staff->staff_email)
-            ->setSubject('Password reset token')
-            ->send();
+            ->setSubject('Password reset token');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
 
         return true;
     }

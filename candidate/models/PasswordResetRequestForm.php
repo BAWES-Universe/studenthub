@@ -49,7 +49,7 @@ class PasswordResetRequestForm extends Model
         
         $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $candidate->candidate_auth_key;
 
-        Yii::$app->mailer->compose("passwordResetRequest",
+        $mailer = Yii::$app->mailer->compose("passwordResetRequest",
             [
                 "webUrl" => $webUrl,
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -59,8 +59,13 @@ class PasswordResetRequestForm extends Model
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($candidate->candidate_email)
-            ->setSubject('Password reset token')
-            ->send();
+            ->setSubject('Password reset token');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
 
         return true;
     }

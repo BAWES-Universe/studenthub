@@ -48,7 +48,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
 
         $webUrl = Yii::$app->params['companyAppUrl'] . 'update-password/' . $this->contact_password_reset_token;
 
-        return Yii::$app->mailer->compose("company/password-reset-html",
+        $mailer = Yii::$app->mailer->compose("company/password-reset-html",
             [
                 "webUrl" => $webUrl,
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -57,8 +57,13 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->contact_email)
-            ->setSubject('Reset your StudentHub password')
-            ->send();
+            ->setSubject('Reset your StudentHub password');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**
@@ -111,7 +116,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             $email = $this->contact_email;
         }
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'company/verify-email-html',
             'text' => 'company/verify-email-text',
         ], [
@@ -119,8 +124,13 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($email)
-            ->setSubject('Please confirm your email address')
-            ->send();
+            ->setSubject('Please confirm your email address');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**

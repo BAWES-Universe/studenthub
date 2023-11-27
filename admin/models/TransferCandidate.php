@@ -329,6 +329,9 @@ class TransferCandidate extends \common\models\TransferCandidate
      */
     public function unpaidNotification()
     {
+        if(!$this->candidate->candidate_email_verification)
+            return false;
+
         $tmpName = explode(" ",$this->candidate->candidate_name);
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
@@ -337,7 +340,7 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         $allStaffEmails = ArrayHelper::map($staffs,'staff_email','staff_name');
         
-        return Yii::$app->mailer->compose("candidate/transfer-fail.php",
+        $mailer = Yii::$app->mailer->compose("candidate/transfer-fail.php",
             [
                 "name" => (isset($tmpName[0]))  ? $tmpName[0] : $this->candidate->candidate_name,
                 'logo' => Url::to('@web/images/logo.png', true),
@@ -346,8 +349,13 @@ class TransferCandidate extends \common\models\TransferCandidate
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate->candidate_email)
             ->setBcc($allStaffEmails)
-            ->setSubject('Transfer failed. Please update your bank info')
-            ->send();
+            ->setSubject('Transfer failed. Please update your bank info');
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**

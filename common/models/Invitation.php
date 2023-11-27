@@ -182,7 +182,8 @@ class Invitation extends \yii\db\ActiveRecord
 
         if($insert && $this->candidate_id) {
             $this->sendNotification();
-            $this->jobInvitationEmail();
+            //TODO: once email fix remove comment
+            // $this->jobInvitationEmail();
         }
 
         //update `request_updated_at` field
@@ -367,9 +368,12 @@ class Invitation extends \yii\db\ActiveRecord
      */
     public function jobInvitationEmail()
     {
+        if(!$this->candidate->candidate_email_verification)
+            return false;
+
         $url = Yii::$app->params['candidateAppUrl'] . 'invitation-detail/' . $this->invitation_uuid;
 
-        return Yii::$app->mailer->compose("candidate/job-invitation",
+        $mailer = Yii::$app->mailer->compose("candidate/job-invitation",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                 "model" => $this,
@@ -377,8 +381,13 @@ class Invitation extends \yii\db\ActiveRecord
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate->candidate_email)
-            ->setSubject("You’re invited to apply for a job opening")
-            ->send();
+            ->setSubject("You’re invited to apply for a job opening");
+
+        try {
+            $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**
