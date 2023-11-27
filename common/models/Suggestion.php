@@ -441,7 +441,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 // in case if contact doesn't have email address
-                if ($request->contact->email) {
+                if ($request->contact->email && $request->contact->contact_email_verification) {
                     $setTo = [$request->contact->email => $request->contact->contact_name];
                 } else {
                     $setTo = array_unique(self::getContactEmailByRequest($request));
@@ -595,7 +595,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 // in case if contact doesn't have email address
-                if ($request->contact->email) {
+                if ($request->contact->email && $request->contact->contact_email_verification) {
                     $setTo = [$request->contact->email => $request->contact->contact_name];
                 } else {
                     $setTo = array_unique(self::getContactEmailByRequest($request));
@@ -650,6 +650,7 @@ class Suggestion extends \yii\db\ActiveRecord
             ]);
 
         $contacts = Contact::find()
+            ->andWhere(['contact_email_verification' => 1])
             ->andWhere(['contact_receive_email' => 1,'contact_receive_suggestions' => 1])
             ->andWhere(['in', 'contact_uuid', $subQuery])
             ->andWhere(['not', ['contact_email' => null]]) // to ignore empty email
@@ -679,6 +680,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 ]);
 
             $contacts = Contact::find()
+                ->andWhere(['contact_email_verification' => 1])
                 ->andWhere(['contact_receive_email' => 1,'contact_receive_suggestions' => 1])
                 ->andWhere(['in', 'contact_uuid', $subQuery])
                 ->andWhere(['not', ['contact_email' => null]]) // to ignore empty email

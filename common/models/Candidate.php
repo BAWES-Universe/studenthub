@@ -2744,6 +2744,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $total = 0;
 
         $candidates = Candidate::find()
+            //->andWhere(['candidate_email_verification' => 1])
             ->verifiedProfile()
             ->candidateMomKuwaitiFieldIsNull()
             ->all();

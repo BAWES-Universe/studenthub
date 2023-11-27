@@ -34,7 +34,7 @@ class CronController extends \yii\console\Controller {
     public function actionIndex() {
        // Yii::$app->smsComponent->sendSms(8758702738, "test");
 
-       /* Yii::$app->mailer->compose ([
+        /*Yii::$app->mailer->compose ([
             'text' => 'test',
         ])
             ->setFrom ([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
@@ -92,7 +92,7 @@ class CronController extends \yii\console\Controller {
 
         //check civil ID expiry date
 
-        Candidate::civilIdExpire();
+        //Candidate::civilIdExpire();
 
         //check salary transfer not paid
         //Invoice::unpaidAlert();
@@ -107,9 +107,9 @@ class CronController extends \yii\console\Controller {
     public function actionEveryMinute() {
         Suggestion::suggestionCandidateNotification();
         Suggestion::suggestionFulltimerNotification();
-
     }
 
+    /* todo: user separate email server for marketing?
     public function actionProcessCampaign()
     {
         $campaigns = EmailCampaign::find()
@@ -121,7 +121,7 @@ class CronController extends \yii\console\Controller {
         }
 
         $this->stdout( sizeof($campaigns) . " Email Campaign processed \n", Console::FG_RED, Console::BOLD);
-    }
+    }*/
 
     /**
      * Method called by cron once a week
@@ -137,9 +137,10 @@ class CronController extends \yii\console\Controller {
      */
     public function actionMidMonth() {
 
-        Candidate::notifyMissingBankInfo();
+        //todo: stop until we found culprit
+        //Candidate::notifyMissingBankInfo();
 
-        Candidate::notifyCivilIDExpiring();
+        //Candidate::notifyCivilIDExpiring();
 
         return 0;
     }
@@ -151,9 +152,11 @@ class CronController extends \yii\console\Controller {
 
         Company::requestForAttendance();
 
-        Candidate::notifyMissingBankInfo();
+        //todo: stop until we found culprit
 
-        Candidate::notifyCivilIDExpiring();
+        //Candidate::notifyMissingBankInfo();
+
+        //Candidate::notifyCivilIDExpiring();
 
         return 0;
     }
@@ -163,6 +166,7 @@ class CronController extends \yii\console\Controller {
      * coding issue.
      */
     public function actionRemoveDuplicate() {
+
         $found = [];
         $allCandidates = Candidate::find()->all();
 
@@ -225,7 +229,7 @@ class CronController extends \yii\console\Controller {
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
         $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
-        $staffs = Staff::findAll(['deleted'=>'0']);
+        $staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
@@ -378,7 +382,7 @@ class CronController extends \yii\console\Controller {
         // kuwait id is 84
         // SELECT * FROM `candidate` where candidate_email_verification = 1 and country_id != 84 and candidate_area_uuid IN
         // (SELECT `area_uuid` FROM `area` WHERE `country_id` = 84)
-        $total = Candidate::kuwaitiNationalityEmail();
+        Candidate::kuwaitiNationalityEmail();
         return true;
     }
 
@@ -538,6 +542,7 @@ class CronController extends \yii\console\Controller {
         Yii::$app->eventManager->flush();
     }
 
+    /*
     public function actionTest() 
     {
         $mailer = \Yii::$app->mailer->compose([
@@ -553,7 +558,7 @@ class CronController extends \yii\console\Controller {
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }
-    }
+    }*/
 
     /*
      * php yii cron/check-daily-attendance
