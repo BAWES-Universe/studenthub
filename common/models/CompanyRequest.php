@@ -145,7 +145,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
             ->setSubject('New company account request');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }
@@ -171,7 +171,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
             ->setSubject('Congratulation! Your account request approved!');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }
@@ -195,7 +195,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
             ->setSubject('New company account request not approved!');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }

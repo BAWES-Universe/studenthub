@@ -189,7 +189,7 @@ class Staff extends \common\models\Staff {
             ->setSubject('Your account password has been reset');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password");
         }
@@ -241,7 +241,7 @@ class Staff extends \common\models\Staff {
             ->setSubject('Reset your StudentHub password');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password");
         }

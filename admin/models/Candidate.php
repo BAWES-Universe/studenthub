@@ -345,7 +345,7 @@ class Candidate extends \common\models\Candidate {
             ->setSubject('Your account password has been reset');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }

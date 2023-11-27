@@ -60,7 +60,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             ->setSubject('Reset your StudentHub password');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }
@@ -127,7 +127,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             ->setSubject('Please confirm your email address');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }

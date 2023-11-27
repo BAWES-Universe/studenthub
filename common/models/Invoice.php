@@ -135,7 +135,7 @@ class Invoice extends ActiveRecord
             ->setSubject('Company not paid in current month');
 
         try {
-            $mailer->send();
+            return  $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }

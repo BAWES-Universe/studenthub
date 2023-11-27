@@ -352,7 +352,7 @@ class TransferCandidate extends \common\models\TransferCandidate
             ->setSubject('Transfer failed. Please update your bank info');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }

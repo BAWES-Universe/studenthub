@@ -1179,7 +1179,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setSubject('Your password reset was a success');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }
@@ -1222,7 +1222,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setSubject('Reset your StudentHub password');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }
@@ -1438,6 +1438,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function birthdayAlert()
     {
         $candidates = Candidate::find()
+            ->notDeleted()
             ->andWhere('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
             ->andWhere(['candidate_email_verification' => 1])
             ->all();
@@ -1445,9 +1446,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if(!$candidates)
             return null;
 
-        $allStaff = Staff::findAll(['deleted' => false, 'staff_notification' => true]);
+        //$allStaff = Staff::findAll(['deleted' => false, 'staff_notification' => true]);
 
-        $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
+        //$allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
         foreach($candidates as $candidate)
         {
@@ -2141,7 +2142,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setSubject('Please confirm your email address');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }
@@ -2730,7 +2731,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setSubject("We'll stop recommending your profile to companies");
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }
@@ -2744,6 +2745,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $total = 0;
 
         $candidates = Candidate::find()
+            //->andWhere(['candidate_email_verification' => 1])
             ->verifiedProfile()
             ->candidateMomKuwaitiFieldIsNull()
             ->all();

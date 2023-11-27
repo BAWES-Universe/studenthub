@@ -166,7 +166,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ]);
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }

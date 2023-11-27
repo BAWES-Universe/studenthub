@@ -247,7 +247,7 @@ class EmailCampaign extends \yii\db\ActiveRecord
             ->setTo($candidate->candidate_email);
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }
