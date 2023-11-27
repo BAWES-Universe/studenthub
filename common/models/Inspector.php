@@ -165,7 +165,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ->setSubject('Your password reset was a success');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }
@@ -196,7 +196,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ->setSubject('Reset your StudentHub password');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }

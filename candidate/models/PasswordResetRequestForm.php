@@ -62,7 +62,7 @@ class PasswordResetRequestForm extends Model
             ->setSubject('Password reset token');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }

@@ -611,7 +611,7 @@ class Contact extends \yii\db\ActiveRecord
             ->setSubject('Please confirm your email address');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }

@@ -152,7 +152,7 @@ class Request extends \common\models\Request
             ->setSubject($subject);
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }

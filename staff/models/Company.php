@@ -233,7 +233,7 @@ class Company extends \common\models\Company {
             ->setSubject($subject);
 
         try {
-            $mailer->send();
+            return  $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }
@@ -278,7 +278,7 @@ class Company extends \common\models\Company {
                 ->setSubject($lastMonth . ' Payroll '. $year);
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }

@@ -27,7 +27,7 @@ class ContactInvitation extends \common\models\ContactInvitation {
                         their recruitment process on StudentHub");
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }
@@ -46,7 +46,7 @@ class ContactInvitation extends \common\models\ContactInvitation {
                         ->setSubject('Contact Invitation accepted');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }

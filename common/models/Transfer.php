@@ -675,7 +675,7 @@ class Transfer extends ActiveRecord
             ->setSubject($subjectLine);
 
         try {
-            $message->send();
+            return $message->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
         }

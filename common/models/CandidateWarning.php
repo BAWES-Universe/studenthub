@@ -121,7 +121,7 @@ class CandidateWarning extends \yii\db\ActiveRecord
             ->setSubject($this->title);
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "warning");
         }

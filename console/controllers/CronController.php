@@ -242,7 +242,7 @@ class CronController extends \yii\console\Controller {
             ->setSubject('Morning Report for ' . date('F j, Y'));
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }
@@ -554,7 +554,7 @@ class CronController extends \yii\console\Controller {
             ->setSubject('Test email');
 
         try {
-            $mailer->send();
+            return $mailer->send();
         } catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "email_campaign");
         }
