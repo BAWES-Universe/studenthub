@@ -568,11 +568,13 @@ class CronController extends \yii\console\Controller {
         if ($day == 'Friday' || $day == 'Saturday') {
             return true;
         }
+
         $currentlyWorking = StaffWorkSession::find()
             ->andWhere(new Expression("DATE(created_at) = CURDATE()"))
             ->groupBy('staff_id')
             ->asArray()
             ->all();
+
         $query = Staff::find();
 
         if ($day != 'Friday' && $day != 'Saturday') {

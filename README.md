@@ -217,6 +217,67 @@ verifiedProfile
 withoutBankInfo
 candidateMomKuwaitiFieldIsNull
 
+## mails we sending 
+
+### admin 
+- admin - Your account password has been reset 
+- candidate - Your account password has been reset 
+- staff - Your account password has been reset 
+- staff - Reset your StudentHub password
+- candidate - Transfer failed. Please update your bank info
+
+### candidate 
+- Password reset token 
+
+### common 
+- candidate - Your password reset was a success
+- candidate - Reset your StudentHub password
+- candidate - Happy Birthday from StudentHub
+- candidate - Please update your civil id
+- candidate - Please confirm your email address
+- candidate - We'll stop recommending your profile to companies
+- candidate - Jobs in restaurants, cafes, and cinemas
+- candidate - Civil ID is expiring
+- candidate - Bank information is missing
+- candidate - warning mail
+- company - Request for Attendance and Working Hours for Part-Time Employees
+- sales - New company account request
+- company - Congratulation! Your account request approved!
+- company - New company account request not approved!
+- company contact - Please confirm your email address
+- admin - Stand-up report
+- candidate - email campaign 
+- inspector - Your password reset was a success
+- inspector - Reset your StudentHub password
+- candidate - You’re invited to apply for a job opening
+- admin - Company not paid in current month
+- contact - candidate suggestions
+- contact - Thank you for your payment/invoices 
+- candidate - KD <amount> has been transferred to your bank account
+- finance - Transferred KWD {$amount} to {$count} people
+
+### console 
+- staff - Morning Report 
+- operation - We need to process KWD $amount to ".count($payableCandidate)." people
+- staff - Daily Attendance notification
+
+### inspector 
+- staff - Password reset token 
+
+### staff 
+- khalid - staff created/updated client account 
+- contact - <Payroll Month> Payroll 
+- staff - Password reset token 
+- staff - I've updated the request for <request_position_title> for <company_name>
+
+### company 
+- email - has invited you to collaborate in their recruitment process on StudentHub
+- Contact - Contact Invitation accepted
+- contact - Reset your StudentHub password
+- contact - Please confirm your email address
+- contact - Password reset token
+- staff - <company_name> is looking to hire <request_position_title>
+
 todo 
 
 - company account password set 
