@@ -245,6 +245,7 @@ class AuthController extends Controller
      * @return type
      */
     public function actionUpdateEmail() {
+
         $unVerifiedToken = Yii::$app->request->getBodyParam("unVerifiedToken");
         $new_email = Yii::$app->request->getBodyParam("newEmail");
 
@@ -318,6 +319,21 @@ class AuthController extends Controller
     public function actionResendVerificationEmail()
     {
         $emailInput = Yii::$app->request->getBodyParam("email");
+        $token = Yii::$app->request->getBodyParam("token");
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
 
         $candidate = Candidate::findOne([
             'candidate_email' => $emailInput,
@@ -449,6 +465,21 @@ class AuthController extends Controller
     public function actionSMSResetPassword() {
 
         $phone_number = Yii::$app->request->getBodyParam("phone_number");
+        $token = Yii::$app->request->getBodyParam("token");
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->phone_number = $phone_number;
@@ -514,6 +545,21 @@ class AuthController extends Controller
     public function actionRequestResetPassword() {
 
         $emailInput = Yii::$app->request->getBodyParam("email");
+        $token = Yii::$app->request->getBodyParam("token");
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->email = $emailInput;
@@ -660,6 +706,21 @@ class AuthController extends Controller
 
         $firstname = ucfirst(Yii::$app->request->getBodyParam('name'));
         $lang = Yii::$app->request->getBodyParam('lang');
+        $token = Yii::$app->request->getBodyParam('token');
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
 
         if (!$firstname) {
             return [

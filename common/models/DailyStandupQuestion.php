@@ -98,6 +98,7 @@ class DailyStandupQuestion extends \yii\db\ActiveRecord
         );
 
         $didnt_attended = Staff::find()
+            ->notDeleted()
             ->andWhere(['NOT IN', 'staff_id', $staffIds])
             ->all();
 
