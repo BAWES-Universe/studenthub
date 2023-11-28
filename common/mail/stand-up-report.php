@@ -29,7 +29,7 @@
 <h3>Attended (<?= sizeof($attended) ?>)</h3>
 
 <?php foreach($attended as $attende) {
-    
+
     if(!$attende->staff) {
         continue;
     }

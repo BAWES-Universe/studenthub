@@ -63,8 +63,8 @@ return [
 
                 /*'class' => 'Swift_SmtpTransport',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                'username' => 'AKIAWMITDJRKTH5HBB2O',
-                'password' => 'BKyPcINpZJsEVnUrMGymff27eaIztgNwSWN7xI2960eJ',
+                'username' => 'AKIAWMITDJRKTQGXUQT3',//AKIAWMITDJRKTH5HBB2O
+                'password' => 'GDkiUbOkIxx4qpd0fcksh//0qKvAITbj4PCywBjh',//BKyPcINpZJsEVnUrMGymff27eaIztgNwSWN7xI2960eJ
                 'port' => '587  ',
                 'encryption' => 'tls',,
 
