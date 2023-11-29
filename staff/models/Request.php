@@ -170,8 +170,8 @@ class Request extends \common\models\Request {
 
         $staffList = Staff::find()
             ->joinWith('staffNotifications')
-            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "request-updates"])
-            ->andWhere(['!=', 'staff_id', \Yii::$app->user->id])
+            ->andWhere(['staff.deleted' => false, 'staff.staff_notification' => true, 'permission' => "request-updates"])
+            ->andWhere(['!=', 'staff.staff_id', \Yii::$app->user->id])
             ->all();
 
         $subject =  "I've updated the request for ".$this->request_position_title." for ".$company_name;
