@@ -19,6 +19,7 @@ class Staff extends \common\models\Staff {
         return array_merge(
             [
                 'staffSalaries',
+                'staffNotifications',
                 'totalAssigned' => function ($model) {
                     $start_date = Yii::$app->request->get('start_date', null);
                     $end_date = Yii::$app->request->get('end_date', null);

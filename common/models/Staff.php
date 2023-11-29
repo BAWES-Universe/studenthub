@@ -157,6 +157,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'totalCompletedRequests',
             'totalClosedRequests',
             'totalPendingRequests',
+            'staffNotifications',
             'totalInvitations' => function($model) {
 
                 $start_date = Yii::$app->request->get('start_date');
@@ -850,6 +851,14 @@ class Staff extends ActiveRecord implements IdentityInterface
             ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
                 AND total_minutes IS NULL"))
             ->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaffNotifications($modelClass = "\common\models\StaffNotification")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**
