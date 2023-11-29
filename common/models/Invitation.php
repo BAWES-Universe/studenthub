@@ -182,8 +182,8 @@ class Invitation extends \yii\db\ActiveRecord
 
         if($insert && $this->candidate_id) {
             $this->sendNotification();
-            //TODO: once email fix remove comment
-            // $this->jobInvitationEmail();
+            //Danger: email can be bounce
+            $this->jobInvitationEmail();
         }
 
         //update `request_updated_at` field
