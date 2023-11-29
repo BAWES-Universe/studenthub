@@ -169,12 +169,12 @@ class Request extends \common\models\Request {
         $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
 
         $staffList = Staff::find()
+            ->joinWith('staffNotifications')
+            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "request-updates"])
             ->andWhere(['!=', 'staff_id', \Yii::$app->user->id])
-            ->andWhere(['deleted'=>'0'])
-            ->andWhere(['staff_notification' => 1])
             ->all();
-        $subject =  "I've updated the request for ".$this->request_position_title." for ".$company_name;
 
+        $subject =  "I've updated the request for ".$this->request_position_title." for ".$company_name;
 
         $mailer =  \Yii::$app->mailer->compose("company/request-updated",
             [

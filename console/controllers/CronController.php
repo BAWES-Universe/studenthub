@@ -5,25 +5,16 @@ namespace console\controllers;
 use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\DailyStandupQuestion;
-use common\models\EmailCampaign;
-use common\models\Note;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
-use common\models\Transfer;
 use common\models\VendorCampaign;
-use kartik\mpdf\Pdf;
 use Yii;
-use yii\base\BaseObject;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
-use common\models\Staff;
 use common\models\Candidate;
 use common\models\Company;
 use common\models\Request;
-use common\models\CompanyContact;
-use common\models\Contact;
-use Segment\Segment;
 
 
 /**
@@ -229,7 +220,11 @@ class CronController extends \yii\console\Controller {
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
         $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
-        $staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);
+        //$staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);
+        $staffs = \common\models\Staff::find()
+            ->joinWith('staffNotifications')
+            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "morning-report"])
+            ->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
@@ -564,16 +559,21 @@ class CronController extends \yii\console\Controller {
      * php yii cron/check-daily-attendance
      * */
     public function actionCheckDailyAttendance() {
+
         $day = date('l');
         if ($day == 'Friday' || $day == 'Saturday') {
             return true;
         }
+
         $currentlyWorking = StaffWorkSession::find()
             ->andWhere(new Expression("DATE(created_at) = CURDATE()"))
             ->groupBy('staff_id')
             ->asArray()
             ->all();
-        $query = Staff::find();
+
+        $query = \common\models\Staff::find()
+             ->joinWith('staffNotifications')
+             ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "daily-attendance-notification"]);
 
         if ($day != 'Friday' && $day != 'Saturday') {
             $query->andWhere(['NOT IN', 'staff_id', $currentlyWorking]);

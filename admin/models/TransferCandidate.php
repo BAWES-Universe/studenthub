@@ -336,7 +336,10 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-        $staffs = Staff::findAll(['deleted' => false, 'staff_notification' => true]);
+        $staffs = Staff::find()
+            ->joinWith('staffNotifications')
+            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "transfer-fail"])
+            ->all();
 
         $allStaffEmails = ArrayHelper::map($staffs,'staff_email','staff_name');
         
