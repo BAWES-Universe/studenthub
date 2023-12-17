@@ -467,7 +467,7 @@ class AuthController extends Controller
                     'company_request_uuid' => $companyRequest->company_request_uuid,
                     'company_name' => $companyRequest->company_name,
                     'company_email' => $companyRequest->company_email,
-                    'phone_number' => $contactPhone->phone_number
+                    //'phone_number' => $contactPhone->phone_number
                 ]);
         }
 
