@@ -156,6 +156,9 @@ class CandidateQuery extends \yii\db\ActiveQuery
         return $this->andWhere('DATE(candidate_civil_expiry_date) < DATE(NOW())');
     }
 
+    /**
+     * @return CandidateQuery
+     */
     public function activeCivilId()
     {
         return $this->andWhere('DATE({{%candidate}}.candidate_civil_expiry_date) >= DATE(NOW())');
@@ -264,7 +267,12 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     public function incompletedProfile() {
-        return $this->andWhere('{{%candidate}}.candidate_uid IS NULL OR
+        return $this->andWhere(['{{%candidate}}.is_incomplete_profile' => 1]);
+
+        /*return $this->andWhere('{{%candidate}}.candidate_pending_profile IS NULL OR
+            {{%candidate}}.candidate_pending_profile=""');*/
+
+        /*return $this->andWhere('{{%candidate}}.candidate_uid IS NULL OR
           {{%university}}.university_id IS NULL OR {{%country}}.country_id IS NULL OR
           {{%candidate}}.candidate_name IS NULL OR {{%candidate}}.candidate_name_ar IS NULL OR
           {{%candidate}}.candidate_gender IS NULL OR {{%candidate}}.candidate_objective IS NULL OR
@@ -281,11 +289,13 @@ class CandidateQuery extends \yii\db\ActiveQuery
                 'country',
                 'university'
             ]);
-//            ->asArray();
+//            ->asArray();*/
     }
 
     public function completedProfileWithoutApproval() {
-        return $this->andWhere('{{%candidate}}.candidate_uid IS NOT NULL')
+        return $this->andWhere(['{{%candidate}}.is_incomplete_profile' => 0, 'approved' => 0]);
+
+        /*return $this->andWhere('{{%candidate}}.candidate_uid IS NOT NULL')
             ->andWhere('university.university_id IS NOT NULL AND country.country_id IS NOT NULL AND 
                 {{%candidate}}.candidate_name IS NOT NULL AND {{%candidate}}.candidate_name_ar IS NOT NULL AND 
                 {{%candidate}}.candidate_gender IS NOT NULL AND {{%candidate}}.candidate_objective IS NOT NULL AND
@@ -301,7 +311,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
                 'candidateSkills',
                 'country',
                 'university'
-            ]);
+            ]);*/
     }
 
     /**
