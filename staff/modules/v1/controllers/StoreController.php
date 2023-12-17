@@ -70,14 +70,14 @@ class StoreController extends Controller
      */
     public function actionList($companyId = null)
     {
-        $query = Store::find()
-            ->with([
+        $query = Store::find();
+            /*->with([
                 'candidates', 
                 'candidates.store', 
                 'candidates.company', 
                 'candidates.bank',
                 'candidates.university'
-            ]);
+            ]);*/
 
         if ($companyId) {
             $query->andWhere(['company_id' => $companyId]);
