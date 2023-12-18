@@ -59,6 +59,8 @@ class WalletUser extends ActiveRecord implements IdentityInterface
         //todo: add name?
         return [
             ['password', 'safe'],
+            [['username', 'email'], 'required'],
+            [['username', 'email'], 'unique'],
             [['username', 'email', 'bank_uuid', 'bank_account_name', 'iban'], 'string'],
             ['auth_key', 'default', 'value' => ""],
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
@@ -211,18 +213,29 @@ class WalletUser extends ActiveRecord implements IdentityInterface
      */
     public static function findByEmail($email) {
 
-        $walletUser = static::findOne(['email' => $email]);
+        $walletUser = self::find()
+            ->andWhere(['email' => $email])
+            ->one();
 
         if($walletUser)
             return $walletUser;
 
-        // if no user add wallet user account
+        // if no wallet user add wallet user account
 
-        $user = Candidate::findOne(['candidate_email' => $email]);
+        $user = Candidate::find()
+            ->andWhere(['candidate_email' => $email])
+            ->one();
+
+        //missing candidate
+
+        if(!$user) {
+            return null;
+        }
 
         $bank = null;
 
         if($user->bank) {
+
             $bank = WalletBank::findOne(['bank_iban_code' => $user->bank->bank_iban_code]);
 
             //add wallet bank if not

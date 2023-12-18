@@ -126,14 +126,19 @@ class Invoice extends ActiveRecord
             }
         }
 
-        Yii::$app->mailer->compose("companyNotPaid",
+        $mailer =Yii::$app->mailer->compose("companyNotPaid",
             [
                 "companies" => $result,
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['adminEmail'])
-            ->setSubject('Company not paid in current month')
-            ->send();
+            ->setSubject('Company not paid in current month');
+
+        try {
+            return  $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**

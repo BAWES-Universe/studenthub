@@ -326,6 +326,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function emailTransferSuccess() {
 
+        if(!$this->candidate->candidate_email_verification) {
+            return false;
+        }
+
         $subjectLine = "KD " . number_format($this->totalPaidToCandidate, 3) . " has been transferred to your bank account";
 
         $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
@@ -346,7 +350,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 ]);
         }
 
-        Yii::$app->mailer->compose('candidate/transfer-success',[
+        $message = Yii::$app->mailer->compose('candidate/transfer-success',[
             'name' => strtoupper (explode (' ', $name)[0]),
             'totalPaidToCandidate' => $this->totalPaidToCandidate,
             'imageMoney' => Yii::$app->urlManagerStaff->createUrl(
@@ -358,8 +362,13 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ])
             ->setTo($this->candidate->candidate_email)
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setSubject($subjectLine)
-            ->send();
+            ->setSubject($subjectLine);
+
+        try {
+            return  $message->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**

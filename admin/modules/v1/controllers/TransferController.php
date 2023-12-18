@@ -259,6 +259,67 @@ class TransferController extends Controller
     }
 
     /**
+     * Cancel transfer
+     * @param $id
+     * @return array
+     */
+    public function actionCancel($id)
+    {
+        $transfer = $this->findModel ($id);
+
+        try{
+            $transfer->cancel();
+        }
+        catch(\Exception $e)
+        {
+            return [
+                "operation" => "error",
+                "message" => $e->getMessage()
+            ];
+        }
+
+        $info = '[Admin '.Yii::$app->user->identity->admin_name.' has cancel Transfer #'.$id.' ] ';
+        $info .= 'for Company '. $transfer->company->company_name;
+
+        Yii::info($info, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "message" => "Transfer has been cancelled."
+        ];
+    }
+
+    /**
+     * Delete transfer with "Initiated" or "Locked" status
+     * @param $id
+     * @return array
+     */
+    public function actionDelete($id)
+    {
+        $model = $this->findModel ($id);
+
+        //delete data + child transfer
+        if(Transfer::deleteTransfer($model))
+        {
+            $info = '[ Admin '.Yii::$app->user->identity->admin_name.' has Deleted Transfer #'.$id.' ] ';
+            $info .= '[ for Company '. $model->company->company_name.'] ';
+            $info .= 'Check for reason and ask if they require assistance.';
+
+            Yii::info($info, __METHOD__);
+
+            return [
+                "operation" => "success",
+                "message" => 'Transfer deleted as requested.'
+            ];
+        }
+
+        return [
+            "operation" => "error",
+            "message" =>'Transfer status should be "Initiated" or "Locked" to delete it!'
+        ];
+    }
+
+    /**
      * Mark Transfer as Payment Received
      * @param $id
      * @return array
@@ -424,6 +485,14 @@ class TransferController extends Controller
         //second row will be key 
         
         $keys = \yii\helpers\ArrayHelper::remove($excelData, '2');
+
+        if(empty($keys)) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        }
 
         //create array with key to read data 
         

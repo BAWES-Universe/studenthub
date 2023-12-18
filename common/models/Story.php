@@ -21,7 +21,7 @@ use yii\behaviors\AttributeBehavior;
  * @property string $story_created_at
  * @property string $story_last_updated_at
  *
- * @property Request $requestUu
+ * @property Request $request
  * @property StoryActivity[] $storyActivities
  */
 class Story extends \yii\db\ActiveRecord
@@ -101,6 +101,12 @@ class Story extends \yii\db\ActiveRecord
             $storyActivity->activity_status = Story::STATUS_UNSTARTED;
             $storyActivity->save(false);
 
+            if(YII_ENV == 'prod') {
+                Yii::$app->eventManager->track(
+                    'Story Created',
+                    $this->attributes);
+            }
+
             return true;
         }
 
@@ -139,6 +145,13 @@ class Story extends \yii\db\ActiveRecord
         }
 
         $request->update(false);
+
+        if(YII_ENV == 'prod') {
+
+            Yii::$app->eventManager->track(
+                'Story Updated',
+                $this->attributes);
+        }
     }
 
     /**

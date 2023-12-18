@@ -69,6 +69,7 @@ return [
                     'patterns' => [
                         'POST update-password' => 'update-password',
                         'POST validate-password' => 'validate-user-password',
+                        'PATCH' => "update",
                         'GET' => 'account',
                         // OPTIONS VERBS
                         'OPTIONS update-password' => 'options',
@@ -256,6 +257,23 @@ return [
                         'OPTIONS add-followup-note/<id>' => 'options',
                         'OPTIONS change-status/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // EmailCampaignController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/email-campaign',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST status-list' => 'status-list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'PATCH run/<id>' => 'run',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS run/<id>' => 'options',
                     ]
                 ],
                 [ // CompanyRequestController
@@ -550,6 +568,7 @@ return [
                         'POST create-by-excel' => 'create-by-excel',
                         'PATCH payment-sent/<id>' => 'payment-sent',
                         'PATCH lock/<id>' => 'lock',
+                        'PATCH cancel/<id>' => 'cancel',
                         'PATCH edit-by-excel/<id>' => 'edit-by-excel',
                         'PATCH <id>' => 'edit',
                         'DELETE <id>' => 'delete',
@@ -563,6 +582,7 @@ return [
                         'OPTIONS lock/<id>' => 'options',
                         'OPTIONS edit-by-excel/<id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
+                        'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS export-companies-transfer' => 'options'
                     ]
                 ],

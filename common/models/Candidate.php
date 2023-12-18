@@ -142,7 +142,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_limit_email','profile_url'], 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
 
-            ['candidate_phone', 'unique', 'comboNotUnique' => 'Phone no. already exist.', 'targetAttribute' => ['candidate_phone', 'deleted']],
+            //['candidate_phone', 'unique', 'comboNotUnique' => 'Phone no. already exist.', 'targetAttribute' => ['candidate_phone', 'deleted']],
 
             ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => ['candidate_civil_id', 'deleted']],
 
@@ -338,7 +338,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['updatePendingProfile'] = ['candidate_pending_profile'];
 
-        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token'];
+        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token', 'candidate_limit_email'];
+
         $scenarios['updateProfileUrl'] = ['profile_url'];
 
         return $scenarios;
@@ -393,7 +394,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if ($query->exists()) {
-            $this->addError('candidate_email', Yii::t('app', 'Email already registered'));
+            $this->addError('candidate_email', Yii::t('app',
+                'We found account with same email, Please login with same email!'));
         }
     }
 
@@ -470,6 +472,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if($this->age < 18 || $this->age > 24) {
             $this->addError('candidate_birth_date', Yii::t('candidate','Candidate age should be between 18 to 24.'));
+        }
+    }
+
+    public static function getGenderText($candidate_gender) {
+        switch ($candidate_gender) {
+            case self::GENDER_MALE:
+                return "Male";
+            case self::GENDER_FEMALE:
+                return "Female";
+            default:
+                return "Other";
         }
     }
 
@@ -678,7 +691,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     [
                         'candidate_id' => $this->candidate_id,
                         'name' => $this->candidate_name,
-                        'email' => $this->candidate_email
+                        'email' => $this->candidate_email,
+                        'age' => $this->getAge(),
+                        'gender' => self::getGenderText($this->candidate_gender),
+                        "university" => $this->university? $this->university->university_name_en: null,
+                        "country" => $this->country? $this->country->country_name_en: null
                     ],
                     null,
                     $userId);
@@ -690,11 +707,35 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     [
                         'candidate_id' => $this->candidate_id,
                         'name' => $this->candidate_name,
-                        'email' => $this->candidate_email
+                        'email' => $this->candidate_email,
+                        'age' => $this->getAge(),
+                        'gender' => self::getGenderText($this->candidate_gender),
+                        "university" => $this->university? $this->university->university_name_en: null,
+                        "country" => $this->country? $this->country->country_name_en: null
                     ],
                     null,
                     $userId);
             }
+
+            if(
+                !empty($this->getOldAttribute("candidate_pending_profile")) &&
+                empty($this->candidate_pending_profile)
+            ) {
+                Yii::$app->eventManager->track(
+                    'Candidate Profile Completed',
+                    [
+                        'candidate_id' => $this->candidate_id,
+                        'name' => $this->candidate_name,
+                        'email' => $this->candidate_email,
+                        'age' => $this->getAge(),
+                        'gender' => self::getGenderText($this->candidate_gender),
+                        "university" => $this->university? $this->university->university_name_en: null,
+                        "country" => $this->country? $this->country->country_name_en: null
+                    ],
+                    null,
+                    $userId);
+            }
+
         }
 
         return true;
@@ -707,6 +748,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function updateWalletBankDetail() {
 
         $walletUser = WalletUser::findByEmail($this->candidate_email);
+
+        if(!$walletUser) {
+            return true;
+        }
 
         \common\models\WalletTransfer::updateAll([
             'bank_uuid' => $walletUser->bank_uuid,
@@ -1121,7 +1166,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function sendPasswordUpdatedEmail()
     {
-        Yii::$app->mailer->compose("candidate/password-updated-html",
+        if(!$this->candidate_email_verification)
+            return false;
+
+        $mailer = Yii::$app->mailer->compose("candidate/password-updated-html",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "email" => $this->candidate_email,
@@ -1129,8 +1177,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
-            ->setSubject('Your password reset was a success')
-            ->send();
+            ->setSubject('Your password reset was a success');
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**
@@ -1140,6 +1193,49 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return bool
      */
     public function sendPasswordResetEmail()
+    {
+        if(!$this->candidate_email_verification)
+            return false;
+
+        $this->setScenario('updatePasswordToken');
+        $this->generatePasswordResetToken();
+
+        //Update candidate last email limit timestamp
+        $this->candidate_limit_email = new Expression('NOW()');
+
+        $this->save(false);
+
+        //Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
+
+        $name = explode(' ',$this->candidate_name);
+
+        $mailer = Yii::$app->mailer->compose("candidate/password-reset-html",
+            [
+                "webUrl" => $webUrl,
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "email" => $this->candidate_email,
+                "name" => (isset($name[0])) ? $name[0] : $this->candidate_name
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->candidate_email)
+            ->setSubject('Reset your StudentHub password');
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
+    }
+
+    /**
+     * Send link in sms to reset password
+     * @param Candidate $model
+     * @param $password
+     * @return bool
+     */
+    public function sendPasswordResetSMS()
     {
         $this->setScenario('updatePasswordToken');
         $this->generatePasswordResetToken();
@@ -1151,17 +1247,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $name = explode(' ',$this->candidate_name);
 
-        return Yii::$app->mailer->compose("candidate/password-reset-html",
-            [
-                "webUrl" => $webUrl,
-                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
-                "email" => $this->candidate_email,
-                "name" => (isset($name[0])) ? $name[0] : $this->candidate_name
-            ])
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-            ->setTo($this->candidate_email)
-            ->setSubject('Reset your StudentHub password')
-            ->send();
+        $message = "Hello {{name}}, Your StudentHub password reset link {{link}}";
+
+        return Yii::$app->smsComponent->sendSms($this->candidate_phone, str_replace([
+            "{{name}}", "{{link}}"
+        ], [
+            $name, $webUrl
+        ], $message));
     }
 
     /**
@@ -1347,6 +1439,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function birthdayAlert()
     {
         $candidates = Candidate::find()
+            ->notDeleted()
             ->andWhere('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
             ->andWhere(['candidate_email_verification' => 1])
             ->all();
@@ -1354,13 +1447,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if(!$candidates)
             return null;
 
-        $allStaff = Staff::findAll(['deleted'=>'0']);
+        //$allStaff = Staff::findAll(['deleted' => false, 'staff_notification' => true]);
 
-        $allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
+        //$allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
         foreach($candidates as $candidate)
         {
-            Yii::$app->mailer->compose("birthday",
+            if(!$candidate->candidate_email_verification)
+                return false;
+
+            $mailer = Yii::$app->mailer->compose("birthday",
                 [
                     "candidate" => $candidate,
                     "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
@@ -1368,8 +1464,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ])
                 ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                 ->setTo($candidate->candidate_email)
-                ->setSubject('Happy Birthday from StudentHub')
-                ->send();
+                ->setSubject('Happy Birthday from StudentHub');
+
+            try {
+                $mailer->send();
+            } catch (\Swift_TransportException $e) {
+                Yii::error($e->getMessage(), "birthday-alert");
+            }
         }
 
         return count($candidates);
@@ -1382,12 +1483,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $candidates = Candidate::find()
             ->andWhere('YEAR(candidate_civil_expiry_date) = YEAR(NOW()) AND MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND DAY(candidate_civil_expiry_date) = DAY(NOW())')
+            ->andWhere(['candidate_email_verification' => 1])
             ->all();
 
         if(!$candidates)
             return null;
 
         foreach($candidates as $candidate) {
+
+            if(!$candidate->candidate_email_verification)
+                return false;
 
             $f_name = $candidate->candidate_name? $candidate->candidate_name: $candidate->candidate_name_ar;
 
@@ -1403,7 +1508,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
             }
 
-            Yii::$app->mailer->compose("civil-expired",
+            $mailer = Yii::$app->mailer->compose("civil-expired",
                 [
                     'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                     'url' => $url,
@@ -1411,8 +1516,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ])
                 ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                 ->setTo($candidate->candidate_email)
-                ->setSubject('Please update your civil id')
-                ->send();
+                ->setSubject('Please update your civil id');
+
+            try {
+                $mailer->send();
+            } catch (\Swift_TransportException $e) {
+                Yii::error($e->getMessage(), "password-reset-token");
+            }
         }
     }
 
@@ -2022,7 +2132,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $email = $this->candidate_email;
         }
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'candidate/verify-email-html',
             'text' => 'candidate/verify-email-text',
         ], [
@@ -2030,8 +2140,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($email)
-            ->setSubject('Please confirm your email address')
-            ->send();
+            ->setSubject('Please confirm your email address');
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**
@@ -2600,19 +2715,27 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function commitmentWarningEmail()
     {
+        if(!$this->candidate_email_verification)
+            return false;
+
         $f_name = $this->candidate_name ? $this->candidate_name : $this->candidate_name_ar;
 
         $name = explode(' ', $f_name)[0];
 
-        Yii::$app->mailer->compose("candidate/commitment-warning",
+        $mailer = Yii::$app->mailer->compose("candidate/commitment-warning",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                 "name" => $name
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->candidate_email)
-            ->setSubject("We'll stop recommending your profile to companies")
-            ->send();
+            ->setSubject("We'll stop recommending your profile to companies");
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**
@@ -2621,7 +2744,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function kuwaitiNationalityEmail()
     {
         $total = 0;
+
         $candidates = Candidate::find()
+            //->andWhere(['candidate_email_verification' => 1])
             ->verifiedProfile()
             ->candidateMomKuwaitiFieldIsNull()
             ->all();
@@ -2630,6 +2755,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return null;
 
         foreach ($candidates as $candidate) {
+
+            if(!$candidate->candidate_email_verification)
+                return false;
 
             if (
                 $candidate->area && $candidate->nationality &&
@@ -2652,7 +2780,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 } else {
                     $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
                 }
-                Yii::$app->mailer->compose("candidate/kuwaiti-mom",
+
+                $mailer = Yii::$app->mailer->compose("candidate/kuwaiti-mom",
                     [
                         "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                         "name" => $name,
@@ -2660,11 +2789,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ])
                     ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setTo($candidate->candidate_email)
-                    ->setSubject("Jobs in restaurants, cafes, and cinemas")
-                    ->send();
+                    ->setSubject("Jobs in restaurants, cafes, and cinemas");
+
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "kuwaiti-mom");
+                }
+
                 $total++;
             }
         }
+
         return $total;
     }
 
@@ -2770,7 +2906,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function notifyCivilIDExpiring() {
 
         $query = Candidate::find()
-            ->andWhere('DATE(candidate_civil_expiry_date) < DATE(NOW() + INTERVAL 25 DAY)');
+            ->andWhere('DATE(candidate_civil_expiry_date) < DATE(NOW() + INTERVAL 25 DAY)')
+            ->andWhere(['candidate_email_verification' => 1]);
 
         $subject = "Civil ID is expiring";
 
@@ -2792,9 +2929,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         foreach ($query->batch(100) as $candidates) {
 
             foreach ($candidates as $candidate) {
+
+                if(!$candidate->candidate_email_verification)
+                    return false;
+
                 $mailer
-                    ->setTo($candidate->candidate_email)
-                    ->send();
+                    ->setTo($candidate->candidate_email);
+
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "civil-id");
+                }
             }
         }
     }
@@ -2802,6 +2948,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function notifyMissingBankInfo () {
 
         $query = self::find()
+            ->andWhere(['candidate_email_verification' => 1])
             ->andWhere('{{%candidate}}.store_id > 0 && {{%candidate}}.bank_id IS NULL');
 
         $subject = "Bank information is missing";
@@ -2824,9 +2971,18 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         foreach ($query->batch(100) as $candidates) {
 
             foreach ($candidates as $candidate) {
+
+                if(!$candidate->candidate_email_verification)
+                    return false;
+
                 $mailer
-                    ->setTo($candidate->candidate_email)
-                    ->send();
+                    ->setTo($candidate->candidate_email);
+
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "bank-info");
+                }
             }
         }
     }

@@ -111,7 +111,7 @@ class StatisticController extends Controller
             ->joinWith(['transfer'])
             //ignore duplicate entries of child transfers
             ->andWhere('transfer.parent_transfer_id IS NULL')
-            ->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            ->andWhere(['NOT IN', 'transfer_status', [Transfer::STATUS_INITIATED, Transfer::STATUS_CANCEL]])//no draft
             //->filterPaid()
             ->count();
 
@@ -124,7 +124,7 @@ class StatisticController extends Controller
         $result['totalBelongingToCandidates'] = Transfer::find()
             //ignore duplicate entries of child transfers
             ->andWhere('transfer.parent_transfer_id IS NULL')
-            //->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            //->andWhere(['NOT IN', 'transfer_status', [Transfer::STATUS_INITIATED, Transfer::STATUS_CANCEL]])//no draft
             ->filterPaymentReceived()
             ->sum('total');
 
@@ -153,7 +153,7 @@ class StatisticController extends Controller
             ->joinWith(['transfer'])
             //ignore duplicate entries of child transfers
             ->andWhere('transfer.parent_transfer_id IS NULL')
-            ->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            ->andWhere(['NOT IN', 'transfer_status', [Transfer::STATUS_INITIATED, Transfer::STATUS_CANCEL]])//no draft
             //->filterPaid()
             ->count();
 
@@ -166,7 +166,7 @@ class StatisticController extends Controller
         $data['totalBelongingToCandidates'] = Transfer::find()
             //ignore duplicate entries of child transfers
             ->andWhere('transfer.parent_transfer_id IS NULL')
-            //->andWhere(['!=', 'transfer_status', Transfer::STATUS_INITIATED])//no draft
+            //->andWhere(['NOT IN', 'transfer_status', [Transfer::STATUS_INITIATED, Transfer::STATUS_CANCEL]])//no draft
             ->filterPaymentReceived()
             ->sum('total');
 

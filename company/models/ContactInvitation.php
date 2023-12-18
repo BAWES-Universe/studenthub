@@ -18,23 +18,38 @@ class ContactInvitation extends \common\models\ContactInvitation {
     public function sendInvitationEmail() {
         Yii::$app->mailer->htmlLayout = "layouts/text";
 
-        return Yii::$app->mailer->compose('company/contact-invitation', [
-                            'model' => $this
-                        ])
-                        ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
-                        ->setTo($this->email_to_invite)
-                        ->setSubject($this->company->company_name . " has invited you to collaborate in their recruitment process on StudentHub")
-                        ->send();
+        $mailer = Yii::$app->mailer->compose('company/contact-invitation', [
+                'model' => $this
+            ])
+            ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setTo($this->email_to_invite)
+            ->setSubject($this->company->company_name . " has invited you to collaborate in 
+                        their recruitment process on StudentHub");
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     public function sendAcceptedInvitationEmail() {
-        return Yii::$app->mailer->compose('company/contact-invitation-acceptance', [
+
+        if(!$this->contact->contact_email_verification)
+            return false;
+
+        $mailer = Yii::$app->mailer->compose('company/contact-invitation-acceptance', [
                             'model' => $this
                         ])
                         ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
                         ->setTo($this->contact->contact_email)
-                        ->setSubject('Contact Invitation accepted')
-                        ->send();
+                        ->setSubject('Contact Invitation accepted');
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**

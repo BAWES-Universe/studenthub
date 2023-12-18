@@ -218,7 +218,8 @@ class Company extends \common\models\Company {
 
         $name = ($model->company_common_name_en) ? $model->company_common_name_en : $model->company_name;
         $subject = Yii::$app->user->identity->staff_name. ' '.$type.' client account '.$name;
-        return Yii::$app->mailer->compose("report-company-crud",
+
+        $mailer = Yii::$app->mailer->compose("report-company-crud",
             [
                 "model" => $model,
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
@@ -229,8 +230,13 @@ class Company extends \common\models\Company {
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo(['khalid@bawes.net'=>'Khalid'])
             ->setCc([Yii::$app->params['operationsEmail']=>'operations'])
-            ->setSubject($subject)
-            ->send();
+            ->setSubject($subject);
+
+        try {
+            return  $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
 
@@ -242,9 +248,7 @@ class Company extends \common\models\Company {
      */
     public static function sendPayrollEmail($company)
     {
-
             Yii::$app->mailer->htmlLayout = 'layouts/html';
-
 
             $subQuery = CompanyContact::find()
                 ->select('contact_uuid')
@@ -258,13 +262,12 @@ class Company extends \common\models\Company {
                 ->andWhere(['IS NOT', 'contact_email', null])
                 ->all();
 
-
             $emails = ArrayHelper::getColumn($contacts, 'contact_email');
 
             $lastMonth = date(' F ', strtotime('last month'));
             $year = date(' Y ', strtotime('last month'));
 
-            return Yii::$app->mailer->compose("attendance-sheet",
+        $mailer = Yii::$app->mailer->compose("attendance-sheet",
                 [
                     "company" => $company,
                     "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
@@ -272,8 +275,13 @@ class Company extends \common\models\Company {
                 ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                 ->setTo(array_unique($emails))
                 ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
-                ->setSubject($lastMonth . ' Payroll '. $year)
-                ->send();
+                ->setSubject($lastMonth . ' Payroll '. $year);
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
 
     }
 

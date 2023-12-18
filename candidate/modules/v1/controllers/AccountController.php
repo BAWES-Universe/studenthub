@@ -468,6 +468,7 @@ class AccountController extends Controller
         // in case if user change his bank credentials and he has any pending transfer
         // which is not in completed or not even in distribution mode then change the bank detail
         $candidateUpdated = Candidate::findOne(Yii::$app->user->getId());
+
         $transferCandidate = TransferCandidate::find()
             ->joinWith('transfer')
             ->andWhere(
@@ -480,7 +481,9 @@ class AccountController extends Controller
             ->andWhere(
                 [
                     'transfer.transfer_status'=>[
-                        Transfer::STATUS_INITIATED,Transfer::STATUS_LOCK,Transfer::STATUS_PAYMENT_SENT
+                        Transfer::STATUS_INITIATED,
+                        Transfer::STATUS_LOCK,
+                        Transfer::STATUS_PAYMENT_SENT
                     ]
                 ]
             )

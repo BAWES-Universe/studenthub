@@ -178,6 +178,14 @@ class AuthController extends Controller
             $candidate->approved = true;
             
             if (!$candidate->signup()) {
+
+                /*
+                Yii::error("[Student Registration Failed] by Student, Email: ".$candidate->candidate_email
+                . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar .
+                json_encode($candidate->errors),
+                __METHOD__);
+                 */
+
                 if (isset($candidate->errors)) {
                     return [
                         "operation" => "error",
@@ -237,6 +245,7 @@ class AuthController extends Controller
      * @return type
      */
     public function actionUpdateEmail() {
+
         $unVerifiedToken = Yii::$app->request->getBodyParam("unVerifiedToken");
         $new_email = Yii::$app->request->getBodyParam("newEmail");
 
@@ -310,6 +319,21 @@ class AuthController extends Controller
     public function actionResendVerificationEmail()
     {
         $emailInput = Yii::$app->request->getBodyParam("email");
+        $token = Yii::$app->request->getBodyParam("token");
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
 
         $candidate = Candidate::findOne([
             'candidate_email' => $emailInput,
@@ -433,7 +457,87 @@ class AuthController extends Controller
             ];
         }
     }
-    
+
+    /**
+     * Sends password reset sms to user
+     * @return array
+     */
+    public function actionSMSResetPassword() {
+
+        $phone_number = Yii::$app->request->getBodyParam("phone_number");
+        $token = Yii::$app->request->getBodyParam("token");
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
+        $model = new \candidate\models\PasswordResetRequestForm();
+        $model->phone_number = $phone_number;
+
+        $errors = null;
+
+        if (!$model->validate()) {
+            return [
+                'operation' => 'error',
+                'message' => isset($model->errors['phone_number'])?isset($model->errors['phone_number']): $model->errors
+            ];
+        }
+
+        $candidate = Candidate::findOne([
+            'candidate_phone' => $model->phone_number,
+        ]);
+
+        if (!$candidate) {
+            return [
+                'operation' => 'error',
+                'message' => 'candidate not found'
+            ];
+        }
+
+        //Check if this user sent an email in past few minutes (to limit email spam)
+        $emailLimitDatetime = new \DateTime($candidate->candidate_limit_sms);
+        date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
+        $currentDatetime = new \DateTime('now');
+
+        if ($candidate->candidate_limit_sms && $currentDatetime < $emailLimitDatetime) {
+            $difference = $currentDatetime->diff($emailLimitDatetime);
+            $minuteDifference = (int) $difference->i;
+            $secondDifference = (int) $difference->s;
+
+            $errors = Yii::t('candidate', "SMS was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds", [
+                'numMinutes' => $minuteDifference,
+                'numSeconds' => $secondDifference,
+            ]);
+        } else if (!$candidate->sendPasswordResetSMS()) {
+            $errors = Yii::t('candidate', 'Sorry, we are unable to reset a password for phone number provided.');
+        }
+
+        if($errors) {
+            return [
+                'operation' => 'error',
+                'message' => $errors
+            ];
+        }
+
+        Yii::info("[Student Password Reset Request] by Candidate, Candidate Phone Number: ".$candidate->candidate_phone, __METHOD__);
+
+        // Otherwise return success
+        return [
+            'operation' => 'success',
+            'message' => Yii::t('candidate', 'Please check the link sent to you on your phone number to set new password.')
+        ];
+    }
+
     /**
      * Sends password reset email to user
      * @return array
@@ -441,6 +545,21 @@ class AuthController extends Controller
     public function actionRequestResetPassword() {
 
         $emailInput = Yii::$app->request->getBodyParam("email");
+        $token = Yii::$app->request->getBodyParam("token");
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->email = $emailInput;
@@ -450,7 +569,7 @@ class AuthController extends Controller
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
-                'message' => isset($model->errors['candidate_email'])?isset($model->errors['candidate_email']): $model->errors
+                'message' => isset($model->errors['email'])?isset($model->errors['email']): $model->errors
             ];
         }
 
@@ -587,10 +706,26 @@ class AuthController extends Controller
 
         $firstname = ucfirst(Yii::$app->request->getBodyParam('name'));
         $lang = Yii::$app->request->getBodyParam('lang');
+        $token = Yii::$app->request->getBodyParam('token');
+
+        //TODO: make token as required field once we update android app
+
+        if($token) {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
 
         if (!$firstname) {
             return [
                 "operation" => "error",
+                "code" => 1,
                 "message" => Yii::t('candidate', "Name is required")
             ];
         }
@@ -610,16 +745,24 @@ class AuthController extends Controller
         $model->candidate_status = \candidate\models\Candidate::STATUS_PENDING;
         $model->approved = false;
 
-
         if (!$model->signup()) {
+
+            /*
+            Yii::error("[Student Registration Failed] by Student, Email: ".$model->candidate_email
+                . ", Phone: ".$model->candidate_phone. ", Name: ".$model->candidate_name. " " .$model->candidate_name_ar .
+                json_encode($model->errors),
+                __METHOD__);*/
+
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",
+                    "code" => 2,
                     "message" => $model->errors,
                 ];
             } else {
                 return [
                     "operation" => "error",
+                    "code" => 3,
                     "message" => Yii::t('candidate', "We've faced a problem creating your account, please contact us for assistance.")
                 ];
             }
@@ -685,6 +828,7 @@ class AuthController extends Controller
      * Sign up with google login
      */
     public function actionLoginByGoogle() {
+
         $token = Yii::$app->request->getBodyParam("idToken");
 
         $ch = curl_init();
@@ -800,6 +944,13 @@ class AuthController extends Controller
             $candidate->approved = 1;
 
             if (!$candidate->signup()) {
+
+                /*
+                Yii::error("[Student Registration Failed] by Student, Email: ".$candidate->candidate_email
+                    . ", Phone: ".$candidate->candidate_phone. ", Name: ".$candidate->candidate_name. " " .$candidate->candidate_name_ar .
+                    json_encode($candidate->errors),
+                    __METHOD__);*/
+
                 if (isset($candidate->errors)) {
                     return [
                         "operation" => "error",

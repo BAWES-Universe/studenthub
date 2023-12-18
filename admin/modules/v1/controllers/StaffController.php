@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 use agent\models\PaymentMethod;
+use common\models\StaffNotification;
 use common\models\StaffSalary;
 use common\models\StaffToken;
 use company\models\TranferExcel;
@@ -267,7 +268,6 @@ class StaffController extends Controller
      */
     public function actionCreate()
     {
-        // Attempt to create new account
         $model = new Staff();
         $model->scenario = "newAccount";
 
@@ -283,6 +283,10 @@ class StaffController extends Controller
         $model->week_start_day = Yii::$app->request->getBodyParam("week_start_day");
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
+
+        $model->staff_notification = Yii::$app->request->getBodyParam("staff_notification");
+
+        $permissions =  Yii::$app->request->getBodyParam("permissions");
 
         $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
 
@@ -302,6 +306,17 @@ class StaffController extends Controller
                     "message" => "We've faced a problem creating the account, please contact us for assistance."
                 ];
             }
+        }
+
+        if(!$permissions) {
+            $permissions = [];
+        }
+
+        foreach ($permissions as $permission) {
+            $pmodel = new StaffNotification();
+            $pmodel->staff_id = $model->staff_id;
+            $pmodel->permission = $permission;
+            $pmodel->save();
         }
 
         if(YII_ENV == 'prod') {
@@ -325,7 +340,8 @@ class StaffController extends Controller
 
         return [
             "operation" => "success",
-            "message" => "Staff account successfully created"
+            "message" => "Staff account successfully created",
+            "staffNotifications" => $model->staffNotifications
         ];
     }
 
@@ -355,6 +371,9 @@ class StaffController extends Controller
         $model->week_start_day = Yii::$app->request->getBodyParam("week_start_day");
         $model->work_days = Yii::$app->request->getBodyParam("work_days");
         $model->hours_per_day = Yii::$app->request->getBodyParam("hours_per_day");
+        $model->staff_notification = Yii::$app->request->getBodyParam("staff_notification");
+
+        $permissions =  Yii::$app->request->getBodyParam("permissions");
 
         $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
 
@@ -376,17 +395,48 @@ class StaffController extends Controller
             }
         }
 
-        if(YII_ENV == 'prod')
-            Yii::$app->eventManager->setUser('staff' .$model->staff_id, [
+        if(!$permissions) {
+            $permissions = [];
+        }
+
+        foreach ($permissions as $permission) {
+
+           // if(isset($permission['sn_uuid'])) {
+           //     $pmodel = new StaffNotification();
+            $pmodel = StaffNotification::findOne([
+                "staff_id" => $model->staff_id,
+                "permission" => $permission
+            ]);
+
+            if($pmodel) {
+               continue;
+            }
+
+            $pmodel = new StaffNotification();
+            $pmodel->staff_id = $model->staff_id;
+            $pmodel->permission = $permission;
+            $pmodel->save();
+        }
+
+        StaffNotification::deleteAll([
+            "AND",
+            ['staff_id' => $model->staff_id],
+            ['NOT IN', 'permission', $permissions]
+        ]);
+
+        if(YII_ENV == 'prod') {
+            Yii::$app->eventManager->setUser('staff' . $model->staff_id, [
                 '$first_name' => $model->staff_name,
                 '$email' => $model->staff_email
             ]);
+        }
 
         Yii::info('[Staff Account Updated] Staff "'.$model->staff_email.'" updated by Admin: "'.Yii::$app->user->identity->admin_name.'"', __METHOD__);
 
         return [
             "operation" => "success",
-            "message" => "Staff account successfully updated"
+            "message" => "Staff account successfully updated",
+            "staffNotifications" => $model->staffNotifications
         ];
 
         // Check SQL Query Count and Duration

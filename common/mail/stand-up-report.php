@@ -8,7 +8,11 @@
 
 <h3>Absents (<?= sizeof($absents) ?>)</h3>
 
-<?php foreach($absents as $absent) { ?>
+<?php foreach($absents as $absent) {
+    if(!$absent->staff) {
+        continue;
+    }
+    ?>
     <li><?php echo $absent->staff->staff_name ?></li>
 <?php } ?>
 
@@ -24,7 +28,13 @@
 
 <h3>Attended (<?= sizeof($attended) ?>)</h3>
 
-<?php foreach($attended as $attende) { ?>
+<?php foreach($attended as $attende) {
+
+    if(!$attende->staff) {
+        continue;
+    }
+
+    ?>
     <h4><?php echo $attende->staff->staff_name ?></h4>
 
     <?php

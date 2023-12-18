@@ -441,7 +441,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 // in case if contact doesn't have email address
-                if ($request->contact->email) {
+                if ($request->contact->email && $request->contact->contact_email_verification) {
                     $setTo = [$request->contact->email => $request->contact->contact_name];
                 } else {
                     $setTo = array_unique(self::getContactEmailByRequest($request));
@@ -466,8 +466,13 @@ class Suggestion extends \yii\db\ActiveRecord
                     ->setTo($setTo)
                     ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])
-                    ->setSubject($request->suggestionEmailSubject)
-                    ->send();
+                    ->setSubject($request->suggestionEmailSubject);
+
+                try {
+                    $message->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "password-reset-token");
+                }
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
             }
@@ -590,7 +595,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
 
                 // in case if contact doesn't have email address
-                if ($request->contact->email) {
+                if ($request->contact->email && $request->contact->contact_email_verification) {
                     $setTo = [$request->contact->email => $request->contact->contact_name];
                 } else {
                     $setTo = array_unique(self::getContactEmailByRequest($request));
@@ -615,8 +620,13 @@ class Suggestion extends \yii\db\ActiveRecord
                     ->setTo($setTo)
                     ->setCc($setCc)
                     ->setBcc([$staff->staff_email => $staff->staff_name])
-                    ->setSubject($request->suggestionEmailSubject)
-                    ->send();
+                    ->setSubject($request->suggestionEmailSubject);
+
+                try {
+                    $message->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "password-reset-token");
+                }
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
             }
@@ -640,6 +650,7 @@ class Suggestion extends \yii\db\ActiveRecord
             ]);
 
         $contacts = Contact::find()
+            ->andWhere(['contact_email_verification' => 1])
             ->andWhere(['contact_receive_email' => 1,'contact_receive_suggestions' => 1])
             ->andWhere(['in', 'contact_uuid', $subQuery])
             ->andWhere(['not', ['contact_email' => null]]) // to ignore empty email
@@ -669,6 +680,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 ]);
 
             $contacts = Contact::find()
+                ->andWhere(['contact_email_verification' => 1])
                 ->andWhere(['contact_receive_email' => 1,'contact_receive_suggestions' => 1])
                 ->andWhere(['in', 'contact_uuid', $subQuery])
                 ->andWhere(['not', ['contact_email' => null]]) // to ignore empty email

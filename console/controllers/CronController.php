@@ -5,23 +5,16 @@ namespace console\controllers;
 use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\DailyStandupQuestion;
-use common\models\Note;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
-use common\models\Transfer;
-use kartik\mpdf\Pdf;
+use common\models\VendorCampaign;
 use Yii;
-use yii\base\BaseObject;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
-use common\models\Staff;
 use common\models\Candidate;
 use common\models\Company;
 use common\models\Request;
-use common\models\CompanyContact;
-use common\models\Contact;
-use Segment\Segment;
 
 
 /**
@@ -30,7 +23,16 @@ use Segment\Segment;
 class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
+       // Yii::$app->smsComponent->sendSms(8758702738, "test");
 
+        /*Yii::$app->mailer->compose ([
+            'text' => 'test',
+        ])
+            ->setFrom ([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setSubject ('Test email')
+            ->setTo ("kathrechakrushn@gmail.com")
+            //->setCc($contactEmails)
+            ->send ();*/
     }
 
     public function actionTestt()
@@ -77,17 +79,16 @@ class CronController extends \yii\console\Controller {
 
         //check for birthday
 
-        Candidate::birthdayAlert();
+        //Candidate::birthdayAlert();
 
         //check civil ID expiry date
 
-        Candidate::civilIdExpire();
+        //Candidate::civilIdExpire();
 
         //check salary transfer not paid
         //Invoice::unpaidAlert();
 
         DailyStandupQuestion::standupReport();
-
     }
 
     /**
@@ -98,6 +99,20 @@ class CronController extends \yii\console\Controller {
         Suggestion::suggestionCandidateNotification();
         Suggestion::suggestionFulltimerNotification();
     }
+
+    /* todo: user separate email server for marketing?
+    public function actionProcessCampaign()
+    {
+        $campaigns = EmailCampaign::find()
+            ->andWhere(['status' => EmailCampaign::STATUS_READY])
+            ->all();
+
+        foreach ($campaigns as $campaign) {
+            $campaign->process();
+        }
+
+        $this->stdout( sizeof($campaigns) . " Email Campaign processed \n", Console::FG_RED, Console::BOLD);
+    }*/
 
     /**
      * Method called by cron once a week
@@ -113,9 +128,10 @@ class CronController extends \yii\console\Controller {
      */
     public function actionMidMonth() {
 
-        Candidate::notifyMissingBankInfo();
+        //todo: stop until we found culprit
+        //Candidate::notifyMissingBankInfo();
 
-        Candidate::notifyCivilIDExpiring();
+        //Candidate::notifyCivilIDExpiring();
 
         return 0;
     }
@@ -127,9 +143,11 @@ class CronController extends \yii\console\Controller {
 
         Company::requestForAttendance();
 
-        Candidate::notifyMissingBankInfo();
+        //todo: stop until we found culprit
 
-        Candidate::notifyCivilIDExpiring();
+        //Candidate::notifyMissingBankInfo();
+
+        //Candidate::notifyCivilIDExpiring();
 
         return 0;
     }
@@ -139,6 +157,7 @@ class CronController extends \yii\console\Controller {
      * coding issue.
      */
     public function actionRemoveDuplicate() {
+
         $found = [];
         $allCandidates = Candidate::find()->all();
 
@@ -201,18 +220,27 @@ class CronController extends \yii\console\Controller {
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
         $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
-        $staffs = Staff::findAll(['deleted'=>'0']);
+        //$staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);
+        $staffs = \common\models\Staff::find()
+            ->joinWith('staffNotifications')
+            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "morning-report"])
+            ->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
-        return Yii::$app->mailer->compose([
+        $mailer = Yii::$app->mailer->compose([
             'html' => 'summary',
         ], $data)
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo(Yii::$app->params['invoiceFrom'])
             ->setCc($emails)
-            ->setSubject('Morning Report for ' . date('F j, Y'))
-            ->send();
+            ->setSubject('Morning Report for ' . date('F j, Y'));
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     /**
@@ -324,8 +352,13 @@ class CronController extends \yii\console\Controller {
                 ->attachContent(file_get_contents($file), [
                     'fileName' => $fileName,
                     'contentType' => $mimeTypes[$extension]
-                ])
-                ->send();
+                ]);
+
+            try {
+                $send->send();
+            } catch (\Swift_TransportException $e) {
+                Yii::error($e->getMessage(), "email_campaign");
+            }
 
             @unlink(sys_get_temp_dir() . '/' . $fileName);
             return $send;
@@ -344,7 +377,7 @@ class CronController extends \yii\console\Controller {
         // kuwait id is 84
         // SELECT * FROM `candidate` where candidate_email_verification = 1 and country_id != 84 and candidate_area_uuid IN
         // (SELECT `area_uuid` FROM `area` WHERE `country_id` = 84)
-        $total = Candidate::kuwaitiNationalityEmail();
+        Candidate::kuwaitiNationalityEmail();
         return true;
     }
 
@@ -504,35 +537,43 @@ class CronController extends \yii\console\Controller {
         Yii::$app->eventManager->flush();
     }
 
+    /*
     public function actionTest() 
     {
-        $a = \Yii::$app->mailer->compose([
+        $mailer = \Yii::$app->mailer->compose([
             'message' => 'test',
         ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo(['a.aljasser@trolley.com.kw' => 'Plugn'])//\Yii::$app->params['supportEmail']
             ->setTo(['kathrechakrushn@gmail.com'])
-            ->setSubject('Test email')
-            ->send();
+            ->setSubject('Test email');
 
-        var_dump($a);
-        die();    
-    }
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
+    }*/
 
     /*
      * php yii cron/check-daily-attendance
      * */
     public function actionCheckDailyAttendance() {
+
         $day = date('l');
         if ($day == 'Friday' || $day == 'Saturday') {
             return true;
         }
+
         $currentlyWorking = StaffWorkSession::find()
             ->andWhere(new Expression("DATE(created_at) = CURDATE()"))
             ->groupBy('staff_id')
             ->asArray()
             ->all();
-        $query = Staff::find();
+
+        $query = \common\models\Staff::find()
+             ->joinWith('staffNotifications')
+             ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "daily-attendance-notification"]);
 
         if ($day != 'Friday' && $day != 'Saturday') {
             $query->andWhere(['NOT IN', 'staff_id', $currentlyWorking]);
@@ -544,16 +585,21 @@ class CronController extends \yii\console\Controller {
         if (count($staffList) > 0) {
             foreach($staffList as $staff) {
                 $count ++;
-                Yii::$app->mailer->compose("staff/timer-notification",
+
+                $mailer = Yii::$app->mailer->compose("staff/timer-notification",
                     [
                         "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                         "staff" => $staff,
                     ])
                     ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setTo($staff->staff_email)
-                    ->setSubject("Daily Attendance notification")
-                    ->send();
+                    ->setSubject("Daily Attendance notification");
 
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "email_campaign");
+                }
 
                 Console::updateProgress($count, count($staffList));
             }

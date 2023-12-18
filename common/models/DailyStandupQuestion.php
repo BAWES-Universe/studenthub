@@ -98,10 +98,11 @@ class DailyStandupQuestion extends \yii\db\ActiveRecord
         );
 
         $didnt_attended = Staff::find()
+            ->notDeleted()
             ->andWhere(['NOT IN', 'staff_id', $staffIds])
             ->all();
 
-            Yii::$app->mailer->compose("stand-up-report",
+            $mailer = Yii::$app->mailer->compose("stand-up-report",
                 [
                     'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
                     'absents' => $absents,
@@ -110,8 +111,13 @@ class DailyStandupQuestion extends \yii\db\ActiveRecord
                 ])
                 ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                 ->setTo(Yii::$app->params['adminEmail'])
-                ->setSubject('Stand-up report')
-                ->send();
+                ->setSubject('Stand-up report');
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
     }
 
     /**

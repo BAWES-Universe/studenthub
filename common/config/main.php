@@ -21,8 +21,15 @@ return [
             'class' => 'common\components\GoogleMap', 
             'accessKey' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw'
         ],
+        'reCaptcha' => [
+            'class' => 'common\components\ReCaptcha',
+            'secretKey' => "6Lei9R4pAAAAAD5-OIUbCZeMQ00saNLKNuU62b4v"
+        ],
         'jwt' => [
             'class' => 'common\components\JWT'
+        ],
+        'smsComponent' => [
+            'class' => 'common\components\SMSComponent'
         ],
         'jira' => [
             'class' => 'common\components\JiraComponent',

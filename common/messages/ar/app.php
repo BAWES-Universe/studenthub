@@ -1,6 +1,7 @@
 <?php
 
 return [
+    "We found account with same email, Please login with same email!" => "لقد وجدنا حسابًا بنفس البريد الإلكتروني، يرجى تسجيل الدخول بنفس البريد الإلكتروني!",
     "Salary currency" => "عملة الراتب",
     "Salary" => "مرتب",
     "Comment" => "تعليق",

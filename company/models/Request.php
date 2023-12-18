@@ -138,18 +138,26 @@ class Request extends \common\models\Request
     {
         $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
 
-        $staffList = Staff::findAll(['deleted'=>'0']);
+        $staffList = \common\models\Staff::find()
+            ->joinWith('staffNotifications')
+            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "new-requests"])
+            ->all();
 
         $subject =  $company_name." is looking to hire ".$this->request_position_title;
 
-        return \Yii::$app->mailer->compose("company/request-created-bycompany",
+        $mailer = \Yii::$app->mailer->compose("company/request-created-bycompany",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
             ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
-            ->setSubject($subject)
-            ->send();
+            ->setSubject($subject);
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 }

@@ -250,8 +250,10 @@ return [
                         'PATCH payment-received-distributing/<id>' => 'payment-received-distributing',
                         'PATCH unlock/<id>' => 'unlock',
                         'PATCH lock/<id>' => 'lock',
+                        'PATCH cancel/<id>' => 'cancel',
                         'PATCH mark-paid-all' => 'mark-paid-all',
                         'PATCH pay-by-wallet/<id>' => 'pay-by-wallet',
+                        'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTION download-payment-advice' => 'options',
@@ -269,6 +271,7 @@ return [
                         'OPTIONS export/<id>' => 'options',
                         'OPTIONS pdf/<id>/<type>' => 'options',
                         'OPTIONS suspicious' => 'options',
+                        'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS pay-by-wallet/<id>' => 'options',
                     ]
                 ],
@@ -354,6 +357,23 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS test/<id>' => 'options',
+                    ]
+                ],
+                [ // EmailCampaignController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/email-campaign',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'POST status-list' => 'status-list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'PATCH run/<id>' => 'run',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS run/<id>' => 'options',
                     ]
                 ],
                 [ // BankController

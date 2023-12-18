@@ -328,9 +328,12 @@ class Candidate extends \common\models\Candidate {
      */
     public static function passwordMail($model, $password)
     {
+        if(!$model->candidate_email_verification)
+            return false;
+
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-        return Yii::$app->mailer->compose("candidate/candidate-password",
+        $mailer = Yii::$app->mailer->compose("candidate/candidate-password",
             [
                 "model" => $model,
                 "password" => $password,
@@ -339,7 +342,12 @@ class Candidate extends \common\models\Candidate {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($model->candidate_email)
-            ->setSubject('Your account password has been reset')
-            ->send();
+            ->setSubject('Your account password has been reset');
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 }

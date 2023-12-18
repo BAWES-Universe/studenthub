@@ -8,6 +8,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+
 /**
  * This is the model class for table "staff".
  *
@@ -156,6 +157,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             'totalCompletedRequests',
             'totalClosedRequests',
             'totalPendingRequests',
+            'staffNotifications',
             'totalInvitations' => function($model) {
 
                 $start_date = Yii::$app->request->get('start_date');
@@ -301,13 +303,126 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * Access tokens used to login on devices
-     * @return \yii\db\ActiveQuery
+     * @param $insert
+     * @param $changedAttributes
+     * @return void|null
      */
-    public function getAccessTokens($modelClass = "\common\models\StaffToken")
+    public function afterSave($insert, $changedAttributes)
     {
-        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+        parent::afterSave($insert, $changedAttributes);
+
+        if(YII_ENV != 'prod') {
+            return null;
+        }
+
+        if ($insert) {
+            Yii::$app->eventManager->track(
+                'Staff Created v2',
+                [
+                    "staff_name" => $this->staff_name,
+                    "staff_email" => $this->staff_email
+                ]
+            );
+        } else {
+            Yii::$app->eventManager->track(
+                'Staff Updated v2',
+                [
+                    "staff_name" => $this->staff_name,
+                    "staff_email" => $this->staff_email
+                ]
+            );
+        }
     }
+
+    /**
+     * Set logo from S3 temp url
+     * @param string $url
+     */
+    public function setLogo($staff_photo) {
+
+        if(!Yii::$app->temporaryBucketResourceManager->fileExists($staff_photo)) {
+            $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
+            return false;
+        }
+
+        $url = Yii::$app->temporaryBucketResourceManager->getUrl($staff_photo);
+
+        $filename = Yii::$app->security->generateRandomString();
+
+        // deleting old pic
+
+        if ($this->staff_photo) {
+            $this->deleteLogoFromCloudinary();
+        }
+
+        try {
+            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/" ;
+            $result = Yii::$app->cloudinaryManager->upload(
+                $url,
+                [
+                    'public_id' =>  $path . $filename,
+                    "eager" => [
+                        [
+                            "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
+                        ]
+                    ]
+                ]
+            );
+
+            if ($result) {
+                $this->staff_photo = basename($result['url']);
+                return true;
+            }
+
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            $this->addError('staff_photo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
+    /**
+     * delete old logo from cloudinary
+     * @return boolean
+     */
+    public function deleteLogoFromCloudinary() {
+
+        try {
+            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/" ;
+            $response = Yii::$app->cloudinaryManager->delete( $path . $this->staff_photo);
+            if ($response && $response['result'] == 'not found') {
+                $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
+                return false;
+            }
+        } catch (\Cloudinary\Error $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            //$this->addError('brand_logo', Yii::t('app', 'Please try again.'));
+
+            return false;
+
+        } catch (\Exception $e) {
+
+            Yii::error($e->getMessage(), 'common');
+
+            //$this->addError('brand_logo', Yii::t('app', 'Image not available to save.'));
+
+            return false;
+        }
+    }
+
 
     /**
      * return total pending requests by staff
@@ -393,6 +508,15 @@ class Staff extends ActiveRecord implements IdentityInterface
             ->count ();
     }
 
+    /**
+     * Access tokens used to login on devices
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccessTokens($modelClass = "\common\models\StaffToken")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+    
     /**
      * @return \yii\db\ActiveQuery
      */
@@ -727,6 +851,14 @@ class Staff extends ActiveRecord implements IdentityInterface
             ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
                 AND total_minutes IS NULL"))
             ->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaffNotifications($modelClass = "\common\models\StaffNotification")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
     /**

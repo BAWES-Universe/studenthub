@@ -169,14 +169,14 @@ class Request extends \common\models\Request {
         $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
 
         $staffList = Staff::find()
-            ->andWhere(['!=', 'staff_id', \Yii::$app->user->id])
-            ->andWhere(['deleted'=>'0'])
-            ->andWhere(['staff_notification' => 1])
+            ->joinWith('staffNotifications')
+            ->andWhere(['staff.deleted' => false, 'staff.staff_notification' => true, 'permission' => "request-updates"])
+            ->andWhere(['!=', 'staff.staff_id', \Yii::$app->user->id])
             ->all();
+
         $subject =  "I've updated the request for ".$this->request_position_title." for ".$company_name;
 
-
-        return \Yii::$app->mailer->compose("company/request-updated",
+        $mailer =  \Yii::$app->mailer->compose("company/request-updated",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
@@ -186,8 +186,13 @@ class Request extends \common\models\Request {
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
-            ->setSubject($subject)
-            ->send();
+            ->setSubject($subject);
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 
     public function requestNotification()
@@ -202,7 +207,7 @@ class Request extends \common\models\Request {
 
         $subject =  "I've added a request for ".$this->request_position_title." for ".$company_name;
 
-        return \Yii::$app->mailer->compose("company/request-created",
+        $mailer = \Yii::$app->mailer->compose("company/request-created",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
@@ -210,7 +215,12 @@ class Request extends \common\models\Request {
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
             ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
-            ->setSubject($subject)
-            ->send();
+            ->setSubject($subject);
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
+        }
     }
 }
