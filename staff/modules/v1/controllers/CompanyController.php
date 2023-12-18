@@ -99,9 +99,9 @@ class CompanyController extends Controller
         }
 
         if ($status == 4) {
-            $query->filterActive()
-                ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
-                ->filterByActive40DaysPassedWithoutRequest();
+            //->filterActive()
+            //->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+            $query->filterByActive40DaysPassedWithoutRequest();
         }
 
         if ($status == 5) {

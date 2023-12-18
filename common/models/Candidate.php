@@ -1049,7 +1049,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCandidateIdCards($modelClass = "\common\models\CandidateIdCard")
     {
-        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andwhere(['candidate_id_card.deleted' => 0]);
     }
 
     /**

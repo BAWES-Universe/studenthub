@@ -490,6 +490,27 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
+     * candidate work history
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $modelClass::find()
+            ->andWhere([
+                "OR",
+                ['company_id' => $this->company_id],
+                ["parent_company_id" => $this->company_id]
+            ]);
+
+        /*$this->hasMany($modelClass::className(), [
+            "OR",
+            ['company_id' => 'company_id'],
+            ["parent_company_id" => "company_id"]
+        ]);*/
+    }
+
+    /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */
