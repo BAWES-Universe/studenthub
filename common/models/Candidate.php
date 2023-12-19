@@ -147,6 +147,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => ['candidate_civil_id', 'deleted']],
 
             ['candidate_pending_profile', 'string'],
+            [['is_incomplete_profile'], 'boolean'],
+
             [
                 ['candidate_civil_id'],
                 'number',
@@ -262,59 +264,59 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['deleteCandidate'] = ['deleted', 'is_duplicate'];
 
-        $scenarios['updateName'] = ['candidate_name'];
+        $scenarios['updateName'] = ['candidate_name', 'is_incomplete_profile'];
 
-        $scenarios['updateNameAr'] = ['candidate_name_ar'];
+        $scenarios['updateNameAr'] = ['candidate_name_ar', 'is_incomplete_profile'];
 
-        $scenarios['candidate_personal_photo'] = ['candidate_personal_photo'];
+        $scenarios['candidate_personal_photo'] = ['candidate_personal_photo', 'is_incomplete_profile'];
 
-        $scenarios['updateCivilId'] = ['candidate_civil_id'];
+        $scenarios['updateCivilId'] = ['candidate_civil_id', 'is_incomplete_profile'];
 
-        $scenarios["updateLanguagePref"] = ["candidate_language_pref"];
+        $scenarios["updateLanguagePref"] = ["candidate_language_pref", 'is_incomplete_profile'];
 
-        $scenarios['updateJobSearchStatus'] = ['candidate_job_search_status'];
+        $scenarios['updateJobSearchStatus'] = ['candidate_job_search_status', 'is_incomplete_profile'];
 
-        $scenarios['updateCommitted'] = ['candidate_committed'];
+        $scenarios['updateCommitted'] = ['candidate_committed', 'is_incomplete_profile'];
 
-        $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email'];
+        $scenarios['updateEmail'] = ['candidate_email', 'candidate_new_email', 'is_incomplete_profile'];
 
-        $scenarios['verifyEmail'] = ['candidate_email', 'candidate_new_email', 'candidate_email_verification'];
+        $scenarios['verifyEmail'] = ['candidate_email', 'candidate_new_email', 'candidate_email_verification', 'is_incomplete_profile'];
 
-        $scenarios['updateCandidateEmail'] = ['candidate_email'];
+        $scenarios['updateCandidateEmail'] = ['candidate_email', 'is_incomplete_profile'];
 
-        $scenarios['changeProfilePhoto'] = ['profile_photo'];
+        $scenarios['changeProfilePhoto'] = ['profile_photo', 'is_incomplete_profile'];
         
-        $scenarios['changeVideo'] = ['candidate_video', 'candidate_video_job_id', 'candidate_video_processed'];
+        $scenarios['changeVideo'] = ['candidate_video', 'candidate_video_job_id', 'candidate_video_processed', 'is_incomplete_profile'];
 
-        $scenarios['tmpVideo'] = ['candidate_video'];
+        $scenarios['tmpVideo'] = ['candidate_video', 'is_incomplete_profile'];
 
-        $scenarios['tmpProfilePhoto'] = ['profile_photo'];
+        $scenarios['tmpProfilePhoto'] = ['profile_photo', 'is_incomplete_profile'];
 
-        $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back'];
+        $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back', 'is_incomplete_profile'];
         
-        $scenarios['updateCivilPhotoFront'] = ['candidate_civil_photo_front'];
+        $scenarios['updateCivilPhotoFront'] = ['candidate_civil_photo_front', 'is_incomplete_profile'];
         
-        $scenarios['updateNationality'] = ['country_id'];
+        $scenarios['updateNationality'] = ['country_id', 'is_incomplete_profile'];
 
-        $scenarios['updateDrivingLicense'] = ['candidate_driving_license'];
+        $scenarios['updateDrivingLicense'] = ['candidate_driving_license', 'is_incomplete_profile'];
 
-        $scenarios['updateKuwaitiNational'] = ['candidate_mom_kuwaiti'];
+        $scenarios['updateKuwaitiNational'] = ['candidate_mom_kuwaiti', 'is_incomplete_profile'];
 
-        $scenarios['updateObjective'] = ['candidate_objective'];
+        $scenarios['updateObjective'] = ['candidate_objective', 'is_incomplete_profile'];
 
-        $scenarios['updateIntro'] = ['candidate_intro'];
+        $scenarios['updateIntro'] = ['candidate_intro', 'is_incomplete_profile'];
 
-        $scenarios['updateGender'] = ['candidate_gender'];
+        $scenarios['updateGender'] = ['candidate_gender', 'is_incomplete_profile'];
 
-        $scenarios['updateUniversity'] = ['university_id'];
+        $scenarios['updateUniversity'] = ['university_id', 'is_incomplete_profile'];
 
-        $scenarios['updateResume'] = ['candidate_resume'];
+        $scenarios['updateResume'] = ['candidate_resume', 'is_incomplete_profile'];
 
-        $scenarios['updateCivilExpiryDate'] = ['candidate_civil_expiry_date'];
+        $scenarios['updateCivilExpiryDate'] = ['candidate_civil_expiry_date', 'is_incomplete_profile'];
 
-        $scenarios['updateCivilExpiryDateAndCivilID'] = ['candidate_civil_expiry_date', 'candidate_civil_id'];
+        $scenarios['updateCivilExpiryDateAndCivilID'] = ['candidate_civil_expiry_date', 'candidate_civil_id', 'is_incomplete_profile'];
 
-        $scenarios['updateBirthDate'] = ['candidate_birth_date'];
+        $scenarios['updateBirthDate'] = ['candidate_birth_date', 'is_incomplete_profile'];
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
 
@@ -324,23 +326,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
 
-        $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban'];
+        $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban', 'is_incomplete_profile'];
 
-        $scenarios['candidatePhone'] = ['candidate_phone'];
+        $scenarios['candidatePhone'] = ['candidate_phone', 'is_incomplete_profile'];
 
-        $scenarios['candidatePreferredTime'] = ['candidate_preferred_time'];
+        $scenarios['candidatePreferredTime'] = ['candidate_preferred_time', 'is_incomplete_profile'];
 
-        $scenarios['statusChange'] = ['approved'];
+        $scenarios['statusChange'] = ['approved', 'is_incomplete_profile'];
 
-        $scenarios['updateHourRate'] = ['candidate_hourly_rate'];
+        $scenarios['updateHourRate'] = ['candidate_hourly_rate', 'is_incomplete_profile'];
 
-        $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid'];
+        $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid', 'is_incomplete_profile'];
 
-        $scenarios['updatePendingProfile'] = ['candidate_pending_profile'];
+        $scenarios['updatePendingProfile'] = ['candidate_pending_profile', 'is_incomplete_profile'];
 
-        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token', 'candidate_limit_email'];
+        $scenarios['updatePasswordToken'] = ['candidate_password_reset_token', 'candidate_limit_email', 'is_incomplete_profile'];
 
-        $scenarios['updateProfileUrl'] = ['profile_url'];
+        $scenarios['updateProfileUrl'] = ['profile_url', 'is_incomplete_profile'];
 
         return $scenarios;
     }
@@ -962,7 +964,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         //update profile status
 
-        $this->isInCompleteProfile();
+        $this->is_incomplete_profile = $this->isInCompleteProfile();
 
         $this->candidate_pending_profile = implode(',', array_keys($this->pendingProfile));
 
