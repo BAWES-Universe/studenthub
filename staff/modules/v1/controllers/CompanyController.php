@@ -78,9 +78,14 @@ class CompanyController extends Controller
         $name = Yii::$app->request->getQueryParam("name",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
         $have_students = Yii::$app->request->getQueryParam("have_students");
+        $staff_id = Yii::$app->request->getQueryParam("staff_id");
 
         $query = Company::find()
             ->filterParent();
+
+        if($staff_id) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
 
         if ($status == 9) {
             $query->filterUnderReview();
