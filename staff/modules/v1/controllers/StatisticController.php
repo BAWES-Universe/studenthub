@@ -71,63 +71,133 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
+        $refresh = Yii::$app->request->get('refresh');
+
+        if($refresh) {
+            Yii::$app->cache->flush();
+        }
+
+        $cacheDuration = 60 * 60 * 24; // 1 day then delete from cache
+        
+        $candidateCacheDependency = Yii::createObject([
+            'class' => 'yii\caching\DbDependency',
+            'reusable' => true,
+            'sql' => 'SELECT COUNT(*) FROM `candidate`',
+        ]);
+
+        $companyCacheDependency = Yii::createObject([
+            'class' => 'yii\caching\DbDependency',
+            'reusable' => true,
+            'sql' => 'SELECT COUNT(*) FROM `company`',
+        ]);
+
+        $transferCandidateCacheDependency = Yii::createObject([
+            'class' => 'yii\caching\DbDependency',
+            'reusable' => true,
+            'sql' => 'SELECT COUNT(*) FROM `transfer_candidate`',
+        ]);
+
+        $requestCacheDependency = Yii::createObject([
+            'class' => 'yii\caching\DbDependency',
+            'reusable' => true,
+            'sql' => 'SELECT COUNT(*) FROM `request`',
+        ]);
+
+        $companyRequestCacheDependency = Yii::createObject([
+            'class' => 'yii\caching\DbDependency',
+            'reusable' => true,
+            'sql' => 'SELECT COUNT(*) FROM `company_request`',
+        ]);
+
         // # of candidates requiring ID card to be renewed
 
-    	$result['totalExpiredCards'] =  (int) Candidate::totalExpiredCards()->count();
+        $result = null;
 
-        $result['assignedExpiredCivilID'] =  (int) Candidate::assignedExpiredCivilID()->count();
+    	$result['totalExpiredCards'] = Candidate::getDb()->cache(function ($db) {
+            return (int) Candidate::totalExpiredCards()->count();
+        }, $cacheDuration, $candidateCacheDependency);
+
+        $result['assignedExpiredCivilID'] = Candidate::getDb()->cache(function ($db) {
+            return (int) Candidate::assignedExpiredCivilID()->count();
+        }, $cacheDuration, $candidateCacheDependency);
 
     	// # of candidates that need id generated
 
-	    $result['id_need_generated'] = Candidate::find()
-            ->filterAssigned()
-            ->notDeleted()
-            ->idNeedGenerated()
-            ->count();
+	    $result['id_need_generated'] = Candidate::getDb()->cache(function ($db) {
+            return Candidate::find()
+                ->filterAssigned()
+                ->notDeleted()
+                ->idNeedGenerated()
+                ->count();
+        }, $cacheDuration, $candidateCacheDependency);
 
         //Candidates with profile complete requiring their profiles to be reviewed and approved.
 
-        $result['profileApprovalRequire'] = (int) Candidate::profileApprovalRequire()->count();
+        $result['profileApprovalRequire'] = Candidate::getDb()->cache(function ($db) {
+            return (int) Candidate::profileApprovalRequire()->count();
+        }, $cacheDuration, $candidateCacheDependency);
 
         //Candidates are assigned to work but have incomplete profiles.
 
-        $result['incompleteAssignedToWork'] = (int) Candidate::incompleteAssignedToWork()->count();
+        $result['incompleteAssignedToWork'] = Candidate::getDb()->cache(function ($db) {
+            return (int) Candidate::incompleteAssignedToWork()->count();
+        }, $cacheDuration, $candidateCacheDependency);
 
-        $result['missingBankInfo'] = (int) Candidate::withoutBankInfoOrWithPayment()->count();
+        $result['missingBankInfo'] = Candidate::getDb()->cache(function ($db) {
+            return (int) Candidate::withoutBankInfoOrWithPayment()->count();
+        }, $cacheDuration, $candidateCacheDependency);
 
-        $result['requireFollowup'] = (int) Company::companyFollowupCount();
+        $result['requireFollowup'] = Company::getDb()->cache(function ($db) {
+            return (int) Company::companyFollowupCount();
+        }, $cacheDuration, $companyCacheDependency);
 
-        $result['activeRequests'] = (int) Request::activeRequestCount();
+        $result['activeRequests'] = Company::getDb()->cache(function ($db) {
+            return (int) Request::activeRequestCount();
+        }, $cacheDuration, $companyCacheDependency);
 
-        $result['totalRequests'] = (int) Request::totalRequestCount();
+        $result['totalRequests'] = Request::getDb()->cache(function ($db) {
+            return (int) Request::totalRequestCount();
+        }, $cacheDuration, $requestCacheDependency);
 
-        $result['assignedIdleCandidates'] = (int) Candidate::getAssignedIdleCandidate()->count();
+        $result['assignedIdleCandidates'] = Candidate::getDb()->cache(function ($db) {
+            return (int) Candidate::getAssignedIdleCandidate()->count();
+        }, $cacheDuration, $candidateCacheDependency);
 
-        $result['companyMoreThen40DaysWithoutPayment'] = (int)  Company::companiesCountWithNoPaymentIn40Days();
+        $result['companyMoreThen40DaysWithoutPayment'] = Company::getDb()->cache(function ($db) {
+            return (int)  Company::companiesCountWithNoPaymentIn40Days();
+        }, $cacheDuration, $companyCacheDependency);
 
-        $result['last40daysNoRequest'] = (int)  Company::last40daysWithoutRequest();
+        $result['last40daysNoRequest'] = Company::getDb()->cache(function ($db) {
+            return (int)  Company::last40daysWithoutRequest();
+        }, $cacheDuration, $companyCacheDependency);
 
-        /*$result['companyUnderReview'] = (int) Company::find()
+        /*$result['companyUnderReview'] = return (int) Company::find()
             ->andWhere(['company_status_override' => Company::STATUS_UNDER_REVIEW])
             ->count();*/
 
-        $result['companyUnderReview'] = (int) CompanyRequest::find()
-            ->andWhere(['status' => CompanyRequest::STATUS_PENDING])
-            ->count();
+        $result['companyUnderReview'] = CompanyRequest::getDb()->cache(function ($db) {
+            return (int)CompanyRequest::find()
+                ->andWhere(['status' => CompanyRequest::STATUS_PENDING])
+                ->count();
+        }, $cacheDuration, $companyRequestCacheDependency);
 
-        $result['transfersWithNoProfitInProgress'] = (int) TransferCandidate::find()
-            ->filterNoProfit ()
-            ->filterUnpaid ()
-            ->select('transfer_id')
-            ->distinct()
-            ->count();
+        $result['transfersWithNoProfitInProgress'] = TransferCandidate::getDb()->cache(function ($db) {
+            return (int)TransferCandidate::find()
+                ->filterNoProfit()
+                ->filterUnpaid()
+                ->select('transfer_id')
+                ->distinct()
+                ->count();
+        }, $cacheDuration, $transferCandidateCacheDependency);
 
-        $result['transfersWithSameRateInProgress'] = (int) TransferCandidate::find()
-            ->filterSameRate ()
-            ->filterUnpaid ()
-            ->select('transfer_id')
-            ->distinct()
-            ->count();
+        $result['transfersWithSameRateInProgress'] = TransferCandidate::getDb()->cache(function ($db) {
+            return (int)TransferCandidate::find()
+                ->filterSameRate()
+                ->filterUnpaid()
+                ->select('transfer_id')
+                ->distinct()
+                ->count();
+        }, $cacheDuration, $transferCandidateCacheDependency);
 
         return $result;
     }

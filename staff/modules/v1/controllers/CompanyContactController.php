@@ -89,6 +89,7 @@ class CompanyContactController extends Controller
                     ['like', 'contact_phone.phone_number', $q]
                 ]);
         }
+
         if($company_id) {
             // we need to show position in contact listing page
             // each contact have has many contact so using join to

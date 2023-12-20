@@ -125,6 +125,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
 
         if($insert)
             $this->notifyStaff();
+
     }
 
     /**

@@ -51,30 +51,6 @@ class Candidate extends \common\models\Candidate {
         ], $fields);
     }
 
-    public function getInvited() {
-        return $this->getInvitations()->count();
-    }
-
-    public function getInvitationAccepted() {
-        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_ACCEPTED])->count();
-    }
-
-    public function getInvitationRejected() {
-        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_REJECTED])->count();
-    }
-
-    public function getSuggested() {
-        return $this->getSuggestion()->count();
-    }
-
-    public function getSuggestionAccepted() {
-        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_ACCEPTED])->count();
-    }
-
-    public function getSuggestionRejected() {
-        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_REJECTED])->count();
-    }
-
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
@@ -568,6 +544,7 @@ class Candidate extends \common\models\Candidate {
             ->filterAssigned()
             ->getTwoMonthBeforeTransfers()
             ->notDeleted();
+
         if ($candidate_name) {
             $query->filterName($candidate_name);
         }
@@ -632,9 +609,34 @@ class Candidate extends \common\models\Candidate {
      * @return \common\models\query\CandidateQuery
      */
     public static function totalExpiredCards() {
+
         return self::find()
             ->idExpired()
             ->filterAssigned() // only candidate with assigned work
             ->notDeleted();
+    }
+
+    public function getInvited() {
+        return $this->getInvitations()->count();
+    }
+
+    public function getInvitationAccepted() {
+        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_ACCEPTED])->count();
+    }
+
+    public function getInvitationRejected() {
+        return $this->getInvitations()->andWhere(['invitation_status' => Invitation::STATUS_REJECTED])->count();
+    }
+
+    public function getSuggested() {
+        return $this->getSuggestion()->count();
+    }
+
+    public function getSuggestionAccepted() {
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_ACCEPTED])->count();
+    }
+
+    public function getSuggestionRejected() {
+        return $this->getSuggestion()->andWhere(['suggestion_status' => Suggestion::TYPE_REJECTED])->count();
     }
 }
