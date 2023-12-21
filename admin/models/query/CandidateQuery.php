@@ -195,7 +195,10 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function idNeedGenerated()
     {
-        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card where deleted = 0 )');
+        //return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card where deleted = 0 )');
+
+        return $this->joinWith(['candidateIdCards'])
+            ->andWhere(new Expression("candidate_id_card.id IS NULL"));
     }
 
     /**
@@ -309,24 +312,6 @@ class CandidateQuery extends \yii\db\ActiveQuery
                 'country',
                 'university'
             ]);
-    }
-
-    /**
-     * candidates that are assigned to work but
-     * have no TransferCandidate records in past 2 months
-     *
-     * used two conditions. one is for without transfer in 2 months
-     * second one check if user's started the job passed two months
-     */
-    public function getTwoMonthBeforeTransfers() {
-        $date = date('Y-m-d', strtotime('-2 month'));
-
-        return $this->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `candidate_work_history` where DATE(`candidate_work_history`.`start_date`) > DATE("'.$date.'") and end_date IS NUll group by candidate_id)')
-            ->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `transfer_candidate` where DATE(`transfer_candidate`.tc_created_at) > DATE("'.$date.'") group by candidate_id)');
-        //last 2 MONTH
-
-        //store_id IS NOT NULL
-
     }
 
     /**

@@ -185,13 +185,62 @@ class CompanyQuery extends \yii\db\ActiveQuery {
      * @return $this
      */
     public function filterByActive40DaysPassedWithoutPayment() {
-        $q = '{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where ';
+
+        /*$q = '{{%company}}.company_id NOT IN (SELECT company_id FROM `transfer` where ';
         $q .= 'transfer_status in (1,3,4) and DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY))';
         $q .= ' AND ({{%company}}.`total_candidate` > 0)';
-        $q .= ' AND {{%company}}.company_id IN (SELECT parent_company_id FROM `candidate_work_history` where DATE(start_date) < DATE_SUB(NOW(),INTERVAL 30 DAY) group by parent_company_id)';
+        $q .= ' AND {{%company}}.company_id IN (SELECT parent_company_id FROM `candidate_work_history` where  group by parent_company_id)';
+
+        return $this->andWhere($q);*/
+
+        /*return $this->joinWith(['transfers'], false, 'left join')//, 'candidateWorkHistories'
+            ->andWhere(new Expression('
+                 (
+                    (
+                        transfer_status in (1,3,4) and DATE(transfer_created_at) < DATE("'.$date.'")
+                    ) 
+                    OR 
+                    transfer_id IS NULL
+                 ) 
+                 AND 
+                 {{%company}}.`total_candidate` > 0'
+            ))
+            ->groupBy('company.company_id');// AND DATE(candidate_work_history.start_date) < DATE("'.$date.'")*/
+
+        //40 days+ older but no payment or no payment in last 40 days
+
+        $date = date('Y-m-d', strtotime('-40 day'));
+
+        return $this->andWhere(new Expression('DATE(`company`.`company_created_at`) < DATE("'.$date.'") AND 
+            (`company`.`last_payment_datetime` IS NULL OR DATE(`company`.`last_payment_datetime`) < DATE("'.$date.'"))'));
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByActive40DaysPassedWithoutRequest() {
+
+        /*$q = '{{%company}}.company_id NOT IN (';
+        $q .= 'SELECT IFNULL(`company`.`parent_company_id`,`company`.`company_id`) as company_id FROM `request` ';
+        $q .= 'left join company on `request`.`company_id` = `company`.`company_id` where ';
+        $q .= '`request`.`request_created_datetime` > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
+        $q .= ' `company`.`company_created_at` < DATE_SUB(NOW(),INTERVAL 40 DAY) GROUP BY `company`.`company_id`)';
         return
             $this
-                ->andWhere($q);
+                ->andWhere($q);*/
+
+        /*return $this->joinWith(['requests'], false, 'left join')
+            ->andWhere(new Expression('DATE(`company`.`company_created_at`) < DATE("'.$date.'") AND 
+                (request_created_datetime IS NULL OR DATE(`request`.`request_created_datetime`) < DATE("'.$date.'"))'))// no request or old request
+            ->groupBy('company.company_id');*/
+
+        //40 days+ older but no request or no requests in last 40 days
+
+        $date = date('Y-m-d', strtotime('-40 day'));
+
+        return $this->andWhere(new Expression('DATE(`company`.`company_created_at`) < DATE("'.$date.'") AND 
+            (`company`.`last_request_datetime` IS NULL OR DATE(`company`.`last_request_datetime`) < DATE("'.$date.'"))'));
     }
 
     /**
@@ -207,20 +256,8 @@ class CompanyQuery extends \yii\db\ActiveQuery {
     }
 
     /**
-     * @param $id
-     * @return $this
+     * @return CompanyQuery
      */
-    public function filterByActive40DaysPassedWithoutRequest() {
-        $q = '{{%company}}.company_id NOT IN (';
-        $q .= 'SELECT IFNULL(`company`.`parent_company_id`,`company`.`company_id`) as company_id FROM `request` ';
-        $q .= 'left join company on `request`.`company_id` = `company`.`company_id` where ';
-        $q .= '`request`.`request_created_datetime` > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
-        $q .= ' `company`.`company_created_at` < DATE_SUB(NOW(),INTERVAL 40 DAY) GROUP BY `company`.`company_id`)';
-        return
-            $this
-                ->andWhere($q);
-    }
-
     public function notDeleted() {
         return $this->andWhere(['{{%company}}.deleted' => 0]);
     }

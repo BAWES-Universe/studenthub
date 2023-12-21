@@ -446,6 +446,9 @@ class Request extends \yii\db\ActiveRecord
 
         if($insert)
         {
+            $this->company->last_request_datetime = new Expression("NOW()");
+            $this->company->save(false);
+
             //Add stories based on request_number_of_employees
 
 //            $count = ceil($this->request_number_of_employees / $this->no_of_employees_per_story);

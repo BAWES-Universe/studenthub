@@ -199,7 +199,9 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function idNeedGenerated()
     {
-        return $this->andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card where deleted = 0 )');
+        return $this->joinWith(['candidateIdCards'])
+            ->andWhere(new Expression("candidate_id_card.id IS NULL"));
+        //andWhere('candidate_id NOT IN (select candidate_id from candidate_id_card where deleted = 0 )');
     }
 
     /**
@@ -322,9 +324,20 @@ class CandidateQuery extends \yii\db\ActiveQuery
      * second one check if user's started the job passed two months
      */
     public function getTwoMonthBeforeTransfers() {
-        return $this->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `transfer_candidate` where (`transfer_candidate`.tc_created_at > DATE_SUB(NOW(),INTERVAL 2 MONTH)) group by candidate_id)')
-        ->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `candidate_work_history` where (`candidate_work_history`.`start_date` > DATE_SUB(NOW(),INTERVAL 2 MONTH)) and end_date IS NUll group by candidate_id)');
-        //last 2 MONTH
+        $date = date('Y-m-d', strtotime('-2 month'));
+
+        //return $this->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `candidate_work_history` where DATE(`candidate_work_history`.`start_date`) > DATE("'.$date.'") and end_date IS NUll group by candidate_id)')
+        //    ->andWhere('candidate_id NOT IN (SELECT candidate_id FROM `transfer_candidate` where DATE(`transfer_candidate`.tc_created_at) > DATE("'.$date.'") group by candidate_id)');
+
+        //->andWhere(new Expression("candidate.store_id IS NOT NULL")) //candidate assigned to store
+
+        return $this->joinWith(['candidateWorkHistories', 'transferCandidates'])
+            //no transfer in last 2 month
+            // always true -> DATE(`transfer_candidate`.tc_created_at) < CURRENT_DATE() AND
+            ->andWhere(new Expression("DATE(`transfer_candidate`.tc_created_at) > DATE('".$date."') AND 
+                transfer_candidate.tc_id IS NULL"))
+            //was assigned before 2 month
+            ->andWhere(new Expression("DATE(`candidate_work_history`.`start_date`) < DATE('".$date."')"));
     }
 
     /**

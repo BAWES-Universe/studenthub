@@ -78,9 +78,14 @@ class CompanyController extends Controller
         $name = Yii::$app->request->getQueryParam("name",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
         $have_students = Yii::$app->request->getQueryParam("have_students");
+        $staff_id = Yii::$app->request->getQueryParam("staff_id");
 
         $query = Company::find()
             ->filterParent();
+
+        if($staff_id) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
 
         if ($status == 9) {
             $query->filterUnderReview();
@@ -99,9 +104,9 @@ class CompanyController extends Controller
         }
 
         if ($status == 4) {
-            $query->filterActive()
-                ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
-                ->filterByActive40DaysPassedWithoutRequest();
+            //->filterActive()
+            //->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+            $query->filterByActive40DaysPassedWithoutRequest();
         }
 
         if ($status == 5) {

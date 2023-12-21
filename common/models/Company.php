@@ -36,6 +36,8 @@ use yii\helpers\ArrayHelper;
  * @property integer $company_status_override
  * @property integer $company_created_at
  * @property integer $company_updated_at
+ * @property string|null $last_payment_datetime
+ * @property string|null $last_request_datetime
  * @property integer $deleted
  *
  * @property Company $parentCompany
@@ -102,7 +104,7 @@ class Company extends \yii\db\ActiveRecord
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website',
-                'company_status_override'], 'safe'],
+                'company_status_override', 'last_request_datetime', 'last_payment_datetime'], 'safe'],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -216,6 +218,8 @@ class Company extends \yii\db\ActiveRecord
             'company_status_override' => Yii::t('app','Status Override'),
             'company_created_at' => Yii::t('app','Company Created At'),
             'company_updated_at' => Yii::t('app','Company Updated At'),
+            'last_request_datetime'=> Yii::t('app','Last Request At'),
+            'last_payment_datetime'=> Yii::t('app','Last Payment At'),
         ];
     }
     
@@ -496,6 +500,27 @@ class Company extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
             ->andWhere(['store.deleted'=>0]);
+    }
+
+    /**
+     * candidate work history
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $modelClass::find()
+            ->andWhere([
+                "OR",
+                ['company_id' => $this->company_id],
+                ["parent_company_id" => $this->company_id]
+            ]);
+
+        /*$this->hasMany($modelClass::className(), [
+            "OR",
+            ['company_id' => 'company_id'],
+            ["parent_company_id" => "company_id"]
+        ]);*/
     }
 
     /**
@@ -987,7 +1012,7 @@ class Company extends \yii\db\ActiveRecord
         return Company::find()
             ->filterParent()
             ->filterActive()
-            ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
+           // ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
             ->filterByActive40DaysPassedWithoutRequest()
             ->notDeleted()
             ->count();
