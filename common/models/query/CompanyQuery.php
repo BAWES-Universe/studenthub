@@ -193,9 +193,7 @@ class CompanyQuery extends \yii\db\ActiveQuery {
 
         return $this->andWhere($q);*/
 
-        $date = date('Y-m-d', strtotime('-40 day'));
-
-        return $this->joinWith(['transfers'], false, 'left join')//, 'candidateWorkHistories'
+        /*return $this->joinWith(['transfers'], false, 'left join')//, 'candidateWorkHistories'
             ->andWhere(new Expression('
                  (
                     (
@@ -207,13 +205,42 @@ class CompanyQuery extends \yii\db\ActiveQuery {
                  AND 
                  {{%company}}.`total_candidate` > 0'
             ))
-            ->groupBy('company.company_id');// AND DATE(candidate_work_history.start_date) < DATE("'.$date.'")
+            ->groupBy('company.company_id');// AND DATE(candidate_work_history.start_date) < DATE("'.$date.'")*/
 
-        return $this->joinWith(['requests'], false, 'left join')
+        //40 days+ older but no payment or no payment in last 40 days
+
+        $date = date('Y-m-d', strtotime('-40 day'));
+
+        return $this->andWhere(new Expression('DATE(`company`.`company_created_at`) < DATE("'.$date.'") AND 
+            (`company`.`last_payment_datetime` IS NULL OR DATE(`company`.`last_payment_datetime`) < DATE("'.$date.'"))'));
+    }
+
+    /**
+     * @param $id
+     * @return $this
+     */
+    public function filterByActive40DaysPassedWithoutRequest() {
+
+        /*$q = '{{%company}}.company_id NOT IN (';
+        $q .= 'SELECT IFNULL(`company`.`parent_company_id`,`company`.`company_id`) as company_id FROM `request` ';
+        $q .= 'left join company on `request`.`company_id` = `company`.`company_id` where ';
+        $q .= '`request`.`request_created_datetime` > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
+        $q .= ' `company`.`company_created_at` < DATE_SUB(NOW(),INTERVAL 40 DAY) GROUP BY `company`.`company_id`)';
+        return
+            $this
+                ->andWhere($q);*/
+
+        /*return $this->joinWith(['requests'], false, 'left join')
             ->andWhere(new Expression('DATE(`company`.`company_created_at`) < DATE("'.$date.'") AND 
                 (request_created_datetime IS NULL OR DATE(`request`.`request_created_datetime`) < DATE("'.$date.'"))'))// no request or old request
-            ;
+            ->groupBy('company.company_id');*/
 
+        //40 days+ older but no request or no requests in last 40 days
+
+        $date = date('Y-m-d', strtotime('-40 day'));
+
+        return $this->andWhere(new Expression('DATE(`company`.`company_created_at`) < DATE("'.$date.'") AND 
+            (`company`.`last_request_datetime` IS NULL OR DATE(`company`.`last_request_datetime`) < DATE("'.$date.'"))'));
     }
 
     /**
@@ -229,28 +256,8 @@ class CompanyQuery extends \yii\db\ActiveQuery {
     }
 
     /**
-     * @param $id
-     * @return $this
+     * @return CompanyQuery
      */
-    public function filterByActive40DaysPassedWithoutRequest() {
-
-        $date = date('Y-m-d', strtotime('-40 day'));
-
-        /*$q = '{{%company}}.company_id NOT IN (';
-        $q .= 'SELECT IFNULL(`company`.`parent_company_id`,`company`.`company_id`) as company_id FROM `request` ';
-        $q .= 'left join company on `request`.`company_id` = `company`.`company_id` where ';
-        $q .= '`request`.`request_created_datetime` > DATE_SUB(NOW(),INTERVAL 40 DAY) and ';
-        $q .= ' `company`.`company_created_at` < DATE_SUB(NOW(),INTERVAL 40 DAY) GROUP BY `company`.`company_id`)';
-        return
-            $this
-                ->andWhere($q);*/
-
-        return $this->joinWith(['requests'], false, 'left join')
-            ->andWhere(new Expression('DATE(`company`.`company_created_at`) < DATE("'.$date.'") AND 
-                (request_created_datetime IS NULL OR DATE(`request`.`request_created_datetime`) < DATE("'.$date.'"))'))// no request or old request
-            ->groupBy('company.company_id');
-    }
-
     public function notDeleted() {
         return $this->andWhere(['{{%company}}.deleted' => 0]);
     }
