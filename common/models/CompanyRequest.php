@@ -226,7 +226,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $model->contact_email = $this->company_email;
         $model->contact_password_hash = $this->contact_password_hash;
         $model->contact_receive_email = $this->contact_receive_email;
-        $model->contact_email_verification = true;
+        //$model->contact_email_verification = true;
         $model->generateAuthKey();
 
         if (!$model->save()) {
