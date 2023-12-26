@@ -75,7 +75,11 @@ class StatisticController extends Controller
         $refresh = Yii::$app->request->get('refresh');
 
         if($refresh) {
-            Yii::$app->cache->flush();
+            try {
+                Yii::$app->cache->flush();
+            } catch (Throwable $e) {
+                //todo: show in admin?
+            }
         }
 
         $cacheDuration = 60 * 60 * 24; // 1 day then delete from cache
