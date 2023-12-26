@@ -245,6 +245,7 @@ class CompanyController extends BaseController
             throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
         }
 
+        $contact->contact_email_verification = true;
         $contact->setPassword($password);
 
         if(!$contact->save()) {
