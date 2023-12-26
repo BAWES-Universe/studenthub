@@ -186,6 +186,27 @@ class Transfer extends ActiveRecord
     }
 
     /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return bool
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if (
+            array_key_exists('transfer_status', $changedAttributes) &&
+            $this->transfer_status == Transfer::STATUS_PAYMENT_SENT
+            //$changedAttributes['transfer_status'] == self::STATUS_LOCK
+        ) {
+            $this->company->last_payment_datetime = new Expression("NOW()");
+            $this->company->save(false);
+        }
+
+        return true;
+    }
+
+    /**
      * is current transfer suspicious of manipulation in transfer amount?
      * @return bool
      */

@@ -79,7 +79,7 @@ class StatisticController extends Controller
         }
 
         $cacheDuration = 60 * 60 * 24; // 1 day then delete from cache
-        
+
         $candidateCacheDependency = Yii::createObject([
             'class' => 'yii\caching\DbDependency',
             'reusable' => true,
