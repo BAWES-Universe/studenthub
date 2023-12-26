@@ -76,6 +76,7 @@ class CompanyContactController extends Controller
     public function actionList()
     {
         $company_id = Yii::$app->request->get('company_id');
+        $filter_email_unverified = Yii::$app->request->get('filter_email_unverified');
         $q = Yii::$app->request->get('query');
 
         $query = Contact::find();
@@ -104,8 +105,13 @@ class CompanyContactController extends Controller
                 ->asArray();
         }
 
+        if($filter_email_unverified) {
+            $query->andWhere(['contact_email_verification' => \common\models\Contact::EMAIL_NOT_VERIFIED]);
+        }
+
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+          //  'pagination' => false
         ]);
     }
 

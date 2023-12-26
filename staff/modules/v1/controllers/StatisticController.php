@@ -3,6 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use common\models\CompanyRequest;
+use common\models\Contact;
 use staff\models\Request;
 use staff\models\Company;
 use staff\models\TransferCandidate;
@@ -112,6 +113,10 @@ class StatisticController extends Controller
         // # of candidates requiring ID card to be renewed
 
         $result = null;
+
+        $result['totalUnverifiedEmails'] = Contact::find()
+            ->andWhere(['contact_email_verification' => Contact::EMAIL_NOT_VERIFIED])
+            ->count();
 
     	$result['totalExpiredCards'] = Candidate::getDb()->cache(function ($db) {
             return (int) Candidate::totalExpiredCards()->count();
