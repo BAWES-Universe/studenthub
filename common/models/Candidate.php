@@ -373,8 +373,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function validateNewEmail($attribute) {
 
-        if ($this->candidate_new_email == $this->candidate_email) {
-            $this->addError('candidate_new_email', Yii::t('app', 'Email already registered'));
+        if ($this->candidate_new_email && $this->candidate_new_email != $this->candidate_email) {
+            $this->addError('candidate_new_email', Yii::t('app', 'New email can not be same as old email'));
         }
     }
 
@@ -1616,6 +1616,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ['candidate_new_email' => $email],
                     ['candidate_email' => $email]
             ])
+            ->andWhere(['deleted' => 0])
             ->one();
 
         if(!$candidate) {
