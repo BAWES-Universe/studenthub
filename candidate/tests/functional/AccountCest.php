@@ -143,7 +143,7 @@ class AccountCest
     public function tryUpdateEmail(FunctionalTester $I)
     {
         $I->amGoingTo('try to update email');
-        $I->sendPOST('v1/account/update-email', array('email' => 'demo1@demo.com'));
+        $I->sendPOST('v1/account/update-email', array('email' => 'demo1000000@demo.com'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson([
