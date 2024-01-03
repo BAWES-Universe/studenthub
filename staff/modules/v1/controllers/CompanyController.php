@@ -367,6 +367,11 @@ class CompanyController extends Controller
 
     }
 
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
     public function actionUpdateFollowup($id) {
 
         $model = $this->findModel((int) $id);
@@ -438,8 +443,7 @@ class CompanyController extends Controller
             $contactModel->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
             $contactModel->contact_receive_email = 1;
 
-
-            if (!$contactModel->sendVerificationEmail()) {
+            if (!$contactModel->validate() || !$contactModel->sendVerificationEmail()) {
 
                 $transaction->rollBack();
 
@@ -448,6 +452,8 @@ class CompanyController extends Controller
                     "message" => $contactModel->errors
                 ];
             }
+
+            //$contactModel->save(false);
         }
 
         $model->company_name = Yii::$app->request->getBodyParam("name");
