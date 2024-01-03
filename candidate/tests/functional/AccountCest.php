@@ -143,10 +143,12 @@ class AccountCest
     public function tryUpdateEmail(FunctionalTester $I)
     {
         $I->amGoingTo('try to update email');
-        $I->sendPOST('v1/account/update-email', array('email' => 'demo@demo.com'));
+        $I->sendPOST('v1/account/update-email', array('email' => 'demo1@demo.com'));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-        $I->seeResponseContainsJson(['operation' => 'success','message' => 'Candidate Account Info Updated Successfully, please check email to verify new email address']);
+        $I->seeResponseContainsJson([
+            'operation' => 'success',
+            'message' => 'Candidate Account Info Updated Successfully, please check email to verify new email address']);
     }
     
     public function tryUpdateLanguagePref(FunctionalTester $I)
