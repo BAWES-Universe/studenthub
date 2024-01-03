@@ -121,10 +121,12 @@ return [
                         'GET' => 'list',
                         'POST' => 'create',
                         'PATCH add-to-team' => 'add-to-team',
+                        'PATCH mark-email-verified' => 'mark-email-verified',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS mark-email-verified' => 'options',
                         'OPTIONS view-company-contact' => 'options',
                         'OPTIONS add-to-team' => 'options',
                         'OPTIONS is-email-exists' => 'options',

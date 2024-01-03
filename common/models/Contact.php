@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use staff\models\Staff;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
@@ -16,6 +17,7 @@ use yii\helpers\Url;
  * @property string $contact_email
  * @property string $contact_new_email
  * @property string $contact_email_verification
+ * @property integer $contact_email_verified_by
  * @property string $contact_limit_email
  * @property string $contact_password_hash
  * @property string $contact_auth_key
@@ -63,7 +65,8 @@ class Contact extends \yii\db\ActiveRecord
             [['contact_name', 'contact_password_reset_token',], 'string', 'max' => 255],
             [['contact_uuid'], 'unique'],//'contact_email'
             [['contact_password_reset_token'], 'unique'],
-            [['contact_status'], 'number'],
+            [['contact_status', 'contact_email_verified_by'], 'number'],
+            [['contact_email_verified_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['contact_email_verified_by' => 'staff_id']],
         ];
     }
 
@@ -171,6 +174,7 @@ class Contact extends \yii\db\ActiveRecord
             'contact_email' => Yii::t('app', 'Contact Email'),
             'contact_new_email' => Yii::t('app', 'Contact New Email'),
             'contact_email_verification' => Yii::t('app', 'Contact Email Verified?'),
+            'contact_email_verified_by' => Yii::t('app', 'Contact Email Verified By'),
             'contact_limit_email' => Yii::t('app', 'Contact Limit Email'),
             'contact_otp' => Yii::t('app', 'One Time Password'),
             'contact_receive_email' => Yii::t('app','Receive Email?'),
@@ -200,6 +204,10 @@ class Contact extends \yii\db\ActiveRecord
             $fields['contact_password_reset_token'],
             $fields['contact_auth_key'],
             $fields['contact_otp']);
+
+        $fields['contact_email_verification'] = function($model) {
+            return (boolean) $model->contact_email_verification;
+        };
 
         return $fields;
     }
