@@ -428,6 +428,48 @@ class CompanyContactController extends Controller
     }
 
     /**
+     * mark email verified manually
+     * @return string[]
+     */
+    public function actionMarkEmailVerified() {
+
+        $id = Yii::$app->request->getBodyParam('contact_uuid');
+
+        $model = Contact::findOne($id);
+
+        if(!$model) {
+            return [
+                "operation" => "Error",
+                "message" => "Invalid Contact"
+            ];
+        }
+
+        if (!$model->contact_email_verification) {
+
+            $model->contact_email_verification = true;
+            $model->contact_email_verified_by = Yii::$app->user->getId();
+
+            if(!$model->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }
+
+            return [
+                "operation" => "success",
+                "message" => "Email verified successfully"
+            ];
+
+        } else  {
+            return [
+                "operation" => "error",
+                "message" => "Email already Validated"
+            ];
+        }
+    }
+
+    /**
      * Finds the CompanyContact model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
