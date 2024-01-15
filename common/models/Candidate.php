@@ -138,7 +138,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['deleted', 'default', 'value'=> 0],
 
             [['candidate_new_email', 'candidate_email'], 'validateEmail'],
-            [['candidate_new_email'], 'validateNewEmail'],
+           // [['candidate_new_email'], 'validateNewEmail'],
             [['candidate_limit_email','profile_url'], 'safe'],
             ['candidate_language_pref', 'in', 'range' => ['en', 'ar']],
 

@@ -44,6 +44,16 @@ return [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
+                [ // PingController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/ping',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'test',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // AlgoliaController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/algolia',
