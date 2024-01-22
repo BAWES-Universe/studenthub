@@ -72,7 +72,7 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
-        $refresh = Yii::$app->request->get('refresh');
+        $refresh = (bool) Yii::$app->request->get('refresh');
 
         if($refresh) {
             try {
@@ -117,6 +117,8 @@ class StatisticController extends Controller
         // # of candidates requiring ID card to be renewed
 
         $result = null;
+
+        $result['refresh'] = $refresh;
 
         $result['totalUnverifiedEmails'] = Contact::find()
             ->andWhere(['contact_email_verification' => Contact::EMAIL_NOT_VERIFIED])
