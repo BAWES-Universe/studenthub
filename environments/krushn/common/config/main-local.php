@@ -15,6 +15,16 @@ return [
             'password' => '',
             'charset' => 'utf8',
         ],
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => 'localhost',
+            'port' => 6379,
+            'database' => 0,
+        ],
+        'cache' => [
+            'class' => 'yii\redis\Cache',
+            //'class' => 'yii\caching\FileCache',
+        ],
         'walletManager' => [
             'class' => 'common\components\WalletManager',
             'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
