@@ -15,6 +15,9 @@ return yii\helpers\ArrayHelper::merge(
                 'password' => '',
                 'charset' => 'utf8',
             ],
+            'cache' => [
+                'class' => 'yii\caching\FileCache',
+            ],
         ],
     ]
 );

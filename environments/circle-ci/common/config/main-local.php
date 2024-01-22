@@ -72,6 +72,9 @@ return [
              * https://studenthub-public-anyone-can-upload-24hr-expiry.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
+        'cache' => [
+            'class' => 'yii\caching\FileCache',
+        ],
         'log' => [
             'targets' => [
                 [

@@ -58,16 +58,6 @@ return [
              * http://res.cloudinary.com/studenthub/image/upload/candidate-photo/fileName.jpg
              */ 
         ],
-        'redis' => [
-            'class' => 'yii\redis\Connection',
-            'hostname' => 'localhost',
-            'port' => 6379,
-            'database' => 0,
-        ],
-        'cache' => [
-            'class' => 'yii\redis\Cache',
-            //'class' => 'yii\caching\FileCache',
-        ],
         'formatter' => [
             'currencyCode' => 'KWD',
             'defaultTimeZone' => 'Asia/Kuwait',
