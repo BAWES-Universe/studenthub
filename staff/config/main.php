@@ -133,6 +133,7 @@ return [
                         'PATCH add-to-team' => 'add-to-team',
                         'PATCH mark-email-verified' => 'mark-email-verified',
                         'PATCH <id>' => 'update',
+                        'PATCH remove-from-team/<id>' => 'remove-from-team',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
@@ -141,6 +142,7 @@ return [
                         'OPTIONS add-to-team' => 'options',
                         'OPTIONS is-email-exists' => 'options',
                         'OPTIONS send-verification-email' => 'options',
+                        'OPTIONS remove-from-team/<id>' =>'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
