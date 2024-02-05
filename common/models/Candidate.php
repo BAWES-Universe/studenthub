@@ -968,6 +968,25 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $this->candidate_pending_profile = implode(',', array_keys($this->pendingProfile));
 
+        if(Yii::$app->request instanceof \yii\web\Request) {
+
+            // Get initial IP address of requester
+            $ip = Yii::$app->request->getRemoteIP();
+
+            // Check if request is forwarded via load balancer or cloudfront on behalf of user
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'];
+
+                // as "X-Forwarded-For" is usually a list of IP addresses that have routed
+                $IParray = array_values(array_filter(explode(',', $forwardedFor)));
+
+                // Get the first ip from forwarded array to get original requester
+                $ip = $IParray[0];
+            }
+
+            $this->ip_address = $ip;
+        }
+
         return true;
     }
 
