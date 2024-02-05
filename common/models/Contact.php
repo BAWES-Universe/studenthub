@@ -168,6 +168,19 @@ class Contact extends \yii\db\ActiveRecord
             }
 
             $this->ip_address = $ip;
+
+            if ($insert) {
+
+                $count = self::find()
+                    ->andWhere(['ip_address' => $this->ip_address])
+                    ->andWhere("DATE(contact_created_at) = DATE('".date('Y-m-d')."')")
+                    ->count();
+
+                if ($count > 1) {
+                    Yii::error("too may contact signup from same ip");
+                    return $this->addError('ip_address', "Too many requests");
+                }
+            }
         }
 
         return true;
