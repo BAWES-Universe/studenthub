@@ -943,7 +943,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if (!parent::beforeSave($insert))
             return false;
 
-
         // Move uploaded files to permanent bucket // as we are only going to use cloudinary
 //        $this->_moveTemporaryFilesToPermanentBucket();
 
@@ -985,6 +984,19 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
 
             $this->ip_address = $ip;
+
+            if ($insert) {
+
+                $count = self::find()
+                    ->andWhere(['ip_address' => $this->ip_address])
+                    ->andWhere("DATE(candidate_created_at) = DATE('".date('Y-m-d')."')")
+                    ->count();
+
+                if ($count > 1) {
+                    Yii::error("too may candidate signup from same ip");
+                    return $this->addError('ip_address', "Too many requests");
+                }
+            }
         }
 
         return true;
