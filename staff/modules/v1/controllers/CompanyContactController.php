@@ -361,6 +361,40 @@ class CompanyContactController extends Controller
     }
 
     /**
+     * @param $id
+     * @return array|string[]
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionRemoveFromTeam($id)
+    {
+        $company_id = Yii::$app->request->getBodyParam("company_id");
+
+        $model = CompanyContact::find()
+            ->andWhere(['company_id' => $company_id, "contact_uuid" => $id])
+            ->one();
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Company Contact not found or already deleted"
+            ];
+        }
+
+        if(!$model->delete()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Company Contact removed successfully from company team"
+        ];
+    }
+
+    /**
      * Delete an account
      * @param  integer $id
      * @return array
@@ -379,18 +413,25 @@ class CompanyContactController extends Controller
             ];
         }
 
-        if(!$model) {
+        /*if(!$model) {
             return [
                 "operation" => "error",
                 "message" => "Company Contact not found or already deleted"
             ];
-        }
+        }*/
 
-        $model->delete();
+        $model->deleted = true;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
 
         return [
             "operation" => "success",
-            "message" => "Company Contact deleted successfully"
+            "message" => "Company Contact marked deleted successfully"
         ];
     }
 

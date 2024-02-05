@@ -26,6 +26,7 @@ use yii\helpers\Url;
  * @property string $contact_receive_suggestions
  * @property string $contact_receive_notification
  * @property string $contact_status
+ * @property boolean $deleted
  * @property string $contact_created_at
  * @property string $contact_updated_at
  *
