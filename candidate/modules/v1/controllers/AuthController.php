@@ -323,7 +323,6 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if($token) {
             $response = Yii::$app->reCaptcha->verify($token);
 
             if (!$response->data || !$response->data['success']) {
@@ -333,7 +332,6 @@ class AuthController extends Controller
                     "message" => Yii::t('candidate', "Invalid captcha validation")
                 ];
             }
-        }
 
         $candidate = Candidate::findOne([
             'candidate_email' => $emailInput,
@@ -469,7 +467,6 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if($token) {
             $response = Yii::$app->reCaptcha->verify($token);
 
             if (!$response->data || !$response->data['success']) {
@@ -479,7 +476,6 @@ class AuthController extends Controller
                     "message" => Yii::t('candidate', "Invalid captcha validation")
                 ];
             }
-        }
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->phone_number = $phone_number;
@@ -549,7 +545,6 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if($token) {
             $response = Yii::$app->reCaptcha->verify($token);
 
             if (!$response->data || !$response->data['success']) {
@@ -559,7 +554,6 @@ class AuthController extends Controller
                     "message" => Yii::t('candidate', "Invalid captcha validation")
                 ];
             }
-        }
 
         $model = new \candidate\models\PasswordResetRequestForm();
         $model->email = $emailInput;
@@ -710,7 +704,6 @@ class AuthController extends Controller
 
         //TODO: make token as required field once we update android app
 
-        if($token) {
             $response = Yii::$app->reCaptcha->verify($token);
 
             if (!$response->data || !$response->data['success']) {
@@ -720,7 +713,6 @@ class AuthController extends Controller
                     "message" => Yii::t('candidate', "Invalid captcha validation")
                 ];
             }
-        }
 
         if (!$firstname) {
             return [
