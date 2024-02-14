@@ -400,6 +400,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CurrencyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/currency',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // BlockedIpController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/blocked-ip',

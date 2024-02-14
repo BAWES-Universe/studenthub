@@ -720,7 +720,7 @@ $path = (YII_ENV == 'prod') ?  "/" : "dev/";
                                                     <div
                                                             style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:center;color:#000000;"
                                                     >
-                                                        <?=$model->company_hourly_rate?> KWD
+                                                        <?= $model->company_hourly_rate ?> <?= $model->currency_code ?>
                                                     </div>
 
                                                 </td>

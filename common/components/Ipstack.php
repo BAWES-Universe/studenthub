@@ -62,12 +62,9 @@ class Ipstack {
                 $result->city = $result->continent_name;
         }
 
-
-
-
         // save latest records from our table
 
-        /*if (isset($result->currency->code)) {
+        if (isset($result->currency->code)) {
 
             $currency = Currency::find()
                 ->where(['code' => $result->currency->code])
@@ -85,7 +82,7 @@ class Ipstack {
                 ->one();
 
             $result->country = $country;
-        }*/
+        }
 
         return $result;
 

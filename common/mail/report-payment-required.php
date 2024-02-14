@@ -1,8 +1,7 @@
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
-    <title>
-        We need to process KWD 2,830.000 to 10 people
+    <title> 
     </title>
     <!--[if !mso]><!-- -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -177,7 +176,7 @@
                                                     <div
                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;"
                                                     >
-                                                        We have bank info for <b>KWD <?=$amount?></b> that we need to transfer to <b><?=$ppl?> people</b>.
+                                                        We have bank info for <b><?= $currency_code ?> <?=$amount?></b> that we need to transfer to <b><?=$ppl?> people</b>.
                                                     </div>
 
                                                 </td>

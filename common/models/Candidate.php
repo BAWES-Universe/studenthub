@@ -64,7 +64,7 @@ use Segment\Segment;
  * @property string $candidate_updated_at
  * @property integer $deleted
  * @property integer $is_duplicate
- *
+ * @property string $currency_code
  * @property Bank $bank
  * @property Country $country
  * @property Store $store
@@ -129,6 +129,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
+            [['currency_code'], "string", "max" => 3],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_video_processed', 'is_duplicate'], 'boolean'],
@@ -334,7 +335,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['statusChange'] = ['approved', 'is_incomplete_profile'];
 
-        $scenarios['updateHourRate'] = ['candidate_hourly_rate', 'is_incomplete_profile'];
+        $scenarios['updateHourRate'] = ['candidate_hourly_rate', 'is_incomplete_profile', "currency_code"];
 
         $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid', 'is_incomplete_profile'];
 
@@ -551,7 +552,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
             'employee_id' => Yii::t('candidate','Employee ID'),
             'candidate_mom_kuwaiti' => Yii::t('candidate','Candidate Mom Kuwaiti'),
-            'profile_url' => Yii::t('candidate','Profile Url')
+            'profile_url' => Yii::t('candidate','Profile Url'),
+            "currency_code" => Yii::t('app','Currency Code'),
         ];
     }
 

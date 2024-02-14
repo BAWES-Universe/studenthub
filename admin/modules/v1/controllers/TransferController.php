@@ -352,7 +352,7 @@ class TransferController extends Controller
                         'total' => $transfer->total,
                         'company_total' => $transfer->company_total,
                         'revenue' => $transfer->company_total - $transfer->total,
-                        'currency' => 'KWD'
+                        'currency' => $transfer->currency_code
                 ]);
         }
 

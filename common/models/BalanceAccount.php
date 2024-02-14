@@ -107,7 +107,8 @@ class BalanceAccount extends \yii\db\ActiveRecord
      * @param $balanceTransaction
      * @return void
      */
-    public static function addEntry($model, $amount, $description, $transaction_datetime = null, $file = null)
+    public static function addEntry($model, $amount, $description, 
+        $transaction_datetime = null, $file = null, $currency_code = 'KWD')
     {
         $data = [
             'user_uuid' => $model->user_uuid,
@@ -133,7 +134,6 @@ class BalanceAccount extends \yii\db\ActiveRecord
 
         if(YII_ENV == 'prod')
         {
-
             $segmentStatus = Yii::$app->config->get('Segment-Status');
 
             $segmentKey = Yii::$app->config->get('Segment-Key');
@@ -160,7 +160,7 @@ class BalanceAccount extends \yii\db\ActiveRecord
                     'name' => $model->username,
                     'email' => $model->email,
                     'amount' => $amount,
-                    'currency' => 'KWD',
+                    'currency' => $currency_code,
                     'revenue' => $amount,//just for beautiful graphs
                 ],
                 $transaction_datetime

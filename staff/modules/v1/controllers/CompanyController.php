@@ -421,6 +421,7 @@ class CompanyController extends Controller
     {
         // Attempt to create new account
         $model = new Company();
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
 
         $model->scenario = 'adminCreate';
 
