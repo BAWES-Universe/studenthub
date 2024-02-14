@@ -239,7 +239,6 @@ class Company extends \common\models\Company {
         }
     }
 
-
     /**
      * Send new password to customer
      * @param $model

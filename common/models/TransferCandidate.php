@@ -27,10 +27,11 @@ use Segment\Segment;
  * @property decimal $company_hourly_rate - hourly rate company paying 
  * @property decimal $hours - no of hours candidate have worked
  * @property decimal $bonus - bonus amount company paying 
- * @property decimal $bonus_commission - commission admin will take from bonus in KWD
+ * @property decimal $bonus_commission - commission admin will take from bonus in 
  * @property decimal $transfer_cost - transfer cost of payment
  * @property decimal $candidate_total - candidate total
  * @property decimal $company_total - company total
+ * @property string $currency_code
  * @property decimal $transfer_candidate
  * @property integer $paid
  * @property string $tc_created_at
@@ -72,6 +73,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_benef_iban'], 'string', 'max' => 50],
             [['transfer_confirmation_id'], 'unique'],
             ['paid', 'validateStatus'],
+            [['currency_code'], "string", "max" => 3],
             [['transfer_benef_name'], 'string', 'max' => 60],
             [['bank_id', 'transfer_confirmation_id', 'transfer_benef_name', 'transfer_benef_iban'], 'validateBankDetails'],
             [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
@@ -175,9 +177,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'company_hourly_rate' => Yii::t('app','Company Hourly Rate'),
             'transfer_cost' => Yii::t('app','Transfer cost'),
             'bonus' => Yii::t('app','Bonus'),
-            'bonus_commission' => Yii::t('app','Bonus Commission (KWD)'),
+            'bonus_commission' => Yii::t('app','Bonus Commission'),
             'tc_created_at' => Yii::t('app','Tc Created At'),
             'tc_updated_at' => Yii::t('app','Tc Updated At'),
+            "currency_code" => Yii::t('app','Currency Code'),
         ];
     }
 
@@ -244,7 +247,24 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         return $fields;
     }
-    
+
+    /**
+     * @param $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if(!$this->currency_code) {
+            $this->currency_code = $this->transfer->currency_code;
+        }
+
+        return true;
+    }
+
     /**
      * after object saved
      * @param boolean $insert
@@ -346,7 +366,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                     'candidate_id' => $this->candidate_id,
                     'name' => $name,
                     'revenue' => $this->getProfit(),
-                    'currency' => 'KWD'
+                    'currency' => $this->transfer->currency_code
                 ]);
         }
 
@@ -387,7 +407,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                     'candidate_id' => $this->candidate_id,
                     'name' => $name,
                     'revenue' => 0 - $this->getProfit(),
-                    'currency' => 'KWD',
+                    'currency' => $this->transfer->currency_code,
                     'transfer_cost' => $this->transfer_cost,
                     'candidate_total' => $this->candidate_total,
                     'company_total' => $this->company_total,
@@ -396,7 +416,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         $heading = Yii::t('app', 'Transfer marked as unpaid');
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
-        $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);
+        $content = $this->transfer->currency_code . ' ' . number_format($this->totalPaidToCandidate, 3);
 
         $filters = [
             [
@@ -423,7 +443,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         $heading = Yii::t('app', 'New transfer initiated');
         $subtitle = "@ " . $this->store_name . ', ' . $this->company_name;
-        $content = 'KWD ' . number_format($this->totalPaidToCandidate, 3);
+        $content = $this->transfer->currency_code . ' ' . number_format($this->totalPaidToCandidate, 3);
 
         $filters = [
             [
@@ -608,7 +628,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 'transfer' => 'S2',
                 'bank_transfer_type' => $candidate->bank->bank_transfer_type,
                 'amount' => number_format($transferCandidate->totalPaidToCandidate, 3, '.', ''),
-                'currency' => 'KWD',
+                'currency' => $transferCandidate->transfer->currency_code,
                 'emptyField1' => '',
                 'emptyField2' => '',
                 'emptyField3' => '',
@@ -695,7 +715,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 'Invoice Date' => date('dmY'),
                 'Invoice Info' => $transferCandidate->tc_id,
                 //'Invoice No' => $transferCandidate->tc_id,
-                'Invoice Currency' => 'KWD',
+                'Invoice Currency' => $transferCandidate->transfer->currency_code,
                 'Invoice Amount' => number_format($transferCandidate->totalPaidToCandidate, 3, '.', '')
             ];
         }

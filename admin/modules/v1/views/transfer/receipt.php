@@ -43,7 +43,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                         <tr><td>Invoice number: <?=$invoice->invoice_id?></td></tr>
                         <tr><td><p>Transfer number: <?= $invoice->transfer->parent_transfer_id? $invoice->transfer->parent_transfer_id : $invoice->transfer->transfer_id ?></p></td></tr>
                         <tr><td><p>Payment date: <?=date('F d,Y',strtotime($invoice->invoice_date))?></p></td></tr>
-                        <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in KWD: <?= $invoice->transfer->company_total ?></h5></td></tr>
+                        <tr><td><h5 style="margin-bottom:0; font-weight:bold; border-bottom:1px solid blue; padding: 1.85714286em;">Amount paid in <?= $invoice->transfer->currency_code ?>: <?= $invoice->transfer->company_total ?></h5></td></tr>
                     </table>
                 </td>
             </tr>
@@ -57,7 +57,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                         <span><b><?= $row['totalHours'] ?> hours</b> worked x <b><?= $hourly_rate ?> KD</b> per hour</span>
                     </td>
                     <td align="right" style="text-align: right">
-                        <span>KWD <?= number_format($row['totalAmount'], 3) ?></span>
+                        <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['totalAmount'], 3) ?></span>
                     </td>
                 </tr>            
                 <?php if($row['totalBonus'] > 0) { ?>
@@ -66,7 +66,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                         <span><b>Bonus payment</b></span>
                     </td>
                     <td align="right" style="text-align: right">
-                        <span>KWD <?= number_format($row['totalBonus'], 3) ?></span>
+                        <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['totalBonus'], 3) ?></span>
                     </td>
                 </tr>
                 <?php } ?>
@@ -89,7 +89,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                 </td>
                 <td align="right" style="text-align: right">
                     <span class="h5">
-                        KWD <?= number_format($invoice->transfer->company_total, 3); ?>
+                    <?= $invoice->transfer->currency_code ?> <?= number_format($invoice->transfer->company_total, 3); ?>
                     </span>
                 </td>
             </tr>

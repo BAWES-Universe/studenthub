@@ -251,118 +251,132 @@ class CronController extends \yii\console\Controller {
      */
     public function actionPayableCandidateNotification()
     {
-        $amount = 0;
-        $payableCandidate = [];
-        $candidates = TransferCandidate::find()
-            ->payable()
-            ->havingBankInfo()
+        //todo: group by currencies 
+        $currencies = Currency::find()
+            ->andWhere(['status' => 1])
             ->all();
 
-        if ($candidates) {
-        //https://www.pivotaltracker.com/story/show/176535038
-        // to force users to complete there profile
-            foreach ($candidates as $candidate) {
-                if (
-                    $candidate->candidate->isProfileCompleted &&
-                    $candidate->candidate->bank_id &&
-                    $candidate->transfer_benef_iban &&
-                    $candidate->transfer_benef_name &&
-                    $candidate->invoiceNumber) {
-                    $payableCandidate[] = $candidate;
-                    $amount += $candidate->totalPaidToCandidate;
+        foreach ($currencies as $currency) {
+
+            $amount = 0;
+            $payableCandidate = [];
+
+            $candidates = TransferCandidate::find()
+                ->with(['transfer'])
+                ->payable()
+                ->havingBankInfo()
+                ->andWhere(['transfer.currency_code' => $currency->code])
+                ->all();
+
+            if ($candidates) {
+                //https://www.pivotaltracker.com/story/show/176535038
+                // to force users to complete there profile
+                foreach ($candidates as $candidate) {
+                    if (
+                        $candidate->candidate->isProfileCompleted &&
+                        $candidate->candidate->bank_id &&
+                        $candidate->transfer_benef_iban &&
+                        $candidate->transfer_benef_name &&
+                        $candidate->invoiceNumber
+                    ) {
+                        $payableCandidate[] = $candidate;
+                        $amount += $candidate->totalPaidToCandidate;
+                    }
                 }
-            }
-            $amount = number_format($amount, 3);
-        }
-
-        if ($payableCandidate && count($payableCandidate) > 0) {
-
-            \moonland\phpexcel\Excel::export([
-                'isMultipleSheet' => false,
-                'fileName'=>'payable_candidate',
-                'savePath' => sys_get_temp_dir() . '/',
-                'asAttachment' => true,
-                'models' => $payableCandidate,
-                'columns' => [
-                    'tc_id',
-                    'transfer_id',
-                    'candidate_id',
-                    'candidate.candidate_name',
-                    [
-                        'attribute'=>'Beneficiary name',
-                        'label'=>'Beneficiary name',
-                        'value'=>function($data) {
-                            return $data->candidate->bank_account_name;
-                        }
-                    ],
-                    'candidate.candidate_email',
-                    'candidate.store.company.company_name',
-                    'candidate.store.store_name',
-                    'hours',
-                    'candidate_hourly_rate',
-                    [
-                        'attribute'=>'bonus',
-                        'label'=>'Candidate Bonus',
-                        'value' => function($data){
-                            return $data->bonus - $data->bonus_commission;
-                        }
-                    ],
-                    'transfer_cost',
-                    [
-                        'attribute'=>'candidate_total',
-                        'value' => function($data){
-                            return $data->totalPaidToCandidate;
-                        }
-                    ],
-                    'candidate.candidate_iban',
-                    'candidate.bank.bank_name'
-                ]
-            ]);
-
-            Yii::$app->mailer->htmlLayout = 'layouts/html';
-
-            $mimeTypes = [
-                'xls' => 'application/vnd.ms-excel',
-                'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            ];
-            $fileName = 'payable_candidate.xlsx';
-
-            $file = sys_get_temp_dir() . '/'.$fileName;
-
-            $extension = pathinfo($file, PATHINFO_EXTENSION);
-
-            $subject = "We need to process KWD $amount to ".count($payableCandidate)." people";
-
-            if (YII_ENV != 'prod') {
-                $subject = '[Fake] [Ignore] ' . $subject;
+                $amount = number_format($amount, 3);
             }
 
-            Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+            if ($payableCandidate && count($payableCandidate) > 0) {
 
-            $send =  Yii::$app->mailer->compose("report-payment-required",
-                [
-                    "amount" => $amount,
-                    "ppl" => count($payableCandidate),
-                    'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
-                ])
-
-                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-                ->setTo(Yii::$app->params['operationsEmail'])
-                ->setSubject($subject)
-                ->attachContent(file_get_contents($file), [
-                    'fileName' => $fileName,
-                    'contentType' => $mimeTypes[$extension]
+                \moonland\phpexcel\Excel::export([
+                    'isMultipleSheet' => false,
+                    'fileName' => 'payable_candidate',
+                    'savePath' => sys_get_temp_dir() . '/',
+                    'asAttachment' => true,
+                    'models' => $payableCandidate,
+                    'columns' => [
+                        'tc_id',
+                        'transfer_id',
+                        'candidate_id',
+                        'candidate.candidate_name',
+                        [
+                            'attribute' => 'Beneficiary name',
+                            'label' => 'Beneficiary name',
+                            'value' => function ($data) {
+                                return $data->candidate->bank_account_name;
+                            }
+                        ],
+                        'candidate.candidate_email',
+                        'candidate.store.company.company_name',
+                        'candidate.store.store_name',
+                        'hours',
+                        'candidate_hourly_rate',
+                        [
+                            'attribute' => 'bonus',
+                            'label' => 'Candidate Bonus',
+                            'value' => function ($data) {
+                                return $data->bonus - $data->bonus_commission;
+                            }
+                        ],
+                        'transfer_cost',
+                        [
+                            'attribute' => 'candidate_total',
+                            'value' => function ($data) {
+                                return $data->totalPaidToCandidate;
+                            }
+                        ],
+                        //  'transfer.currency_code',
+                        'candidate.candidate_iban',
+                        'candidate.bank.bank_name'
+                    ]
                 ]);
 
-            try {
-                $send->send();
-            } catch (\Swift_TransportException $e) {
-                Yii::error($e->getMessage(), "email_campaign");
-            }
+                Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-            @unlink(sys_get_temp_dir() . '/' . $fileName);
-            return $send;
+                $mimeTypes = [
+                    'xls' => 'application/vnd.ms-excel',
+                    'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                ];
+                $fileName = 'payable_candidate.xlsx';
+
+                $file = sys_get_temp_dir() . '/' . $fileName;
+
+                $extension = pathinfo($file, PATHINFO_EXTENSION);
+
+                $subject = "We need to process " . $currency->code . " " . $amount . " to " . count($payableCandidate) . " people";
+
+                if (YII_ENV != 'prod') {
+                    $subject = '[Fake] [Ignore] ' . $subject;
+                }
+
+                Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+                $send = Yii::$app->mailer->compose("report-payment-required",
+                    [
+                        "amount" => $amount,
+                        "currency_code" => $currency->code,
+                        "ppl" => count($payableCandidate),
+                        'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
+                    ])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setTo(Yii::$app->params['operationsEmail'])
+                    ->setSubject($subject)
+                    ->attachContent(file_get_contents($file), [
+                        'fileName' => $fileName,
+                        'contentType' => $mimeTypes[$extension]
+                    ]);
+
+                try {
+                    $send->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "email_campaign");
+                }
+
+                @unlink(sys_get_temp_dir() . '/' . $fileName);
+                return $send;
+            }
         }
+
         return true;
     }
 
@@ -421,7 +435,7 @@ class CronController extends \yii\console\Controller {
                         'candidate_id' => $tc->candidate_id,
                         'name' => $name,
                         'revenue' => $tc->getProfit(),
-                        'currency' => 'KWD',
+                        'currency' => $tc->transfer->currency_code,
                         'transfer_cost' => $tc->transfer_cost,
                         'candidate_total' => $tc->candidate_total,
                         'company_total' => $tc->company_total,

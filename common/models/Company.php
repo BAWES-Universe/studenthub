@@ -13,6 +13,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $company_id
  * @property integer $parent_company_id
  * @property integer $staff_id
+ * @property integer $country_id
  * @property string $company_name
  * @property string $company_common_name_en
  * @property string $company_common_name_ar
@@ -24,6 +25,7 @@ use yii\helpers\ArrayHelper;
  * @property string $company_email
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
+ * @property string $currency_code 
  * @property boolean $company_followup
  * @property integer $total_candidate
  * @property integer $no_of_active_requests
@@ -89,7 +91,7 @@ class Company extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission', 'currency_code', "country_id"], 'required'],
             [['company_email', 'company_hourly_rate'], 'required', 'on' => 'newAccount'],//, 'commercial_licence'
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
@@ -131,6 +133,7 @@ class Company extends \yii\db\ActiveRecord
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
         ];
     }
   
@@ -182,11 +185,11 @@ class Company extends \yii\db\ActiveRecord
         $scenarios = parent::scenarios();
 
         $scenarios[self::SCENARIO_ACTIVATE] = ['company_logo', 'commercial_licence', 'company_description_en',
-            'company_description_ar', 'company_website', 'company_status_override'];
+            'company_description_ar', 'company_website', 'company_status_override', "currency_code", "country_id"];
 
         $scenarios[self::SCENARIO_APPROVE] = ["company_name", "company_common_name_en", "company_common_name_ar",
             "company_email", "company_bonus_commission", "company_approved_to_hire", "company_followup", "company_followup_interval_weeks",
-            "company_last_followup_datetime", "company_next_followup_datetime"];
+            "company_last_followup_datetime", "company_next_followup_datetime", "currency_code", "country_id"];
 
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];
@@ -220,6 +223,8 @@ class Company extends \yii\db\ActiveRecord
             'company_updated_at' => Yii::t('app','Company Updated At'),
             'last_request_datetime'=> Yii::t('app','Last Request At'),
             'last_payment_datetime'=> Yii::t('app','Last Payment At'),
+            "currency_code" => Yii::t('app', "currency_code"),
+            "country_id" => Yii::t('app', "country_id"),
         ];
     }
     
@@ -416,6 +421,24 @@ class Company extends \yii\db\ActiveRecord
     public function getNotes($modelClass = "\common\models\Note")
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrency($modelClass = "\common\models\Currency")
+    {
+        return $this->hasMany($modelClass::className(), ['code' => 'currency_code']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\common\models\Country")
+    {
+        return $this->hasMany($modelClass::className(), ['country_id' => 'country_id']);
     }
 
     /**

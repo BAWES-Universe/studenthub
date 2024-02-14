@@ -54,6 +54,16 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // CountryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/country',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // AlgoliaController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/algolia',
@@ -70,6 +80,7 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'GET locate' => 'locate',
                         'POST create-account' => 'create-account',
                         'POST request-reset-password' => 'request-reset-password',
                         'POST verify-email' => 'verify-email',
@@ -80,6 +91,7 @@ return [
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS locate' => 'options',
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS verify-email' => 'options',
                         'OPTIONS is-email-verified' => 'options',

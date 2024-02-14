@@ -86,9 +86,10 @@
                                                 <td align="left" style="font-size:0px;padding:10px 25px;padding-top:0px;padding-bottom:0px;word-break:break-word;">
 
                                                     <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;">
-                                                        <?= Yii::t('app',"We've successfully transferred <b>KWD {amount}</b> to <b>{count} people</b>.", [
+                                                        <?= Yii::t('app',"We've successfully transferred <b>{currency_code} {amount}</b> to <b>{count} people</b>.", [
                                                                 'amount' => number_format($transfer->transfer_amount, 3),
-                                                                'count' => $count
+                                                                'count' => $count,
+                                                                'currency_code' => $transfer->currency_code
                                                         ]) ?>
                                                     </div>
 

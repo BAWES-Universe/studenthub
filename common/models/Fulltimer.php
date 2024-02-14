@@ -33,7 +33,7 @@ use Segment\Segment;
  * @property string $fulltimer_pdf_cv
  * @property string $fulltimer_created_datetime
  * @property string $fulltimer_updated_datetime
- *
+ * @property string $currency_code
  * @property Country $country
  * @property Area $fulltimerAreaUu
  * @property Country $nationality
@@ -72,6 +72,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime','fulltimer_current_salary', 'fulltimer_expected_salary'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
             [['fulltimer_employed'], 'boolean'],
+            [['currency_code'], "string", "max" => 3],
             [['fulltimer_birth_date'], 'date', 'format' => 'yyyy-M-d'],
             ['fulltimer_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
             ['fulltimer_driving_license', 'in', 'range' => [self::YES, self::NO]],
@@ -145,7 +146,8 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_employed' => Yii::t('app', 'Fulltimer employed?'),
             'fulltimer_gender' => Yii::t('app', 'Gender'),
             'fulltimer_driving_license' => Yii::t('app', 'Driving License'),
-            'fulltimer_birth_date' => Yii::t('app', 'Birth Date')
+            'fulltimer_birth_date' => Yii::t('app', 'Birth Date'),
+            "currency_code" => Yii::t('app','Currency Code'),
         ];
     }
 
