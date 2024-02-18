@@ -209,12 +209,18 @@ class AuthController extends Controller
             //$contact->generateOtp();
             //$contact->save(false);
 
-            return [
-                "operation" => "error",
-                "errorType" => "email-not-verified",
-                "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
-                "unVerifiedToken" => $this->_loginResponse($contact)
-            ];
+            if(isset($userInfo['email_verified']) && $userInfo['email_verified']) {
+                $contact->contact_email_verification = Contact::EMAIL_VERIFIED;
+                $contact->save(false);
+            } else {
+                return [
+                    "data" => $userInfo,
+                    "operation" => "error",
+                    "errorType" => "email-not-verified",
+                    "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
+                    "unVerifiedToken" => $this->_loginResponse($contact)
+                ];
+            }
         }
 
         return $this->_loginResponse($contact);

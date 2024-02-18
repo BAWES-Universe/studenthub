@@ -3,11 +3,12 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
-use common\models\Country;
-use yii\rest\Controller;
+use common\models\Currency;
 use yii\data\ActiveDataProvider;
+use yii\rest\Controller;
 
-class CountryController extends Controller
+
+class CurrencyController extends Controller
 {
     public function behaviors()
     {
@@ -58,21 +59,23 @@ class CountryController extends Controller
      * @param type $store_uuid
      * @return type
      */
-    public function actionList() {
-
+    public function actionList()
+    {
         $keyword = Yii::$app->request->get('keyword');
         $page = Yii::$app->request->get('page');
 
-        //Yii::$app->accountManager->getManagedAccount($store_uuid);
-
-        $query = Country::find();
+        $query = Currency::find()
+            ->andWhere(['status' => 1]);
 
         if ($keyword) {
-            $query->andWhere(['like', 'country_name_en', $keyword]);
-            $query->orWhere(['like', 'country_name_ar', $keyword]);
+            $query->andWhere([
+                "OR",
+                ['like', 'title', $keyword],
+                ['like', 'code', $keyword]
+            ]);
         }
 
-        if($page == -1) {
+        if ($page == -1) {
             return new ActiveDataProvider([
                 'query' => $query,
                 'pagination' => false

@@ -54,6 +54,16 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // CurrencyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/currency',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // CountryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/country',
