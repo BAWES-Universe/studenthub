@@ -258,9 +258,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
             return false;
         }
 
-        //if(!$this->currency_code) {
+        if(!$this->currency_code) {
             $this->currency_code = $this->transfer->currency_code;
-        //}
+        }
 
         return true;
     }

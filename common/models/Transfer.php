@@ -1060,6 +1060,8 @@ class Transfer extends ActiveRecord
 
         foreach ($candidates as $key => $value) {
 
+            $value['currency_code'] = $currency_code;
+
             if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
 
@@ -1241,6 +1243,8 @@ class Transfer extends ActiveRecord
 
         foreach($candidates as $key => $value)
         {
+            $value['currency_code'] = $currency_code;
+
             if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
 

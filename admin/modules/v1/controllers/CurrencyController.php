@@ -72,7 +72,26 @@ class CurrencyController extends Controller
      */
     public function actionList()
     {
-        $query = Currency::find();
+        $keyword = Yii::$app->request->get('keyword');
+        $page = Yii::$app->request->get('page');
+
+        $query = Currency::find()
+            ->andWhere(['status' => 1]);
+
+        if ($keyword) {
+            $query->andWhere([
+                "OR",
+                ['like', 'title', $keyword],
+                ['like', 'code', $keyword]
+            ]);
+        }
+
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

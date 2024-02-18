@@ -244,6 +244,16 @@ return [
                         'OPTIONS remove-manager/<id>' => 'options',
                     ]
                 ],
+                [ // CurrencyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/currency',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // CompanyController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/company',
