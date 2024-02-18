@@ -351,12 +351,23 @@ class CompanyRequest extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array|false|int[]|string[]
+     */
+    public function extraFields()
+    {
+        return array_merge(parent::extraFields(), [
+            "country",
+            "currency"
+        ]);
+    }
+
+    /**
      * @param $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getCurrency($modelClass = "\common\models\Currency")
     {
-        return $this->hasMany($modelClass::className(), ['code' => 'currency_code']);
+        return $this->hasOne($modelClass::className(), ['code' => 'currency_code']);
     }
 
     /**
@@ -365,6 +376,6 @@ class CompanyRequest extends \yii\db\ActiveRecord
      */
     public function getCountry($modelClass = "\common\models\Country")
     {
-        return $this->hasMany($modelClass::className(), ['country_id' => 'country_id']);
+        return $this->hasOne($modelClass::className(), ['country_id' => 'country_id']);
     }
 }

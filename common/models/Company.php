@@ -52,7 +52,7 @@ use yii\helpers\ArrayHelper;
  * @property Store[] $subCompanyStores
  * @property Note[] $notes
  *
- * E.g. 
+ * E.g.
  * company_hourly_rate = 1.5 KWD
  * company_bonus_commission = 20%
  * 
@@ -296,6 +296,7 @@ class Company extends \yii\db\ActiveRecord
             'profit',
             'revenue',
             'staff',
+            'country',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -429,7 +430,7 @@ class Company extends \yii\db\ActiveRecord
      */
     public function getCurrency($modelClass = "\common\models\Currency")
     {
-        return $this->hasMany($modelClass::className(), ['code' => 'currency_code']);
+        return $this->hasOne($modelClass::className(), ['code' => 'currency_code']);
     }
 
     /**
@@ -438,7 +439,7 @@ class Company extends \yii\db\ActiveRecord
      */
     public function getCountry($modelClass = "\common\models\Country")
     {
-        return $this->hasMany($modelClass::className(), ['country_id' => 'country_id']);
+        return $this->hasOne($modelClass::className(), ['country_id' => 'country_id']);
     }
 
     /**

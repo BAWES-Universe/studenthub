@@ -445,16 +445,21 @@ class m240214_084103_multi_currency extends Migration
                 "country_name_en" => $country[1]
             ]);
         }
+
+        $country = \admin\models\Country::find()
+            ->andWhere(['iso' => "KW"])
+            ->one();
+
+        //default countru
+
+        \common\models\Company::updateAll(['country_id' => $country->country_id]);
     }
 
     /**
      * {@inheritdoc}
      */
     public function safeDown()
-    {
-        echo "m240214_084103_multi_currency cannot be reverted.\n";
-
-        return false;
+    { 
     }
 
     /*

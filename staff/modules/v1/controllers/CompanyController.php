@@ -422,6 +422,7 @@ class CompanyController extends Controller
         // Attempt to create new account
         $model = new Company();
         $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->country_id = Yii::$app->request->getBodyParam("country_id");
 
         $model->scenario = 'adminCreate';
 
@@ -530,6 +531,8 @@ class CompanyController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel((int) $id);
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->country_id = Yii::$app->request->getBodyParam("country_id");
 
         if (!$model) {
             return [

@@ -355,6 +355,7 @@ return [
                 [ // CountryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/country',
+
                     'patterns' => [
                         'GET' => 'list',
                         'GET all' => 'all',
