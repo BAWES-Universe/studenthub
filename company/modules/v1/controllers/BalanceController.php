@@ -198,6 +198,10 @@ class BalanceController extends Controller
         $transfer->currency_code = Yii::$app->request->getBodyParam("currency_code");
         $transfer->transfer_status = Transfer::STATUS_INITIATED;
 
+        if(!$transfer->currency_code) {
+            $transfer->currency_code = Yii::$app->request->headers->get("currency");
+        }
+
         if(!$transfer->save())
         {
             return [

@@ -1027,7 +1027,7 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates, $start_date, $end_date) {
+    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD") {
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
@@ -1037,6 +1037,7 @@ class Transfer extends ActiveRecord
         $transfer->candidates = $candidates;
         $transfer->start_date = $start_date;
         $transfer->end_date   = $end_date;
+        $transfer->currency_code = $currency_code;
 
         if(!$transfer->save()) {
             if(isset($transfer->errors)) {
@@ -1183,10 +1184,11 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public function updateTransfer($candidates, $start_date, $end_date) {
+    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD") {
 
         $this->start_date = $start_date;
         $this->end_date = $end_date;
+        $this->currency_code = $currency_code;
 
         if($this->parent_transfer_id > 0) {
             return [
