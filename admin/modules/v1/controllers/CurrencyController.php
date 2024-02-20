@@ -75,8 +75,8 @@ class CurrencyController extends Controller
         $keyword = Yii::$app->request->get('keyword');
         $page = Yii::$app->request->get('page');
 
-        $query = Currency::find()
-            ->andWhere(['status' => 1]);
+        $query = Currency::find();
+         //   ->andWhere(['status' => 1]);
 
         if ($keyword) {
             $query->andWhere([
@@ -122,7 +122,7 @@ class CurrencyController extends Controller
         $model->rate = Yii::$app->request->getBodyParam("rate");
         $model->decimal_place = Yii::$app->request->getBodyParam("decimal_place");
         $model->sort_order = Yii::$app->request->getBodyParam("sort_order");
-        $model->status = Yii::$app->request->getBodyParam("status");
+        $model->status = (int) Yii::$app->request->getBodyParam("status");
 
         if (!$model->save())
         {
@@ -161,7 +161,7 @@ class CurrencyController extends Controller
         $model->rate = Yii::$app->request->getBodyParam("rate");
         $model->decimal_place = Yii::$app->request->getBodyParam("decimal_place");
         $model->sort_order = Yii::$app->request->getBodyParam("sort_order");
-        $model->status = Yii::$app->request->getBodyParam("status");
+        $model->status = (int) Yii::$app->request->getBodyParam("status");
 
         if (!$model->save())
         {
