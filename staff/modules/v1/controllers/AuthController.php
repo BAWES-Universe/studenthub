@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use candidate\models\Candidate;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
@@ -53,12 +54,12 @@ class AuthController extends Controller
         $behaviors['authenticator']['except'] = [
             'options',            
             'update-password',
-            'login-auth0'
+            'login-auth0',
+            'login-by-google',
         ];
 
         return $behaviors;
     }
-
 
     /**
      * @inheritdoc
@@ -88,6 +89,41 @@ class AuthController extends Controller
         $staff = Yii::$app->user->identity;
 
         return $this->_loginResponse($staff);
+    }
+
+    /**
+     * Sign up with google login
+     */
+    public function actionLoginByGoogle() {
+
+        $token = Yii::$app->request->getBodyParam("idToken");
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" . $token);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = json_decode(curl_exec($ch));
+
+        if (empty($response->email)) {
+            return [
+                'operation' => 'error',
+                "code" => 1,
+                'message' => Yii::t('job', 'Invalid Token')
+            ];
+        }
+
+        $model = Staff::find()->where([
+            'staff_email' => $response->email
+        ])->one();
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "code" => 2,
+                "message" => Yii::t('job', "No account found with provided email, please contact us for assistance."),
+            ];
+        }
+
+        return $this->_loginResponse($model);
     }
 
     /**

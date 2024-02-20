@@ -65,10 +65,12 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'POST login-auth0' => 'login-auth0',
+                        'POST login-by-google' => 'login-by-google',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS login-auth0' => 'options',
+                        'OPTIONS login-by-google' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
                 ],
