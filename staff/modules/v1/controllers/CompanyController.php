@@ -74,6 +74,8 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
@@ -82,6 +84,10 @@ class CompanyController extends Controller
 
         $query = Company::find()
             ->filterParent();
+
+        if($currency) {
+            $query->andWhere(['company.currency_code' => $currency]);
+        }
 
         if($staff_id) {
             $query->andWhere(['staff_id' => $staff_id]);
@@ -143,9 +149,14 @@ class CompanyController extends Controller
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
+        $currency = Yii::$app->request->headers->get("Currency");
 
         $query = Yii::$app->user->identity->getCompanies()
             ->filterParent();
+
+        if($currency) {
+            $query->andWhere(['company.currency_code' => $currency]);
+        }
 
         if ($status == 9) {
             $query->filterUnderReview();
@@ -194,6 +205,8 @@ class CompanyController extends Controller
      */
     public function actionFollowups()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = Company::find()
             ->with([
                 'subCompanies',
@@ -201,6 +214,10 @@ class CompanyController extends Controller
             ])
             ->followups()
             ->filterParent();
+
+        if($currency) {
+            $query->andWhere(['company.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -346,7 +363,6 @@ class CompanyController extends Controller
      */
     public function actionPayrollEmail($id)
     {
-
           $model = $this->findModel((int) $id);
 
           if (!$model) {
@@ -364,7 +380,6 @@ class CompanyController extends Controller
               "message" => "Payroll email has been sent",
               "mail_status" => $mail
           ];
-
     }
 
     /**

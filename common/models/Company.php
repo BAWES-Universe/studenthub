@@ -934,11 +934,16 @@ class Company extends \yii\db\ActiveRecord
         return true;
     }
 
-    public static function companyFollowupCount() {
-        return self::find()
+    public static function companyFollowupCount($currency_code = "KWD") {
+        $query = self::find()
             ->followups()
-            ->filterParent()
-            ->count();
+            ->filterParent();
+
+        if($currency_code) {
+            $query->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
     public function getMalls($modelClass = "\common\models\Mall") {
@@ -1020,26 +1025,36 @@ class Company extends \yii\db\ActiveRecord
      *  Add card to the top that should show when we have
      *  active client with staff assigned and hasn't made payment in 40 days
      */
-    public static function companiesCountWithNoPaymentIn40Days() {
-        return Company::find()
+    public static function companiesCountWithNoPaymentIn40Days($currency_code = null) {
+        $query = Company::find()
             ->filterParent()
             ->filterByActive40DaysPassedWithoutPayment()
-            ->notDeleted()
-            ->count();
+            ->notDeleted();
+
+        if($currency_code) {
+            $query->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
     /*
      *  Add card to the top that should show when we have
      *  active client with staff assigned and hasn't made payment in 40 days
      */
-    public static function last40daysWithoutRequest() {
-        return Company::find()
+    public static function last40daysWithoutRequest($currency_code = "KWD") {
+        $query = Company::find()
             ->filterParent()
             ->filterActive()
            // ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
             ->filterByActive40DaysPassedWithoutRequest()
-            ->notDeleted()
-            ->count();
+            ->notDeleted();
+
+        if($currency_code) {
+            $query->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
     public function notifyUnderReview() {

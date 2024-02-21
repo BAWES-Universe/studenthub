@@ -77,6 +77,8 @@ class TransferController extends Controller
      */
     public function actionListCandidate()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -87,6 +89,10 @@ class TransferController extends Controller
         $transfer_id = Yii::$app->request->get('transfer_id');
 
         $query = TransferCandidate::find();
+
+        if($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
 
         if($transfer_id)
             $query->andWhere(['transfer_id' => $transfer_id]);
@@ -126,6 +132,8 @@ class TransferController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -136,6 +144,10 @@ class TransferController extends Controller
 
         $query = Transfer::find()
             ->isParentTransfer();
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
 
         if ($company_name) {
             $query->companyJoin()
@@ -209,7 +221,7 @@ class TransferController extends Controller
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
-            Yii::$app->request->headers->get('currency');
+            $currency_code = Yii::$app->request->headers->get('currency');
         }
 
         $company = $this->findCompany($company_id);
@@ -249,7 +261,7 @@ class TransferController extends Controller
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
-            Yii::$app->request->headers->get('currency');
+            $currency_code = Yii::$app->request->headers->get('currency');
         }
 
         if(!$model->validate())
@@ -310,7 +322,7 @@ class TransferController extends Controller
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
-            Yii::$app->request->headers->get('currency');
+            $currency_code = Yii::$app->request->headers->get('currency');
         }
 
         if(!$model->validate())
@@ -377,7 +389,7 @@ class TransferController extends Controller
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
-            Yii::$app->request->headers->get('currency');
+            $currency_code = Yii::$app->request->headers->get('currency');
         }
 
         $transfer = $this->findModel($id);
@@ -639,7 +651,8 @@ class TransferController extends Controller
                     'value' => function() {
                         return 0;
                     }
-                ]
+                ],
+                'currency_code'
             ]
         ]);
     }
@@ -649,6 +662,7 @@ class TransferController extends Controller
      */
     public function actionExportCompaniesTransfer()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
 
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -656,6 +670,10 @@ class TransferController extends Controller
 
         $query = Transfer::find()
             ->isParentTransfer();
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
 
         if($transfer_status)
             $query->filterStatus($transfer_status);

@@ -68,13 +68,15 @@ class AlgoliaController extends Controller
     public function actionKey() 
     {
         $ttl = 60 * 2; //2 min 
-       
+
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $params = [
             'restrictIndices' => [
                 Yii::$app->params['algolia_candidate_index'],
                 Yii::$app->params['algolia_fulltimer_index'],
             ],
-            'filters' => '',
+            'filters' => 'currency_code:'.$currency,
             //'validUntil' => time() + $ttl,
             'userToken' => Yii::$app->user->getId(),
             //'getRankingInfo' => true,

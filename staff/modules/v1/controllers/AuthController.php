@@ -107,7 +107,7 @@ class AuthController extends Controller
             return [
                 'operation' => 'error',
                 "code" => 1,
-                'message' => Yii::t('job', 'Invalid Token')
+                'message' => Yii::t('app', 'Invalid Token')
             ];
         }
 
@@ -119,7 +119,7 @@ class AuthController extends Controller
             return [
                 "operation" => "error",
                 "code" => 2,
-                "message" => Yii::t('job', "No account found with provided email, please contact us for assistance."),
+                "message" => Yii::t('app', "No account found with provided email, please contact us for assistance."),
             ];
         }
 

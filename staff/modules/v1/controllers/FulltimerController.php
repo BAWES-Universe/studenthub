@@ -72,7 +72,13 @@ class FulltimerController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = Fulltimer::find();
+
+        if($currency) {
+            $query->andWhere(['fulltimer.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

@@ -2497,6 +2497,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'approved' => $this->approved,
             'candidate_mom_kuwaiti' => $this->candidate_mom_kuwaiti,
             'candidate_email_verification' => true,   // using in candidate card
+            "currency_code" => $this->currency_code,
             'isProfileCompleted' => true,  // using in candidate card
         ];
 

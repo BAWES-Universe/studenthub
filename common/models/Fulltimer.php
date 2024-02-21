@@ -229,6 +229,10 @@ class Fulltimer extends \yii\db\ActiveRecord
         return true;
     }
 
+    /**
+     * @param $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if(!parent::beforeSave ($insert)) {
@@ -316,6 +320,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_pdf_cv' => $this->fulltimer_pdf_cv,
             'fulltimer_current_salary' => $this->fulltimer_current_salary,
             'fulltimer_expected_salary' => $this->fulltimer_expected_salary,
+            "currency_code" => $this->currency_code,
             'fulltimer_created_datetime' => $this->fulltimer_created_datetime,
             'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime,
             'have_resume' => $this->fulltimer_pdf_cv? 'Yes': 'No',
