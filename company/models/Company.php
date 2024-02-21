@@ -48,7 +48,9 @@ class Company extends \common\models\Company {
                 
                 if($model->parentCompany)
                     return (double)$model->parentCompany->company_hourly_rate;
-            },                     
+            },
+            "country_id",
+            "currency_code"
         ];
     }
 
@@ -62,7 +64,8 @@ class Company extends \common\models\Company {
             'candidates',
             'stores',
             'subCompanies',
-            'totalCandidates'
+            'totalCandidates',
+            "country"
         ];
     }
     

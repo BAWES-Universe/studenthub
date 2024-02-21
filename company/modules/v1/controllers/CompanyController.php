@@ -75,7 +75,9 @@ class CompanyController extends BaseController
         $company = Yii::$app->companyManager->getCompany();
 
         if($company->company_id == $id) {
-            return $company;
+            return Company::find()
+                ->andWhere(['company_id' => $id])
+                ->one();
         }
 
         $data = $company->getSubCompanies()
@@ -104,6 +106,8 @@ class CompanyController extends BaseController
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
         $model->company_email = Yii::$app->request->getBodyParam("email");
+        $model->country_id = Yii::$app->request->getBodyParam("country_id");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
 
         if (!$model->save()) {
             return [
