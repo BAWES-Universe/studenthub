@@ -67,9 +67,11 @@ return [
                     'controller' => 'v1/statistic',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET clear-cache' => "clear-cache",
                         'GET transfer' => 'transfer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS clear-cache' => 'options',
                         'OPTIONS transfer' => 'options',
                     ]
                 ],

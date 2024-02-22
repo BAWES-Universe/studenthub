@@ -75,10 +75,17 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-        $query = Candidate::findCustom();
+        $currency = Yii::$app->request->headers->get("Currency");
 
         $by = Yii::$app->request->get('by');
         $name = Yii::$app->request->get('name', null);
+
+        $query = Candidate::findCustom();
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
         if ($name && !is_numeric($name)) {
             $query->filterName($name);
         }
@@ -138,7 +145,14 @@ class CandidateController extends Controller
      */
     public function actionReportSearch()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = CandidateWorkHistory::find();
+
+        if($currency) {
+            $query->joinWith(['candidate'])
+                ->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         if (Yii::$app->request->get('start', null) || Yii::$app->request->get('end', null)) {
             $query->filterByJoiningDate(
@@ -179,10 +193,16 @@ class CandidateController extends Controller
      */
     public function actionTotalToReview()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = Candidate::find()
             ->byApprovalStatus(0);
 
-        $payable = Candidate::getTotalPayableCandidate();
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
+        $payable = Candidate::getTotalPayableCandidate($currency);
 
         return [
             'total' => $query->count(),
@@ -230,7 +250,6 @@ class CandidateController extends Controller
             "message" => "Candidate account approved successfully"
         ];
     }
-
 
     /**
      * Approve candidate account

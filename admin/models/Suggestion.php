@@ -40,6 +40,14 @@ class Suggestion extends \common\models\Suggestion
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCompany($modelClass = "\admin\models\Company")
+    {
+        return parent::getCompany($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCreatedBy($modelClass = "\admin\models\Staff")
     {
         return parent::getCreatedBy($modelClass);

@@ -76,6 +76,8 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("currency");
+
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
         $staff_id = Yii::$app->request->getQueryParam("staff_id",0);
@@ -83,6 +85,10 @@ class CompanyController extends Controller
 
         $query = Company::find()
             ->filterParent();
+
+        if($currency) {
+            $query->andWhere(['company.currency_code' => $currency]);
+        }
 
         if ($status == 1) {
             $query->filterActive();
@@ -119,12 +125,18 @@ class CompanyController extends Controller
      */
     public function actionFollowups()
     {
+        $currency = Yii::$app->request->headers->get("currency");
+
         $query = Company::find()
             ->with([
                 'subCompanies',
                 'stores',
             ])   
             ->followups();
+
+        if($currency) {
+            $query->andWhere(['company.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -138,6 +150,8 @@ class CompanyController extends Controller
      */
     public function actionSubCompanies($id)
     {
+        $currency = Yii::$app->request->headers->get("currency");
+
         $query = Company::find()
             ->with([
                 'stores.candidates', 
@@ -147,6 +161,10 @@ class CompanyController extends Controller
                 'stores.candidates.university'
             ])    
             ->childCompany($id);
+
+        if($currency) {
+            $query->andWhere(['company.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -162,6 +180,11 @@ class CompanyController extends Controller
         // Attempt to create new account
         $model = new Company();
         $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $model->country_id = Yii::$app->request->getBodyParam('country_id');
+
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency");
+        }
 
         $model->scenario = 'adminCreate';
         $transaction = Yii::$app->db->beginTransaction();
@@ -285,7 +308,13 @@ class CompanyController extends Controller
         }
         
         $model->scenario = 'adminUpdate';
+        $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
 
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency");
+        }
+
+        $model->country_id = Yii::$app->request->getBodyParam('country_id');
         $model->company_name = Yii::$app->request->getBodyParam("name");
         $model->company_email =Yii::$app->request->getBodyParam("email");
         $model->parent_company_id = Yii::$app->request->getBodyParam("parent");
@@ -457,6 +486,11 @@ class CompanyController extends Controller
         $model->file_s3_path = Yii::$app->request->getBodyParam("file_s3_path");
         $model->file_name = $model->file_s3_path;
         $model->company_id = $id;
+        $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
+
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency");
+        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {
@@ -498,6 +532,11 @@ class CompanyController extends Controller
         $model->scenario = 'update';
         $model->file_title = Yii::$app->request->getBodyParam("file_title");
         $model->file_description =Yii::$app->request->getBodyParam("file_description");
+        $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
+
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency");
+        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {
@@ -644,7 +683,11 @@ class CompanyController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
-    
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
     public function actionUpdateFollowupInterval($id) {
 
         $model = $this->findModel((int) $id);

@@ -74,20 +74,26 @@ class CandidateWorkingHourController extends Controller
      */
     public function actionListDate()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $candidate_id = Yii::$app->request->get('candidate_id', null);
-        $query = CandidateWorkingHour::find();
-        $query->addSelect('sum(total_time) as total_time,date, store_id, candidate_id');
-        $query->groupBy('date');
-        $query->orderBy('date DESC');
+
+        $query = CandidateWorkingHour::find()
+            ->addSelect('sum(total_time) as total_time,date, store_id, candidate_id')
+            ->groupBy('date')
+            ->orderBy('date DESC');
 
         if ($candidate_id && $candidate_id != 'null') {
             $query->andWhere(['candidate_id'=>$candidate_id]);
+        } else {
+            $query->joinWith(['candidate'])
+                ->andWhere(['candidate.currency_code' => $currency]);
         }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
-
 
     /**
      * Return a List of Invitation
@@ -95,14 +101,18 @@ class CandidateWorkingHourController extends Controller
      */
     public function actionListHour()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
         $candidate_id = Yii::$app->request->get('candidate_id', null);
         $date = Yii::$app->request->get('date', null);
-        $query = CandidateWorkingHour::find();
 
-        $query->orderBy('created_at DESC');
+        $query = CandidateWorkingHour::find()
+            ->orderBy('created_at DESC');
 
         if ($candidate_id && $candidate_id != 'null') {
             $query->andWhere(['candidate_id'=>$candidate_id]);
+        } else {
+            $query->joinWith(['candidate'])
+                ->andWhere(['candidate.currency_code' => $currency]);
         }
 
         if ($date && $date != 'null') {

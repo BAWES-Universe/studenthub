@@ -588,13 +588,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * for text export
      * @return array
      */
-    public static function getPayableCandidateListFormat()
+    public static function getPayableCandidateListFormat($currency_code = "KWD")
     {
         $totalAmount = 0;
 
         $transferCandidates = self::find()
             ->payable()
             ->havingBankInfo()
+            ->andWhere(['transfer_candidate.currency_code' => $currency_code])
             ->all();
 
         if (!$transferCandidates) {
@@ -672,13 +673,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * for text export
      * @return array
      */
-    public static function getPayableCandidateAdvice()
+    public static function getPayableCandidateAdvice($currency_code = "KWD")
     {
         $totalAmount = 0;
 
         $transferCandidates = self::find()
             ->payable()
             ->havingBankInfo()
+            ->andWhere(['transfer_candidate.currency_code' => $currency_code])
             ->all();
 
         if (!$transferCandidates) {

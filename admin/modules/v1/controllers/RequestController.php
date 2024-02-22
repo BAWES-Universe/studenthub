@@ -75,9 +75,16 @@ class RequestController extends Controller
      */
     public function actionList()
     {
-        $query = Request::find();
+        $currency = Yii::$app->request->headers->get("Currency");
         $start_date = Yii::$app->request->get('start_date', null);
         $end_date = Yii::$app->request->get('end_date', null);
+
+        $query = Request::find();
+
+        if($currency) {
+            $query->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency]);
+        }
 
         if (Yii::$app->request->get('staff_id', null)) {
             $query->filterByStaff(Yii::$app->request->get('staff_id'));
@@ -136,8 +143,13 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
         $model->request_status = Request::STATUS_STARTED;
-        
+
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency");
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -181,7 +193,12 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
-        
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency");
+        }
+
         if (!$model->save())
         {
             if(isset($model->errors)){

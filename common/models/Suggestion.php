@@ -258,6 +258,15 @@ class Suggestion extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCompany($modelClass = "\admin\models\Company")
+    {
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('request');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCreatedBy($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by'])->via('note');

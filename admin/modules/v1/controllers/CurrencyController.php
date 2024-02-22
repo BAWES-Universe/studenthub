@@ -46,7 +46,7 @@ class CurrencyController extends Controller
             'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options', 'list'];
 
         return $behaviors;
     }

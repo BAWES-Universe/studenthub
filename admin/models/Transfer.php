@@ -320,10 +320,13 @@ class Transfer extends \common\models\Transfer
     }
 
     /**
-     * @param int $statusCode
-     * @return array|bool|\yii\db\ActiveRecord|\yii\db\ActiveRecord[]
+     * @param $statusCode
+     * @param $startDate
+     * @param $endDate
+     * @param $currency_code
+     * @return array|\yii\db\ActiveRecord
      */
-    public static function getTransferStatusRecordDetail($statusCode = 0, $startDate = null, $endDate = null) {
+    public static function getTransferStatusRecordDetail($statusCode = 0, $startDate = null, $endDate = null, $currency_code = "KWD") {
         
         $query = Transfer::find()
             ->select('count(*) as total,transfer_status')
@@ -331,6 +334,9 @@ class Transfer extends \common\models\Transfer
             ->isParentTransfer()
             ->groupBy('transfer_status');
 
+        if($currency_code) {
+            $query->andWhere(['transfer.currency_code' => $currency_code]);
+        }
 
         if($startDate) {
             $query->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
