@@ -70,7 +70,8 @@ class AuthController extends Controller
             'verify-email',
             'is-email-verified',
             'name-by-civil-id',
-            'login-auth0'
+            'login-auth0',
+            "locate"
         ];
 
         return $behaviors;
