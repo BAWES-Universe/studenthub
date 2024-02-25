@@ -45,7 +45,7 @@ return [
         ],
         'ipstack' => [
             'class' => 'common\components\Ipstack',
-            'accessKey' => '198d3167a0e7db'
+            'accessKey' => '911bdd76f42e7f'
            // 'accessKey' => 'fac3c2117d877e078e3e8fa7839d8204'
         ],
         'cloudinaryManager' => [

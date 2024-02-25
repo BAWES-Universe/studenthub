@@ -134,6 +134,8 @@ class TransferController extends Controller
     {
         $currency = Yii::$app->request->headers->get("Currency");
 
+        $page = Yii::$app->request->get('page');
+        $company_id = Yii::$app->request->get('company_id');
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -141,9 +143,14 @@ class TransferController extends Controller
         $suspicious = Yii::$app->request->get('suspicious');
         $filterSameRate = Yii::$app->request->get('filterSameRate');
         $filterNoProfit = Yii::$app->request->get('filterNoProfit');
+        //$filterParentOnly = Yii::$app->request->get('filterParentOnly');
 
         $query = Transfer::find()
             ->isParentTransfer();
+
+        if($company_id) {
+            $query->andWhere(['transfer.company_id' => $company_id]);
+        }
 
         if($currency) {
             $query->andWhere(['transfer.currency_code' => $currency]);
@@ -177,6 +184,13 @@ class TransferController extends Controller
 
         $query->groupBy('{{%transfer}}.transfer_id');
         $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
+
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
