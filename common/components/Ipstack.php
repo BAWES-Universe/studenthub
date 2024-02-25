@@ -31,11 +31,13 @@ class Ipstack {
         }
 
         // Build url used for ip check
-        $url = 'https://api.ipstack.com/' . $ip . '?access_key=' . $this->accessKey;
+        //$url = 'https://api.ipstack.com/' . $ip . '?access_key=' . $this->accessKey;
+        $url = 'https://ipinfo.io/' . $ip . '/json?token=' . $this->accessKey;
 
         // Check if calling from localhost
         if ($ip == '::1' || $ip == '127.0.0.1') {
-            $url = 'https://api.ipstack.com/check?access_key=' . $this->accessKey;
+            //$url = 'https://api.ipstack.com/check?access_key=' . $this->accessKey;
+            $url = 'https://ipinfo.io/json?token=' . $this->accessKey;
         }
 
         // Return IP info from cache OR make a request for new data then cache
@@ -82,6 +84,20 @@ class Ipstack {
                 ->one();
 
             $result->country = $country;
+
+            //for ipinfo
+        } else if (isset($result->country) && is_string($result->country)) {
+
+            $country = Country::find()
+                ->where(['iso' => $result->country])
+                ->one();
+
+            $result->country = $country;
+
+            if(empty($result->currency)) {
+                $result->currency = $country->currency;
+            }
+
         }
 
         return $result;
