@@ -339,7 +339,7 @@ class AuthController extends Controller
             "company_id" => $company? $company->company_id: null,
             "profile_name" => $contact->contact_name,
             "email" => $contact->contact_email,
-            "currency_pref" => $company? $company->currency_code: null,
+            "currency_pref" => $company? $company->currency_code: "KWD",
             "active_request_count" => $company? $company->getRequests()->activeRequest()->count() : 0
         ];
     }
