@@ -31,11 +31,13 @@ class Ipstack {
         }
 
         // Build url used for ip check
-        $url = 'https://api.ipstack.com/' . $ip . '?access_key=' . $this->accessKey;
+        //$url = 'https://api.ipstack.com/' . $ip . '?access_key=' . $this->accessKey;
+        $url = 'https://ipinfo.io/' . $ip . '/json?token=' . $this->accessKey;
 
         // Check if calling from localhost
         if ($ip == '::1' || $ip == '127.0.0.1') {
-            $url = 'https://api.ipstack.com/check?access_key=' . $this->accessKey;
+            //$url = 'https://api.ipstack.com/check?access_key=' . $this->accessKey;
+            $url = 'https://ipinfo.io/json?token=' . $this->accessKey;
         }
 
         // Return IP info from cache OR make a request for new data then cache
@@ -49,7 +51,11 @@ class Ipstack {
             return false;
         }
 
-        $result = \GuzzleHttp\json_decode($responseObj->getBody()->getContents());
+        try {
+            $result = \GuzzleHttp\json_decode($responseObj->getBody()->getContents());
+        } catch (ClientException $e) {
+            return null;
+        }
 
         //Fix: https://www.pivotaltracker.com/story/show/165662472
 
