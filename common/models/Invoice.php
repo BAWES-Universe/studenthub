@@ -126,6 +126,12 @@ class Invoice extends ActiveRecord
             }
         }
 
+        $ml = new MailLog();
+        $ml->to = \Yii::$app->params['adminEmail'];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Company not paid in current month';
+        $ml->save();
+
         $mailer =Yii::$app->mailer->compose("companyNotPaid",
             [
                 "companies" => $result,

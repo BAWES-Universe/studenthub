@@ -149,6 +149,12 @@ class TransferFile extends \yii\db\ActiveRecord
             $subject = '[Fake] [Ignore] ' . $subject;
         }
 
+        $ml = new MailLog();
+        $ml->to = \Yii::$app->params['finance_transfer'];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subject;
+        $ml->save();
+
         Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
 
         $mailer = Yii::$app->mailer->compose("successfull-transfer",

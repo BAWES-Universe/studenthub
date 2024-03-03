@@ -1,6 +1,7 @@
 <?php
 namespace admin\models;
 
+use common\models\MailLog;
 use Yii;
 use yii\db\Expression;
 use yii\helpers\Url;
@@ -373,6 +374,12 @@ class Candidate extends \common\models\Candidate {
     {
         if(!$model->candidate_email_verification)
             return false;
+
+        $ml = new MailLog();
+        $ml->to = $model->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Your account password has been reset';
+        $ml->save();
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 

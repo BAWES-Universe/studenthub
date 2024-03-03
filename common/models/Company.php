@@ -349,6 +349,12 @@ class Company extends \yii\db\ActiveRecord
 
             $contactEmails = ArrayHelper::getColumn($contacts, 'contact_email');
 
+            $ml = new MailLog();
+            $ml->to = $this->company_email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = 'Your account is live now, let’s explore';
+            $ml->save();
+
             Yii::$app->mailer->compose ([
                 'html' => 'company/account-live-email-html',
                 //  'text' => 'company/account-live-email-text',
@@ -488,6 +494,13 @@ class Company extends \yii\db\ActiveRecord
         foreach ($companiesQuery->batch(100) as $companies) {
 
             foreach ($companies as $company) {
+
+                $ml = new MailLog();
+                $ml->to = $company->company_email;
+                $ml->from = \Yii::$app->params['finance_transfer'];
+                $ml->subject = $subject;
+                $ml->save();
+
                 $mailer
                     ->setTo($company->company_email);
 
@@ -1057,7 +1070,16 @@ class Company extends \yii\db\ActiveRecord
         return $query->count();
     }
 
+    /**
+     * @return void
+     */
     public function notifyUnderReview() {
+
+        $ml = new MailLog();
+        $ml->to = "sales@bawes.net";
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "[Studenthub] Company under review!";
+        $ml->save();
 
         Yii::$app->mailer->compose ([
             'html' => 'company/under-review-email-html',

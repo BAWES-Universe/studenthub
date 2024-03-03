@@ -12,6 +12,7 @@ return [
     'payment_notice_period' => '-35 days',
     'candidate_photo' => 'https://res.cloudinary.com/studenthub/image/upload/v1596525812/',
     'google_api_key' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw',
+    'mailThreshold' => 500,
     'bankInfo' => [ //BAWES Bank Info
         'accountName' => 'BAWES FOR COMPUTER AND OPERATION CO',
         'accountNameArabic' => 'شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت',

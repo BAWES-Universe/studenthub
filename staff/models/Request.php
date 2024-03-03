@@ -2,6 +2,7 @@
 
 namespace staff\models;
 
+use common\models\MailLog;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -176,6 +177,14 @@ class Request extends \common\models\Request {
 
         $subject =  "I've updated the request for ".$this->request_position_title." for ".$company_name;
 
+        $arrEmails = ArrayHelper::map($staffList,'staff_email','staff_name');
+
+        $ml = new MailLog();
+        $ml->to = $arrEmails[0]["staff_email"];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subject;
+        $ml->save();
+
         $mailer =  \Yii::$app->mailer->compose("company/request-updated",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -185,7 +194,7 @@ class Request extends \common\models\Request {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
-            ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
+            ->setTo($arrEmails)
             ->setSubject($subject);
 
         try {
@@ -207,6 +216,14 @@ class Request extends \common\models\Request {
 
         $subject =  "I've added a request for ".$this->request_position_title." for ".$company_name;
 
+        $arrEmails = ArrayHelper::map($staffList,'staff_email','staff_name');
+
+        $ml = new MailLog();
+        $ml->to = $arrEmails[0]["staff_email"];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subject;
+        $ml->save();
+
         $mailer = \Yii::$app->mailer->compose("company/request-created",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -214,7 +231,7 @@ class Request extends \common\models\Request {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
-            ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
+            ->setTo($arrEmails)
             ->setSubject($subject);
 
         try {

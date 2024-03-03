@@ -2,6 +2,7 @@
 
 namespace admin\models;
 
+use common\models\MailLog;
 use common\models\Staff;
 use common\models\BalanceAccount;
 use common\models\WalletUser;
@@ -342,7 +343,13 @@ class TransferCandidate extends \common\models\TransferCandidate
             ->all();
 
         $allStaffEmails = ArrayHelper::map($staffs,'staff_email','staff_name');
-        
+
+        $ml = new MailLog();
+        $ml->to = $this->candidate->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Transfer failed. Please update your bank info';
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose("candidate/transfer-fail.php",
             [
                 "name" => (isset($tmpName[0]))  ? $tmpName[0] : $this->candidate->candidate_name,

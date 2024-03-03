@@ -1,6 +1,7 @@
 <?php
 namespace admin\models;
 
+use common\models\MailLog;
 use Yii;
 use yii\db\Expression;
 use yii\helpers\Url;
@@ -176,6 +177,12 @@ class Staff extends \common\models\Staff {
      */
     public static function passwordMail($model, $password)
     {
+        $ml = new MailLog();
+        $ml->to = $model->staff_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Your account password has been reset';
+        $ml->save();
+
         Yii::$app->mailer->htmlLayout = 'layouts/html';
         
         $mailer = Yii::$app->mailer->compose("staff-password",
@@ -227,6 +234,12 @@ class Staff extends \common\models\Staff {
     }
 
     public function sendVerificationEmail() {
+
+        $ml = new MailLog();
+        $ml->to = $this->staff_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Reset your StudentHub password';
+        $ml->save();
 
         $webUrl = Yii::$app->params['staffAppUrl'] . 'update-password/' . $this->staff_password_reset_token;
 
