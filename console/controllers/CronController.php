@@ -5,6 +5,7 @@ namespace console\controllers;
 use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\DailyStandupQuestion;
+use common\models\MailLog;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
 use common\models\VendorCampaign;
@@ -228,6 +229,12 @@ class CronController extends \yii\console\Controller {
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
+        $ml = new MailLog();
+        $ml->to = Yii::$app->params['invoiceFrom'];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Morning Report for ' . date('F j, Y');
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose([
             'html' => 'summary',
         ], $data)
@@ -338,6 +345,12 @@ class CronController extends \yii\console\Controller {
             }
 
             Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+            $ml = new MailLog();
+            $ml->to = Yii::$app->params['operationsEmail'];
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $subject;
+            $ml->save();
 
             $send =  Yii::$app->mailer->compose("report-payment-required",
                 [
@@ -585,6 +598,12 @@ class CronController extends \yii\console\Controller {
         if (count($staffList) > 0) {
             foreach($staffList as $staff) {
                 $count ++;
+
+                $ml = new MailLog();
+                $ml->to = $staff->staff_email;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = "Daily Attendance notification";
+                $ml->save();
 
                 $mailer = Yii::$app->mailer->compose("staff/timer-notification",
                     [

@@ -240,6 +240,12 @@ class EmailCampaign extends \yii\db\ActiveRecord
 
         $message = str_replace($arrSearch, $arrReplace, $this->message);
 
+        $ml = new MailLog();
+        $ml->to = $candidate->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $this->subject;
+        $ml->save();
+
         $mailer = \Yii::$app->mailer->compose()
             ->setHtmlBody($message)
             ->setSubject($this->subject)

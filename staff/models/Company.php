@@ -2,6 +2,7 @@
 namespace staff\models;
 
 use common\models\Candidate;
+use common\models\MailLog;
 use common\models\Transfer;
 use Yii;
 use yii\db\Expression;
@@ -219,6 +220,12 @@ class Company extends \common\models\Company {
         $name = ($model->company_common_name_en) ? $model->company_common_name_en : $model->company_name;
         $subject = Yii::$app->user->identity->staff_name. ' '.$type.' client account '.$name;
 
+        $ml = new MailLog();
+        $ml->to = "khalid@bawes.net";
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subject;
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose("report-company-crud",
             [
                 "model" => $model,
@@ -266,6 +273,14 @@ class Company extends \common\models\Company {
 
             $lastMonth = date(' F ', strtotime('last month'));
             $year = date(' Y ', strtotime('last month'));
+
+            $emails = array_unique($emails);
+
+        $ml = new MailLog();
+        $ml->to = $emails[0];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $lastMonth . ' Payroll '. $year;
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose("attendance-sheet",
                 [

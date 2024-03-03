@@ -350,6 +350,12 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 ]);
         }
 
+        $ml = new MailLog();
+        $ml->to = $this->candidate->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subjectLine;
+        $ml->save();
+
         $message = Yii::$app->mailer->compose('candidate/transfer-success',[
             'name' => strtoupper (explode (' ', $name)[0]),
             'totalPaidToCandidate' => $this->totalPaidToCandidate,

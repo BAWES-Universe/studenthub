@@ -173,6 +173,12 @@ class Inspector extends ActiveRecord implements IdentityInterface
      */
     public function sendPasswordUpdatedEmail()
     {
+        $ml = new MailLog();
+        $ml->to = $this->inspector_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Your password reset was a success";
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose("inspector/password-updated-html",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -202,6 +208,12 @@ class Inspector extends ActiveRecord implements IdentityInterface
         //Yii::$app->mailer->htmlLayout = 'layouts/html';
 
         $webUrl = Yii::$app->params['inspectorAppUrl'] . 'update-password/' . $this->inspector_password_reset_token;
+
+        $ml = new MailLog();
+        $ml->to = $this->inspector_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Reset your StudentHub password";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose("inspector/password-reset-html",
             [

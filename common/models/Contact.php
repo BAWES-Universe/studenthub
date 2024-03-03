@@ -650,6 +650,12 @@ class Contact extends \yii\db\ActiveRecord
             $email = $this->contact_email;
         }
 
+        $ml = new MailLog();
+        $ml->to = $email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Please confirm your email address";
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/verify-email-html',
             'text' => 'company/verify-email-text',

@@ -2,6 +2,7 @@
 namespace company\models;
 
 
+use common\models\MailLog;
 use staff\models\Staff;
 use yii\helpers\ArrayHelper;
 
@@ -145,13 +146,21 @@ class Request extends \common\models\Request
 
         $subject =  $company_name." is looking to hire ".$this->request_position_title;
 
+        $arrTo = ArrayHelper::map($staffList,'staff_email','staff_name');
+
+        $ml = new MailLog();
+        $ml->to = $arrTo[0]["staff_email"];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subject;
+        $ml->save();
+
         $mailer = \Yii::$app->mailer->compose("company/request-created-bycompany",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
             ])
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->name])
-            ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
+            ->setTo($arrTo)
             ->setSubject($subject);
 
         try {

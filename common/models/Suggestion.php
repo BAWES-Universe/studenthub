@@ -461,6 +461,12 @@ class Suggestion extends \yii\db\ActiveRecord
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
 
+                $ml = new MailLog();
+                $ml->to = $setTo;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = $request->suggestionEmailSubject;
+                $ml->save();
+
                 $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setReplyTo([$staff->staff_email => $staff->staff_name])
                     ->setTo($setTo)
@@ -614,6 +620,12 @@ class Suggestion extends \yii\db\ActiveRecord
                 if($author && $author->staff_email != $suggestedByStaff->staff_email) {
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
+
+                $ml = new MailLog();
+                $ml->to = $setTo;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = $request->suggestionEmailSubject;
+                $ml->save();
 
                 $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setReplyTo([$staff->staff_email => $staff->staff_name])
