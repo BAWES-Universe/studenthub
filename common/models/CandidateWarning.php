@@ -110,6 +110,12 @@ class CandidateWarning extends \yii\db\ActiveRecord
 
         $name = explode(' ', $f_name)[0];
 
+        $ml = new MailLog();
+        $ml->to = $this->candidate->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $this->title;
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose("candidate/warning",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),

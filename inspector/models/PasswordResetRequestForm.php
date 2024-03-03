@@ -1,6 +1,7 @@
 <?php
 namespace inspector\models;
 
+use common\models\MailLog;
 use Yii;
 use yii\base\Model;
 
@@ -32,6 +33,12 @@ class PasswordResetRequestForm extends Model
     {
         $staff->generatePasswordResetToken();
         $staff->save();
+
+        $ml = new MailLog();
+        $ml->to = $staff->staff_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Password reset token";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose("passwordResetRequest",
             [

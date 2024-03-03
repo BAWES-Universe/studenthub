@@ -51,7 +51,11 @@ class Ipstack {
             return false;
         }
 
-        $result = \GuzzleHttp\json_decode($responseObj->getBody()->getContents());
+        try {
+            $result = \GuzzleHttp\json_decode($responseObj->getBody()->getContents());
+        } catch (ClientException $e) {
+            return null;
+        }
 
         //Fix: https://www.pivotaltracker.com/story/show/165662472
 

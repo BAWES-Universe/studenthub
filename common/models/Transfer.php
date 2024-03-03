@@ -707,6 +707,16 @@ class Transfer extends ActiveRecord
             $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
         }
 
+        $emails = array_unique($emails);
+
+        foreach ($emails as $email) {
+            $ml = new MailLog();
+            $ml->to = $email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $subjectLine;
+            $ml->save();
+        }
+
         $message->setTo(array_unique($emails))//remove duplicate
             ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
             ->setSubject($subjectLine);

@@ -138,6 +138,12 @@ class CompanyRequest extends \yii\db\ActiveRecord
      */
     private function notifyStaff() {
 
+        $ml = new MailLog();
+        $ml->to = "sales@bawes.net";
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "New company account request";
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose([
             'html' => 'staff/company-account-request-html',
             'text' => 'staff/company-account-request-text',
@@ -161,6 +167,12 @@ class CompanyRequest extends \yii\db\ActiveRecord
      * @return bool
      */
     private function notifyApprove($contact, $company) {
+
+        $ml = new MailLog();
+        $ml->to = $this->company_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Congratulation! Your account request approved!";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-approved-html',
@@ -187,6 +199,12 @@ class CompanyRequest extends \yii\db\ActiveRecord
      * @return bool
      */
     private function notifyReject() {
+
+        $ml = new MailLog();
+        $ml->to = $this->company_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "New company account request not approved!";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-rejected-html',
