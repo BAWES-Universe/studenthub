@@ -130,4 +130,54 @@ class MailLog extends \yii\db\ActiveRecord
 
         return true;
     }
+
+    /**
+     * @return array
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function getTotalByDays($days = 7)
+    {
+        $cacheDuration = 60 * 60;// 1 hour then delete from cache
+
+        $cacheDependency = Yii::createObject([
+            'class' => 'yii\caching\DbDependency',
+            'reusable' => true,
+            'sql' => 'SELECT COUNT(*) FROM `mail_log`',
+        ]);
+
+        $customer_data = [];
+
+        $date_start = strtotime('-'.($days - 1).' days');//date('w')
+
+        for ($i = 0; $i < $days; $i++) {
+
+            $date = date('Y-m-d', $date_start + ($i * 86400));
+
+            $customer_data[date('w', strtotime($date))] = array(
+                'day' => date('D', strtotime($date)),
+                'total' => 0
+            );
+        }
+
+        $rows = MailLog::getDb()->cache(function ($db) use ($days) {
+
+            return MailLog::find()
+                ->select(new Expression('created_at, COUNT(*) as total'))
+                ->andWhere(new Expression("DATE(created_at) >= DATE(NOW() - INTERVAL ".($days - 1)." DAY)"))
+                ->groupBy(new Expression('DAYNAME(created_at)'))
+                ->asArray()
+                ->all();
+
+        }, $cacheDuration, $cacheDependency);
+
+        foreach ($rows as $result) {
+            $customer_data[date('w', strtotime($result['created_at']))] = array(
+                'day' => date('D', strtotime($result['created_at'])),
+                'total' => (int)$result['total']
+            );
+        }
+
+        return array_values($customer_data);
+    }
 }

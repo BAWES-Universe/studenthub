@@ -404,6 +404,19 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // MailLogController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/mail-log',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET stats/<days>' => "stats",
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS stats/<days>' => "options",
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // CurrencyController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/currency',
