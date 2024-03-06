@@ -278,6 +278,10 @@ candidateMomKuwaitiFieldIsNull
 - contact - Password reset token
 - staff - <company_name> is looking to hire <request_position_title>
 
+# Sync with Algolia 
+
+`cd console && ../yii algolia/index fulltimer`
+
 todo 
 
 - company account password set 

@@ -480,7 +480,7 @@ class Fulltimer extends \yii\db\ActiveRecord
 
         //delete all objects
 
-        Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_fulltimer_index']);
+        //Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_fulltimer_index']);
 
         //call api in batch
 

@@ -2687,7 +2687,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function synchWithAlgolia() {
 
         //delete all objects
-        Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
+        //Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
 
         //call api in batch
 
