@@ -486,11 +486,6 @@ class CompanyController extends Controller
         $model->file_s3_path = Yii::$app->request->getBodyParam("file_s3_path");
         $model->file_name = $model->file_s3_path;
         $model->company_id = $id;
-        $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
-
-        if(!$model->currency_code) {
-            $model->currency_code = Yii::$app->request->headers->get("Currency");
-        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {
@@ -532,11 +527,6 @@ class CompanyController extends Controller
         $model->scenario = 'update';
         $model->file_title = Yii::$app->request->getBodyParam("file_title");
         $model->file_description =Yii::$app->request->getBodyParam("file_description");
-        $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
-
-        if(!$model->currency_code) {
-            $model->currency_code = Yii::$app->request->headers->get("Currency");
-        }
 
         if (!$model->save()) {
             if (isset($model->errors)) {

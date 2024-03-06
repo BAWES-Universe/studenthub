@@ -1,6 +1,7 @@
 <?php
 namespace company\tests;
 
+use common\fixtures\CountryFixture;
 use company\models\Contact;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\ContactFixture;
@@ -21,10 +22,15 @@ class AuthCest
             'companyContact' => CompanyContactFixture::className(),
             'company' => CompanyFixture::className(),
             'contact' => ContactFixture::className(),
+            "country" => CountryFixture::className(),
             'contactToken' => ContactTokenFixture::className()
         ];
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function _before(FunctionalTester $I)
     {
         $this->contact = Contact::find()->one();
@@ -35,6 +41,10 @@ class AuthCest
         $this->company = $this->contact->getManagedCompanies()->one();
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function _after(FunctionalTester $I)
     {
     }
@@ -69,7 +79,9 @@ class AuthCest
             "receive_email" => true,
             "phone_number" => 87384334,
             "company_name" => "Milton",
-            "contact_position" => "CEO"
+            "contact_position" => "CEO",
+            "currency_code" => "KWD",
+            "country_id" => 1
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
