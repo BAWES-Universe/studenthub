@@ -149,17 +149,21 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ['candidate_pending_profile', 'string'],
             [['is_incomplete_profile'], 'boolean'],
 
-            [
+            /*[
                 ['candidate_civil_id'],
                 'number',
                 'numberPattern' => '/^\d{12}$/',
                 'message' => Yii::t('app', "Civil id must be 12 digit number")
-            ],[
+            ],
+            [
                 ['candidate_phone'],
                 'number',
                 'numberPattern' => '/^\d{8}$/',
                 'message' => Yii::t('app', "Phone must be 8 digit number")
-            ],
+            ],*/
+            [['candidate_civil_id'], 'string', 'max' => 255],
+            [['candidate_phone'], 'string', 'max' => 20],
+
             [['bank_account_name', 'candidate_iban'], 'trim'],
             [['bank_account_name', 'candidate_iban'],
                 'match',
