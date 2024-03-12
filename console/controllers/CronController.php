@@ -253,25 +253,35 @@ class CronController extends \yii\console\Controller {
     {
         $amount = 0;
         $payableCandidate = [];
-        $candidates = TransferCandidate::find()
+
+        $transferCandidates = TransferCandidate::find()
+            ->joinWith(['candidate'])
             ->payable()
             ->havingBankInfo()
             ->all();
 
-        if ($candidates) {
+        if ($transferCandidates) {
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
-            foreach ($candidates as $candidate) {
+            foreach ($transferCandidates as $transferCandidate) {
                 if (
-                    $candidate->candidate->isProfileCompleted &&
-                    $candidate->candidate->bank_id &&
-                    $candidate->transfer_benef_iban &&
-                    $candidate->transfer_benef_name &&
-                    $candidate->invoiceNumber) {
-                    $payableCandidate[] = $candidate;
-                    $amount += $candidate->totalPaidToCandidate;
+                    $transferCandidate->candidate &&
+                    $transferCandidate->candidate->isProfileCompleted &&
+                    $transferCandidate->candidate->bank_id &&
+                    $transferCandidate->transfer_benef_iban &&
+                    $transferCandidate->transfer_benef_name &&
+                    $transferCandidate->invoiceNumber
+                ) {
+                    $payableCandidate[] = $transferCandidate;
+                    $amount += $transferCandidate->totalPaidToCandidate;
                 }
+
+                /*if(!$transferCandidate->candidate) {
+                    Yii::error("Candidate profile not found for payable candidate notification #" .
+                        $transferCandidate->tc_id);
+                }*/
             }
+
             $amount = number_format($amount, 3);
         }
 
