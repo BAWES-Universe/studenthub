@@ -258,7 +258,6 @@ class CronController extends \yii\console\Controller {
      */
     public function actionPayableCandidateNotification()
     {
-        //todo: group by currencies 
         $currencies = Currency::find()
             ->andWhere(['status' => 1])
             ->all();
@@ -268,33 +267,38 @@ class CronController extends \yii\console\Controller {
             $amount = 0;
             $payableCandidate = [];
 
-            $candidates = TransferCandidate::find()
-                ->with(['transfer'])
+            $transferCandidates = TransferCandidate::find()
+                ->with(['transfer', 'candidate'])
                 ->payable()
                 ->havingBankInfo()
                 ->andWhere(['transfer.currency_code' => $currency->code])
                 ->all();
 
-            if ($candidates) {
-                //https://www.pivotaltracker.com/story/show/176535038
-                // to force users to complete there profile
-                foreach ($candidates as $candidate) {
-                    if (
-                        $candidate->candidate->isProfileCompleted &&
-                        $candidate->candidate->bank_id &&
-                        $candidate->transfer_benef_iban &&
-                        $candidate->transfer_benef_name &&
-                        $candidate->invoiceNumber
-                    ) {
-                        $payableCandidate[] = $candidate;
-                        $amount += $candidate->totalPaidToCandidate;
-                    }
+            //https://www.pivotaltracker.com/story/show/176535038
+            // to force users to complete there profile
+            foreach ($transferCandidates as $transferCandidate) {
+                if (
+                    $transferCandidate->candidate &&
+                    $transferCandidate->candidate->isProfileCompleted &&
+                    $transferCandidate->candidate->bank_id &&
+                    $transferCandidate->transfer_benef_iban &&
+                    $transferCandidate->transfer_benef_name &&
+                    $transferCandidate->invoiceNumber
+                ) {
+                    $payableCandidate[] = $transferCandidate;
+                    $amount += $transferCandidate->totalPaidToCandidate;
                 }
-                $amount = number_format($amount, 3);
+
+                /*if(!$transferCandidate->candidate) {
+                    Yii::error("Candidate profile not found for payable candidate notification #" .
+                     $transferCandidate->tc_id);
+                }*/
             }
 
+            $amount = number_format($amount, 3);
+
             if ($payableCandidate && count($payableCandidate) > 0) {
- 
+
                 \moonland\phpexcel\Excel::export([
                     'isMultipleSheet' => false,
                     'fileName' => 'payable_candidate',
@@ -344,7 +348,7 @@ class CronController extends \yii\console\Controller {
                     'xls' => 'application/vnd.ms-excel',
                     'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 ];
-                
+
                 $fileName = 'payable_candidate.xlsx';
 
                 $file = sys_get_temp_dir() . '/' . $fileName;
@@ -387,7 +391,8 @@ class CronController extends \yii\console\Controller {
                 }
 
                 @unlink(sys_get_temp_dir() . '/' . $fileName);
-                return $send;
+
+                //return $send;
             }
         }
 
