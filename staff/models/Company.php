@@ -259,7 +259,7 @@ class Company extends \common\models\Company {
             $subQuery = CompanyContact::find()
                 ->select('contact_uuid')
                 ->andWhere([
-                    'company_id' => $company->company_id
+                    'company_contact.company_id' => $company->company_id
                 ]);
 
             $contacts = Contact::find()

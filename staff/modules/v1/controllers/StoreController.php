@@ -80,7 +80,7 @@ class StoreController extends Controller
             ]);*/
 
         if ($companyId) {
-            $query->andWhere(['company_id' => $companyId]);
+            $query->andWhere(['store.company_id' => $companyId]);
         }
 
         return new ActiveDataProvider([

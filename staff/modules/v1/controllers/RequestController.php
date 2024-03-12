@@ -209,7 +209,7 @@ class RequestController extends Controller
         }
 
         if($company_id) {
-            $query->andWhere(['company_id' => $company_id]);
+            $query->andWhere(['request.company_id' => $company_id]);
         }
 
         if($contact_uuid) {

@@ -179,6 +179,10 @@ class Request extends \common\models\Request {
 
         $arrEmails = ArrayHelper::map($staffList,'staff_email','staff_name');
 
+        if (sizeof($arrEmails) == 0) {
+            return false;
+        }
+
         $ml = new MailLog();
         $ml->to = $arrEmails[0]["staff_email"];
         $ml->from = \Yii::$app->params['supportEmail'];
@@ -217,6 +221,10 @@ class Request extends \common\models\Request {
         $subject =  "I've added a request for ".$this->request_position_title." for ".$company_name;
 
         $arrEmails = ArrayHelper::map($staffList,'staff_email','staff_name');
+
+        if (sizeof($arrEmails) == 0) {
+            return false;
+        }
 
         $ml = new MailLog();
         $ml->to = $arrEmails[0]["staff_email"];
