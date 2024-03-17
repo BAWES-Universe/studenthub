@@ -258,6 +258,15 @@ class Suggestion extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCompany($modelClass = "\admin\models\Company")
+    {
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])
+            ->via('request');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCreatedBy($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by'])->via('note');
@@ -461,6 +470,12 @@ class Suggestion extends \yii\db\ActiveRecord
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
 
+                $ml = new MailLog();
+                $ml->to = $setTo;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = $request->suggestionEmailSubject;
+                $ml->save();
+
                 $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setReplyTo([$staff->staff_email => $staff->staff_name])
                     ->setTo($setTo)
@@ -614,6 +629,12 @@ class Suggestion extends \yii\db\ActiveRecord
                 if($author && $author->staff_email != $suggestedByStaff->staff_email) {
                     $setCc[$author->staff_email] = $author->staff_name;
                 }
+
+                $ml = new MailLog();
+                $ml->to = $setTo;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = $request->suggestionEmailSubject;
+                $ml->save();
 
                 $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setReplyTo([$staff->staff_email => $staff->staff_name])

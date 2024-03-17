@@ -33,7 +33,7 @@ use Segment\Segment;
  * @property string $fulltimer_pdf_cv
  * @property string $fulltimer_created_datetime
  * @property string $fulltimer_updated_datetime
- *
+ * @property string $currency_code
  * @property Country $country
  * @property Area $fulltimerAreaUu
  * @property Country $nationality
@@ -72,6 +72,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             [['fulltimer_created_datetime', 'fulltimer_updated_datetime','fulltimer_current_salary', 'fulltimer_expected_salary'], 'safe'],
             [['fulltimer_uuid', 'fulltimer_area_uuid'], 'string', 'max' => 60],
             [['fulltimer_employed'], 'boolean'],
+            [['currency_code'], "string", "max" => 3],
             [['fulltimer_birth_date'], 'date', 'format' => 'yyyy-M-d'],
             ['fulltimer_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
             ['fulltimer_driving_license', 'in', 'range' => [self::YES, self::NO]],
@@ -145,7 +146,8 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_employed' => Yii::t('app', 'Fulltimer employed?'),
             'fulltimer_gender' => Yii::t('app', 'Gender'),
             'fulltimer_driving_license' => Yii::t('app', 'Driving License'),
-            'fulltimer_birth_date' => Yii::t('app', 'Birth Date')
+            'fulltimer_birth_date' => Yii::t('app', 'Birth Date'),
+            "currency_code" => Yii::t('app','Currency Code'),
         ];
     }
 
@@ -227,6 +229,10 @@ class Fulltimer extends \yii\db\ActiveRecord
         return true;
     }
 
+    /**
+     * @param $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if(!parent::beforeSave ($insert)) {
@@ -314,6 +320,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_pdf_cv' => $this->fulltimer_pdf_cv,
             'fulltimer_current_salary' => $this->fulltimer_current_salary,
             'fulltimer_expected_salary' => $this->fulltimer_expected_salary,
+            "currency_code" => $this->currency_code,
             'fulltimer_created_datetime' => $this->fulltimer_created_datetime,
             'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime,
             'have_resume' => $this->fulltimer_pdf_cv? 'Yes': 'No',
@@ -473,7 +480,7 @@ class Fulltimer extends \yii\db\ActiveRecord
 
         //delete all objects
 
-        Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_fulltimer_index']);
+        //Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_fulltimer_index']);
 
         //call api in batch
 

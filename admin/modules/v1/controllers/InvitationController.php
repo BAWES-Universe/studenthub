@@ -73,23 +73,37 @@ class InvitationController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $start_date = Yii::$app->request->get('start_date', null);
         $end_date = Yii::$app->request->get('end_date', null);
+        $request_uuid = Yii::$app->request->get('request_uuid', null);
+        $story_uuid = Yii::$app->request->get('story_uuid', null);
+        $staff_id = Yii::$app->request->get('staff_id', null);
+        $invitation_status = Yii::$app->request->get('invitation_status', null);
 
         $query = Invitation::find()
             ->orderBy('invitation_created_at DESC');
 
-        if (Yii::$app->request->get('request_uuid', null)) {
-            $query->filterRequest(Yii::$app->request->get('request_uuid'));
+        if(!$request_uuid && !$story_uuid && $currency) {
+            $query->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency]);
         }
-        if (Yii::$app->request->get('story_uuid', null)) {
-            $query->filterStory(Yii::$app->request->get('story_uuid'));
+
+        if ($request_uuid) {
+            $query->filterRequest($request_uuid);
         }
-        if (Yii::$app->request->get('invitation_status', null)) {
-            $query->andWhere(['invitation_status' => Yii::$app->request->get('invitation_status')]);
+
+        if ($story_uuid) {
+            $query->filterStory($story_uuid);
         }
-        if (Yii::$app->request->get('staff_id', null)) {
-            $query->andWhere(['invitation_created_by_staff' => Yii::$app->request->get('staff_id')]);
+
+        if ($invitation_status) {
+            $query->andWhere(['invitation_status' => $invitation_status]);
+        }
+
+        if ($staff_id) {
+            $query->andWhere(['invitation_created_by_staff' => $staff_id]);
         }
 
         if($start_date) {

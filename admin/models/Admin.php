@@ -2,6 +2,7 @@
 namespace admin\models;
 
 use common\models\AdminToken;
+use common\models\MailLog;
 use Yii;
 use yii\helpers\Url;
 
@@ -22,6 +23,12 @@ class Admin extends \common\models\Admin {
         /*if(!str_contains($model->admin_email, "bawes.net")) {
             return false;
         }*/
+
+        $ml = new MailLog();
+        $ml->to = $model->admin_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Your account password has been reset';
+        $ml->save();
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 

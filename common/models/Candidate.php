@@ -64,7 +64,7 @@ use Segment\Segment;
  * @property string $candidate_updated_at
  * @property integer $deleted
  * @property integer $is_duplicate
- *
+ * @property string $currency_code
  * @property Bank $bank
  * @property Country $country
  * @property Store $store
@@ -129,6 +129,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
+            [['currency_code'], "string", "max" => 3],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
             [['candidate_video_processed', 'is_duplicate'], 'boolean'],
@@ -338,7 +339,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['statusChange'] = ['approved', 'is_incomplete_profile'];
 
-        $scenarios['updateHourRate'] = ['candidate_hourly_rate', 'is_incomplete_profile'];
+        $scenarios['updateHourRate'] = ['candidate_hourly_rate', 'is_incomplete_profile', "currency_code"];
 
         $scenarios['updateLocation'] = ['candidate_latitude', 'candidate_longitude', 'candidate_area_uuid', 'is_incomplete_profile'];
 
@@ -555,7 +556,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_updated_at' => Yii::t('candidate','Updated At'),
             'employee_id' => Yii::t('candidate','Employee ID'),
             'candidate_mom_kuwaiti' => Yii::t('candidate','Candidate Mom Kuwaiti'),
-            'profile_url' => Yii::t('candidate','Profile Url')
+            'profile_url' => Yii::t('candidate','Profile Url'),
+            "currency_code" => Yii::t('app','Currency Code'),
         ];
     }
 
@@ -1206,6 +1208,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         if(!$this->candidate_email_verification)
             return false;
 
+        $ml = new MailLog();
+        $ml->to = $this->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Your password reset was a success';
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose("candidate/password-updated-html",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -1247,6 +1255,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
 
         $name = explode(' ',$this->candidate_name);
+
+        $ml = new MailLog();
+        $ml->to = $this->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Reset your StudentHub password';
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose("candidate/password-reset-html",
             [
@@ -1493,6 +1507,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             if(!$candidate->candidate_email_verification)
                 return false;
 
+            $ml = new MailLog();
+            $ml->to = $candidate->candidate_email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = 'Happy Birthday from StudentHub';
+            $ml->save();
+
             $mailer = Yii::$app->mailer->compose("birthday",
                 [
                     "candidate" => $candidate,
@@ -1544,6 +1564,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             } else {
                 $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
             }
+
+            $ml = new MailLog();
+            $ml->to = $candidate->candidate_email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = 'Please update your civil id';
+            $ml->save();
 
             $mailer = Yii::$app->mailer->compose("civil-expired",
                 [
@@ -2170,6 +2196,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $email = $this->candidate_email;
         }
 
+        $ml = new MailLog();
+        $ml->to = $email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Please confirm your email address';
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose([
             'html' => 'candidate/verify-email-html',
             'text' => 'candidate/verify-email-text',
@@ -2499,6 +2531,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'approved' => $this->approved,
             'candidate_mom_kuwaiti' => $this->candidate_mom_kuwaiti,
             'candidate_email_verification' => true,   // using in candidate card
+            "currency_code" => $this->currency_code,
             'isProfileCompleted' => true,  // using in candidate card
         ];
 
@@ -2658,7 +2691,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public static function synchWithAlgolia() {
 
         //delete all objects
-        Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
+        //Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
 
         //call api in batch
 
@@ -2760,6 +2793,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $name = explode(' ', $f_name)[0];
 
+        $ml = new MailLog();
+        $ml->to = $this->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "We'll stop recommending your profile to companies";
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose("candidate/commitment-warning",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
@@ -2818,6 +2857,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 } else {
                     $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
                 }
+
+                $ml = new MailLog();
+                $ml->to = $candidate->candidate_email;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = "Jobs in restaurants, cafes, and cinemas";
+                $ml->save();
 
                 $mailer = Yii::$app->mailer->compose("candidate/kuwaiti-mom",
                     [
@@ -2971,6 +3016,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 if(!$candidate->candidate_email_verification)
                     return false;
 
+                $ml = new MailLog();
+                $ml->to = $candidate->candidate_email;
+                $ml->from = \Yii::$app->params['finance_transfer'];
+                $ml->subject = $subject;
+                $ml->save();
+
                 $mailer
                     ->setTo($candidate->candidate_email);
 
@@ -3012,6 +3063,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 if(!$candidate->candidate_email_verification)
                     return false;
+
+                $ml = new MailLog();
+                $ml->to = $candidate->candidate_email;
+                $ml->from = \Yii::$app->params['finance_transfer'];
+                $ml->subject = $subject;
+                $ml->save();
 
                 $mailer
                     ->setTo($candidate->candidate_email);

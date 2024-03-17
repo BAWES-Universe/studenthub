@@ -72,7 +72,13 @@ class FulltimerController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = Fulltimer::find();
+
+        if($currency) {
+            $query->andWhere(['fulltimer.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -109,6 +115,7 @@ class FulltimerController extends Controller
         $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
         $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
         $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
 
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->fulltimer_employed = Yii::$app->request->getBodyParam("employed");
@@ -183,6 +190,7 @@ class FulltimerController extends Controller
         $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
         $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
         $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
 
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->fulltimer_employed = Yii::$app->request->getBodyParam("employed");

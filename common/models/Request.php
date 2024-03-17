@@ -535,17 +535,37 @@ class Request extends \yii\db\ActiveRecord
         }
     }
 
-    public static function activeRequestCount() 
+    /**
+     * @param $currency_code
+     * @return bool|int|string|null
+     */
+    public static function activeRequestCount($currency_code = "KWD")
     {
-        return Request::find()
-            ->needUpdate()
-            ->count();
+        $query = Request::find()
+            ->needUpdate();
+
+        if($currency_code) {
+            $query->joinWith('company')
+                ->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
-    public static function totalRequestCount() {
-        return Request::find()
-            ->activeRequest()
-            ->count();
+    /**
+     * @param $currency_code
+     * @return bool|int|string|null
+     */
+    public static function totalRequestCount($currency_code = "KWD") {
+        $query = Request::find()
+            ->activeRequest();
+
+        if($currency_code) {
+            $query->joinWith('company')
+                ->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
     /**

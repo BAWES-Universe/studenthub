@@ -28,17 +28,25 @@ return [
             'database' => 0,
         ],
         'cache' => [
-            'class' => 'yii\redis\Cache',
-            //'class' => 'yii\caching\FileCache',
+            //'class' => 'yii\redis\Cache',
+            'class' => 'yii\caching\FileCache',
         ],
+        'mailer' => [
+            'class' => 'yii\swiftmailer\Mailer',
+            'viewPath' => '@common/mail',
+            // send all mails to a file by default. You have to set
+            // 'useFileTransport' to false and configure a transport
+            // for the mailer to send real emails.
+            'useFileTransport' => true,
+        ],/*
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
             'viewPath' => '@common/mail',
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                'username' => 'AKIAWMITDJRKTH5HBB2O',
-                'password' => 'BKyPcINpZJsEVnUrMGymff27eaIztgNwSWN7xI2960eJ',
+                'username' => 'AKIAWMITDJRKVNB2AFUL',//AKIAWMITDJRKTH5HBB2O //AKIAWMITDJRKTQGXUQT3
+                'password' => 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',//BKyPcINpZJsEVnUrMGymff27eaIztgNwSWN7xI2960eJ //GDkiUbOkIxx4qpd0fcksh//0qKvAITbj4PCywBjh
                 'port' => '587',
                 'encryption' => 'tls',
                 /*
@@ -47,9 +55,9 @@ return [
                 'username' => 'apikey',
                 'password' => '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',//WeLoveSHTrainingProg!121',
                 'port' => '587',
-                'encryption' => 'tls',*/
+                'encryption' => 'tls',*
             ],
-        ],
+        ],*/
         'eventManager' => [
             'class' => 'common\components\EventManager',
         ],

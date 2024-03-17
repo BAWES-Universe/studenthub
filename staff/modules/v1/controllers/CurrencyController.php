@@ -3,13 +3,12 @@
 namespace staff\modules\v1\controllers;
 
 use Yii;
+use common\models\Currency;
+use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 
 
-/**
- * Algolia controller
- */
-class AlgoliaController extends Controller
+class CurrencyController extends Controller
 {
     public function behaviors()
     {
@@ -36,14 +35,6 @@ class AlgoliaController extends Controller
             ],
         ];
 
-        // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
-        $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
-        ];
-
-        // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
-
         return $behaviors;
     }
 
@@ -63,34 +54,36 @@ class AlgoliaController extends Controller
     }
 
     /**
-     * Return auto disposable secure api key 
+     * Get all countries data
+     * @param type $id
+     * @param type $store_uuid
+     * @return type
      */
-    public function actionKey() 
+    public function actionList()
     {
-        $ttl = 60 * 2; //2 min 
+        $keyword = Yii::$app->request->get('keyword');
+        $page = Yii::$app->request->get('page');
 
-        $currency = Yii::$app->request->headers->get("Currency");
+        $query = Currency::find()
+            ->andWhere(['status' => 1]);
 
-        $params = [
-            'restrictIndices' => [
-                Yii::$app->params['algolia_candidate_index'],
-                Yii::$app->params['algolia_fulltimer_index'],
-            ],
-            'filters' => 'currency_code:'.$currency,
-            //'validUntil' => time() + $ttl,
-            'userToken' => Yii::$app->user->getId(),
-            //'getRankingInfo' => true,
-            //'aroundLatLngViaIP' => true,
-            'aroundRadius' => 'all'
-        ];
+        if ($keyword) {
+            $query->andWhere([
+                "OR",
+                ['like', 'title', $keyword],
+                ['like', 'code', $keyword]
+            ]);
+        }
 
-        $securedApiKey = Yii::$app->algolia->getSecureApiKey($params);
-        
-        return [
-            'securedApiKey' => $securedApiKey,
-//            'securedApiKeyValidUntil' => $params['validUntil'],
-            'securedApiKeyValidUntil' => null,
-            'appId' => Yii::$app->algolia->appId
-        ];
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 }

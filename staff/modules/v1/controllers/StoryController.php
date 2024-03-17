@@ -128,6 +128,7 @@ class StoryController extends Controller
     public function actionActiveStory()
     {
         $id = Yii::$app->request->get('id', Yii::$app->user->getId());
+
         $model = Story::find()
             ->andWhere(['staff_id' => $id])
             ->andWhere(['OR',
@@ -156,6 +157,7 @@ class StoryController extends Controller
     public function actionAllOldStories()
     {
         $id = Yii::$app->request->get('id', Yii::$app->user->getId());
+
         $query = Story::find();
         $query->andWhere(['staff_id' => $id])
             ->andWhere(['<>','story_status',Story::STATUS_STARTED])
@@ -172,12 +174,19 @@ class StoryController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $status = Yii::$app->request->get('story_status');
         $position_type = Yii::$app->request->get('position_type');
         $keyword = Yii::$app->request->get("query");
 
         $query = Story::find()
             ->joinWith('request');
+
+        if($currency) {
+            $query->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency]);
+        }
 
         if ($position_type) {
             $query->andWhere(['request.request_position_type' => $position_type]);

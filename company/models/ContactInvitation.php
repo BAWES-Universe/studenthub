@@ -2,6 +2,7 @@
 
 namespace company\models;
 
+use common\models\MailLog;
 use Yii;
 
 /**
@@ -17,6 +18,13 @@ class ContactInvitation extends \common\models\ContactInvitation {
      */
     public function sendInvitationEmail() {
         Yii::$app->mailer->htmlLayout = "layouts/text";
+
+        $ml = new MailLog();
+        $ml->to = $this->email_to_invite;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $this->company->company_name . " has invited you to collaborate in 
+                        their recruitment process on StudentHub";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose('company/contact-invitation', [
                 'model' => $this
@@ -37,6 +45,12 @@ class ContactInvitation extends \common\models\ContactInvitation {
 
         if(!$this->contact->contact_email_verification)
             return false;
+
+        $ml = new MailLog();
+        $ml->to = $this->contact->contact_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Contact Invitation accepted";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose('company/contact-invitation-acceptance', [
                             'model' => $this

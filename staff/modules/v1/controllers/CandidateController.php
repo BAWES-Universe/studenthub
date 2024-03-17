@@ -79,7 +79,13 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = Candidate::find();
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -91,9 +97,7 @@ class CandidateController extends Controller
      */
     public function actionAssignedHistoryList()
     {
-        $query = CandidateWorkHistory::find();
-        $query->joinWith('candidate');
-        $query->orderBy('id DESC');
+        $currency = Yii::$app->request->headers->get("Currency");
 
         $start_date = Yii::$app->request->get('start_date');
         $end_date = Yii::$app->request->get('end_date');
@@ -101,6 +105,14 @@ class CandidateController extends Controller
         $name = Yii::$app->request->get("name");
         $email = Yii::$app->request->get("email");
         $filterSameRate = Yii::$app->request->get("filterSameRate");
+
+        $query = CandidateWorkHistory::find()
+            ->joinWith('candidate')
+            ->orderBy('id DESC');
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         if($name) {
             $query->filterName($name);
@@ -132,6 +144,8 @@ class CandidateController extends Controller
      */
     public function actionCreate()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         // Attempt to create new account
         $password = Yii::$app->security->generateRandomString(5);
 
@@ -155,6 +169,12 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         //$model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        $model->currency_code =  Yii::$app->request->getBodyParam("currency_code");
+
+        if(!$model->currency_code) {
+            $model->currency_code = $currency;
+        }
+
         $model->candidate_password_hash = $password;
         $model->password = $password; // temp password to send in mail
 
@@ -204,6 +224,8 @@ class CandidateController extends Controller
      */
     public function actionUpdate($id)
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $model = $this->findModel($id);
 
         $model->candidate_preferred_time = Yii::$app->request->getBodyParam ('preferred_time');
@@ -222,6 +244,11 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         //$model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        $model->currency_code =  Yii::$app->request->getBodyParam("currency_code");
+
+        if(!$model->currency_code) {
+            $model->currency_code = $currency;
+        }
 
         $model->candidate_driving_license = Yii::$app->request->getBodyParam("candidate_driving_license");
         $model->candidate_gender = Yii::$app->request->getBodyParam("candidate_gender");
@@ -268,6 +295,11 @@ class CandidateController extends Controller
         ];
     }
 
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
     public function actionAddTag($id)
     {
         $model = $this->findModel($id);
@@ -295,6 +327,11 @@ class CandidateController extends Controller
         ];
     }
 
+    /**
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     */
     public function actionUpdateTags($id)
     {
         $model = $this->findModel($id);
@@ -679,12 +716,18 @@ class CandidateController extends Controller
      */
     public function actionListNotAssigned()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $candidate_name = Yii::$app->request->get("candidate_name");
         $incompleteProfile = Yii::$app->request->get("incomplete_profile");
         $withoutBank = Yii::$app->request->get("without_bank");
 
         $query = Candidate::find()
             ->filterNotAssigned();
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         if ($incompleteProfile) {
         //    $query->byApprovalStatus(0);
@@ -747,12 +790,18 @@ class CandidateController extends Controller
      */
     public function actionListAssigned()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
         $candidate_name = Yii::$app->request->get("candidate_name");
         $incompleteProfile = Yii::$app->request->get("incomplete_profile");
 
         $query = Candidate::find()
             ->filterAssigned()
             ->notDeleted();
+
+        if($currency) {
+            $query->andWhere(['candidatae.currency_code' => $currency]);
+        }
+
         if ($incompleteProfile) {
             $query->incompletedProfile();
         }
@@ -772,6 +821,8 @@ class CandidateController extends Controller
      */
     public function actionFilter()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $name = Yii::$app->request->get("name");
         $company_id = Yii::$app->request->get("company_id");
         $email = Yii::$app->request->get("email");
@@ -783,9 +834,12 @@ class CandidateController extends Controller
 
         $query = Candidate::find();
 
+        //letting list all company candidate from company detail page
         if($company_id) {
             $company = Company::find()->andWhere(['company_id' => $company_id])->one();
             $query->filterCompany($company);
+        } else if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
         }
 
         if ($type == 'assigned') {
@@ -839,9 +893,15 @@ class CandidateController extends Controller
      */
     public function actionListWithoutBankInfo()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::withoutBankInfoOrWithPayment($candidate_name);
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query,
@@ -857,12 +917,17 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-        $country_id = Yii::$app->request->get('country_id');
+        $currency = Yii::$app->request->headers->get("Currency");
 
+        $country_id = Yii::$app->request->get('country_id');
         $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
             ->verifiedProfile();
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         switch ($by) {
             case 'review' :
@@ -1088,8 +1153,14 @@ class CandidateController extends Controller
      */
     public function actionTotalToReview()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = \admin\models\Candidate::find()
             ->byApprovalStatus(0);
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         return [
             'total' => $query->count(),
@@ -1212,12 +1283,18 @@ class CandidateController extends Controller
      */
     public function actionListExpiredCivilId()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
             ->civilIdExpired()
             ->filterAssigned()
             ->notDeleted(); // only candidate with assigned work
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         if($candidate_name) {
             $query->filterName($candidate_name);
@@ -1236,9 +1313,14 @@ class CandidateController extends Controller
      */
     public function actionAssignedIdleCandidates() {
 
+        $currency = Yii::$app->request->headers->get("Currency");
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::getAssignedIdleCandidate($candidate_name);
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -1394,10 +1476,16 @@ class CandidateController extends Controller
         return $pdf->render();
     }
 
+    /**
+     * @return void
+     */
     public function actionExportCandidateData()
     {
         ini_set('max_execution_time', '300');
         ini_set('memory_limit', '-1');
+
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $name = Yii::$app->request->get("name");
         $limit = Yii::$app->request->get("export_limit",5000);
         $email = Yii::$app->request->get("email");
@@ -1408,6 +1496,10 @@ class CandidateController extends Controller
         $updatedAfter = Yii::$app->request->get("updatedAfter");
 
         $query = Candidate::find();
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
 
         if ($type == 'assigned') {
             $query->filterAssigned();
@@ -1484,15 +1576,21 @@ class CandidateController extends Controller
                         return ($model && $model->store) ? $model->store->store_name : 'Un-Assigned';
                     },
                 ],
+                "currency_code"
             ]
         ]);
     }
 
-
+    /**
+     * @return void
+     */
     public function actionExportAssignedHistory()
     {
         ini_set('max_execution_time', '300');
         ini_set('memory_limit', '-1');
+
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $name = Yii::$app->request->get("name");
         $limit = Yii::$app->request->get("export_limit",5000);
         $email = Yii::$app->request->get("email");
@@ -1505,6 +1603,11 @@ class CandidateController extends Controller
 
         $query = CandidateWorkHistory::find();
         $query->joinWith(['candidate','company','store']);
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
         if($name) {
             $query->filterName($name);
         }

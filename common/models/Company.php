@@ -13,6 +13,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $company_id
  * @property integer $parent_company_id
  * @property integer $staff_id
+ * @property integer $country_id
  * @property string $company_name
  * @property string $company_common_name_en
  * @property string $company_common_name_ar
@@ -24,6 +25,7 @@ use yii\helpers\ArrayHelper;
  * @property string $company_email
  * @property decimal $company_hourly_rate
  * @property decimal $company_bonus_commission - % Of Bonus admin will take
+ * @property string $currency_code 
  * @property boolean $company_followup
  * @property integer $total_candidate
  * @property integer $no_of_active_requests
@@ -50,7 +52,7 @@ use yii\helpers\ArrayHelper;
  * @property Store[] $subCompanyStores
  * @property Note[] $notes
  *
- * E.g. 
+ * E.g.
  * company_hourly_rate = 1.5 KWD
  * company_bonus_commission = 20%
  * 
@@ -89,7 +91,7 @@ class Company extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission'], 'required'],
+            [['company_name','company_common_name_en','company_common_name_ar', 'company_bonus_commission', 'currency_code', "country_id"], 'required'],
             [['company_email', 'company_hourly_rate'], 'required', 'on' => 'newAccount'],//, 'commercial_licence'
             [['company_email'], 'unique', 'on'=>'newAccount'],
             [['company_email'], 'email' , 'on'=>'newAccount'],
@@ -131,6 +133,7 @@ class Company extends \yii\db\ActiveRecord
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
         ];
     }
   
@@ -182,11 +185,11 @@ class Company extends \yii\db\ActiveRecord
         $scenarios = parent::scenarios();
 
         $scenarios[self::SCENARIO_ACTIVATE] = ['company_logo', 'commercial_licence', 'company_description_en',
-            'company_description_ar', 'company_website', 'company_status_override'];
+            'company_description_ar', 'company_website', 'company_status_override', "currency_code", "country_id"];
 
         $scenarios[self::SCENARIO_APPROVE] = ["company_name", "company_common_name_en", "company_common_name_ar",
             "company_email", "company_bonus_commission", "company_approved_to_hire", "company_followup", "company_followup_interval_weeks",
-            "company_last_followup_datetime", "company_next_followup_datetime"];
+            "company_last_followup_datetime", "company_next_followup_datetime", "currency_code", "country_id"];
 
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];
@@ -220,6 +223,8 @@ class Company extends \yii\db\ActiveRecord
             'company_updated_at' => Yii::t('app','Company Updated At'),
             'last_request_datetime'=> Yii::t('app','Last Request At'),
             'last_payment_datetime'=> Yii::t('app','Last Payment At'),
+            "currency_code" => Yii::t('app', "currency_code"),
+            "country_id" => Yii::t('app', "country_id"),
         ];
     }
     
@@ -291,6 +296,7 @@ class Company extends \yii\db\ActiveRecord
             'profit',
             'revenue',
             'staff',
+            'country',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -342,6 +348,12 @@ class Company extends \yii\db\ActiveRecord
                 ->all();
 
             $contactEmails = ArrayHelper::getColumn($contacts, 'contact_email');
+
+            $ml = new MailLog();
+            $ml->to = $this->company_email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = 'Your account is live now, let’s explore';
+            $ml->save();
 
             Yii::$app->mailer->compose ([
                 'html' => 'company/account-live-email-html',
@@ -419,6 +431,24 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrency($modelClass = "\common\models\Currency")
+    {
+        return $this->hasOne($modelClass::className(), ['code' => 'currency_code']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\common\models\Country")
+    {
+        return $this->hasOne($modelClass::className(), ['country_id' => 'country_id']);
+    }
+
+    /**
      * @param string $modelClass
      * @return $this
      */
@@ -464,6 +494,13 @@ class Company extends \yii\db\ActiveRecord
         foreach ($companiesQuery->batch(100) as $companies) {
 
             foreach ($companies as $company) {
+
+                $ml = new MailLog();
+                $ml->to = $company->company_email;
+                $ml->from = \Yii::$app->params['finance_transfer'];
+                $ml->subject = $subject;
+                $ml->save();
+
                 $mailer
                     ->setTo($company->company_email);
 
@@ -910,11 +947,16 @@ class Company extends \yii\db\ActiveRecord
         return true;
     }
 
-    public static function companyFollowupCount() {
-        return self::find()
+    public static function companyFollowupCount($currency_code = "KWD") {
+        $query = self::find()
             ->followups()
-            ->filterParent()
-            ->count();
+            ->filterParent();
+
+        if($currency_code) {
+            $query->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
     public function getMalls($modelClass = "\common\models\Mall") {
@@ -996,29 +1038,48 @@ class Company extends \yii\db\ActiveRecord
      *  Add card to the top that should show when we have
      *  active client with staff assigned and hasn't made payment in 40 days
      */
-    public static function companiesCountWithNoPaymentIn40Days() {
-        return Company::find()
+    public static function companiesCountWithNoPaymentIn40Days($currency_code = null) {
+        $query = Company::find()
             ->filterParent()
             ->filterByActive40DaysPassedWithoutPayment()
-            ->notDeleted()
-            ->count();
+            ->notDeleted();
+
+        if($currency_code) {
+            $query->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
     /*
      *  Add card to the top that should show when we have
      *  active client with staff assigned and hasn't made payment in 40 days
      */
-    public static function last40daysWithoutRequest() {
-        return Company::find()
+    public static function last40daysWithoutRequest($currency_code = "KWD") {
+        $query = Company::find()
             ->filterParent()
             ->filterActive()
            // ->andWhere(new \yii\db\Expression("company_created_at < DATE_SUB(NOW(),INTERVAL 40 DAY)"))//last 40 day
             ->filterByActive40DaysPassedWithoutRequest()
-            ->notDeleted()
-            ->count();
+            ->notDeleted();
+
+        if($currency_code) {
+            $query->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        return $query->count();
     }
 
+    /**
+     * @return void
+     */
     public function notifyUnderReview() {
+
+        $ml = new MailLog();
+        $ml->to = "sales@bawes.net";
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "[Studenthub] Company under review!";
+        $ml->save();
 
         Yii::$app->mailer->compose ([
             'html' => 'company/under-review-email-html',

@@ -21,6 +21,8 @@ use yii\db\Expression;
  * @property string $phone_number
  * @property string $requesting_for
  * @property int $status pending=0, processing=1,  accepted=2, rejected=3
+ * @property int $country_id
+ * @property string $currency_code
  * @property string $created_at
  * @property string $updated_at
  *
@@ -47,7 +49,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_name', 'company_email', 'contact_name', 'contact_password_hash', 'phone_number'], 'required'],
+            [['company_name', 'company_email', 'contact_name', 'contact_password_hash', 'phone_number', 'currency_code', "country_id"], 'required'],
             [['status'], 'integer'],
             [['company_email'], 'validateEmail'],
             [['created_at', 'updated_at'], 'safe'],
@@ -111,6 +113,8 @@ class CompanyRequest extends \yii\db\ActiveRecord
             'requesting_for' => Yii::t('app', 'Requesting for'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
+            "currency_code" => Yii::t('app', "currency_code"),
+            "country_id" => Yii::t('app', "country_id"),
         ];
     }
 
@@ -133,6 +137,12 @@ class CompanyRequest extends \yii\db\ActiveRecord
      * @return bool
      */
     private function notifyStaff() {
+
+        $ml = new MailLog();
+        $ml->to = "sales@bawes.net";
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "New company account request";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'staff/company-account-request-html',
@@ -157,6 +167,12 @@ class CompanyRequest extends \yii\db\ActiveRecord
      * @return bool
      */
     private function notifyApprove($contact, $company) {
+
+        $ml = new MailLog();
+        $ml->to = $this->company_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Congratulation! Your account request approved!";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-approved-html',
@@ -183,6 +199,12 @@ class CompanyRequest extends \yii\db\ActiveRecord
      * @return bool
      */
     private function notifyReject() {
+
+        $ml = new MailLog();
+        $ml->to = $this->company_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "New company account request not approved!";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-rejected-html',
@@ -252,6 +274,8 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $company->company_followup_interval_weeks = 1;
         $company->company_last_followup_datetime = date('Y-m-d', strtotime ('-7 days'));
         //$company->company_status_override = Company::STATUS_ACTIVE;
+        $company->currency_code = $this->currency_code;
+        $company->country_id = $this->country_id;
 
         if (!$company->save()) {
             $transaction->rollBack();
@@ -342,5 +366,34 @@ class CompanyRequest extends \yii\db\ActiveRecord
             "operation" => "success",
             "message" => "Company registration request rejected"
         ];
+    }
+
+    /**
+     * @return array|false|int[]|string[]
+     */
+    public function extraFields()
+    {
+        return array_merge(parent::extraFields(), [
+            "country",
+            "currency"
+        ]);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrency($modelClass = "\common\models\Currency")
+    {
+        return $this->hasOne($modelClass::className(), ['code' => 'currency_code']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry($modelClass = "\common\models\Country")
+    {
+        return $this->hasOne($modelClass::className(), ['country_id' => 'country_id']);
     }
 }

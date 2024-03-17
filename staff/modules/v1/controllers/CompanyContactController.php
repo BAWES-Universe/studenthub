@@ -101,7 +101,7 @@ class CompanyContactController extends Controller
                 ->addSelect('contact.contact_receive_notification,contact.contact_created_at')
                 ->joinWith(['contactEmails', 'contactPhones','companyContact'])
                 ->orderBy('created_at ASC')
-                ->andWhere(['company_id' => $company_id])
+                ->andWhere(['company_contact.company_id' => $company_id])
                 ->asArray();
         }
 

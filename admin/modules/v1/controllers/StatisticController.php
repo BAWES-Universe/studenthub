@@ -73,28 +73,35 @@ class StatisticController extends Controller
         return $actions;
     }
 
+    public function actionClearCache() {
+        Yii::$app->cache->flush();
+    }
+
     /**
      * Return Statistic Details
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $startDate = Yii::$app->request->get('start_date', null);
         $endDate = Yii::$app->request->get('end_date', null);
-        $payableDetail = Candidate::getTotalPayableCandidate();
+
+        $payableDetail = Candidate::getTotalPayableCandidate($currency);
         // Candidates
-        $totalCandidate = Candidate::candidateCountByCondition(false, $startDate, $endDate);
-        $totalAssignedToWork = Candidate::candidateCountByAssigned($startDate, $endDate);
-        $approved = Candidate::candidateCountByCondition('approved', $startDate, $endDate);
+        $totalCandidate = Candidate::candidateCountByCondition(false, $startDate, $endDate, $currency);
+        $totalAssignedToWork = Candidate::candidateCountByAssigned($startDate, $endDate, $currency);
+        $approved = Candidate::candidateCountByCondition('approved', $startDate, $endDate, $currency);
 
         $result['candidates']['total_candidate'] = $totalCandidate;
         $result['candidates']['total_assigned'] = $totalAssignedToWork;
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
-        $result['candidates']['invited'] = Candidate::invited($startDate, $endDate);
-        $result['candidates']['suggested'] = Candidate::suggested($startDate, $endDate);
-        $result['company']['activeClient'] = Company::getCompanyByCondition('status',$startDate, $endDate);
-        $result['company']['all'] = Company::getCompanyByCondition(null, $startDate, $endDate);
-        $result['company']['request']['all'] = Company::request(null,$startDate, $endDate);
-        $result['company']['request']['delivered'] = Company::request('delivered', $startDate, $endDate);
+        $result['candidates']['invited'] = Candidate::invited($startDate, $endDate, $currency);
+        $result['candidates']['suggested'] = Candidate::suggested($startDate, $endDate, $currency);
+        $result['company']['activeClient'] = Company::getCompanyByCondition('status',$startDate, $endDate, $currency);
+        $result['company']['all'] = Company::getCompanyByCondition(null, $startDate, $endDate, $currency);
+        $result['company']['request']['all'] = Company::request(null,$startDate, $endDate, $currency);
+        $result['company']['request']['delivered'] = Company::request('delivered', $startDate, $endDate, $currency);
         $result['payable']['total'] = $payableDetail['payable'];
         $result['payable']['amount'] = $payableDetail['amount'];
 
@@ -104,8 +111,8 @@ class StatisticController extends Controller
             ->count();
 
         // Transfers
-        $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK, $startDate, $endDate);
-        $paymentSentTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_PAYMENT_SENT, $startDate, $endDate);
+        $lockedTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_LOCK, $startDate, $endDate, $currency);
+        $paymentSentTransfers = Transfer::getTransferStatusRecordDetail(Transfer::STATUS_PAYMENT_SENT, $startDate, $endDate, $currency);
 
         $result['transfers'] = [];
         $result['transfers']['locked'] = [
@@ -119,6 +126,7 @@ class StatisticController extends Controller
         ];
 
         $salaryQuery = StaffSalary::find();
+
         if($startDate) {
             $salaryQuery->andWhere(new Expression("DATE(salary_date) >= DATE('" . $startDate . "')"));
         }
@@ -126,7 +134,8 @@ class StatisticController extends Controller
             $salaryQuery->andWhere(new Expression("DATE(salary_date) <= DATE('" . $endDate . "')"));
         }
 
-        $result['totalSalaryPaid'] = $salaryQuery->sum('salary');;
+        $result['totalSalaryPaid'] = $salaryQuery->sum('salary');
+
         $result['absent'] = StaffLeave::find()
             ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
                 DATE(to_date) >= DATE('".date('Y-m-d')."')"))
@@ -150,12 +159,15 @@ class StatisticController extends Controller
      */
     public function actionTransfer() {
 
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $startDate = Yii::$app->request->get('start_date', null);
         $endDate = Yii::$app->request->get('end_date', null);
 
         $data = [];
 
         $data['totalTransferCandidate'] = TransferCandidate::find()
+            ->andWhere(['transfer_candidate.currency_code' => $currency])
             ->joinWith(['transfer'])
             //ignore duplicate entries of child transfers
             ->andWhere('transfer.parent_transfer_id IS NULL')
@@ -163,37 +175,42 @@ class StatisticController extends Controller
             //->filterPaid()
             ->count();
 
-        $totalPaymentAmountReceived = Transfer::find();            //ignore duplicate entries of child transfers
-        $totalPaymentAmountReceived->andWhere('transfer.parent_transfer_id IS NULL');
-        $totalPaymentAmountReceived->filterPaymentReceived();
+        $totalPaymentAmountReceived = Transfer::find()            //ignore duplicate entries of child transfers
+            ->andWhere(['transfer.currency_code' => $currency])
+            ->andWhere('transfer.parent_transfer_id IS NULL')
+            ->filterPaymentReceived();
+
         if($startDate) {
             $totalPaymentAmountReceived->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
         }
+
         if($endDate) {
             $totalPaymentAmountReceived->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
+
         $data['totalPaymentAmountReceived'] = $totalPaymentAmountReceived->sum('company_total');
 
-
-
-        $totalBelongingToCandidates = Transfer::find();//ignore duplicate entries of child transfers
-        $totalBelongingToCandidates->andWhere('transfer.parent_transfer_id IS NULL');
+        $totalBelongingToCandidates = Transfer::find()//ignore duplicate entries of child transfers
+            ->andWhere('transfer.parent_transfer_id IS NULL')
             //->andWhere(['NOT IN', 'transfer_status', [Transfer::STATUS_INITIATED, Transfer::STATUS_CANCEL]])//no draft
-        //
-        $totalBelongingToCandidates->filterPaymentReceived();
+            ->andWhere(['transfer.currency_code' => $currency])
+            ->filterPaymentReceived();
+
         if($startDate) {
             $totalBelongingToCandidates->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
         }
+
         if($endDate) {
             $totalBelongingToCandidates->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
+
         $data['totalBelongingToCandidates'] = $totalBelongingToCandidates->sum('total');
 
+        $totalProfit = Transfer::find()
+            ->andWhere(['transfer.currency_code' => $currency])
+            ->andWhere('transfer.parent_transfer_id IS NULL')//ignore duplicate entries of child transfers
+            ->filterPaymentReceived();
 
-
-        $totalProfit = Transfer::find();
-        $totalProfit->andWhere('transfer.parent_transfer_id IS NULL');//ignore duplicate entries of child transfers
-        $totalProfit->filterPaymentReceived();
         if($startDate) {
             $totalProfit->andWhere(new Expression("DATE(start_date) >= DATE('" . $startDate . "')"));
         }
@@ -202,8 +219,7 @@ class StatisticController extends Controller
             $totalProfit->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
 
-        $data['totalProfit'] =$totalProfit->sum('company_total - total');
-
+        $data['totalProfit'] = $totalProfit->sum('company_total - total');
 
         return $data;
     }

@@ -3,20 +3,15 @@
 namespace admin\modules\v1\controllers;
 
 use Yii;
-use yii\rest\Controller;
+use common\models\MailLog;
 use yii\data\ActiveDataProvider;
-use yii\filters\Cors;
+use yii\db\Expression;
 use yii\filters\auth\HttpBearerAuth;
+use yii\filters\Cors;
+use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
-use admin\models\TransferFile;
 
-
-/**
- * Manage transfer files
- *
- * @author krushn
- */
-class TransferFileController extends Controller
+class MailLogController extends Controller
 {
     public function behaviors()
     {
@@ -69,19 +64,16 @@ class TransferFileController extends Controller
     }
 
     /**
-     * Return a List of Transfer Files.
+     * Return a List of Country Accounts available.
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $s = Yii::$app->request->get('query');
 
-        $query = TransferFile::find()
-            ->innerJoinWith(['transferCandidates'])
-            ->groupBy('transfer_file_id')
-            ->orderBy(new \yii\db\Expression('transfer_file_created_at DESC'));
+        $query = MailLog::find();
 
-        if($currency) {
-            $query->andWhere(['transfer_file.currency_code' => $currency]);
+        if($s) {
+            $query->andWhere(new Expression("to LIKE '%".$s."%' OR from LIKE '%".$s."%' OR subject LIKE '%".$s."%' "));
         }
 
         return new ActiveDataProvider([
@@ -90,7 +82,7 @@ class TransferFileController extends Controller
     }
 
     /**
-     * load transfer file details
+     * load country details
      * @param type $id
      * @return type
      */
@@ -98,17 +90,27 @@ class TransferFileController extends Controller
     {
         return $this->findModel($id);
     }
-    
+
     /**
-     * Finds the Transfer file model based on its primary key value.
+     * @param $days
+     * @return array
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionStats($days) {
+        return MailLog::getTotalByDays($days);
+    }
+
+    /**
+     * Finds the MailLog model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return TransferFile the loaded model
+     * @return MailLog the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = TransferFile::findOne($id)) !== null) {
+        if (($model = MailLog::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

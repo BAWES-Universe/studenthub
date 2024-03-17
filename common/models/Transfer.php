@@ -20,6 +20,7 @@ use Segment\Segment;
  * @property integer $company_id
  * @property integer $total
  * @property integer $company_total
+ * @property string $currency_code
  * @property date $payment_received_on
  * @property integer $transfer_status
  * @property date $start_date
@@ -83,6 +84,7 @@ class Transfer extends ActiveRecord
             [['transfer_status'], 'validateTransferStatus'],
             [['total', 'company_total'], 'number'],
             ['start_date', 'validateDates'],
+            [["currency_code"], "string"],
             [['transfer_created_at', 'transfer_updated_at', 'payment_received_on','start_date','end_date'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
@@ -144,7 +146,8 @@ class Transfer extends ActiveRecord
         return [
             'transfer_id' => Yii::t('app','Transfer ID'),
             'company_id' => Yii::t('app','Company ID'),
-            'company_total' => Yii::t('app','Total for company'),
+            'company_total' => Yii::t('app','Total for Company'),
+            "currency_code" => Yii::t('app','Currency Code'),
             'total' => Yii::t('app','Total'),
             'transfer_status' => Yii::t('app','Transfer Status'),
             'transfer_created_at' => Yii::t('app','Transfer Created At'),
@@ -163,15 +166,19 @@ class Transfer extends ActiveRecord
         $fields['transfer_created_at_unix'] = function($model) {
             return date('Y-m-d',strtotime($model->transfer_created_at));
         };
+
         $fields['transfer_updated_at_unix'] = function($model) {
             return date('Y-m-d',strtotime($model->transfer_updated_at));
         };
+
         $fields['transfer_created_at'] = function($model) {
             return Yii::$app->formatter->asDateTime($model->transfer_created_at);
         };
+
         $fields['transfer_updated_at'] = function($model) {
             return Yii::$app->formatter->asDateTime($model->transfer_updated_at);
         };
+
         $fields['payment_received_on'] = function($model) {
             return $model->payment_received_on? Yii::$app->formatter->asDate($model->payment_received_on) : $model->payment_received_on;
         };
@@ -527,6 +534,15 @@ class Transfer extends ActiveRecord
     }
 
     /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrency($modelClass = "\common\models\Currency")
+    {
+        return $this->hasMany($modelClass::className(), ['code' => 'currency_code']);
+    }
+
+    /**
      * @inheritdoc
      * @return query\TransferQuery the active query used by this AR class.
      */
@@ -691,6 +707,16 @@ class Transfer extends ActiveRecord
             $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
         }
 
+        $emails = array_unique($emails);
+
+        foreach ($emails as $email) {
+            $ml = new MailLog();
+            $ml->to = $email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $subjectLine;
+            $ml->save();
+        }
+
         $message->setTo(array_unique($emails))//remove duplicate
             ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
             ->setSubject($subjectLine);
@@ -711,7 +737,7 @@ class Transfer extends ActiveRecord
         
         $heading = Yii::t('app', 'New transfer initiated');
         $subtitle = "@ " . $transferCandidate->store->store_name . ', ' . $transferCandidate->company->company_name;
-        $content = 'KWD ' . number_format($total, 3);
+        $content = $transferCandidate->transfer->currency_code . ' ' . number_format($total, 3);
 
         $filters = [
             [
@@ -752,6 +778,7 @@ class Transfer extends ActiveRecord
                     $transfer->parent_transfer_id = $model->transfer_id;
                     $transfer->company_id = $company['company_id'];
                     $transfer->transfer_status = Transfer::STATUS_LOCK;
+                    $transfer->currency_code = $model->currency_code;
                     $transfer->save(false);
                 }
 
@@ -1010,7 +1037,7 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates, $start_date, $end_date) {
+    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD") {
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
@@ -1020,6 +1047,7 @@ class Transfer extends ActiveRecord
         $transfer->candidates = $candidates;
         $transfer->start_date = $start_date;
         $transfer->end_date   = $end_date;
+        $transfer->currency_code = $currency_code;
 
         if(!$transfer->save()) {
             if(isset($transfer->errors)) {
@@ -1041,6 +1069,8 @@ class Transfer extends ActiveRecord
         $total = $company_total = 0;
 
         foreach ($candidates as $key => $value) {
+
+            $value['currency_code'] = $currency_code;
 
             if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
@@ -1166,10 +1196,11 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public function updateTransfer($candidates, $start_date, $end_date) {
+    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD") {
 
         $this->start_date = $start_date;
         $this->end_date = $end_date;
+        $this->currency_code = $currency_code;
 
         if($this->parent_transfer_id > 0) {
             return [
@@ -1222,6 +1253,8 @@ class Transfer extends ActiveRecord
 
         foreach($candidates as $key => $value)
         {
+            $value['currency_code'] = $currency_code;
+
             if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
 

@@ -2,6 +2,7 @@
 namespace candidate\models;
 
 
+use common\models\MailLog;
 use Yii;
 use yii\base\Model;
 
@@ -48,6 +49,12 @@ class PasswordResetRequestForm extends Model
         $candidate->save(false);
         
         $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $candidate->candidate_auth_key;
+
+        $ml = new MailLog();
+        $ml->to = $candidate->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Password reset token';
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose("passwordResetRequest",
             [

@@ -2,6 +2,7 @@
 
 namespace staff\models;
 
+use common\models\MailLog;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -114,6 +115,12 @@ class Request extends \common\models\Request {
         return parent::getActiveSuggestions($modelClass);
     }
 
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return void
+     * @throws \yii\db\Exception
+     */
     public function afterSave($insert, $changedAttributes)
     {
         if (!$insert) {
@@ -122,6 +129,10 @@ class Request extends \common\models\Request {
         parent::afterSave($insert, $changedAttributes);
     }
 
+    /**
+     * @param $changedAttributes
+     * @return bool|void
+     */
     public function requestUpdateNotification($changedAttributes)
     {
         $changedParam = [];
@@ -176,7 +187,21 @@ class Request extends \common\models\Request {
 
         $subject =  "I've updated the request for ".$this->request_position_title." for ".$company_name;
 
-        $mailer =  \Yii::$app->mailer->compose("company/request-updated",
+        $arrEmails = ArrayHelper::map($staffList,'staff_email','staff_name');
+
+        if (sizeof($arrEmails) == 0) {
+            return false;
+        }
+
+        foreach ($arrEmails as $email => $staff) {
+            $ml = new MailLog();
+            $ml->to = $email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $subject;
+            $ml->save();
+        }
+
+        $mailer = \Yii::$app->mailer->compose("company/request-updated",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
                 "model" => $this,
@@ -185,7 +210,7 @@ class Request extends \common\models\Request {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
-            ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
+            ->setTo($arrEmails)
             ->setSubject($subject);
 
         try {
@@ -195,6 +220,9 @@ class Request extends \common\models\Request {
         }
     }
 
+    /**
+     * @return bool|void
+     */
     public function requestNotification()
     {
         $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
@@ -207,6 +235,20 @@ class Request extends \common\models\Request {
 
         $subject =  "I've added a request for ".$this->request_position_title." for ".$company_name;
 
+        $arrEmails = ArrayHelper::map($staffList,'staff_email','staff_name');
+
+        if (sizeof($arrEmails) == 0) {
+            return false;
+        }
+
+        foreach ($arrEmails as $email => $staff) {
+            $ml = new MailLog();
+            $ml->to = $email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $subject;
+            $ml->save();
+        }
+
         $mailer = \Yii::$app->mailer->compose("company/request-created",
             [
                 "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
@@ -214,7 +256,7 @@ class Request extends \common\models\Request {
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
-            ->setTo(ArrayHelper::map($staffList,'staff_email','staff_name'))
+            ->setTo($arrEmails)
             ->setSubject($subject);
 
         try {

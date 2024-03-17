@@ -1,6 +1,8 @@
 <?php
 namespace admin\tests;
 
+use admin\models\Country;
+use common\fixtures\CountryFixture;
 use common\models\Company;
 use Yii;
 use admin\tests\FunctionalTester;
@@ -21,7 +23,8 @@ class CompanyCest
         return [
             'adminToken' => AdminTokenFixture::className(),
             'company' => CompanyFixture::className(),
-            'files' => FileFixture::className()
+            'files' => FileFixture::className(),
+            'country' => CountryFixture::className()
         ];
     }
 
@@ -106,7 +109,9 @@ class CompanyCest
         );
         
         $I->wantTo('create a company via admin > companies API');
-        
+
+        $country = Country::find()->one();
+
         $I->sendPOST(
             'v1/companies',
             [
@@ -121,7 +126,9 @@ class CompanyCest
                 'email' => 'davert@bawes.com',
                 'password' => '12345',
                 'bonus_commission' => 20,
-                'hourly_rate' => 1.5
+                'hourly_rate' => 1.5,
+                "currency_code" => "KWD",
+                "country_id" => $country->country_id
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);  
@@ -144,7 +151,9 @@ class CompanyCest
             codecept_data_dir() . 'files/sample.jpg',
             'image/jpg'
         );
-        
+
+        $country = Country::find()->one();
+
         $I->wantTo('create a sub company via admin > companies API');
         $I->haveHttpHeader('Content-Type', 'application/x-www-form-urlencoded');
         $I->sendPOST(
@@ -160,7 +169,9 @@ class CompanyCest
                 'website' => 'test.com',
                 'parent' => 1,
                 'bonus_commission' => 20,
-                'hourly_rate' => 1.5
+                'hourly_rate' => 1.5,
+                "currency_code" => "KWD",
+                "country_id" => $country->country_id
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK);  

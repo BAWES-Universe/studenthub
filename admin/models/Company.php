@@ -181,14 +181,27 @@ class Company extends \common\models\Company {
         return parent::getFiles($modelClass);
     }
 
-    public static function getCompanyByCondition($condition = null, $startDate = null, $endDate = null) {
+    /**
+     * @param $condition
+     * @param $startDate
+     * @param $endDate
+     * @param $currency_code
+     * @return bool|int|string|null
+     */
+    public static function getCompanyByCondition($condition = null, $startDate = null, $endDate = null, $currency_code = null) {
+
         $query = Company::find()
-            ->filterParent();
+            ->filterParent()
+            ->notDeleted();
+
+        if($currency_code) {
+            $query->andWhere(['company.currency_code' => $currency_code]);
+        }
 
         if ($condition == 'status') {
             $query->filterActive();
         }
-        $query->notDeleted();
+
         if($startDate) {
             $query->andWhere(new Expression("DATE(company_created_at) >= DATE('" . $startDate . "')"));
         }
@@ -200,8 +213,21 @@ class Company extends \common\models\Company {
         return $query->count();
     }
 
-    public static function request($status = null, $startDate = null, $endDate = null) {
+    /**
+     * @param $status
+     * @param $startDate
+     * @param $endDate
+     * @param $currency_code
+     * @return bool|int|string|null
+     */
+    public static function request($status = null, $startDate = null, $endDate = null, $currency_code = null) {
         $query = Request::find();
+
+        if($currency_code) {
+            $query
+                ->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency_code]);
+        }
 
         if ($status) {
             $query->filterByStatus($status);

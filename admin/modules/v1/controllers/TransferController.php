@@ -78,6 +78,8 @@ class TransferController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -86,6 +88,10 @@ class TransferController extends Controller
 
         $query = Transfer::find()
             ->isParentTransfer();
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
 
         if ($company_name) {
             $query->companyJoin()
@@ -212,6 +218,8 @@ class TransferController extends Controller
      */
     public function actionPayableCandidates()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         // Candidates whose company paid to admin but admin have not paid yet
         $query = Transfer::find()
             ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
@@ -223,7 +231,11 @@ class TransferController extends Controller
                 ]
             ])*/
             ->isParentTransfer();
-        
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
+
         return new \yii\data\ActiveDataProvider([
             'query' => $query,
             'pagination' => false
@@ -352,7 +364,7 @@ class TransferController extends Controller
                         'total' => $transfer->total,
                         'company_total' => $transfer->company_total,
                         'revenue' => $transfer->company_total - $transfer->total,
-                        'currency' => 'KWD'
+                        'currency' => $transfer->currency_code
                 ]);
         }
 
@@ -565,7 +577,8 @@ class TransferController extends Controller
                     'tc_id' => $value['Credit Narrative'],
                     'candidate_id' => $transferCandidate->candidate->candidate_id,
                     'candidate_name' => $transferCandidate->candidate->candidate_name,
-                    'total_amount' => $transferCandidate->totalPaidToCandidate
+                    'total_amount' => $transferCandidate->totalPaidToCandidate,
+                    "currency_code" => $transferCandidate->currency_code
                 ];
 
                 $total += $transferCandidate->totalPaidToCandidate;
@@ -758,12 +771,18 @@ class TransferController extends Controller
      */
     public function actionExportPayableCandidates()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $payableCandidate = [];
         $onlyPayable = Yii::$app->request->get('only-payable');
         
         // Candidates whose company paid to admin but admin have not paid yet
         $query = TransferCandidate::find()
             ->payable();
+
+        if($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
 
         if($onlyPayable) {
             $query->havingBankInfo();
@@ -822,7 +841,8 @@ class TransferController extends Controller
                     }
                 ],
                 'candidate.candidate_iban',
-                'candidate.bank.bank_name'
+                'candidate.bank.bank_name',
+                "currency_code"
             ]
         ]);
     }
@@ -833,10 +853,12 @@ class TransferController extends Controller
      */
     public function actionText()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
         $s2 = '';
 
-        $candidates = TransferCandidate::getPayableCandidateListFormat();
+        $candidates = TransferCandidate::getPayableCandidateListFormat($currency);
 
         if(!$candidates) {
             return [
@@ -870,6 +892,8 @@ class TransferController extends Controller
      */
     public function actionDownloadPaymentAdvice()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
         $batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
 
@@ -877,7 +901,7 @@ class TransferController extends Controller
         $s1 = 'H,'.$batchId.','.time().PHP_EOL; // header line
         $s2 = '';
 
-        $candidates = TransferCandidate::getPayableCandidateAdvice();
+        $candidates = TransferCandidate::getPayableCandidateAdvice($currency);
 
         if(!$candidates) {
             return [
@@ -974,6 +998,7 @@ class TransferController extends Controller
                             return 'No';
                     },
                 ],
+                "currency_code"
             ]
         ]);
     }

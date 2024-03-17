@@ -5,16 +5,16 @@ namespace admin\modules\v1\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
-use admin\models\Country;
+use common\models\Currency;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
 use yii\web\NotFoundHttpException;
 
 
 /**
- * Country controller - Manage Country as Admin
+ * Currency controller - Manage Currency as Admin
  */
-class CountryController extends Controller
+class CurrencyController extends Controller
 {
     public function behaviors()
     {
@@ -46,7 +46,7 @@ class CountryController extends Controller
             'class' => HttpBearerAuth::className(),
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options', 'list'];
 
         return $behaviors;
     }
@@ -67,29 +67,39 @@ class CountryController extends Controller
     }
 
     /**
-     * Return a List of Country Accounts available.
+     * Return a List of Currency Accounts available.
+     * @return ActiveDataProvider
      */
     public function actionList()
     {
-        $s = Yii::$app->request->get('query');
-        
-        $query = Country::find()
-            ->filterNotFromGoogle()
-            ->listWithCandidateCount();
-            
-        if ($s) {
-            $query->filterName($s);
+        $keyword = Yii::$app->request->get('keyword');
+        $page = Yii::$app->request->get('page');
+
+        $query = Currency::find();
+         //   ->andWhere(['status' => 1]);
+
+        if ($keyword) {
+            $query->andWhere([
+                "OR",
+                ['like', 'title', $keyword],
+                ['like', 'code', $keyword]
+            ]);
         }
 
-        $query->asArray();
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
-    
+
     /**
-     * load country details
+     * load Currency details
      * @param type $id
      * @return type
      */
@@ -99,19 +109,20 @@ class CountryController extends Controller
     }
 
     /**
-     * Create a Country account
+     * Create a Currency
      * @return array
      */
     public function actionCreate()
     {
-        // Attempt to create new Country
-        $model = new Country();
+        $model = new Currency();
 
-        $model->country_name_en = Yii::$app->request->getBodyParam("name_en");
-        $model->country_name_ar = Yii::$app->request->getBodyParam("name_ar");
-        $model->country_nationality_name_en = Yii::$app->request->getBodyParam("nationality_name_en");
-        $model->country_nationality_name_ar = Yii::$app->request->getBodyParam("nationality_name_ar");
-        $model->country_from_google_map = Yii::$app->request->getBodyParam("google_map");
+        $model->title = Yii::$app->request->getBodyParam("title");
+        $model->code = Yii::$app->request->getBodyParam("code");
+        $model->currency_symbol = Yii::$app->request->getBodyParam("currency_symbol");
+        $model->rate = Yii::$app->request->getBodyParam("rate");
+        $model->decimal_place = Yii::$app->request->getBodyParam("decimal_place");
+        $model->sort_order = Yii::$app->request->getBodyParam("sort_order");
+        $model->status = (int) Yii::$app->request->getBodyParam("status");
 
         if (!$model->save())
         {
@@ -123,45 +134,34 @@ class CountryController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem creating the country, please contact us for assistance."
+                    "message" => "We've faced a problem creating the Currency, please contact us for assistance."
                 ];
             }
         }
 
-        Yii::info('[Country Added: '.$model->country_name_en.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
-
         return [
             "operation" => "success",
-            "message" => "Country created successfully"
+            "message" => "Currency added successfully"
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
-     * Create a Country account
+     * Create a Currency account
      * @param $id
      * @return array
      */
     public function actionUpdate($id)
     {
         // Attempt to create new account
-        $model = $this->findModel((int) $id);
+        $model = $this->findModel($id);
 
-        if(!$model){
-            return [
-                "operation" => "error",
-                "message" => "Country not found."
-            ];
-        }
-
-        $model->country_name_en = Yii::$app->request->getBodyParam("name_en");
-        $model->country_name_ar = Yii::$app->request->getBodyParam("name_ar");
-        $model->country_nationality_name_en = Yii::$app->request->getBodyParam("nationality_name_en");
-        $model->country_nationality_name_ar = Yii::$app->request->getBodyParam("nationality_name_ar");
-        $model->country_from_google_map = Yii::$app->request->getBodyParam("google_map");
-
+        $model->title = Yii::$app->request->getBodyParam("title");
+        $model->code = Yii::$app->request->getBodyParam("code");
+        $model->currency_symbol = Yii::$app->request->getBodyParam("currency_symbol");
+        $model->rate = Yii::$app->request->getBodyParam("rate");
+        $model->decimal_place = Yii::$app->request->getBodyParam("decimal_place");
+        $model->sort_order = Yii::$app->request->getBodyParam("sort_order");
+        $model->status = (int) Yii::$app->request->getBodyParam("status");
 
         if (!$model->save())
         {
@@ -173,52 +173,37 @@ class CountryController extends Controller
             }else{
                 return [
                     "operation" => "error",
-                    "message" => "We've faced a problem updating the country, please contact us for assistance."
+                    "message" => "We've faced a problem updating the Currency, please contact us for assistance."
                 ];
             }
         }
 
-        Yii::info('[Country Updated: '.$model->country_name_en.'] By '.Yii::$app->user->identity->admin_name, __METHOD__);
+        return [
+            "operation" => "success",
+            "message" => "Currency successfully updated"
+        ];
+    }
 
+    /**
+     * Delete an account
+     * @param  integer $id
+     * @return array
+     */
+    public function actionDelete($id)
+    {
+        $Currency = $this->findModel($id);
+
+        // Delete Currency
+        $Currency->delete();
 
         return [
             "operation" => "success",
-            "message" => "Country successfully updated"
+            "message" => "Currency deleted successfully"
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
-     * @return void
-     */
-    public function actionDownloadListExcel()
-    {
-        $query = Country::find();
-
-        header('Access-Control-Allow-Origin: *');
-
-        \moonland\phpexcel\Excel::export([
-            'isMultipleSheet' => false,
-            'models' => $query->all(),
-            'columns' => [
-                'country_id',
-                'country_name_en',
-                'country_name_ar',
-                [
-                    'attribute'=>'Total Candidate',
-                    'label'=>'Total Candidate',
-                    'value'=>function($model) {
-                        return $model->getCandidates()->count();
-                    }
-                ],
-            ]
-        ]);
-    }
-    
-    /**
-     * Finds the Country model based on its primary key value.
+     * Finds the Currency model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
      * @return Transfer the loaded model
@@ -226,10 +211,11 @@ class CountryController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Country::findOne($id)) !== null) {
+        if (($model = Currency::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
 }
+ 

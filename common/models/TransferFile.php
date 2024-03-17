@@ -13,6 +13,7 @@ use yii\behaviors\TimestampBehavior;
  * @property int $transfer_file_id
  * @property string $transfer_file_s3_path
  * @property string $transfer_amount
+ * @property string $currency_code
  * @property string $transfer_file_created_at
  * @property string $transfer_file_updated_at
  *
@@ -35,6 +36,7 @@ class TransferFile extends \yii\db\ActiveRecord
     {
         return [
             [['transfer_file_s3_path'], 'required'],
+            [['currency_code'], "string", "max" => 3],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path'], 'string', 'max' => 255],
         ];
@@ -66,6 +68,7 @@ class TransferFile extends \yii\db\ActiveRecord
             'transfer_amount' => Yii::t('app', 'Transfer Amount'),
             'transfer_file_created_at' => Yii::t('app', 'Transfer File Created At'),
             'transfer_file_updated_at' => Yii::t('app', 'Transfer File Updated At'),
+            "currency_code" => Yii::t('app','Currency Code'),
         ];
     }
     /**
@@ -108,7 +111,12 @@ class TransferFile extends \yii\db\ActiveRecord
 
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
-        
+        $tf->currency_code = Yii::$app->request->getBodyParam('currency_code');
+
+        if(!$tf->currency_code) {
+            $tf->currency_code = Yii::$app->request->headers->get("Currency");
+        }
+
         //get total amount marked as paid by this file 
         
         $tf->transfer_amount = TransferCandidate::find()
@@ -140,11 +148,17 @@ class TransferFile extends \yii\db\ActiveRecord
         
         $extension = pathinfo($fileName, PATHINFO_EXTENSION); 
                 
-        $subject = "Transferred KWD {$amount} to {$count} people";
+        $subject = "Transferred {$transfer->currency_code} {$amount} to {$count} people";
         
         if(YII_ENV != 'prod') {
             $subject = '[Fake] [Ignore] ' . $subject;
         }
+
+        $ml = new MailLog();
+        $ml->to = \Yii::$app->params['finance_transfer'];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subject;
+        $ml->save();
 
         Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
 

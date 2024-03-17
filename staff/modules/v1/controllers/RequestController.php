@@ -77,6 +77,8 @@ class RequestController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $company_id = Yii::$app->request->get("company_id");
         $company_name = Yii::$app->request->get("company_name");
         $request_status = Yii::$app->request->get("request_status");
@@ -92,7 +94,12 @@ class RequestController extends Controller
         $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
 
         $query = Request::find()
-                  ->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+                    ->joinWith('company')
+                    ->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
+
+        if($currency) {
+            $query->andWhere(['company.currency_code' => $currency]);
+        }
 
         $query->addOrderBy('request_created_datetime ASC');
 
@@ -109,7 +116,7 @@ class RequestController extends Controller
         }*/
 
         if ($q) {
-            $query->joinWith('company');
+
             $query->andFilterWhere([
                 'or',
                 ['like', 'request.request_position_title', $q],
@@ -181,6 +188,8 @@ class RequestController extends Controller
      */
     public function actionListActive()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $keyword = Yii::$app->request->get("query");
         $company_id = Yii::$app->request->get("company_id");
         $position_type = Yii::$app->request->get("position_type");
@@ -190,12 +199,17 @@ class RequestController extends Controller
 
         $query = Request::find();
 
+        if($currency) {
+            $query->joinWith('company')
+                ->andWhere(['company.currency_code' => $currency]);
+        }
+
         if($keyword) {
             $query->filterByKeyword($keyword);
         }
 
         if($company_id) {
-            $query->andWhere(['company_id' => $company_id]);
+            $query->andWhere(['request.company_id' => $company_id]);
         }
 
         if($contact_uuid) {
@@ -240,12 +254,18 @@ class RequestController extends Controller
     {
         $company_name = Yii::$app->request->get("company_name");
         $followup_interval = Yii::$app->request->get("followup_interval");
+        $currency = Yii::$app->request->headers->get("Currency");
 
         $query = Request::find()
             ->joinWith('suggestions')
             ->where([
                 'suggestion.suggestion_status' => Suggestion::TYPE_SUGGESTED,
             ]);
+
+        if($currency) {
+            $query->joinWith('company')
+                ->andWhere(['company.currency_code' => $currency]);
+        }
 
         if($company_name) {
             $query->joinWith('company')

@@ -5,6 +5,7 @@ namespace console\controllers;
 use admin\models\Expense;
 use admin\models\TransferCandidate;
 use common\models\DailyStandupQuestion;
+use common\models\MailLog;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
 use common\models\VendorCampaign;
@@ -228,6 +229,12 @@ class CronController extends \yii\console\Controller {
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
 
+        $ml = new MailLog();
+        $ml->to = Yii::$app->params['invoiceFrom'];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Morning Report for ' . date('F j, Y');
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose([
             'html' => 'summary',
         ], $data)
@@ -251,18 +258,24 @@ class CronController extends \yii\console\Controller {
      */
     public function actionPayableCandidateNotification()
     {
-        $amount = 0;
-        $payableCandidate = [];
-
-        $transferCandidates = TransferCandidate::find()
-            ->joinWith(['candidate'])
-            ->payable()
-            ->havingBankInfo()
+        $currencies = Currency::find()
+            ->andWhere(['status' => 1])
             ->all();
 
-        if ($transferCandidates) {
-        //https://www.pivotaltracker.com/story/show/176535038
-        // to force users to complete there profile
+        foreach ($currencies as $currency) {
+
+            $amount = 0;
+            $payableCandidate = [];
+
+            $transferCandidates = TransferCandidate::find()
+                ->with(['transfer', 'candidate'])
+                ->payable()
+                ->havingBankInfo()
+                ->andWhere(['transfer.currency_code' => $currency->code])
+                ->all();
+
+            //https://www.pivotaltracker.com/story/show/176535038
+            // to force users to complete there profile
             foreach ($transferCandidates as $transferCandidate) {
                 if (
                     $transferCandidate->candidate &&
@@ -278,101 +291,111 @@ class CronController extends \yii\console\Controller {
 
                 /*if(!$transferCandidate->candidate) {
                     Yii::error("Candidate profile not found for payable candidate notification #" .
-                        $transferCandidate->tc_id);
+                     $transferCandidate->tc_id);
                 }*/
             }
 
             $amount = number_format($amount, 3);
-        }
 
-        if ($payableCandidate && count($payableCandidate) > 0) {
+            if ($payableCandidate && count($payableCandidate) > 0) {
 
-            \moonland\phpexcel\Excel::export([
-                'isMultipleSheet' => false,
-                'fileName'=>'payable_candidate',
-                'savePath' => sys_get_temp_dir() . '/',
-                'asAttachment' => true,
-                'models' => $payableCandidate,
-                'columns' => [
-                    'tc_id',
-                    'transfer_id',
-                    'candidate_id',
-                    'candidate.candidate_name',
-                    [
-                        'attribute'=>'Beneficiary name',
-                        'label'=>'Beneficiary name',
-                        'value'=>function($data) {
-                            return $data->candidate->bank_account_name;
-                        }
-                    ],
-                    'candidate.candidate_email',
-                    'candidate.store.company.company_name',
-                    'candidate.store.store_name',
-                    'hours',
-                    'candidate_hourly_rate',
-                    [
-                        'attribute'=>'bonus',
-                        'label'=>'Candidate Bonus',
-                        'value' => function($data){
-                            return $data->bonus - $data->bonus_commission;
-                        }
-                    ],
-                    'transfer_cost',
-                    [
-                        'attribute'=>'candidate_total',
-                        'value' => function($data){
-                            return $data->totalPaidToCandidate;
-                        }
-                    ],
-                    'candidate.candidate_iban',
-                    'candidate.bank.bank_name'
-                ]
-            ]);
-
-            Yii::$app->mailer->htmlLayout = 'layouts/html';
-
-            $mimeTypes = [
-                'xls' => 'application/vnd.ms-excel',
-                'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            ];
-            $fileName = 'payable_candidate.xlsx';
-
-            $file = sys_get_temp_dir() . '/'.$fileName;
-
-            $extension = pathinfo($file, PATHINFO_EXTENSION);
-
-            $subject = "We need to process KWD $amount to ".count($payableCandidate)." people";
-
-            if (YII_ENV != 'prod') {
-                $subject = '[Fake] [Ignore] ' . $subject;
-            }
-
-            Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
-
-            $send =  Yii::$app->mailer->compose("report-payment-required",
-                [
-                    "amount" => $amount,
-                    "ppl" => count($payableCandidate),
-                    'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
-                ])
-
-                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-                ->setTo(Yii::$app->params['operationsEmail'])
-                ->setSubject($subject)
-                ->attachContent(file_get_contents($file), [
-                    'fileName' => $fileName,
-                    'contentType' => $mimeTypes[$extension]
+                \moonland\phpexcel\Excel::export([
+                    'isMultipleSheet' => false,
+                    'fileName' => 'payable_candidate',
+                    'savePath' => sys_get_temp_dir() . '/',
+                    'asAttachment' => true,
+                    'models' => $payableCandidate,
+                    'columns' => [
+                        'tc_id',
+                        'transfer_id',
+                        'candidate_id',
+                        'candidate.candidate_name',
+                        [
+                            'attribute' => 'Beneficiary name',
+                            'label' => 'Beneficiary name',
+                            'value' => function ($data) {
+                                return $data->candidate->bank_account_name;
+                            }
+                        ],
+                        'candidate.candidate_email',
+                        'candidate.store.company.company_name',
+                        'candidate.store.store_name',
+                        'hours',
+                        'candidate_hourly_rate',
+                        [
+                            'attribute' => 'bonus',
+                            'label' => 'Candidate Bonus',
+                            'value' => function ($data) {
+                                return $data->bonus - $data->bonus_commission;
+                            }
+                        ],
+                        'transfer_cost',
+                        [
+                            'attribute' => 'candidate_total',
+                            'value' => function ($data) {
+                                return $data->totalPaidToCandidate;
+                            }
+                        ],
+                        //  'transfer.currency_code',
+                        'candidate.candidate_iban',
+                        'candidate.bank.bank_name'
+                    ]
                 ]);
 
-            try {
-                $send->send();
-            } catch (\Swift_TransportException $e) {
-                Yii::error($e->getMessage(), "email_campaign");
-            }
+                Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-            @unlink(sys_get_temp_dir() . '/' . $fileName);
-            return $send;
+                $mimeTypes = [
+                    'xls' => 'application/vnd.ms-excel',
+                    'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                ];
+
+                $fileName = 'payable_candidate.xlsx';
+
+                $file = sys_get_temp_dir() . '/' . $fileName;
+
+                $extension = pathinfo($file, PATHINFO_EXTENSION);
+
+                $subject = "We need to process " . $currency->code . " " . $amount . " to " . count($payableCandidate) . " people";
+
+                if (YII_ENV != 'prod') {
+                    $subject = '[Fake] [Ignore] ' . $subject;
+                }
+
+                Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+                $ml = new MailLog();
+                $ml->to = Yii::$app->params['operationsEmail'];
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = $subject;
+                $ml->save();
+
+                $send = Yii::$app->mailer->compose("report-payment-required",
+                    [
+                        "amount" => $amount,
+                        "currency_code" => $currency->code,
+                        "ppl" => count($payableCandidate),
+                        'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https')
+                    ])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setTo(Yii::$app->params['operationsEmail'])
+                    ->setSubject($subject)
+                    ->attachContent(file_get_contents($file), [
+                        'fileName' => $fileName,
+                        'contentType' => $mimeTypes[$extension]
+                    ]);
+
+                try {
+                    $send->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "email_campaign");
+                }
+
+                @unlink(sys_get_temp_dir() . '/' . $fileName);
+
+                //return $send;
+            }
         }
+
         return true;
     }
 
@@ -431,7 +454,7 @@ class CronController extends \yii\console\Controller {
                         'candidate_id' => $tc->candidate_id,
                         'name' => $name,
                         'revenue' => $tc->getProfit(),
-                        'currency' => 'KWD',
+                        'currency' => $tc->transfer->currency_code,
                         'transfer_cost' => $tc->transfer_cost,
                         'candidate_total' => $tc->candidate_total,
                         'company_total' => $tc->company_total,
@@ -595,6 +618,12 @@ class CronController extends \yii\console\Controller {
         if (count($staffList) > 0) {
             foreach($staffList as $staff) {
                 $count ++;
+
+                $ml = new MailLog();
+                $ml->to = $staff->staff_email;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = "Daily Attendance notification";
+                $ml->save();
 
                 $mailer = Yii::$app->mailer->compose("staff/timer-notification",
                     [

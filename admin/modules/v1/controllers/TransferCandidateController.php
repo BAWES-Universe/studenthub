@@ -75,6 +75,7 @@ class TransferCandidateController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
         $tc_id = Yii::$app->request->get('tc_id');
 
         $transfer_confirmation_id = Yii::$app->request->get('transfer_confirmation_id');
@@ -82,7 +83,11 @@ class TransferCandidateController extends Controller
         $query = TransferCandidate::find()
             ->with('candidate')
             ->payableWithPaid();
-        
+
+        if($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
+
         if($tc_id) {
             $transferCandidateRecords = array_diff(explode(",", $tc_id),[""]);
             $query->andWhere(['in', 'tc_id', $transferCandidateRecords]);
@@ -178,6 +183,8 @@ class TransferCandidateController extends Controller
      */
     public function actionPayByWallet($id)
     {
+        //todo: make sure wallet/customer's profile currency is same as transfer currency
+
         $transfer_confirmation_id = Yii::$app->request->getBodyParam('transfer_confirmation_id');
         $initTransfer = Yii::$app->request->getBodyParam('init_transfer');
 

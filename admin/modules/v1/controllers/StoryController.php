@@ -134,6 +134,8 @@ class StoryController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $status = Yii::$app->request->get('story_status');
         $position_type = Yii::$app->request->get('position_type');
         $keyword = Yii::$app->request->get("name");
@@ -145,6 +147,11 @@ class StoryController extends Controller
 
         $query = Story::find()
             ->joinWith('request');
+
+        if($currency) {
+            $query->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency]);
+        }
 
         if ($status) {
             $status = ($status == '9' ? 0 : $status);

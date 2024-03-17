@@ -55,9 +55,11 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'POST login-auth0' => 'login-auth0',
+                        'POST login-by-google' => 'login-by-google',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS login-auth0' => 'options',
+                        'OPTIONS login-by-google' => 'options',
                     ]
                 ],
                 [ // StatisticController
@@ -65,9 +67,11 @@ return [
                     'controller' => 'v1/statistic',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET clear-cache' => "clear-cache",
                         'GET transfer' => 'transfer',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS clear-cache' => 'options',
                         'OPTIONS transfer' => 'options',
                     ]
                 ],
@@ -389,6 +393,33 @@ return [
                 [ // BankController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/bank',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // MailLogController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/mail-log',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET stats/<days>' => "stats",
+                        'GET <id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS stats/<days>' => "options",
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // CurrencyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/currency',
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',

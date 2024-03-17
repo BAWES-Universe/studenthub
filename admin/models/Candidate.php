@@ -1,6 +1,7 @@
 <?php
 namespace admin\models;
 
+use common\models\MailLog;
 use Yii;
 use yii\db\Expression;
 use yii\helpers\Url;
@@ -34,13 +35,14 @@ class Candidate extends \common\models\Candidate {
 
     /**
      * return total number of payable candidate
+     * @param $currency_code
      * @return array
      */
-    public static function getTotalPayableCandidate(){
+    public static function getTotalPayableCandidate($currency_code = "KWD") {
         $totalCandidate = 0;
         $totalAmount = 0;
         
-        $transfers = Transfer::find()
+        $query = Transfer::find()
             ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             /*
             ->andWhere([
@@ -50,8 +52,13 @@ class Candidate extends \common\models\Candidate {
                     Transfer::STATUS_TRANSFER_COMPLETE
                 ]
             ])*/
-            ->isParentTransfer()
-            ->all();
+            ->isParentTransfer();
+
+        if($currency_code) {
+            $query->andWhere(['transfer.currency_code' => $currency_code]);
+        }
+
+        $transfers = $query->all();
 
         foreach ($transfers as $transfer) {
             $candidates = $transfer->getUnPaidTransferCandidates()
@@ -72,9 +79,10 @@ class Candidate extends \common\models\Candidate {
      * @param false $condition
      * @param null $startDate
      * @param null $endDate
+     * @param $currency_code
      * @return bool|int|string|null
      */
-    public static function candidateCountByCondition($condition = false, $startDate = null, $endDate = null) {
+    public static function candidateCountByCondition($condition = false, $startDate = null, $endDate = null, $currency_code = "KWD") {
         $query = Candidate::find();
 
         switch ($condition) {
@@ -93,6 +101,11 @@ class Candidate extends \common\models\Candidate {
         if($endDate) {
             $query->andWhere(new Expression("DATE(candidate_created_at) <= DATE('" . $endDate . "')"));
         }
+
+        if($currency_code) {
+            $query->andWhere(['candidate.currency_code' => $currency_code]);
+        }
+
 //        return $query->getSqlQuery();
         return $query->count();
     }
@@ -101,14 +114,20 @@ class Candidate extends \common\models\Candidate {
      * @param false $condition
      * @param null $startDate
      * @param null $endDate
+     * @param $currency_code
      * @return bool|int|string|null
      */
-     public static function candidateCountByAssigned($startDate = null, $endDate = null) {
+     public static function candidateCountByAssigned($startDate = null, $endDate = null, $currency_code = "KWD") {
         $query = Candidate::find();
 
          $query->filterAssigned();
          $query->filterByJoiningDate($startDate, $endDate);
 //        return $query->getSqlQuery();
+
+         if($currency_code) {
+             $query->andWhere(['candidate.currency_code' => $currency_code]);
+         }
+
         return $query->count();
     }
 
@@ -295,9 +314,21 @@ class Candidate extends \common\models\Candidate {
         return new \admin\models\query\CandidateQuery(get_called_class());
     }
 
-    public static function invited($startDate = null, $endDate = null) {
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $currency_code
+     * @return bool|int|string|null
+     */
+    public static function invited($startDate = null, $endDate = null, $currency_code = "KWD") {
         $query = Invitation::find();
-         if($startDate) {
+
+        if($currency_code) {
+            $query->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency_code]);
+        }
+
+        if($startDate) {
              $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('" . $startDate . "')"));
          }
 
@@ -307,9 +338,21 @@ class Candidate extends \common\models\Candidate {
         return $query->count();
     }
 
-    public static function suggested($startDate = null, $endDate = null) {
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $currency_code
+     * @return bool|int|string|null
+     */
+    public static function suggested($startDate = null, $endDate = null, $currency_code = "KWD") {
 
         $query = Suggestion::find();
+
+        if($currency_code) {
+            $query->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency_code]);
+        }
+
         if($startDate) {
             $query->andWhere(new Expression("DATE(suggestion_datetime) >= DATE('" . $startDate . "')"));
         }
@@ -317,6 +360,7 @@ class Candidate extends \common\models\Candidate {
         if($endDate) {
             $query->andWhere(new Expression("DATE(suggestion_datetime) <= DATE('" . $endDate . "')"));
         }
+
         return $query->count();
     }
 
@@ -330,6 +374,12 @@ class Candidate extends \common\models\Candidate {
     {
         if(!$model->candidate_email_verification)
             return false;
+
+        $ml = new MailLog();
+        $ml->to = $model->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'Your account password has been reset';
+        $ml->save();
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 

@@ -1,6 +1,7 @@
 <?php
 namespace company\models;
 
+use common\models\MailLog;
 use Yii;
 use yii\db\Expression;
 use yii\web\NotFoundHttpException;
@@ -47,6 +48,12 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         //Yii::$app->mailer->htmlLayout = 'layouts/html';
 
         $webUrl = Yii::$app->params['companyAppUrl'] . 'update-password/' . $this->contact_password_reset_token;
+
+        $ml = new MailLog();
+        $ml->to = $this->contact_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Reset your StudentHub password";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose("company/password-reset-html",
             [
@@ -115,6 +122,12 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         } else {
             $email = $this->contact_email;
         }
+
+        $ml = new MailLog();
+        $ml->to = $email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Please confirm your email address";
+        $ml->save();
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/verify-email-html',

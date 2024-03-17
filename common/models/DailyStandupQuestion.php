@@ -102,6 +102,12 @@ class DailyStandupQuestion extends \yii\db\ActiveRecord
             ->andWhere(['NOT IN', 'staff_id', $staffIds])
             ->all();
 
+        $ml = new MailLog();
+        $ml->to = \Yii::$app->params['adminEmail'];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Stand-up report";
+        $ml->save();
+
             $mailer = Yii::$app->mailer->compose("stand-up-report",
                 [
                     'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),

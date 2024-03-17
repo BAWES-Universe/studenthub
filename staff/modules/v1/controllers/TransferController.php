@@ -77,6 +77,8 @@ class TransferController extends Controller
      */
     public function actionListCandidate()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -87,6 +89,10 @@ class TransferController extends Controller
         $transfer_id = Yii::$app->request->get('transfer_id');
 
         $query = TransferCandidate::find();
+
+        if($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
 
         if($transfer_id)
             $query->andWhere(['transfer_id' => $transfer_id]);
@@ -126,6 +132,10 @@ class TransferController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
+        $page = Yii::$app->request->get('page');
+        $company_id = Yii::$app->request->get('company_id');
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -133,9 +143,18 @@ class TransferController extends Controller
         $suspicious = Yii::$app->request->get('suspicious');
         $filterSameRate = Yii::$app->request->get('filterSameRate');
         $filterNoProfit = Yii::$app->request->get('filterNoProfit');
+        //$filterParentOnly = Yii::$app->request->get('filterParentOnly');
 
         $query = Transfer::find()
             ->isParentTransfer();
+
+        if($company_id) {
+            $query->andWhere(['transfer.company_id' => $company_id]);
+        }
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
 
         if ($company_name) {
             $query->companyJoin()
@@ -165,6 +184,13 @@ class TransferController extends Controller
 
         $query->groupBy('{{%transfer}}.transfer_id');
         $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
+
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -206,6 +232,11 @@ class TransferController extends Controller
         $candidates = Yii::$app->request->getBodyParam("candidates");
         $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("start_date")));
         $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("end_date")));
+        $currency_code = Yii::$app->request->getBodyParam('currency_code');
+
+        if(!$currency_code) {
+            $currency_code = Yii::$app->request->headers->get('currency');
+        }
 
         $company = $this->findCompany($company_id);
 
@@ -217,7 +248,7 @@ class TransferController extends Controller
         }
 
         //save transfer
-        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code);
     }
 
     /**
@@ -241,6 +272,11 @@ class TransferController extends Controller
         $model->excel = Yii::$app->request->getBodyParam('excel');
         $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
         $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
+        $currency_code = Yii::$app->request->getBodyParam('currency_code');
+
+        if(!$currency_code) {
+            $currency_code = Yii::$app->request->headers->get('currency');
+        }
 
         if(!$model->validate())
         {
@@ -283,7 +319,7 @@ class TransferController extends Controller
             $candidates[] = $value;
         }
         //save transfer
-        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code);
     }
 
     /**
@@ -297,6 +333,11 @@ class TransferController extends Controller
         $model->excel = Yii::$app->request->getBodyParam('excel');
         $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
         $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
+        $currency_code = Yii::$app->request->getBodyParam('currency_code');
+
+        if(!$currency_code) {
+            $currency_code = Yii::$app->request->headers->get('currency');
+        }
 
         if(!$model->validate())
         {
@@ -343,7 +384,7 @@ class TransferController extends Controller
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code);
     }
 
     /**
@@ -359,10 +400,15 @@ class TransferController extends Controller
         $candidates = Yii::$app->request->getBodyParam("candidates");
         $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
         $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
+        $currency_code = Yii::$app->request->getBodyParam('currency_code');
+
+        if(!$currency_code) {
+            $currency_code = Yii::$app->request->headers->get('currency');
+        }
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code);
     }
 
     /**
@@ -619,7 +665,8 @@ class TransferController extends Controller
                     'value' => function() {
                         return 0;
                     }
-                ]
+                ],
+                'currency_code'
             ]
         ]);
     }
@@ -629,6 +676,7 @@ class TransferController extends Controller
      */
     public function actionExportCompaniesTransfer()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
 
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');
@@ -636,6 +684,10 @@ class TransferController extends Controller
 
         $query = Transfer::find()
             ->isParentTransfer();
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
 
         if($transfer_status)
             $query->filterStatus($transfer_status);

@@ -71,7 +71,14 @@ class StoreController extends Controller
      */
     public function actionList()
     {
+        $currency = Yii::$app->request->headers->get("Currency");
+
         $query = Store::find();
+
+        if($currency) {
+            $query->joinWith(['company'])
+                ->andWhere(['company.currency_code' => $currency]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

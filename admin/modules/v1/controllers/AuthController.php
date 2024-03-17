@@ -54,7 +54,8 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
-            'login-auth0'
+            'login-auth0',
+            "login-by-google"
         ];
 
         return $behaviors;
@@ -89,6 +90,42 @@ class AuthController extends Controller
 
         return $this->_loginResponse($admin);
     }
+
+    /**
+     * Sign up with google login
+     */
+    public function actionLoginByGoogle() {
+
+        $token = Yii::$app->request->getBodyParam("idToken");
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" . $token);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = json_decode(curl_exec($ch));
+
+        if (empty($response->email)) {
+            return [
+                'operation' => 'error',
+                "code" => 1,
+                'message' => 'Invalid Token'
+            ];
+        }
+
+        $model = Admin::find()
+            ->andWhere(['admin_email' => $response->email])
+            ->one();
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "code" => 2,
+                "message" => "No account found with provided email, please contact us for assistance."
+            ];
+        }
+
+        return $this->_loginResponse($model);
+    }
+
 
     /**
      * login with auth0 token

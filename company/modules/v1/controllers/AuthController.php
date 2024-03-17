@@ -69,7 +69,8 @@ class AuthController extends Controller
             'resend-verification-email',
             'verify-email',
             'is-email-verified',
-            'login-auth0'
+            'login-auth0',
+            "locate"
         ];
 
         return $behaviors;
@@ -91,6 +92,14 @@ class AuthController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * return user location detail by user ip address
+     * @return type
+     */
+    public function actionLocate() {
+        return Yii::$app->ipstack->locate();
     }
 
     /**
@@ -200,12 +209,18 @@ class AuthController extends Controller
             //$contact->generateOtp();
             //$contact->save(false);
 
-            return [
-                "operation" => "error",
-                "errorType" => "email-not-verified",
-                "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
-                "unVerifiedToken" => $this->_loginResponse($contact)
-            ];
+            if(isset($userInfo['email_verified']) && $userInfo['email_verified']) {
+                $contact->contact_email_verification = Contact::EMAIL_VERIFIED;
+                $contact->save(false);
+            } else {
+                return [
+                    "data" => $userInfo,
+                    "operation" => "error",
+                    "errorType" => "email-not-verified",
+                    "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
+                    "unVerifiedToken" => $this->_loginResponse($contact)
+                ];
+            }
         }
 
         return $this->_loginResponse($contact);
@@ -324,6 +339,7 @@ class AuthController extends Controller
             "company_id" => $company? $company->company_id: null,
             "profile_name" => $contact->contact_name,
             "email" => $contact->contact_email,
+            "currency_pref" => $company? $company->currency_code: "KWD",
             "active_request_count" => $company? $company->getRequests()->activeRequest()->count() : 0
         ];
     }
@@ -382,6 +398,8 @@ class AuthController extends Controller
         $companyRequest->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
         $companyRequest->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $companyRequest->phone_number = Yii::$app->request->getBodyParam("phone_number");
+        $companyRequest->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $companyRequest->country_id = Yii::$app->request->getBodyParam("country_id");
 
         if (!$companyRequest->save()) {
             //$transaction->rollBack();
@@ -396,6 +414,7 @@ class AuthController extends Controller
         $company->company_name = ucfirst(Yii::$app->request->getBodyParam("company_name"));
         $company->company_common_name_en = ucfirst(Yii::$app->request->getBodyParam("company_name"));
         $company->company_common_name_ar = ucfirst(Yii::$app->request->getBodyParam("company_name"));
+        $company->currency_code = Yii::$app->request->getBodyParam("currency_code");
         $company->company_email = Yii::$app->request->getBodyParam("email");
         $company->company_bonus_commission = 0;
         $company->company_approved_to_hire = false;

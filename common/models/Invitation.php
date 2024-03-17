@@ -373,6 +373,12 @@ class Invitation extends \yii\db\ActiveRecord
 
         $url = Yii::$app->params['candidateAppUrl'] . 'invitation-detail/' . $this->invitation_uuid;
 
+        $ml = new MailLog();
+        $ml->to = $this->candidate->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "You’re invited to apply for a job opening";
+        $ml->save();
+
         $mailer = Yii::$app->mailer->compose("candidate/job-invitation",
             [
                 "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),

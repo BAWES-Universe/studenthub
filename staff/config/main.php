@@ -65,10 +65,12 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'POST login-auth0' => 'login-auth0',
+                        'POST login-by-google' => 'login-by-google',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS login-auth0' => 'options',
+                        'OPTIONS login-by-google' => 'options',
                         'OPTIONS update-password' => 'options',
                     ]
                 ],
@@ -244,6 +246,16 @@ return [
                         'OPTIONS remove-manager/<id>' => 'options',
                     ]
                 ],
+                [ // CurrencyController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/currency',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // CompanyController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/company',
@@ -345,6 +357,7 @@ return [
                 [ // CountryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/country',
+
                     'patterns' => [
                         'GET' => 'list',
                         'GET all' => 'all',

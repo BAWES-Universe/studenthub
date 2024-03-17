@@ -278,9 +278,24 @@ candidateMomKuwaitiFieldIsNull
 - contact - Password reset token
 - staff - <company_name> is looking to hire <request_position_title>
 
+# Sync with Algolia 
+
+`cd console && ../yii algolia/index fulltimer`
+
 todo 
 
 - company account password set 
 - activation 
 - approve/reject emails 
 - team invitation
+
+ migrate to php 7.4
+--------------------------
+ https://www.digitalocean.com/community/questions/how-to-upgrade-php-7-0-33-to-7-4-7-on-ubuntu-16-04-nginx
+ a2enmod proxy_fcgi setenvif
+ a2enconf php7.4-fpm
+
+ https://stackoverflow.com/questions/36057615/ubuntu-apache-module-php7-does-not-exist
+
+sudo systemctl restart redis-server
+ubuntu@ip-172-31-43-171:/var/www/html$ wget localhost:6379

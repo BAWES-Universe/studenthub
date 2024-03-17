@@ -72,19 +72,28 @@ class FulltimerController extends Controller
      */
     public function actionList()
     {
-        $query = Fulltimer::find();
+        $currency = Yii::$app->request->headers->get("Currency");
 
         $name = Yii::$app->request->get('name', null);
+
+        $query = Fulltimer::find();
+
+        if($currency) {
+            $query->andWhere(['fulltimer.currency_code' => $currency]);
+        }
 
         if ($name && !is_numeric($name)) {
             $query->filterName($name);
         }
+
         if ($name && is_numeric($name)) {
             $query->filterById($name);
         }
+
         if (Yii::$app->request->get('email', null)) {
             $query->filterEmail(Yii::$app->request->get('email'));
         }
+
         if (Yii::$app->request->get('phone', null)) {
             $query->filterPhone(Yii::$app->request->get('phone'));
         }

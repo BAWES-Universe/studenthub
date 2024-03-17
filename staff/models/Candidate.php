@@ -570,6 +570,7 @@ class Candidate extends \common\models\Candidate {
         if ($candidate_name) {
             $query->filterName($candidate_name);
         }
+
         $query->notDeleted();
 
         return $query;
