@@ -298,5 +298,6 @@ todo
 
  https://stackoverflow.com/questions/36057615/ubuntu-apache-module-php7-does-not-exist
 
+sudo systemctl stop redis-server
 sudo systemctl restart redis-server
 ubuntu@ip-172-31-43-171:/var/www/html$ wget localhost:6379

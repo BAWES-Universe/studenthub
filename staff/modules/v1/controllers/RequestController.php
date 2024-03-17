@@ -104,7 +104,7 @@ class RequestController extends Controller
         $query->addOrderBy('request_created_datetime ASC');
 
         if($company_id) {
-            $query->andWhere(['company_id' => $company_id]);
+            $query->andWhere(['request.company_id' => $company_id]);
         }
 
         if($contact_uuid) {
