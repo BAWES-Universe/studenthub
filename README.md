@@ -281,6 +281,7 @@ candidateMomKuwaitiFieldIsNull
 # Sync with Algolia 
 
 `cd console && ../yii algolia/index fulltimer`
+`cd console && ../yii algolia/index candidate`
 
 todo 
 
