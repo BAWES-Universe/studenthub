@@ -8,6 +8,7 @@ use common\models\DailyStandupQuestion;
 use common\models\MailLog;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
+use common\models\Currency;
 use common\models\VendorCampaign;
 use Yii;
 use yii\db\Expression;
