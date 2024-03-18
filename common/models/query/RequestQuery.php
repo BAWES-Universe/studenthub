@@ -72,7 +72,7 @@ class RequestQuery extends ActiveQuery
      */
     public function filterByCompany($param)
     {
-        return $this->andWhere(['company_id' => $param]);
+        return $this->andWhere(['request.company_id' => $param]);
     }
 
     /**

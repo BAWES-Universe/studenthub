@@ -100,7 +100,8 @@ class University extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            'candidates'
+            'candidates',
+            "totalCandidates"
         ];
     }
 
@@ -113,9 +114,9 @@ class University extends \yii\db\ActiveRecord
 
         unset($fields['deleted']);
 
-        $fields['total_candidates'] = function($model) {
+        /*$fields['total_candidates'] = function($model) {
             return (int) sizeof($model->candidates);
-        };
+        };*/
 
         return $fields;
     }
@@ -128,6 +129,10 @@ class University extends \yii\db\ActiveRecord
     {
         $this->deleted = 1;
         return $this->save(false);
+    }
+
+    public function getTotalCandidates() {
+        return $this->getCandidates()->count();
     }
 
     /**

@@ -67,7 +67,8 @@ class Country extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            'candidates'
+            'candidates',
+            "totalCandidates"
         ];
     }
 
@@ -103,11 +104,15 @@ class Country extends \yii\db\ActiveRecord
     {
         $fields = parent::fields();
 
-        $fields['total_candidates'] = function($model) {
+        /*$fields['total_candidates'] = function($model) {
             return (int) sizeof($model->candidates);
-        };
+        };*/
 
         return $fields;
+    }
+
+    public function getTotalCandidates() {
+        return $this->getCandidates()->count();
     }
 
     /**
