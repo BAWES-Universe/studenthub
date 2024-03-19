@@ -111,7 +111,7 @@ class DailyStandupAnswerController extends Controller
             $subQuery = DailyStandupAnswer::find()->select('staff_id')
                 ->andWhere(new Expression("DATE(created_at) = DATE('".DATE('Y-m-d', strtotime($created_at))."')"));
             $query->andWhere(['not in', 'staff_id', $subQuery]);
-            $query->andWhere(['deleted' => '0']);
+            $query->andWhere(['staff.deleted' => '0']);
         }
 
         return new ActiveDataProvider([

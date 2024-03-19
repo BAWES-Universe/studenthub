@@ -27,6 +27,7 @@ class StoreCest
         $this->token = AdminToken::find()
             ->one()
             ->token_value;
+
         $I->amBearerAuthenticated($this->token);
     }
 

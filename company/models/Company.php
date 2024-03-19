@@ -110,7 +110,8 @@ class Company extends \common\models\Company {
      */
     public function getSubCompanies($modelClass = "\company\models\Company")
     {
-        return parent::getSubCompanies($modelClass)->andWhere(['deleted'=>0]);
+        return parent::getSubCompanies($modelClass)
+            ->andWhere(['company.deleted'=>0]);
     }
 
     /**
@@ -119,7 +120,7 @@ class Company extends \common\models\Company {
      */
     public function getStores($modelClass = "\company\models\Store")
     {
-        return parent::getStores($modelClass)->andWhere(['deleted'=>0]);
+        return parent::getStores($modelClass)->andWhere(['store.deleted'=>0]);
     }
 
     /**
@@ -128,7 +129,7 @@ class Company extends \common\models\Company {
      */
     public function getTransfers($modelClass = "\company\models\Transfer")
     {
-        return parent::getTransfers($modelClass)->andWhere(['deleted'=>0]);
+        return parent::getTransfers($modelClass)->andWhere(['transfer.deleted'=>0]);
     }
 
     /**

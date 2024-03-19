@@ -339,7 +339,7 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         $staffs = Staff::find()
             ->joinWith('staffNotifications')
-            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "transfer-fail"])
+            ->andWhere(['staff.deleted' => false, 'staff_notification' => true, 'permission' => "transfer-fail"])
             ->all();
 
         $allStaffEmails = ArrayHelper::map($staffs,'staff_email','staff_name');

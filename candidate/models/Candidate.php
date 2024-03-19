@@ -30,7 +30,10 @@ class Candidate extends \common\models\Candidate {
                 return 0;
             }
 
-            $unpaidTransfer = $model->getTransferCandidate()->andWhere(['paid'=>0,'deleted'=>0])->exists();
+            $unpaidTransfer = $model->getTransferCandidate()
+                ->andWhere(['paid' => 0,'transfer_candidate.deleted'=>0])
+                ->exists();
+
             if ($model->store_id || $unpaidTransfer) {
                 return 1;
             }   else {

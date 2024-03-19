@@ -89,9 +89,9 @@ class StaffController extends Controller
         }
         if ($deleted) {
             if ($deleted == 1) {
-                $query->andWhere(['deleted' => $deleted]);
+                $query->andWhere(['staff.deleted' => $deleted]);
             } else {
-                $query->andWhere(['deleted' => 0]);
+                $query->andWhere(['staff.deleted' => 0]);
             }
         }
         if($name) {
