@@ -73,7 +73,7 @@ class TransferFileController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = TransferFile::find()
             ->innerJoinWith(['transferCandidates'])

@@ -72,7 +72,7 @@ class FulltimerController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $name = Yii::$app->request->get('name', null);
 

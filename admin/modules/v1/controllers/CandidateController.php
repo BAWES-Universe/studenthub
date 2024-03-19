@@ -75,7 +75,7 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $by = Yii::$app->request->get('by');
         $name = Yii::$app->request->get('name', null);
@@ -145,7 +145,7 @@ class CandidateController extends Controller
      */
     public function actionReportSearch()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = CandidateWorkHistory::find();
 
@@ -193,7 +193,7 @@ class CandidateController extends Controller
      */
     public function actionTotalToReview()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = Candidate::find()
             ->byApprovalStatus(0);

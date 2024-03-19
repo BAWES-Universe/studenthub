@@ -75,7 +75,7 @@ class RequestController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
         $start_date = Yii::$app->request->get('start_date', null);
         $end_date = Yii::$app->request->get('end_date', null);
 
@@ -147,7 +147,7 @@ class RequestController extends Controller
         $model->request_status = Request::STATUS_STARTED;
 
         if(!$model->currency_code) {
-            $model->currency_code = Yii::$app->request->headers->get("Currency");
+            $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
         }
 
         if (!$model->save())
@@ -196,7 +196,7 @@ class RequestController extends Controller
         $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
 
         if(!$model->currency_code) {
-            $model->currency_code = Yii::$app->request->headers->get("Currency");
+            $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
         }
 
         if (!$model->save())

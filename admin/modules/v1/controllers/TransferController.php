@@ -78,7 +78,7 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
@@ -218,7 +218,7 @@ class TransferController extends Controller
      */
     public function actionPayableCandidates()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         // Candidates whose company paid to admin but admin have not paid yet
         $query = Transfer::find()
@@ -771,7 +771,7 @@ class TransferController extends Controller
      */
     public function actionExportPayableCandidates()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $payableCandidate = [];
         $onlyPayable = Yii::$app->request->get('only-payable');
@@ -854,7 +854,7 @@ class TransferController extends Controller
      */
     public function actionText()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
         $s2 = '';
@@ -893,7 +893,7 @@ class TransferController extends Controller
      */
     public function actionDownloadPaymentAdvice()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
         $batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
