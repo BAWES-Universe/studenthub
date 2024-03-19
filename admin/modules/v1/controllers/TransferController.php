@@ -795,6 +795,7 @@ class TransferController extends Controller
         // to force users to complete there profile
         foreach ($candidates as $candidate) {
             if (
+                $candidate->candidate &&
                 $candidate->candidate->isProfileCompleted &&
                 $candidate->candidate->bank_id &&
                 $candidate->transfer_benef_iban &&
