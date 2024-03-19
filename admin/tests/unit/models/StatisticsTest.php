@@ -99,7 +99,7 @@ class StatisticsTest extends \Codeception\Test\Unit
     public function testStatisticsTotalCandidate()
     {
         $totalCandidate = Candidate::find()
-            ->andWhere(['deleted' => 0])
+            ->andWhere(['candidate.deleted' => 0])
             ->count();
 
         expect('Total candidates', $totalCandidate)->equals(Candidate::candidateCountByCondition());

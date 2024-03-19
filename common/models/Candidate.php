@@ -394,7 +394,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ['candidate_new_email' => $this->$attribute],
                 ['candidate_email' => $this->$attribute]
             ])
-            ->andWhere(['deleted' => 0]);
+            ->andWhere(['candidate.deleted' => 0]);
 
         if($this->candidate_id) {
             $query->andWhere(['!=', 'candidate_id', $this->candidate_id]);
@@ -1677,7 +1677,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ['candidate_new_email' => $email],
                     ['candidate_email' => $email]
             ])
-            ->andWhere(['deleted' => 0])
+            ->andWhere(['candidate.deleted' => 0])
             ->one();
 
         if(!$candidate) {
