@@ -225,7 +225,7 @@ class CronController extends \yii\console\Controller {
         //$staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);
         $staffs = \common\models\Staff::find()
             ->joinWith('staffNotifications')
-            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "morning-report"])
+            ->andWhere(['staff.deleted' => false, 'staff_notification' => true, 'permission' => "morning-report"])
             ->all();
 
         $emails = ArrayHelper::getColumn ($staffs, 'staff_email');
@@ -607,12 +607,14 @@ class CronController extends \yii\console\Controller {
 
         $query = \common\models\Staff::find()
              ->joinWith('staffNotifications')
-             ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "daily-attendance-notification"]);
+             ->andWhere(['staff.deleted' => false, 'staff_notification' => true, 'permission' => "daily-attendance-notification"]);
 
         if ($day != 'Friday' && $day != 'Saturday') {
             $query->andWhere(['NOT IN', 'staff_id', $currentlyWorking]);
         }
-        $query->andWhere(['deleted'=>0]);
+
+        $query->andWhere(['staff.deleted'=>0]);
+
         $staffList = $query->all();
         $count = 0;
         Console::startProgress(0, count($staffList));

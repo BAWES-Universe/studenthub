@@ -16,7 +16,7 @@ class m231221_111000_company extends Migration
         $this->addColumn('company', 'last_request_datetime', $this->dateTime()->after('company_updated_at'));
 
         $query = \common\models\Company::find()
-            ->andWhere(['deleted' => 0]);
+            ->andWhere(['company.deleted' => 0]);
 
         foreach ($query->batch(100) as $companies) {
 

@@ -588,7 +588,7 @@ class Company extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
             ->via('subCompanies')
-            ->andWhere(['deleted'=>0]);
+            ->andWhere(['store.deleted'=>0]);
     }
 
     /**

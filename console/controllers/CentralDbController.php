@@ -57,7 +57,8 @@ class CentralDbController extends \yii\console\Controller {
 
     public function actionStaff() {
 
-        $query = Staff::find()->andWhere('deleted = 0');
+        $query = Staff::find()
+            ->andWhere('staff.deleted = 0');
 
         $total = $query->count();
 
