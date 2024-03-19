@@ -76,7 +76,7 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("currency");
+        $currency = Yii::$app->request->headers->get("currency", "KWD");
 
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
@@ -125,7 +125,7 @@ class CompanyController extends Controller
      */
     public function actionFollowups()
     {
-        $currency = Yii::$app->request->headers->get("currency");
+        $currency = Yii::$app->request->headers->get("currency", "KWD");
 
         $query = Company::find()
             ->with([
@@ -150,7 +150,7 @@ class CompanyController extends Controller
      */
     public function actionSubCompanies($id)
     {
-        $currency = Yii::$app->request->headers->get("currency");
+        $currency = Yii::$app->request->headers->get("currency", "KWD");
 
         $query = Company::find()
             ->with([
@@ -183,7 +183,7 @@ class CompanyController extends Controller
         $model->country_id = Yii::$app->request->getBodyParam('country_id');
 
         if(!$model->currency_code) {
-            $model->currency_code = Yii::$app->request->headers->get("Currency");
+            $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
         }
 
         $model->scenario = 'adminCreate';
@@ -311,7 +311,7 @@ class CompanyController extends Controller
         $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$model->currency_code) {
-            $model->currency_code = Yii::$app->request->headers->get("Currency");
+            $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
         }
 
         $model->country_id = Yii::$app->request->getBodyParam('country_id');

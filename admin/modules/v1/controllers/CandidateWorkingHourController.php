@@ -74,7 +74,7 @@ class CandidateWorkingHourController extends Controller
      */
     public function actionListDate()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $candidate_id = Yii::$app->request->get('candidate_id', null);
 
@@ -101,7 +101,8 @@ class CandidateWorkingHourController extends Controller
      */
     public function actionListHour()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
         $candidate_id = Yii::$app->request->get('candidate_id', null);
         $date = Yii::$app->request->get('date', null);
 

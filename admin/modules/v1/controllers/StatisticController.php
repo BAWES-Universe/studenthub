@@ -82,7 +82,7 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $startDate = Yii::$app->request->get('start_date', null);
         $endDate = Yii::$app->request->get('end_date', null);
@@ -159,7 +159,7 @@ class StatisticController extends Controller
      */
     public function actionTransfer() {
 
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $startDate = Yii::$app->request->get('start_date', null);
         $endDate = Yii::$app->request->get('end_date', null);

@@ -75,7 +75,7 @@ class TransferCandidateController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
         $tc_id = Yii::$app->request->get('tc_id');
 
         $transfer_confirmation_id = Yii::$app->request->get('transfer_confirmation_id');
