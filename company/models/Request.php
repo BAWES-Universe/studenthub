@@ -141,7 +141,7 @@ class Request extends \common\models\Request
 
         $staffList = \common\models\Staff::find()
             ->joinWith('staffNotifications')
-            ->andWhere(['deleted' => false, 'staff_notification' => true, 'permission' => "new-requests"])
+            ->andWhere(['staff.deleted' => false, 'staff_notification' => true, 'permission' => "new-requests"])
             ->all();
 
         $subject =  $company_name." is looking to hire ".$this->request_position_title;

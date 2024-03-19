@@ -229,7 +229,7 @@ class Request extends \common\models\Request {
 
         $staffList = Staff::find()
             ->andWhere(['!=', 'staff_id', \Yii::$app->user->id])
-            ->andWhere(['!=', 'deleted', 1])
+            ->andWhere(['!=', 'staff.deleted', 1])
             ->andWhere(['staff_notification' => 1])
             ->all();
 
