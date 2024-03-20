@@ -92,6 +92,7 @@ class FulltimerTest extends \Codeception\Test\Unit
             $area = Area::find()->one();
 
             $model = new Fulltimer();
+            $model->currency_code = "KWD";
             $model->nationality_id = 1;
             $model->country_id = 1;
             $model->fulltimer_area_uuid = $area->area_uuid;

@@ -59,7 +59,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
             $model = new TransferCandidate;
             $model->validate();
-            expect('Nothing required', count($model->errors))->equals(0);
+            expect('Nothing required', count($model->errors))->equals(1);
         });
 
 
@@ -70,7 +70,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $model->candidate_id = 'candidate_id';
             $model->store_id = 'store_id';
             $model->company_id = 'company_id';
+            $model->currency_code = "KWD";
             $model->validate();
+
             expect('invalid transfer_id', $model->errors)->hasKey('transfer_id');
             expect('invalid candidate_id', $model->errors)->hasKey('candidate_id');
             expect('invalid store_id', $model->errors)->hasKey('store_id');
@@ -81,11 +83,12 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         $this->specify('validate invalid email data', function () {
 
             $model = new TransferCandidate;
+            $model->currency_code = "KWD";
             $model->transfer_id = 1;
             $model->candidate_id = 1;
             $model->store_id = 1;
             $model->company_id = 1;
-
+            $model->currency_code = "KWD";
             $model->company_email = 'email';
             $model->validate();
             expect('invalid email', $model->errors)->hasKey('company_email');
@@ -103,6 +106,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $model->store_id = 1;
             $model->company_id = 1;
             $model->company_email = 'email@gmail.com';
+            $model->currency_code = "KWD";
 
             $model->store_name = $storeName;
             $model->company_name = $companyName;
@@ -114,6 +118,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         $this->specify('validate invalid number value', function () {
 
             $model = new TransferCandidate;
+            $model->currency_code = "KWD";
             $model->transfer_id = 1;
             $model->candidate_id = 1;
             $model->store_id = 1;
@@ -140,6 +145,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         $this->specify('validate non-existing data like candidate_id,transfer_id..', function () {
 
             $model = new TransferCandidate;
+            $model->currency_code = "KWD";
             $model->transfer_id = 100;
             $model->candidate_id = 102;
             $model->store_id = 3001;
@@ -167,6 +173,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         $this->specify('validate valid and existing data', function () {
 
             $model = new TransferCandidate;
+            $model->currency_code = "KWD";
             $model->transfer_id = 2;
             $model->candidate_id = 2;
             $model->store_id = 1;
