@@ -66,6 +66,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['currency_code'], 'required'],
             [['transfer_id', 'candidate_id', 'store_id', 'bank_id', 'company_id', 'transfer_file_id'], 'integer'],
             [['store_name', 'company_name'], 'string', 'max' => 225],
             [['company_email'], 'email'],

@@ -35,7 +35,7 @@ class TransferFile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['transfer_file_s3_path'], 'required'],
+            [['transfer_file_s3_path', "currency_code"], 'required'],
             [['currency_code'], "string", "max" => 3],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path'], 'string', 'max' => 255],
@@ -56,7 +56,24 @@ class TransferFile extends \yii\db\ActiveRecord
             ],
         ];
     }
-    
+
+    /**
+     * @param $insert
+     * @return false|void
+     */
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if(!$this->currency_code) {
+            $this->currency_code = "KWD";
+        }
+
+        return true;
+    }
+
     /**
      * {@inheritdoc}
      */

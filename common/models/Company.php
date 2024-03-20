@@ -944,9 +944,17 @@ class Company extends \yii\db\ActiveRecord
             return false;
         }
 
+        if(!$this->currency_code) {
+            $this->currency_code = "KWD";
+        }
+
         return true;
     }
 
+    /**
+     * @param $currency_code
+     * @return bool|int|string|null
+     */
     public static function companyFollowupCount($currency_code = "KWD") {
         $query = self::find()
             ->followups()
@@ -959,6 +967,10 @@ class Company extends \yii\db\ActiveRecord
         return $query->count();
     }
 
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getMalls($modelClass = "\common\models\Mall") {
 
         if($this->subCompanyStores)
