@@ -80,7 +80,7 @@ class Transfer extends ActiveRecord
     {
         return [
             [['company_id', 'transfer_status'], 'integer'],
-            [['start_date','end_date'], 'required'],
+            [['start_date', 'end_date', "currency_code"], 'required'],
             [['transfer_status'], 'validateTransferStatus'],
             [['total', 'company_total'], 'number'],
             ['start_date', 'validateDates'],
@@ -90,6 +90,9 @@ class Transfer extends ActiveRecord
         ];
     }
 
+    /**
+     * @return void
+     */
     public function validateDates() {
         if(strtotime($this->end_date) <= strtotime($this->start_date)){
             $this->addError('start_date','End date should be greater then start date');
@@ -137,6 +140,35 @@ class Transfer extends ActiveRecord
         ];
     }
 
+    /**
+     * @param $insert
+     * @return bool|void
+     */
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if(!$this->currency_code) {
+
+            if($this->parent_transfer_id) {
+
+                $parent = $this->getParentTransfer()->one();
+
+                if($parent)
+                    $this->currency_code = $parent->currency_code;
+            }
+
+            //no parent
+
+            if(!$this->currency_code) {
+                $this->currency_code = "KWD";
+            }
+        }
+
+        return true;
+    }
 
     /**
      * @inheritdoc
