@@ -30,6 +30,8 @@ class CompanyContactCest
             ->token_value;
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function listCompanyContact(FunctionalTester $I)

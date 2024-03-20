@@ -14,6 +14,9 @@ class AuthCest
 {
     public $token;
 
+    /**
+     * @return array
+     */
 	public function _fixtures()
 	{
         return [
@@ -22,13 +25,23 @@ class AuthCest
         ];
 	}
 
+    /**
+     * @param \inspector\tests\FunctionalTester $I
+     * @return void
+     */
 	public function _before(FunctionalTester $I)
 	{
 		$this->token = InspectorToken::find()
                 ->one()
                 ->token_value;
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
+    /**
+     * @param \inspector\tests\FunctionalTester $I
+     * @return void
+     */
     public function _after(FunctionalTester $I)
     {
     }

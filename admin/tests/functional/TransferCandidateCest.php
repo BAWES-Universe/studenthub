@@ -45,6 +45,8 @@ class TransferCandidateCest
         $this->transferFile = TransferFile::find()->one();
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
     
     /**

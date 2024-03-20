@@ -36,6 +36,8 @@ class CompanyContactCest
         $this->contact_uuid = CompanyContact::find()->one()->contact_uuid;
         
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

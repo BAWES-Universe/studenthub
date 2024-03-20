@@ -35,6 +35,8 @@ class InvitationCest
         $this->invitation = Invitation::find ()->one ();
 
         $I->amBearerAuthenticated ($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

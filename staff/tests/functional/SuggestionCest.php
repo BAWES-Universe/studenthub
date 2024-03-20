@@ -59,6 +59,8 @@ class SuggestionCest
         $this->suggestion = Suggestion::find()->one();
    
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

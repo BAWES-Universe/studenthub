@@ -36,6 +36,8 @@ class RequestActivityCest
         $this->request = $this->company->getRequests()->one();
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function tryListRequestActivites(FunctionalTester $I)

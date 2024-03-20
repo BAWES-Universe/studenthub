@@ -29,8 +29,12 @@ class MallCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+
         $this->mall = Mall::find()->one();
+
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

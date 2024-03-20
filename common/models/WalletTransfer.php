@@ -303,7 +303,7 @@ class WalletTransfer extends \yii\db\ActiveRecord
                 'transfer' => 'S2',
                 'bank_transfer_type' => $transfer->bank->bank_transfer_type,
                 'amount' => number_format($transfer->transfer_total, 3, '.', ''),
-                'currency' => $transfer->currency_code,
+                'currency' => empty($transfer->currency_code) ? "KWD" : $transfer->currency_code,
                 'emptyField1' => '',
                 'emptyField2' => '',
                 'emptyField3' => '',

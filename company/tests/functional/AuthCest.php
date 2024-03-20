@@ -39,6 +39,8 @@ class AuthCest
             ->token_value;
 
         $this->company = $this->contact->getManagedCompanies()->one();
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

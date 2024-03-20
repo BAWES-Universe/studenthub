@@ -27,6 +27,9 @@ class AuthCest
 		$this->token = InspectorToken::find()
                 ->one()
                 ->token_value;
+
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I)

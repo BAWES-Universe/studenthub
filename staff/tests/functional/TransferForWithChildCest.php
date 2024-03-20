@@ -29,6 +29,8 @@ class TransferForWithChildCest
         $I->amBearerAuthenticated($this->token);
 
         $this->model = Company::findOne(1);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I){}

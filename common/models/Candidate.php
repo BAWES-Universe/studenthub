@@ -121,7 +121,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             //'candidate_hourly_rate',
-            [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo'], 'required'],
+            [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo', 'currency_code'], 'required'],
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license','candidate_mom_kuwaiti'], 'integer'],
@@ -1003,6 +1003,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     return $this->addError('ip_address', "Too many requests");
                 }
             }
+        }
+
+        if(!$this->currency_code) {
+            $this->currency_code = "KWD";
         }
 
         return true;

@@ -65,7 +65,7 @@ class Fulltimer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email'], 'required'],
+            [['fulltimer_name', 'fulltimer_email', 'nationality_id', 'country_id', 'fulltimer_area_uuid', 'fulltimer_latitude', 'fulltimer_longitude', 'fulltimer_name', 'fulltimer_phone', 'fulltimer_email', 'currency_code'], 'required'],
             [['fulltimer_current_salary', 'fulltimer_expected_salary'], 'number', 'min' => 0],
             [['nationality_id', 'country_id', 'fulltimer_gender'], 'integer'],
             [['fulltimer_latitude', 'fulltimer_longitude'], 'number'],
@@ -281,6 +281,10 @@ class Fulltimer extends \yii\db\ActiveRecord
             }
 
             $this->ip_address = $ip;
+        }
+
+        if(!$this->currency_code) {
+            $this->currency_code = "KWD";
         }
 
         return true;

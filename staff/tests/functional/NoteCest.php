@@ -29,6 +29,8 @@ class NoteCest
             ->token_value;
 
         $this->note_uuid = Note::find()->one()->note_uuid;
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

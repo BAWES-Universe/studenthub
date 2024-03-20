@@ -79,7 +79,7 @@ class CandidateController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = Candidate::find();
 
@@ -97,7 +97,7 @@ class CandidateController extends Controller
      */
     public function actionAssignedHistoryList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $start_date = Yii::$app->request->get('start_date');
         $end_date = Yii::$app->request->get('end_date');
@@ -144,7 +144,7 @@ class CandidateController extends Controller
      */
     public function actionCreate()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         // Attempt to create new account
         $password = Yii::$app->security->generateRandomString(5);
@@ -169,7 +169,7 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         //$model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
-        $model->currency_code =  Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code =  Yii::$app->request->getBodyParam("currency_code", "KWD");
 
         if(!$model->currency_code) {
             $model->currency_code = $currency;
@@ -224,7 +224,7 @@ class CandidateController extends Controller
      */
     public function actionUpdate($id)
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $model = $this->findModel($id);
 
@@ -244,7 +244,7 @@ class CandidateController extends Controller
         $model->candidate_civil_photo_front = Yii::$app->request->getBodyParam("photo_front");
         $model->candidate_civil_photo_back = Yii::$app->request->getBodyParam("photo_back");
         //$model->candidate_hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
-        $model->currency_code =  Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code =  Yii::$app->request->getBodyParam("currency_code", "KWD");
 
         if(!$model->currency_code) {
             $model->currency_code = $currency;
@@ -716,7 +716,7 @@ class CandidateController extends Controller
      */
     public function actionListNotAssigned()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $candidate_name = Yii::$app->request->get("candidate_name");
         $incompleteProfile = Yii::$app->request->get("incomplete_profile");
@@ -790,7 +790,7 @@ class CandidateController extends Controller
      */
     public function actionListAssigned()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
         $candidate_name = Yii::$app->request->get("candidate_name");
         $incompleteProfile = Yii::$app->request->get("incomplete_profile");
 
@@ -799,7 +799,7 @@ class CandidateController extends Controller
             ->notDeleted();
 
         if($currency) {
-            $query->andWhere(['candidatae.currency_code' => $currency]);
+            $query->andWhere(['candidate.currency_code' => $currency]);
         }
 
         if ($incompleteProfile) {
@@ -821,7 +821,7 @@ class CandidateController extends Controller
      */
     public function actionFilter()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $name = Yii::$app->request->get("name");
         $company_id = Yii::$app->request->get("company_id");
@@ -893,7 +893,7 @@ class CandidateController extends Controller
      */
     public function actionListWithoutBankInfo()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $candidate_name = Yii::$app->request->get("candidate_name");
 
@@ -917,7 +917,7 @@ class CandidateController extends Controller
      */
     public function actionSearch()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $country_id = Yii::$app->request->get('country_id');
         $by = Yii::$app->request->get('by');
@@ -1153,7 +1153,7 @@ class CandidateController extends Controller
      */
     public function actionTotalToReview()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = \admin\models\Candidate::find()
             ->byApprovalStatus(0);
@@ -1283,7 +1283,7 @@ class CandidateController extends Controller
      */
     public function actionListExpiredCivilId()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $candidate_name = Yii::$app->request->get("candidate_name");
 
@@ -1313,7 +1313,7 @@ class CandidateController extends Controller
      */
     public function actionAssignedIdleCandidates() {
 
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::getAssignedIdleCandidate($candidate_name);
@@ -1484,7 +1484,7 @@ class CandidateController extends Controller
         ini_set('max_execution_time', '300');
         ini_set('memory_limit', '-1');
 
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $name = Yii::$app->request->get("name");
         $limit = Yii::$app->request->get("export_limit",5000);
@@ -1589,7 +1589,7 @@ class CandidateController extends Controller
         ini_set('max_execution_time', '300');
         ini_set('memory_limit', '-1');
 
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $name = Yii::$app->request->get("name");
         $limit = Yii::$app->request->get("export_limit",5000);

@@ -47,6 +47,8 @@ class TransferForWithChildCest
         $I->amBearerAuthenticated($this->token);
 
         $I->haveHttpHeader('Company-Id', $this->model->company_id);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I){}

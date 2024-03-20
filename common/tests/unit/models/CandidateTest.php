@@ -278,6 +278,7 @@ class CandidateTest extends \Codeception\Test\Unit
              $destination->approved =   1;
              $destination->candidate_created_at =  '2017-02-23 19:53:20';
              $destination->candidate_updated_at =  '2017-02-23 19:53:20';
+             $candidate->currency_code = "KWD";
              $destination->save(false);//without validation
 
              //get candidate with transfer, transfer candidate, work history, candidate_token, candidate_id_card, candidate_skill, candidate_experience
@@ -368,6 +369,7 @@ class CandidateTest extends \Codeception\Test\Unit
             $candidate->approved =   1;
             $candidate->candidate_created_at =  '2017-02-23 19:53:20';
             $candidate->candidate_updated_at =  '2017-02-23 19:53:20';
+            $candidate->currency_code = "KWD";
 
             expect('expect string length of candidate_iban with space',strlen($candidate->candidate_iban))->equals(26);
             expect('expect string length of bank_account_name with space',strlen($candidate->bank_account_name))->equals(28);

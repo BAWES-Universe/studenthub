@@ -19,13 +19,23 @@ class AuthCest
         ];
 	}
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
 	public function _before(FunctionalTester $I)
 	{
 		$this->token = StaffToken::find()
                 ->one()
                 ->token_value;
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function _after(FunctionalTester $I)
     {
     }

@@ -23,6 +23,8 @@ class GoogleMapCest
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I)

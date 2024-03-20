@@ -35,7 +35,7 @@ class TransferFile extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['transfer_file_s3_path'], 'required'],
+            [['transfer_file_s3_path', "currency_code"], 'required'],
             [['currency_code'], "string", "max" => 3],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path'], 'string', 'max' => 255],
@@ -56,7 +56,24 @@ class TransferFile extends \yii\db\ActiveRecord
             ],
         ];
     }
-    
+
+    /**
+     * @param $insert
+     * @return false|void
+     */
+    public function beforeSave($insert)
+    {
+        if(!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        if(!$this->currency_code) {
+            $this->currency_code = "KWD";
+        }
+
+        return true;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -111,10 +128,10 @@ class TransferFile extends \yii\db\ActiveRecord
 
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
-        $tf->currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $tf->currency_code = Yii::$app->request->getBodyParam('currency_code', "KWD");
 
         if(!$tf->currency_code) {
-            $tf->currency_code = Yii::$app->request->headers->get("Currency");
+            $tf->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
         }
 
         //get total amount marked as paid by this file 

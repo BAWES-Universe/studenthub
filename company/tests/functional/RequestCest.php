@@ -40,6 +40,8 @@ class RequestCest
             ->one ();
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

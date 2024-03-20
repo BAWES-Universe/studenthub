@@ -69,7 +69,7 @@ class AlgoliaController extends Controller
     {
         $ttl = 60 * 2; //2 min 
 
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $params = [
             'restrictIndices' => [

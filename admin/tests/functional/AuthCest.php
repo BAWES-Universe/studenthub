@@ -17,6 +17,7 @@ class AuthCest {
     }
 
     public function _before(FunctionalTester $I) {
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I) {

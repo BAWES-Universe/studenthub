@@ -33,7 +33,10 @@ class CandidateCest
         $this->candidate_id = Candidate::find()
             ->one()
             ->candidate_id;
+
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I)

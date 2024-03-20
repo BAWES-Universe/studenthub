@@ -30,6 +30,7 @@ class StatisticsCest
 
     public function _after(FunctionalTester $I)
     {
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     // tests

@@ -28,6 +28,8 @@ class CandidateCest
     {
         $this->token = CandidateToken::find()
             ->one();
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I)

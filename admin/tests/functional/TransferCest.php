@@ -53,6 +53,8 @@ class TransferCest
                 ->one();
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I)

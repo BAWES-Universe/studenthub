@@ -50,6 +50,8 @@ class TransferForWithoutChildCest
 
         $I->haveHttpHeader('Company-Id', $this->companyWithoutChild->company_id);
 
+        $I->haveHttpHeader("Currency", "KWD");
+
     }
 
     public function _after(FunctionalTester $I)

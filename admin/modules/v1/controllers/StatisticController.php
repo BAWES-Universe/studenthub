@@ -117,12 +117,12 @@ class StatisticController extends Controller
         $result['transfers'] = [];
         $result['transfers']['locked'] = [
             "code" => Transfer::STATUS_LOCK,
-            "total" => (isset($lockedTransfers['total']))? (int)$lockedTransfers['total'] : 0
+            "total" => (isset($lockedTransfers['total']))? (int) $lockedTransfers['total'] : 0
         ];
 
         $result['transfers']['paymentSent'] = [
             "code" => Transfer::STATUS_PAYMENT_SENT,
-            "total" => (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0
+            "total" => (isset($paymentSentTransfers['total']))? (int) $paymentSentTransfers['total'] : 0
         ];
 
         $salaryQuery = StaffSalary::find();
@@ -134,14 +134,14 @@ class StatisticController extends Controller
             $salaryQuery->andWhere(new Expression("DATE(salary_date) <= DATE('" . $endDate . "')"));
         }
 
-        $result['totalSalaryPaid'] = $salaryQuery->sum('salary');
+        $result['totalSalaryPaid'] = (double) $salaryQuery->sum('salary');
 
-        $result['absent'] = StaffLeave::find()
+        $result['absent'] = (int) StaffLeave::find()
             ->andWhere(new Expression("DATE(from_date) <= DATE('".date('Y-m-d')."') AND 
                 DATE(to_date) >= DATE('".date('Y-m-d')."')"))
             ->count();
 
-        $result['attended'] = StaffWorkSession::find()
+        $result['attended'] = (int) StaffWorkSession::find()
             ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."')"))
             ->count();
 
@@ -149,7 +149,7 @@ class StatisticController extends Controller
             ->andWhere(['staff_status' => Staff::STATUS_ACTIVE])
             ->count();
 
-        $result['didnt_attended'] = $totalStaff - $result['attended'] - $result['absent'];
+        $result['didnt_attended'] = (int) ($totalStaff - $result['attended'] - $result['absent']);
 
         return $result;
     }
@@ -166,7 +166,7 @@ class StatisticController extends Controller
 
         $data = [];
 
-        $data['totalTransferCandidate'] = TransferCandidate::find()
+        $data['totalTransferCandidate'] = (int) TransferCandidate::find()
             ->andWhere(['transfer_candidate.currency_code' => $currency])
             ->joinWith(['transfer'])
             //ignore duplicate entries of child transfers
@@ -188,7 +188,7 @@ class StatisticController extends Controller
             $totalPaymentAmountReceived->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
 
-        $data['totalPaymentAmountReceived'] = $totalPaymentAmountReceived->sum('company_total');
+        $data['totalPaymentAmountReceived'] = (double) $totalPaymentAmountReceived->sum('company_total');
 
         $totalBelongingToCandidates = Transfer::find()//ignore duplicate entries of child transfers
             ->andWhere('transfer.parent_transfer_id IS NULL')
@@ -204,7 +204,7 @@ class StatisticController extends Controller
             $totalBelongingToCandidates->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
 
-        $data['totalBelongingToCandidates'] = $totalBelongingToCandidates->sum('total');
+        $data['totalBelongingToCandidates'] = (double) $totalBelongingToCandidates->sum('total');
 
         $totalProfit = Transfer::find()
             ->andWhere(['transfer.currency_code' => $currency])
@@ -219,7 +219,7 @@ class StatisticController extends Controller
             $totalProfit->andWhere(new Expression("DATE(end_date) <= DATE('" . $endDate . "')"));
         }
 
-        $data['totalProfit'] = $totalProfit->sum('company_total - total');
+        $data['totalProfit'] = (double) $totalProfit->sum('company_total - total');
 
         return $data;
     }

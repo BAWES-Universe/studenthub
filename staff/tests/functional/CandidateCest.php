@@ -35,7 +35,9 @@ class CandidateCest
             ->token_value;
         
         $I->amBearerAuthenticated($this->token);
-        
+
+        $I->haveHttpHeader("Currency", "KWD");
+
         $this->candidate = Candidate::find()->one();
     }
 
