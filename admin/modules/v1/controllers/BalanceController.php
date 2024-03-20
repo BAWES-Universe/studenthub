@@ -196,7 +196,7 @@ class BalanceController extends Controller
         $transfer->transfer_benef_name = $user->bank_account_name;
         $transfer->transfer_benef_iban = $user->iban;
         $transfer->transfer_total = Yii::$app->request->getBodyParam('transfer_total');//< balance
-        $transfer->currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $transfer->currency_code = Yii::$app->request->getBodyParam('currency_code', "KWD");
         $transfer->transfer_status = Transfer::STATUS_INITIATED;
 
         if(!$transfer->save())

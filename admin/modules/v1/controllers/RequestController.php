@@ -143,7 +143,7 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
-        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
         $model->request_status = Request::STATUS_STARTED;
 
         if(!$model->currency_code) {
@@ -193,7 +193,7 @@ class RequestController extends Controller
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
         $model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
-        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
 
         if(!$model->currency_code) {
             $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");

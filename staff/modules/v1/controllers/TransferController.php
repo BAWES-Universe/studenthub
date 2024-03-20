@@ -77,7 +77,7 @@ class TransferController extends Controller
      */
     public function actionListCandidate()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $company_name = Yii::$app->request->get('company_name');
         $transfer_status = Yii::$app->request->get('transfer_status');
@@ -132,7 +132,7 @@ class TransferController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $page = Yii::$app->request->get('page');
         $company_id = Yii::$app->request->get('company_id');
@@ -676,7 +676,7 @@ class TransferController extends Controller
      */
     public function actionExportCompaniesTransfer()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $transfer_status = Yii::$app->request->get('transfer_status');
         $start_date = Yii::$app->request->get('start_date');

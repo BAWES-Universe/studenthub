@@ -31,6 +31,8 @@ class AccountCest
         $this->candidate = CandidateToken::find()->one();
 
         $I->amBearerAuthenticated($this->candidate->token_value);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I){}

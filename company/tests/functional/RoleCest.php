@@ -15,6 +15,7 @@ class RoleCest
 {
     public function _before(FunctionalTester $I)
     {
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _fixtures()

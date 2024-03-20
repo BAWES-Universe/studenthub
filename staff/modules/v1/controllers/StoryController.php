@@ -174,7 +174,7 @@ class StoryController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $status = Yii::$app->request->get('story_status');
         $position_type = Yii::$app->request->get('position_type');

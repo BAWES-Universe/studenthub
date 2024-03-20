@@ -35,6 +35,8 @@ class CompanyCest
         $this->company = $this->contact->getManagedCompanies()->one();
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I)

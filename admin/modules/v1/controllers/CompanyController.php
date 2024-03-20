@@ -179,7 +179,7 @@ class CompanyController extends Controller
     {
         // Attempt to create new account
         $model = new Company();
-        $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $model->currency_code = Yii::$app->request->getBodyParam('currency_code', "KWD");
         $model->country_id = Yii::$app->request->getBodyParam('country_id');
 
         if(!$model->currency_code) {
@@ -308,7 +308,7 @@ class CompanyController extends Controller
         }
         
         $model->scenario = 'adminUpdate';
-        $model->currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $model->currency_code = Yii::$app->request->getBodyParam('currency_code', "KWD");
 
         if(!$model->currency_code) {
             $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");

@@ -12,6 +12,9 @@ class BankCest
 {
     public $token;
 
+    /**
+     * @return array
+     */
 	public function _fixtures() {
 		return [
 			'bank'       => BankFixture::className(),
@@ -19,6 +22,10 @@ class BankCest
 		];
 	}
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
 	public function _before(FunctionalTester $I)
 	{
         $this->token = StaffToken::find()
@@ -26,8 +33,14 @@ class BankCest
             ->token_value;
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function _after(FunctionalTester $I){}
 
     /**

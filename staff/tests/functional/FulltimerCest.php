@@ -34,6 +34,8 @@ class FulltimerCest
         $this->fulltimer = Fulltimer::find()->one();
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

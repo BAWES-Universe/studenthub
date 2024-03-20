@@ -199,7 +199,7 @@ class BalanceController extends Controller
         $transfer->transfer_status = Transfer::STATUS_INITIATED;
 
         if(!$transfer->currency_code) {
-            $transfer->currency_code = Yii::$app->request->headers->get("currency");
+            $transfer->currency_code = Yii::$app->request->headers->get("currency", "KWD");
         }
 
         if(!$transfer->save())

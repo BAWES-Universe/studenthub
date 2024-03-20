@@ -72,7 +72,7 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $refresh = (bool) Yii::$app->request->get('refresh');
 

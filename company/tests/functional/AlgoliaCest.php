@@ -30,6 +30,8 @@ class AlgoliaCest
             ->token_value;
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     public function _after(FunctionalTester $I){}

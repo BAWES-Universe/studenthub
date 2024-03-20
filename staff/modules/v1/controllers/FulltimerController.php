@@ -72,7 +72,7 @@ class FulltimerController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = Fulltimer::find();
 
@@ -115,7 +115,11 @@ class FulltimerController extends Controller
         $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
         $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
         $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
-        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
+
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
+        }
 
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->fulltimer_employed = Yii::$app->request->getBodyParam("employed");
@@ -190,8 +194,11 @@ class FulltimerController extends Controller
         $model->fulltimer_pdf_cv = Yii::$app->request->getBodyParam("pdf_cv");
         $model->fulltimer_current_salary = Yii::$app->request->getBodyParam("current_salary");
         $model->fulltimer_expected_salary = Yii::$app->request->getBodyParam("expected_salary");
-        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
 
+        if(!$model->currency_code) {
+            $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
+        }
         $model->university_id = Yii::$app->request->getBodyParam("university_id");
         $model->fulltimer_employed = Yii::$app->request->getBodyParam("employed");
         $model->fulltimer_gender = Yii::$app->request->getBodyParam("gender");

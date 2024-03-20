@@ -36,6 +36,8 @@ class BrandCest
         $this->company = Company::find()->one();
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

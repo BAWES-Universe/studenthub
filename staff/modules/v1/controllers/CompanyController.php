@@ -74,7 +74,7 @@ class CompanyController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
@@ -149,7 +149,7 @@ class CompanyController extends Controller
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = Yii::$app->user->identity->getCompanies()
             ->filterParent();
@@ -205,7 +205,7 @@ class CompanyController extends Controller
      */
     public function actionFollowups()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = Company::find()
             ->with([
@@ -436,7 +436,7 @@ class CompanyController extends Controller
     {
         // Attempt to create new account
         $model = new Company();
-        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
         $model->country_id = Yii::$app->request->getBodyParam("country_id");
 
         $model->scenario = 'adminCreate';
@@ -546,7 +546,7 @@ class CompanyController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel((int) $id);
-        $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
+        $model->currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
         $model->country_id = Yii::$app->request->getBodyParam("country_id");
 
         if (!$model) {

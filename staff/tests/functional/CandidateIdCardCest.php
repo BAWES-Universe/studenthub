@@ -23,12 +23,18 @@ class CandidateIdCardCest {
         ];
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function _before(FunctionalTester $I) {
         Yii::$app->params['inCodeception'] = true;
         
         $this->token = StaffToken::find()
             ->one()
             ->token_value;
+
+        $I->haveHttpHeader("Currency", "KWD");
 
         $I->amBearerAuthenticated($this->token);
     }

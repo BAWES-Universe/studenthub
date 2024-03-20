@@ -77,7 +77,7 @@ class RequestController extends Controller
      */
     public function actionList()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $company_id = Yii::$app->request->get("company_id");
         $company_name = Yii::$app->request->get("company_name");
@@ -188,7 +188,7 @@ class RequestController extends Controller
      */
     public function actionListActive()
     {
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $keyword = Yii::$app->request->get("query");
         $company_id = Yii::$app->request->get("company_id");
@@ -254,7 +254,7 @@ class RequestController extends Controller
     {
         $company_name = Yii::$app->request->get("company_name");
         $followup_interval = Yii::$app->request->get("followup_interval");
-        $currency = Yii::$app->request->headers->get("Currency");
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = Request::find()
             ->joinWith('suggestions')

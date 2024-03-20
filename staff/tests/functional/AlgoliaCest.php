@@ -18,6 +18,10 @@ class AlgoliaCest
 		];
 	}
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
 	public function _before(FunctionalTester $I)
 	{
         $this->token = StaffToken::find()
@@ -25,8 +29,14 @@ class AlgoliaCest
             ->token_value;
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function _after(FunctionalTester $I){}
 
     /**

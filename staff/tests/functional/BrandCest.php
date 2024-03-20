@@ -16,6 +16,9 @@ class BrandCest
 {
     public $token;
 
+    /**
+     * @return array
+     */
 	public function _fixtures() {
 		return [
 			'company'       => CompanyFixture::className(),
@@ -24,6 +27,10 @@ class BrandCest
 		];
 	}
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
 	public function _before(FunctionalTester $I)
 	{
         $this->token = StaffToken::find()
@@ -31,8 +38,14 @@ class BrandCest
             ->token_value;
 
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function _after(FunctionalTester $I){}
 
     /**
@@ -47,6 +60,10 @@ class BrandCest
         $I->seeResponseIsJson(['brand_id'=>1]);
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function tryToAddBrandDetail(FunctionalTester $I)
     {
         $I->wantTo('Add Brand detail');
@@ -58,6 +75,10 @@ class BrandCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
     }
 
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
     public function tryToUpdateBrandDetail(FunctionalTester $I)
     {
     	$brand = Brand::find()->one();

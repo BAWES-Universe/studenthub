@@ -13,6 +13,9 @@ class AccountCest
 {
     public $token;
 
+    /**
+     * @return array
+     */
     public function _fixtures()
     {
         return [
@@ -21,13 +24,23 @@ class AccountCest
         ];
     }
 
+    /**
+     * @param \staff\tests\FunctionalTester $I
+     * @return void
+     */
     public function _before(FunctionalTester $I)
     {
         $this->token = StaffToken::find()->one()->token_value;
         
         $I->amBearerAuthenticated($this->token);
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
+    /**
+     * @param \staff\tests\FunctionalTester $I
+     * @return void
+     */
     public function _after(FunctionalTester $I){}
 
     /**

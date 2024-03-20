@@ -42,6 +42,8 @@ class NoteCest
         $I->amBearerAuthenticated($this->token);
         
         $this->note_uuid = $this->company->getNotes()->one()->note_uuid;
+
+        $I->haveHttpHeader("Currency", "KWD");
     }
 
     /**

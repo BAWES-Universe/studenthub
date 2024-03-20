@@ -128,10 +128,10 @@ class TransferFile extends \yii\db\ActiveRecord
 
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
-        $tf->currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $tf->currency_code = Yii::$app->request->getBodyParam('currency_code', "KWD");
 
         if(!$tf->currency_code) {
-            $tf->currency_code = Yii::$app->request->headers->get("Currency");
+            $tf->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
         }
 
         //get total amount marked as paid by this file 
