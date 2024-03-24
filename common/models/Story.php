@@ -28,6 +28,7 @@ class Story extends \yii\db\ActiveRecord
 {
     const STATUS_UNSTARTED = 0;
     const STATUS_STARTED = 1;
+
     const STATUS_FINISHED = 2;
     const STATUS_DELIVERED = 3;
     const STATUS_REJECTED = 4;

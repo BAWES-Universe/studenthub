@@ -211,7 +211,8 @@ class Staff extends ActiveRecord implements IdentityInterface
                 $end_date = Yii::$app->request->get('end_date');
 
                 $query = $model->getRequests()
-                    ->andWhere(['request_status' => Request::STATUS_DELIVERED]);
+                    ->filterCompleted();
+                    //->andWhere(['request_status' => Request::STATUS_DELIVERED]);
 
                 if($start_date) {
                     $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
@@ -231,7 +232,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                 $end_date = Yii::$app->request->get('end_date');
 
                 $query = $model->getRequests()
-                    ->andWhere(['request_status' => Request::STATUS_CANCELLED]);
+                    ->andWhere(['request_status' => \common\models\Request::STATUS_CANCELLED]);
 
                 if($start_date) {
                     $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
@@ -252,7 +253,8 @@ class Staff extends ActiveRecord implements IdentityInterface
                 $end_date = Yii::$app->request->get('end_date');
 
                 $query = $model->getStories()
-                    ->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+                    ->filterCompleted();
+                    //->andWhere(['story_status' => Story::STATUS_DELIVERED]);
 
                 if($start_date) {
                     $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
@@ -266,13 +268,32 @@ class Staff extends ActiveRecord implements IdentityInterface
 
                 return $query->count();
             },
+            "totalAssigned" => function($model) {
+                $start_date = Yii::$app->request->get('start_date');
+                $end_date = Yii::$app->request->get('end_date');
+
+                $query = $model->getCandidateWorkHistories();
+
+                if($start_date) {
+                    $query->andWhere(new Expression("DATE(start_date) >= DATE('".
+                        date('Y-m-d', strtotime ($start_date)) ."')"));
+                }
+
+                if($end_date) {
+                    $query->andWhere(new Expression("DATE(start_date) <= DATE('".
+                        date('Y-m-d', strtotime ($end_date))."')"));
+                }
+
+                return (int) $query->count();
+            },
             'totalStoryEmployees' => function($model) {
                 $start_date = Yii::$app->request->get('start_date');
                 $end_date = Yii::$app->request->get('end_date');
 
                 $query = $model->getStories()
                     //->joinWith(['request'], 'left')
-                    ->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+                    //->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+                    ->filterCompleted();
 
                 if($start_date) {
                     $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
@@ -315,6 +336,9 @@ class Staff extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    /**
+     * @return float|int
+     */
     public static function getTotalNoOfHours()
     {
         $timeForCompletedRequests = (int) Request::find()
