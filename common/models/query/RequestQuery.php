@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use common\models\Story;
 use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;
@@ -155,6 +156,18 @@ class RequestQuery extends ActiveQuery
     public function activeRequest()
     {
         return $this->andWhere(['IN', 'request.request_status', [Request::STATUS_STARTED, Request::STATUS_PENDING, Request::STATUS_RE_WORK]]);
+    }
+
+    /**
+     * @return RequestQuery
+     */
+    public function filterCompleted()
+    {
+        return $this->andWhere(['NOT IN', 'request.request_status', [
+            Request::STATUS_PENDING,
+            Request::STATUS_STARTED,
+            Request::STATUS_CANCELLED
+        ]]);
     }
 
     /**
