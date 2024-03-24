@@ -174,7 +174,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [
                 ['bank_account_name', 'candidate_name', 'candidate_name_ar'], 'validateFullName'
             ],
-            ['candidate_iban', 'validateIban'],
+            ['candidate_iban', 'validateIban', 'when' => function($model, $attribute) {
+                return !$model->currency_code || $model->currency_code == "KWD";
+            }],
             ['candidate_hourly_rate', 'validateHourlyRate'],
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
