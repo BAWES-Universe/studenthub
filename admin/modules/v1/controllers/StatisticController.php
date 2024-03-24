@@ -73,6 +73,9 @@ class StatisticController extends Controller
         return $actions;
     }
 
+    /**
+     * @return void
+     */
     public function actionClearCache() {
         Yii::$app->cache->flush();
     }

@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use common\models\Story;
 use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;
@@ -73,6 +74,25 @@ class StoryQuery extends ActiveQuery
     public function filterByCompany($param)
     {
         return $this->andWhere(['{{%request}}.company_id' => $param]);
+    }
+
+    /**
+     * @return StoryQuery
+     */
+    public function filterCompleted() {
+        return $this->andWhere(['NOT IN', 'story_status', [
+            Story::STATUS_UNSTARTED,
+            Story::STATUS_STARTED,
+            Story::STATUS_CANCELLED
+        ]]);
+        /*return $this->andWhere(['IN', 'story_status', [
+            Story::STATUS_DELIVERED,
+            Story::STATUS_FINISHED,
+            Story::STATUS_REJECTED,
+            Story::STATUS_ACCEPTED,
+            Story::STATUS_CANCELLED,
+            Story::STATUS_REWORK
+        ]]);*/
     }
 
     /**
