@@ -283,6 +283,15 @@ candidateMomKuwaitiFieldIsNull
 `cd console && ../yii algolia/index fulltimer`
 `cd console && ../yii algolia/index candidate`
 
+# Update stats 
+
+`./yii cron/update-candidate-stats`
+`./yii cron/update-company-stats`
+
+# Code generator 
+
+`http://localhost:8888/bawes/studenthub/admin/web/gii`
+
 todo 
 
 - company account password set 
