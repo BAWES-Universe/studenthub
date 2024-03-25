@@ -6,6 +6,8 @@ use admin\models\Candidate;
 use admin\models\Company;
 use admin\models\TransferCandidate;
 use admin\models\University;
+use common\models\CandidateStats;
+use common\models\CompanyStats;
 use common\models\Staff;
 use common\models\StaffLeave;
 use common\models\StaffSalary;
@@ -225,5 +227,50 @@ class StatisticController extends Controller
         $data['totalProfit'] = (double) $totalProfit->sum('company_total - total');
 
         return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function actionRevenue() {
+
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $result = [];
+
+        $result['total_company'] = Company::find()->count();
+
+        $result['total_candidate'] = Candidate::find()->count();
+
+        $result['company_stats'] = CompanyStats::find()
+            ->andWhere(['company_stats.currency_code' => $currency])
+            ->select("SUM(total_revenue) as total_revenue, MIN(total_revenue) as min_revenue, 
+                MAX(total_revenue) as max_revenue")
+            ->asArray()
+            ->one();
+
+        $result['candidate_stats'] = CandidateStats::find()
+            ->andWhere(['candidate_stats.currency_code' => $currency])
+                ->select("SUM(total_revenue) as total_revenue, MIN(total_revenue) as min_revenue, 
+                MAX(total_revenue) as max_revenue")
+            ->asArray()
+            ->one();
+
+        //CLV - customer lifetime value
+
+        /*Candidate::find()
+            ->joinWith(['candidateWorkHistory', 'candidateStats'])//, false, "inner join"
+            ->andWhere(new Expression("candidate.store_id IS NULL AND candidate_work_history.id IS NOT NULL"))
+            ->andWhere(['currency_code' => $currency])
+            ->average("total_revenue");*/
+
+        $result['candidate_clv'] = CandidateStats::find()
+            ->joinWith(['candidateWorkHistories', 'candidate'])//, false, "inner join"
+             //started work but not working anymore
+            ->andWhere(new Expression("candidate.store_id IS NULL AND candidate_work_history.end_date IS NOT NULL"))
+            ->andWhere(['candidate_stats.currency_code' => $currency])
+            ->average("total_revenue");
+
+        return $result;
     }
 }

@@ -18,6 +18,7 @@ use yii\db\Expression;
  * @property string $updated_at
  *
  * @property Candidate $candidate
+ * @property CandidateWorkHistory $candidateWorkHistories
  */
 class CandidateStats extends \yii\db\ActiveRecord
 {
@@ -90,8 +91,25 @@ class CandidateStats extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidate($modelClass = "\common\models\Candidate")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\CandidateStatsQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CandidateStatsQuery(get_called_class());
     }
 }

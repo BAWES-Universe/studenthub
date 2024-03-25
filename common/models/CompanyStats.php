@@ -94,4 +94,13 @@ class CompanyStats extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
     }
+
+    /**
+     * @inheritdoc
+     * @return query\CompanyStatsQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\CompanyStatsQuery(get_called_class());
+    }
 }

@@ -69,10 +69,12 @@ return [
                         'GET' => 'list',
                         'GET clear-cache' => "clear-cache",
                         'GET transfer' => 'transfer',
+                        "GET revenue" => "revenue",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS clear-cache' => 'options',
                         'OPTIONS transfer' => 'options',
+                        "OPTIONS revenue" => "options",
                     ]
                 ],
                 [ // EventController
