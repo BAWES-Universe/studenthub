@@ -870,7 +870,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'acceptanceRatio',
             'rejectionRatio',
             'profit',
-            'revenue'
+            'revenue',
+            'candidateStats',
         ];
     }
 
@@ -3088,12 +3089,29 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidateWarnings($modelClass = "\common\models\CandidateWarning")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateStats($modelClass = "\common\models\CandidateStats")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }

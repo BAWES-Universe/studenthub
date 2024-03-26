@@ -297,6 +297,7 @@ class Company extends \yii\db\ActiveRecord
             'revenue',
             'staff',
             'country',
+            'companyStats',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -1105,6 +1106,15 @@ class Company extends \yii\db\ActiveRecord
             ->setCc (['meet@bawes.net'])
             ->setSubject ('[Studenthub] Company under review!')
             ->send ();
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyStats($modelClass = "\common\models\CompanyStats")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
