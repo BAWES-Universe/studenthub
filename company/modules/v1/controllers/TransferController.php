@@ -335,7 +335,7 @@ class TransferController extends Controller
         }
         
         // send invoice mail
-        $transfer->notify('invoice');
+        //$transfer->notify('invoice');
 
         $company = Yii::$app->companyManager->getCompany();
 
