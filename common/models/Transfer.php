@@ -739,7 +739,7 @@ class Transfer extends ActiveRecord
             $subjectLine = '[Fake] [Ignore] ' . $subjectLine;
         }
 
-        $emails = array_unique($emails);
+        $emails = array_unique($emails); //remove duplicate
 
         foreach ($emails as $email) {
             $ml = new MailLog();
@@ -749,9 +749,18 @@ class Transfer extends ActiveRecord
             $ml->save();
         }
 
-        $message->setTo(array_unique($emails))//remove duplicate
-            ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
-            ->setSubject($subjectLine);
+        /**
+         * sending invoice to internal team, but receipt to all
+         */
+        if ($template == "invoice") {
+            $message->setTo(Yii::$app->params['invoiceCC'])
+                ->setCc([Yii::$app->params['operationsEmail']]);
+        } else {
+            $message->setTo($emails)
+                ->setCc([Yii::$app->params['invoiceCC'], Yii::$app->params['operationsEmail']]);
+        }
+
+        $message->setSubject($subjectLine);
 
         try {
             return $message->send();
