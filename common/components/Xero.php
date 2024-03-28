@@ -65,7 +65,29 @@ class Xero
         );
     }
 
+    public function getResource($url, $method = "GET") {
+
+        if(!$this->token) {
+            $this->getToken();
+        }
+
+        $client = new Client();
+        $response = $client->createRequest()
+            ->setMethod($method)
+            ->setUrl($url)
+            ->setFormat(Client::FORMAT_JSON)
+            ->addHeaders([
+                'Authorization' => 'Bearer ' . $this->token,
+                // base64_encode($this->clientId . ":" . $this->clientSecret),
+                'content-type' => 'application/json',
+            ])
+            ->send();
+
+        return $response->getData();
+    }
+
     public function getToken() {
+
         $client = new Client();
         $response = $client->createRequest()
             ->setMethod('POST')

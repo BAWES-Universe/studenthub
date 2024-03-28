@@ -13,7 +13,6 @@ class XeroController extends \yii\console\Controller
         $result = Yii::$app->xero->getToken();
 
         print_r($result);
-
     }
 
     /**
