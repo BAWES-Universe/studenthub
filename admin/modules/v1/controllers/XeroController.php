@@ -158,7 +158,7 @@ class XeroController extends Controller
 
                 // redirect to app
 
-                header('Location: ' . Yii::$app->params['adminAppUrl'] . '/bank-transactions-sync');
+                header('Location: ' . Yii::$app->params['adminAppUrl'] . 'bank-transactions-sync');
                 exit();
 
                 /*return [

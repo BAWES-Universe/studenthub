@@ -2,9 +2,12 @@
 
 namespace common\components;
 
+use common\models\BankTransaction;
+use common\models\BankTransactionContact;
 use Mpdf\Tag\P;
 use Yii;
 use yii\base\Component;
+use yii\db\Expression;
 use yii\httpclient\Client;
 
 /**
@@ -60,11 +63,14 @@ class Xero extends Component
      */
     public function syncTransactions($page = 1, $recurring = false) {
 
+        $today = (new \DateTime())->format("c");
+
         $result = $this->getBankTransactions($page);
 
         // send to mixpanel
 
-        $dataToSave = [];
+        $bankTransactions = [];
+        $bankTransactionLineItems = [];
 
         foreach ($result as $transaction) {
 
@@ -74,6 +80,7 @@ class Xero extends Component
 
                 $lineItems[] = [
                     'line_item_id' => $lineItem->getLineItemId(),
+                    "bank_transaction_id" => $transaction->getBankTransactionId(),
                     'description' => $lineItem->getDescription(),
                     'quantity' => $lineItem->getQuantity(),
                     'unit_amount' => $lineItem->getUnitAmount(),
@@ -82,9 +89,9 @@ class Xero extends Component
                     'account_id' => $lineItem->getAccountId(),
                     'tax_type' => $lineItem->getTaxType(),
                     'tax_amount' => $lineItem->getTaxAmount(),
-                    'item' => $lineItem->getItem(),
+                    //'item' => $lineItem->getItem(),
                     'line_amount' => $lineItem->getLineAmount(),
-                    'tracking' => $lineItem->getTracking(),
+                    //'tracking' => $lineItem->getTracking(),
                     'discount_rate' => $lineItem->getDiscountRate(),
                     'discount_amount' => $lineItem->getDiscountAmount(),
                     'repeating_invoice_id' => $lineItem->getRepeatingInvoiceId(),
@@ -99,32 +106,44 @@ class Xero extends Component
             ];
 
             $data = [
-                "type" => $transaction->getType(),
-                "contact" => $contact,
-                "line_items" => $lineItems,
-                "bank_account" => $transaction->getBankAccount(),
-                "is_reconciled"=> $transaction->getIsReconciled(),
-                "date" => $this->convertDotNetDate($transaction->getDate())->format("c"),
-                "reference" => $transaction->getReference(),
-                "currency_code" => $transaction->getCurrencyCode(),
-                "currency_rate" => $transaction->getCurrencyRate(),
-                "url" => $transaction->getUrl(),
-                "status" => $transaction->getStatus(),
-                "line_amount_types" => $transaction->getLineAmountTypes(),
-                "sub_total" => $transaction->getSubTotal(),
-                "total_tax" => $transaction->getTotalTax(),
-                "total" => $transaction->getTotal(),
                 "bank_transaction_id" => $transaction->getBankTransactionId(),
-                "prepayment_id" => $transaction->getPrepaymentId(),
-                "overpayment_id" => $transaction->getOverpaymentId(),
-                "updated_date_utc" => $this->convertDotNetDate($transaction->getUpdatedDateUtc())->format("c"),
+                "contact_id" => $contactObject->getContactId(),
+                "currency_rate" => $transaction->getCurrencyRate(),
+                "currency_code" => $transaction->getCurrencyCode(),
                 "has_attachments" => $transaction->getHasAttachments(),
+                "is_reconciled"=> $transaction->getIsReconciled(),
+                "line_amount_types" => $transaction->getLineAmountTypes(),
+                "overpayment_id" => $transaction->getOverpaymentId(),
+                "prepayment_id" => $transaction->getPrepaymentId(),
+                "reference" => $transaction->getReference(),
+                "status" => $transaction->getStatus(),
                 "status_attribute_string" => $transaction->getStatusAttributeString(),
+                "sub_total" => $transaction->getSubTotal(),
+                "total" => $transaction->getTotal(),
+                "total_tax" => $transaction->getTotalTax(),
+                "type" => $transaction->getType(),
+                "url" => $transaction->getUrl(),
                 "validation_errors" => $transaction->getValidationErrors(),
+                "date" => $this->convertDotNetDate($transaction->getDate())->format("Y-m-d H:i:s"),
+                //"line_items" => $lineItems,
+                //"bank_account" => $transaction->getBankAccount(),
+                //"updated_date_utc" => $this->convertDotNetDate($transaction->getUpdatedDateUtc())->format("Y-m-d H:i:s"),
+                "created_at" => new Expression("NOW()"),
+                "updated_at" => new Expression("NOW()"),
             ];
 
-            //todo: make async call as AWS have http timeout in cloudfront
-            //Yii::$app->eventManager->track("Bank Transaction from Xero", $data);
+            $bankTransactions[] = $data;
+            $bankTransactionLineItems = array_merge($bankTransactionLineItems, $lineItems);
+
+            // todo: make async call as AWS have http timeout in cloudfront
+
+            Yii::$app->eventManager->track("Bank Transaction from Xero", array_merge($data, [
+                "line_items" => $lineItems,
+                "date" => $this->convertDotNetDate($transaction->getDate())->format("c"),
+                "contact" => $contact,
+                "created_at" => $today,
+                "updated_at" => $today,
+            ]));
 
             // save data in mongodb
 
@@ -132,13 +151,54 @@ class Xero extends Component
             //$collection = Yii::$app->xeroDb->getCollection('transactions');
             //$collection->insert(['name' => 'John Smith', 'status' => 1]);
 
-            $dataToSave[] = $data;
+            /*$arrContacts[] = $contact;
+            $arrBankTransactions[] = $data;
+            $data;*/
+
+            $contactModel = BankTransactionContact::find()
+                ->andWhere(['contact_id' => $contact['contact_id']])
+                ->exists();
+
+            if(!$contactModel) {
+                $contactModel = new BankTransactionContact();
+                $contactModel->setAttributes($contact);
+                if (!$contactModel->save()) {
+                    return [
+                        "operation" => "error",
+                        "message" => $contactModel->errors
+                    ];
+                }
+            }
+
+            /*$model = new BankTransaction();
+            $model->setAttributes($data);
+
+            if(!$model->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }
+
+            return [
+                "operation" => "success",
+            ];*/
         }
 
-        // save data in mongodb
+        Yii::$app->db->createCommand()->batchInsert('bank_transaction',
+            ['bank_transaction_id', 'contact_id', 'currency_rate', 'currency_code', 'has_attachments', 'is_reconciled',
+                'line_amount_types', 'overpayment_id', 'prepayment_id', 'reference', 'status', 'status_attribute_string',
+                'sub_total', 'total', 'total_tax', 'type', 'url', 'validation_errors', 'date', 'created_at', 'updated_at'],
+            $bankTransactions
+        )->execute();
 
-        //$collection = Yii::$app->xeroDb->getCollection('transactions');
-        //$collection->batchInsert($dataToSave);
+        Yii::$app->db->createCommand()->batchInsert('bank_transaction_line_item',
+            ['line_item_id', 'bank_transaction_id', 'description', 'quantity',
+                'unit_amount', 'item_code', 'account_code',
+                'account_id', 'tax_type', 'tax_amount', 'line_amount', 'discount_rate',
+                'discount_amount', 'repeating_invoice_id'],
+            $bankTransactionLineItems
+        )->execute();
 
         // if having data open next page
 
