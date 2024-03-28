@@ -48,6 +48,19 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // XeroController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/xero',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET sync' => 'sync',
+                        'GET auth' => 'auth',
+                        'GET callback' => 'callback',
+                        'POST callback' => 'callback',
+                        // OPTIONS VERBS
+                        'OPTIONS sync' => 'options',
+                     ]
+                ],
                 [ // AuthController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/auth',

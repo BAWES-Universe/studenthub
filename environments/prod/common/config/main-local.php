@@ -107,6 +107,12 @@ return [
         'eventManager' => [
             'class' => 'common\components\EventManager',
         ],
+        'xero' => [
+            'class' => 'common\components\Xero',
+            'clientId' => 'EAFC4996641A4A0CB86B501545518B15',
+            "clientSecret" => "2vpFTWzxR8qXHIuJQsBof6eSDSw5kj_cpFdAaxjoY_Jwhwym",
+            "xeroTenantId" => "c9895946-8dcc-4670-87be-ec1cca21c6d4"
+        ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
             'region' => 'eu-west-2', // based in London

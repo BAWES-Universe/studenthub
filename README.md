@@ -292,7 +292,19 @@ candidateMomKuwaitiFieldIsNull
 
 `http://localhost:8888/bawes/studenthub/admin/web/gii`
 
-todo 
+# Xero webhook 
+`https://admin.api.studenthub.co/v1/xero-webhook/incomming`
+`https://admin.api.dev.studenthub.co/v1/xero-webhook/incomming`
+
+https://admin.api.dev.studenthub.co/v1/xero/auth
+https://admin.api.studenthub.co/v1/xero/auth
+
+https://admin.api.dev.studenthub.co/v1/xero/callback
+https://admin.api.studenthub.co/v1/xero/callback
+
+http://localhost:8888/bawes/studenthub/admin/web/v1/xero/callback
+
+# todo 
 
 - company account password set 
 - activation 
