@@ -53,12 +53,20 @@ return [
                     'controller' => 'v1/xero',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET' => 'list',
                         'GET sync' => 'sync',
+                        'GET download' => 'download',
+                        'GET history' => 'history',
                         'GET auth' => 'auth',
                         'GET callback' => 'callback',
+                        'GET <id>' => 'view',
                         'POST callback' => 'callback',
                         // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                         'OPTIONS sync' => 'options',
+                        'OPTIONS download' => 'options',
+                        'OPTIONS history' => 'options',
+                        'OPTIONS <id>' => 'options',
                      ]
                 ],
                 [ // AuthController

@@ -2,14 +2,18 @@
 
 namespace admin\modules\v1\controllers;
 
+use common\models\BankTransaction;
+use common\models\BankTransactionLineItem;
 use XeroAPI\XeroPHP\Configuration;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
 use yii\helpers\Url;
 use yii\rest\Controller;
 // Use this class to deserialize error caught
 use XeroAPI\XeroPHP\AccountingObjectSerializer;
+use yii\web\NotFoundHttpException;
 
 class XeroController extends Controller
 {
@@ -62,6 +66,28 @@ class XeroController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * Return Brand Transactions
+     * @return ActiveDataProvider
+     */
+    public function actionList()
+    {
+        $query = BankTransaction::find()
+            ->orderBy("date");
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function actionView($id) {
+        return $this->findModel($id);
     }
 
     /**
@@ -183,6 +209,9 @@ class XeroController extends Controller
      */
     public function actionSync()
     {
+        //BankTransaction::deleteAll();
+        //BankTransactionLineItem::deleteAll();
+
         //check for access
 
         if(!Yii::$app->xero->getToken()) {
@@ -192,19 +221,72 @@ class XeroController extends Controller
             ];
         }
 
-        //todo: ability to resume sync + sync all again
+        //$page = Yii::$app->request->get("page", 1);
+
+        try {
+
+            //return Yii::$app->xero->downloadTransactions($page, false);
+            return Yii::$app->xero->syncTransactions();
+
+        } catch (Exception $e) {
+            return [
+                "operation" => "error",
+                "message" => 'Exception when calling AccountingApi->getBankTransactions: '. $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Download all the transactions
+     * @return array|string[]
+     */
+    public function actionDownload()
+    {
+        //check for access
+
+        if(!Yii::$app->xero->getToken()) {
+            return [
+                "operation" => "error",
+                "redirect" => Url::to(['xero/auth'], true),
+            ];
+        }
 
         $page = Yii::$app->request->get("page", 1);
 
         try {
 
-            return Yii::$app->xero->syncTransactions($page, false);
+            return Yii::$app->xero->downloadTransactions($page, false);
 
         } catch (Exception $e) {
             return [
                 "operation" => "error",
-                "message" => 'Exception when calling AccountingApi->getBankTransactionsHistory: '. $e->getMessage()
+                "message" => 'Exception when calling AccountingApi->getBankTransactions: '. $e->getMessage()
             ];
+        }
+    }
+
+    /**
+     * bank transaction history
+     * @return XeroAPI\XeroPHP\Models\Accounting\HistoryRecord[]
+     */
+    public function actionHistory() {
+        $bank_transaction_id = Yii::$app->request->get("bank_transaction_id");
+        return Yii::$app->xero->getBankTransactionsHistory($bank_transaction_id);
+    }
+
+    /**
+     * Finds the BankTransaction model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return BankTransaction the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = BankTransaction::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
 }

@@ -58,16 +58,97 @@ class Xero extends Component
     }
 
     /**
+     * call syncTransactions until we sync all the transactions
+     * @return void
+     */
+    public function syncTransactions($count = 0) {
+
+        $order = "Date ASC";
+
+        $ifModifiedSince = $this->getLastSyncTime();
+
+        $result = $this->getBankTransactions(1, $ifModifiedSince, null, $order);
+
+        $transactions = $result->getBankTransactions();
+
+        $this->saveToDB($transactions);
+
+        /*foreach ($transactions as $transaction) {
+            $fd = $this->convertDotNetDate($transaction->getDate())->format("Y-m-d H:i:s");
+
+            echo $transaction->getDate() . PHP_EOL .
+                $fd;
+        }*/
+
+        $count += sizeof($transactions);
+
+        // if having data open next page
+
+        //if (sizeof($result) > 0)
+        //    return $this->syncTransactions($count);
+
+        return [
+            "operation" => "success",
+            "count" => $count,
+            "message" => $count . ' transaction fetched'
+        ];
+    }
+
+    /**
+     * @return \DateTime|void
+     * @throws \Exception
+     */
+    private function getLastSyncTime() {
+        //get last transaction
+        $model = BankTransaction::find()
+            ->orderBy("date DESC")
+            ->one();
+
+        if ($model) {
+            return new \DateTime($model->date);
+        }
+    }
+
+    /**
+     * Download and save to local db,page by page
      * @param $page
      * @return mixed
      */
-    public function syncTransactions($page = 1, $recurring = false) {
+    public function downloadTransactions($page = 1, $recurring = false, $count = 0) {
+
+        $order = "date ASC";
+
+        //$ifModifiedSince = null;
+
+        $result = $this->getBankTransactions($page, null, null, $order);
+
+        $transactions = $result->getBankTransactions();
+
+        $this->saveToDB($transactions);
+
+        $count += sizeof($transactions);
+
+        // if having data open next page
+
+        if($count > 0 && $recurring)
+            return $this->downloadTransactions($page + 1, $recurring, $count);
+
+        return [
+            "operation" => "success",
+            "count" => $count,
+            "message" => $count . ' transaction fetched'
+        ];
+    }
+
+    /**
+     * save xero BankTransactions in MySql
+     * @param $result
+     * @return array|void
+     * @throws \yii\db\Exception
+     */
+    private function saveToDB($result) {
 
         $today = (new \DateTime())->format("c");
-
-        $result = $this->getBankTransactions($page);
-
-        // send to mixpanel
 
         $bankTransactions = [];
         $bankTransactionLineItems = [];
@@ -199,17 +280,6 @@ class Xero extends Component
                 'discount_amount', 'repeating_invoice_id'],
             $bankTransactionLineItems
         )->execute();
-
-        // if having data open next page
-
-        if(sizeof($result) > 0 && $recurring)
-            return $this->syncTransactions($page + 1);
-
-        return [
-            "operation" => "success",
-            "count" => sizeof($result),
-            "message" => sizeof($result) . ' transaction fetched'
-        ];
     }
 
     /**

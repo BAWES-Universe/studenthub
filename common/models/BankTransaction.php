@@ -123,6 +123,17 @@ class BankTransaction extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'contact',
+            'bankTransactionLineItems'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getContact($modelClass = "\common\models\University")
