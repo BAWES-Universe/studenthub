@@ -6,6 +6,7 @@ use common\models\Story;
 use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 
 /**

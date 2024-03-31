@@ -21,129 +21,13 @@ class Staff extends \common\models\Staff {
             [
                 'staffSalaries',
                 'staffNotifications',
-                'totalAssigned' => function ($model) {
-                    $start_date = Yii::$app->request->get('start_date', null);
-                    $end_date = Yii::$app->request->get('end_date', null);
-                    $query = $model->getCandidateWorkHistories();
-                    if ($start_date) {
-                        $query->andWhere(new Expression("DATE(start_date) >= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-                    if ($end_date) {
-                        $query->andWhere(new Expression("DATE(start_date) <= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-                    return $query->count();
-                },
-                'totalRequests' => function ($model) {
-                    $start_date = Yii::$app->request->get('start_date', null);
-                    $end_date = Yii::$app->request->get('end_date', null);
-
-                    $query = $model->getRequests();
-
-                    if ($start_date) {
-                        $query->andWhere(new Expression("DATE(request_created_datetime) >= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-                    if ($end_date) {
-                        $query->andWhere(new Expression("DATE(request_created_datetime) <= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-
-                    return $query->count();
-                },
-                'totalNotes' => function ($model) {
-                    $start_date = Yii::$app->request->get('start_date', null);
-                    $end_date = Yii::$app->request->get('end_date', null);
-
-                    $query = $model->getNotes();
-                    if ($start_date) {
-                        $query->andWhere(new Expression("DATE(note_created_datetime) >= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-                    if ($end_date) {
-                        $query->andWhere(new Expression("DATE(note_created_datetime) <= DATE('".
-                            date('Y-m-d', strtotime ($end_date)) ."')"));
-                    }
-                    return $query->count();
-                },
-                'totalStories' => function ($model) {
-                    $start_date = Yii::$app->request->get('start_date', null);
-                    $end_date = Yii::$app->request->get('end_date', null);
-
-                    $query = $model->getStories();
-
-                    if ($start_date) {
-                        $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-                    if ($end_date) {
-                        $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-
-                    return $query->count();
-                },
-                'totalAcceptedInvitations' => function ($model) {
-
-                    $start_date = Yii::$app->request->get('start_date');
-                    $end_date = Yii::$app->request->get('end_date');
-
-                    $query = $model->getInvitations();
-                    $query->andWhere(['invitation_status'=>3]);
-                    if($start_date) {
-                        $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-
-                    if($end_date) {
-                        $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('".
-                            date('Y-m-d', strtotime ($end_date))."')"));
-                    }
-
-                    return (int) $query
-                        ->count();
-                },
-                'totalRejectedInvitations' => function ($model) {
-
-                    $start_date = Yii::$app->request->get('start_date');
-                    $end_date = Yii::$app->request->get('end_date');
-
-                    $query = $model->getInvitations();
-                    $query->andWhere(['invitation_status'=>2]);
-                    if($start_date) {
-                        $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-
-                    if($end_date) {
-                        $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('".
-                            date('Y-m-d', strtotime ($end_date))."')"));
-                    }
-
-                    return (int) $query
-                        ->count();
-                },
-                'totalSuggestions' => function ($model) {
-
-                    $start_date = Yii::$app->request->get('start_date');
-                    $end_date = Yii::$app->request->get('end_date');
-
-                    $query = $model->getNotes();
-                    $query->andWhere(['note_type'=>'Suggested']);
-                    if($start_date) {
-                        $query->andWhere(new Expression("DATE(note_created_datetime) >= DATE('".
-                            date('Y-m-d', strtotime ($start_date)) ."')"));
-                    }
-
-                    if($end_date) {
-                        $query->andWhere(new Expression("DATE(note_created_datetime) <= DATE('".
-                            date('Y-m-d', strtotime ($end_date))."')"));
-                    }
-
-                    return (int) $query
-                        ->count();
-                },
+                'totalAssigned',
+                'totalRequests',
+                'totalNotes',
+                'totalStories',
+                'totalAcceptedInvitations',
+                'totalRejectedInvitations',
+                'totalSuggestions',
                 'companies'
             ],
             parent::extraFields()
@@ -228,11 +112,17 @@ class Staff extends \common\models\Staff {
         return parent::getCompanies($modelClass);
     }
 
+    /**
+     * @return query\StaffQuery
+     */
     public static function find()
     {
         return new query\StaffQuery(get_called_class());
     }
 
+    /**
+     * @return bool|void
+     */
     public function sendVerificationEmail() {
 
         $ml = new MailLog();
