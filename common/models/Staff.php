@@ -371,7 +371,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             }
         }
 
-        return (int)$query
+        return (int) $query
             ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
     }
 

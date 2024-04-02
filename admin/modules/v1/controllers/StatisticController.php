@@ -13,6 +13,7 @@ use common\models\Staff;
 use common\models\StaffLeave;
 use common\models\StaffSalary;
 use common\models\StaffWorkSession;
+use common\models\StoryActivity;
 use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
 use Yii;
 use yii\db\Expression;
@@ -308,6 +309,7 @@ class StatisticController extends Controller
 
         $averageMonthDurationPerAssignment = (int) CandidateWorkHistory::find()
             ->limit(100)
+            ->orderBy('id DESC')//latest first
             ->filterCurrency($currency)
             //->andWhere(['currency' => $currency])
             ->average(new Expression("TIMESTAMPDIFF(MONTH, start_date, end_date)"));
@@ -323,6 +325,12 @@ class StatisticController extends Controller
             "averageMonthDurationPerAssignment" => $averageMonthDurationPerAssignment,
             "possibleEarningPerAssignment" => $possibleEarningPerAssignment
         ];
+
+        $result['timeToCompleteStory'] = (int) StoryActivity::find()
+            ->limit(100)
+            ->orderBy('activity_last_updated_at DESC')//latest first
+            ->andWhere(['activity_status' => StoryActivity::STATUS_DELIVERED])
+            ->average('story_activity.activity_time_spent');
 
         return $result;
     }
