@@ -105,6 +105,8 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
         return [
             'candidate',
             'store',
+            'company',
+            'parentCompany',
             'dateListByCandidate',
         ];
     }
@@ -123,6 +125,22 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     public function getStore()
     {
         return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompany()
+    {
+        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany()
+    {
+        return $this->hasOne(Company::className(), ['company_id' => 'parent_company_id']);
     }
 
     /**

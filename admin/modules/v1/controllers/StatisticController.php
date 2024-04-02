@@ -7,11 +7,13 @@ use admin\models\Company;
 use admin\models\TransferCandidate;
 use admin\models\University;
 use common\models\CandidateStats;
+use common\models\CandidateWorkHistory;
 use common\models\CompanyStats;
 use common\models\Staff;
 use common\models\StaffLeave;
 use common\models\StaffSalary;
 use common\models\StaffWorkSession;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -270,6 +272,57 @@ class StatisticController extends Controller
             ->andWhere(new Expression("candidate.store_id IS NULL AND candidate_work_history.end_date IS NOT NULL"))
             ->andWhere(['candidate_stats.currency_code' => $currency])
             ->average("total_revenue");
+
+        //last month
+
+        //todo: add currency support
+
+        $noOfHired = (int) CandidateWorkHistory::find()
+            //->andWhere(new Expression("MONTH(candidate_work_history.start_date) = MONTH(CURRENT_DATE) -1 AND
+            //    YEAR(candidate_work_history.start_date) = YEAR(CURRENT_DATE)"))
+            //->andWhere(new Expression("candidate_work_history.start_date >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
+            //    AND candidate_work_history.start_date < DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)"))
+            ->andWhere(new Expression("candidate_work_history.start_date >= DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL -1 MONTH)
+                AND candidate_work_history.start_date < DATE_FORMAT(CURDATE(), '%Y-%m-01')"))
+            ->filterCurrency($currency)
+            //->andWhere(['currency' => $currency])
+            ->count();
+
+        $salaryPaid = (double) Staff::find()
+            ->andWhere(['staff_role' => Staff::ROlE_RECRUITER])
+            ->andWhere(['staff_salary_currency' => $currency])
+            ->sum("staff_salary");
+
+        $costPerCandidate = $salaryPaid? $salaryPaid / $noOfHired: 0;
+
+        //how much we normally earning per assignment
+
+        $monthlyEarningPerAssignment = (double) TransferCandidate::find()
+            ->andWhere(['currency_code' => $currency])
+            ->andWhere(new Expression("tc_created_at >= DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL -1 MONTH)
+                AND tc_created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01')"))
+            //->andWhere(new Expression("tc_created_at >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
+            //    AND tc_created_at < DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)"))
+            ->average(new Expression("((company_hourly_rate - candidate_hourly_rate) * hours) - transfer_cost
+                + bonus_commission"));//avg profit in candidate transfer in last month
+
+        $averageMonthDurationPerAssignment = (int) CandidateWorkHistory::find()
+            ->limit(100)
+            ->filterCurrency($currency)
+            //->andWhere(['currency' => $currency])
+            ->average(new Expression("TIMESTAMPDIFF(MONTH, start_date, end_date)"));
+            //->average(new Expression("DATEDIFF(MONTH, start_date, end_date)"));
+
+        $possibleEarningPerAssignment = $monthlyEarningPerAssignment * $averageMonthDurationPerAssignment;
+
+        $result['recruitment_cost_ratio'] = [
+            "noOfHired" => $noOfHired,
+            "salaryPaid" => $salaryPaid,
+            "costPerCandidate" => $costPerCandidate,
+            "monthlyEarningPerAssignment" => $monthlyEarningPerAssignment,
+            "averageMonthDurationPerAssignment" => $averageMonthDurationPerAssignment,
+            "possibleEarningPerAssignment" => $possibleEarningPerAssignment
+        ];
 
         return $result;
     }
