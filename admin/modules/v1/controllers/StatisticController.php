@@ -9,6 +9,7 @@ use admin\models\University;
 use common\models\CandidateStats;
 use common\models\CandidateWorkHistory;
 use common\models\CompanyStats;
+use common\models\Invitation;
 use common\models\Staff;
 use common\models\StaffLeave;
 use common\models\StaffSalary;
@@ -333,5 +334,13 @@ class StatisticController extends Controller
             ->average('story_activity.activity_time_spent');
 
         return $result;
+    }
+
+    /**
+     * @return void
+     */
+    public function actionInvitationGraphData()
+    {
+        return Invitation::getDataByMonths();
     }
 }

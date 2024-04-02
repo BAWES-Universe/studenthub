@@ -91,11 +91,13 @@ return [
                         'GET clear-cache' => "clear-cache",
                         'GET transfer' => 'transfer',
                         "GET revenue" => "revenue",
+                        "GET invitation-graph-data" => "invitation-graph-data",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS clear-cache' => 'options',
                         'OPTIONS transfer' => 'options',
                         "OPTIONS revenue" => "options",
+                        "OPTIONS invitation-graph-data" => "options",
                     ]
                 ],
                 [ // EventController
