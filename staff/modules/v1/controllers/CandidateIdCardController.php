@@ -164,6 +164,7 @@ class CandidateIdCardController extends Controller
         if(!$a || !is_array($a)) {
             return [
                 'operation' => 'error',
+                "code" => 1,
                 'message' => 'Invalid Candidate Ids'
             ];
         }
@@ -200,6 +201,8 @@ class CandidateIdCardController extends Controller
 
                 return [
                     'operation' => 'error',
+                    "code" => 2,
+                    "errors" => $ID->errors,
                     'message' => 'Invalid Candidate Id #'.$value
                 ];
             }
@@ -238,6 +241,7 @@ class CandidateIdCardController extends Controller
         if(!$result['zip']) {
             return [
                 'operation' => 'error',
+                "code" => 3,
                 'message' => 'Error generating zip',
                 'cardUrl' => Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/")
             ];
@@ -246,6 +250,7 @@ class CandidateIdCardController extends Controller
         if(!file_exists($result['zip'])) {
             return [
                 'operation' => 'error',
+                "code" => 4,
                 'message' => 'Zip file not exist',
                 'cardUrl' => Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/")
             ];
