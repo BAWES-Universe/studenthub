@@ -12,6 +12,7 @@ use yii\db\Expression;
  * This is the model class for table "company_request".
  *
  * @property string $company_request_uuid
+ * @property string $utm_uuid
  * @property string $company_name
  * @property string $company_email
  * @property string $contact_position
@@ -56,6 +57,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
             [['company_request_uuid'], 'string', 'max' => 60],
             [['company_name', 'contact_position'], 'string', 'max' => 100],
             [['company_email', 'requesting_for'], 'string', 'max' => 255],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
         ];
     }
 
@@ -76,6 +78,9 @@ class CompanyRequest extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * @return array[]
+     */
     public function behaviors() {
         return [
             [
@@ -248,6 +253,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $model->contact_email = $this->company_email;
         $model->contact_password_hash = $this->contact_password_hash;
         $model->contact_receive_email = $this->contact_receive_email;
+        $model->utm_uuid = $this->utm_uuid;
         //$model->contact_email_verification = true;
         $model->generateAuthKey();
 
@@ -386,6 +392,14 @@ class CompanyRequest extends \yii\db\ActiveRecord
     public function getCurrency($modelClass = "\common\models\Currency")
     {
         return $this->hasOne($modelClass::className(), ['code' => 'currency_code']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCampaign($modelClass = "\common\models\Campaign")
+    {
+        return $this->hasOne($modelClass::className(), ['utm_uuid' => 'utm_uuid']);
     }
 
     /**

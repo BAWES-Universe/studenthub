@@ -44,6 +44,15 @@ return [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
+                [// CampaignController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/campaign',
+                    'patterns' => [
+                        'PATCH click/<id>' => 'click',
+                        // OPTIONS VERBS
+                        'OPTIONS click/<id>' => 'options',
+                    ]
+                ],
                 [ // PingController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/ping',

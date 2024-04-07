@@ -16,6 +16,7 @@ use Segment\Segment;
  * This is the model class for table "candidate".
  *
  * @property integer $candidate_id
+ * @property string $utm_uuid
  * @property string $candidate_uid
  * @property integer $store_id
  * @property integer $bank_id
@@ -74,6 +75,7 @@ use Segment\Segment;
  * @property CandidateToken[] $accessTokens
  * @property TransferCandidate[] $TransferCandidate
  * @property Note[] $notes
+ * @property Campaign $campaign
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -129,6 +131,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
+
             [['currency_code'], "string", "max" => 3],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
@@ -200,6 +203,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_latitude', 'candidate_longitude'], 'number'],
 
             [['candidate_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['candidate_area_uuid' => 'area_uuid']],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
 
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -327,11 +331,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
 
-        $scenarios['signupGoogle'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_email_verification', 'candidate_status', 'candidate_personal_photo', 'approved', 'deleted'];
+        $scenarios['signupGoogle'] = ['utm_uuid', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_email_verification', 'candidate_status', 'candidate_personal_photo', 'approved', 'deleted'];
 
-        $scenarios['signupAuth0'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
+        $scenarios['signupAuth0'] = ['utm_uuid', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
 
-        $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
+        $scenarios['signup'] = ['utm_uuid', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
 
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban', 'is_incomplete_profile'];
 
@@ -748,6 +752,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         }
 
+        if($insert && $this->campaign) {
+            $this->campaign->no_of_signups++;
+            $this->campaign->save(false);
+        }
+
         return true;
     }
 
@@ -853,6 +862,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            'campaign',
             'store',
             'company',
             'university',
@@ -1125,6 +1135,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getTransferCandidate($modelClass = "\common\models\TransferCandidate")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCampaign($modelClass = "\common\models\Campaign")
+    {
+        return $this->hasOne($modelClass::className(), ['utm_uuid' => 'utm_uuid']);
     }
 
     /**

@@ -13,6 +13,7 @@ use yii\helpers\Url;
  * This is the model class for table "company_contact".
  *
  * @property string $contact_uuid
+ * @property string $utm_uuid
  * @property string $contact_name
  * @property string $contact_email
  * @property string $contact_new_email
@@ -33,6 +34,7 @@ use yii\helpers\Url;
  * @property Company $company
  * @property CompanyContactEmail[] $companyContactEmails
  * @property CompanyContactPhone[] $companyContactPhones
+ * @property Campaign $campaign
  */
 class Contact extends \yii\db\ActiveRecord
 {
@@ -67,6 +69,7 @@ class Contact extends \yii\db\ActiveRecord
             [['contact_uuid'], 'unique'],//'contact_email'
             [['contact_password_reset_token'], 'unique'],
             [['contact_status', 'contact_email_verified_by'], 'number'],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
             [['contact_email_verified_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['contact_email_verified_by' => 'staff_id']],
         ];
     }
@@ -127,15 +130,32 @@ class Contact extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return bool
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        if($insert && $this->campaign) {
+            $this->campaign->no_of_signups++;
+            $this->campaign->save(false);
+        }
+
+        return true;
+    }
+
+    /**
      * Scenarios for validation and massive assignment
      */
     public function scenarios() {
 
         $scenarios = parent::scenarios();
 
-        $scenarios['signup'] = ['contact_status', 'contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_receive_suggestions','contact_otp'];
+        $scenarios['signup'] = ['utm_uuid', 'contact_status', 'contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_receive_suggestions','contact_otp'];
 
-        $scenarios['signupAuth0'] = ['contact_status', 'contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_email_verification', 'contact_receive_suggestions','contact_otp'];
+        $scenarios['signupAuth0'] = ['utm_uuid', 'contact_status', 'contact_name', 'contact_email', 'contact_password_hash', 'contact_receive_email', 'contact_email_verification', 'contact_receive_suggestions','contact_otp'];
 
         $scenarios['updateEmail'] = ['contact_email', 'contact_new_email'];
 
@@ -146,6 +166,10 @@ class Contact extends \yii\db\ActiveRecord
         return $scenarios;
     }
 
+    /**
+     * @param $insert
+     * @return bool|void
+     */
     public function beforeSave($insert)
     {
         if(!parent::beforeSave($insert)) {
@@ -260,6 +284,7 @@ class Contact extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
+            'campaign',
             'companies',
             'requests',
             'contactEmails',
@@ -612,9 +637,21 @@ class Contact extends \yii\db\ActiveRecord
             ->one();
     }
 
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getCompanyContact($modelClass = "\common\models\CompanyContact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'contact_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCampaign($modelClass = "\common\models\Campaign")
+    {
+        return $this->hasOne($modelClass::className(), ['utm_uuid' => 'utm_uuid']);
     }
 
     /**

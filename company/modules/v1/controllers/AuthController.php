@@ -149,6 +149,7 @@ class AuthController extends Controller
             $contact->contact_email = $userInfo['email'];
             $contact->contact_receive_email = true;
             $contact->contact_email_verification = true;
+            $contact->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
             if (!$contact->signUp(true)) {
                 $transaction->rollBack();
@@ -359,7 +360,8 @@ class AuthController extends Controller
         $model->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
         $model->contact_email = Yii::$app->request->getBodyParam("email");
         $model->contact_password_hash = Yii::$app->request->getBodyParam("password");
-        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");*/
+        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");*/
 
         //Generate OTP for Candidate
         //$model->generateOTP();
@@ -400,6 +402,7 @@ class AuthController extends Controller
         $companyRequest->phone_number = Yii::$app->request->getBodyParam("phone_number");
         $companyRequest->currency_code = Yii::$app->request->getBodyParam("currency_code");
         $companyRequest->country_id = Yii::$app->request->getBodyParam("country_id");
+        $companyRequest->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
         if (!$companyRequest->save()) {
             //$transaction->rollBack();
