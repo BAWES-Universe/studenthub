@@ -107,6 +107,19 @@ class StatisticController extends Controller
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
         $result['candidates']['invited'] = Candidate::invited($startDate, $endDate, $currency);
         $result['candidates']['suggested'] = Candidate::suggested($startDate, $endDate, $currency);
+
+        //retention after 1 year
+
+        $totalRetained = CandidateWorkHistory::find()
+            ->andWhere(new Expression("DATEDIFF(end_date, start_date) > 365"))
+            ->count();
+
+        $totalHired = CandidateWorkHistory::find()
+            ->count();
+
+        $result['candidates']['retentionRatio'] = 100 * $totalRetained / $totalHired;
+
+
         $result['company']['activeClient'] = Company::getCompanyByCondition('status',$startDate, $endDate, $currency);
         $result['company']['all'] = Company::getCompanyByCondition(null, $startDate, $endDate, $currency);
         $result['company']['request']['all'] = Company::request(null,$startDate, $endDate, $currency);
