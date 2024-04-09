@@ -107,6 +107,7 @@ return [
                         'POST update-email' => 'update-email',
                         'POST resend-verification-email' => 'resend-verification-email',
                         'POST login-auth0' => 'login-auth0',
+                        'POST login-by-google' => 'login-by-google',
                         'PATCH update-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
@@ -118,6 +119,7 @@ return [
                         'OPTIONS resend-verification-email' => 'options',
                         'OPTIONS update-password' => 'options',
                         'OPTIONS login-auth0' => 'options',
+                        'OPTIONS login-by-google' => 'options',
                         'OPTIONS create-account' => 'options',
                     ]
                 ],

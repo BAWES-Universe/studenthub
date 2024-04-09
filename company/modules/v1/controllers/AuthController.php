@@ -9,6 +9,7 @@ use company\models\ContactPhone;
 use company\models\ContactToken;
 use company\models\CompanyContact;
 use common\models\ContactEmailVerifyAttempt;
+use staff\models\Staff;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
@@ -70,6 +71,7 @@ class AuthController extends Controller
             'verify-email',
             'is-email-verified',
             'login-auth0',
+            'login-by-google',
             "locate"
         ];
 
@@ -100,6 +102,126 @@ class AuthController extends Controller
      */
     public function actionLocate() {
         return Yii::$app->ipstack->locate();
+    }
+
+
+    /**
+     * Sign up with google login
+     */
+    public function actionLoginByGoogle() {
+
+        $token = Yii::$app->request->getBodyParam("idToken");
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" . $token);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = json_decode(curl_exec($ch));
+
+        if (empty($response->email)) {
+            return [
+                'operation' => 'error',
+                "code" => 1,
+                'message' => Yii::t('app', 'Invalid Token')
+            ];
+        }
+
+        $contact = Contact::find()
+            ->andWhere(['contact_email' => $response->email])
+            ->one();
+
+        if(!$contact)
+        {
+            return [
+                "operation" => "error",
+                "code" => 2,
+                "message" => Yii::t('app', "No account found with provided email, please contact us for assistance."),
+            ];
+            /*
+            $transaction = Yii::$app->db->beginTransaction();
+
+            $contact = new Contact();
+            $contact->setScenario('signupAuth0');
+
+            $contact->contact_name = $userInfo['name'];
+            $contact->contact_email = $userInfo['email'];
+            $contact->contact_receive_email = true;
+            $contact->contact_email_verification = true;
+            $contact->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
+
+            if (!$contact->signUp(true)) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => $contact->errors
+                ];
+            }
+
+            $company_name = $userInfo['name'] . "'s company";
+
+            $company = new Company();
+            $company->company_name = $company_name;
+            $company->company_common_name_en = $company_name;
+            $company->company_common_name_ar = $company_name;
+            $company->company_email = $contact->contact_email;
+            $company->company_bonus_commission = 0;
+            $company->company_approved_to_hire = false;
+            $company->company_followup = true;
+            $company->company_followup_interval_weeks = 1;
+            $company->company_last_followup_datetime = date('Y-m-d', strtotime ('-7 days'));
+            $company->company_status_override = Company::STATUS_UNDER_REVIEW;
+
+            if (!$company->save()) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => $company->errors
+                ];
+            }
+
+            $companyContact = new CompanyContact();
+            $companyContact->company_id = $company->company_id;
+            $companyContact->contact_uuid = $contact->contact_uuid;
+            //$companyContact->contact_position = Yii::$app->request->getBodyParam("contact_position");
+            $companyContact->allow_access = true;
+
+            if (!$companyContact->save()) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => $companyContact->errors
+                ];
+            }
+
+            $company->notifyUnderReview();
+
+            $transaction->commit();*/
+        }
+
+        // Email and password are correct, check if his email has been verified
+        // If email has been verified, then allow him to log in
+        if ($contact->contact_email_verification != Contact::EMAIL_VERIFIED) {
+
+            //$contact->generateOtp();
+            //$contact->save(false);
+
+            if($response->email_verified && $response->email_verified == "true") {
+                $contact->contact_email_verification = Contact::EMAIL_VERIFIED;
+                $contact->save(false);
+            } else {
+                return [
+                    "data" => $response,
+                    "operation" => "error",
+                    "errorType" => "email-not-verified",
+                    "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
+                    "unVerifiedToken" => $this->_loginResponse($contact)
+                ];
+            }
+        }
+
+        return $this->_loginResponse($contact);
     }
 
     /**
