@@ -167,6 +167,9 @@ class Company extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * @return array[]
+     */
     public function behaviors() {
         return [
             [
@@ -257,6 +260,9 @@ class Company extends \yii\db\ActiveRecord
         return $fields;
     }
 
+    /**
+     * @return int
+     */
     public function getCompany_status() {
 
         if($this->company_status_override) {
@@ -470,6 +476,9 @@ class Company extends \yii\db\ActiveRecord
         }        
     }
 
+    /**
+     * @return void
+     */
     public static function requestForAttendance() {
 
         $subject = "Request for Attendance and Working Hours for Part-Time Employees";
@@ -1052,6 +1061,7 @@ class Company extends \yii\db\ActiveRecord
      *  active client with staff assigned and hasn't made payment in 40 days
      */
     public static function companiesCountWithNoPaymentIn40Days($currency_code = null) {
+
         $query = Company::find()
             ->filterParent()
             ->filterByActive40DaysPassedWithoutPayment()
