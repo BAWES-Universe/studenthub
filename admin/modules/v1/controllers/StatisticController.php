@@ -119,7 +119,8 @@ class StatisticController extends Controller
             //->filterByJoiningDate($startDate, $endDate)
             ->count();
 
-        $result['candidates']['retentionRatio'] = 100 * $totalRetained / $totalHired;
+        $result['candidates']['retentionRatio'] =
+            $totalHired > 0? (100 * $totalRetained / $totalHired): 0;
 
         //Recruitment Yield Ratio
         // This metric compares the number of successful hires to the number of Invitations sent,
@@ -128,7 +129,8 @@ class StatisticController extends Controller
         $invitationSent = Invitation::find()
             ->count();
 
-        $result['candidates']['recruitmentYieldRatio'] = $totalHired * 100/$invitationSent;
+        $result['candidates']['recruitmentYieldRatio'] =
+            $invitationSent > 0 ? ($totalHired * 100/$invitationSent): 0;
 
         $result['company']['activeClient'] = Company::getCompanyByCondition('status',$startDate, $endDate, $currency);
         $result['company']['all'] = Company::getCompanyByCondition(null, $startDate, $endDate, $currency);
