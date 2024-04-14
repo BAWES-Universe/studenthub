@@ -96,9 +96,13 @@ class Ipstack {
                 ->where(['iso' => $result->country])
                 ->one();
 
+            if(!$country) {
+                Yii::error("Country not found with iso code: " . $result->country);
+            }
+
             $result->country = $country;
 
-            if(empty($result->currency)) {
+            if(empty($result->currency) && $country) {
                 $result->currency = $country->currency;
             }
 

@@ -106,7 +106,7 @@ class MailLog extends \yii\db\ActiveRecord
 
         //if already triggered today, then use increased value
 
-        $cacheObject = Yii::$app->cache->get("mailThreshold");
+        $cacheObject = isset(Yii::$app->cache) ? Yii::$app->cache->get("mailThreshold"): null;
 
         if($cacheObject && $cacheObject["date"] = $today) {
             $threshold = $cacheObject["threshold"];
