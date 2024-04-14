@@ -21,6 +21,16 @@ return [
             'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',//todo:
             'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
         ],
+        'xero' => [
+            'class' => 'common\components\Xero',
+            //sandbox web app
+            'clientId' => '392C9A9B3D5F408689B18A26E8FF41F5',
+            "clientSecret" => "9PlW56cve8wkjPgxvvt3kG2ng3vWhLzH7yMMxADLkYa0q40Z",
+            //custom connection
+            //'clientId' => 'CF8C4521B478EB2654D4317AEF2D9',
+            //"clientSecret" => "hUv5IzcGOkZv0J6D185FJw73tNUDrHR8vswI2sERUKXC7Jgm",
+            "xeroTenantId" => "c9895946-8dcc-4670-87be-ec1cca21c6d4"
+        ],
         'redis' => [
             'class' => 'yii\redis\Connection',
             'hostname' => 'localhost',

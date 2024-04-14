@@ -14,4 +14,5 @@ return [
     'statusAppUrl' => 'https://status.studenthub.co/',
     'companyAppUrl' => 'https://employer.studenthub.co/',
     'staffAppUrl' => 'https://staff.studenthub.co/',
+    'adminAppUrl' => 'https://admin.studenthub.co/',
 ];

@@ -177,7 +177,8 @@ class AuthController extends Controller
             $candidate->candidate_phone = isset($userInfo['phone_number'])? $userInfo['phone_number']: '';
             $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
             $candidate->approved = true;
-            
+            $candidate->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
+
             if (!$candidate->signup()) {
 
                 /*
@@ -745,6 +746,7 @@ class AuthController extends Controller
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
         $model->candidate_status = \candidate\models\Candidate::STATUS_PENDING;
         $model->approved = false;
+        $model->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
         if (!$model->signup()) {
 
@@ -865,7 +867,8 @@ class AuthController extends Controller
                 //'candidate_name_ar' => $candidate_name,
                 'candidate_email_verification' => Candidate::EMAIL_VERIFIED,
                 'candidate_status' => Candidate::STATUS_ACTIVE,
-                'approved' => 1
+                'approved' => 1,
+                'utm_uuid' => Yii::$app->request->getBodyParam("utm_uuid")
             ];
 
             $model->setAttributes($data);
@@ -943,6 +946,7 @@ class AuthController extends Controller
             $candidate->candidate_email = $email;
             $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
             $candidate->approved = 1;
+            $candidate->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
             if (!$candidate->signup()) {
 

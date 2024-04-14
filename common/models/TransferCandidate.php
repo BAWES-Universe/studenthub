@@ -285,14 +285,61 @@ class TransferCandidate extends \yii\db\ActiveRecord
             $this->emailTransferSuccess();
 
             $this->sendTransferPaidNotification();
-            
+
+            $this->updateStats();
+
         } else if (isset($changedAttributes['paid']) && $this->paid == self::UNPAID) {
 
             $this->sendTransferUnpaidNotification();
-            
         }
         
         return true;
+    }
+
+    /**
+     * @return void
+     */
+    public function updateStats() {
+
+        $profit = $this->getProfit();
+
+        $candidateStat = CandidateStats::find()
+            ->andWhere(['candidate_id' => $this->candidate_id, "currency_code" => $this->currency_code])
+            ->one();
+
+        // update if available
+
+        if($candidateStat) {
+            $candidateStat->updateCounters(['total_revenue' => $profit]);
+        } else { // else add
+            $candidateStat = new CandidateStats;
+            $candidateStat->candidate_id = $this->candidate_id;
+            $candidateStat->currency_code = $this->currency_code;
+            $candidateStat->total_revenue = $profit;
+            if(!$candidateStat->save()) {
+                Yii::error(var_dump($candidateStat->errors));
+            }
+        }
+
+        // check if available
+
+        $stat = CompanyStats::find()
+            ->andWhere(['company_id' => $this->company_id, "currency_code" => $this->currency_code])
+            ->one();
+
+        // update if available
+
+        if($stat) {
+            $stat->updateCounters(['total_revenue' => $profit]);
+        } else { // else add
+            $stat = new CompanyStats;
+            $stat->company_id = $this->company_id;
+            $stat->currency_code = $this->currency_code;
+            $stat->total_revenue = $profit;
+            if(!$stat->save()) {
+                Yii::error(var_dump($stat->errors));
+            }
+        }
     }
 
     /**
@@ -511,7 +558,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getProfit()
     {
-        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost + $this->bonus_commission;
+        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost
+            + $this->bonus_commission;
     }
 
     /**

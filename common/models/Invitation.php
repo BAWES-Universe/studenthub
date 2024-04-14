@@ -9,6 +9,7 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 use Segment\Segment;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "invitation".
@@ -178,6 +179,7 @@ class Invitation extends \yii\db\ActiveRecord
      * @return boolean
      */
     public function afterSave($insert, $changedAttributes) {
+
         parent::afterSave($insert, $changedAttributes);
 
         if($insert && $this->candidate_id) {
@@ -246,6 +248,146 @@ class Invitation extends \yii\db\ActiveRecord
         ];
 
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+    }
+
+    /**
+     * generate graph data
+     * @param $months
+     * @return array
+     */
+    public static function getDataByMonths($months = 12)
+    {
+        $data = [];
+
+        $date_start = date('Y-m-d', strtotime('first day of -'.$months.' month'));
+
+        $date_end = date('Y-m-d', strtotime('last day of previous month'));
+
+        for ($i = 0; $i <= $months; $i++) {
+
+            $month = date('F', strtotime('-'.($months - $i).' month'));
+
+            $data[$month] = array(
+                'month' => date('F', strtotime('-'.($months - $i).' month')),
+                "total" => 0,
+                "invited" => 0,
+                'accepted' => 0,
+                'rejected' => 0,
+                'decline_rate' => 0,
+                'acceptance_rate' => 0,
+            );
+        }
+
+        $rows = self::find()
+            //->filterPaymentReceived()
+            ->select(new Expression('invitation_created_at, COUNT(*) as accepted'))
+            //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
+            ->andWhere(['invitation_status' => self::STATUS_ACCEPTED])
+            ->andWhere('DATE(`invitation_created_at`) >= DATE("'.$date_start.'") AND DATE(`invitation_created_at`) <= DATE("'.$date_end.'")')
+            ->groupBy(new Expression('MONTH(invitation_created_at)'))
+            ->asArray()
+            ->all();
+
+        foreach ($rows as $result) {
+
+            $key = date ('F', strtotime ($result['invitation_created_at']));
+
+            $data[$key] = array_merge($data[$key], [
+                'accepted' => (int) $result['accepted']
+            ]);
+        }
+
+        $rows = self::find()
+            //->filterPaymentReceived()
+            ->select(new Expression('invitation_created_at, COUNT(*) as rejected'))
+            //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
+            ->andWhere(['invitation_status' => self::STATUS_REJECTED])
+            ->andWhere('DATE(`invitation_created_at`) >= DATE("'.$date_start.'") AND DATE(`invitation_created_at`) <= DATE("'.$date_end.'")')
+            ->groupBy(new Expression('MONTH(invitation_created_at)'))
+            ->asArray()
+            ->all();
+
+        foreach ($rows as $result) {
+
+            $key = date ('F', strtotime ($result['invitation_created_at']));
+
+            $data[$key] = array_merge($data[$key], [
+                'rejected' => (int) $result['rejected']
+            ]);
+        }
+
+        $rows = self::find()
+            //->filterPaymentReceived()
+            ->select(new Expression('invitation_created_at, COUNT(*) as invited'))
+            //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
+            ->andWhere(['invitation_status' => self::STATUS_INVITED])
+            ->andWhere('DATE(`invitation_created_at`) >= DATE("'.$date_start.'") AND DATE(`invitation_created_at`) <= DATE("'.$date_end.'")')
+            ->groupBy(new Expression('MONTH(invitation_created_at)'))
+            ->asArray()
+            ->all();
+
+        foreach ($rows as $result) {
+
+            $key = date ('F', strtotime ($result['invitation_created_at']));
+
+            $data[$key] = array_merge($data[$key], [
+                'invited' =>  (int) $result['invited']
+            ]);
+        }
+
+        $rows = self::find()
+            //->filterPaymentReceived()
+            ->select(new Expression('invitation_created_at, COUNT(*) as total'))
+            //->andWhere('`transfer_created_at` >= (NOW() - INTERVAL '.$months.' MONTH)')
+            ->andWhere('DATE(`invitation_created_at`) >= DATE("'.$date_start.'") AND DATE(`invitation_created_at`) <= DATE("'.$date_end.'")')
+            ->groupBy(new Expression('MONTH(invitation_created_at)'))
+            ->asArray()
+            ->all();
+
+        foreach ($rows as $result) {
+
+            $key = date ('F', strtotime ($result['invitation_created_at']));
+
+            $data[$key] = array_merge($data[$key], [
+                'total' =>  (int) $result['total'],
+                'decline_rate' => $data[$key]['rejected'] * 100 / $result['total'],
+                'acceptance_rate'=> $data[$key]['accepted'] * 100 / $result['total'],
+            ]);
+        }
+
+        //format for graph
+
+        $series = [
+            [
+                "name" => "Total",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'total'))
+            ],
+            [
+                "name" => "Invited/ No Response",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'invited'))
+            ],
+            [
+                "name" => "Accepted",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'accepted'))
+            ],
+            [
+                "name" => "Rejected",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'rejected'))
+            ],
+            [
+                "name" => "Decline rate",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'decline_rate'))
+            ],
+            [
+                "name" => "Acceptance rate",
+                "data" => array_values(ArrayHelper::getColumn ($data, 'acceptance_rate'))
+            ],
+        ];
+
+        return [
+            'series' => $series,
+            'categories' => array_keys ($data)
+        ];
     }
 
     /**

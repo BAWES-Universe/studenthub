@@ -15,6 +15,7 @@ use Yii;
 class Candidate extends \common\models\Candidate {
 
     public $password = null;
+    
     /**
      * @inheritdoc
      */
@@ -37,6 +38,9 @@ class Candidate extends \common\models\Candidate {
         return $fields;
     }
 
+    /**
+     * @return array|string[]
+     */
     public function extraFields()
     {
         $fields = parent::extraFields ();

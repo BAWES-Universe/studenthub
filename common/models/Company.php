@@ -167,6 +167,9 @@ class Company extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * @return array[]
+     */
     public function behaviors() {
         return [
             [
@@ -257,6 +260,9 @@ class Company extends \yii\db\ActiveRecord
         return $fields;
     }
 
+    /**
+     * @return int
+     */
     public function getCompany_status() {
 
         if($this->company_status_override) {
@@ -297,6 +303,7 @@ class Company extends \yii\db\ActiveRecord
             'revenue',
             'staff',
             'country',
+            'companyStats',
             /**
              * Staff: If a company is "Active" and we have not received any payment from them in last 40 days
              * (ignore transfer drafts and locked). Show on the company listing card a red badge saying
@@ -469,6 +476,9 @@ class Company extends \yii\db\ActiveRecord
         }        
     }
 
+    /**
+     * @return void
+     */
     public static function requestForAttendance() {
 
         $subject = "Request for Attendance and Working Hours for Part-Time Employees";
@@ -1051,6 +1061,7 @@ class Company extends \yii\db\ActiveRecord
      *  active client with staff assigned and hasn't made payment in 40 days
      */
     public static function companiesCountWithNoPaymentIn40Days($currency_code = null) {
+
         $query = Company::find()
             ->filterParent()
             ->filterByActive40DaysPassedWithoutPayment()
@@ -1105,6 +1116,15 @@ class Company extends \yii\db\ActiveRecord
             ->setCc (['meet@bawes.net'])
             ->setSubject ('[Studenthub] Company under review!')
             ->send ();
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCompanyStats($modelClass = "\common\models\CompanyStats")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**

@@ -48,6 +48,15 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [// CampaignController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/campaign',
+                    'patterns' => [
+                        'PATCH click/<id>' => 'click',
+                        // OPTIONS VERBS
+                        'OPTIONS click/<id>' => 'options',
+                    ]
+                ],
                 [ // AuthController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/auth',

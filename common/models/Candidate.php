@@ -16,6 +16,7 @@ use Segment\Segment;
  * This is the model class for table "candidate".
  *
  * @property integer $candidate_id
+ * @property string $utm_uuid
  * @property string $candidate_uid
  * @property integer $store_id
  * @property integer $bank_id
@@ -74,6 +75,7 @@ use Segment\Segment;
  * @property CandidateToken[] $accessTokens
  * @property TransferCandidate[] $TransferCandidate
  * @property Note[] $notes
+ * @property Campaign $campaign
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -129,6 +131,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
+
             [['currency_code'], "string", "max" => 3],
             ['candidate_address_line1', 'default', 'value' => 'Kuwait'],
             [['candidate_uid'], 'string', 'max' => 20],
@@ -200,6 +203,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_latitude', 'candidate_longitude'], 'number'],
 
             [['candidate_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['candidate_area_uuid' => 'area_uuid']],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
 
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -327,11 +331,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios['changePassword'] = ['candidate_email_verification', 'candidate_password_hash', 'candidate_password_reset_token'];
 
-        $scenarios['signupGoogle'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_email_verification', 'candidate_status', 'candidate_personal_photo', 'approved', 'deleted'];
+        $scenarios['signupGoogle'] = ['utm_uuid', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_email_verification', 'candidate_status', 'candidate_personal_photo', 'approved', 'deleted'];
 
-        $scenarios['signupAuth0'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
+        $scenarios['signupAuth0'] = ['utm_uuid', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
 
-        $scenarios['signup'] = ['candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
+        $scenarios['signup'] = ['utm_uuid', 'candidate_name', 'candidate_name_ar', 'candidate_email', 'candidate_phone', 'candidate_password_hash', 'candidate_language_pref', 'deleted'];
 
         $scenarios['updateBankDetail'] = ['bank_account_name', 'candidate_iban', 'is_incomplete_profile'];
 
@@ -748,6 +752,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         }
 
+        if($insert && $this->campaign) {
+            $this->campaign->no_of_signups++;
+            $this->campaign->save(false);
+        }
+
         return true;
     }
 
@@ -853,6 +862,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            'campaign',
             'store',
             'company',
             'university',
@@ -870,7 +880,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'acceptanceRatio',
             'rejectionRatio',
             'profit',
-            'revenue'
+            'revenue',
+            'candidateStats',
         ];
     }
 
@@ -1124,6 +1135,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getTransferCandidate($modelClass = "\common\models\TransferCandidate")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCampaign($modelClass = "\common\models\Campaign")
+    {
+        return $this->hasOne($modelClass::className(), ['utm_uuid' => 'utm_uuid']);
     }
 
     /**
@@ -1495,48 +1514,50 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function birthdayAlert()
     {
-        $candidates = Candidate::find()
+        $query = Candidate::find()
             ->notDeleted()
             ->andWhere('MONTH(candidate_birth_date) = MONTH(NOW()) AND DAY(candidate_birth_date) = DAY(NOW())')
-            ->andWhere(['candidate_email_verification' => 1])
-            ->all();
-
-        if(!$candidates)
-            return null;
+            ->andWhere(['candidate_email_verification' => 1]);
 
         //$allStaff = Staff::findAll(['deleted' => false, 'staff_notification' => true]);
 
         //$allStaffEmails = ArrayHelper::map($allStaff,'staff_email','staff_name');
 
-        foreach($candidates as $candidate)
-        {
-            if(!$candidate->candidate_email_verification)
-                return false;
+        $totalProcessed = 0;
 
-            $ml = new MailLog();
-            $ml->to = $candidate->candidate_email;
-            $ml->from = \Yii::$app->params['supportEmail'];
-            $ml->subject = 'Happy Birthday from StudentHub';
-            $ml->save();
+        foreach ($query->batch(100) as $candidates) {
 
-            $mailer = Yii::$app->mailer->compose("birthday",
-                [
-                    "candidate" => $candidate,
-                    "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                    "birthday_img" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/birthday.gif', 'https'),
-                ])
-                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-                ->setTo($candidate->candidate_email)
-                ->setSubject('Happy Birthday from StudentHub');
+            foreach ($candidates as $candidate) {
+                if (!$candidate->candidate_email_verification)
+                    return false;
 
-            try {
-                $mailer->send();
-            } catch (\Swift_TransportException $e) {
-                Yii::error($e->getMessage(), "birthday-alert");
+                $ml = new MailLog();
+                $ml->to = $candidate->candidate_email;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = 'Happy Birthday from StudentHub';
+                $ml->save();
+
+                $mailer = Yii::$app->mailer->compose("birthday",
+                    [
+                        "candidate" => $candidate,
+                        "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                        "birthday_img" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/birthday.gif', 'https'),
+                    ])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setTo($candidate->candidate_email)
+                    ->setSubject('Happy Birthday from StudentHub');
+
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "birthday-alert");
+                }
             }
+
+            $totalProcessed += sizeof($candidates);
         }
 
-        return count($candidates);
+        return $totalProcessed;
     }
 
     /**
@@ -1544,53 +1565,52 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function civilIdExpire()
     {
-        $candidates = Candidate::find()
+        $query = Candidate::find()
             ->andWhere('YEAR(candidate_civil_expiry_date) = YEAR(NOW()) AND MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND DAY(candidate_civil_expiry_date) = DAY(NOW())')
-            ->andWhere(['candidate_email_verification' => 1])
-            ->all();
+            ->andWhere(['candidate_email_verification' => 1]);
 
-        if(!$candidates)
-            return null;
+        foreach ($query->batch(100) as $candidates) {
 
-        foreach($candidates as $candidate) {
+            foreach ($candidates as $candidate) {
 
-            if(!$candidate->candidate_email_verification)
-                return false;
+                if (!$candidate->candidate_email_verification)
+                    return false;
 
-            $f_name = $candidate->candidate_name? $candidate->candidate_name: $candidate->candidate_name_ar;
+                $f_name = $candidate->candidate_name ? $candidate->candidate_name : $candidate->candidate_name_ar;
 
-            $name = explode(' ', $f_name)[0];
+                $name = explode(' ', $f_name)[0];
 
-            $url = '';
+                $url = '';
 
-            $isProfileCompleted = $candidate->isProfileCompleted();
+                $isProfileCompleted = $candidate->isProfileCompleted();
 
-            if (!$isProfileCompleted) {
-                $url = Yii::$app->params['candidateAppUrl'];
-            } else {
-                $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
-            }
+                if (!$isProfileCompleted) {
+                    $url = Yii::$app->params['candidateAppUrl'];
+                } else {
+                    $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
+                }
 
-            $ml = new MailLog();
-            $ml->to = $candidate->candidate_email;
-            $ml->from = \Yii::$app->params['supportEmail'];
-            $ml->subject = 'Please update your civil id';
-            $ml->save();
+                $ml = new MailLog();
+                $ml->to = $candidate->candidate_email;
+                $ml->from = \Yii::$app->params['supportEmail'];
+                $ml->subject = 'Please update your civil id';
+                $ml->save();
 
-            $mailer = Yii::$app->mailer->compose("civil-expired",
-                [
-                    'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                    'url' => $url,
-                    'name' => $name
-                ])
-                ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-                ->setTo($candidate->candidate_email)
-                ->setSubject('Please update your civil id');
+                $mailer = Yii::$app->mailer->compose("civil-expired",
+                    [
+                        'logo' => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                        'url' => $url,
+                        'name' => $name
+                    ])
+                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                    ->setTo($candidate->candidate_email)
+                    ->setSubject('Please update your civil id');
 
-            try {
-                $mailer->send();
-            } catch (\Swift_TransportException $e) {
-                Yii::error($e->getMessage(), "password-reset-token");
+                try {
+                    $mailer->send();
+                } catch (\Swift_TransportException $e) {
+                    Yii::error($e->getMessage(), "password-reset-token");
+                }
             }
         }
     }
@@ -2828,66 +2848,68 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         $total = 0;
 
-        $candidates = Candidate::find()
-            //->andWhere(['candidate_email_verification' => 1])
+        $query = Candidate::find()
+            ->andWhere(['candidate_email_verification' => true])
             ->verifiedProfile()
             ->candidateMomKuwaitiFieldIsNull()
             ->all();
 
-        if (!$candidates)
-            return null;
+        foreach ($query->batch(100) as $candidates) {
 
-        foreach ($candidates as $candidate) {
+            foreach ($candidates as $candidate) {
 
-            if(!$candidate->candidate_email_verification)
-                return false;
+                //if (!$candidate->candidate_email_verification)
+                //    return false;
 
-            if (
-                $candidate->area && $candidate->nationality &&
-                $candidate->area->country &&
-                $candidate->area->country->country_nationality_name_en == 'Kuwaiti' &&
-                $candidate->nationality->country_nationality_name_en != 'Kuwaiti' &&
-                !$candidate->candidate_mom_kuwaiti
-            ) {
+                if (
+                    $candidate->area && $candidate->nationality &&
+                    $candidate->area->country &&
+                    $candidate->area->country->country_nationality_name_en == 'Kuwaiti' &&
+                    $candidate->nationality->country_nationality_name_en != 'Kuwaiti' &&
+                    !$candidate->candidate_mom_kuwaiti
+                ) {
 
-                $f_name = $candidate->candidate_name ? $candidate->candidate_name : $candidate->candidate_name_ar;
+                    $f_name = $candidate->candidate_name ? $candidate->candidate_name : $candidate->candidate_name_ar;
 
-                $name = explode(' ', $f_name)[0];
+                    $name = explode(' ', $f_name)[0];
 
-                $url = '';
+                    $url = '';
 
-                $isProfileCompleted = $candidate->isProfileCompleted();
+                    $isProfileCompleted = $candidate->isProfileCompleted();
 
-                if (!$isProfileCompleted) {
-                    $url = Yii::$app->params['candidateAppUrl'];
-                } else {
-                    $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
+                    if (!$isProfileCompleted) {
+                        $url = Yii::$app->params['candidateAppUrl'];
+                    } else {
+                        $url = Yii::$app->params['candidateAppUrl'] . 'view/profile';
+                    }
+
+                    $ml = new MailLog();
+                    $ml->to = $candidate->candidate_email;
+                    $ml->from = \Yii::$app->params['supportEmail'];
+                    $ml->subject = "Jobs in restaurants, cafes, and cinemas";
+                    $ml->save();
+
+                    $mailer = Yii::$app->mailer->compose("candidate/kuwaiti-mom",
+                        [
+                            "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                            "name" => $name,
+                            "url" => $url
+                        ])
+                        ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                        ->setTo($candidate->candidate_email)
+                        ->setSubject("Jobs in restaurants, cafes, and cinemas");
+
+                    try {
+                        $mailer->send();
+                    } catch (\Swift_TransportException $e) {
+                        Yii::error($e->getMessage(), "kuwaiti-mom");
+                    }
+
+                    //$total++;
                 }
-
-                $ml = new MailLog();
-                $ml->to = $candidate->candidate_email;
-                $ml->from = \Yii::$app->params['supportEmail'];
-                $ml->subject = "Jobs in restaurants, cafes, and cinemas";
-                $ml->save();
-
-                $mailer = Yii::$app->mailer->compose("candidate/kuwaiti-mom",
-                    [
-                        "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
-                        "name" => $name,
-                        "url" => $url
-                    ])
-                    ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-                    ->setTo($candidate->candidate_email)
-                    ->setSubject("Jobs in restaurants, cafes, and cinemas");
-
-                try {
-                    $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "kuwaiti-mom");
-                }
-
-                $total++;
             }
+
+            $total += sizeof($candidates);
         }
 
         return $total;
@@ -2971,14 +2993,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return ($total && $rejected) ? round(($rejected/$total) * 100): null;
     }
 
+    /**
+     * @return int[]|string[]|null
+     */
     public function getPendingField() {
         return ($this->pendingProfile) ? array_keys($this->pendingProfile) : null;
     }
 
+    /**
+     * @return bool
+     */
     public function getIsProfileCompleted() {
         return $this->isInCompleteProfile() ? false : true;
     }
 
+    /**
+     * @return array|\yii\db\ActiveRecord|null
+     */
     public function getIsWorking() {
         $model = CandidateWorkingHour::find()
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
@@ -2992,6 +3023,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return null;
     }
 
+    /**
+     * @return false|void
+     */
     public static function notifyCivilIDExpiring() {
 
         $query = Candidate::find()
@@ -3040,6 +3074,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * @return false|void
+     */
     public static function notifyMissingBankInfo () {
 
         $query = self::find()
@@ -3088,12 +3125,29 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidateWarnings($modelClass = "\common\models\CandidateWarning")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateStats($modelClass = "\common\models\CandidateStats")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }

@@ -97,15 +97,26 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
                 ->andWhere('{{%candidate}}.store_id > 0');
     }
 
+    /**
+     * @return CandidateWorkHistoryQuery
+     */
     public function notDeleted() {
         return $this->joinWith('candidate')
             ->andWhere(['{{%candidate}}.deleted'=>0]);
     }
 
+    /**
+     * @param $companyID
+     * @return void
+     */
     public function filterCompany($companyID) {
         $this->andWhere(["`candidate_work_history`.`parent_company_id`" => $companyID]);
     }
 
+    /**
+     * @param $company
+     * @return CandidateWorkHistoryQuery
+     */
     public function filterCompanyByCandidate($company) {
         // create company_id array from all sub companies and self
         $companies = $company->subCompanies;
@@ -145,7 +156,7 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
 
     /**
      * @param $date
-     * @return TransferQuery
+     * @return $this
      */
     public function startDate($date)
     {
@@ -154,7 +165,7 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
 
     /**
      * @param $date
-     * @return TransferQuery
+     * @return $this
      */
     public function endDate($date, $working_time)
     {
@@ -163,5 +174,14 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
         } else  { // in case if we want to check candidate working slot
             return $this->andWhere("DATE(candidate_work_history.end_date) < '$date'");
         }
+    }
+
+    /**
+     * @param $currency
+     * @return $this
+     */
+    public function filterCurrency($currency) {
+        return $this->joinWith(['parentCompany'])
+            ->andWhere(['company.currency_code' => $currency]);
     }
 }

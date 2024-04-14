@@ -48,6 +48,27 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // XeroController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/xero',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET sync' => 'sync',
+                        'GET download' => 'download',
+                        'GET history' => 'history',
+                        'GET auth' => 'auth',
+                        'GET callback' => 'callback',
+                        'GET <id>' => 'view',
+                        'POST callback' => 'callback',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS sync' => 'options',
+                        'OPTIONS download' => 'options',
+                        'OPTIONS history' => 'options',
+                        'OPTIONS <id>' => 'options',
+                     ]
+                ],
                 [ // AuthController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/auth',
@@ -69,10 +90,14 @@ return [
                         'GET' => 'list',
                         'GET clear-cache' => "clear-cache",
                         'GET transfer' => 'transfer',
+                        "GET revenue" => "revenue",
+                        "GET invitation-graph-data" => "invitation-graph-data",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS clear-cache' => 'options',
                         'OPTIONS transfer' => 'options',
+                        "OPTIONS revenue" => "options",
+                        "OPTIONS invitation-graph-data" => "options",
                     ]
                 ],
                 [ // EventController
@@ -462,6 +487,20 @@ return [
                 [ // BrandController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/brand',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // CampaignController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/campaign',
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',

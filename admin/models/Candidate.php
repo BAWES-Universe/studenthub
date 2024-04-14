@@ -41,7 +41,7 @@ class Candidate extends \common\models\Candidate {
     public static function getTotalPayableCandidate($currency_code = "KWD") {
         $totalCandidate = 0;
         $totalAmount = 0;
-        
+
         $query = Transfer::find()
             ->andWhere(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
             /*
@@ -118,10 +118,10 @@ class Candidate extends \common\models\Candidate {
      * @return bool|int|string|null
      */
      public static function candidateCountByAssigned($startDate = null, $endDate = null, $currency_code = "KWD") {
-        $query = Candidate::find();
 
-         $query->filterAssigned();
-         $query->filterByJoiningDate($startDate, $endDate);
+        $query = Candidate::find()
+            ->filterAssigned()
+            ->filterByJoiningDate($startDate, $endDate);
 //        return $query->getSqlQuery();
 
          if($currency_code) {

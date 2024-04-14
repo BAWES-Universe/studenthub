@@ -32,7 +32,8 @@
         "spatie/browsershot": "^3.40",
         "segmentio/analytics-php": "^2.0",
         "understeam/yii2-jira": "^0.3.0",
-        "yiisoft/yii2-redis": "^2.0"
+        "yiisoft/yii2-redis": "^2.0",
+        "xeroapi/xero-php-oauth2": "^3.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

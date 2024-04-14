@@ -1,19 +1,15 @@
 <?php
-namespace company\modules\v1\controllers;
+
+namespace candidate\modules\v1\controllers;
 
 use Yii;
-use yii\rest\Controller;
-use yii\filters\Cors;
+use common\models\Campaign;
 use yii\filters\auth\HttpBearerAuth;
+use yii\filters\Cors;
+use yii\rest\Controller;
 
-/**
- * Base controller will return the actual Instagram Accounts and all controls associated
- */
-class BaseController extends Controller
+class CampaignController extends Controller
 {
-    /**
-     * @return array
-     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -43,9 +39,8 @@ class BaseController extends Controller
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::className(),
         ];
-
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
-        $behaviors['authenticator']['except'] = ['options'];
+        $behaviors['authenticator']['except'] = ['options', 'click'];
 
         return $behaviors;
     }
@@ -66,18 +61,26 @@ class BaseController extends Controller
     }
 
     /**
-     * @param $action
-     * @return bool
-     * @throws \yii\web\BadRequestHttpException
+     * @param $id
+     * @return array|string[]
      */
-    public function beforeAction($action)
+    public function actionClick($id)
     {
-        if (!parent::beforeAction($action)) {
-            return false;
+        $model = Campaign::find()->where([
+            'utm_uuid' => $id
+        ])->one();
+
+        $model->no_of_clicks = $model->no_of_clicks + 1;
+
+        if(!$model->save()) {
+            return [
+                'operation' => "error",
+                "message" => $model->errors
+            ];
         }
 
-        //$company_id = \Yii::$app->request->headers->get('company-id');
-        //Yii::$app->companyManager->getManagedCompany($company_id);
-        return true;
+        return [
+            "operation" => "success"
+        ];
     }
 }

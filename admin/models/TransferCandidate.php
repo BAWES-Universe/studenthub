@@ -240,6 +240,8 @@ class TransferCandidate extends \common\models\TransferCandidate
             if($transferCandidate->paid == TransferCandidate::PAID)
                 continue;
 
+            //todo: why adding entry in wallet? marking as paid to wallet?
+
             if(YII_ENV == 'prod') {
                 Yii::$app->walletManager->addEntry([
                     'amount' => $transferCandidate->candidate_total,

@@ -1,7 +1,7 @@
 <?php
 namespace company\models;
 
-
+use Yii;
 use common\models\MailLog;
 use staff\models\Staff;
 use yii\helpers\ArrayHelper;
@@ -135,6 +135,9 @@ class Request extends \common\models\Request
         parent::afterSave($insert, $changedAttributes);
     }
 
+    /**
+     * @return bool|void
+     */
     public function requestNotification()
     {
         $company_name = $this->company->company_common_name_en ? $this->company->company_common_name_en: $this->company->company_name;
@@ -148,11 +151,17 @@ class Request extends \common\models\Request
 
         $arrTo = ArrayHelper::map($staffList,'staff_email','staff_name');
 
-        $ml = new MailLog();
-        $ml->to = $arrTo[0]["staff_email"];
-        $ml->from = \Yii::$app->params['supportEmail'];
-        $ml->subject = $subject;
-        $ml->save();
+        if(sizeof($arrTo) == 0) {
+            return false;
+        }
+
+        foreach ($arrTo as $staff_email => $staff_name) {
+            $ml = new MailLog();
+            $ml->to = $staff_email;
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $subject;
+            $ml->save();
+        }
 
         $mailer = \Yii::$app->mailer->compose("company/request-created-bycompany",
             [

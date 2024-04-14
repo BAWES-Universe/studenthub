@@ -283,7 +283,28 @@ candidateMomKuwaitiFieldIsNull
 `cd console && ../yii algolia/index fulltimer`
 `cd console && ../yii algolia/index candidate`
 
-todo 
+# Update stats 
+
+`./yii cron/update-candidate-stats`
+`./yii cron/update-company-stats`
+
+# Code generator 
+
+`http://localhost:8888/bawes/studenthub/admin/web/gii`
+
+# Xero webhook 
+`https://admin.api.studenthub.co/v1/xero-webhook/incomming`
+`https://admin.api.dev.studenthub.co/v1/xero-webhook/incomming`
+
+https://admin.api.dev.studenthub.co/v1/xero/auth
+https://admin.api.studenthub.co/v1/xero/auth
+
+https://admin.api.dev.studenthub.co/v1/xero/callback
+https://admin.api.studenthub.co/v1/xero/callback
+
+http://localhost:8888/bawes/studenthub/admin/web/v1/xero/callback
+
+# todo 
 
 - company account password set 
 - activation 

@@ -197,6 +197,7 @@ class TransferCandidateController extends Controller
     public function actionMarkPaidAll()
     {
         $transferCandidateIds = Yii::$app->request->getBodyParam('transferCandidate');
+
         return TransferCandidate::markAllPaid($transferCandidateIds);
     }
 

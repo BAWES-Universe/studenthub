@@ -6,10 +6,16 @@ use admin\models\Candidate;
 use admin\models\Company;
 use admin\models\TransferCandidate;
 use admin\models\University;
+use common\models\CandidateStats;
+use common\models\CandidateWorkHistory;
+use common\models\CompanyStats;
+use common\models\Invitation;
 use common\models\Staff;
 use common\models\StaffLeave;
 use common\models\StaffSalary;
 use common\models\StaffWorkSession;
+use common\models\StoryActivity;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -101,6 +107,29 @@ class StatisticController extends Controller
         $result['candidates']['total_unapproved'] = $totalCandidate - $approved;
         $result['candidates']['invited'] = Candidate::invited($startDate, $endDate, $currency);
         $result['candidates']['suggested'] = Candidate::suggested($startDate, $endDate, $currency);
+
+        //retention after 1 year
+
+        $totalRetained = CandidateWorkHistory::find()
+            ->andWhere(new Expression("DATEDIFF(end_date, start_date) > 365"))
+            //->filterByJoiningDate($startDate, $endDate)
+            ->count();
+
+        $totalHired = CandidateWorkHistory::find()
+            //->filterByJoiningDate($startDate, $endDate)
+            ->count();
+
+        $result['candidates']['retentionRatio'] = 100 * $totalRetained / $totalHired;
+
+        //Recruitment Yield Ratio
+        // This metric compares the number of successful hires to the number of Invitations sent,
+        // offering insights into the effectiveness of sourcing methods and recruitment strategies.
+
+        $invitationSent = Invitation::find()
+            ->count();
+
+        $result['candidates']['recruitmentYieldRatio'] = $totalHired * 100/$invitationSent;
+
         $result['company']['activeClient'] = Company::getCompanyByCondition('status',$startDate, $endDate, $currency);
         $result['company']['all'] = Company::getCompanyByCondition(null, $startDate, $endDate, $currency);
         $result['company']['request']['all'] = Company::request(null,$startDate, $endDate, $currency);
@@ -225,5 +254,116 @@ class StatisticController extends Controller
         $data['totalProfit'] = (double) $totalProfit->sum('company_total - total');
 
         return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function actionRevenue() {
+
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $result = [];
+
+        $result['total_company'] = Company::find()->count();
+
+        $result['total_candidate'] = Candidate::find()->count();
+
+        $result['company_stats'] = CompanyStats::find()
+            ->andWhere(['company_stats.currency_code' => $currency])
+            ->select("SUM(total_revenue) as total_revenue, MIN(total_revenue) as min_revenue, 
+                MAX(total_revenue) as max_revenue")
+            ->asArray()
+            ->one();
+
+        $result['candidate_stats'] = CandidateStats::find()
+            ->andWhere(['candidate_stats.currency_code' => $currency])
+                ->select("SUM(total_revenue) as total_revenue, MIN(total_revenue) as min_revenue, 
+                MAX(total_revenue) as max_revenue")
+            ->asArray()
+            ->one();
+
+        //CLV - customer lifetime value
+
+        /*Candidate::find()
+            ->joinWith(['candidateWorkHistory', 'candidateStats'])//, false, "inner join"
+            ->andWhere(new Expression("candidate.store_id IS NULL AND candidate_work_history.id IS NOT NULL"))
+            ->andWhere(['currency_code' => $currency])
+            ->average("total_revenue");*/
+
+        $result['candidate_clv'] = CandidateStats::find()
+            ->joinWith(['candidateWorkHistories', 'candidate'])//, false, "inner join"
+             //started work but not working anymore
+            ->andWhere(new Expression("candidate.store_id IS NULL AND candidate_work_history.end_date IS NOT NULL"))
+            ->andWhere(['candidate_stats.currency_code' => $currency])
+            ->average("total_revenue");
+
+        //last month
+
+        //todo: add currency support
+
+        $noOfHired = (int) CandidateWorkHistory::find()
+            //->andWhere(new Expression("MONTH(candidate_work_history.start_date) = MONTH(CURRENT_DATE) -1 AND
+            //    YEAR(candidate_work_history.start_date) = YEAR(CURRENT_DATE)"))
+            //->andWhere(new Expression("candidate_work_history.start_date >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
+            //    AND candidate_work_history.start_date < DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)"))
+            ->andWhere(new Expression("candidate_work_history.start_date >= DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL -1 MONTH)
+                AND candidate_work_history.start_date < DATE_FORMAT(CURDATE(), '%Y-%m-01')"))
+            ->filterCurrency($currency)
+            //->andWhere(['currency' => $currency])
+            ->count();
+
+        $salaryPaid = (double) Staff::find()
+            ->andWhere(['staff_role' => Staff::ROlE_RECRUITER])
+            ->andWhere(['staff_salary_currency' => $currency])
+            ->sum("staff_salary");
+
+        $costPerCandidate = $salaryPaid? $salaryPaid / $noOfHired: 0;
+
+        //how much we normally earning per assignment
+
+        $monthlyEarningPerAssignment = (double) TransferCandidate::find()
+            ->andWhere(['currency_code' => $currency])
+            ->andWhere(new Expression("tc_created_at >= DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL -1 MONTH)
+                AND tc_created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01')"))
+            //->andWhere(new Expression("tc_created_at >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
+            //    AND tc_created_at < DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)"))
+            ->average(new Expression("((company_hourly_rate - candidate_hourly_rate) * hours) - transfer_cost
+                + bonus_commission"));//avg profit in candidate transfer in last month
+
+        $averageMonthDurationPerAssignment = (int) CandidateWorkHistory::find()
+            ->limit(100)
+            ->orderBy('id DESC')//latest first
+            ->filterCurrency($currency)
+            //->andWhere(['currency' => $currency])
+            ->average(new Expression("TIMESTAMPDIFF(MONTH, start_date, end_date)"));
+            //->average(new Expression("DATEDIFF(MONTH, start_date, end_date)"));
+
+        $possibleEarningPerAssignment = $monthlyEarningPerAssignment * $averageMonthDurationPerAssignment;
+
+        $result['recruitment_cost_ratio'] = [
+            "noOfHired" => $noOfHired,
+            "salaryPaid" => $salaryPaid,
+            "costPerCandidate" => $costPerCandidate,
+            "monthlyEarningPerAssignment" => $monthlyEarningPerAssignment,
+            "averageMonthDurationPerAssignment" => $averageMonthDurationPerAssignment,
+            "possibleEarningPerAssignment" => $possibleEarningPerAssignment
+        ];
+
+        $result['timeToCompleteStory'] = (int) StoryActivity::find()
+            ->limit(100)
+            ->orderBy('activity_last_updated_at DESC')//latest first
+            ->andWhere(['activity_status' => StoryActivity::STATUS_DELIVERED])
+            ->average('story_activity.activity_time_spent');
+
+        return $result;
+    }
+
+    /**
+     * @return void
+     */
+    public function actionInvitationGraphData()
+    {
+        return Invitation::getDataByMonths();
     }
 }

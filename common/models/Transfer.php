@@ -952,6 +952,10 @@ class Transfer extends ActiveRecord
         return $this->save(false);
     }
 
+    /**
+     * @return bool
+     * @throws Exception
+     */
     public function cancel()
     {
         if($this->transfer_status == Transfer::STATUS_CANCEL)

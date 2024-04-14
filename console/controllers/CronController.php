@@ -4,6 +4,8 @@ namespace console\controllers;
 
 use admin\models\Expense;
 use admin\models\TransferCandidate;
+use common\models\CandidateStats;
+use common\models\CompanyStats;
 use common\models\DailyStandupQuestion;
 use common\models\MailLog;
 use common\models\StaffWorkSession;
@@ -644,6 +646,110 @@ class CronController extends \yii\console\Controller {
                 }
 
                 Console::updateProgress($count, count($staffList));
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function actionUpdateCandidateStats() {
+
+        $candidateQuery = \common\models\Candidate::find();
+
+        $count = 0;
+        $total = $candidateQuery->count();
+        Console::startProgress(0, $total);
+
+        foreach ($candidateQuery->batch() as $candidates) {
+            foreach ($candidates as $candidate) {
+
+                $rows = \common\models\TransferCandidate::find()
+                    ->andWhere(['candidate_id' => $candidate->candidate_id, "paid" => \common\models\TransferCandidate::PAID])
+                    ->groupBy("currency_code")
+                    ->select("currency_code, SUM(((company_hourly_rate - candidate_hourly_rate) * hours) - 
+                        transfer_cost + bonus_commission) AS profit")
+                    ->asArray()
+                    ->all();
+
+                foreach ($rows as $row)
+                {
+                    // check if available
+
+                    $stat = CandidateStats::find()
+                        ->andWhere(['candidate_id' => $candidate->candidate_id, "currency_code" => $row["currency_code"]])
+                        ->one();
+
+                    // update if available
+
+                    if($stat) {
+                        $stat->updateCounters(['total_revenue' => $row['profit']]);
+                    } else { // else add
+                        $stat = new CandidateStats;
+                        $stat->candidate_id = $candidate->candidate_id;
+                        $stat->currency_code = $row["currency_code"];
+                        $stat->total_revenue = $row['profit'];
+                        if(!$stat->save()) {
+                            echo print_r($stat->errors, true); die();
+                            break;
+                        }
+                    }
+                }
+
+                $count++;
+                Console::updateProgress($count, $total);
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function actionUpdateCompanyStats() {
+
+        $companyQuery = \common\models\Company::find();
+
+        $count = 0;
+        $total = $companyQuery->count();
+        Console::startProgress(0, $total);
+
+        foreach ($companyQuery->batch() as $companies) {
+            foreach ($companies as $company) {
+
+                $rows = \common\models\TransferCandidate::find()
+                    ->andWhere(['company_id' => $company->company_id, "paid" => \common\models\TransferCandidate::PAID])
+                    ->groupBy("currency_code")
+                    ->select("currency_code, SUM(((company_hourly_rate - candidate_hourly_rate) * hours) - 
+                        transfer_cost + bonus_commission) AS profit")
+                    ->asArray()
+                    ->all();
+
+                foreach ($rows as $row)
+                {
+                    // check if available
+
+                    $stat = CompanyStats::find()
+                        ->andWhere(['company_id' => $company->company_id, "currency_code" => $row["currency_code"]])
+                        ->one();
+
+                    // update if available
+
+                    if($stat) {
+                        $stat->updateCounters(['total_revenue' => $row['profit']]);
+                    } else { // else add
+                        $stat = new CompanyStats;
+                        $stat->company_id = $company->company_id;
+                        $stat->currency_code = $row["currency_code"];
+                        $stat->total_revenue = $row['profit'];
+                        if(!$stat->save()) {
+                            echo print_r($stat->errors, true); die();
+                            break;
+                        }
+                    }
+                }
+
+                $count++;
+                Console::updateProgress($count, $total);
             }
         }
     }

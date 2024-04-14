@@ -62,16 +62,153 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @return float|int
+     */
+    public static function getTotalNoOfHours()
+    {
+        $timeForCompletedRequests = (int)Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        $timeForCancelledRequests = (int)Request::find()
+            ->andWhere(new Expression('staff_id IS NOT NULL'))
+            ->andWhere(['request_status' => Request::STATUS_CANCELLED])
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+
+        return ($timeForCancelledRequests + $timeForCompletedRequests) / 3600;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['staff_id' => $id]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        $token = StaffToken::find()
+            ->andWhere(['token_value' => $token])
+            ->with('staff')
+            ->one();
+
+        if ($token) {
+            return $token->staff;
+        }
+    }
+
+    /**
+     * Finds staff by email
+     *
+     * @param string $email
+     * @return static|null
+     */
+    public static function findByEmail($email)
+    {
+        return static::findOne(['staff_email' => $email, 'deleted' => 0, 'staff_status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Finds user by password reset token
+     *
+     * @param string $token password reset token
+     * @return static|null
+     */
+    public static function findByPasswordResetToken($token)
+    {
+
+        if (!static::isPasswordResetTokenValid($token)) {
+            return null;
+        }
+
+        return static::findOne([
+            'staff_password_reset_token' => $token,
+            'deleted' => 0
+        ]);
+    }
+
+    /**
+     * Finds out if password reset token is valid
+     *
+     * @param string $token password reset token
+     * @return boolean
+     */
+    public static function isPasswordResetTokenValid($token)
+    {
+        if (empty($token)) {
+            return false;
+        }
+        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
+        $parts = explode('_', $token);
+        $timestamp = (int)end($parts);
+        return $timestamp + $expire >= time();
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\StaffQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\StaffQuery(get_called_class());
+    }
+
+    public static function encryptPass($string)
+    {
+
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+
+        // Non-NULL Initialization Vector for encryption
+        $encryption_iv = '1234567891011121';
+
+        // Store the encryption key
+        $encryption_key = "GeeksforGeeks";
+
+        // Use openssl_encrypt() function to encrypt the data
+        return openssl_encrypt($string, $ciphering,
+            $encryption_key, $options, $encryption_iv);
+    }
+
+    public static function decryptPass($string)
+    {
+        // Store the cipher method
+        $ciphering = "AES-128-CTR";
+
+        // Use OpenSSl Encryption method
+        $iv_length = openssl_cipher_iv_length($ciphering);
+        $options = 0;
+        // Non-NULL Initialization Vector for decryption
+        $decryption_iv = '1234567891011121';
+
+        // Store the decryption key
+        $decryption_key = "GeeksforGeeks";
+
+        // Use openssl_decrypt() function to decrypt the data
+        return openssl_decrypt($string, $ciphering,
+            $decryption_key, $options, $decryption_iv);
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
             [['staff_name', 'staff_job_title', 'staff_email'], 'required'],
-            [['staff_password_hash'], 'required', 'on'=>'newAccount'],
-            [['staff_role','staff_hourly_rate', 'staff_salary'], 'number'],
-            [['staff_status','staff_notification', 'week_start_day', 'work_days', 'hours_per_day'], 'integer'],
-            [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token','staff_gmail_username','staff_gmail_password','staff_photo'], 'string', 'max' => 255],
+            [['staff_password_hash'], 'required', 'on' => 'newAccount'],
+            [['staff_role', 'staff_hourly_rate', 'staff_salary'], 'number'],
+            [['staff_status', 'staff_notification', 'week_start_day', 'work_days', 'hours_per_day'], 'integer'],
+            [['staff_name', 'staff_email', 'staff_password_hash', 'staff_password_reset_token', 'staff_gmail_username', 'staff_gmail_password', 'staff_photo'], 'string', 'max' => 255],
             [['staff_auth_key', 'staff_salary_currency'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
             [['staff_email'], 'email'],
@@ -82,7 +219,8 @@ class Staff extends ActiveRecord implements IdentityInterface
     /**
      * @return array
      */
-    public function behaviors() {
+    public function behaviors()
+    {
         return [
             [
                 'class' => TimestampBehavior::className(),
@@ -93,13 +231,17 @@ class Staff extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    /**
+     * @param $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
-        if(!parent::beforeSave($insert)) {
+        if (!parent::beforeSave($insert)) {
             return false;
         }
 
-        if(Yii::$app->request instanceof \yii\web\Request) {
+        if (Yii::$app->request instanceof \yii\web\Request) {
 
             // Get initial IP address of requester
             $ip = Yii::$app->request->getRemoteIP();
@@ -127,26 +269,26 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function attributeLabels()
     {
         return [
-            'staff_id' => Yii::t('app','Staff ID'),
-            'staff_name' => Yii::t('app','Staff Name'),
-            'staff_job_title' => Yii::t('app','Staff Job Title'),
-            'staff_email' => Yii::t('app','Staff Email'),
-            'staff_auth_key' => Yii::t('app','Staff Auth Key'),
-            'staff_password_hash' => Yii::t('app','Password'),
-            'staff_gmail_username' => Yii::t('app','Staff Gmail Username'),
-            'staff_gmail_password' => Yii::t('app','Staff Gmail Password'),
-            'staff_password_reset_token' => Yii::t('app','Staff Password Reset Token'),
+            'staff_id' => Yii::t('app', 'Staff ID'),
+            'staff_name' => Yii::t('app', 'Staff Name'),
+            'staff_job_title' => Yii::t('app', 'Staff Job Title'),
+            'staff_email' => Yii::t('app', 'Staff Email'),
+            'staff_auth_key' => Yii::t('app', 'Staff Auth Key'),
+            'staff_password_hash' => Yii::t('app', 'Password'),
+            'staff_gmail_username' => Yii::t('app', 'Staff Gmail Username'),
+            'staff_gmail_password' => Yii::t('app', 'Staff Gmail Password'),
+            'staff_password_reset_token' => Yii::t('app', 'Staff Password Reset Token'),
             'staff_role' => Yii::t('app', 'Role'),
             'staff_salary' => Yii::t('app', 'Salary'),
             'staff_photo' => Yii::t('app', 'Staff Photo'),
             'staff_salary_currency' => Yii::t('app', 'Salary currency'),
             'week_start_day' => Yii::t('app', 'Week start day'),
             'work_days' => Yii::t('app', 'Work days'),
-            'hours_per_day'  => Yii::t('app', 'Hours per day'),
-            'staff_status' => Yii::t('app','Staff Status'),
-            'staff_notification' => Yii::t('app','Staff Notification'),
-            'staff_created_at' => Yii::t('app','Staff Created At'),
-            'staff_updated_at' => Yii::t('app','Staff Updated At'),
+            'hours_per_day' => Yii::t('app', 'Hours per day'),
+            'staff_status' => Yii::t('app', 'Staff Status'),
+            'staff_notification' => Yii::t('app', 'Staff Notification'),
+            'staff_created_at' => Yii::t('app', 'Staff Created At'),
+            'staff_updated_at' => Yii::t('app', 'Staff Updated At'),
         ];
     }
 
@@ -186,148 +328,13 @@ class Staff extends ActiveRecord implements IdentityInterface
             'totalClosedRequests',
             'totalPendingRequests',
             'staffNotifications',
-            'totalInvitations' => function($model) {
-
-                $start_date = Yii::$app->request->get('start_date');
-                $end_date = Yii::$app->request->get('end_date');
-
-                $query = $model->getInvitations();
-
-                if($start_date) {
-                    $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('".
-                        date('Y-m-d', strtotime ($start_date)) ."')"));
-                }
-
-                if($end_date) {
-                    $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('".
-                        date('Y-m-d', strtotime ($end_date))."')"));
-                }
-
-                return (int) $query
-                    ->count();
-            },
-            'timeForCompletedRequests' => function($model) {
-                $start_date = Yii::$app->request->get('start_date');
-                $end_date = Yii::$app->request->get('end_date');
-
-                $query = $model->getRequests()
-                    ->filterCompleted();
-                    //->andWhere(['request_status' => Request::STATUS_DELIVERED]);
-
-                if($start_date) {
-                    $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
-                        date('Y-m-d', strtotime ($start_date)) ."')"));
-                }
-
-                if($end_date) {
-                    $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
-                        date('Y-m-d', strtotime ($end_date))."')"));
-                }
-
-                return (int) $query
-                    ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
-            },
-            'timeForCancelledRequests' => function($model) {
-                $start_date = Yii::$app->request->get('start_date');
-                $end_date = Yii::$app->request->get('end_date');
-
-                $query = $model->getRequests()
-                    ->andWhere(['request_status' => \common\models\Request::STATUS_CANCELLED]);
-
-                if($start_date) {
-                    $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
-                        date('Y-m-d', strtotime ($start_date)) ."')"));
-                }
-
-                if($end_date) {
-                    $query->andWhere(new Expression("DATE(request_cancelled_at) <= DATE('".
-                        date('Y-m-d', strtotime ($end_date))."')"));
-                }
-
-                return (int) $query
-                    ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
-            },
-            'totalCompletedStories' => function($model) {
-
-                $start_date = Yii::$app->request->get('start_date');
-                $end_date = Yii::$app->request->get('end_date');
-
-                $query = $model->getStories()
-                    ->filterCompleted();
-                    //->andWhere(['story_status' => Story::STATUS_DELIVERED]);
-
-                if($start_date) {
-                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
-                        date('Y-m-d', strtotime ($start_date)) ."')"));
-                }
-
-                if($end_date) {
-                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
-                        date('Y-m-d', strtotime ($end_date))."')"));
-                }
-
-                return $query->count();
-            },
-            "totalAssigned" => function($model) {
-                $start_date = Yii::$app->request->get('start_date');
-                $end_date = Yii::$app->request->get('end_date');
-
-                $query = $model->getCandidateWorkHistories();
-
-                if($start_date) {
-                    $query->andWhere(new Expression("DATE(start_date) >= DATE('".
-                        date('Y-m-d', strtotime ($start_date)) ."')"));
-                }
-
-                if($end_date) {
-                    $query->andWhere(new Expression("DATE(start_date) <= DATE('".
-                        date('Y-m-d', strtotime ($end_date))."')"));
-                }
-
-                return (int) $query->count();
-            },
-            'totalStoryEmployees' => function($model) {
-                $start_date = Yii::$app->request->get('start_date');
-                $end_date = Yii::$app->request->get('end_date');
-
-                $query = $model->getStories()
-                    //->joinWith(['request'], 'left')
-                    //->andWhere(['story_status' => Story::STATUS_DELIVERED]);
-                    ->filterCompleted();
-
-                if($start_date) {
-                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
-                        date('Y-m-d', strtotime ($start_date)) ."')"));
-                }
-
-                if($end_date) {
-                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
-                        date('Y-m-d', strtotime ($end_date))."')"));
-                }
-
-                return (int) $query->sum('story.number_of_employees');
-            },
-            'timeForCompletedStories' => function($model) {
-                $start_date = Yii::$app->request->get('start_date');
-                $end_date = Yii::$app->request->get('end_date');
-
-                $query = $model->getStoryActivities()
-                    ->joinWith(['story'], 'left')
-                    ->andWhere(['activity_status' => StoryActivity::STATUS_DELIVERED]);
-
-                if($start_date) {
-                    $query->andWhere(new Expression("DATE(story_created_at) >= DATE('".
-                        date('Y-m-d', strtotime ($start_date)) ."')"));
-                }
-
-                if($end_date) {
-                    $query->andWhere(new Expression("DATE(story_created_at) <= DATE('".
-                        date('Y-m-d', strtotime ($end_date))."')"));
-                }
-
-                return (int) $query
-                    ->sum('story_activity.activity_time_spent');
-            },
+            "totalAssigned",
+            'totalInvitations',
+            'timeForCompletedRequests',
+            'timeForCancelledRequests',
+            'totalCompletedStories',
+            'totalStoryEmployees',
+            'timeForCompletedStories',
             'permissions',
             'companies'
             /*'totalRequests' => function($model) {
@@ -337,21 +344,197 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @return float|int
+     * @return int
      */
-    public static function getTotalNoOfHours()
-    {
-        $timeForCompletedRequests = (int) Request::find()
-            ->andWhere(new Expression('staff_id IS NOT NULL'))
-            ->andWhere(['request_status' => Request::STATUS_DELIVERED])
-            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+    public function getTimeForCancelledRequests($conditions = []) {
 
-        $timeForCancelledRequests = (int) Request::find()
-            ->andWhere(new Expression('staff_id IS NOT NULL'))
-            ->andWhere(['request_status' => Request::STATUS_CANCELLED])
-            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+        $query = $this->getRequests()
+            ->andWhere(['request_status' => \common\models\Request::STATUS_CANCELLED]);
 
-        return ($timeForCancelledRequests + $timeForCompletedRequests) / 3600;
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if(isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(request_started_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(request_cancelled_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int) $query
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_cancelled_at)'));
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeForCompletedRequests($conditions = []) {
+
+        $query = $this->getRequests()
+            ->filterCompleted();
+        //->andWhere(['request_status' => Request::STATUS_DELIVERED]);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if(isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(request_started_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int)$query
+            ->sum(new Expression('TIMESTAMPDIFF(SECOND, request_started_at, request_delivered_at)'));
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalInvitations($conditions = []) {
+
+        $query = $this->getInvitations();
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if(isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int)$query
+            ->count();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTotalCompletedStories($conditions = []) {
+
+        $query = $this->getStories()
+            ->filterCompleted();
+        //->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if(isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return $query->count();
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalStoryEmployees($conditions = []) {
+
+        $query = $this->getStories()
+            //->joinWith(['request'], 'left')
+            //->andWhere(['story_status' => Story::STATUS_DELIVERED]);
+            ->filterCompleted();
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int)$query->sum('story.number_of_employees');
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeForCompletedStories($conditions = []) {
+
+        $query = $this->getStoryActivities()
+            ->joinWith(['story'], 'left')
+            ->andWhere(['activity_status' => StoryActivity::STATUS_DELIVERED]);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int)$query
+            ->sum('story_activity.activity_time_spent');
     }
 
     /**
@@ -363,7 +546,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if(YII_ENV != 'prod') {
+        if (YII_ENV != 'prod') {
             return null;
         }
 
@@ -390,9 +573,10 @@ class Staff extends ActiveRecord implements IdentityInterface
      * Set logo from S3 temp url
      * @param string $url
      */
-    public function setLogo($staff_photo) {
+    public function setLogo($staff_photo)
+    {
 
-        if(!Yii::$app->temporaryBucketResourceManager->fileExists($staff_photo)) {
+        if (!Yii::$app->temporaryBucketResourceManager->fileExists($staff_photo)) {
             $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
             return false;
         }
@@ -408,11 +592,11 @@ class Staff extends ActiveRecord implements IdentityInterface
         }
 
         try {
-            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/" ;
+            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/";
             $result = Yii::$app->cloudinaryManager->upload(
                 $url,
                 [
-                    'public_id' =>  $path . $filename,
+                    'public_id' => $path . $filename,
                     "eager" => [
                         [
                             "width" => 200, "height" => 200, "crop" => "thumb", "gravity" => "face"
@@ -448,11 +632,12 @@ class Staff extends ActiveRecord implements IdentityInterface
      * delete old logo from cloudinary
      * @return boolean
      */
-    public function deleteLogoFromCloudinary() {
+    public function deleteLogoFromCloudinary()
+    {
 
         try {
-            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/" ;
-            $response = Yii::$app->cloudinaryManager->delete( $path . $this->staff_photo);
+            $path = (YII_ENV == 'prod') ? "staff-photo/" : "dev/staff-photo/";
+            $response = Yii::$app->cloudinaryManager->delete($path . $this->staff_photo);
             if ($response && $response['result'] == 'not found') {
                 $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
                 return false;
@@ -475,106 +660,40 @@ class Staff extends ActiveRecord implements IdentityInterface
         }
     }
 
-
     /**
      * return total pending requests by staff
      * @return int
      */
-    public function getTotalPendingRequests()
+    public function getTotalPendingRequests($conditions = [])
     {
-        $start_date = Yii::$app->request->get('start_date');
-        $end_date = Yii::$app->request->get('end_date');
-
-        $query = $this->getRequests ()
+        $query = $this->getRequests()
             ->andWhere(['not in', 'request_status', [
                 Request::STATUS_DELIVERED,
                 Request::STATUS_CANCELLED
             ]]);
 
-        if($start_date) {
-            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
-                date('Y-m-d', strtotime ($start_date)) ."')"));
+        if ($conditions) {
+            $query->andWhere($conditions);
         }
 
-        if($end_date) {
-            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
-                date('Y-m-d', strtotime ($end_date))."')"));
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(request_started_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
         }
 
-        return (int) $query
-            ->count ();
-    }
-
-    /**
-     * return total completed requests by staff
-     * @return int
-     */
-    public function getTotalClosedRequests()
-    {
-        $start_date = Yii::$app->request->get('start_date');
-        $end_date = Yii::$app->request->get('end_date');
-
-        $query = $this->getRequests ()
-            ->andWhere(['in', 'request_status', [
-                Request::STATUS_DELIVERED,
-                Request::STATUS_CANCELLED
-            ]]);
-
-        if($start_date) {
-            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
-                date('Y-m-d', strtotime ($start_date)) ."')"));
-        }
-
-        if($end_date) {
-            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
-                date('Y-m-d', strtotime ($end_date))."')"));
-        }
-
-        return (int) $query
-            ->count ();
-    }
-
-    /**
-     * return total completed requests by staff
-     * @return int
-     */
-    public function getTotalCompletedRequests()
-    {
-        $start_date = Yii::$app->request->get('start_date');
-        $end_date = Yii::$app->request->get('end_date');
-
-        $query = $this->getRequests ()
-            ->andWhere(['request_status' => Request::STATUS_DELIVERED]);
-
-        if($start_date) {
-            $query->andWhere(new Expression("DATE(request_started_at) >= DATE('".
-                date('Y-m-d', strtotime ($start_date)) ."')"));
-        }
-
-        if($end_date) {
-            $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('".
-                date('Y-m-d', strtotime ($end_date))."')"));
-        }
-
-        return (int) $query
-            ->count ();
-    }
-
-    /**
-     * Access tokens used to login on devices
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAccessTokens($modelClass = "\common\models\StaffToken")
-    {
-        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
-    }
-    
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getInvitations($modelClass = "\common\models\Invitation")
-    {
-        return $this->hasMany($modelClass::className(), ['invitation_created_by_staff' => 'staff_id']);
+        return (int)$query
+            ->count();
     }
 
     /**
@@ -586,31 +705,92 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * return total completed requests by staff
+     * @return int
      */
-    public function getNotes($modelClass = "\common\models\Note")
+    public function getTotalClosedRequests($conditions = [])
     {
-        return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id']);
+        $query = $this->getRequests()
+            ->andWhere(['in', 'request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_CANCELLED
+            ]]);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(request_started_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+
+        return (int)$query
+            ->count();
     }
 
     /**
+     * return total completed requests by staff
+     * @return int
+     */
+    public function getTotalCompletedRequests($conditions = [])
+    {
+        $query = $this->getRequests()
+            ->andWhere(['request_status' => Request::STATUS_DELIVERED]);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(request_started_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(request_delivered_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int)$query
+            ->count();
+    }
+
+    /**
+     * Access tokens used to login on devices
      * @return \yii\db\ActiveQuery
      */
-    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory"){
+    public function getAccessTokens($modelClass = "\common\models\StaffToken")
+    {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
+
     /**
-     * @return \yii\db\ActiveQuery
+     * Start of IdentityInterface Methods
      */
-    public function getStoryActivities($modelClass = "\common\models\StoryActivity") {
-        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
-    }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStories($modelClass = "\common\models\Story")
+    public function getStoryActivities($modelClass = "\common\models\StoryActivity")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
@@ -623,121 +803,73 @@ class Staff extends ActiveRecord implements IdentityInterface
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
-    public function getCurrentStory() {
-        return Story::find()->andWhere(['story.staff_id' => Yii::$app->user->getId(),'story.story_status' => Story::STATUS_STARTED])
-            ->joinWith(['request','company'])
+    public function getCurrentStory()
+    {
+        return Story::find()->andWhere(['story.staff_id' => Yii::$app->user->getId(), 'story.story_status' => Story::STATUS_STARTED])
+            ->joinWith(['request', 'company'])
             ->asArray()
             ->one();
     }
 
     /**
-
      * Signs user up.
      * @return static|null the saved model or null if saving fails
      */
-    public function signup() {
-        if($this->validate()){
+    public function signup()
+    {
+        if ($this->validate()) {
             $this->setPassword($this->staff_password_hash);
             $this->generateAuthKey();
             $this->save(false);
 
-            Yii::info("[New Staff Account Created] ".$this->staff_email, __METHOD__);
+            Yii::info("[New Staff Account Created] " . $this->staff_email, __METHOD__);
 
             return $this;
         }
         return null;
     }
 
-
     /**
-     * Start of IdentityInterface Methods
-     */
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentity($id) {
-        return static::findOne(['staff_id' => $id]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null) {
-        $token = StaffToken::find()
-            ->andWhere(['token_value' => $token])
-            ->with('staff')
-            ->one();
-
-        if($token) {
-            return $token->staff;
-        }
-    }
-
-    /**
-     * Finds staff by email
+     * Generates password hash from password and sets it to the model
      *
-     * @param string $email
-     * @return static|null
+     * @param string $password
      */
-    public static function findByEmail($email) {
-        return static::findOne(['staff_email' => $email,'deleted'=>0, 'staff_status' => self::STATUS_ACTIVE ]);
+    public function setPassword($password)
+    {
+        $this->staff_password_hash = Yii::$app->security->generatePasswordHash($password);
     }
 
     /**
-     * Finds user by password reset token
-     *
-     * @param string $token password reset token
-     * @return static|null
+     * Generates auth key [1 time use token]
      */
-    public static function findByPasswordResetToken($token) {
-
-        if (!static::isPasswordResetTokenValid($token)) {
-            return null;
-        }
-
-        return static::findOne([
-            'staff_password_reset_token' => $token,
-            'deleted' => 0
-        ]);
-    }
-
-    /**
-     * Finds out if password reset token is valid
-     *
-     * @param string $token password reset token
-     * @return boolean
-     */
-    public static function isPasswordResetTokenValid($token) {
-        if (empty($token)) {
-            return false;
-        }
-        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
-        $parts = explode('_', $token);
-        $timestamp = (int) end($parts);
-        return $timestamp + $expire >= time();
+    public function generateAuthKey()
+    {
+        $this->staff_auth_key = Yii::$app->security->generateRandomString();
     }
 
     /**
      * @return mixed
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->getPrimaryKey();
-    }
-
-    /**
-     * @return string
-     */
-    public function getAuthKey() {
-        return $this->staff_auth_key;
     }
 
     /**
      * @param string $authKey
      * @return bool
      */
-    public function validateAuthKey($authKey) {
+    public function validateAuthKey($authKey)
+    {
         return $this->getAuthKey() === $authKey;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthKey()
+    {
+        return $this->staff_auth_key;
     }
 
     /**
@@ -746,31 +878,17 @@ class Staff extends ActiveRecord implements IdentityInterface
      * @param string $password password to validate
      * @return boolean if password provided is valid for current user
      */
-    public function validatePassword($password) {
+    public function validatePassword($password)
+    {
         return Yii::$app->security->validatePassword($password, $this->staff_password_hash);
-    }
-
-    /**
-     * Generates password hash from password and sets it to the model
-     *
-     * @param string $password
-     */
-    public function setPassword($password) {
-        $this->staff_password_hash = Yii::$app->security->generatePasswordHash($password);
-    }
-
-    /**
-     * Generates auth key [1 time use token]
-     */
-    public function generateAuthKey() {
-        $this->staff_auth_key = Yii::$app->security->generateRandomString();
     }
 
     /**
      * Generate, save, and return an auth key for this account [1 time use token]
      * @return string
      */
-    public function generateAuthKeyAndSave() {
+    public function generateAuthKeyAndSave()
+    {
         $this->generateAuthKey();
         $this->save(false);
 
@@ -780,14 +898,16 @@ class Staff extends ActiveRecord implements IdentityInterface
     /**
      * Generates new password reset token
      */
-    public function generatePasswordResetToken() {
+    public function generatePasswordResetToken()
+    {
         $this->staff_password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
     /**
      * Removes password reset token
      */
-    public function removePasswordResetToken() {
+    public function removePasswordResetToken()
+    {
         $this->staff_password_reset_token = null;
     }
 
@@ -796,13 +916,14 @@ class Staff extends ActiveRecord implements IdentityInterface
      * if the staff user already has one, it will return it instead
      * @return \common\models\StaffToken
      */
-    public function getAccessToken(){
+    public function getAccessToken()
+    {
         // Return existing inactive token if found
         $token = StaffToken::findOne([
             'staff_id' => $this->staff_id,
             'token_status' => StaffToken::STATUS_ACTIVE
         ]);
-        if($token){
+        if ($token) {
             return $token;
         }
 
@@ -819,7 +940,8 @@ class Staff extends ActiveRecord implements IdentityInterface
     /**
      * @return bool
      */
-    public function softDelete() {
+    public function softDelete()
+    {
         $this->deleted = 1;
         $this->staff_status = 0;
         //remove unique fields, so can create new account with same details
@@ -828,79 +950,288 @@ class Staff extends ActiveRecord implements IdentityInterface
         $this->staff_password_reset_token = null;
 
         if ($this->save(false)) {
-            return StaffToken::deleteAll(['staff_id'=>$this->staff_id]);
+            return StaffToken::deleteAll(['staff_id' => $this->staff_id]);
         }
         return false;
     }
 
     /**
-     * @inheritdoc
-     * @return query\StaffQuery the active query used by this AR class.
+     * @return bool|int|string|null
      */
-    public static function find()
+    public function getTotalAssigned($conditions = [])
     {
-        return new query\StaffQuery(get_called_class());
+        $query = $this->getCandidateWorkHistories();
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+            $start_date = Yii::$app->request->get('start_date', null);
+            $end_date = Yii::$app->request->get('end_date', null);
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(start_date) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(start_date) <= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+        }
+
+        return $query->count();
     }
 
-    public static function encryptPass($string) {
-
-        // Store the cipher method
-        $ciphering = "AES-128-CTR";
-
-        // Use OpenSSl Encryption method
-        $iv_length = openssl_cipher_iv_length($ciphering);
-        $options = 0;
-
-        // Non-NULL Initialization Vector for encryption
-        $encryption_iv = '1234567891011121';
-
-        // Store the encryption key
-        $encryption_key = "GeeksforGeeks";
-
-        // Use openssl_encrypt() function to encrypt the data
-        return openssl_encrypt($string, $ciphering,
-            $encryption_key, $options, $encryption_iv);
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
-    public static function decryptPass($string) {
-        // Store the cipher method
-        $ciphering = "AES-128-CTR";
+    /**
+     * @return int
+     */
+    public function getTotalRequests($conditions = [])
+    {
+        $query = $this->getRequests();
 
-        // Use OpenSSl Encryption method
-        $iv_length = openssl_cipher_iv_length($ciphering);
-        $options = 0;
-        // Non-NULL Initialization Vector for decryption
-        $decryption_iv = '1234567891011121';
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
 
-        // Store the decryption key
-        $decryption_key = "GeeksforGeeks";
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+            $start_date = Yii::$app->request->get('start_date', null);
+            $end_date = Yii::$app->request->get('end_date', null);
 
-        // Use openssl_decrypt() function to decrypt the data
-        return openssl_decrypt($string, $ciphering,
-            $decryption_key, $options, $decryption_iv);
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(request_created_datetime) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(request_created_datetime) <= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+        }
+
+        return (int) $query->count();
     }
 
+    /**
+     * @return int
+     */
+    public function getTotalNotes($conditions = [])
+    {
+        $query = $this->getNotes();
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+            $start_date = Yii::$app->request->get('start_date', null);
+            $end_date = Yii::$app->request->get('end_date', null);
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(note_created_datetime) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(note_created_datetime) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int) $query->count();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id']);
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalStories($conditions = [])
+    {
+        $query = $this->getStories();
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+            $start_date = Yii::$app->request->get('start_date', null);
+            $end_date = Yii::$app->request->get('end_date', null);
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(story_created_at) <= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+        }
+
+        return (int) $query->count();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStories($modelClass = "\common\models\Story")
+    {
+        return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalAcceptedInvitations($conditions = [])
+    {
+        $query = $this->getInvitations()
+            ->andWhere(['invitation_status' => 3]);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int)$query
+            ->count();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInvitations($modelClass = "\common\models\Invitation")
+    {
+        return $this->hasMany($modelClass::className(), ['invitation_created_by_staff' => 'staff_id']);
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalRejectedInvitations($conditions = [])
+    {
+        $query = $this->getInvitations()
+            ->andWhere(['invitation_status' => 2]);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(invitation_created_at) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(invitation_created_at) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int)$query
+            ->count();
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalSuggestions($conditions = [])
+    {
+        $query = $this->getNotes()
+            ->andWhere(['note_type' => 'Suggested']);
+
+        if($conditions) {
+            $query->andWhere($conditions);
+        }
+
+        if (isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+
+            $start_date = Yii::$app->request->get('start_date');
+            $end_date = Yii::$app->request->get('end_date');
+
+            if ($start_date) {
+                $query->andWhere(new Expression("DATE(note_created_datetime) >= DATE('" .
+                    date('Y-m-d', strtotime($start_date)) . "')"));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression("DATE(note_created_datetime) <= DATE('" .
+                    date('Y-m-d', strtotime($end_date)) . "')"));
+            }
+        }
+
+        return (int) $query
+            ->count();
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getSuggestions($modelClass = "\common\models\Suggestion")
     {
         return $this->hasMany($modelClass::className(), ['created_by' => 'staff_id'])
             ->via('notes');
     }
 
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
     public function getDailyStandupAnswers($modelClass = "\common\models\DailyStandupAnswer")
     {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
-    public function getPermissions($modelClass = "\common\models\PermissionUser") {
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPermissions($modelClass = "\common\models\PermissionUser")
+    {
         return $this->hasMany($modelClass::className(), ['staff_id' => 'staff_id']);
     }
 
-    public function getActiveSession() {
+    /**
+     * @return array|ActiveRecord|null
+     */
+    public function getActiveSession()
+    {
         return StaffWorkSession::find()
             ->andWhere([
                 'staff_id' => Yii::$app->user->getId()
             ])
-            ->andWhere(new Expression("DATE(created_at) = DATE('".date('Y-m-d')."') 
+            ->andWhere(new Expression("DATE(created_at) = DATE('" . date('Y-m-d') . "') 
                 AND total_minutes IS NULL"))
             ->one();
     }
