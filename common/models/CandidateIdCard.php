@@ -35,12 +35,35 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     {
         return [
             [['candidate_id'], 'integer'],
-            //[['candidate_id'], 'unique'],
-            ['candidate_id', 'unique', 'comboNotUnique' => 'Candidate Id already exist.', 'targetAttribute' => ['candidate_id', 'deleted']],
+            //['candidate_id', 'unique', 'comboNotUnique' => 'Candidate Id already exist.', 'targetAttribute' => ['candidate_id', 'deleted']],
+            ['candidate_id', 'validateUnique'],
             [['candidate_id', 'expiry_date'], 'required'],
             [['created_at', 'updated_at'], 'safe'],
+            [['deleted'], 'default', 'value' => 0],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
+    }
+
+    /**
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     * @return void
+     */
+    public function validateUnique($attribute, $params, $validator) {
+
+        $query = self::find()
+            ->andWhere([$attribute => $this->$attribute, 'deleted' => 0]);
+
+        if($this->id) {
+            $query->andWhere(['!=', 'id', $this->id]);
+        }
+
+        $exists = $query->exists();
+
+        if($exists) {
+            $this->addError($attribute, Yii::t('app', 'Candidate Id already exist.'));
+        }
     }
 
     public function behaviors() {
@@ -92,6 +115,19 @@ class CandidateIdCard extends \yii\db\ActiveRecord
         return [
             'candidate'
         ];
+    }
+
+    /**
+     * @param $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if($insert) {
+            $this->deleted = 0;
+        }
+
+        return parent::beforeSave($insert);
     }
 
     /**

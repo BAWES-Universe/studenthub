@@ -35,6 +35,7 @@ class CandidateIdCardTest extends \Codeception\Test\Unit {
         expect('Company data loaded', Company::find()->count())->notNull();
         expect('Store data loaded', Store::find()->count())->notNull();
         expect('Candidate data loaded', Candidate::find()->count())->notNull();
+        expect('Candidate ID data loaded', \common\models\CandidateIdCard::find()->count())->notNull();
     }
 
     /**
@@ -54,14 +55,18 @@ class CandidateIdCardTest extends \Codeception\Test\Unit {
      * Tests Create for New Candidate ID Card with existing candidate id in table
      */
     public function testCrudErrorForNewCandidateIDCardWhenCandidateIDAlreadyExist() {
-        $candidateIdCard = CandidateIdCard::find()->one();
+        $candidateIdCard = CandidateIdCard::find()
+            ->andWhere(['deleted' => 0])
+            ->one();
 
         $model = new CandidateIdCard();
         $model->candidate_id = $candidateIdCard->candidate_id;
         $model->expiry_date = date('Y-m-d', strtotime('+3 months'));
+        //$model->deleted = 0;
         $model->validate();
+
         expect('error found', $model->errors)->hasKey('candidate_id');
-        expect('Record is in database', $model->errors['candidate_id'][0])->contains('Candidate ID "1" has already been taken');
+        expect('Record is in database', $model->errors['candidate_id'][0])->contains('Candidate Id already exist.');
     }
 
     /**

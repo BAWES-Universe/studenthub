@@ -133,8 +133,9 @@ class CandidateIdCardController extends Controller
         $candidate_name = Yii::$app->request->get("candidate_name");
 
         $query = Candidate::find()
-            ->idNeedGenerated();
-        $query->notDeleted();
+            ->idNeedGenerated()
+            ->notDeleted();
+
         if($candidate_name)
         {
             $query->filterName($candidate_name);
