@@ -80,6 +80,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             //[['hours'], 'validateHours'],
             [['tc_created_at', 'tc_updated_at'], 'safe'],
+            
+            ['company_hourly_rate', 'compare', 'compareAttribute' => 'candidate_hourly_rate', 'operator' => '>='],
+
             [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
