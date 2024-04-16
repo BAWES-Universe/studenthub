@@ -493,6 +493,7 @@ class CandidateController extends Controller
         if ($model->store_id) {
             return [
                 "operation" => "error",
+                "code" => 1,
                 "message" => "Please remove old Store before assign new store",
             ];
         }
@@ -508,6 +509,7 @@ class CandidateController extends Controller
         if ($isExists) {
             return [
                 "operation" => "error",
+                "code" => 2,
                 "message" => "Same Store not possible to assign on same day",
             ];
         }
@@ -519,24 +521,31 @@ class CandidateController extends Controller
         if(!$store) {
             return [
                 "operation" => "error",
+                "code" => 3,
                 "message" => "Store not found",
             ];
         }
+
+        $transaction = Yii::$app->db->beginTransaction();
 
         $model->store_id = $store_id;
 
         $model->candidate_hourly_rate = $hourly_rate;
 
         if (!$model->save(false)) {
+            
+            $transaction->rollBack();
 
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
+                    "code" => 4,
                     "message" => $model->errors,
                 ];
             }else{
                 return [
                     "operation" => "error",
+                    "code" => 5,
                     "message" => "We've faced a problem updating the account, please contact us for assistance.",
                 ];
             }
@@ -551,10 +560,32 @@ class CandidateController extends Controller
         $noteModel->company_id  = $model->store->company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
         $noteModel->note_text  = "Assigned to work at {$storeName}";
-        $noteModel->save(false);
+        if(!$noteModel->save()) {
+
+            $transaction->rollBack();
+            
+            return [
+                "operation" => "error",
+                "code" => 6,
+                "message" => $noteModel->errors,
+            ];
+        }
 
         // saving candidate work history
-        CandidateWorkHistory::saveAssignedHistory($model, $start_date);
+        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory($model, $start_date);
+
+        if($candidateWorkHistory->errors) {
+
+            $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "code" => 7,
+                "message" => $candidateWorkHistory->errors,
+            ];
+        }
+
+        $transaction->commit(); 
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$storeName.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
