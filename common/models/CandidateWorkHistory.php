@@ -38,10 +38,26 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['candidate_id', 'store_id', 'company_id'], 'required'],
             [['start_date', 'end_date'], 'safe'],
             [['candidate_hourly_rate'], 'number'],
+            [['candidate_hourly_rate'], 'validateRate'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function validateRate($attribute, $params, $validator) {
+
+        if(!$this->company) {
+            return true;
+        }
+
+        if($this->company->company_hourly_rate < $this->candidate_hourly_rate) {
+            $this->addError('candidate_hourly_rate', "Rate must be greater than or equal to : " 
+                . $this->company->company_hourly_rate);
+        }
     }
 
     /**
@@ -79,13 +95,10 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
 
         if ($model->save()) {
-
             $candidate->updateAlgoliaIndex();
+        }  
 
-            return true;
-        } else {
-            return $model->errors;
-        }
+        return $model;
     }
 
     /**
