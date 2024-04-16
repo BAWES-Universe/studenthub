@@ -13,7 +13,8 @@
 # Daily CRON At 10:30 on every day-of-week from Sunday through Thursday
 #30 7 * * 0-4 php ~/www/yii cron/check-daily-attendance > /dev/null 2>&1
 
-# Daily CRON At 10:30 PM on every day-of-week from Sunday through Thursday
-30 22 * * 0-4 php ~/www/yii report/recruiter > /dev/null 2>&1
+# Daily CRON At 8:00 PM on every day-of-week from Sunday through Thursday
+0 17 * * 0-4 php ~/www/yii report/recruiter > /dev/null 2>&1
+
 
 30 13 28 * * cron/end-of-month
