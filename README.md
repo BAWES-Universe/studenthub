@@ -291,7 +291,7 @@ candidateMomKuwaitiFieldIsNull
 # Code generator 
 
 `http://localhost:8888/bawes/studenthub/admin/web/gii`
-
+http://localhost/studenthub/admin/web/gii
 # Xero webhook 
 `https://admin.api.studenthub.co/v1/xero-webhook/incomming`
 `https://admin.api.dev.studenthub.co/v1/xero-webhook/incomming`
@@ -317,7 +317,7 @@ http://localhost:8888/bawes/studenthub/admin/web/v1/xero/callback
  a2enmod proxy_fcgi setenvif
  a2enconf php7.4-fpm
 
- https://stackoverflow.com/questions/36057615/ubuntu-apache-module-php7-does-not-exist
+https://stackoverflow.com/questions/36057615/ubuntu-apache-module-php7-does-not-exist
 
 sudo systemctl stop redis-server
 sudo systemctl restart redis-server

@@ -3,8 +3,10 @@
 namespace admin\modules\v1\controllers;
 
 use admin\models\Staff;
+use common\models\RequestSkill;
 use Yii;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use admin\models\Company;
@@ -165,6 +167,29 @@ class RequestController extends Controller
             }
         }
 
+        $requestSkills = Yii::$app->request->getBodyParam('requestSkills');
+
+        if(!$requestSkills) {
+            $requestSkills = [];
+        }
+
+        foreach ($requestSkills as $requestSkill) {
+
+            if(empty($requestSkill['skill'])) {
+                continue;
+            }
+
+            $model = new RequestSkill();
+            $model->request_uuid = $model->request_uuid;
+            $model->skill = $requestSkill['skill'];
+            if(!$model->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }
+        }
+
         return [
             "operation" => "success",
             "message" => "Request created successfully"
@@ -179,13 +204,6 @@ class RequestController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        if(!$model){
-            return [
-                    "operation" => "error",
-                    "message" => "Request not found."
-                ];
-        }
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
@@ -213,6 +231,43 @@ class RequestController extends Controller
                 ];
             }
         }
+
+        $alreadyAdded = ArrayHelper::getColumn($model->getRequestSkills()->all(), "skill");
+
+        $requestSkills = Yii::$app->request->getBodyParam('requestSkills');
+
+        if(!$requestSkills) {
+            $requestSkills = [];
+        }
+
+        foreach ($requestSkills as $requestSkill) {
+
+            if(empty($requestSkill['skill'])) {
+                continue;
+            }
+
+            if(in_array($requestSkill['skill'], $alreadyAdded)) {
+                continue;
+            }
+
+            $model = new RequestSkill();
+            $model->request_uuid = $model->request_uuid;
+            $model->skill = $requestSkill['skill'];
+            if(!$model->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }
+        }
+
+        //remove deleted / not provided in request
+
+        RequestSkill::deleteAll([
+            'AND',
+            ['request_uuid' => $model->request_uuid],
+            ["NOT IN", 'skill', ArrayHelper::getColumn($requestSkills, "skill")]
+        ]);
 
         return [
             "operation" => "success",
