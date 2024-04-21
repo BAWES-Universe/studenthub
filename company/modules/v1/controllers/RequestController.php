@@ -2,10 +2,12 @@
 
 namespace company\modules\v1\controllers;
 
+use common\models\RequestSkill;
 use Yii;
 use company\models\Note;
 use yii\data\ActiveDataProvider;
 use company\models\Request;
+use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 use Segment\Segment;
 
@@ -140,6 +142,29 @@ class RequestController extends BaseController
             }
         }
 
+        $requestSkills = Yii::$app->request->getBodyParam('requestSkills');
+
+        if(!$requestSkills) {
+            $requestSkills = [];
+        }
+
+        foreach ($requestSkills as $requestSkill) {
+
+            if(empty($requestSkill['skill'])) {
+                continue;
+            }
+
+            $modelRS = new RequestSkill();
+            $modelRS->request_uuid = $model->request_uuid;
+            $modelRS->skill = $requestSkill['skill'];
+            if(!$modelRS->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $modelRS->errors
+                ];
+            }
+        }
+
         //save activity
         $model->createRequestActivity('I have created this request');
 
@@ -190,6 +215,44 @@ class RequestController extends BaseController
                 ];
             }
         }
+
+        $alreadyAdded = ArrayHelper::getColumn($model->getRequestSkills()->all(), "skill");
+
+        $requestSkills = Yii::$app->request->getBodyParam('requestSkills');
+
+        if(!$requestSkills) {
+            $requestSkills = [];
+        }
+
+        foreach ($requestSkills as $requestSkill) {
+
+            if(empty($requestSkill['skill'])) {
+                continue;
+            }
+
+            if(in_array($requestSkill['skill'], $alreadyAdded)) {
+                continue;
+            }
+
+            $modelRS = new RequestSkill();
+            $modelRS->request_uuid = $model->request_uuid;
+            $modelRS->skill = $requestSkill['skill'];
+            if(!$modelRS->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $modelRS->errors
+                ];
+            }
+        }
+
+        //remove deleted / not provided in request
+
+        RequestSkill::deleteAll([
+            'AND',
+            ['request_uuid' => $model->request_uuid],
+            ["NOT IN", 'skill', ArrayHelper::getColumn($requestSkills, "skill")]
+        ]);
+
         //save activity
         $model->createRequestActivity('I have updated this request');
 

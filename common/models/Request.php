@@ -43,6 +43,7 @@ use Segment\Segment;
  * @property int $is_old
  * @property int $request_time_spent
  * @property Company $company
+ * @property RequestSkill[] $requestSkills
  * @property CompanyContact $contactUu
  * @property Staff $requestCreatedBy
  * @property Staff $requestUpdatedBy
@@ -240,7 +241,8 @@ class Request extends \yii\db\ActiveRecord
             'staff',
             'staffs',
             'stories',
-            'storyOwners'
+            'storyOwners',
+            'requestSkills'
         ];
     }
 
@@ -328,6 +330,14 @@ class Request extends \yii\db\ActiveRecord
     public function getRequestCreatedByContact($modelClass = "\common\models\Contact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'request_created_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestSkills($modelClass = "\common\models\RequestSkill")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid']);
     }
 
     /**

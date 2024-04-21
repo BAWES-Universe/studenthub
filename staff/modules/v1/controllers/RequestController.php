@@ -2,10 +2,12 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\RequestSkill;
 use common\models\Story;
 use Yii;
 use staff\models\Staff;
 use staff\models\Note;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Request;
@@ -94,7 +96,7 @@ class RequestController extends Controller
         $statusOrder = [ "'".Request::STATUS_RE_WORK."'" , "'".Request::STATUS_PENDING."'","'".Request::STATUS_STARTED."'","'".Request::STATUS_FINISHED."'","'".Request::STATUS_DELIVERED."'","'".Request::STATUS_CANCELLED."'"];
 
         $query = Request::find()
-                    ->joinWith('company')
+                    ->joinWith(['company', 'requestSkills'])
                     ->orderBy(new yii\db\Expression(sprintf("FIELD(request_status, %s)", implode(",", $statusOrder))));
 
         if($currency) {
@@ -124,7 +126,8 @@ class RequestController extends Controller
                 ['like', 'request.request_additional_info', $q],
                 ['like', 'company_common_name_en', $q],
                 ['like', 'company_common_name_ar', $q],
-                ['like', 'company_name', $q]
+                ['like', 'company_name', $q],
+                ['like', 'request_skill.skill', $q],
             ]);
         }
 
@@ -198,6 +201,7 @@ class RequestController extends Controller
         $request_status = Yii::$app->request->get("request_status");
 
         $query = Request::find();
+            //->joinWith(['requestSkills']);
 
         if($currency) {
             $query->joinWith('company')
@@ -350,6 +354,30 @@ class RequestController extends Controller
                 ];
             }
         }
+
+        $requestSkills = Yii::$app->request->getBodyParam('requestSkills');
+
+        if(!$requestSkills) {
+            $requestSkills = [];
+        }
+
+        foreach ($requestSkills as $requestSkill) {
+
+            if(empty($requestSkill['skill'])) {
+                continue;
+            }
+
+            $modelRS = new RequestSkill();
+            $modelRS->request_uuid = $model->request_uuid;
+            $modelRS->skill = $requestSkill['skill'];
+            if(!$modelRS->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $modelRS->errors
+                ];
+            }
+        }
+
         //save activity
         $model->createRequestActivity('I have created this request');
         $model->requestNotification();
@@ -399,6 +427,44 @@ class RequestController extends Controller
                 ];
             }
         }
+
+        $alreadyAdded = ArrayHelper::getColumn($model->getRequestSkills()->all(), "skill");
+
+        $requestSkills = Yii::$app->request->getBodyParam('requestSkills');
+
+        if(!$requestSkills) {
+            $requestSkills = [];
+        }
+
+        foreach ($requestSkills as $requestSkill) {
+
+            if(empty($requestSkill['skill'])) {
+                continue;
+            }
+
+            if(in_array($requestSkill['skill'], $alreadyAdded)) {
+                continue;
+            }
+
+            $modelRS = new RequestSkill();
+            $modelRS->request_uuid = $model->request_uuid;
+            $modelRS->skill = $requestSkill['skill'];
+            if(!$modelRS->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $modelRS->errors
+                ];
+            }
+        }
+
+        //remove deleted / not provided in request
+
+        RequestSkill::deleteAll([
+            'AND',
+            ['request_uuid' => $model->request_uuid],
+            ["NOT IN", 'skill', ArrayHelper::getColumn($requestSkills, "skill")]
+        ]);
+
         //save activity
         $model->createRequestActivity('I have updated this request');
 
