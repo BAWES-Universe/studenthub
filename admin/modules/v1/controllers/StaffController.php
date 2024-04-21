@@ -71,6 +71,32 @@ class StaffController extends Controller
     }
 
     /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionLogin($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->generateAuthKey();
+
+        if(!$model->save(false)) {
+            return [
+                "operation" => "error",
+                'message' => $model->errors,
+                'redirect' => Yii::$app->params['staffAppUrl']
+            ];
+        }
+
+        $url = Yii::$app->params['staffAppUrl']. '?auth_key='.$model->staff_auth_key;
+
+        return [
+            'redirect' => $url
+        ];
+    }
+
+    /**
      * Return a List of Staff Accounts available.
      */
     public function actionList()

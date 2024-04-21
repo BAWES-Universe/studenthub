@@ -67,6 +67,7 @@ class AuthController extends Controller
             'resend-verification-email',
             'login-by-apple',
             'login-by-google',
+            'login-by-key',
             'verify-email',
             'is-email-verified',
             'name-by-civil-id',
@@ -100,6 +101,46 @@ class AuthController extends Controller
      */
     public function actionLocate() {
         return Yii::$app->ipstack->locate();
+    }
+
+    /**
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionLoginByKey() {
+
+        $auth_key = Yii::$app->request->getBodyParam('auth_key');
+
+        $candidate = Candidate::find()
+            ->andWhere(['candidate_auth_key' => $auth_key])
+            ->one();
+
+        if(!$candidate) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+            /*return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Not found")
+            ];*/
+        }
+
+        $candidate->candidate_auth_key = "";
+        $candidate->save(false);
+
+        // Email and password are correct, check if his email has been verified
+        // If candidate email has been verified, then allow him to log in
+        if($candidate->candidate_email_verification != Candidate::EMAIL_VERIFIED) {
+
+            return [
+                "operation" => "error",
+                "errorType" => "email-not-verified",
+                "message" => Yii::t('candidate',"Please click the verification link sent to you by email to activate your account"),
+                "unVerifiedToken" => $this->_loginResponse($candidate)
+            ];
+        }
+
+        // Return candidate access token if everything valid
+
+        return $this->_loginResponse($candidate);
     }
 
     /**

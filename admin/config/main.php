@@ -76,11 +76,13 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'POST login-auth0' => 'login-auth0',
+                        'POST login-by-key' => 'login-by-key',
                         'POST login-by-google' => 'login-by-google',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
                         'OPTIONS login-auth0' => 'options',
                         'OPTIONS login-by-google' => 'options',
+                        'OPTIONS login-by-key' => 'options',
                     ]
                 ],
                 [ // StatisticController
@@ -129,6 +131,7 @@ return [
                         'GET view-salary/<id>' => 'view-salary',
                         'GET <id>' => 'view',
                         'GET' => 'list',
+                        'POST login/<id>' => 'login',
                         'POST import-salary' => 'import-salary',
                         'PATCH status-change/<id>' => 'status',
                         'PATCH recover-account/<id>' => 'recover-account',
@@ -141,6 +144,7 @@ return [
                         'OPTIONS status-change/<id>' => 'options',
                         'OPTIONS list-salaries/<id>' => 'options',
                         'OPTIONS view-salary/<id>' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                         'OPTIONS import-salary' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reset-password/<id>' => 'options',
@@ -192,6 +196,7 @@ return [
                         'GET sub-companies/<id>' => 'sub-companies',
                         'GET year-report' => 'year-report',
                         'GET <id>' => 'view',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
                         'PATCH file-update/<id>' => 'update-file',
@@ -204,6 +209,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS followups' => 'options',
                         'OPTIONS report' => 'options',
@@ -237,6 +243,7 @@ return [
                         'GET search' => 'search',
                         'GET report-search' => 'report-search',
                         'GET total-to-review' => 'total-to-review',
+                        'POST login/<id>' => 'login',
                         'PATCH approve/<id>' => 'approve',
                         'PATCH restore/<id>' => 'restore',
                         'PATCH reset-password/<id>' => 'reset-password',
@@ -248,6 +255,7 @@ return [
                         'OPTIONS search' => 'options',
                         'OPTIONS report-search' => 'options',
                         'OPTIONS total-to-review' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                         'OPTIONS approve/<id>' => 'options',
                         'OPTIONS transfers/<id>' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
@@ -520,6 +528,7 @@ return [
                         'GET view-company-contact' => 'view-company-contact',
                         'GET is-email-exists' => 'is-email-exists',
                         'GET <id>' => 'view',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'PATCH add-to-team' => 'add-to-team',
                         'PATCH <id>' => 'update',
@@ -530,6 +539,7 @@ return [
                         'OPTIONS add-to-team' => 'options',
                         'OPTIONS is-email-exists' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                     ]
                 ],
                 [ // RequestChecklistController
