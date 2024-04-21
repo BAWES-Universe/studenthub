@@ -54,11 +54,13 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'POST login-by-key' => "login-by-key",
                         'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
                         'PATCH set-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS login-by-key' => 'options',
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',
                         'OPTIONS set-password' => 'options',

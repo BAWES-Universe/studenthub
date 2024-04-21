@@ -71,6 +71,39 @@ class CompanyController extends Controller
     }
 
     /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionLogin($id)
+    {
+        $company = $this->findModel($id);
+
+        $model = $company->getContacts()
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model->generateAuthKey();
+
+        if(!$model->save(false)) {
+            return [
+                "operation" => "error",
+                'message' => $model->errors,
+                'redirect' => Yii::$app->params['companyAppUrl']
+            ];
+        }
+
+        $url = Yii::$app->params['companyAppUrl']. '?auth_key='.$model->contact_auth_key;
+
+        return [
+            'redirect' => $url
+        ];
+    }
+
+    /**
      * Return a List of Company Accounts available.
      * @return ActiveDataProvider
      */

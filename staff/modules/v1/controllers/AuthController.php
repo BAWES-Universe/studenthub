@@ -3,10 +3,12 @@
 namespace staff\modules\v1\controllers;
 
 use candidate\models\Candidate;
+use inspector\models\Inspector;
 use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use staff\models\Staff;
+use yii\web\NotFoundHttpException;
 
 /**
  * Auth controller provides the initial access token that is required for further requests
@@ -49,12 +51,14 @@ class AuthController extends Controller
                 return null;
             }
         ];
+
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',            
             'update-password',
             'login-auth0',
+            'login-by-key',
             'login-by-google',
         ];
 
@@ -76,6 +80,51 @@ class AuthController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionLoginByKey() {
+
+        $auth_key = Yii::$app->request->getBodyParam('auth_key');
+
+        $user = Staff::find()
+            ->andWhere(['staff_auth_key' => $auth_key])
+            ->one();
+
+        if(!$user) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+            /*return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', "Not found")
+            ];*/
+        }
+
+        $user->staff_auth_key = "";
+        $user->save(false);
+
+        // Email and password are correct, check if his email has been verified
+        // If email has been verified, then allow him to log in
+        /*if ($user->contact_email_verification != Inspector::EMAIL_VERIFIED) {
+
+            //$contact->generateOtp();
+            //$contact->save(false);
+
+            return [
+                "operation" => "error",
+                "errorType" => "email-not-verified",
+                "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
+                "unVerifiedToken" => $this->_loginResponse($contact)
+            ];
+        }*/
+
+        //Update last active datetime for candidate
+        //$contact->last_active_datetime = (new \yii\db\Query)->select(new \yii\db\Expression('NOW()'))->scalar();
+        //$contact->save(false);
+
+        return $this->_loginResponse($user);
     }
 
     /**
