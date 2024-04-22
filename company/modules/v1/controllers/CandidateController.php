@@ -18,7 +18,8 @@ class CandidateController extends BaseController
      */
     public function actionList()
     {
-        return Yii::$app->companyManager->getCompany()->getCandidates()->all();
+        return Yii::$app->companyManager->getCompany()
+            ->getCandidates()->all();
     }
 
     /**

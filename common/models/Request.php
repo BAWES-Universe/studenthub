@@ -42,6 +42,8 @@ use Segment\Segment;
  * @property int $request_priority
  * @property int $is_old
  * @property int $request_time_spent
+ * @property int $nationality_id
+ * @property int $gender
  * @property Company $company
  * @property RequestSkill[] $requestSkills
  * @property CompanyContact $contactUu
@@ -56,6 +58,11 @@ class Request extends \yii\db\ActiveRecord
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_FINISHED = 'finished_by_recruitment';
     const STATUS_RE_WORK = 're_work';
+
+    //Gender values for `gender`
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_ANY = 3;
 
     /**
      * {@inheritdoc}
@@ -83,6 +90,10 @@ class Request extends \yii\db\ActiveRecord
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
             [['num_hours_followup_interval'], 'number', 'min' => 0],
+
+            ['gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_ANY]],
+            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
+
             [['request_number_of_employees', 'no_of_employees_per_story'], 'number', 'min' => 1],
             ['no_of_employees_per_story', 'validateNoOfEmplPerStory']
         ];

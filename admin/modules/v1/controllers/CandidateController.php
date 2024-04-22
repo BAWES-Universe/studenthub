@@ -79,11 +79,16 @@ class CandidateController extends Controller
 
         $by = Yii::$app->request->get('by');
         $name = Yii::$app->request->get('name', null);
+        $match_request_id = Yii::$app->request->get('match_request_id');
 
         $query = Candidate::findCustom();
 
         if($currency) {
             $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
+        if($match_request_id) {
+            $query->filterByRequestRequirement($match_request_id);
         }
 
         if ($name && !is_numeric($name)) {

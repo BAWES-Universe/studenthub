@@ -488,6 +488,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * @param $candidate_gender
+     * @return string
+     */
     public static function getGenderText($candidate_gender) {
         switch ($candidate_gender) {
             case self::GENDER_MALE:

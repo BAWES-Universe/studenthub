@@ -4,10 +4,12 @@ namespace staff\modules\v1\controllers;
 
 use common\models\CandidateToken;
 use common\models\CandidateWarning;
+use common\models\Request;
 use kartik\mpdf\Pdf;
 use staff\models\Company;
 use Yii;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
@@ -951,6 +953,8 @@ class CandidateController extends Controller
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $country_id = Yii::$app->request->get('country_id');
+        $match_request_id = Yii::$app->request->get('match_request_id');
+
         $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
@@ -968,6 +972,10 @@ class CandidateController extends Controller
             default:
                 # nothing
                 break;
+        }
+
+        if($match_request_id) {
+            $query->filterByRequestRequirement($match_request_id);
         }
 
         if($country_id) {

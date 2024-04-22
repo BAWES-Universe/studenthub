@@ -126,6 +126,8 @@ class RequestController extends BaseController
         $model->request_status = Request::STATUS_PENDING;
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
+        $model->gender = Yii::$app->request->getBodyParam("gender");
+        $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
 
         if (!$model->save())
         {
@@ -200,6 +202,8 @@ class RequestController extends BaseController
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
+        $model->gender = Yii::$app->request->getBodyParam("gender");
+        $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
 
         if (!$model->save())
         {
