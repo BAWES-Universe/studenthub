@@ -1130,6 +1130,14 @@ class Company extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getStoreManager($modelClass = "\common\models\StoreManager")
+    {
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getStaff($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);

@@ -291,7 +291,8 @@ candidateMomKuwaitiFieldIsNull
 # Code generator 
 
 `http://localhost:8888/bawes/studenthub/admin/web/gii`
-http://localhost/studenthub/admin/web/gii
+`http://localhost/studenthub/admin/web/gii`
+
 # Xero webhook 
 `https://admin.api.studenthub.co/v1/xero-webhook/incomming`
 `https://admin.api.dev.studenthub.co/v1/xero-webhook/incomming`

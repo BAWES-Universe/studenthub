@@ -219,6 +219,14 @@ class Story extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getStoreManager($modelClass = "\common\models\StoreManager")
+    {
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getRequest($modelClass = "\common\models\Request")
     {
         return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid']);
