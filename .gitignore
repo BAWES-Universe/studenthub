@@ -34,3 +34,11 @@ phpunit.phar
 # vagrant runtime
 /.vagrant
 dump.rdb
+manager/config/main-local.php
+manager/config/params-local.php
+manager/config/test-local.php
+manager/tests/_output/company.tests.AuthCest.tryToSignup.fail.json
+manager/tests/_support/_generated/FunctionalTesterActions.php
+manager/tests/_support/_generated/UnitTesterActions.php
+manager/web/index-test.php
+manager/web/index.php

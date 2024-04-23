@@ -590,6 +590,58 @@ class Request extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param $start_date
+     * @param $end_date
+     * @param $request_status
+     * @param $company_name
+     * @param $company_id
+     * @param $companyIds
+     * @return bool|int|string|null
+     */
+    public static function totalRequestCountByStatus(
+        $request_status = null,
+        $companyIds = [],
+        $company_id = null,
+        $company_name = null,
+        $start_date = null,
+        $end_date = null
+    ) {
+        $query = Request::find();
+
+        if (sizeof($companyIds) > 0) {
+            $query->andWhere(['in', 'company_id', $companyIds]);
+        }
+
+        if ($company_id) {
+            $query->andWhere(['company_id' => $company_id]);
+        }
+
+        if ($company_name) {
+            $query->joinWith('company')
+                ->andWhere([
+                    'OR',
+                    ['like', 'company_common_name_en', $company_name],
+                    ['like', 'company_common_name_ar', $company_name],
+                    ['like', 'company_name', $company_name]
+                ]);
+        }
+
+        if($start_date) {
+            $query->startDate($start_date);
+        }
+
+        if($end_date) {
+            $query->endDate($end_date);
+        }
+
+        if($request_status) {
+            $query->andWhere(['request_status' => $request_status]);
+        }
+
+        return $query->count();
+    }
+
+    /**
      * @inheritdoc
      * @return query\RequestQuery the active query used by this AR class.
      */
@@ -598,6 +650,9 @@ class Request extends \yii\db\ActiveRecord
         return new query\RequestQuery(get_called_class());
     }
 
+    /**
+     * @return string
+     */
     public function getSuggestionEmailSubject() {
         $type = ($this->request_position_type == 1) ? 'full-time' : 'part-time';
         return 'Suggested candidates for your ' . $type . ' ' . $this->request_position_title . ' position @ ' . $this->company->company_common_name_en;

@@ -9,7 +9,7 @@ use yii\data\ActiveDataProvider;
 use company\models\Request;
 use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
-use Segment\Segment;
+
 
 /**
  * Request controller - Manage brand as Admin
@@ -48,17 +48,64 @@ class RequestController extends BaseController
                 ]);
         } 
 
-        if($request_status) {
-            $query->andWhere(['request_status' => $request_status]);
-        } 
-        
         if($start_date) {
             $query->startDate($start_date);
         } 
 
         if($end_date) {
             $query->endDate($end_date);
-        } 
+        }
+
+        if($request_status) {
+            $query->andWhere(['request_status' => $request_status]);
+        }
+
+        Yii::$app->response->headers->set("X-Pending-Count",
+            Request::totalRequestCountByStatus(
+                Request::STATUS_PENDING,
+                $companyIds,
+                $company_id,
+                $company_name,
+                $start_date,
+                $end_date
+            ));
+
+        Yii::$app->response->headers->set("X-Cancelled-Count",
+            Request::totalRequestCountByStatus(
+                Request::STATUS_CANCELLED,
+                $companyIds,
+                $company_id,
+                $company_name,
+                $start_date,
+                $end_date));
+
+        Yii::$app->response->headers->set("X-Completed-Count",
+            Request::totalRequestCountByStatus(Request::STATUS_DELIVERED, $companyIds,
+                $company_id,
+                $company_name,
+                $start_date,
+                $end_date));
+
+        Yii::$app->response->headers->set("X-Finished-Count",
+            Request::totalRequestCountByStatus(Request::STATUS_FINISHED, $companyIds,
+                $company_id,
+                $company_name,
+                $start_date,
+                $end_date));
+
+        Yii::$app->response->headers->set("X-Rework-Count",
+            Request::totalRequestCountByStatus(Request::STATUS_RE_WORK, $companyIds,
+                $company_id,
+                $company_name,
+                $start_date,
+                $end_date));
+
+        Yii::$app->response->headers->set("X-Open-Count",
+            Request::totalRequestCountByStatus(Request::STATUS_STARTED, $companyIds,
+                $company_id,
+                $company_name,
+                $start_date,
+                $end_date));
 
         return new ActiveDataProvider([
             'query' => $query

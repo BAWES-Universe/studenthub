@@ -34,7 +34,13 @@ class BaseController extends Controller
                     'X-Pagination-Current-Page',
                     'X-Pagination-Page-Count',
                     'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
+                    'X-Pagination-Total-Count',
+                    'X-Pending-Count',
+                    'X-Cancelled-Count',
+                    'X-Completed-Count',
+                    'X-Finished-Count',
+                    'X-Open-Count',
+                    'X-Rework-Count'
                 ],
             ],
         ];
