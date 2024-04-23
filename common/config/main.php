@@ -120,7 +120,7 @@ return [
                     'class' => 'common\components\SlackLogger',
                     'logVars' => [],
                     'levels' => ['info', 'error', 'warning'],
-                    'categories' => ['admin\*', 'candidate\*', 'company\*', 'staff\*', 'common\*', 'console\*'],
+                    'categories' => ['admin\*', 'candidate\*', 'company\*', 'manager\*', 'staff\*', 'common\*', 'console\*'],
                 ],
             ],
         ],

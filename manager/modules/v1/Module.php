@@ -3,7 +3,6 @@
 namespace manager\modules\v1;
 
 use Yii;
-use Segment\Segment;
 use common\models\BlockedIp;
 
 /**
@@ -14,7 +13,7 @@ class Module extends \yii\base\Module
     /**
      * @inheritdoc
      */
-    public $controllerNamespace = 'company\modules\v1\controllers';
+    public $controllerNamespace = 'manager\modules\v1\controllers';
 
     /**
      * @inheritdoc

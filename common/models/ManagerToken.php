@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "manager_token".
@@ -50,6 +53,29 @@ class ManagerToken extends \yii\db\ActiveRecord
         ];
     }
 
+    public function behaviors() {
+        return [
+            [
+                'class' => AttributeBehavior::className(),
+                'attributes' => [
+                    \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'token_uuid',
+                ],
+                'value' => function() {
+                    if (!$this->token_uuid)
+                        $this->token_uuid = 'token_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+
+                    return $this->token_uuid;
+                }
+            ],
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'token_created_datetime',
+                'updatedAtAttribute' => 'token_last_used_datetime',
+                'value' => new Expression('NOW()'),
+            ],
+        ];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -66,6 +92,22 @@ class ManagerToken extends \yii\db\ActiveRecord
             'token_expiry_datetime' => Yii::t('app', 'Token Expiry Datetime'),
             'token_created_datetime' => Yii::t('app', 'Token Created Datetime'),
         ];
+    }
+
+    /**
+     * Generates unique access token to be used as value
+     * @return string
+     */
+    public static function generateUniqueTokenString(){
+        $randomString = Yii::$app->getSecurity()->generateRandomString();
+        if(!static::findOne(['token_value' => $randomString ])){
+            return $randomString;
+        }else return static::generateUniqueTokenString();
+    }
+
+    public function afterFind() {
+        $this->token_last_used_datetime =  new Expression('NOW()');
+        $this->save(false);
     }
 
     /**

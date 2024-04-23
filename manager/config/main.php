@@ -9,7 +9,7 @@ $params = array_merge(
 return [
     'id' => 'app-manager',
     'basePath' => dirname(__DIR__),
-    'controllerNamespace' => 'manager\controllers',
+    'controllerNamespace' => 'manager\modules\v1\Module\controllers',
     'bootstrap' => ['log'],
     'modules' => [
         'v1' => [
@@ -30,12 +30,12 @@ return [
             'enableSession' => false,
             'loginUrl' => null
         ],
-        'companyManager' => [ //Component for agent to manage Employers
+       /* 'companyManager' => [ //Component for agent to manage Employers
             'class' => 'manager\components\CompanyManager',
         ],
         'storeManager' => [ //Component for agent to manage stores
             'class' => 'manager\components\StoreManager',
-        ],
+        ],*/
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0
         ],

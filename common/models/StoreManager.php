@@ -26,8 +26,12 @@ use yii\db\Expression;
  * @property Company $company
  * @property Store $store
  */
-class StoreManager extends \yii\db\ActiveRecord
+class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    //Email verification values for `contact_email_verification`
+    const EMAIL_VERIFIED = 1;
+    const EMAIL_NOT_VERIFIED = 0;
+
     /**
      * {@inheritdoc}
      */
@@ -297,6 +301,111 @@ class StoreManager extends \yii\db\ActiveRecord
         return $token;
     }
 
+
+    /**
+     * Verifies the candidate email
+     */
+    public static function verifyEmail($email, $code) {
+
+        $candidate = StoreManager::find()
+            ->andWhere([
+                'OR',
+                ['new_email' => $email],
+                ['email' => $email]
+            ])
+            //->andWhere(['candidate.deleted' => 0])
+            ->one();
+
+        if(!$candidate) {
+            return [
+                'success' => false,
+                'message' =>Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
+            ];
+        }
+
+        $candidate->setScenario('verifyEmail');
+
+        if ($candidate->auth_key && $code && $candidate->auth_key == $code) { //to cope with sql case insensitivity
+            //If not verified
+            if ($candidate->email_verification == StoreManager::EMAIL_NOT_VERIFIED) {
+                //Verify this candidates email
+                $candidate->email_verification = StoreManager::EMAIL_VERIFIED;
+            }
+
+            // new email address
+
+            if (!empty($candidate->new_email)) {
+                $candidate->email = $candidate->new_email;
+                $candidate->new_email = null;
+            }
+
+            $candidate->auth_key = ''; //remove auth key
+
+            $candidate->save(false);
+
+            return [
+                'success' => true,
+                'data' => $candidate
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' =>Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
+            ];
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
+        $token = ManagerToken::find()
+            ->andWhere(['token_value' => $token])
+            ->with('manager')
+            ->one();
+
+        if ($token && $token->manager ) {//&& !$token->manager->deleted
+            return $token->manager;
+        }
+    }
+
+    /**
+     * Send link in email to reset password
+     * @return bool
+     */
+    public function sendPasswordResetEmail()
+    {
+        $this->generatePasswordResetToken();
+        $this->save(false);
+
+        //Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $webUrl = Yii::$app->params['managerAppUrl'] . 'update-password/' . $this->password_reset_token;
+
+        $ml = new MailLog();
+        $ml->to = $this->email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = "Reset your StudentHub password";
+        $ml->save();
+
+        $mailer = Yii::$app->mailer->compose("manager/password-reset-html",
+            [
+                "webUrl" => $webUrl,
+                "logo" => \yii\helpers\Url::to('@web/images/logo.png', 'https'),
+                "email" => $this->email,
+                "name" => $this->name
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->email)
+            ->setSubject('Reset your StudentHub password');
+
+        try {
+            return $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "password-reset-token");
+        }
+    }
+    
     /**
      * Sends an email requesting a user to verify his email address
      * @return boolean whether the email was sent

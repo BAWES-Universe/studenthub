@@ -2,14 +2,10 @@
 
 namespace manager\modules\v1\controllers;
 
-use candidate\models\Candidate;
 use common\models\CompanyRequest;
-use company\models\Company;
-use company\models\Contact;
-use company\models\ContactPhone;
-use company\models\ContactToken;
-use company\models\CompanyContact;
-use common\models\ContactEmailVerifyAttempt;
+use common\models\StoreManager;
+use common\models\ManagerToken;
+//use common\models\StoreManagerEmailVerifyAttempt;
 use staff\models\Staff;
 use Yii;
 use yii\rest\Controller;
@@ -50,7 +46,7 @@ class AuthController extends Controller
             'except' => ['options'],
             'auth' => function ($email, $password) {
 
-                $contact = Contact::findByEmail($email);
+                $contact = StoreManager::findByEmail($email);
 
                 if ($contact && $contact->validatePassword($password)) {
                     return $contact;
@@ -106,8 +102,8 @@ class AuthController extends Controller
 
         $auth_key = Yii::$app->request->getBodyParam('auth_key');
 
-        $contact = Contact::find()
-            ->andWhere(['contact_auth_key' => $auth_key])
+        $contact = StoreManager::find()
+            ->andWhere(['auth_key' => $auth_key])
             ->one();
 
         if(!$contact) {
@@ -118,12 +114,12 @@ class AuthController extends Controller
             ];*/
         }
 
-        $contact->contact_auth_key = "";
+        $contact->auth_key = "";
         $contact->save(false);
 
         // Email and password are correct, check if his email has been verified
         // If email has been verified, then allow him to log in
-        /*if ($contact->contact_email_verification != Contact::EMAIL_VERIFIED) {
+        /*if ($contact->email_verification != StoreManager::EMAIL_VERIFIED) {
 
             //$contact->generateOtp();
             //$contact->save(false);
@@ -172,8 +168,8 @@ class AuthController extends Controller
             ];
         }
 
-        $contact = Contact::find()
-            ->andWhere(['contact_email' => $response->email])
+        $contact = StoreManager::find()
+            ->andWhere(['email' => $response->email])
             ->one();
 
         if(!$contact)
@@ -186,13 +182,13 @@ class AuthController extends Controller
             /*
             $transaction = Yii::$app->db->beginTransaction();
 
-            $contact = new Contact();
+            $contact = new StoreManager();
             $contact->setScenario('signupAuth0');
 
-            $contact->contact_name = $userInfo['name'];
-            $contact->contact_email = $userInfo['email'];
-            $contact->contact_receive_email = true;
-            $contact->contact_email_verification = true;
+            $contact->name = $userInfo['name'];
+            $contact->email = $userInfo['email'];
+            $contact->receive_email = true;
+            $contact->email_verification = true;
             $contact->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
             if (!$contact->signUp(true)) {
@@ -210,7 +206,7 @@ class AuthController extends Controller
             $company->company_name = $company_name;
             $company->company_common_name_en = $company_name;
             $company->company_common_name_ar = $company_name;
-            $company->company_email = $contact->contact_email;
+            $company->company_email = $contact->email;
             $company->company_bonus_commission = 0;
             $company->company_approved_to_hire = false;
             $company->company_followup = true;
@@ -227,18 +223,18 @@ class AuthController extends Controller
                 ];
             }
 
-            $companyContact = new CompanyContact();
-            $companyContact->company_id = $company->company_id;
-            $companyContact->contact_uuid = $contact->contact_uuid;
-            //$companyContact->contact_position = Yii::$app->request->getBodyParam("contact_position");
-            $companyContact->allow_access = true;
+            $companyStoreManager = new CompanyStoreManager();
+            $companyStoreManager->company_id = $company->company_id;
+            $companyStoreManager->uuid = $contact->uuid;
+            //$companyStoreManager->position = Yii::$app->request->getBodyParam("position");
+            $companyStoreManager->allow_access = true;
 
-            if (!$companyContact->save()) {
+            if (!$companyStoreManager->save()) {
                 $transaction->rollBack();
 
                 return [
                     "operation" => "error",
-                    "message" => $companyContact->errors
+                    "message" => $companyStoreManager->errors
                 ];
             }
 
@@ -249,13 +245,13 @@ class AuthController extends Controller
 
         // Email and password are correct, check if his email has been verified
         // If email has been verified, then allow him to log in
-        if ($contact->contact_email_verification != Contact::EMAIL_VERIFIED) {
+        if ($contact->email_verification != StoreManager::EMAIL_VERIFIED) {
 
             //$contact->generateOtp();
             //$contact->save(false);
 
             if($response->email_verified && $response->email_verified == "true") {
-                $contact->contact_email_verification = Contact::EMAIL_VERIFIED;
+                $contact->email_verification = StoreManager::EMAIL_VERIFIED;
                 $contact->save(false);
             } else {
                 return [
@@ -298,8 +294,8 @@ class AuthController extends Controller
             ];
         }
 
-        $contact = Contact::find()
-            ->andWhere(['contact_email' => $userInfo['email']])
+        $contact = StoreManager::find()
+            ->andWhere(['email' => $userInfo['email']])
             ->one();
 
         if(!$contact)
@@ -311,13 +307,13 @@ class AuthController extends Controller
             /*
             $transaction = Yii::$app->db->beginTransaction();
 
-            $contact = new Contact();
+            $contact = new StoreManager();
             $contact->setScenario('signupAuth0');
 
-            $contact->contact_name = $userInfo['name'];
-            $contact->contact_email = $userInfo['email'];
-            $contact->contact_receive_email = true;
-            $contact->contact_email_verification = true;
+            $contact->name = $userInfo['name'];
+            $contact->email = $userInfo['email'];
+            $contact->receive_email = true;
+            $contact->email_verification = true;
             $contact->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
             if (!$contact->signUp(true)) {
@@ -335,7 +331,7 @@ class AuthController extends Controller
             $company->company_name = $company_name;
             $company->company_common_name_en = $company_name;
             $company->company_common_name_ar = $company_name;
-            $company->company_email = $contact->contact_email;
+            $company->company_email = $contact->email;
             $company->company_bonus_commission = 0;
             $company->company_approved_to_hire = false;
             $company->company_followup = true;
@@ -352,18 +348,18 @@ class AuthController extends Controller
                 ];
             }
 
-            $companyContact = new CompanyContact();
-            $companyContact->company_id = $company->company_id;
-            $companyContact->contact_uuid = $contact->contact_uuid;
-            //$companyContact->contact_position = Yii::$app->request->getBodyParam("contact_position");
-            $companyContact->allow_access = true;
+            $companyStoreManager = new CompanyStoreManager();
+            $companyStoreManager->company_id = $company->company_id;
+            $companyStoreManager->uuid = $contact->uuid;
+            //$companyStoreManager->position = Yii::$app->request->getBodyParam("position");
+            $companyStoreManager->allow_access = true;
 
-            if (!$companyContact->save()) {
+            if (!$companyStoreManager->save()) {
                 $transaction->rollBack();
 
                 return [
                     "operation" => "error",
-                    "message" => $companyContact->errors
+                    "message" => $companyStoreManager->errors
                 ];
             }
 
@@ -374,13 +370,13 @@ class AuthController extends Controller
 
         // Email and password are correct, check if his email has been verified
         // If email has been verified, then allow him to log in
-        if ($contact->contact_email_verification != Contact::EMAIL_VERIFIED) {
+        if ($contact->email_verification != StoreManager::EMAIL_VERIFIED) {
 
             //$contact->generateOtp();
             //$contact->save(false);
 
             if(isset($userInfo['email_verified']) && $userInfo['email_verified']) {
-                $contact->contact_email_verification = Contact::EMAIL_VERIFIED;
+                $contact->email_verification = StoreManager::EMAIL_VERIFIED;
                 $contact->save(false);
             } else {
                 return [
@@ -408,7 +404,7 @@ class AuthController extends Controller
 
         // Email and password are correct, check if his email has been verified
         // If email has been verified, then allow him to log in
-        if ($contact->contact_email_verification != Contact::EMAIL_VERIFIED) {
+        if ($contact->email_verification != StoreManager::EMAIL_VERIFIED) {
 
             //$contact->generateOtp();
             //$contact->save(false);
@@ -437,7 +433,7 @@ class AuthController extends Controller
         $token = Yii::$app->request->getBodyParam("token");
         $newPassword = Yii::$app->request->getBodyParam("newPassword");
 
-        $model = Contact::findByPasswordResetToken($token);
+        $model = StoreManager::findByPasswordResetToken($token);
 
         if(!$model) {
             return [
@@ -471,13 +467,13 @@ class AuthController extends Controller
     {
         $emailInput = Yii::$app->request->getBodyParam("email");
 
-        $model = new \company\models\PasswordResetRequestForm();
+        $model = new \manager\models\PasswordResetRequestForm();
         $model->email = $emailInput;
 
         if ($model->validate()) {
 
-            $contact = Contact::findOne([
-                'contact_email' => $model->email,
+            $contact = StoreManager::findOne([
+                'email' => $model->email,
             ]);
 
             $contact->sendPasswordResetEmail();
@@ -500,15 +496,15 @@ class AuthController extends Controller
         $accessToken = $contact->accessToken->token_value;
 
         if(!$company) {
-            $company = $contact->getManagedCompanies()->one();
+            $company = $contact->getCompany()->one();
         }
 
         return [
             "operation" => "success",
             "token" => $accessToken,
             "company_id" => $company? $company->company_id: null,
-            "profile_name" => $contact->contact_name,
-            "email" => $contact->contact_email,
+            "profile_name" => $contact->name,
+            "email" => $contact->email,
             "currency_pref" => $company? $company->currency_code: "KWD",
             "active_request_count" => $company? $company->getRequests()->activeRequest()->count() : 0
         ];
@@ -524,26 +520,26 @@ class AuthController extends Controller
 
         //$transaction = Yii::$app->db->beginTransaction ();
 
-        /*$model = new Contact();
+        /*$model = new StoreManager();
 
-        $model->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
-        $model->contact_email = Yii::$app->request->getBodyParam("email");
-        $model->contact_password_hash = Yii::$app->request->getBodyParam("password");
-        $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $model->name = ucfirst(Yii::$app->request->getBodyParam("name"));
+        $model->email = Yii::$app->request->getBodyParam("email");
+        $model->password_hash = Yii::$app->request->getBodyParam("password");
+        $model->receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");*/
 
         //Generate OTP for Candidate
         //$model->generateOTP();
 
-        /*$invitation = ContactInvitation::find()
+        /*$invitation = StoreManagerInvitation::find()
             ->andWhere([
-                'email_to_invite' => $model->contact_email,
+                'email_to_invite' => $model->email,
                 'otp' => $invitationOtp
             ])
             ->one();
 
         if($invitation) {
-            $model->contact_position = $invitation->role;
+            $model->position = $invitation->role;
         }*/
 
         /*
@@ -562,12 +558,12 @@ class AuthController extends Controller
         $companyRequest = new CompanyRequest();
         $companyRequest->company_name = ucfirst(Yii::$app->request->getBodyParam("company_name"));
         $companyRequest->company_email = Yii::$app->request->getBodyParam("email");
-        $companyRequest->contact_position = Yii::$app->request->getBodyParam("contact_position");
+        $companyRequest->position = Yii::$app->request->getBodyParam("position");
         $companyRequest->requesting_for = Yii::$app->request->getBodyParam("requesting_for");
 
-        $companyRequest->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
-        $companyRequest->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
-        $companyRequest->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
+        $companyRequest->name = ucfirst(Yii::$app->request->getBodyParam("name"));
+        $companyRequest->password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
+        $companyRequest->receive_email = Yii::$app->request->getBodyParam("receive_email");
         $companyRequest->phone_number = Yii::$app->request->getBodyParam("phone_number");
         $companyRequest->currency_code = Yii::$app->request->getBodyParam("currency_code");
         $companyRequest->country_id = Yii::$app->request->getBodyParam("country_id");
@@ -604,23 +600,23 @@ class AuthController extends Controller
             ];
         }
 
-        $companyContact = new CompanyContact();
-        $companyContact->company_id = $company->company_id;
-        $companyContact->contact_uuid = $model->contact_uuid;
-        $companyContact->contact_position = Yii::$app->request->getBodyParam("contact_position");
-        $companyContact->allow_access = true;
+        $companyStoreManager = new CompanyStoreManager();
+        $companyStoreManager->company_id = $company->company_id;
+        $companyStoreManager->uuid = $model->uuid;
+        $companyStoreManager->position = Yii::$app->request->getBodyParam("position");
+        $companyStoreManager->allow_access = true;
 
-        if (!$companyContact->save()) {
+        if (!$companyStoreManager->save()) {
             $transaction->rollBack();
 
             return [
                 "operation" => "error",
-                "message" => $companyContact->errors
+                "message" => $companyStoreManager->errors
             ];
         }
 
-        $contactPhone = new ContactPhone;
-        $contactPhone->contact_uuid = $model->contact_uuid;
+        $contactPhone = new StoreManagerPhone;
+        $contactPhone->uuid = $model->uuid;
         $contactPhone->phone_number = Yii::$app->request->getBodyParam("phone_number");
 
         if (!$contactPhone->save()) {
@@ -640,9 +636,9 @@ class AuthController extends Controller
         {
             Yii::$app->eventManager->track('Company Profile Created',
                 [
-                    'contact_uuid' => $model->contact_uuid,
-                    'contact_name' => $model->contact_name,
-                    'contact_email' => $model->contact_email,
+                    'uuid' => $model->uuid,
+                    'name' => $model->name,
+                    'email' => $model->email,
                     'company_id' => $company->company_id,
                     'company_name' => $company->company_name,
                     'company_email' => $company->company_email,
@@ -654,7 +650,7 @@ class AuthController extends Controller
         {
             Yii::$app->eventManager->track('Company Registration Request Created',
                 [
-                    'contact_name' => $companyRequest->contact_name,
+                    'name' => $companyRequest->name,
                     'company_request_uuid' => $companyRequest->company_request_uuid,
                     'company_name' => $companyRequest->company_name,
                     'company_email' => $companyRequest->company_email,
@@ -673,19 +669,19 @@ class AuthController extends Controller
 
             //accept invitation
 
-            $invitation->accepted = ContactInvitation::ACCEPTED_TRUE;
+            $invitation->accepted = StoreManagerInvitation::ACCEPTED_TRUE;
             $invitation->save();
 
             //add agent to team
 
-            $companyContact = new CompanyContact();
-            $companyContact->company_id = $invitation->company_id;
-            $companyContact->contact_uuid = $model->contact_uuid;
-            $companyContact->role = $invitation->role;
-            $companyContact->save(false);
+            $companyStoreManager = new CompanyStoreManager();
+            $companyStoreManager->company_id = $invitation->company_id;
+            $companyStoreManager->uuid = $model->uuid;
+            $companyStoreManager->role = $invitation->role;
+            $companyStoreManager->save(false);
 
             // to remove "expression": "NOW()", issue with login
-            $contactModel = Contact::findOne(['contact_uuid'=>$model->contact_uuid]);
+            $contactModel = StoreManager::findOne(['uuid'=>$model->uuid]);
             Yii::$app->user->setIdentity($contactModel);
             return $this->_loginResponse($contactModel);
         }*/
@@ -702,7 +698,7 @@ class AuthController extends Controller
 
         //check limit reached
 
-        $totalInvalidAttempts = ContactEmailVerifyAttempt::find()
+        /*$totalInvalidAttempts = StoreManagerEmailVerifyAttempt::find()
             ->andWhere([
                 'email' => $email,
                 'ip_address' => Yii::$app->getRequest()->getUserIP()
@@ -715,28 +711,28 @@ class AuthController extends Controller
                 'operation' => 'error',
                 'message' => Yii::t('company', 'You reached your limit to verify email. Please try again after an hour.')
             ];
-        }
+        }*/
 
         /*should not be in use
 
-        $exists = Contact::find()
-            ->andWhere(['contact_email' => $email])
+        $exists = StoreManager::find()
+            ->andWhere(['email' => $email])
             ->exists();
 
         if($exists) {
             return [
                 "operation" => "error",
-                "message" => Yii::t('company', "Contact new email address already registered")
+                "message" => Yii::t('company', "StoreManager new email address already registered")
             ];
         }*/
-
-        $model = Contact::verifyEmail($email, $code);
+        $result = StoreManager::verifyEmail($email, $code);
+        /*
 
         if(!$model)
         {
             //add entry for invalid attempt
 
-            $model = new ContactEmailVerifyAttempt;
+            $model = new StoreManagerEmailVerifyAttempt;
             $model->code = $code;
             $model->email = $email;
             $model->ip_address = Yii::$app->getRequest()->getUserIP();
@@ -747,27 +743,29 @@ class AuthController extends Controller
                 'message' => Yii::t('company', 'Invalid email verification code.')
             ];
         }
-        else if ($model->save())
+        else */
+
+        if ($result['success'])
         {
             //remove otp
 
-            //$model->contact_otp = null;
+            //$model->otp = null;
             //$model->save(false);
 
             //remove old email verification attempts
 
-            ContactEmailVerifyAttempt::deleteAll([
+           /* StoreManagerEmailVerifyAttempt::deleteAll([
                 'email' => $email,
                 'ip_address' => Yii::$app->getRequest()->getUserIP()
-            ]);
+            ]);*/
 
-            return $this->_loginResponse($model);
+            return $this->_loginResponse($result['data']);
         }
         else
         {
             return [
                 'operation' => 'error',
-                'message' => $model->getErrors()
+                'message' => $result['data']->getErrors()
             ];
         }
     }
@@ -778,18 +776,18 @@ class AuthController extends Controller
     public function actionIsEmailVerified() {
         $token = Yii::$app->request->getBodyParam("token");
 
-        $model = ContactToken::find()
+        $model = ManagerToken::find()
             ->andWhere(['token_value' => $token])
             ->one();
 
-        if (!$model || !$model->contact) {
+        if (!$model || !$model->manager) {
             return [
                 'status' => 0
             ];
         }
 
         return [
-            'status' => $model->contact->contact_new_email ? 0 : $model->contact->contact_email_verification
+            'status' => $model->manager->new_email ? 0 : $model->manager->email_verification
         ];
     }
 
@@ -801,7 +799,7 @@ class AuthController extends Controller
         $unVerifiedToken = Yii::$app->request->getBodyParam("unVerifiedToken");
         $new_email = Yii::$app->request->getBodyParam("newEmail");
 
-        $contact = Contact::findIdentityByUnVerifiedTokenToken($unVerifiedToken);
+        $contact = StoreManager::findIdentityByUnVerifiedTokenToken($unVerifiedToken);
 
         if (!$contact) {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -810,27 +808,27 @@ class AuthController extends Controller
         if (!$new_email) {
             return [
                 "operation" => "error",
-                "message" => Yii::t('company', "Contact new email address required")
+                "message" => Yii::t('company', "StoreManager new email address required")
             ];
         }
 
-        if ($new_email == $contact->contact_email || $new_email == $contact->contact_new_email) {
+        if ($new_email == $contact->email || $new_email == $contact->new_email) {
             return [
                 "operation" => "error",
-                "message" => Yii::t('company', "Contact new email address is same as old email")
+                "message" => Yii::t('company', "StoreManager new email address is same as old email")
             ];
         }
 
         //should not be in use
 
-        $exists = Contact::find()
-            ->andWhere(['contact_email' => $new_email])
+        $exists = StoreManager::find()
+            ->andWhere(['email' => $new_email])
             ->exists();
 
         if($exists) {
             return [
                 "operation" => "error",
-                "message" => Yii::t('company', "Contact new email address already registered")
+                "message" => Yii::t('company', "StoreManager new email address already registered")
             ];
         }
 
@@ -838,7 +836,7 @@ class AuthController extends Controller
          * Opt will expiry after 60 minutes, so user have to login back to update
          * email
          *
-        if (!$contact->findByOtp($contact->contact_otp, 60)) {
+        if (!$contact->findByOtp($contact->otp, 60)) {
             return [
                 "operation" => "error-session-expired",
                 "message" => Yii::t('company', "Session expired, please log back in")
@@ -847,7 +845,7 @@ class AuthController extends Controller
 
         $contact->scenario = "updateEmail";
 
-        $contact->contact_new_email = $new_email;
+        $contact->new_email = $new_email;
 
         if ($contact->save()) {
 
@@ -861,7 +859,7 @@ class AuthController extends Controller
 
             return [
                 "operation" => "success",
-                "message" => Yii::t('company', "Contact Account Info Updated Successfully, please check email to verify new email address"),
+                "message" => Yii::t('company', "StoreManager Account Info Updated Successfully, please check email to verify new email address"),
                 "unVerifiedToken" => $this->_loginResponse($contact)
             ];
         } else {
@@ -878,10 +876,10 @@ class AuthController extends Controller
      */
     public function actionResendVerificationEmail() {
 
-        $emailInput = Yii::$app->request->getBodyParam("contact_email");
+        $emailInput = Yii::$app->request->getBodyParam("email");
 
-        $contact = Contact::findOne([
-            'contact_email' => $emailInput,
+        $contact = StoreManager::findOne([
+            'email' => $emailInput,
         ]);
 
         $errors = false;
@@ -889,7 +887,7 @@ class AuthController extends Controller
 
         if ($contact) {
 
-            if ($contact->contact_email_verification == Contact::EMAIL_VERIFIED) {
+            if ($contact->email_verification == StoreManager::EMAIL_VERIFIED) {
                 return [
                     'operation' => 'error',
                     'errorCode' => 1,
@@ -898,11 +896,11 @@ class AuthController extends Controller
             }
 
             //Check if this user sent an email in past few minutes (to limit email spam)
-            $emailLimitDatetime = new \DateTime($contact->contact_limit_email);
+            $emailLimitDatetime = new \DateTime($contact->limit_email);
             date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
             $currentDatetime = new \DateTime();
 
-            if ($contact->contact_limit_email && $currentDatetime < $emailLimitDatetime) {
+            if ($contact->limit_email && $currentDatetime < $emailLimitDatetime) {
                 $difference = $currentDatetime->diff($emailLimitDatetime);
                 $minuteDifference = (int) $difference->i;
                 $secondDifference = (int) $difference->s;
@@ -913,12 +911,12 @@ class AuthController extends Controller
                     'numMinutes' => $minuteDifference,
                     'numSeconds' => $secondDifference,
                 ]);
-            } else if ($contact->contact_email_verification == Contact::EMAIL_NOT_VERIFIED) {
+            } else if ($contact->email_verification == StoreManager::EMAIL_NOT_VERIFIED) {
                 $contact->sendVerificationEmail();
             }
         } else {
             $errorCode = 3;
-            $errors['email'] = [Yii::t('company', 'Contact Account not found')];
+            $errors['email'] = [Yii::t('company', 'StoreManager Account not found')];
         }
 
         // If errors exist show them

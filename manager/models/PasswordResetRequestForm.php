@@ -2,6 +2,7 @@
 namespace manager\models;
 
 use common\models\MailLog;
+use common\models\StoreManager;
 use Yii;
 use yii\base\Model;
 
@@ -21,7 +22,7 @@ class PasswordResetRequestForm extends Model
         return [
             [['email'], 'required'],
             [['email'], 'email'],
-            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Contact::className(), 'targetAttribute' => ['email' => 'contact_email']],
+            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => StoreManager::className(), 'targetAttribute' => ['email' => 'email']],
         ];
     }
 
@@ -31,25 +32,25 @@ class PasswordResetRequestForm extends Model
      */
     public function sendEmail($contact)
     {
-        if(!$contact->contact_email_verification)
+        if(!$contact->email_verification)
             return false;
 
         $contact->generatePasswordResetToken();
         $contact->save();
 
         $ml = new MailLog();
-        $ml->to = $contact->contact_email;
+        $ml->to = $contact->email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Password reset token";
         $ml->save();
 
         $mailer = Yii::$app->mailer->compose("passwordResetRequest",
             [
-                "name" => $contact->contact_name,
-                "token" => $contact->contact_password_reset_token,
+                "name" => $contact->name,
+                "token" => $contact->password_reset_token,
             ])
             ->setFrom(Yii::$app->params['supportEmail'])
-            ->setTo($contact->contact_email)
+            ->setTo($contact->email)
             ->setSubject('Password reset token');
 
         try {

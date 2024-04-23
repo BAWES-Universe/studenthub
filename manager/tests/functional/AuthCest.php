@@ -1,12 +1,15 @@
 <?php
-namespace company\tests;
+namespace manager\tests;
 
 use common\fixtures\CountryFixture;
-use company\models\Contact;
+use common\fixtures\StoreFixture;
+use common\fixtures\StoreManagerFixture;
+use common\models\StoreManager;
+use manager\models\Contact;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\ContactFixture;
 use common\fixtures\CompanyFixture;
-use common\fixtures\ContactTokenFixture;
+use common\fixtures\ManagerTokenFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -23,7 +26,9 @@ class AuthCest
             'company' => CompanyFixture::className(),
             'contact' => ContactFixture::className(),
             "country" => CountryFixture::className(),
-            'contactToken' => ContactTokenFixture::className()
+            "store" => StoreFixture::className(),
+            'contactToken' => ManagerTokenFixture::className(),
+            'manager' => StoreManagerFixture::className()
         ];
     }
 
@@ -33,14 +38,12 @@ class AuthCest
      */
     public function _before(FunctionalTester $I)
     {
-        $this->contact = Contact::find()->one();
+        $this->manager = StoreManager::find()->one();
 
-        $this->token = $this->contact->getAccessToken()
+        $this->token = $this->manager->getAccessToken()
             ->token_value;
 
-        $this->company = $this->contact->getManagedCompanies()->one();
-
-        $I->haveHttpHeader("Currency", "KWD");
+        $this->company = $this->manager->getCompany()->one();
     }
 
     /**
@@ -58,7 +61,7 @@ class AuthCest
     public function tryToLogin(FunctionalTester $I)
     {
         $I->wantTo('Validate auth > login api');
-        $I->amHttpAuthenticated($this->contact->contact_email, '12345');
+        $I->amHttpAuthenticated($this->manager->email, '12345');
         $I->sendGET('v1/auth/login');
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
@@ -68,37 +71,13 @@ class AuthCest
     }
 
     /**
-     * abbility to signup
-     * @param \company\tests\FunctionalTester $I
-     */
-    public function tryToSignup(FunctionalTester $I)
-    {
-        $I->wantTo('Validate auth > create account api');
-        $I->sendPOST('v1/auth/create-account', [
-            "name" => "Mohanchand",
-            "email" => "mohan@localhost.com",
-            "password" => 12345,
-            "receive_email" => true,
-            "phone_number" => 87384334,
-            "company_name" => "Milton",
-            "contact_position" => "CEO",
-            "currency_code" => "KWD",
-            "country_id" => 1
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK); // 200
-        $I->seeResponseContainsJson([
-            "operation" => "success",
-        ]);
-    }
-
-    /**
      * Check if email got verified
      * @param FunctionalTester $I
      */
     public function tryToCheckEmailVerificationStatus(FunctionalTester $I)
     {
-        $model = Contact::find()->one();
-        $model->contact_email_verification = 0;
+        $model = StoreManager::find()->one();
+        $model->email_verification = 0;
         $model->save(false);
 
         $I->wantTo('Try to check if email got verified');
@@ -115,13 +94,13 @@ class AuthCest
      */
     public function tryToResendVerificationEmail(FunctionalTester $I)
     {
-        $model = Contact::find()->one();
-        $model->contact_email_verification = 0;
+        $model = StoreManager::find()->one();
+        $model->email_verification = 0;
         $model->save(false);
 
         $I->wantTo('Try to get verification again by email');
         $I->sendPOST('v1/auth/resend-verification-email', [
-            'email' => $model->contact_email
+            'email' => $model->email
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson();
@@ -133,14 +112,14 @@ class AuthCest
      */
     public function tryToVerifyEmail(FunctionalTester $I)
     {
-        $model = Contact::find()->one();
-        $model->contact_email_verification = 0;
+        $model = StoreManager::find()->one();
+        $model->email_verification = 0;
         $model->save(false);
 
         $I->wantTo('Try to verify email by code');
         $I->sendPOST('v1/auth/verify-email', [
-            'code' => $model->contact_auth_key,
-            'email' => $model->contact_email
+            'code' => $model->auth_key,
+            'email' => $model->email
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson();
@@ -148,8 +127,8 @@ class AuthCest
 
     public function tryToUpdateEmail(FunctionalTester $I)
     {
-        $model = Contact::find()->one();
-        $model->contact_email_verification = 0;
+        $model = StoreManager::find()->one();
+        $model->email_verification = 0;
         $model->save(false);
 
         $I->wantTo('Try to verify email by code');
@@ -167,12 +146,12 @@ class AuthCest
      */
     public function tryToUpdatePassword(FunctionalTester $I)
     {
-        $this->contact->contact_password_reset_token = \Yii::$app->security->generateRandomString() . '_' . time();
-        $this->contact->save(false);
+        $this->manager->password_reset_token = \Yii::$app->security->generateRandomString() . '_' . time();
+        $this->manager->save(false);
 
         $I->wantTo('Validate auth > update password api');
         $I->sendPATCH('v1/auth/update-password', [
-            'token' => $this->contact->contact_password_reset_token,
+            'token' => $this->manager->password_reset_token,
             'newPassword' => '12345'
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
@@ -183,13 +162,13 @@ class AuthCest
 
     /**
      * try to request password reset
-     * @param \company\tests\FunctionalTester $I
+     * @param \manager\tests\FunctionalTester $I
      */
     public function tryToRequestPasswordReset(FunctionalTester $I)
     {
-        $I->wantTo('Validate auth > update password api');
+        $I->wantTo('Validate auth > request password reset api');
         $I->sendPOST('v1/auth/request-reset-password', [
-            'email' => $this->contact->contact_email
+            'email' => $this->manager->email
         ]);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
