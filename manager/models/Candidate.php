@@ -47,7 +47,7 @@ class Candidate extends \common\models\Candidate {
         /**
          * hide if not employee of logged in employer
          */
-        $storeIds = ArrayHelper::getColumn (Yii::$app->storeManager->getManagedStores(), 'store_id');
+        $storeIds = [Yii::$app->user->identity->store_id];
 
         if(!in_array ($this->store_id, $storeIds)) {
             unset(

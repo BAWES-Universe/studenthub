@@ -105,6 +105,9 @@ class ManagerToken extends \yii\db\ActiveRecord
         }else return static::generateUniqueTokenString();
     }
 
+    /**
+     * @return void
+     */
     public function afterFind() {
         $this->token_last_used_datetime =  new Expression('NOW()');
         $this->save(false);

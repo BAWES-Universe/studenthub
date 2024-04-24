@@ -4,7 +4,7 @@ namespace manager\tests;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\StoreManagerFixture;
-use common\components\StoreManager;
+use common\models\StoreManager;
 use manager\models\Contact;
 use manager\models\Candidate;
 use common\fixtures\ManagerTokenFixture;
@@ -30,6 +30,8 @@ class CandidateCest
 	public function _before(FunctionalTester $I)
 	{
         $this->manager = StoreManager::find()->one();
+
+        $this->store = $this->manager->store;
 
         $this->token = $this->manager->getAccessToken()
             ->token_value;
@@ -58,7 +60,7 @@ class CandidateCest
      */
     public function tryViewCandidates(FunctionalTester $I)
     {
-        $candidate = Candidate::find()->one();
+        $candidate = $this->store->getCandidates()->one();
 
         $I->wantTo('View candidate api');
         $I->sendGET('v1/candidates/' . $candidate->candidate_id);
@@ -86,8 +88,10 @@ class CandidateCest
      */
     public function getWorkHistory(FunctionalTester $I)
     {
+        $candidate = $this->store->getCandidates()->one();
+
         $I->wantTo('Validate company > candidates/work-history/1 api to list work history');
-        $I->sendGET('v1/candidates/work-history/1');
+        $I->sendGET('v1/candidates/work-history/' . $candidate->candidate_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }

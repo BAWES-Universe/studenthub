@@ -5,7 +5,7 @@ use common\fixtures\CandidateFixture;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\StoreManagerFixture;
-use common\components\StoreManager;
+use common\models\StoreManager;
 use manager\models\Company;
 use manager\models\Contact;
 use Yii;

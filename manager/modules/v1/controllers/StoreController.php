@@ -3,9 +3,6 @@
 namespace manager\modules\v1\controllers;
 
 use Yii;
-use yii\data\ActiveDataProvider;
-use company\models\Store;
-use company\models\Company;
 
 /**
  * Store controller - Manage store as manager

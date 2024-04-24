@@ -3,8 +3,8 @@
 namespace manager\modules\v1\controllers;
 
 use Yii;
-use company\models\CandidateWorkHistory;
-use company\models\Candidate;
+use manager\models\CandidateWorkHistory;
+use manager\models\Candidate;
 
 
 /**

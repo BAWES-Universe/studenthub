@@ -2,7 +2,7 @@
 
 return [
     'store_manager1' => [
-        'store_manager_uuid' => '3057e658-1f90-34a8-9fff-96a0fb237924',
+        'store_manager_uuid' => '1',
         'company_id' => 1,
         'store_id' => 1,
         'name' => 'Meggie',

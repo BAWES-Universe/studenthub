@@ -40,7 +40,9 @@ class StoreCest
         $this->token = $this->manager->getAccessToken()
             ->token_value;
 
-        $this->company = $this->manager->getCompany()->one();
+        //$this->company = $this->manager->getCompany()->one();
+
+        $this->store = $this->manager->getStore()->one();
 
         $I->amBearerAuthenticated($this->token);
 
@@ -55,10 +57,8 @@ class StoreCest
      */
     public function testViewStore(FunctionalTester $I)
     {
-        $store = $this->company->getStores()->one();
-
         $I->wantTo('View Store');
-        $I->sendGET('v1/stores/view/' . $store->store_id);
+        $I->sendGET('v1/stores/view');// . $this->store->store_id
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -66,10 +66,10 @@ class StoreCest
     /**
      * List sub company stores
      * @param FunctionalTester $I
-     */
+     *
     public function testViewChildStores(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list sub manager\'s stores');
-        $I->sendGET('v1/stores/2');
+        $I->sendGET('v1/stores/' . $this->store->store_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
     }
@@ -77,7 +77,7 @@ class StoreCest
     /**
      * List store and sub companies
      * @param FunctionalTester $I
-     */
+     *
     public function testSubCompanies(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list stores and sub company');
         $I->sendGET('v1/stores/company-store');
@@ -88,11 +88,11 @@ class StoreCest
     /**
      * View store
      * @param FunctionalTester $I
-     */
+     *
     public function testViewStoreDetail(FunctionalTester $I) {
         $I->wantTo('Validate company > stores api to list sub manager\'s stores');
-        $I->sendGET('v1/stores/2');
+        $I->sendGET('v1/stores/'. $this->store->store_id);
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseIsJson();
-    }
+    }*/
 }

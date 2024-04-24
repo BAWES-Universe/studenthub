@@ -2,12 +2,9 @@
 
 namespace manager\modules\v1\controllers;
 
-use company\models\Contact;
 use Yii;
 use yii\data\ActiveDataProvider;
-use company\models\Company;
-use yii\filters\auth\HttpBearerAuth;
-use yii\filters\Cors;
+use manager\models\Company;
 
 /**
  * Company controller - Manage company accounts as Admin

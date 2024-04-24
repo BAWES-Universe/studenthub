@@ -134,9 +134,9 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
 
         //should not able to login, if email not verified but have valid token
 
-        /*if ($token->manager && $token->manager->email_verification) {
+        if ($token->manager) {//&& $token->manager->email_verification
             return $token->manager;
-        }*/
+        }
 
         //invalid token
 
