@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\StoreManager;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -121,6 +122,20 @@ class StoreController extends Controller
 
         Yii::info('[Store Created - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
+        $manager = Yii::$app->request->getBodyParam("storeManager");
+
+        if($manager && !empty($manager['name'])) {
+            $mmodel = new StoreManager();
+            $mmodel->store_id = $model->store_id;
+            $mmodel->company_id = $model->company->parent_company_id?
+                $model->company->parent_company_id: $model->company_id;
+            $mmodel->name = $manager['name'];
+            $mmodel->email = $manager['email'];
+            $mmodel->phone_number = $manager['phone_number'];
+            $mmodel->setPassword($manager['password']);
+            $mmodel->save(false);
+        }
+
         return [
             "operation" => "success",
             "message" => "Store successfully created"
@@ -231,6 +246,28 @@ class StoreController extends Controller
         }
 
         Yii::info('[Store Updated - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        $manager = Yii::$app->request->getBodyParam("storeManager");
+
+        if($manager && !empty($manager['name'])) {
+            if ($model->storeManager) {
+                $mmodel = $model->storeManager;
+            } else {
+                $mmodel = new StoreManager();
+            }
+
+            $mmodel->store_id = $model->store_id;
+            $mmodel->company_id = $model->company->parent_company_id?
+                $model->company->parent_company_id: $model->company_id;
+            $mmodel->name = $manager['name'];
+            $mmodel->email = $manager['email'];
+            $mmodel->phone_number = $manager['phone_number'];
+
+            if($manager['password'])
+                $mmodel->setPassword($manager['password']);
+
+            $mmodel->save(false);
+        }
 
         return [
             "operation" => "success",

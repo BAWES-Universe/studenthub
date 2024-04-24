@@ -182,10 +182,19 @@ class Store extends \yii\db\ActiveRecord
     /**
      * @param string $modelClass
      * @return $this
-     */
+     *
     public function getStoreManager($modelClass = "\common\models\Contact")
     {
         return $this->hasOne($modelClass::className(), ['contact_uuid' => 'store_manager_uuid']);
+    }*/
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getStoreManager($modelClass = "\common\models\StoreManager")
+    {
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
     }
     
     /**
