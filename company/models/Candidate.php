@@ -41,7 +41,8 @@ class Candidate extends \common\models\Candidate {
             $fields['store_id'],
             $fields['store'],
             $fields['candidate_phone'],
-            $fields['candidate_email']
+            $fields['candidate_email'],
+
         );
 
         /**
@@ -54,8 +55,16 @@ class Candidate extends \common\models\Candidate {
                 $fields['candidate_phone'],
                 $fields['candidate_email'],
                 $fields['candidate_civil_photo_front'],
-                $fields['candidate_civil_photo_back']
+                $fields['candidate_civil_photo_back'],
+                $fields['candidate_resume'],
+                $fields['candidate_latitude'],
+                $fields['candidate_longitude'],
+                $fields['ip_address'],
             );
+        } else {
+            $fields['is_our_employee'] = function($model) {
+                return true;
+            };
         }
 
         $fields['candidate_name'] = function($model){
@@ -73,6 +82,25 @@ class Candidate extends \common\models\Candidate {
      */
     public function extraFields()
     {
+        /**
+         * hide if not employee of logged in employer
+         */
+        $storeIds = ArrayHelper::getColumn (Yii::$app->storeManager->getManagedStores(), 'store_id');
+
+        if(!in_array ($this->store_id, $storeIds)) {
+            return [
+                'university',
+                'country',
+                'area',
+                'nationality',
+                'candidateSkills',
+                'candidateExperiences',
+                'invitations',
+                'invitedCount',
+                'isInvitedForCompany'
+            ];
+        }
+
         return [
             'store',
             'company',
@@ -99,6 +127,9 @@ class Candidate extends \common\models\Candidate {
             ->count();
     }
 
+    /**
+     * @return mixed
+     */
     public function getIsInvitedForCompany() {
         return Yii::$app->companyManager->getCompany()->getInvitations()->andWhere(['candidate_id'=>$this->candidate_id])->exists();
     }

@@ -221,7 +221,9 @@ class CronController extends \yii\console\Controller {
         $data['activeRequests'] = Request::activeRequestCount();
 
         $data['assignedIdleCandidates'] = \staff\models\Candidate::getAssignedIdleCandidate()->count();
+
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
+
         $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
 
         //$staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);

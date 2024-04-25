@@ -144,12 +144,14 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET search' => 'search',
                         'GET total' => 'total',
                         'GET work-history/<id>' => 'work-history',
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS total' => 'options',
+                        'OPTIONS search' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]

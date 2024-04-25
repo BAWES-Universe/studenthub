@@ -2,9 +2,12 @@
 
 namespace company\modules\v1\controllers;
 
+use company\models\Request;
 use Yii;
 use company\models\CandidateWorkHistory;
 use company\models\Candidate;
+use yii\data\ActiveDataProvider;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -12,6 +15,63 @@ use company\models\Candidate;
  */
 class CandidateController extends BaseController
 {
+
+    /**
+     * Return a List of Candidate Accounts by
+     * search criteria
+     */
+    public function actionSearch()
+    {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $country_id = Yii::$app->request->get('country_id');
+        $match_request_id = Yii::$app->request->get('match_request_id');
+
+        $by = Yii::$app->request->get('by');
+
+        //validate request id
+
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $isValidRequest =  Request::find()
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->andWhere(['request_uuid' => $match_request_id])
+            ->exists();
+
+        if(!$isValidRequest) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $query = \staff\models\Candidate::find()
+            ->verifiedProfile();
+
+        if($currency) {
+            $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
+        switch ($by) {
+            case 'review' :
+                $query->byApprovalStatus(Yii::$app->request->get('review'));
+                $query->completedProfileWithoutApproval();
+                break;
+            default:
+                # nothing
+                break;
+        }
+
+        if($match_request_id) {
+            $query->filterByRequestRequirement($match_request_id);
+        }
+
+        if($country_id) {
+            $query->filterCountry($country_id);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
     /**
      * Return a List of Candidate Accounts assigned to work
      * for current company.
