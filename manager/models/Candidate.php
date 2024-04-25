@@ -100,7 +100,7 @@ class Candidate extends \common\models\Candidate {
     }
 
     public function getIsInvitedForCompany() {
-        return Yii::$app->companyManager->getCompany()->getInvitations()->andWhere(['candidate_id'=>$this->candidate_id])->exists();
+        return false;//todo: later will need this to invite
     }
 
     /**

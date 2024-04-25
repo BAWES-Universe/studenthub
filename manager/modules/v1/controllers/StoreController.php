@@ -14,8 +14,9 @@ class StoreController extends BaseController
         $store = Yii::$app->user->identity
             ->getStore()->one();
 
-        if (!$store)
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+        if (!$store) {
+            throw new \yii\web\UnauthorizedHttpException('The requested page does not exist.');
+        }
 
         return $store;
     }

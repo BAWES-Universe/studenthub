@@ -404,7 +404,7 @@ class AuthController extends Controller
 
         // Email and password are correct, check if his email has been verified
         // If email has been verified, then allow him to log in
-        if ($contact->email_verification != StoreManager::EMAIL_VERIFIED) {
+        /*if ($contact->email_verification != StoreManager::EMAIL_VERIFIED) {
 
             //$contact->generateOtp();
             //$contact->save(false);
@@ -415,7 +415,7 @@ class AuthController extends Controller
                 "message" => Yii::t('company', "Please click the verification link sent to you by email to activate your account"),
                 "unVerifiedToken" => $this->_loginResponse($contact)
             ];
-        }
+        }*/
 
         //Update last active datetime for candidate
         //$contact->last_active_datetime = (new \yii\db\Query)->select(new \yii\db\Expression('NOW()'))->scalar();
@@ -765,7 +765,7 @@ class AuthController extends Controller
         {
             return [
                 'operation' => 'error',
-                'message' => $result['data']->getErrors()
+                'message' => isset($result['data']) ? $result['data']->getErrors(): $result['message']
             ];
         }
     }
