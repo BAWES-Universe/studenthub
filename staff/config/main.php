@@ -236,6 +236,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH update-manager/<id>' => 'update-manager',
@@ -243,6 +244,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-manager/<id>' => 'options',
                         'OPTIONS remove-manager/<id>' => 'options',

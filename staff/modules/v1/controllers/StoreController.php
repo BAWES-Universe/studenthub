@@ -321,6 +321,39 @@ class StoreController extends Controller
     }
 
     /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionLogin($id)
+    {
+        $model = $this->findModel($id);
+
+        if(!$model->storeManager) {
+            return [
+                "operation" => "error",
+                'message' => "No store manager account found!",
+            ];
+        }
+
+        $model->storeManager->generateAuthKey();
+
+        if(!$model->storeManager->save(false)) {
+            return [
+                "operation" => "error",
+                'message' => $model->storeManager->errors,
+                'redirect' => Yii::$app->params['managerAppUrl']
+            ];
+        }
+
+        $url = Yii::$app->params['managerAppUrl']. '?auth_key='.$model->storeManager->auth_key;
+
+        return [
+            'redirect' => $url
+        ];
+    }
+
+    /**
      * Finds the Store model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
