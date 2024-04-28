@@ -362,6 +362,14 @@ class Request extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getRequestApplication($modelClass = "\common\models\RequestApplication")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getLastActivity($modelClass = "\common\models\Note")
     {
         return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])

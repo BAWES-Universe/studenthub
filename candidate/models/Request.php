@@ -5,7 +5,6 @@ namespace candidate\models;
 
 class Request extends \common\models\Request
 {
-
     /**
      * @return array
      */
@@ -21,6 +20,32 @@ class Request extends \common\models\Request
 
         // remove fields that contain sensitive information
         return $fields;
+    }
+
+    /**
+     * @return array
+     */
+    public function extraFields()
+    {
+        return array_merge(['candidateApplication'], parent::extraFields());
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateApplication($modelClass = "\candidate\models\RequestApplication")
+    {
+        return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFulltimerApplication($modelClass = "\candidate\models\RequestApplication")
+    {
+        return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->andWhere(['fulltimer_uuid' => Yii::$app->user->getId()]);
     }
 
     /**

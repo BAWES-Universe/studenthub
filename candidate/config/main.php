@@ -256,6 +256,20 @@ return [
                         'OPTIONS reject/<id>' => 'options',
                     ]
                 ],
+                [ // RequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET applications' => 'applications',
+                        'GET <id>' => 'view',
+                        'POST apply/<id>' => 'apply',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS apply/<id>' => 'options',
+                    ]
+                ],
                 [ // CountryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/country',
