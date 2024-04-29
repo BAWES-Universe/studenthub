@@ -311,6 +311,7 @@ return [
                     'controller' => 'v1/company-request',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET applications/<request_uuid>" => "applications",
                         'GET <id>' => 'view',
                         'POST accept/<id>' => 'approve',
                         'POST approve/<id>' => 'approve',
@@ -320,7 +321,8 @@ return [
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reject/<id>' => 'options',
                         'OPTIONS approve/<id>' => 'options',
-                        'OPTIONS accept/<id>' => 'options'
+                        'OPTIONS accept/<id>' => 'options',
+                        "OPTIONS applications/<request_uuid>" => "options"
                     ]
                 ],
                 [ // BankController
@@ -484,6 +486,7 @@ return [
                         'GET pending-request' => 'pending-request',
                         'GET list-checklist' => 'list-checklist',
                         'GET is-request-updated/<id>' => 'is-request-updated',
+                        "GET applications/<request_uuid>" => "applications",
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH update-interval/<id>' => 'update-interval',
@@ -503,6 +506,7 @@ return [
                         'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
                         'OPTIONS assign/<id>' => 'options',
+                        "OPTIONS applications/<request_uuid>" => "options",
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-interval/<id>' => 'options',
                         'OPTIONS update-status/<id>' => 'options',

@@ -142,6 +142,22 @@ class RequestController extends BaseController
     }
 
     /**
+     * @param $request_uuid
+     * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionApplications($request_uuid)
+    {
+        $query = $this->findModel($request_uuid)
+            ->getRequestApplication()
+            ->orderBy("created_at DESC");
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * @param $id
      * @return Request
      * @throws NotFoundHttpException

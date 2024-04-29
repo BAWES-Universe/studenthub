@@ -128,6 +128,14 @@ class RequestApplication extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array|false|int[]|string[]
+     */
+    public function extraFields()
+    {
+        return array_merge(['candidate', 'fulltimer', 'request'], parent::extraFields());
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCandidate($modelClass = "\common\models\Candidate")
