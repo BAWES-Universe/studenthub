@@ -5,6 +5,7 @@ namespace staff\modules\v1\controllers;
 use common\models\CandidateToken;
 use common\models\CandidateWarning;
 use common\models\Request;
+use common\models\StoreAssignmentRequest;
 use kartik\mpdf\Pdf;
 use staff\models\Company;
 use Yii;
@@ -486,6 +487,7 @@ class CandidateController extends Controller
      */
     public function actionAssign($id)
     {
+        $sar_id = Yii::$app->request->getBodyParam("sar_id");
         $store_id = Yii::$app->request->getBodyParam("store_id");
         $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $start_date = Yii::$app->request->getBodyParam("start_date");
@@ -587,6 +589,26 @@ class CandidateController extends Controller
             ];
         }
 
+        if($sar_id) {
+
+            $sar = StoreAssignmentRequest::findOne($sar_id);
+
+            if(!empty($sar)) {
+
+                $sar->status = StoreAssignmentRequest::STATUS_ACCEPTED;
+
+                if (!$sar->save()) {
+
+                    $transaction->rollBack();
+
+                    return [
+                        "operation" => "error",
+                        "message" => $sar->errors
+                    ];
+                }
+            }
+        }
+
         $transaction->commit(); 
 
         Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$storeName.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
@@ -605,10 +627,12 @@ class CandidateController extends Controller
      */
     public function actionUnassign($id)
     {
-        // Attempt to create new account
         $model = $this->findModel($id);
 
         $store_id = Yii::$app->request->get('store_id', null);
+        $sar_id = Yii::$app->request->getBodyParam("sar_id");
+
+        $transaction = Yii::$app->db->beginTransaction();
 
         // in case multiple store are assigned by mistake or system issue.
         if ($store_id  && $store_id != $model->store_id) {
@@ -617,18 +641,24 @@ class CandidateController extends Controller
                 ->filterCandidate($model->candidate_id)
                 ->andWhere(['store_id'=>$store_id])
                 ->one();
+
             if ($candidateHistoryModel) {
                 $storeName = $candidateHistoryModel->store->store_name;
                 $company_id = $candidateHistoryModel->store->company_id;
                 $commonCompanyName = $candidateHistoryModel->company->company_common_name_en;
                 $candidateHistoryModel->end_date  = new \yii\db\Expression('NOW()');
+
                 if (!$candidateHistoryModel->save()) {
+                    $transaction->rollBack();
+
                     return [
                         "operation" => "error",
                         "message" => $model->errors
                     ];
                 }
             } else {
+                $transaction->rollBack();
+
                 return [
                     'operation' =>'error',
                     'message' =>Yii::t('app','no record found')
@@ -642,6 +672,8 @@ class CandidateController extends Controller
             $model->store_id = null;
 
             if (!$model->save(false)) {
+                $transaction->rollBack();
+
                 if (isset($model->errors)) {
                     return [
                         "operation" => "error",
@@ -654,6 +686,7 @@ class CandidateController extends Controller
                     ];
                 }
             }
+
             CandidateWorkHistory::saveUnAssignedHistory($model);
         }
 
@@ -664,7 +697,36 @@ class CandidateController extends Controller
         $noteModel->company_id  = $company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
         $noteModel->note_text  = "No longer assigned to work at {$storeName} for {$commonCompanyName} because {$feedback}";
-        $noteModel->save(false);
+        if(!$noteModel->save()) {
+            $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => $noteModel->errors
+            ];
+        }
+
+        if($sar_id) {
+
+            $sar = StoreAssignmentRequest::findOne($sar_id);
+
+            if(!empty($sar)) {
+
+                $sar->status = StoreAssignmentRequest::STATUS_ACCEPTED;
+
+                if (!$sar->save()) {
+
+                    $transaction->rollBack();
+
+                    return [
+                        "operation" => "error",
+                        "message" => $sar->errors
+                    ];
+                }
+            }
+        }
+
+        $transaction->commit();
 
         Yii::info('['.$model->candidate_name.' unassigned from store] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
@@ -673,9 +735,6 @@ class CandidateController extends Controller
             "message" => "Candidate unassigned from store successfully",
             "candidate_detail" => $model,
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**

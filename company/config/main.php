@@ -192,9 +192,11 @@ return [
                         'GET company-store' => 'index',
                         'GET view/<id>' => 'view',
                         'GET <companyId>' => 'list',
+                        "POST store-assignment-request" => "store-assignment-request",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',                        
                         'OPTIONS company-store' => 'options',
+                        "OPTIONS store-assignment-request" => "options",
                         'OPTIONS <companyId>' => 'options',
                         'OPTIONS view/<id>' => 'options',
                     ]

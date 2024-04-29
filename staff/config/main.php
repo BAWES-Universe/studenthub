@@ -528,6 +528,21 @@ return [
                         'OPTIONS company/<id>' => 'options',
                     ]
                 ],
+                [ // StoreAssignmentRequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/store-assignment-request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'PATCH accept/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'accept',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS accept/<id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
+                    ]
+                ],
                 [ // FulltimerController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/fulltimer',
