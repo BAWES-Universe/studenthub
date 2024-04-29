@@ -2,8 +2,8 @@
 
 namespace candidate\modules\v1\controllers;
 
-use common\models\Request;
-use common\models\RequestApplication;
+use candidate\models\Request;
+use candidate\models\RequestApplication;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -70,7 +70,7 @@ class RequestController extends Controller
     }
 
     /**
-     * Return a List of Invitation
+     * Return a List of matching jobs/request
      * @return ActiveDataProvider
      */
     public function actionList()
@@ -83,6 +83,7 @@ class RequestController extends Controller
 
         $query = Request::find()
             //->joinWith(['requestSkills'])
+            ->filterByCandidateSkills(Yii::$app->user->getId())
             ->joinWith('company')
             ->andWhere(['company.currency_code' => $currency])
             ->andWhere(['NOT IN', 'request_status', [Request::STATUS_DELIVERED, Request::STATUS_FINISHED]])
@@ -153,6 +154,7 @@ class RequestController extends Controller
 
         return [
             "operation" => "success",
+            "candidateApplication" => RequestApplication::findOne($model->application_uuid),
             "message" => Yii::t('candidate',"Application sent successfully")
         ];
     }

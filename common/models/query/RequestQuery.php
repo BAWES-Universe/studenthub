@@ -7,6 +7,7 @@ use company\models\Request;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 
 /**
@@ -179,6 +180,40 @@ class RequestQuery extends ActiveQuery
     {
 //        SELECT request_uuid, num_hours_followup_interval, (num_hours_followup_interval*60) as min, (TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP())- (num_hours_followup_interval*60)) as remain, TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP()) as diff from request order by (TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP())-(num_hours_followup_interval*60)) DESC
         return $this->addOrderBy('(TIMESTAMPDIFF(MINUTE, request_updated_datetime,CURRENT_TIMESTAMP())-(num_hours_followup_interval*60)) DESC');
+    }
+
+    /**
+     * @param $id
+     * @return CandidateQuery
+     */
+    public function filterByCandidateSkills($match_candidate_id) {
+
+        $candidate = \common\models\Candidate::findOne($match_candidate_id);
+
+        $candidateSkills = ArrayHelper::getColumn($candidate->getCandidateSkills()->all(), 'skill');
+        $candidateExperiences = ArrayHelper::getColumn($candidate->getCandidateExperiences()->all(), 'experience');
+
+        //matching skills or experience
+
+        $this->joinWith(['requestSkills'])
+            ->andWhere([
+                "OR",
+                ["IN", 'request_skill.skill', $candidateSkills],
+                ["IN", 'request_position_title', $candidateExperiences]
+            ]);
+
+        $this->andWhere([
+            "OR",
+            ['gender' => $candidate->candidate_gender],
+            ['gender' => \common\models\Request::GENDER_ANY],
+            ['gender' => 0]
+        ]);//if($candidate->candidate_gender) {
+
+        if($candidate->country_id) {
+            $this->andWhere(new Expression("nationality_id IS NULL OR nationality_id = ".$candidate->country_id));
+        }
+
+        return $this;
     }
 
     /**

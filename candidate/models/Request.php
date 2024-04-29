@@ -2,6 +2,7 @@
 
 namespace candidate\models;
 
+use Yii;
 
 class Request extends \common\models\Request
 {
@@ -27,7 +28,12 @@ class Request extends \common\models\Request
      */
     public function extraFields()
     {
-        return array_merge(['candidateApplication'], parent::extraFields());
+        //return array_merge([], parent::extraFields());
+
+        return [
+            'candidateApplication',
+            'requestSkills'
+        ];
     }
 
     /**

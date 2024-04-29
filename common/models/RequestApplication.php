@@ -24,6 +24,11 @@ use yii\db\Expression;
  */
 class RequestApplication extends \yii\db\ActiveRecord
 {
+    const STATUS_APPLIED = 0;
+    const STATUS_INTERVIEW_SCHEDULED = 1;
+    const STATUS_ACCEPTED = 2;
+    const STATUS_REJECTED = 3;
+
     /**
      * {@inheritdoc}
      */
