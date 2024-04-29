@@ -866,6 +866,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            'storeAssignmentRequest',
             'campaign',
             'store',
             'company',
@@ -1057,6 +1058,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         return $prefix . $this->candidate_id;
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoreAssignmentRequest($modelClass = "\common\models\StoreAssignmentRequest")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andWhere(['status' => StoreAssignmentRequest::STATUS_PENDING]);
+            //->orderBy('created_at DESC');
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoreAssignmentRequests($modelClass = "\common\models\StoreAssignmentRequest")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**

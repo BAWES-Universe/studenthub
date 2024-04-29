@@ -45,7 +45,7 @@ class StoreAssignmentRequest extends \yii\db\ActiveRecord
             [['candidate_id', 'store_id', 'status'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['sar_uuid'], 'string', 'max' => 60],
-            [['currency_cde'], 'string', 'max' => 3],
+            [['currency_code'], 'string', 'max' => 3],
             [['sar_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],

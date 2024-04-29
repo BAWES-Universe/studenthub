@@ -102,6 +102,7 @@ class Candidate extends \common\models\Candidate {
         }
 
         return [
+            'storeAssignmentRequest',
             'store',
             'company',
             'university',
