@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use Yii;
 use common\models\StoreAssignmentRequest;
 use staff\models\Request;
 use staff\models\Story;

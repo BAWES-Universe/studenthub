@@ -535,7 +535,7 @@ return [
                         'GET' => 'list',
                         'GET <id>' => 'view',
                         'PATCH accept/<id>' => 'accept',
-                        'PATCH reject/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'reject',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',

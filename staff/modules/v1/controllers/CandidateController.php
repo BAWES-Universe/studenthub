@@ -589,23 +589,28 @@ class CandidateController extends Controller
             ];
         }
 
+        $sar = null;
+
         if($sar_id) {
-
             $sar = StoreAssignmentRequest::findOne($sar_id);
+        } else {
+            $sar = StoreAssignmentRequest::find()
+                ->andWhere(['candidate_id' => $model->candidate_id, 'store_id' => $store_id])
+                ->one();
+        }
 
-            if(!empty($sar)) {
+        if(!empty($sar)) {
 
-                $sar->status = StoreAssignmentRequest::STATUS_ACCEPTED;
+            $sar->status = StoreAssignmentRequest::STATUS_ACCEPTED;
 
-                if (!$sar->save()) {
+            if (!$sar->save()) {
 
-                    $transaction->rollBack();
+                $transaction->rollBack();
 
-                    return [
-                        "operation" => "error",
-                        "message" => $sar->errors
-                    ];
-                }
+                return [
+                    "operation" => "error",
+                    "message" => $sar->errors
+                ];
             }
         }
 
@@ -707,22 +712,26 @@ class CandidateController extends Controller
         }
 
         if($sar_id) {
-
             $sar = StoreAssignmentRequest::findOne($sar_id);
+        } else {
+            $sar = StoreAssignmentRequest::find()
+                ->andWhere(['candidate_id' => $model->candidate_id])
+                ->andWhere(new Expression("store_id IS NULL"))
+                ->one();
+        }
 
-            if(!empty($sar)) {
+        if(!empty($sar)) {
 
-                $sar->status = StoreAssignmentRequest::STATUS_ACCEPTED;
+            $sar->status = StoreAssignmentRequest::STATUS_ACCEPTED;
 
-                if (!$sar->save()) {
+            if (!$sar->save()) {
 
-                    $transaction->rollBack();
+                $transaction->rollBack();
 
-                    return [
-                        "operation" => "error",
-                        "message" => $sar->errors
-                    ];
-                }
+                return [
+                    "operation" => "error",
+                    "message" => $sar->errors
+                ];
             }
         }
 

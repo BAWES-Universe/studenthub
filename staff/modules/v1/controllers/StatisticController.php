@@ -4,6 +4,7 @@ namespace staff\modules\v1\controllers;
 
 use common\models\CompanyRequest;
 use common\models\Contact;
+use common\models\StoreAssignmentRequest;
 use staff\models\Request;
 use staff\models\Company;
 use staff\models\TransferCandidate;
@@ -234,6 +235,10 @@ class StatisticController extends Controller
                 ->andWhere(['transfer_candidate.currency_code' => $currency])
                 ->count();
         }, $cacheDuration, $transferCandidateCacheDependency);
+
+        $result['totalStoreAssignmentRequests'] = StoreAssignmentRequest::find()
+            ->andWhere(['status' => StoreAssignmentRequest::STATUS_PENDING, 'currency_code' => $currency])
+            ->count();
 
         return $result;
     }
