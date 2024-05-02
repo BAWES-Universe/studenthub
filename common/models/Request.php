@@ -524,6 +524,7 @@ class Request extends \yii\db\ActiveRecord
         Company::updateRequest($this->company_id);
 
         if(YII_ENV == 'prod' && !Yii::$app->user->isGuest) {
+
             if ($insert)
             {
                 Yii::$app->eventManager->track('Request Created', [

@@ -382,7 +382,18 @@ class RequestController extends Controller
         $model->createRequestActivity('I have created this request');
         $model->requestNotification();
 
-        Yii::info('[Request added for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Request added for company '.$model->company->company_name.'] '.
+            $model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        /*Yii::$app->eventManager->track(
+            'Request added',
+            [
+                'company' => $model->company->company_name,
+                'company_id' => $model->company_id,
+                'request_uuid' => $model->request_uuid,
+                'staff' => Yii::$app->user->identity->staff_name,
+                'title' => $model->request_position_title
+            ]);*/
 
         return [
             "operation" => "success",
@@ -470,6 +481,16 @@ class RequestController extends Controller
 
         Yii::info('[Request updated for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
+        /*Yii::$app->eventManager->track(
+            'Request updated',
+            [
+                'company' => $model->company->company_name,
+                'company_id' => $model->company_id,
+                'request_uuid' => $model->request_uuid,
+                'staff' => Yii::$app->user->identity->staff_name,
+                'title' => $model->request_position_title
+            ]);*/
+
         return [
             "operation" => "success",
             "message" => "Request successfully updated",
@@ -542,6 +563,16 @@ class RequestController extends Controller
         $model->createRequestActivity('I have completed this request and '. $model->request_feedback);
 
         Yii::info('[Request marked as delivered for company '.$model->company->company_name.'] '.$model->request_position_title. ' By '.Yii::$app->user->identity->staff_name, __METHOD__);
+
+        /*Yii::$app->eventManager->track(
+            'Request marked as delivered',
+            [
+                'company' => $model->company->company_name,
+                'company_id' => $model->company_id,
+                'request_uuid' => $model->request_uuid,
+                'staff' => Yii::$app->user->identity->staff_name,
+                'title' => $model->request_position_title
+            ]);*/
 
         return [
             "operation" => "success",
