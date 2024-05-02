@@ -76,18 +76,24 @@ class SettingController extends Controller
     public function actionUpdate()
     {
         $mixpanel = Yii::$app->request->getBodyParam('Mixpanel-Key');
+        $testMixpanel = Yii::$app->request->getBodyParam('Test-Mixpanel-Key');
         $mixpanelStatus = Yii::$app->request->getBodyParam('Mixpanel-Status');
 
+        $testSegment = Yii::$app->request->getBodyParam('Test-Segment-Key');
+        $testSegmentWallet = Yii::$app->request->getBodyParam('Test-Segment-Key-Wallet');
         $segment = Yii::$app->request->getBodyParam('Segment-Key');
-        $segmentStatus = Yii::$app->request->getBodyParam('Segment-Status');
         $segmentWallet = Yii::$app->request->getBodyParam('Segment-Key-Wallet');
-         
-        Setting::setConfig('EventManager', 'Mixpanel-Key', $mixpanel);
-        Setting::setConfig('EventManager', 'Mixpanel-Status', $mixpanelStatus? "enabled": null);
+        $segmentStatus = Yii::$app->request->getBodyParam('Segment-Status');
 
-        Setting::setConfig('EventManager', 'Segment-Key', $segment);
+        Setting::setConfig('EventManager', 'Mixpanel-Status', $mixpanelStatus? "enabled": null);
+        Setting::setConfig('EventManager', 'Mixpanel-Key', $mixpanel);
+        Setting::setConfig('EventManager', 'Test-Mixpanel-Key', $testMixpanel);
+
         Setting::setConfig('EventManager', 'Segment-Status', $segmentStatus? "enabled": null);
+        Setting::setConfig('EventManager', 'Segment-Key', $segment);
         Setting::setConfig('EventManager', 'Segment-Key-Wallet', $segmentWallet);
+        Setting::setConfig('EventManager', 'Test-Segment-Key', $testSegment);
+        Setting::setConfig('EventManager', 'Test-Segment-Key-Wallet', $testSegmentWallet);
 
         return [
             "operation" => "success",

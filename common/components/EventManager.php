@@ -64,15 +64,24 @@ class EventManager extends Component
 
         if($this->mixpanelStatus) {
 
-            $this->key = Yii::$app->config->get('Mixpanel-Key');
+            if (YII_ENV == 'prod') {
+                $this->key = Yii::$app->config->get('Mixpanel-Key');
+            } else {
+                $this->key = Yii::$app->config->get('Test-Mixpanel-Key');
+            }
 
             $this->_client = \Mixpanel::getInstance($this->key);
         }
 
         if($this->segmentStatus) {
 
-            $this->segmentKey = Yii::$app->config->get('Segment-Key');
-            $this->walletSegmentKey = Yii::$app->config->get('Segment-Key-Wallet');
+            if (YII_ENV == 'prod') {
+                $this->segmentKey = Yii::$app->config->get('Segment-Key');
+                $this->walletSegmentKey = Yii::$app->config->get('Segment-Key-Wallet');
+            } else {
+                $this->segmentKey = Yii::$app->config->get('Test-Segment-Key');
+                $this->walletSegmentKey = Yii::$app->config->get('Test-Segment-Key-Wallet');
+            }
 
             if($this->segmentKey)
                 Segment::init($this->segmentKey);
@@ -97,8 +106,10 @@ class EventManager extends Component
             $ip = "192.168.0.1";
         }
 
-        if($this->_client)
-    	    $this->_client->people->set($id, $data, $ip, $ignore_time = false);
+        if($this->_client) {
+            $this->_client->identify($id);
+            $this->_client->people->set($id, $data, $ip, $ignore_time = false);
+        }
 
         if($this->segmentKey) {
             Segment::identify([
@@ -115,6 +126,52 @@ class EventManager extends Component
      */
     public function track($event, $eventData, $timestamp = null, $userId = null)
     {
+        $distinctID = null;
+
+        if(isset(Yii::$app->request) && Yii::$app->request instanceof \yii\web\Request) {
+            $distinctID = Yii::$app->request->headers->get('Mixpanel-Distinct-ID');
+        }
+
+        $language = Yii::$app->language == "ar"? "ar": "en";
+
+        $eventData = array_merge($eventData, [
+            "language" => $language,
+        ]);
+
+        //if login
+
+        if(isset(Yii::$app->user) && !Yii::$app->user->isGuest) {
+
+            //if admin login
+
+            if(isset(Yii::$app->user->identity->admin_name)) {
+                $eventData["channel"] = "Admin Web App";
+            }
+            else if(isset(Yii::$app->user->identity->candidate_name)) {
+                $eventData["channel"] = "Candidate Web App";
+            }
+            else if(isset(Yii::$app->user->identity->contact_name))
+            {
+                $eventData["channel"] = "Company Web App";
+            }
+            else if(isset(Yii::$app->user->identity->inspector_name))
+            {
+                $eventData["channel"] = "Inspector Web App";
+            }
+            else if(isset(Yii::$app->user->identity->staff_name))
+            {
+                $eventData["channel"] = "Staff Web App";
+            }
+
+            if(!$userId)
+                $userId = Yii::$app->user->getId();
+
+        }
+
+        if(empty($eventData["channel"])) {
+            $eventData["channel"] = "Backend";
+        }
+
         if($this->_client) {
 
             $mixpanelData = $eventData;
@@ -126,10 +183,33 @@ class EventManager extends Component
                 ], $eventData);
             }
 
+            if($distinctID) {
+                $mixpanelData['$distinct_id'] = $distinctID;
+            }
+
+            if($userId) {
+                $mixpanelData['$user_id'] = $userId;
+                $mixpanelData['user_id'] = $userId;
+
+                if(empty($mixpanelData['$distinct_id'])) {
+                    $mixpanelData['$distinct_id'] = $userId;
+                }
+            } else if (isset($mixpanelData['$distinct_id'])) {
+                $mixpanelData['$user_id'] = $mixpanelData['$distinct_id'];
+            }
+
+            //to fix: not showing in listing but in detail view in mixpanel
+
+            if(isset($mixpanelData['$distinct_id']))
+                $mixpanelData['distinct_id'] = $mixpanelData['$distinct_id'];
+
             if($userId)
                 $mixpanelData['$distinct_id'] = $userId;
 
             $this->_client->track($event, $mixpanelData);
+
+            //to fix order
+            $this->_client->flush();
         }
 
         if($this->segmentKey) {
@@ -157,6 +237,8 @@ class EventManager extends Component
             }
 
             Segment::track($data);
+
+            Segment::flush();
         }
 
         //find webhook for this event and fire
