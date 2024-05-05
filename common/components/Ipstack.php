@@ -102,8 +102,12 @@ class Ipstack {
 
             $result->country = $country;
 
-            if(empty($result->currency) && $country) {
-                $result->currency = $country->currency;
+            if(empty($result->currency)) {
+                if ($country) {
+                    $result->currency = $country->currency;
+                } else {
+                    $result->currency = Currency::findOne(['code' => "KWD"]);
+                }
             }
 
         }
