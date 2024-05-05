@@ -2,6 +2,8 @@
 
 namespace company\modules\v1\controllers;
 
+use common\models\RequestApplication;
+use common\models\RequestInterview;
 use common\models\RequestSkill;
 use Yii;
 use company\models\Note;
@@ -155,6 +157,50 @@ class RequestController extends BaseController
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function actionRequestInterview() {
+
+        $application_uuid = Yii::$app->request->getBodyParam("application_uuid");
+        $request_uuid = Yii::$app->request->getBodyParam("request_uuid");
+
+        $application = $this->findModel($request_uuid)
+            ->getRequestApplication()
+            ->andWhere(['application_uuid' => $application_uuid])
+            ->one();
+
+        if(!$application) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model = new RequestInterview();
+        $model->application_uuid = $application_uuid;
+        $model->request_uuid = $application->request_uuid;
+        $model->status = RequestInterview::STATUS_REQUESTED;
+        $model->candidate_id = $application->candidate_id;
+        $model->interview_at = Yii::$app->request->getBodyParam("interview_at");
+        $model->internal_note = Yii::$app->request->getBodyParam("internal_note");
+        $model->created_by = Yii::$app->user->getId();
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        Yii::info('[Interview schedule request added for company '.$model->request->company->company_name.'] '.
+            $model->request->request_position_title. ' By '.Yii::$app->user->identity->contact_name, __METHOD__);
+
+        return [
+            "operation" => "success",
+            "requestInterview" => RequestInterview::findOne($model->request_interview_uuid),
+            "message" => Yii::t('company',"Request created successfully")
+        ];
     }
 
     /**

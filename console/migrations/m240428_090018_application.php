@@ -54,7 +54,7 @@ class m240428_090018_application extends Migration
             'fulltimer_uuid'
         );
 
-        // add foreign key for table `request_uuid`
+        // add foreign key for table `fulltimer_uuid`
         $this->addForeignKey(
             'fk-request_application-fulltimer_uuid',
             'request_application',

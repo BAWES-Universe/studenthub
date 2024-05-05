@@ -3176,4 +3176,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterview($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterviews($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->orderBy("created_at DESC");
+    }
 }

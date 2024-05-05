@@ -651,6 +651,24 @@ class Request extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterview($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterviews($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy("created_at DESC");
+    }
+    
+    /**
      * @inheritdoc
      * @return query\RequestQuery the active query used by this AR class.
      */

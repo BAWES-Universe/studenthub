@@ -132,7 +132,13 @@ class RequestApplication extends \yii\db\ActiveRecord
      */
     public function extraFields()
     {
-        return array_merge(['candidate', 'fulltimer', 'request'], parent::extraFields());
+        return array_merge([
+            'candidate',
+            'fulltimer',
+            'request',
+            "requestInterview",
+            "requestInterviews"
+        ], parent::extraFields());
     }
 
     /**
@@ -149,6 +155,24 @@ class RequestApplication extends \yii\db\ActiveRecord
     public function getFulltimer($modelClass = "\common\models\Fulltimer")
     {
         return $this->hasOne($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterview($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasOne($modelClass::className(), ['application_uuid' => 'application_uuid'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterviews($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasMany($modelClass::className(), ['application_uuid' => 'application_uuid'])
+            ->orderBy("created_at DESC");
     }
 
     /**
