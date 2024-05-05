@@ -122,6 +122,21 @@ class RequestInterview extends \yii\db\ActiveRecord
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'candidate',
+            'fulltimer',
+            'createdBy',
+            'application',
+            'request',
+            'staff'
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getApplication($modelClass = "\common\models\RequestApplication")

@@ -667,7 +667,7 @@ class Request extends \yii\db\ActiveRecord
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
             ->orderBy("created_at DESC");
     }
-    
+
     /**
      * @inheritdoc
      * @return query\RequestQuery the active query used by this AR class.

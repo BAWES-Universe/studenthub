@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\RequestInterview;
 use common\models\RequestSkill;
 use common\models\Story;
 use Yii;
@@ -264,6 +265,76 @@ class RequestController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public function actionInterviewRequests()
+    {
+        $query = RequestInterview::find()
+            ->joinWith(['request'])
+            ->andWhere(['request_interview.status' => RequestInterview::STATUS_REQUESTED])
+            ->andWhere(['NOT IN', 'request.request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_FINISHED,
+                Request::STATUS_CANCELLED
+            ]])
+            ->orderBy("created_at DESC");
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    public function actionAcceptInterviewRequest($id)
+    {
+        $model = RequestInterview::find()
+            ->andWhere(['request_interview_uuid' => $id])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model->status = RequestInterview::STATUS_SCHEDULED;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request accepted successfully"
+        ];
+    }
+
+    public function actionRejectInterviewRequest($id)
+    {
+        $model = RequestInterview::find()
+                ->andWhere(['request_interview_uuid' => $id])
+                ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model->status = RequestInterview::STATUS_REJECTED;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request rejected successfully"
+        ];
     }
 
     /**
