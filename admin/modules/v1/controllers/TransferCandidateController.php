@@ -113,7 +113,7 @@ class TransferCandidateController extends Controller
         $transfer = $this->findTransfer($id);
         
         $query = $transfer->getTransferCandidates()
-            ->orderBy('store_id');//to group it by store on infinite scrolling listing 
+            ->orderBy('transfer_candidate.store_id');//to group it by store on infinite scrolling listing
         
         return new \yii\data\ActiveDataProvider([
             'query' => $query
@@ -130,7 +130,7 @@ class TransferCandidateController extends Controller
         $transfer = $this->findTransferFile($id);
         
         $query = $transfer->getTransferCandidates()
-            ->orderBy('store_id');//to group it by store on infinite scrolling listing 
+            ->orderBy('transfer_candidate.store_id');//to group it by store on infinite scrolling listing
         
         return new \yii\data\ActiveDataProvider([
             'query' => $query
