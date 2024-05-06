@@ -128,7 +128,9 @@ class StoreController extends BaseController
         $page = Yii::$app->request->get("page", 1);
 
         $company = Yii::$app->companyManager->getCompany();
-        
+
+        $query = null;
+
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
             $query = $company
                 ->getSubCompanyStores();

@@ -92,7 +92,8 @@ class Request extends \yii\db\ActiveRecord
             [['num_hours_followup_interval'], 'number', 'min' => 0],
 
             ['gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_ANY]],
-            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
+            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(),
+                'targetAttribute' => ['nationality_id' => 'country_id']],
 
             [['request_number_of_employees', 'no_of_employees_per_story'], 'number', 'min' => 1],
             ['no_of_employees_per_story', 'validateNoOfEmplPerStory']
