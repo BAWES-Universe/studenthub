@@ -16,7 +16,8 @@ use yii\db\Expression;
  * @property integer $staff_id
  * @property string $start_date
  * @property string $end_date
- * @property string $candidate_hourly_rate
+ * @property number $candidate_hourly_rate
+ * @property number $company_hourly_rate
  */
 class CandidateWorkHistory extends \yii\db\ActiveRecord
 {
@@ -37,7 +38,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['candidate_id', 'store_id', 'parent_company_id', 'company_id'], 'integer'],
             [['candidate_id', 'store_id', 'company_id'], 'required'],
             [['start_date', 'end_date'], 'safe'],
-            [['candidate_hourly_rate'], 'number'],
+            [['candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['candidate_hourly_rate'], 'validateRate'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
@@ -50,13 +51,29 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      */
     public function validateRate($attribute, $params, $validator) {
 
-        if(!$this->company) {
-            return true;
+        if($this->candidate_hourly_rate <= 0)
+        {
+            $this->addError('candidate_hourly_rate', Yii::t('candidate','Candidate hourly rate should be greater than 0.'));
+            return null;
         }
 
-        if($this->company->company_hourly_rate < $this->candidate_hourly_rate) {
-            $this->addError('candidate_hourly_rate', "Rate must be greater than or equal to : " 
-                . $this->company->company_hourly_rate);
+        $max = 0;
+
+        if($this->company_hourly_rate > 0) {
+            $max = $this->company_hourly_rate;
+        }
+        else if($this->company && $this->company->company_hourly_rate)
+        {
+            $max = $this->company->company_hourly_rate;
+        }
+        elseif($this->company && $this->company->parentCompany)
+        {
+            $max =  $this->company->parentCompany->company_hourly_rate;
+        }
+
+        if($max && $this->candidate_hourly_rate > $max)
+        {
+            $this->addError('candidate_hourly_rate', Yii::t('candidate', "Candidate hourly rate should be less than or equal to {max}.", ['max' => $max]));
         }
     }
 
@@ -75,6 +92,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             'start_date' => Yii::t('app', 'Start Date'),
             'end_date' => Yii::t('app', 'End Date'),
             'candidate_hourly_rate' => Yii::t('app', 'Candidate Hourly Rate'),
+            'company_hourly_rate' => Yii::t('app', 'Company Hourly Rate'),
         ];
     }
 
@@ -83,7 +101,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      * @param $candidate
      * @return bool
      */
-    public static function saveAssignedHistory($candidate, $start_date = null) {
+    public static function saveAssignedHistory($candidate, $start_date = null, $company_hourly_rate = null) {
 
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
@@ -93,6 +111,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->parent_company_id = (isset($candidate->company->parent_company_id)) ? $candidate->company->parent_company_id : $candidate->company->company_id;
         $model->start_date = $start_date != null ? date('Y-m-d', strtotime($start_date)): new \yii\db\Expression('NOW()');
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
+        $model->company_hourly_rate = $company_hourly_rate;
 
         if ($model->save()) {
             $candidate->updateAlgoliaIndex();
@@ -163,6 +182,24 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             //->filterDate(date('Y-m-d'))
             ->andWhere(new Expression($expression))
             ->exists();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['candidate_hourly_rate'] = function($model) {
+            return (double) $model->candidate_hourly_rate;
+        };
+
+        $fields['company_hourly_rate'] = function($model) {
+            return (double) $model->company_hourly_rate;
+        };
+
+        return $fields;
     }
 
     public function extraFields()

@@ -15,7 +15,6 @@ use yii\web\NotFoundHttpException;
  */
 class CandidateController extends BaseController
 {
-
     /**
      * Return a List of Candidate Accounts by
      * search criteria

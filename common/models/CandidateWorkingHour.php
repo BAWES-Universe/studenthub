@@ -56,6 +56,9 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function behaviors() {
         return [
             [

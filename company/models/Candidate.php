@@ -2,6 +2,7 @@
 namespace company\models;
 
 use Yii;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
 
@@ -113,7 +114,8 @@ class Candidate extends \common\models\Candidate {
             'candidateExperiences',
             'invitations',
             'invitedCount',
-            'isInvitedForCompany'
+            'isInvitedForCompany',
+            'currentWorkHistory'
         ];
     }
 
@@ -274,6 +276,16 @@ class Candidate extends \common\models\Candidate {
     public function getWorkHistory($modelClass = "\company\models\CandidateWorkHistory")
     {
         return parent::getWorkHistory ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrentWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andWhere(['store_id' => $this->store_id])
+            ->andWhere(new Expression("end_date IS NULL"));
     }
 
     /**

@@ -491,6 +491,7 @@ class CandidateController extends Controller
         $store_id = Yii::$app->request->getBodyParam("store_id");
         $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $start_date = Yii::$app->request->getBodyParam("start_date");
+        $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
 
         $model = $this->findModel($id);
 
@@ -576,7 +577,7 @@ class CandidateController extends Controller
         }
 
         // saving candidate work history
-        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory($model, $start_date);
+        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory($model, $start_date, $company_hourly_rate);
 
         if($candidateWorkHistory->errors) {
 
