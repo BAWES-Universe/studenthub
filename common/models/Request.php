@@ -254,7 +254,14 @@ class Request extends \yii\db\ActiveRecord
             'staffs',
             'stories',
             'storyOwners',
-            'requestSkills'
+            'requestSkills',
+            'requestApplication',
+            'newApplicationCount' => function($model) {
+                return $model->getRequestApplication()->count();
+            },
+            "activeSuggestionCount" => function($model) {
+                return $model->getActiveSuggestions()->count();
+            }
         ];
     }
 
@@ -419,7 +426,7 @@ class Request extends \yii\db\ActiveRecord
      */
     public function getActiveSuggestions($modelClass = "\common\models\Suggestion") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
-            ->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED]);
+            ->andWhere(['suggestion_status'=> Suggestion::TYPE_SUGGESTED]);
     }
 
     /**
