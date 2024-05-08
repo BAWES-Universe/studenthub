@@ -101,14 +101,18 @@ class CandidateEvaluationController extends Controller
         }
 
         $last = CandidateEvaluation::find()->orderBy('created_at DESC')->asArray()->one(); // last record not fetching
+
         foreach (Yii::$app->request->post('questionAnswer') as $answers) {
+
             $modelAnswer = new CandidateEvaluationAnswer();
             $modelAnswer->can_eval_uuid = $last['can_eval_uuid'];
-            $modelAnswer->ceq_uuid = $answers['ceq_uuid'];
-            $modelAnswer->answer = $answers['answer'];
-            $modelAnswer->question = $answers['question'];
+            $modelAnswer->ceq_uuid = isset($answers['ceq_uuid'])? $answers['ceq_uuid']: null;
+            $modelAnswer->answer = isset($answers['answer'])? $answers['answer']: null;
+            $modelAnswer->question = isset($answers['question'])? $answers['question']: null;
             $modelAnswer->rating = (isset($answers['rating']))?$answers['rating']:1;
+
             if (!$modelAnswer->save()) {
+
                 $transaction->rollBack();
                 return [
                     'operation' => 'error',
@@ -116,7 +120,9 @@ class CandidateEvaluationController extends Controller
                 ];
             }
         }
+
         $transaction->commit();
+
         return [
             'operation' => 'success',
             'message' => 'Report saved successfully'
