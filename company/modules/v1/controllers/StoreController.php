@@ -129,21 +129,14 @@ class StoreController extends BaseController
 
         $company = Yii::$app->companyManager->getCompany();
 
-        $query = null;
-
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
             $query = $company
                 ->getSubCompanyStores();
 //                ->getSubCompanies();
-        }
-        
-        if (isset($company->stores) && count($company->stores)>0) {
+        } else {
             $query = $company
                 ->getStores();
         }
-
-        if(!$query)
-            throw new NotFoundHttpException('The requested page does not exist.');
 
         return $page == -1 ? new ActiveDataProvider([
             'query' => $query,

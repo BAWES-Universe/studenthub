@@ -30,16 +30,18 @@ class CandidateController extends BaseController
 
         //validate request id
 
-        $companyIds = Yii::$app->companyManager->getCompanyIds();
+        //if ($match_request_id) {
+            $companyIds = Yii::$app->companyManager->getCompanyIds();
 
-        $isValidRequest =  Request::find()
-            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
-            ->andWhere(['request_uuid' => $match_request_id])
-            ->exists();
+            $isValidRequest = Request::find()
+                ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+                ->andWhere(['request_uuid' => $match_request_id])
+                ->exists();
 
-        if(!$isValidRequest) {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
+            if (!$isValidRequest) {
+                throw new NotFoundHttpException('The requested page does not exist.');
+            }
+        //}
 
         $query = \staff\models\Candidate::find()
             ->verifiedProfile();
