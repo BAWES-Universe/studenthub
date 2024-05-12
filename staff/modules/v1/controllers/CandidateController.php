@@ -748,6 +748,22 @@ class CandidateController extends Controller
     }
 
     /**
+     * @param $candidate_id
+     * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionApplications($candidate_id)
+    {
+        $query = $this->findModel($candidate_id)
+            ->getRequestApplications()
+            ->orderBy("created_at DESC");
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Toggle Candidate committed and create a note
      * @return array
      */

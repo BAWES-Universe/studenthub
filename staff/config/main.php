@@ -155,6 +155,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET applications/<candidate_id>" => "applications",
                         'GET assigned-history-list' => 'assigned-history-list',
                         'GET export-assigned-history' => 'export-assigned-history',
                         'GET detail/<id>' => 'view',
@@ -193,6 +194,7 @@ return [
                         'DELETE mark-duplicate/<id>' => 'mark-duplicate',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS mark-duplicate/<id>' => 'options',
                         'OPTIONS update-warning/<id>' => 'options',
                         'OPTIONS warn-candidate/<id>' => 'options',

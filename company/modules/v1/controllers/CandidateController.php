@@ -89,7 +89,8 @@ class CandidateController extends BaseController
      */
     public function actionTotal()
     {
-        return Yii::$app->companyManager->getCompany()->getCandidates()->count();
+        return Yii::$app->companyManager->getCompany()
+            ->getCandidates()->count();
     }
 
     /**
@@ -116,11 +117,51 @@ class CandidateController extends BaseController
     {
         //$data = Yii::$app->user->identity->getCandidates()->filterById($id)->one();
 
-        $data = Candidate::find()->filterById($id)->one();
+        return $this->findModel($id);
+    }
 
-        if (!$data)
-            throw new \yii\web\NotFoundHttpException('The requested page does not exist.');
+    /**
+     * @param $candidate_id
+     * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionApplications($candidate_id)
+    {
+        /**
+         * Yii::$app->companyManager->getCompany()
+        ->getCandidates()
+        ->filterById($candidate_id)
+         */
 
-        return $data;
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $query = $this->findModel($candidate_id)
+            ->getRequestApplications()
+            ->joinWith(['request'])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->orderBy("created_at DESC");
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * Finds the Candidate model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        $model = Candidate::find()
+            ->filterById($id)
+            ->one();
+
+        if ($model) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

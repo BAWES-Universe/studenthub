@@ -1117,6 +1117,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestApplications($modelClass = "\common\models\RequestApplication")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->orderBy('created_at DESC');
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getArea($modelClass = "\common\models\Area")
