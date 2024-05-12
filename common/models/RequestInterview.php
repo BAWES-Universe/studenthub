@@ -39,6 +39,7 @@ class RequestInterview extends \yii\db\ActiveRecord
     const STATUS_REJECTED = 2;
     const STATUS_CANCELLED = 3;
 
+
     /**
      * {@inheritdoc}
      */
@@ -182,5 +183,14 @@ class RequestInterview extends \yii\db\ActiveRecord
     public function getStaff($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\RequestInterviewQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\RequestInterviewQuery(get_called_class());
     }
 }

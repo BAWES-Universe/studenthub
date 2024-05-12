@@ -272,15 +272,50 @@ class RequestController extends Controller
      */
     public function actionInterviewRequests()
     {
+        $status = Yii::$app->request->get('status');
+        $application_uuid = Yii::$app->request->get('application_uuid');
+        $request_uuid = Yii::$app->request->get('request_uuid');
+        $fulltimer_uuid = Yii::$app->request->get('fulltimer_uuid');
+        $candidate_id = Yii::$app->request->get('candidate_id');
+        $staff_id = Yii::$app->request->get('staff_id');
+        $from = Yii::$app->request->get('from');
+        $to = Yii::$app->request->get('to');
+
+            //RequestInterview::STATUS_REQUESTED
+
         $query = RequestInterview::find()
+            ->filterDateRange($from, $to)
             ->joinWith(['request'])
-            ->andWhere(['request_interview.status' => RequestInterview::STATUS_REQUESTED])
             ->andWhere(['NOT IN', 'request.request_status', [
                 Request::STATUS_DELIVERED,
                 Request::STATUS_FINISHED,
                 Request::STATUS_CANCELLED
             ]])
             ->orderBy("created_at DESC");
+
+        if($application_uuid) {
+            $query->andWhere(['application_uuid' => $application_uuid]);
+        }
+
+        if($request_uuid) {
+            $query->andWhere(['request_uuid' => $request_uuid]);
+        }
+
+        if($fulltimer_uuid) {
+            $query->andWhere(['fulltimer_uuid' => $fulltimer_uuid]);
+        }
+
+        if($candidate_id) {
+            $query->andWhere(['candidate_id' => $candidate_id]);
+        }
+
+        if($staff_id) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
+
+        if ($status) {
+            $query->andWhere(['request_interview.status' => $status]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
