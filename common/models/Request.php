@@ -62,7 +62,8 @@ class Request extends \yii\db\ActiveRecord
     //Gender values for `gender`
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
-    const GENDER_ANY = 3;
+    const GENDER_OTHER = 3;
+    const GENDER_ANY = 0;
 
     /**
      * {@inheritdoc}
@@ -91,7 +92,7 @@ class Request extends \yii\db\ActiveRecord
             //['contact_uuid', 'validateContact'] contact can be removed from company
             [['num_hours_followup_interval'], 'number', 'min' => 0],
 
-            ['gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_ANY]],
+            ['gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER, self::GENDER_ANY]],
             [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(),
                 'targetAttribute' => ['nationality_id' => 'country_id']],
 
@@ -238,6 +239,7 @@ class Request extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
+            'nationality',
             'requestCreatedBy',
             'requestUpdatedBy',
             'requestCreatedByContact',
@@ -286,6 +288,15 @@ class Request extends \yii\db\ActiveRecord
             return $model->getStories()->count();
         };
         return $fields;
+    }
+
+    /**
+     * request owner
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNationality($modelClass = "\common\models\Country")
+    {
+        return $this->hasOne($modelClass::className(), ['country_id' => 'nationality_id']);
     }
 
     /**
