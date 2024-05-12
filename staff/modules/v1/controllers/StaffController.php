@@ -80,6 +80,7 @@ class StaffController extends Controller
     public function actionList()
     {
         $role = Yii::$app->request->get('role');
+        $page = Yii::$app->request->get('page');
 
         $query = Staff::find()
             ->notDeleted();
@@ -88,7 +89,10 @@ class StaffController extends Controller
             $query->andWhere(['staff_role' => $role]);
         }
 
-        return new ActiveDataProvider([
+        return $page == -1 ? new ActiveDataProvider([
+            'query' => $query,
+            "pagination" => false
+        ]) : new ActiveDataProvider([
             'query' => $query
         ]);
     }

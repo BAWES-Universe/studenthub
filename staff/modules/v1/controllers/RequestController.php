@@ -287,6 +287,11 @@ class RequestController extends Controller
         ]);
     }
 
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
     public function actionAcceptInterviewRequest($id)
     {
         $model = RequestInterview::find()
@@ -298,6 +303,9 @@ class RequestController extends Controller
         }
 
         $model->status = RequestInterview::STATUS_SCHEDULED;
+        $model->internal_note = Yii::$app->request->getBodyParam('internal_note');
+        $model->staff_id = Yii::$app->request->getBodyParam('staff_id');
+        $model->interview_note = Yii::$app->request->getBodyParam('interview_note');
 
         if(!$model->save()) {
             return [
