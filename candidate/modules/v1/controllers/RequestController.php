@@ -4,7 +4,9 @@ namespace candidate\modules\v1\controllers;
 
 use candidate\models\Request;
 use candidate\models\RequestApplication;
+use common\models\RequestInterview;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -117,6 +119,51 @@ class RequestController extends Controller
         $query = Yii::$app->user->identity
             ->getRequestApplications()
             ->addOrderBy('created_at DESC');;
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public function actionInterviewRequests()
+    {
+        $application_uuid = Yii::$app->request->get('application_uuid');
+        $request_uuid = Yii::$app->request->get('request_uuid');
+        $staff_id = Yii::$app->request->get('staff_id');
+        $from = Yii::$app->request->get('from');
+        $to = Yii::$app->request->get('to');
+
+        //RequestInterview::STATUS_REQUESTED
+
+        $query = RequestInterview::find()
+            ->filterDateRange($from, $to)
+            ->joinWith(['request'])
+            ->andWhere([
+                'candidate_id' => Yii::$app->user->getId(),
+                'request_interview.status' => RequestInterview::STATUS_SCHEDULED
+            ])
+            ->andWhere(new Expression('interview_at > NOW()'))
+            ->andWhere(['NOT IN', 'request.request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_FINISHED,
+                Request::STATUS_CANCELLED
+            ]])
+            ->orderBy("interview_at ASC");
+
+        if($application_uuid) {
+            $query->andWhere(['application_uuid' => $application_uuid]);
+        }
+
+        if($request_uuid) {
+            $query->andWhere(['request_uuid' => $request_uuid]);
+        }
+
+        if($staff_id) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

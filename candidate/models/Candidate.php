@@ -1,7 +1,10 @@
 <?php
 namespace candidate\models;
 
+use common\models\RequestInterview;
+use staff\models\Request;
 use Yii;
+use yii\db\Expression;
 
 
 /**
@@ -9,6 +12,32 @@ use Yii;
  * It extends from \common\models\Candidate but with custom functionality for this application module
  */
 class Candidate extends \common\models\Candidate {
+
+    /**
+     * @return array|string[]
+     */
+    public function extraFields()
+    {
+        $fields = parent::extraFields();
+
+        $fields['totalInterviewScheduled'] = function ($model) {
+            return RequestInterview::find()
+                ->joinWith(['request'])
+                ->andWhere([
+                    'candidate_id' => $model->candidate_id,
+                    'request_interview.status' => RequestInterview::STATUS_SCHEDULED
+                ])
+                ->andWhere(new Expression('interview_at > NOW()'))
+                ->andWhere(['NOT IN', 'request.request_status', [
+                    Request::STATUS_DELIVERED,
+                    Request::STATUS_FINISHED,
+                    Request::STATUS_CANCELLED
+                ]])
+                ->count();
+        };
+
+        return $fields;
+    }
 
     /**
      * @return array

@@ -262,10 +262,12 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET applications' => 'applications',
+                        "GET interview-requests" => "interview-requests",
                         'GET <id>' => 'view',
                         'POST apply/<id>' => 'apply',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS interview-requests" => "options",
                         'OPTIONS <id>' => 'options',
                         'OPTIONS apply/<id>' => 'options',
                     ]

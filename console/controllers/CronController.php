@@ -8,6 +8,7 @@ use common\models\CandidateStats;
 use common\models\CompanyStats;
 use common\models\DailyStandupQuestion;
 use common\models\MailLog;
+use common\models\RequestInterview;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
 use common\models\Currency;
@@ -225,6 +226,19 @@ class CronController extends \yii\console\Controller {
         $data['companyMoreThen40DaysWithoutPayment'] = \staff\models\Company::companiesCountWithNoPaymentIn40Days();
 
         $data['last40daysNoRequest'] = Company::last40daysWithoutRequest();
+
+        $data['interviewScheduledToday'] = RequestInterview::find()
+            ->joinWith(['request'])
+            ->andWhere([
+                'request_interview.status' => RequestInterview::STATUS_SCHEDULED
+            ])
+            ->andWhere(new Expression('DATE(interview_at) = DATE(NOW())'))
+            ->andWhere(['NOT IN', 'request.request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_FINISHED,
+                Request::STATUS_CANCELLED
+            ]])
+            ->count();
 
         //$staffs = Staff::findAll(['deleted'=>'0', 'staff_notification' => 1]);
         $staffs = \common\models\Staff::find()

@@ -290,8 +290,15 @@ class RequestController extends Controller
                 Request::STATUS_DELIVERED,
                 Request::STATUS_FINISHED,
                 Request::STATUS_CANCELLED
-            ]])
-            ->orderBy("created_at DESC");
+            ]]);
+
+        if ($status == RequestInterview::STATUS_SCHEDULED) {
+            $query->orderBy("interview_at ASC");
+        } else if ($status == RequestInterview::STATUS_REQUESTED) {
+            $query->orderBy("interview_at ASC");
+        } else {
+            $query->orderBy("created_at ASC");
+        }
 
         if($application_uuid) {
             $query->andWhere(['application_uuid' => $application_uuid]);
