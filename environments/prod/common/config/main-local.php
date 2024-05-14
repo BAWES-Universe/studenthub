@@ -52,10 +52,16 @@ return [
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
+            'hostname' => 'localhost',
+            'port' => 6379,
+            'database' => 0,
+        ],/*
+        'redis' => [
+            'class' => 'yii\redis\Connection',
             'hostname' => 'studenthub-0x1cgp.serverless.euw2.cache.amazonaws.com',
             'port' => 6379,
             'database' => 0,
-        ],
+        ],*/
         'cache' => [
             'class' => 'yii\redis\Cache',
             //'class' => 'yii\caching\FileCache',
