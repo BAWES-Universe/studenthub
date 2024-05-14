@@ -4,10 +4,13 @@ namespace staff\modules\v1\controllers;
 
 use common\models\CompanyRequest;
 use common\models\Contact;
+use common\models\RequestInterview;
+use common\models\StoreAssignmentRequest;
 use staff\models\Request;
 use staff\models\Company;
 use staff\models\TransferCandidate;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use staff\models\Candidate;
 
@@ -234,6 +237,31 @@ class StatisticController extends Controller
                 ->andWhere(['transfer_candidate.currency_code' => $currency])
                 ->count();
         }, $cacheDuration, $transferCandidateCacheDependency);
+
+        $result['totalStoreAssignmentRequests'] = StoreAssignmentRequest::find()
+            ->andWhere(['status' => StoreAssignmentRequest::STATUS_PENDING, 'currency_code' => $currency])
+            ->count();
+
+        $result['totalInterviewRequests'] = RequestInterview::find()
+            ->joinWith(['request'])
+            ->andWhere(['request_interview.status' => RequestInterview::STATUS_REQUESTED])
+            ->andWhere(['NOT IN', 'request.request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_FINISHED,
+                Request::STATUS_CANCELLED
+            ]])
+            ->count();
+
+        $result['totalInterviewScheduled'] = RequestInterview::find()
+            ->joinWith(['request'])
+            ->andWhere(['request_interview.status' => RequestInterview::STATUS_SCHEDULED])
+            ->andWhere(new Expression('interview_at > NOW()'))
+            ->andWhere(['NOT IN', 'request.request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_FINISHED,
+                Request::STATUS_CANCELLED
+            ]])
+            ->count();
 
         return $result;
     }

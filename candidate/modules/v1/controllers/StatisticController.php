@@ -2,7 +2,10 @@
 
 namespace candidate\modules\v1\controllers;
 
+use common\models\RequestInterview;
+use staff\models\Request;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -68,7 +71,7 @@ class StatisticController extends Controller
      */
     public function actionList()
     {
-        $return = [];
+        $result = [];
         $user = Yii::$app->user->identity;
         $stats = $user->accountStatistic;
 
@@ -76,12 +79,26 @@ class StatisticController extends Controller
         $totalPaid  = (int)$stats['paid'];
         $totalBonus = (int)$stats['bonus'];
 
-        $return['total_hours'] = number_format($totalHours);
-        $return['total_paid'] = $totalPaid;
-        $return['total_bonus'] = $totalBonus;
-        $return['total_earning'] = $totalPaid + $totalBonus;
-        $return['candidate'] = $user;
+        $result['total_hours'] = number_format($totalHours);
+        $result['total_paid'] = $totalPaid;
+        $result['total_bonus'] = $totalBonus;
+        $result['total_earning'] = $totalPaid + $totalBonus;
+        $result['candidate'] = $user;
 
-        return $return;
+        $result['totalInterviewScheduled'] = RequestInterview::find()
+            ->joinWith(['request'])
+            ->andWhere([
+                'candidate_id' => Yii::$app->user->getId(),
+                'request_interview.status' => RequestInterview::STATUS_SCHEDULED
+            ])
+            ->andWhere(new Expression('interview_at > NOW()'))
+            ->andWhere(['NOT IN', 'request.request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_FINISHED,
+                Request::STATUS_CANCELLED
+            ]])
+            ->count();
+
+        return $result;
     }
 }

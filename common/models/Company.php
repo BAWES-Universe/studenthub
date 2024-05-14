@@ -472,7 +472,8 @@ class Company extends \yii\db\ActiveRecord
         {
             //for child company
             return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
-                ->via('stores');
+                ->via('stores')
+                ->andWhere(['{{%candidate}}.deleted' => 0]);
         }        
     }
 
@@ -1125,6 +1126,14 @@ class Company extends \yii\db\ActiveRecord
     public function getCompanyStats($modelClass = "\common\models\CompanyStats")
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoreManager($modelClass = "\common\models\StoreManager")
+    {
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**

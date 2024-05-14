@@ -2,6 +2,7 @@
 namespace company\models;
 
 use Yii;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
 
@@ -41,7 +42,8 @@ class Candidate extends \common\models\Candidate {
             $fields['store_id'],
             $fields['store'],
             $fields['candidate_phone'],
-            $fields['candidate_email']
+            $fields['candidate_email'],
+
         );
 
         /**
@@ -54,8 +56,16 @@ class Candidate extends \common\models\Candidate {
                 $fields['candidate_phone'],
                 $fields['candidate_email'],
                 $fields['candidate_civil_photo_front'],
-                $fields['candidate_civil_photo_back']
+                $fields['candidate_civil_photo_back'],
+                $fields['candidate_resume'],
+                $fields['candidate_latitude'],
+                $fields['candidate_longitude'],
+                $fields['ip_address'],
             );
+        } else {
+            $fields['is_our_employee'] = function($model) {
+                return true;
+            };
         }
 
         $fields['candidate_name'] = function($model){
@@ -73,7 +83,27 @@ class Candidate extends \common\models\Candidate {
      */
     public function extraFields()
     {
+        /**
+         * hide if not employee of logged in employer
+         */
+        $storeIds = ArrayHelper::getColumn (Yii::$app->storeManager->getManagedStores(), 'store_id');
+
+        if(!in_array ($this->store_id, $storeIds)) {
+            return [
+                'university',
+                'country',
+                'area',
+                'nationality',
+                'candidateSkills',
+                'candidateExperiences',
+                'invitations',
+                'invitedCount',
+                'isInvitedForCompany'
+            ];
+        }
+
         return [
+            'storeAssignmentRequest',
             'store',
             'company',
             'university',
@@ -84,7 +114,8 @@ class Candidate extends \common\models\Candidate {
             'candidateExperiences',
             'invitations',
             'invitedCount',
-            'isInvitedForCompany'
+            'isInvitedForCompany',
+            'currentWorkHistory'
         ];
     }
 
@@ -99,6 +130,9 @@ class Candidate extends \common\models\Candidate {
             ->count();
     }
 
+    /**
+     * @return mixed
+     */
     public function getIsInvitedForCompany() {
         return Yii::$app->companyManager->getCompany()->getInvitations()->andWhere(['candidate_id'=>$this->candidate_id])->exists();
     }
@@ -242,6 +276,16 @@ class Candidate extends \common\models\Candidate {
     public function getWorkHistory($modelClass = "\company\models\CandidateWorkHistory")
     {
         return parent::getWorkHistory ($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrentWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andWhere(['store_id' => $this->store_id])
+            ->andWhere(new Expression("end_date IS NULL"));
     }
 
     /**

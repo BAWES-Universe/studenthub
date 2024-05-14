@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\RequestInterview;
 use common\models\RequestSkill;
 use common\models\Story;
 use Yii;
@@ -251,6 +252,142 @@ class RequestController extends Controller
     }
 
     /**
+     * @param $request_uuid
+     * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionApplications($request_uuid)
+    {
+        $query = $this->findModel($request_uuid)
+            ->getRequestApplication()
+            ->orderBy("created_at DESC");
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public function actionInterviewRequests()
+    {
+        $status = Yii::$app->request->get('status');
+        $application_uuid = Yii::$app->request->get('application_uuid');
+        $request_uuid = Yii::$app->request->get('request_uuid');
+        $fulltimer_uuid = Yii::$app->request->get('fulltimer_uuid');
+        $candidate_id = Yii::$app->request->get('candidate_id');
+        $staff_id = Yii::$app->request->get('staff_id');
+        $from = Yii::$app->request->get('from');
+        $to = Yii::$app->request->get('to');
+
+            //RequestInterview::STATUS_REQUESTED
+
+        $query = RequestInterview::find()
+            ->filterDateRange($from, $to)
+            ->joinWith(['request'])
+            ->andWhere(['NOT IN', 'request.request_status', [
+                Request::STATUS_DELIVERED,
+                Request::STATUS_FINISHED,
+                Request::STATUS_CANCELLED
+            ]]);
+
+        if ($status == RequestInterview::STATUS_SCHEDULED) {
+            $query->orderBy("interview_at ASC");
+        } else if ($status == RequestInterview::STATUS_REQUESTED) {
+            $query->orderBy("interview_at ASC");
+        } else {
+            $query->orderBy("created_at ASC");
+        }
+
+        if($application_uuid) {
+            $query->andWhere(['application_uuid' => $application_uuid]);
+        }
+
+        if($request_uuid) {
+            $query->andWhere(['request_uuid' => $request_uuid]);
+        }
+
+        if($fulltimer_uuid) {
+            $query->andWhere(['fulltimer_uuid' => $fulltimer_uuid]);
+        }
+
+        if($candidate_id) {
+            $query->andWhere(['candidate_id' => $candidate_id]);
+        }
+
+        if($staff_id) {
+            $query->andWhere(['staff_id' => $staff_id]);
+        }
+
+        if ($status) {
+            $query->andWhere(['request_interview.status' => $status]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionAcceptInterviewRequest($id)
+    {
+        $model = RequestInterview::find()
+            ->andWhere(['request_interview_uuid' => $id])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model->status = RequestInterview::STATUS_SCHEDULED;
+        $model->internal_note = Yii::$app->request->getBodyParam('internal_note');
+        $model->staff_id = Yii::$app->request->getBodyParam('staff_id');
+        $model->interview_note = Yii::$app->request->getBodyParam('interview_note');
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request accepted successfully"
+        ];
+    }
+
+    public function actionRejectInterviewRequest($id)
+    {
+        $model = RequestInterview::find()
+                ->andWhere(['request_interview_uuid' => $id])
+                ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model->status = RequestInterview::STATUS_REJECTED;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Request rejected successfully"
+        ];
+    }
+
+    /**
      * Return a List of requests available.
      * @return ActiveDataProvider
      */
@@ -339,6 +476,8 @@ class RequestController extends Controller
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
         $model->request_status = Request::STATUS_PENDING;
         $model->no_of_employees_per_story = Yii::$app->request->getBodyParam("no_of_employees_per_story");
+        $model->gender = Yii::$app->request->getBodyParam("gender");
+        $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
 
         if (!$model->save())
         {
@@ -423,6 +562,8 @@ class RequestController extends Controller
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
         $model->request_compensation = Yii::$app->request->getBodyParam("compensation");
         $model->no_of_employees_per_story = Yii::$app->request->getBodyParam("no_of_employees_per_story");
+        $model->gender = Yii::$app->request->getBodyParam("gender");
+        $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
 
         if (!$model->save())
         {

@@ -667,6 +667,24 @@ class Fulltimer extends \yii\db\ActiveRecord
         return $this->hasMany($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterview($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasOne($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterviews($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasMany($modelClass::className(), ['fulltimer_uuid' => 'fulltimer_uuid'])
+            ->orderBy("created_at DESC");
+    }
+
     public function getSuggested() {
         return $this->getSuggestion()->count();
     }

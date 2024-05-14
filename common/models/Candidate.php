@@ -488,6 +488,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
     }
 
+    /**
+     * @param $candidate_gender
+     * @return string
+     */
     public static function getGenderText($candidate_gender) {
         switch ($candidate_gender) {
             case self::GENDER_MALE:
@@ -862,6 +866,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            'storeAssignmentRequest',
             'campaign',
             'store',
             'company',
@@ -1056,6 +1061,26 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoreAssignmentRequest($modelClass = "\common\models\StoreAssignmentRequest")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andWhere(['status' => StoreAssignmentRequest::STATUS_PENDING]);
+            //->orderBy('created_at DESC');
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStoreAssignmentRequests($modelClass = "\common\models\StoreAssignmentRequest")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getUniversity($modelClass = "\common\models\University")
@@ -1089,6 +1114,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id'])
             ->andWhere(['{{%bank}}.deleted'=>0]);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestApplications($modelClass = "\common\models\RequestApplication")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->orderBy('created_at DESC');
     }
 
     /**
@@ -3150,5 +3185,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getCandidateStats($modelClass = "\common\models\CandidateStats")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterview($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterviews($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->orderBy("created_at DESC");
     }
 }

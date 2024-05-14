@@ -13,6 +13,7 @@ return [
     'inspectorAppUrl' => 'https://inspector.studenthub.co/',
     'statusAppUrl' => 'https://status.studenthub.co/',
     'companyAppUrl' => 'https://employer.studenthub.co/',
+    "managerAppUrl" => 'https://manager.studenthub.co/',
     'staffAppUrl' => 'https://staff.studenthub.co/',
     'adminAppUrl' => 'https://admin.studenthub.co/',
 ];

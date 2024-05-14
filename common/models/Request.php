@@ -42,6 +42,8 @@ use Segment\Segment;
  * @property int $request_priority
  * @property int $is_old
  * @property int $request_time_spent
+ * @property int $nationality_id
+ * @property int $gender
  * @property Company $company
  * @property RequestSkill[] $requestSkills
  * @property CompanyContact $contactUu
@@ -56,6 +58,12 @@ class Request extends \yii\db\ActiveRecord
     const STATUS_CANCELLED = 'cancelled';
     const STATUS_FINISHED = 'finished_by_recruitment';
     const STATUS_RE_WORK = 're_work';
+
+    //Gender values for `gender`
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 3;
+    const GENDER_ANY = 0;
 
     /**
      * {@inheritdoc}
@@ -83,6 +91,11 @@ class Request extends \yii\db\ActiveRecord
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
             [['num_hours_followup_interval'], 'number', 'min' => 0],
+
+            ['gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER, self::GENDER_ANY]],
+            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(),
+                'targetAttribute' => ['nationality_id' => 'country_id']],
+
             [['request_number_of_employees', 'no_of_employees_per_story'], 'number', 'min' => 1],
             ['no_of_employees_per_story', 'validateNoOfEmplPerStory']
         ];
@@ -226,6 +239,7 @@ class Request extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
+            'nationality',
             'requestCreatedBy',
             'requestUpdatedBy',
             'requestCreatedByContact',
@@ -242,7 +256,14 @@ class Request extends \yii\db\ActiveRecord
             'staffs',
             'stories',
             'storyOwners',
-            'requestSkills'
+            'requestSkills',
+            'requestApplication',
+            'newApplicationCount' => function($model) {
+                return $model->getRequestApplication()->count();
+            },
+            "activeSuggestionCount" => function($model) {
+                return $model->getActiveSuggestions()->count();
+            }
         ];
     }
 
@@ -267,6 +288,15 @@ class Request extends \yii\db\ActiveRecord
             return $model->getStories()->count();
         };
         return $fields;
+    }
+
+    /**
+     * request owner
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNationality($modelClass = "\common\models\Country")
+    {
+        return $this->hasOne($modelClass::className(), ['country_id' => 'nationality_id']);
     }
 
     /**
@@ -351,6 +381,14 @@ class Request extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getRequestApplication($modelClass = "\common\models\RequestApplication")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getLastActivity($modelClass = "\common\models\Note")
     {
         return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
@@ -399,7 +437,7 @@ class Request extends \yii\db\ActiveRecord
      */
     public function getActiveSuggestions($modelClass = "\common\models\Suggestion") {
         return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
-            ->andWhere(['suggestion_status'=>Suggestion::TYPE_SUGGESTED]);
+            ->andWhere(['suggestion_status'=> Suggestion::TYPE_SUGGESTED]);
     }
 
     /**
@@ -629,6 +667,24 @@ class Request extends \yii\db\ActiveRecord
         }
 
         return $query->count();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterview($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasOne($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRequestInterviews($modelClass = "\common\models\RequestInterview")
+    {
+        return $this->hasMany($modelClass::className(), ['request_uuid' => 'request_uuid'])
+            ->orderBy("created_at DESC");
     }
 
     /**

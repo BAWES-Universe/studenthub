@@ -155,6 +155,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET applications/<candidate_id>" => "applications",
                         'GET assigned-history-list' => 'assigned-history-list',
                         'GET export-assigned-history' => 'export-assigned-history',
                         'GET detail/<id>' => 'view',
@@ -193,6 +194,7 @@ return [
                         'DELETE mark-duplicate/<id>' => 'mark-duplicate',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS mark-duplicate/<id>' => 'options',
                         'OPTIONS update-warning/<id>' => 'options',
                         'OPTIONS warn-candidate/<id>' => 'options',
@@ -236,6 +238,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'PATCH update-manager/<id>' => 'update-manager',
@@ -243,6 +246,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-manager/<id>' => 'options',
                         'OPTIONS remove-manager/<id>' => 'options',
@@ -309,6 +313,7 @@ return [
                     'controller' => 'v1/company-request',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET applications/<request_uuid>" => "applications",
                         'GET <id>' => 'view',
                         'POST accept/<id>' => 'approve',
                         'POST approve/<id>' => 'approve',
@@ -318,7 +323,8 @@ return [
                         'OPTIONS <id>' => 'options',
                         'OPTIONS reject/<id>' => 'options',
                         'OPTIONS approve/<id>' => 'options',
-                        'OPTIONS accept/<id>' => 'options'
+                        'OPTIONS accept/<id>' => 'options',
+                        "OPTIONS applications/<request_uuid>" => "options"
                     ]
                 ],
                 [ // BankController
@@ -482,8 +488,12 @@ return [
                         'GET pending-request' => 'pending-request',
                         'GET list-checklist' => 'list-checklist',
                         'GET is-request-updated/<id>' => 'is-request-updated',
+                        "GET applications/<request_uuid>" => "applications",
+                        "GET interview-requests" => "interview-requests",
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        'PATCH reject-interview-request/<id>' => 'reject-interview-request',
+                        'PATCH accept-interview-request/<id>' => 'accept-interview-request',
                         'PATCH update-interval/<id>' => 'update-interval',
                         'PATCH update-status/<id>' => 'update-status',
                         'PATCH cancel/<id>' => 'cancel',
@@ -493,14 +503,18 @@ return [
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
-                        'OPTIONS pending-request' => 'list-checklist',
-                        'OPTIONS list-checklist' => 'list-checklist',
+                        "OPTIONS interview-requests" => "options",
+                        'OPTIONS reject-interview-request/<id>' => 'options',
+                        'OPTIONS accept-interview-request/<id>' => 'options',
+                        'OPTIONS pending-request' => 'options',
+                        'OPTIONS list-checklist' => 'options',
                         'OPTIONS is-request-updated/<id>' => 'options',
                         'OPTIONS active' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
                         'OPTIONS deliver/<id>' => 'options',
                         'OPTIONS add-activity' => 'options',
                         'OPTIONS assign/<id>' => 'options',
+                        "OPTIONS applications/<request_uuid>" => "options",
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-interval/<id>' => 'options',
                         'OPTIONS update-status/<id>' => 'options',
@@ -520,6 +534,21 @@ return [
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS company/<id>' => 'options',
+                    ]
+                ],
+                [ // StoreAssignmentRequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/store-assignment-request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'PATCH accept/<id>' => 'accept',
+                        'PATCH reject/<id>' => 'reject',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS accept/<id>' => 'options',
+                        'OPTIONS reject/<id>' => 'options',
                     ]
                 ],
                 [ // FulltimerController

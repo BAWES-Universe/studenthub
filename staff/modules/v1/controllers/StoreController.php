@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\StoreManager;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -121,6 +122,20 @@ class StoreController extends Controller
 
         Yii::info('[Store Created - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
+        $manager = Yii::$app->request->getBodyParam("storeManager");
+
+        if($manager && !empty($manager['name'])) {
+            $mmodel = new StoreManager();
+            $mmodel->store_id = $model->store_id;
+            $mmodel->company_id = $model->company->parent_company_id?
+                $model->company->parent_company_id: $model->company_id;
+            $mmodel->name = $manager['name'];
+            $mmodel->email = $manager['email'];
+            $mmodel->phone_number = $manager['phone_number'];
+            $mmodel->setPassword($manager['password']);
+            $mmodel->save(false);
+        }
+
         return [
             "operation" => "success",
             "message" => "Store successfully created"
@@ -232,6 +247,28 @@ class StoreController extends Controller
 
         Yii::info('[Store Updated - '.$model->store_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
+        $manager = Yii::$app->request->getBodyParam("storeManager");
+
+        if($manager && !empty($manager['name'])) {
+            if ($model->storeManager) {
+                $mmodel = $model->storeManager;
+            } else {
+                $mmodel = new StoreManager();
+            }
+
+            $mmodel->store_id = $model->store_id;
+            $mmodel->company_id = $model->company->parent_company_id?
+                $model->company->parent_company_id: $model->company_id;
+            $mmodel->name = $manager['name'];
+            $mmodel->email = $manager['email'];
+            $mmodel->phone_number = $manager['phone_number'];
+
+            if($manager['password'])
+                $mmodel->setPassword($manager['password']);
+
+            $mmodel->save(false);
+        }
+
         return [
             "operation" => "success",
             "message" => "Store successfully updated"
@@ -281,6 +318,39 @@ class StoreController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
+    }
+
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionLogin($id)
+    {
+        $model = $this->findModel($id);
+
+        if(!$model->storeManager) {
+            return [
+                "operation" => "error",
+                'message' => "No store manager account found!",
+            ];
+        }
+
+        $model->storeManager->generateAuthKey();
+
+        if(!$model->storeManager->save(false)) {
+            return [
+                "operation" => "error",
+                'message' => $model->storeManager->errors,
+                'redirect' => Yii::$app->params['managerAppUrl']
+            ];
+        }
+
+        $url = Yii::$app->params['managerAppUrl']. '?auth_key='.$model->storeManager->auth_key;
+
+        return [
+            'redirect' => $url
+        ];
     }
 
     /**

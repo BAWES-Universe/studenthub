@@ -857,7 +857,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $TCModel->transfer_benef_iban = $candidate['candidate_iban'];
 
         $company_bonus_commission = $company['company_bonus_commission'];
-        $company_hourly_rate = $company['company_hourly_rate'];
+        $company_hourly_rate = $assignment && $assignment->company_hourly_rate > 0 ?
+            $assignment->company_hourly_rate: $company['company_hourly_rate'];
 
         //if value not set take from parent company
 

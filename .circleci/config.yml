@@ -135,8 +135,18 @@ jobs:
           command: cd ./company && ../vendor/bin/codecept run functional --xml --html --fail-fast
 
       - run:
-         name: Run Company app Codeception tests and store result output
-         command: ./vendor/bin/codecept run company/tests/unit --xml --html --fail-fast
+          name: Run Company app Codeception tests and store result output
+          command: ./vendor/bin/codecept run company/tests/unit --xml --html --fail-fast
+
+      #---------- manager app --------------#
+
+      - run:
+          name: Run Manager app Codeception functional tests and store result output
+          command: cd ./manager && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      #- run:
+      #   name: Run Manager app Codeception tests and store result output
+      #   command: ./vendor/bin/codecept run manager/tests/unit --xml --html --fail-fast
 
       #---------- admin app --------------#
 

@@ -39,7 +39,7 @@ class Store extends \common\models\Store {
      * @param string $modelClass
      * @return \common\models\Store
      */
-    public function getStoreManager($modelClass = "\common\models\Contact")
+    public function getStoreManager($modelClass = "\common\models\StoreManager")
     {
         return parent::getStoreManager($modelClass);
     }

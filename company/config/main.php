@@ -144,12 +144,16 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET search' => 'search',
                         'GET total' => 'total',
                         'GET work-history/<id>' => 'work-history',
+                        "GET applications/<candidate_id>" => "applications",
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
+                        "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS' => 'options',
                         'OPTIONS total' => 'options',
+                        'OPTIONS search' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
@@ -190,9 +194,11 @@ return [
                         'GET company-store' => 'index',
                         'GET view/<id>' => 'view',
                         'GET <companyId>' => 'list',
+                        "POST store-assignment-request" => "store-assignment-request",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',                        
                         'OPTIONS company-store' => 'options',
+                        "OPTIONS store-assignment-request" => "options",
                         'OPTIONS <companyId>' => 'options',
                         'OPTIONS view/<id>' => 'options',
                     ]
@@ -242,14 +248,18 @@ return [
                         'GET active' => 'list-active',
                         'GET count' => 'request-count',
                         'GET is-request-updated/<id>' => 'is-request-updated',
+                        'GET applications/<request_uuid>' => 'applications',
                         'GET <id>' => 'view',
+                        "POST request-interview" => "request-interview",
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS count' => 'options',
                         'OPTIONS active' => 'options',
+                        "OPTIONS request-interview" => 'options',
                         'OPTIONS is-request-updated/<id>' => 'options',
+                        'OPTIONS applications/<request_uuid>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -326,7 +336,7 @@ return [
                         'OPTIONS invitation-list/<id>' => 'options',
                     ]
                 ],*/
-                [ // CandidateController
+                [ // CandidateWorkingHourController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-working-hour',
                     'patterns' => [

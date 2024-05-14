@@ -2,6 +2,7 @@
 
 namespace common\models\query;
 
+use common\models\Request;
 use staff\models\Candidate;
 use staff\models\Transfer;
 use Yii;
@@ -259,6 +260,36 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function filterById($id)
     {
         return $this->andWhere(['{{%candidate}}.candidate_id'=>$id]);
+    }
+
+    /**
+     * @param $id
+     * @return CandidateQuery
+     */
+    public function filterByRequestRequirement($match_request_id) {
+
+        $request = Request::findOne($match_request_id);
+
+        $requestSkills = ArrayHelper::getColumn($request->getRequestSkills()->all(), 'skill');
+
+        //matching skills or experience
+
+        $this->joinWith(['candidateSkills', 'candidateExperiences'])
+            ->andWhere([
+                "OR",
+                ["IN", 'candidate_skill.skill', $requestSkills],
+                ["IN", 'candidate_experience.experience', $request->request_position_title]
+            ]);
+
+        if($request->gender) {
+            $this->andWhere(['candidate_gender' => $request->gender]);
+        }
+
+        if($request->nationality_id) {
+            $this->andWhere(['country_id' => $request->nationality_id]);
+        }
+
+        return $this->andWhere(new Expression("candidate.store_id IS NULL"));
     }
 
     /**

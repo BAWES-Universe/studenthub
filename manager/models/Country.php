@@ -1,0 +1,34 @@
+<?php
+namespace manager\models;
+
+
+/**
+ * This is the model class for table "Country".
+ * It extends from \common\models\Country but with custom functionality for this application module
+ */
+class Country extends \common\models\Country
+{
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidates($modelClass = "\manager\models\Candidate")
+    {
+        return parent::getCandidates($modelClass);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAreas($modelClass = "\manager\models\Area")
+    {
+        return parent::getAreas($modelClass);
+    }
+
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        unset($fields['total_candidates']);
+        return $fields;
+    }
+}
