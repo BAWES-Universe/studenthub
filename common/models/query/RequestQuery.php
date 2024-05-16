@@ -205,8 +205,7 @@ class RequestQuery extends ActiveQuery
         $this->andWhere([
             "OR",
             ['gender' => $candidate->candidate_gender],
-            ['gender' => \common\models\Request::GENDER_ANY],
-            ['gender' => 0]
+            ['gender' => \common\models\Request::GENDER_ANY]
         ]);//if($candidate->candidate_gender) {
 
         if($candidate->country_id) {
