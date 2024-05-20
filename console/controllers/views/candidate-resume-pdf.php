@@ -61,7 +61,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                         </p>
                     </div>
                 </div>
-            <?php } if ($candidate->candidate_driving_license) { ?>
+            <?php } if ($candidate->candidate_driving_license == 1) { ?>
                 <div>
                     <div class="pull-left" style="width: 18%">
                         <?=Html::img('@staff/web/images/car_icons.png')?>
@@ -69,6 +69,17 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                     <div class="pull-left"  style="width: 70%">
                         <p style="font-size: 14px;color: #333333;  padding-left: 15px;">
                             Has driving <br/>license
+                        </p>
+                    </div>
+                </div>
+            <?php } else if ($candidate->candidate_driving_license == 2) { ?>
+                <div>
+                    <div class="pull-left" style="width: 18%">
+                        <?=Html::img('@staff/web/images/car_icons.png')?>
+                    </div>
+                    <div class="pull-left"  style="width: 70%">
+                        <p style="font-size: 14px;color: #333333;  padding-left: 15px;">
+                            Has no driving <br/>license
                         </p>
                     </div>
                 </div>
