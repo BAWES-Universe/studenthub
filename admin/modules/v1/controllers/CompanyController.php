@@ -585,6 +585,7 @@ class CompanyController extends Controller
         // Check SQL Query Count and Duration
         return Yii::getLogger()->getDbProfiling();
     }
+
     /**
      * @param $id
      * @return array|string[]
@@ -794,6 +795,7 @@ class CompanyController extends Controller
 
             $stats[$key]['hired'] = $joined['total'];
         }
+
         return $stats;
     }
 
@@ -806,9 +808,18 @@ class CompanyController extends Controller
         $status = Yii::$app->request->getQueryParam("status",0);
         $name = Yii::$app->request->getQueryParam("name",0);
         $approved_to_hire = Yii::$app->request->getQueryParam("approved_to_hire");
+        $last_payment_from = Yii::$app->request->getQueryParam("last_payment_from");
+        $last_payment_to = Yii::$app->request->getQueryParam("last_payment_to");
 
         $query = Company::find()
             ->filterParent();
+
+        if($last_payment_from && $last_payment_to) {
+            $query->filterByLastPaymentRange(
+                date("Y-m-d", strtotime($last_payment_from)),
+                date("Y-m-d", strtotime($last_payment_to))
+            );
+        }
 
         if ($status == 1) {
             $query->filterActive();
@@ -891,13 +902,13 @@ class CompanyController extends Controller
                         return (int)$model->getSubCompanies()->count();
                     }
                 ],
-                [
+                /*[
                     'attribute'=>'total_subcompanies',
                     'label'=>'Total SubCompanies',
                     'value'=>function($model) {
                         return (int)$model->getSubCompanies()->count();
                     }
-                ],
+                ],*/
                 [
                     'attribute'=>'total_stores',
                     'label'=>'Total Stores',
@@ -905,6 +916,7 @@ class CompanyController extends Controller
                         return (int)$model->getStores()->count();
                     }
                 ],
+                "last_payment_datetime"
             ]
         ]);
     }

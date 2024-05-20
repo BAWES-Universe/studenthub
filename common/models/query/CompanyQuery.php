@@ -163,6 +163,9 @@ class CompanyQuery extends \yii\db\ActiveQuery {
         return $this->andWhere(['>','{{%company}}.total_candidate',0]);
     }
 
+    /**
+     * @return CompanyQuery
+     */
     public function filterUnderReview() {
         return $this->andWhere(['company_status_override' => Company::STATUS_UNDER_REVIEW]);
     }
@@ -253,6 +256,23 @@ class CompanyQuery extends \yii\db\ActiveQuery {
             return $this->andWhere(['>', 'total_candidate', 0]);
 
         return $this->andWhere(['=', 'total_candidate', 0]);
+    }
+
+    /**
+     * @param $date
+     * @return CompanyQuery
+     */
+    public function filterByLastPaymentRange($start_date, $end_date) {
+        return $this->andWhere(new Expression('DATE(`company`.`last_payment_datetime`) >= DATE("'.$start_date.'")
+            AND DATE(`company`.`last_payment_datetime`) <= DATE("'.$end_date.'")'));
+    }
+
+    /**
+     * @param $date
+     * @return CompanyQuery
+     */
+    public function filterByLastPayment($date) {
+        return $this->andWhere(new Expression('DATE(`company`.`last_payment_datetime`) < DATE("'.$date.'")'));
     }
 
     /**

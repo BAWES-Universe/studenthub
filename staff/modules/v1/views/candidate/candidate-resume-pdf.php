@@ -81,7 +81,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
         <p style="padding:0; margin:0; font-size: 16px;color: #000000;">
             <?php
                 $from = new DateTime($candidate->candidate_birth_date);
-                $to   = new DateTime('today');
+                $to = new DateTime('today');
                 echo $from->diff($to)->y.' years old';
             ?>
         </p>
