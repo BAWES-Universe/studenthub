@@ -122,8 +122,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function rules()
     {
         return [
-            //'candidate_hourly_rate',
-            [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_expiry_date', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo', 'currency_code'], 'required'],
+            //'candidate_hourly_rate', 'candidate_civil_expiry_date',
+            [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date', 'candidate_civil_id', 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo', 'currency_code'], 'required'],
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license','candidate_mom_kuwaiti'], 'integer'],
@@ -149,6 +149,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             //['candidate_phone', 'unique', 'comboNotUnique' => 'Phone no. already exist.', 'targetAttribute' => ['candidate_phone', 'deleted']],
 
             ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => ['candidate_civil_id', 'deleted']],
+
+            ['candidate_civil_photo_front', 'validateCivilID', 'when' => function($model, $attribute) {
+                return $model->{$attribute} !== $model->getOldAttribute($attribute);
+            }],//, "on" => "updateCivilPhotoBack"
 
             ['candidate_pending_profile', 'string'],
             [['is_incomplete_profile'], 'boolean'],
@@ -304,8 +308,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['tmpProfilePhoto'] = ['profile_photo', 'is_incomplete_profile'];
 
         $scenarios['updateCivilPhotoBack'] = ['candidate_civil_photo_back', 'is_incomplete_profile'];
-        
-        $scenarios['updateCivilPhotoFront'] = ['candidate_civil_photo_front', 'is_incomplete_profile'];
+
+        $scenarios['updateCivilPhotoFront'] = ['candidate_civil_photo_front', "candidate_civil_expiry_date", 'is_incomplete_profile'];
         
         $scenarios['updateNationality'] = ['country_id', 'is_incomplete_profile'];
 
@@ -356,6 +360,34 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateProfileUrl'] = ['profile_url', 'is_incomplete_profile'];
 
         return $scenarios;
+    }
+
+    /**
+     * @return void
+     */
+    public function validateCivilID() {
+
+        if ($this->candidate_civil_photo_front) {
+
+            $response = Yii::$app->idExpiryDateExtractor
+                ->extractExpiryDate("photos/" . $this->candidate_civil_photo_front);
+
+            if ($response['operation'] == "success") {
+
+                $date = array_pop($response['matches']);
+                $dateTime = strtotime(str_replace("/", "-", $date));
+
+                //as dates will be in different format
+
+                if(empty($date) || $dateTime < time()) {
+                    $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
+                } else {
+                    $this->candidate_civil_expiry_date = date("Y-m-d", $dateTime);
+                }
+            } else {
+                $this->addError('candidate_civil_photo_front', Yii::t('app', "Error on reading card"));
+            }
+        }
     }
 
     /**
@@ -966,6 +998,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         if (!parent::beforeSave($insert))
             return false;
+
 
         // Move uploaded files to permanent bucket // as we are only going to use cloudinary
 //        $this->_moveTemporaryFilesToPermanentBucket();
@@ -2627,6 +2660,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $data['assigned'] = 0;
 
         if($this->store && $this->store->company) {
+
             $data['store'] = [
                 'store_name' => $this->store->store_name,
                 'store_total_candidate' => $this->store->store_total_candidates,

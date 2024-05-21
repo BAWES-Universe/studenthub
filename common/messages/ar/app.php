@@ -1,6 +1,7 @@
 <?php
 
 return [
+    "Invalid Civil ID (Expired)" => "البطاقة المدنية غير صالحة (منتهية الصلاحية)",
     "We found account with same email, Please login with same email!" => "لقد وجدنا حسابًا بنفس البريد الإلكتروني، يرجى تسجيل الدخول بنفس البريد الإلكتروني!",
     "Salary currency" => "عملة الراتب",
     "Salary" => "مرتب",
