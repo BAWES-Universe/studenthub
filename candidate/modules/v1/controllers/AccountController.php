@@ -1189,6 +1189,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_civil_photo_back' => $model->candidate_civil_photo_back,
+            "candidate_civil_expiry_date" => $model->candidate_civil_expiry_date,
             'message' => Yii::t('candidate', 'Civil Photo Back Uploaded Successfully')
         ];
     }
@@ -1231,6 +1232,7 @@ class AccountController extends Controller
         return [
             'operation' => 'success',
             'candidate_civil_photo_front' => $model->candidate_civil_photo_front,
+            "candidate_civil_expiry_date" => $model->candidate_civil_expiry_date,
             'message' => Yii::t('candidate', 'Civil Photo Front Uploaded Successfully')
         ];
     }
