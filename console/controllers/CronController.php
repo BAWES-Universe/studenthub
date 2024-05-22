@@ -52,7 +52,7 @@ class CronController extends \yii\console\Controller {
      * check if ID already expired
      * @return void
      */
-    public function actionValidateCivilID() {
+    public function actionValidateCivilId() {
 
         $query = Candidate::find()
             ->andWhere(new Expression("DATE(candidate_civil_expiry_date) > DATE(NOW())"));
@@ -66,13 +66,13 @@ class CronController extends \yii\console\Controller {
         foreach ($query->batch(100) as $candidates) {
             foreach ($candidates as $candidate) {
 
+                $count++;
+                Console::updateProgress($count, $total);
+
                 $response = Yii::$app->idExpiryDateExtractor
                     ->extractExpiryDate("photos/" . $candidate->candidate_civil_photo_front);
 
                 if ($response['operation'] == "success") {
-
-                    $count++;
-                    Console::updateProgress($count, $total);
 
                     $date = end($response['matches']);
 
