@@ -55,6 +55,8 @@ class CronController extends \yii\console\Controller {
     public function actionValidateCivilId() {
 
         $query = Candidate::find()
+            ->notDeleted()
+            ->filterAssigned()
             ->andWhere(new Expression("candidate_civil_photo_front IS NOT NULL AND 
                 DATE(candidate_civil_expiry_date) > DATE(NOW())"));
 
