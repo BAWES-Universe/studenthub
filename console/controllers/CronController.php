@@ -28,6 +28,14 @@ use common\models\Request;
 class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
+
+        //https://studenthub-uploads-dev-server.s3.amazonaws.com/photos/MBK-Civil-ID-1600531990157.png
+
+        //$r = Yii::$app->idExpiryDateExtractor
+        //    ->extractExpiryDate("photos/MBK-Civil-ID-1600531990157.png");
+
+        //print_r($r);
+
        // Yii::$app->smsComponent->sendSms(8758702738, "test");
 
         /*Yii::$app->mailer->compose ([
@@ -40,18 +48,48 @@ class CronController extends \yii\console\Controller {
             ->send ();*/
     }
 
-    public function actionTestt()
-    {
-        Yii::$app->eventManager->setUser(1, [
-            "name" => "ramji"
-        ]);
+    /**
+     * check if ID already expired
+     * @return void
+     */
+    public function actionValidateCivilId() {
 
-        Yii::$app->eventManager->track('Test Event Manager',
-            [
-                'name' => "Ramji"
-            ],
-            null
-        );
+        $query = Candidate::find()
+            ->andWhere(new Expression("DATE(candidate_civil_expiry_date) > DATE(NOW())"));
+
+        $count = 0;
+
+        $total = $query->count();
+
+        Console::startProgress(0, $total);
+
+        foreach ($query->batch(100) as $candidates) {
+            foreach ($candidates as $candidate) {
+
+                $count++;
+                Console::updateProgress($count, $total);
+
+                $response = Yii::$app->idExpiryDateExtractor
+                    ->extractExpiryDate("photos/" . $candidate->candidate_civil_photo_front);
+
+                if ($response['operation'] == "success") {
+
+                    $date = end($response['matches']);
+
+                    //as dates will be in different format
+
+                    if(strtotime($date) == strtotime($candidate->candidate_civil_expiry_date)) {
+                        continue;
+                    }
+
+                    Candidate::updateAll([
+                        "candidate_civil_expiry_date" => $date
+                    ], [
+                        'candidate_id' => $candidate->candidate_id
+                    ]);
+                }
+            }
+        }
     }
 
     /**

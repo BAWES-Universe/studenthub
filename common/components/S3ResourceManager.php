@@ -268,4 +268,6 @@ class S3ResourceManager extends Component
         }
         return $this->_client;
     }
+
+
 }
