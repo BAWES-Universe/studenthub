@@ -55,47 +55,14 @@ class CronController extends \yii\console\Controller {
     public function actionFillCivilIdExpiryDate() {
 
         $query = Candidate::find()
-            //->andWhere(['candidate_id' => 1698])
+            //->andWhere(['candidate_id' => 5486])
             ->notDeleted()
             ->filterAssigned()
             ->andWhere(new Expression("candidate_civil_photo_front IS NOT NULL AND 
+                candidate_civil_photo_back IS NOT NULL AND 
                 candidate_civil_expiry_date IS NULL"));
 
-        $count = 0;
-
-        $total = $query->count();
-
-        Console::startProgress(0, $total);
-
-        foreach ($query->batch(100) as $candidates) {
-            foreach ($candidates as $candidate) {
-
-                $count++;
-                Console::updateProgress($count, $total);
-
-                $filePath = str_contains($candidate->candidate_civil_photo_front, "photos/") ?
-                    $candidate->candidate_civil_photo_front: "photos/" . $candidate->candidate_civil_photo_front;
-
-                $response =
-                    Yii::$app->idExpiryDateExtractor
-                        ->extractExpiryDate($filePath);
-
-                if ($response['operation'] == "success") {
-
-                    $date = array_pop($response['matches']);
-                    $dateTime = strtotime(str_replace("/", "-", $date));
-
-                    Candidate::updateAll([
-                        "candidate_civil_expiry_date" => date("Y-m-d", $dateTime)
-                    ], [
-                        'candidate_id' => $candidate->candidate_id
-                    ]);
-
-                    $this->stdout(date("Y-m-d", $dateTime) ." for #" . $candidate->candidate_id . " \n",
-                        Console::FG_RED, Console::BOLD);
-                }
-            }
-        }
+        Candidate::updateCivilExpiry($this, $query);
     }
 
     /**
@@ -109,46 +76,14 @@ class CronController extends \yii\console\Controller {
             ->notDeleted()
             ->filterNotAssigned()
             ->andWhere(new Expression("candidate_civil_photo_front IS NOT NULL AND 
+                candidate_civil_photo_back IS NOT NULL AND 
                 candidate_civil_expiry_date IS NULL"));
 
-        $count = 0;
-
-        $total = $query->count();
-
-        Console::startProgress(0, $total);
-
-        foreach ($query->batch(100) as $candidates) {
-            foreach ($candidates as $candidate) {
-
-                $count++;
-                Console::updateProgress($count, $total);
-
-                $filePath = str_contains($candidate->candidate_civil_photo_front, "photos/") ?
-                    $candidate->candidate_civil_photo_front: "photos/" . $candidate->candidate_civil_photo_front;
-
-                $response =
-                    Yii::$app->idExpiryDateExtractor
-                        ->extractExpiryDate($filePath);
-
-                if ($response['operation'] == "success") {
-
-                    $date = array_pop($response['matches']);
-                    $dateTime = strtotime(str_replace("/", "-", $date));
-
-                    Candidate::updateAll([
-                        "candidate_civil_expiry_date" => date("Y-m-d", $dateTime)
-                    ], [
-                        'candidate_id' => $candidate->candidate_id
-                    ]);
-
-                   // $this->stdout(date("Y-m-d", $dateTime) ." for #" . $candidate->candidate_id . " \n",
-                   //     Console::FG_RED, Console::BOLD);
-                }
-            }
-        }
+        Candidate::updateCivilExpiry($this, $query);
     }
 
     /**
+     * todo: refactor this later for front + back photo validation
      * check if ID already expired
      * @return void
      */
@@ -158,6 +93,7 @@ class CronController extends \yii\console\Controller {
             ->notDeleted()
             ->filterAssigned()
             ->andWhere(new Expression("candidate_civil_photo_front IS NOT NULL AND 
+                candidate_civil_photo_back IS NOT NULL AND 
                 candidate_civil_expiry_date IS NOT NULL AND 
                 DATE(candidate_civil_expiry_date) > DATE(NOW())"));
 
@@ -176,7 +112,7 @@ class CronController extends \yii\console\Controller {
                 $response = Yii::$app->idExpiryDateExtractor
                     ->extractExpiryDate("photos/" . $candidate->candidate_civil_photo_front);
 
-                if ($response['operation'] == "success") {
+                if ($response['operation'] == "success" ) {
 
                     $date = array_pop($response['matches']);
                     $dateTime = strtotime(str_replace("/", "-", $date));
