@@ -1252,7 +1252,8 @@ class AccountController extends Controller
         
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
-        $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+        if($candidate_civil_expiry_date)
+            $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
 
         $candidate->scenario = "updateCivilExpiryDate";
 
@@ -1285,10 +1286,13 @@ class AccountController extends Controller
         }
 
         $candidate_civil_id = Yii::$app->request->getBodyParam('civil_id');
+
         $candidate_civil_expiry_date = Yii::$app->request->getBodyParam('civil_expiry_date');
 
         $candidate->candidate_civil_id = $candidate_civil_id;
-        $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
+
+        if($candidate_civil_expiry_date)
+            $candidate->candidate_civil_expiry_date = date('Y-m-d', strtotime($candidate_civil_expiry_date));
 
         $candidate->scenario = "updateCivilExpiryDateAndCivilID";
 

@@ -372,7 +372,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $response = Yii::$app->idExpiryDateExtractor
                 ->extractExpiryDate("photos/" . $this->candidate_civil_photo_front);
 
-            if ($response['operation'] == "success") {
+            if ($response['operation'] == "success" && sizeof($response['matches']) > 0) {
 
                 $date = array_pop($response['matches']);
                 $dateTime = strtotime(str_replace("/", "-", $date));
@@ -381,7 +381,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 if(empty($date) || $dateTime < time()) {
                     $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
-                } else {
+                } else if ($dateTime > 0){
                     $this->candidate_civil_expiry_date = date("Y-m-d", $dateTime);
                 }
             } else {
@@ -504,7 +504,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function validateCivilExpiry()
     {
-        if(strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
+        if($this->candidate_civil_expiry_date && strtotime($this->candidate_civil_expiry_date) < strtotime(date('Y-m-d')))
         {
             $this->addError('candidate_civil_expiry_date', Yii::t('candidate','Candidate have expired civil id.'));
         }
