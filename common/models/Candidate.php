@@ -150,9 +150,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => ['candidate_civil_id', 'deleted']],
 
-            ['candidate_civil_photo_front', 'validateCivilID', 'when' => function($model, $attribute) {
+            [
+                ['candidate_civil_photo_back', 'candidate_civil_photo_front'],
+                'validateCivilID', 'when' => function($model, $attribute) {
                 return $model->{$attribute} !== $model->getOldAttribute($attribute);
             }],//, "on" => "updateCivilPhotoBack"
+
+           /* ['candidate_civil_photo_back', 'validateCivilID', 'when' => function($model, $attribute) {
+                return $model->{$attribute} !== $model->getOldAttribute($attribute) &&
+                    $this->nationality && $this->nationality->iso == "BH";
+            }],//, "on" => "updateCivilPhotoBack"*/
 
             ['candidate_pending_profile', 'string'],
             [['is_incomplete_profile'], 'boolean'],
@@ -367,10 +374,43 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function validateCivilID() {
 
-        if ($this->candidate_civil_photo_front) {
+        //&& $this->nationality &&
+        //            $this->nationality->iso == "KW"
+
+        //avoid partial data validation, checking expiry when full ID available
+
+        if (!$this->candidate_civil_photo_front || !$this->candidate_civil_photo_back) {
+            return true;
+        }
+
+        $foundDate = false;
+
+        $response = Yii::$app->idExpiryDateExtractor
+            ->extractExpiryDate("photos/" . $this->candidate_civil_photo_front);
+
+        if ($response['operation'] == "success" && sizeof($response['matches']) > 0) {
+
+            $date = array_pop($response['matches']);
+            $dateTime = strtotime(str_replace("/", "-", $date));
+
+            //as dates will be in different format
+
+            if(empty($date) || $dateTime < time()) {
+                //    $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
+            } else if ($dateTime > 0) {
+                $foundDate = true;
+                $this->candidate_civil_expiry_date = date("Y-m-d", $dateTime);
+            }
+        } else {
+            //    $this->addError('candidate_civil_photo_front', Yii::t('app', "Error on reading card"));
+        }
+
+        // no need to check back if date found in first photo
+
+        if (!$foundDate) {
 
             $response = Yii::$app->idExpiryDateExtractor
-                ->extractExpiryDate("photos/" . $this->candidate_civil_photo_front);
+                ->extractExpiryDate("photos/" . $this->candidate_civil_photo_back);
 
             if ($response['operation'] == "success" && sizeof($response['matches']) > 0) {
 
@@ -379,14 +419,22 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 //as dates will be in different format
 
-                if(empty($date) || $dateTime < time()) {
-                    $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
-                } else if ($dateTime > 0){
+                if (empty($date) || $dateTime < time()) {
+                    //    $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
+                } else if ($dateTime > 0) {
+                    $foundDate = true;
                     $this->candidate_civil_expiry_date = date("Y-m-d", $dateTime);
                 }
             } else {
-                $this->addError('candidate_civil_photo_front', Yii::t('app', "Error on reading card"));
+                //    $this->addError('candidate_civil_photo_back', Yii::t('app', "Error on reading card"));
             }
+        }
+
+        //if not got expiry even after both photos got uploaded
+
+        if(!$foundDate)//$this->candidate_civil_expiry_date
+        {
+            $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID"));
         }
     }
 
@@ -3237,5 +3285,48 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id'])
             ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @param $console
+     * @param $query
+     * @return void
+     */
+    public static function updateCivilExpiry($console, $query) {
+
+        $count = 0;
+
+        $total = $query->count();
+
+        Console::startProgress(0, $total);
+
+        foreach ($query->batch(100) as $candidates) {
+            foreach ($candidates as $candidate) {
+
+                $count++;
+                Console::updateProgress($count, $total);
+
+                $candidate->setScenario("updateCivilExpiryDate");
+                $candidate->validateCivilID();
+
+                //if correct date was added
+
+                /*if($dateTime == strtotime($candidate->candidate_civil_expiry_date)) {
+                    continue;
+                }*/
+
+                if(
+                    $candidate->candidate_civil_expiry_date &&
+                    $candidate->save()
+                ) {
+                    //echo $candidate->candidate_civil_expiry_date ." for #" . $candidate->candidate_id . " \n";
+                    //$console->stdout($candidate->candidate_civil_expiry_date ." for #" . $candidate->candidate_id . " \n");
+                } else {
+                    //echo "Got error for #" . $candidate->candidate_id . " \n";
+                    $console->stdout("Got error for #" . $candidate->candidate_id . " \n",
+                        Console::FG_RED);
+                }
+            }
+        }
     }
 }
