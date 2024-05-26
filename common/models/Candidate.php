@@ -76,6 +76,7 @@ use Segment\Segment;
  * @property TransferCandidate[] $TransferCandidate
  * @property Note[] $notes
  * @property Campaign $campaign
+ * @property CandidateEducation[] $candidateEducations
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -2746,6 +2747,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data['candidate_updated_at_timestamp'] = strtotime($data['candidate_updated_at']);
         }
 
+        //candidate_educations
+
+        $data['candidateEducations'] = [];
+
+        foreach ($this->getCandidateEducations()->all() as $education) {
+            $data['candidateEducations'][] = $education;
+        }
+        
         //candidate_experience
 
         $data['candidateExperiences'] = [];
@@ -3217,6 +3226,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return \yii\db\ActiveQuery
      */
     public function getCandidateStats($modelClass = "\common\models\CandidateStats")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateEducations($modelClass = "\common\models\CandidateEducation")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
