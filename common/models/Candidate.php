@@ -910,6 +910,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'bank',
             'candidateSkills',
             'candidateTags',
+            'candidateEducations',
             'candidateExperiences',
             'candidateIdCard',
             'notes',
