@@ -141,8 +141,8 @@ class CronController extends \yii\console\Controller {
                         'candidate_id' => $candidate->candidate_id
                     ]);
 
-                    $this->stdout(date("Y-m-d", $dateTime) ." for #" . $candidate->candidate_id . " \n",
-                        Console::FG_RED, Console::BOLD);
+                   // $this->stdout(date("Y-m-d", $dateTime) ." for #" . $candidate->candidate_id . " \n",
+                   //     Console::FG_RED, Console::BOLD);
                 }
             }
         }
@@ -199,8 +199,8 @@ class CronController extends \yii\console\Controller {
                         'candidate_id' => $candidate->candidate_id
                     ]);
 
-                    $this->stdout(date("Y-m-d", $dateTime) ." for #" . $candidate->candidate_id . " \n",
-                        Console::FG_RED, Console::BOLD);
+                   //$this->stdout(date("Y-m-d", $dateTime) ." for #" . $candidate->candidate_id . " \n",
+                   //     Console::FG_RED, Console::BOLD);
                 }
             }
         }
