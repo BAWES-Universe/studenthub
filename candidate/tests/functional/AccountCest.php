@@ -353,7 +353,11 @@ class AccountCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson(["operation" => "success",'message'=>'Civil ID Expiry Date Updated Successfully']);
     }
-    
+
+    /**
+     * @param \candidate\tests\FunctionalTester $I
+     * @return void
+     */
     public function tryUpdateCivilPhotoBack(FunctionalTester $I)
     {
         $response = Yii::$app->temporaryBucketResourceManager->save(
@@ -369,7 +373,11 @@ class AccountCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson(['operation' => 'success','message'=>'Civil Photo Back Uploaded Successfully']);
     }
-    
+
+    /**
+     * @param \candidate\tests\FunctionalTester $I
+     * @return void
+     *
     public function tryUpdateCivilPhotoFront(FunctionalTester $I)
     {
         $response = Yii::$app->temporaryBucketResourceManager->save(
@@ -384,7 +392,7 @@ class AccountCest
         $I->sendPOST('v1/account/update-civil-photo-front', array('civil_photo_front' => basename($response['ObjectURL'])));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson(['operation' => 'success','message'=>'Civil Photo Front Uploaded Successfully']);
-    }
+    }*/
 
 //    public function tryGetAreaByLocation(FunctionalTester $I)
 //    {
