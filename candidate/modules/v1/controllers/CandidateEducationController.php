@@ -2,6 +2,9 @@
 
 namespace candidate\modules\v1\controllers;
 
+use common\models\Degree;
+use common\models\DegreeGroup;
+use common\models\Major;
 use Yii;
 use common\models\CandidateEducation;
 use yii\data\ActiveDataProvider;
@@ -72,6 +75,78 @@ class CandidateEducationController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public function actionListMajor() {
+        $query = Major::find();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public function actionListDegreeGroup() {
+        $query = DegreeGroup::find();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public function actionListDegree() {
+        $query = Degree::find();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function actionSave() {
+
+        $candidateEducations = Yii::$app->request->getBodyParam("candidateEducations", []);
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        foreach ($candidateEducations as $candidateEducation) {
+
+            $model = empty($candidateEducation['education_uuid']) ? new CandidateEducation():
+                $this->findModel($candidateEducation['education_uuid']);
+
+            $model->candidate_id = Yii::$app->user->getId();
+            $model->university_id = $candidateEducation['university_id'];
+            $model->degree_uuid = $candidateEducation['degree_uuid'];
+            $model->major_uuid = $candidateEducation['major_uuid'];
+            $model->graduation_year = $candidateEducation['graduation_year'];
+            $model->is_currently_studying = $candidateEducation['is_currently_studying'];
+
+            if (!$model->save()) {
+
+                $transaction->rollBack();
+
+                return [
+                    'operation' => 'error',
+                    'message' => $model->getErrors()
+                ];
+            }
+        }
+
+        $transaction->commit();
+
+        return [
+            'operation' => 'success',
+        ];
     }
 
     /**

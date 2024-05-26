@@ -244,7 +244,11 @@ return [
                     'controller' => 'v1/candidate-education',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET majors' => 'list-major',
+                        'GET degrees' => 'list-degree',
+                        'GET degree-groups' => 'list-degree-group',
                         'GET <id>' => 'view',
+                        'POST save' => 'save',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
