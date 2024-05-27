@@ -123,7 +123,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
             <?php if ($candidate->getCandidateExperiences()->count() > 0 ) { ?>
                 <ul>
                     <?php foreach ($candidate->getCandidateExperiences()->all() as $exp) { ?>
-                        <li style="font-size: 14px;color: #000000;"><?=$exp->experience;?></li>
+                        <li style="font-size: 14px;color: #000000;"><?= ucwords($exp->experience) ;?></li>
                     <?php } ?>
                 </ul>
             <?php } else { ?>
@@ -138,7 +138,7 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
             if ($candidate->getCandidateSkills()->count() > 0 ) {
                 echo "<ul>";
                 foreach ($candidate->getCandidateSkills()->all() as $skill) { ?>
-                    <li style="font-size: 14px;color: #000000;"><?=$skill->skill;?></li>
+                    <li style="font-size: 14px;color: #000000;"><?= ucwords($skill->skill); ?></li>
                 <?php }
                 echo "</ul>";
             } else { ?>
