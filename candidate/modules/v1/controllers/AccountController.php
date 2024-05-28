@@ -1178,7 +1178,11 @@ class AccountController extends Controller
         }
         
         $model->updateCivilId('back');
-        
+
+        //reset to remove old id's data
+        $model->candidate_civil_expiry_date = null;
+        $model->candidate_civil_id = null;
+
         if (!$model->save()) {
             return [
                 'operation' => 'error',
@@ -1190,6 +1194,7 @@ class AccountController extends Controller
             'operation' => 'success',
             'candidate_civil_photo_back' => $model->candidate_civil_photo_back,
             "candidate_civil_expiry_date" => $model->candidate_civil_expiry_date,
+            "candidate_civil_id" => $model->candidate_civil_id,
             'message' => Yii::t('candidate', 'Civil Photo Back Uploaded Successfully')
         ];
     }
@@ -1221,7 +1226,11 @@ class AccountController extends Controller
         }
         
         $model->updateCivilId('front');
-                
+
+        //reset to remove old id's data
+        $model->candidate_civil_expiry_date = null;
+        $model->candidate_civil_id = null;
+
         if (!$model->save()) {
             return [
                 'operation' => 'error',
@@ -1233,6 +1242,7 @@ class AccountController extends Controller
             'operation' => 'success',
             'candidate_civil_photo_front' => $model->candidate_civil_photo_front,
             "candidate_civil_expiry_date" => $model->candidate_civil_expiry_date,
+            "candidate_civil_id" => $model->candidate_civil_id,
             'message' => Yii::t('candidate', 'Civil Photo Front Uploaded Successfully')
         ];
     }

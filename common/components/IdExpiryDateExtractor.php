@@ -75,17 +75,34 @@ class IdExpiryDateExtractor extends Component
                 }
             }
 
-            if(sizeof($dates) > 0) {
+            $idPattern = '/^\d+$/'; //DD/MM/YYYY
+
+            $ids = [];
+
+            foreach ($blocks as $block) {
+                if ($block['BlockType'] == 'LINE') {
+                    if (
+                        preg_match($idPattern, $block['Text'], $matches) &&
+                        strlen($matches[0]) > 5
+                    ) {
+                        $ids[] = $matches[0];
+                    }
+                }
+            }
+
+            if(sizeof($dates) > 0 || sizeof($ids) > 0) {
                 return [
                     "operation" => "success",
-                    "matches" => $dates
+                    "matches" => $dates,
+                    "ids" => $ids
                 ];
             }
 
             return [
                 "operation" => "error",
-                "matches" =>"Expiry Date not found."
+                "matches" => "Expiry Date not found."
             ];
+
         } catch (AwsException $e) {
             return [
                 "operation" => "error",
