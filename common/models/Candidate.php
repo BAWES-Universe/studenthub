@@ -151,14 +151,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             //['candidate_phone', 'unique', 'comboNotUnique' => 'Phone no. already exist.', 'targetAttribute' => ['candidate_phone', 'deleted']],
 
-            ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => [
-                'candidate_civil_id', 'deleted']],
-
             [
                 ['candidate_civil_photo_back', 'candidate_civil_photo_front'],
                 'validateCivilID', 'when' => function($model, $attribute) {
                 return $model->{$attribute} !== $model->getOldAttribute($attribute);
             }],//, "on" => "updateCivilPhotoBack"
+
+            ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => [
+                'candidate_civil_id', 'deleted']],
 
            /* ['candidate_civil_photo_back', 'validateCivilID', 'when' => function($model, $attribute) {
                 return $model->{$attribute} !== $model->getOldAttribute($attribute) &&
