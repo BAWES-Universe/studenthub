@@ -403,8 +403,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 //as dates will be in different format
 
-                if (empty($date) || $dateTime < time()) {
-                    //    $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
+                if (!empty($date) && $dateTime < time()) {
+                    $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
                 } else if ($dateTime > 0) {
                     $foundDate = true;
                     $this->candidate_civil_expiry_date = date("Y-m-d", $dateTime);
@@ -435,8 +435,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                     //as dates will be in different format
 
-                    if (empty($date) || $dateTime < time()) {
-                        //    $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
+                    if (!empty($date) && $dateTime < time()) {
+                    //if (empty($date) || $dateTime < time()) {
+                        $this->addError('candidate_civil_photo_front', Yii::t('app', "Invalid Civil ID (Expired)"));
                     } else if ($dateTime > 0) {
                         $foundDate = true;
                         $this->candidate_civil_expiry_date = date("Y-m-d", $dateTime);
