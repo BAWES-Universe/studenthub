@@ -1126,7 +1126,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ->andWhere("DATE(candidate_created_at) = DATE('".date('Y-m-d')."')")
                     ->count();
 
-                if ($count > 1) {
+                if ($count > 10) {
                     Yii::error("too may candidate signup from same ip");
                     return $this->addError('ip_address', "Too many requests");
                 }
