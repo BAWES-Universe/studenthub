@@ -83,11 +83,16 @@ class CandidateController extends Controller
     public function actionList()
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
+        $candidate_civil_need_verification = Yii::$app->request->headers->get("candidate_civil_need_verification");
 
         $query = Candidate::find();
 
         if($currency) {
             $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
+        if ($candidate_civil_need_verification) {
+            $query->andWhere(['candidate_civil_need_verification' => $candidate_civil_need_verification]);
         }
 
         return new ActiveDataProvider([
@@ -949,8 +954,13 @@ class CandidateController extends Controller
         $civil = Yii::$app->request->get("civil");
         $updatedAfter = Yii::$app->request->get("updatedAfter");
         $civilId = Yii::$app->request->get('civilId');
+        $candidate_civil_need_verification = Yii::$app->request->get('candidate_civil_need_verification');
 
         $query = Candidate::find();
+
+        if ($candidate_civil_need_verification) {
+            $query->andWhere(['candidate_civil_need_verification' => $candidate_civil_need_verification]);
+        }
 
         //letting list all company candidate from company detail page
         if($company_id) {
@@ -1039,11 +1049,16 @@ class CandidateController extends Controller
 
         $country_id = Yii::$app->request->get('country_id');
         $match_request_id = Yii::$app->request->get('match_request_id');
+        $candidate_civil_need_verification = Yii::$app->request->get('candidate_civil_need_verification');
 
         $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
             ->verifiedProfile();
+
+        if ($candidate_civil_need_verification) {
+            $query->andWhere(['candidate_civil_need_verification' => $candidate_civil_need_verification]);
+        }
 
         if($currency) {
             $query->andWhere(['candidate.currency_code' => $currency]);
@@ -1198,6 +1213,7 @@ class CandidateController extends Controller
             //'pagination' => false
         ]);
     }
+
     /**
      * Expire candidate id by setting expiry as now
      * @param $id

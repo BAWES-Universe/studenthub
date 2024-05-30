@@ -194,6 +194,7 @@ return [
                         'GET company-store' => 'index',
                         'GET view/<id>' => 'view',
                         'GET <companyId>' => 'list',
+                        "PATCH cancel-store-assignment-request/<id>" => "cancel-store-assignment-request",
                         "POST store-assignment-request" => "store-assignment-request",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',                        
@@ -201,6 +202,7 @@ return [
                         "OPTIONS store-assignment-request" => "options",
                         'OPTIONS <companyId>' => 'options',
                         'OPTIONS view/<id>' => 'options',
+                        "OPTIONS cancel-store-assignment-request/<id>" => 'options',
                     ]
                 ],
                 [ // CompanyController

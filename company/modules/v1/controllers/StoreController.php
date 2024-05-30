@@ -18,6 +18,39 @@ class StoreController extends BaseController
      * @return array|string[]
      * @throws \yii\web\NotFoundHttpException
      */
+    public function actionCancelStoreAssignmentRequest($id) {
+
+        $model = StoreAssignmentRequest::find()
+            ->andWhere(['sar_uuid' => $id])
+            ->one();
+
+        if(!$model) {
+            return [
+                "operation" => "error",
+                "message" => "Invalid id"
+            ];
+        }
+
+        $model->status = StoreAssignmentRequest::STATUS_CANCELLED;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "storeAssignmentRequest" => $model,
+            "message" => "We cancelled your request"
+        ];
+    }
+
+    /**
+     * @return array|string[]
+     * @throws \yii\web\NotFoundHttpException
+     */
     public function actionStoreAssignmentRequest() {
 
         $store_id = Yii::$app->request->getBodyParam("store_id");

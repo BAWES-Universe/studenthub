@@ -26,6 +26,7 @@ class StoreAssignmentRequest extends \yii\db\ActiveRecord
     const STATUS_PENDING = 0;
     const STATUS_ACCEPTED = 1;
     const STATUS_REJECTED = 2;
+    const STATUS_CANCELLED = 3;
 
     /**
      * {@inheritdoc}
