@@ -144,8 +144,14 @@ class CandidateEducationController extends Controller
 
         $transaction->commit();
 
+        $candidateEducations = Yii::$app->user->identity->getCandidateEducations()
+            ->with(['major', 'degree', 'university'])
+            ->asArray()
+            ->all();
+
         return [
             'operation' => 'success',
+            "candidateEducations" => $candidateEducations
         ];
     }
 

@@ -2753,9 +2753,44 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $data['candidateEducations'] = [];
 
         foreach ($this->getCandidateEducations()->all() as $education) {
-            $data['candidateEducations'][] = $education;
+
+            $arrEducation = [
+                "graduation_year" => $education->graduation_year,
+                "is_currently_studying" => $education->is_currently_studying
+            ];
+
+            if($education->university) {
+                $arrEducation["university"] = [
+                    "university_name_en" => $education->university->university_name_en,
+                    "university_name_ar" => $education->university->university_name_ar,
+                ];
+            }
+
+            if($education->degree) {
+
+                $arrEducation["degree"] = [
+                    "degree_name_en" => $education->degree->degree_name_en,
+                    "degree_name_ar" => $education->degree->degree_name_ar,
+                ];
+
+                /*if ($education->degree->degreeGroup) {
+                    $arrEducation["degreeGroup"] = [
+                        "degree_group_name_en" => $education->degreeGroup->degree_group_name_en,
+                        "degree_group_name_ar" => $education->degreeGroup->degree_group_name_ar,
+                    ];
+                }*/
+            }
+
+            if($education->major) {
+                $arrEducation["major"] = [
+                    "major_name_en" => $education->major->major_name_en,
+                    "major_name_ar" => $education->major->major_name_ar,
+                ];
+            }
+
+            $data['candidateEducations'][] = $arrEducation;
         }
-        
+
         //candidate_experience
 
         $data['candidateExperiences'] = [];

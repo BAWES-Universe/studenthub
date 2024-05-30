@@ -97,6 +97,32 @@ class CandidateEducation extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave ($insert, $changedAttributes);
+
+        //update profile status
+
+        //$this->candidate->isInCompleteProfile();
+
+        //$this->candidate->candidate_pending_profile = implode(',', array_keys($this->candidate->pendingProfile));
+
+        //!$this->candidate->university_id &&
+        if($this->university_id) {
+            $this->candidate->university_id = $this->university_id;
+        }
+
+        $this->candidate->setScenario('updatePendingProfile');
+        $this->candidate->save(false);
+    }
+
+    /**
+     * @return array|false|int[]|string[]
+     */
     public function extraFields()
     {
         return array_merge(parent::extraFields(), [
