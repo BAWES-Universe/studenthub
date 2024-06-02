@@ -238,6 +238,25 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [
+                    //CandidateEducationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-education',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET majors' => 'list-major',
+                        'GET degrees' => 'list-degree',
+                        'GET degree-groups' => 'list-degree-group',
+                        'GET <id>' => 'view',
+                        'POST save' => 'save',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
                 [ // InvitationController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invitation',
