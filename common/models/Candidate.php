@@ -2912,7 +2912,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         //call api in batch
 
-        $query = self::find();
+        $query = self::find()
+            ->andWhere(['deleted' => 0]);
+
         /* ->joinWith([
           'city',
           //'country',

@@ -118,6 +118,8 @@ class CandidateEducation extends \yii\db\ActiveRecord
 
         $this->candidate->setScenario('updatePendingProfile');
         $this->candidate->save(false);
+
+        return true;
     }
 
     /**
