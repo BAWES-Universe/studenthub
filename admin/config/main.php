@@ -574,6 +574,48 @@ return [
                         'OPTIONS download-list-excel' => 'options',
                     ]
                 ],
+                [ // DegreeController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/degree',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
+                [ // DegreeGroupController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/degree-group',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
+                [ // MajorController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/major',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // CountryController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/country',

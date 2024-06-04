@@ -18,6 +18,7 @@ use yii\behaviors\AttributeBehavior;
  * @property string $degree_created_at
  * @property string $degree_updated_at
  *
+ * @property DegreeGroup $degreeGroup
  * @property CandidateEducation[] $candidateEducations
  */
 class Degree extends \yii\db\ActiveRecord
@@ -85,6 +86,11 @@ class Degree extends \yii\db\ActiveRecord
         ];
     }
 
+    public function extraFields()
+    {
+        return array_merge(['degreeGroup', parent::extraFields()]);
+    }
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
@@ -92,6 +98,15 @@ class Degree extends \yii\db\ActiveRecord
     public function getCandidateEducations($modelClass = '\common\models\CandidateEducation')
     {
         return $this->hasMany($modelClass::className(), ['degree_uuid' => 'degree_uuid']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDegreeGroup($modelClass = '\common\models\DegreeGroup')
+    {
+        return $this->hasOne($modelClass::className(), ['degree_group_uuid' => 'degree_group_uuid']);
     }
     
     /**
