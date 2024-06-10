@@ -14,7 +14,7 @@ use admin\models\TransferCandidate;
 use company\models\TranferExcel;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
-use Segment\Segment;
+
 
 /**
  * Transfer controller - Manage Transfer
@@ -366,6 +366,8 @@ class TransferController extends Controller
                         'revenue' => $transfer->company_total - $transfer->total,
                         'currency' => $transfer->currency_code
                 ]);
+
+            Transfer::triggerPayableCandidateEvent();
         }
 
         return [
@@ -628,6 +630,10 @@ class TransferController extends Controller
 
        // $transaction->commit();
 
+        /*if(YII_ENV == 'prod') {
+            Transfer::triggerPayableCandidateEvent();
+        }*/
+
         return [
             'operation' => 'success',
             'message' => 'Transfer paid by wallet'
@@ -758,6 +764,10 @@ class TransferController extends Controller
                 'message' => 'Invalid request',
                 'error' => $e
             ];
+        }
+
+        if(YII_ENV == 'prod') {
+            Transfer::triggerPayableCandidateEvent();
         }
 
         return [
