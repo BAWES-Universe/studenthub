@@ -165,7 +165,6 @@ class EventManager extends Component
 
             if(!$userId)
                 $userId = Yii::$app->user->getId();
-
         }
 
         if(empty($eventData["channel"])) {

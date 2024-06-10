@@ -39,6 +39,7 @@ class Candidate extends \common\models\Candidate {
      * @return array
      */
     public static function getTotalPayableCandidate($currency_code = "KWD") {
+
         $totalCandidate = 0;
         $totalAmount = 0;
 
@@ -61,6 +62,7 @@ class Candidate extends \common\models\Candidate {
         $transfers = $query->all();
 
         foreach ($transfers as $transfer) {
+
             $candidates = $transfer->getUnPaidTransferCandidates()
                 ->asArray()
                 ->all();

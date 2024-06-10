@@ -178,6 +178,11 @@ New events:
 * Candidate Profile Completed - - Country/Region, Age, Gender, and Other Demographic Data
 * Company Profile Updated - company_approved_to_hire 
 
+Payable 
+* Payable Candidates 
+* 
+
+
 implement mixpanel + segment in frontend apps 
 
 campaing like plugn to calculate campaign cost, ROI, Conversion Rate from Campaign Traffic, 

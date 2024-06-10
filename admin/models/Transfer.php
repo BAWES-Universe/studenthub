@@ -1,6 +1,7 @@
 <?php
 namespace admin\models;
 
+use common\models\Currency;
 use Yii;
 use yii\base\Exception;
 use yii\db\Expression;
@@ -393,5 +394,38 @@ class Transfer extends \common\models\Transfer
             "operation" => "success",
             "message" => 'Candidate Transfer marked as "paid" with transfer status changed to completed successfully'
         ];
+    }
+
+    /**
+     * @return void
+     */
+    public static function triggerPayableCandidateEvent() {
+
+        /*$currencies = [
+            [
+                'currency_code' => "KWD"
+            ],
+            [
+                'currency_code' => "BHD"
+            ]
+        ]; Transfer::find()
+            ->distinct('currency_code')
+            ->asArray()
+            ->all();*/
+
+        $currencies = Currency::find()
+            ->andWhere(['status' => 1])
+            ->all();
+
+        $data = [];
+
+        foreach ($currencies as $currency) {
+            $result = Candidate::getTotalPayableCandidate($currency['code']);
+
+            $data[$currency['code']] = $result['payable'];
+        }
+
+        Yii::$app->eventManager->track(
+            'Payable Candidates', $data);
     }
 }
