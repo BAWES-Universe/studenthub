@@ -208,7 +208,7 @@ class Company extends \common\models\Company {
     }
 
     /**
-     * Send new password to customer
+     * Send new password to candidate
      * @param $model
      * @param string $type
      * @return bool
@@ -247,7 +247,7 @@ class Company extends \common\models\Company {
     }
 
     /**
-     * Send new password to customer
+     * Send new password to candidate
      * @param $model
      * @param string $type
      * @return bool

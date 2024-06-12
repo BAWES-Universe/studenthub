@@ -44,7 +44,11 @@ class StaffQuery extends ActiveQuery
     }
 
     public function active() {
-        return $this->andWhere(['{{%staff}}.status_status'=>10]);
+        return $this->andWhere(['{{%staff}}.staff_status'=>10]);
+    }
+
+    public function filterNotificationEnabled() {
+        return $this->andWhere(['{{%staff}}.staff_notification' => true]);
     }
 
     public function filterName($name)

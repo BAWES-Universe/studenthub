@@ -6,6 +6,7 @@ use common\models\CompanyRequest;
 use common\models\Contact;
 use common\models\RequestInterview;
 use common\models\StoreAssignmentRequest;
+use common\models\Ticket;
 use staff\models\Request;
 use staff\models\Company;
 use staff\models\TransferCandidate;
@@ -261,6 +262,14 @@ class StatisticController extends Controller
                 Request::STATUS_FINISHED,
                 Request::STATUS_CANCELLED
             ]])
+            ->count();
+
+        $result['totalPendingTickets'] = Ticket::find()
+            ->andWhere(['ticket_status' => Ticket::STATUS_PENDING])
+            ->count();
+
+        $result['totalInProgressTickets'] = Ticket::find()
+            ->andWhere(['ticket_status' => Ticket::STATUS_IN_PROGRESS])
             ->count();
 
         return $result;
