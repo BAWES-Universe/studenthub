@@ -116,6 +116,10 @@ class TransferCandidate extends \common\models\TransferCandidate
                 }
             }
 
+            if(YII_ENV == 'prod') {
+                Transfer::triggerPayableCandidateEvent();
+            }
+
             return [
                 "operation" => "success",
                 "message" => 'Candidate Transfer marked as "unpaid" successfully'
@@ -197,6 +201,8 @@ class TransferCandidate extends \common\models\TransferCandidate
                     'tagNames' => 'Studenthub candidate paid',
                     'user_uuid' => Yii::$app->walletManager->companyWalletUserID
                 ]);
+
+                Transfer::triggerPayableCandidateEvent();
             }
             
             return [
@@ -266,6 +272,10 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         Yii::info('[' . count($transferCandidateIds) . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
+        if(YII_ENV == 'prod') {
+            Transfer::triggerPayableCandidateEvent();
+        }
+
         return [
             'operation' => 'success',
             'message' => count($transferCandidateIds). ' candidates have been marked as paid',
@@ -318,6 +328,10 @@ class TransferCandidate extends \common\models\TransferCandidate
         Transfer::updateAll(['transfer_status'=>Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS],['in', 'transfer_id', $transferList]);
 
         Yii::info('[' . count($transferCandidateIds) . ' candidates have been marked as unpaid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
+
+        if(YII_ENV == 'prod') {
+            Transfer::triggerPayableCandidateEvent();
+        }
 
         return [
             'operation' => 'success',

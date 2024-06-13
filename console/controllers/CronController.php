@@ -3,6 +3,7 @@
 namespace console\controllers;
 
 use admin\models\Expense;
+use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use common\models\CandidateStats;
 use common\models\CompanyStats;
@@ -46,6 +47,9 @@ class CronController extends \yii\console\Controller {
             ->setTo ("kathrechakrushn@gmail.com")
             //->setCc($contactEmails)
             ->send ();*/
+
+        //echo YII_ENV;
+        Transfer::triggerPayableCandidateEvent();
     }
 
     /**

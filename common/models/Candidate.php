@@ -77,6 +77,7 @@ use Segment\Segment;
  * @property TransferCandidate[] $TransferCandidate
  * @property Note[] $notes
  * @property Campaign $campaign
+ * @property CandidateEducation[] $candidateEducations
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
@@ -986,6 +987,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'bank',
             'candidateSkills',
             'candidateTags',
+            'candidateEducations',
             'candidateExperiences',
             'candidateIdCard',
             'notes',
@@ -2823,6 +2825,49 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data['candidate_updated_at_timestamp'] = strtotime($data['candidate_updated_at']);
         }
 
+        //candidate_educations
+
+        $data['candidateEducations'] = [];
+
+        foreach ($this->getCandidateEducations()->all() as $education) {
+
+            $arrEducation = [
+                "graduation_year" => $education->graduation_year,
+                "is_currently_studying" => $education->is_currently_studying
+            ];
+
+            if($education->university) {
+                $arrEducation["university"] = [
+                    "university_name_en" => $education->university->university_name_en,
+                    "university_name_ar" => $education->university->university_name_ar,
+                ];
+            }
+
+            if($education->degree) {
+
+                $arrEducation["degree"] = [
+                    "degree_name_en" => $education->degree->degree_name_en,
+                    "degree_name_ar" => $education->degree->degree_name_ar,
+                ];
+
+                /*if ($education->degree->degreeGroup) {
+                    $arrEducation["degreeGroup"] = [
+                        "degree_group_name_en" => $education->degreeGroup->degree_group_name_en,
+                        "degree_group_name_ar" => $education->degreeGroup->degree_group_name_ar,
+                    ];
+                }*/
+            }
+
+            if($education->major) {
+                $arrEducation["major"] = [
+                    "major_name_en" => $education->major->major_name_en,
+                    "major_name_ar" => $education->major->major_name_ar,
+                ];
+            }
+
+            $data['candidateEducations'][] = $arrEducation;
+        }
+
         //candidate_experience
 
         $data['candidateExperiences'] = [];
@@ -2867,7 +2912,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         //call api in batch
 
-        $query = self::find();
+        $query = self::find()
+            ->andWhere(['deleted' => 0]);
+
         /* ->joinWith([
           'city',
           //'country',
@@ -3294,6 +3341,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return \yii\db\ActiveQuery
      */
     public function getCandidateStats($modelClass = "\common\models\CandidateStats")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateEducations($modelClass = "\common\models\CandidateEducation")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }

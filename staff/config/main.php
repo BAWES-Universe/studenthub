@@ -91,6 +91,25 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [// TicketController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/ticket',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET stats' => 'stats',
+                        'GET comments/<id>' => 'comments',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH assign/<ticket_uuid>' => 'assign',
+                        'PATCH comment/<ticket_uuid>' => 'comment',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS assign/<ticket_uuid>' => 'options',
+                        'OPTIONS comment/<ticket_uuid>' => 'options',
+                        'OPTIONS comments/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // DailyStandupController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/daily-standup',

@@ -192,6 +192,22 @@ return [
                         'OPTIONS update-profile-url' => 'options',
                     ]
                 ],
+                [// TicketController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/ticket',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET comments/<id>' => 'comments',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH comment/<ticket_uuid>' => 'comment',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS comment/<ticket_uuid>' => 'options',
+                        'OPTIONS comments/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // GoogleMapController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/google-map',
@@ -236,6 +252,25 @@ return [
                         'GET' => 'list',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                    ]
+                ],
+                [
+                    //CandidateEducationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-education',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET majors' => 'list-major',
+                        'GET degrees' => 'list-degree',
+                        'GET degree-groups' => 'list-degree-group',
+                        'GET <id>' => 'view',
+                        'POST save' => 'save',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
                     ]
                 ],
                 [ // InvitationController

@@ -61,7 +61,6 @@ class Config extends Component
      */
     public function load()
     {
-        // Getting a list of Restaurant config
         $cacheDependency = Yii::createObject([
             'class' => 'yii\caching\DbDependency',
             'reusable' => true,
