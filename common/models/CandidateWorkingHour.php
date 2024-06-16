@@ -23,6 +23,8 @@ use yii\db\Expression;
  * @property string $start_location_long
  * @property string $end_location_lat
  * @property string $end_location_long
+ * @property string $note
+ * @property int $status
  * @property string $created_at
  * @property string $updated_at
  *
@@ -31,6 +33,10 @@ use yii\db\Expression;
  */
 class CandidateWorkingHour extends \yii\db\ActiveRecord
 {
+    const STATUS_PENDING = 0;
+    const STATUS_APPROVED = 1;
+    const STATUS_REJECTED = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -46,9 +52,10 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     {
         return [
             [['store_id','candidate_id'], 'required'],
-            [['candidate_id', 'store_id','total_time'], 'integer'],
+            [['candidate_id', 'store_id','total_time', 'status'], 'integer'],
             [['date', 'start_time', 'end_time', 'created_at', 'updated_at'], 'safe'],
             [['start_location_lat', 'start_location_long', 'end_location_lat', 'end_location_long'], 'number'],
+            [['note'], 'string'],
             [['candidate_working_hour_uuid'], 'string', 'max' => 60],
             [['candidate_working_hour_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -98,6 +105,8 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             'start_location_long' => 'Star Location Long',
             'end_location_lat' => 'End Location Lat',
             'end_location_long' => 'End Location Long',
+            'status' => 'Status',
+            'note' => 'Note',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];

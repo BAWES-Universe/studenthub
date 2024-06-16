@@ -1,5 +1,6 @@
 <?php
 return [
+    "Session removed successfully" => "",
     "Please check the link sent to you on your phone number to set new password." => "يرجى التحقق من الرابط المرسل إليك على رقم هاتفك لتعيين كلمة مرور جديدة.",
     "Sorry, we are unable to reset a password for phone number provided." => "عذرًا، لا يمكننا إعادة تعيين كلمة المرور لرقم الهاتف المقدم.",
     "SMS was sent previously, you may request another one in {numMinutes, number} minutes and {numSeconds, number} seconds" => "تم إرسال رسالة قصيرة من قبل، يمكنك طلب رسالة أخرى خلال {numMinutes, number} دقيقة و{numSeconds, number} ثانية",
