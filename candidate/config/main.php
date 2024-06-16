@@ -139,6 +139,7 @@ return [
                         'POST update-civil-id-expiry-date' => 'update-civil-id-expiry-date',
                         'POST update-preferred-time' => 'update-preferred-time',
                         'POST update-profile-url' => 'profile-url',
+                        'DELETE discard-session' => 'discard-session',
                         'DELETE remove-photo' => 'remove-photo',
                         'DELETE remove-video' => 'remove-video',
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
@@ -147,6 +148,7 @@ return [
                         'POST validate-password' => 'validate-user-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS discard-session' => 'options',
                         'OPTIONS video-status' => 'options',
                         'OPTIONS video-by-webhook' => 'options',
                         'OPTIONS job-search-status' => 'options',
@@ -238,10 +240,14 @@ return [
                     'patterns' => [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
+                        'GET stats' => 'stats',
                         'GET date/<date>' => 'hours-detail',
+                        'POST' => "add-hour",
                         // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        'OPTIONS stats' => 'options',
                         'OPTIONS date/<date>' => 'options',
                     ]
                 ],

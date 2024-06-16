@@ -3,6 +3,7 @@ namespace candidate\modules\v1\controllers;
 
 use candidate\models\CandidateWorkingHour;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -84,6 +85,82 @@ class CandidateWorkingHourController extends Controller
         ]);
     }
 
+    public function actionStats()
+    {
+        $date = Yii::$app->request->get('date');
+
+        $firstSession = CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at ASC')
+            ->one();
+
+        $lastSession = CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at DESC')
+            ->one();
+
+        $totalTime = CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->sum("total_time");
+
+        $checkIn = $firstSession ? $firstSession->start_time: null;
+        $checkOut = $lastSession ? $lastSession->end_time: null;
+
+        return [
+            "checkIn" => $checkIn,
+            "checkOut" => $checkOut,
+            "totalTime" => $totalTime
+        ];
+    }
+
+    /**
+     * add manually
+     * @return array
+     */
+    public function actionAddHour() {
+
+        $model = \common\models\CandidateWorkingHour::find()
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
+            ->andWhere('end_time is null')
+            ->one();
+
+        if ($model) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate', 'You are already working')
+            ];
+        }
+
+        $model = new CandidateWorkingHour();
+        $model->start_time = date('Y-m-d H:i:s', strtotime(Yii::$app->request->getBodyParam("start_time")));
+        $model->end_time = date('Y-m-d H:i:s', strtotime(Yii::$app->request->getBodyParam("end_time")));
+        $model->note = Yii::$app->request->getBodyParam("note");
+        $model->status = CandidateWorkingHour::STATUS_PENDING;
+        $model->candidate_id = Yii::$app->user->getId();
+        $model->store_id = Yii::$app->user->identity->store_id;
+        $model->date  = date('Y-m-d');
+        //$model->start_location_lat = $lat;
+        //$model->start_location_long = $long;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Session saved successfully")
+        ];
+    }
 
     /**
      * Return a List of Invitation
@@ -92,10 +169,12 @@ class CandidateWorkingHourController extends Controller
     public function actionListHour()
     {
         $date = Yii::$app->request->get('date');
-        $query = CandidateWorkingHour::find();
-        $query->andWhere(['date'=>$date]);
-        $query->andWhere(['candidate_id'=>Yii::$app->user->getId()]);
-        $query->orderBy('created_at DESC');
+
+        $query = CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at ASC');
 
         return new ActiveDataProvider([
             'query' => $query
@@ -109,7 +188,7 @@ class CandidateWorkingHourController extends Controller
     public function actionHoursDetail($date)
     {
         return CandidateWorkingHour::find()
-            ->addSelect('*,sum(total_time) as total_time')
+            ->addSelect('*, sum(total_time) as total_time')
             ->andWhere(['date'=>$date])
             ->andWhere(['candidate_id'=>Yii::$app->user->getId()])
             ->one();

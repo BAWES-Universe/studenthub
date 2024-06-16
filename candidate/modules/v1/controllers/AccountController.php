@@ -1482,6 +1482,7 @@ class AccountController extends Controller
         $model->date  = date('Y-m-d');
         $model->start_location_lat = $lat;
         $model->start_location_long = $long;
+
         if (!$model->save()) {
             return [
                 "operation" => "error",
@@ -1493,6 +1494,38 @@ class AccountController extends Controller
             "operation" => "success",
             "message" => Yii::t('candidate', "Started working successfully"),
             "data" => Yii::$app->user->identity->getIsWorking(),
+        ];
+    }
+
+    /**
+     * @return array
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionDiscardSession() {
+        $model = CandidateWorkingHour::find()
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
+            ->andWhere('end_time is null')
+            ->one();
+
+        if (!$model) {
+            return [
+                "operation" => "error",
+                "message" => Yii::t('candidate','You have not started working on any store')
+            ];
+        }
+
+        if (!$model->delete()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Session removed successfully"),
         ];
     }
 
@@ -1522,6 +1555,7 @@ class AccountController extends Controller
         $model->end_location_long = $long;
         $model->start_location_lat = $lat;
         $model->start_location_long = $long;
+
         if (!$model->save()) {
             return [
                 "operation" => "error",
