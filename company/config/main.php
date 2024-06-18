@@ -147,6 +147,7 @@ return [
                         'GET search' => 'search',
                         'GET total' => 'total',
                         'GET work-history/<id>' => 'work-history',
+                        'GET work-history-detail/<id>' => 'work-history-detail',
                         "GET applications/<candidate_id>" => "applications",
                         'GET <id>' => 'view',
                         // OPTIONS VERBS
@@ -155,6 +156,7 @@ return [
                         'OPTIONS total' => 'options',
                         'OPTIONS search' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        'OPTIONS work-history-detail/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -338,13 +340,25 @@ return [
                         'OPTIONS invitation-list/<id>' => 'options',
                     ]
                 ],*/
+
+                [ // CandidateWorkLogFeedbackController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-work-log-feedback',
+                    'patterns' => [
+                        'POST' => 'save',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // CandidateWorkingHourController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-working-hour',
                     'patterns' => [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
+                        'GET stats' => 'stats',
                         // OPTIONS VERBS
+                        'OPTIONS stats' => "stats",
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
                     ]

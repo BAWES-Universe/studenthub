@@ -110,6 +110,22 @@ class CandidateController extends BaseController
         return $model;
     }
 
+    public function actionWorkHistoryDetail($id)
+    {
+        $companyIds = Yii::$app->companyManager->getCompanyIds();
+
+        $model =  CandidateWorkHistory::find()
+            ->andWhere(['id' => $id])
+            ->andWhere(['in', 'company_id', $companyIds])//current company and childs
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        return $model;
+    }
+
     /**
      * Return no of Candidate detail
      */

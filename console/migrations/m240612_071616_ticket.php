@@ -18,8 +18,6 @@ class m240612_071616_ticket extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
-        $this->dropTable("ticket");
-        
         $this->createTable('{{%ticket}}', [
             'ticket_uuid' => $this->char(60),
             'candidate_id' => $this->integer(11),

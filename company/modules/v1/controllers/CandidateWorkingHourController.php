@@ -6,6 +6,7 @@ use admin\models\CandidateWorkingHour;
 use company\models\Candidate;
 use company\models\Store;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -77,14 +78,22 @@ class CandidateWorkingHourController extends Controller
     public function actionListDate()
     {
         $candidate_id = Yii::$app->request->get('candidate_id', null);
+        $store_id = Yii::$app->request->get('store_id', null);
+
         if (!$candidate_id && $candidate_id == 'null') {
             return [
                 "operation" => "error",
                 "message" => 'Invalid Access'
             ];
         }
+
         $candidate = Candidate::findOne(['candidate_id'=>$candidate_id]);
-        if (!$candidate->store_id) {
+
+        if(!$store_id) {
+            $store_id = $candidate->store_id;
+        }
+
+        if (!$store_id) {
             return [
                 "operation" => "error",
                 "message" => 'Invalid Access'
@@ -95,7 +104,7 @@ class CandidateWorkingHourController extends Controller
 
         $store = Store::find()
             ->andWhere(['in', 'company_id', $companyIds])//current company and childs
-            ->filterByStoreId($candidate->store_id)
+            ->filterByStoreId($store_id)
             ->one();
 
         if (!$store) {
@@ -109,8 +118,8 @@ class CandidateWorkingHourController extends Controller
         $query->addSelect('sum(total_time) as total_time,date, store_id, candidate_id');
         $query->groupBy('date');
         $query->orderBy('date DESC');
-        $query->andWhere(['candidate_id'=>$candidate_id]);
-        $query->andWhere(['store_id'=>$candidate->store_id]);
+        $query->andWhere(['candidate_id' => $candidate_id]);
+        $query->andWhere(['store_id' => $store_id]);
 
         return new ActiveDataProvider([
             'query' => $query
@@ -118,21 +127,66 @@ class CandidateWorkingHourController extends Controller
     }
 
 
+    public function actionStats()
+    {
+        $date = Yii::$app->request->get('date');
+        $candidate_id = Yii::$app->request->get('candidate_id');
+
+        $firstSession = \candidate\models\CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => $candidate_id])
+            //->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at ASC')
+            ->one();
+
+        $lastSession = CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => $candidate_id])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at DESC')
+            ->one();
+
+        $totalTime = CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => $candidate_id])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->sum("total_time");
+
+        $checkIn = $firstSession ? $firstSession->start_time: null;
+        $checkOut = $lastSession ? $lastSession->end_time: null;
+        $status = $lastSession ? $lastSession->status: null;
+
+        return [
+            "checkIn" => $checkIn,
+            "checkOut" => $checkOut,
+            "totalTime" => $totalTime,
+            "status" => $status
+        ];
+    }
+
     /**
      * Return a List of Invitation
      * @return ActiveDataProvider
      */
     public function actionListHour()
     {
+        $store_id = Yii::$app->request->get('store_id');
         $candidate_id = Yii::$app->request->get('candidate_id', null);
+
         if (!$candidate_id && $candidate_id == 'null') {
             return [
                 "operation" => "error",
                 "message" => 'Invalid Access'
             ];
         }
+
         $candidate = Candidate::findOne(['candidate_id'=>$candidate_id]);
-        if (!$candidate->store_id) {
+
+        if(!$store_id) {
+            $store_id = $candidate->store_id;
+        }
+
+        if (!$store_id) {
             return [
                 "operation" => "error",
                 "message" => 'Invalid Access'
@@ -143,7 +197,7 @@ class CandidateWorkingHourController extends Controller
 
         $store = Store::find()
             ->andWhere(['in', 'company_id', $companyIds])//current company and childs
-            ->filterByStoreId($candidate->store_id)
+            ->filterByStoreId( $store_id)
             ->one();
 
         if (!$store) {
@@ -154,6 +208,7 @@ class CandidateWorkingHourController extends Controller
         }
 
         $date = Yii::$app->request->get('date', null);
+
         $query = CandidateWorkingHour::find();
 
         $query->orderBy('created_at DESC');
@@ -161,7 +216,8 @@ class CandidateWorkingHourController extends Controller
         if ($candidate_id && $candidate_id != 'null') {
             $query->andWhere(['candidate_id'=>$candidate_id]);
         }
-        $query->andWhere(['store_id'=>$candidate->store_id]);
+
+        $query->andWhere(['store_id'=> $store_id]);
 
         if ($date && $date != 'null') {
             $query->andWhere(['date'=>$date]);
