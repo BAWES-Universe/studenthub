@@ -120,39 +120,88 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             'company',
             'parentCompany',
             'dateListByCandidate',
+            'checkIn',
+            "checkOut",
+            "dateStatus",
+            "firstSession",
+            "lastSession"
         ];
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCandidate()
-    {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+    public function getCheckIn() {
+        if ($this->firstSession) {
+            return $this->firstSession->start_time;
+        }
+    }
+
+    public function getCheckOut() {
+        if ($this->lastSession) {
+            return $this->lastSession->end_time;
+        }
+    }
+
+    public function getDateStatus() {
+        if ($this->lastSession) {
+            return $this->lastSession->status;
+        }
+    }
+
+    public function getLastSession() {
+        return CandidateWorkingHour::find()
+            ->andWhere(['date' => $this->date])
+            ->andWhere(['candidate_id' => $this->candidate_id])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at DESC')
+            ->one();
+    }
+
+    public function getFirstSession() {
+        return self::find()
+            ->andWhere(['date' => $this->date])
+            ->andWhere(['candidate_id' => $this->candidate_id])
+            // ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at ASC')
+            ->one();
+    }
+
+    public function getTotalTime() {
+        return CandidateWorkingHour::find()
+            ->andWhere(['date' => $this->date])
+            ->andWhere(['candidate_id' => $this->candidate_id])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->sum("total_time");
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStore()
+    public function getCandidate($className = '\common\models\Candidate')
     {
-        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+        return $this->hasOne($className::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getStore($className = '\common\models\Store')
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne($className::className(), ['store_id' => 'store_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getParentCompany()
+    public function getCompany($className = '\common\models\Company')
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'parent_company_id']);
+        return $this->hasOne($className::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany($className = '\common\models\Company')
+    {
+        return $this->hasOne($className::className(), ['company_id' => 'parent_company_id']);
     }
 
     /**

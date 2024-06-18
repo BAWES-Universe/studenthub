@@ -92,7 +92,7 @@ class CandidateWorkingHourController extends Controller
         $firstSession = CandidateWorkingHour::find()
             ->andWhere(['date' => $date])
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
-            ->andWhere(new Expression("end_time IS NOT NULL"))
+            //->andWhere(new Expression("end_time IS NOT NULL"))
             ->orderBy('created_at ASC')
             ->one();
 
@@ -111,11 +111,13 @@ class CandidateWorkingHourController extends Controller
 
         $checkIn = $firstSession ? $firstSession->start_time: null;
         $checkOut = $lastSession ? $lastSession->end_time: null;
+        $status = $lastSession ? $lastSession->status: null;
 
         return [
             "checkIn" => $checkIn,
             "checkOut" => $checkOut,
-            "totalTime" => $totalTime
+            "totalTime" => $totalTime,
+            "status" => $status
         ];
     }
 
@@ -138,14 +140,19 @@ class CandidateWorkingHourController extends Controller
             ];
         }
 
+        $start_time = strtotime(Yii::$app->request->getBodyParam("start_time"));
+        $end_time = strtotime(Yii::$app->request->getBodyParam("end_time"));
+
         $model = new CandidateWorkingHour();
-        $model->start_time = date('Y-m-d H:i:s', strtotime(Yii::$app->request->getBodyParam("start_time")));
-        $model->end_time = date('Y-m-d H:i:s', strtotime(Yii::$app->request->getBodyParam("end_time")));
+        $model->start_time = date('Y-m-d H:i:s', $start_time);
+        $model->end_time = date('Y-m-d H:i:s', $end_time);
         $model->note = Yii::$app->request->getBodyParam("note");
         $model->status = CandidateWorkingHour::STATUS_PENDING;
         $model->candidate_id = Yii::$app->user->getId();
         $model->store_id = Yii::$app->user->identity->store_id;
         $model->date  = date('Y-m-d');
+        $model->total_time = $end_time - $start_time;
+
         //$model->start_location_lat = $lat;
         //$model->start_location_long = $long;
 
