@@ -2,6 +2,7 @@
 
 namespace company\modules\v1\controllers;
 
+use Yii;
 use company\models\CandidateWorkLogFeedback;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
@@ -76,7 +77,7 @@ class CandidateWorkLogFeedbackController extends Controller
         $model->note = Yii::$app->request->getBodyParam("note");
         $model->reason = Yii::$app->request->getBodyParam("reason");
         $model->rating = Yii::$app->request->getBodyParam("rating");
-        $model->is_public = Yii::$app->request->getBodyParam("is_public");
+        $model->is_public = (int) Yii::$app->request->getBodyParam("is_public");
 
         if(!$model->save()) {
             return [
@@ -85,9 +86,15 @@ class CandidateWorkLogFeedbackController extends Controller
             ];
         }
 
+        $message = $model->status == 1? "{candidate}’s working hours has been approved!":
+            "{candidate}’s working hours has been rejected!";
+
         return [
             "operation" => "success",
-            "message" => "Feedback saved successfully!"
+            "message" => Yii::t("company", $message, [
+                "candidate" => Yii::$app->language == "ar" ?
+                    $model->candidate->candidate_name_ar: $model->candidate->candidate_name
+            ])
         ];
     }
 }

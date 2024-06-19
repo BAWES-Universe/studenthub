@@ -2,6 +2,8 @@
 
 namespace company\models;
 
+use Yii;
+
 class CandidateWorkLogFeedback extends \common\models\CandidateWorkLogFeedback
 {
     /**

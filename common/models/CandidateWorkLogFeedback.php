@@ -43,7 +43,7 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_id', 'store_id', 'company_id', "status", "date"], 'required'],
+            [['candidate_id', 'store_id', "status", "date"], 'required'],//'company_id',
             [['candidate_id', 'store_id', 'company_id', 'status', 'is_public', 'rating'], 'integer'],
             [['date', 'created_at', 'updated_at'], 'safe'],
             [['note'], 'string'],

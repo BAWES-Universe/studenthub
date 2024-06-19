@@ -1,6 +1,8 @@
 <?php
 
 return [
+    "{candidate}’s working hours has been approved!" => "تمت الموافقة على ساعات عمل {candidate}.",
+    "{candidate}’s working hours has been rejected!" => "تم رفض ساعات عمل {candidate}!",
     "Account not found, please contact us for assistance." => "الحساب غير موجود ، يرجى الاتصال بنا للحصول على المساعدة.",
     "Contact new email address already registered" => "الاتصال بعنوان البريد الإلكتروني الجديد مسجل بالفعل",
     "Please click on the link sent to you by email to verify your account" => 'يرجى النقر على الرابط المرسل إليك عبر البريد الإلكتروني لإثبات ملكية حسابك',
