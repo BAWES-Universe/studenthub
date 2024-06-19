@@ -144,6 +144,7 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET with-pagination' => 'list-with-pagination',
                         'GET search' => 'search',
                         'GET total' => 'total',
                         'GET work-history/<id>' => 'work-history',
@@ -153,6 +154,7 @@ return [
                         // OPTIONS VERBS
                         "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS' => 'options',
+                        "OPTIONS with-pagination" => "options",
                         'OPTIONS total' => 'options',
                         'OPTIONS search' => 'options',
                         'OPTIONS work-history/<id>' => 'options',

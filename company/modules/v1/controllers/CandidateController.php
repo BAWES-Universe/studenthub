@@ -84,6 +84,34 @@ class CandidateController extends BaseController
     }
 
     /**
+     * @return ActiveDataProvider
+     */
+    public function actionListWithPagination()
+    {
+        $store_id = Yii::$app->request->get("store_id");
+        $q = Yii::$app->request->get("q");
+
+        $query = Yii::$app->companyManager->getCompany()
+            ->getCandidates();
+
+        if($store_id) {
+            $query->andWhere(['store_id' => $store_id]);
+        }
+
+        if($q) {
+            $query->andWhere([
+                "OR",
+                ["like", 'candidate_name', $q],
+                ["like", 'candidate_name_ar', $q],
+            ]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * Return no of Candidates assigned to work
      * for current company.
      */

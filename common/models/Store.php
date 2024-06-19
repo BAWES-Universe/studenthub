@@ -169,6 +169,7 @@ class Store extends \yii\db\ActiveRecord
             'storeManager',
             'company',
             'candidates',
+            "candidatesSummary",
             'candidatesCount',
             'brand',
             'mall',
@@ -205,6 +206,17 @@ class Store extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['company_id' => 'company_id'])
             ->andWhere(['company.deleted'=>0]);
+    }
+
+    /**
+     * @param string $modelClass
+     * @return $this
+     */
+    public function getCandidatesSummary($modelClass = "\common\models\Candidate")
+    {
+        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+            ->andWhere(['candidate.deleted'=>0])
+            ->limit(3);
     }
 
     /**
