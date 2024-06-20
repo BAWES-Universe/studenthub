@@ -3,10 +3,12 @@
 namespace company\modules\v1\controllers;
 
 use company\models\Request;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
 use Yii;
 use company\models\CandidateWorkHistory;
 use company\models\Candidate;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\web\NotFoundHttpException;
 
 
@@ -85,9 +87,37 @@ class CandidateController extends BaseController
 
     /**
      * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionWorkingDates() {
+
+        $candidate_id = Yii::$app->request->get("candidate_id");
+
+        $candidate = Yii::$app->companyManager->getCompany()
+            ->getCandidates()
+            ->andWhere(['candidate_id' => $candidate_id])
+            ->one();
+
+        if(!$candidate) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $query = $candidate->getCandidateWorkingDates();
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
      */
     public function actionListWithPagination()
     {
+        $start_date = Yii::$app->request->get("start_date");
+        $end_date = Yii::$app->request->get("end_date");
+        $with_session = Yii::$app->request->get("with_session");
+        $session_status = Yii::$app->request->get("session_status");
         $store_id = Yii::$app->request->get("store_id");
         $q = Yii::$app->request->get("q");
 
@@ -95,7 +125,7 @@ class CandidateController extends BaseController
             ->getCandidates();
 
         if($store_id) {
-            $query->andWhere(['store_id' => $store_id]);
+            $query->andWhere(['candidate.store_id' => $store_id]);
         }
 
         if($q) {
@@ -104,6 +134,24 @@ class CandidateController extends BaseController
                 ["like", 'candidate_name', $q],
                 ["like", 'candidate_name_ar', $q],
             ]);
+        }
+
+        if ($with_session || $session_status || $start_date || $end_date) {
+            
+            $query->joinWith(['candidateWorkingDates'])
+                ->andWhere(new Expression('end_time IS NOT NULL'));
+
+            if ($session_status) {
+                $query->andWhere(['candidate_working_date.status' => $session_status]);
+            }
+
+            if ($start_date) {
+                $query->andWhere(new Expression('DATE(candidate_working_date.date) >= DATE("'. $start_date .'")'));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression('DATE(candidate_working_date.date) <= DATE("'. $end_date .'")'));
+            }
         }
 
         return new ActiveDataProvider([

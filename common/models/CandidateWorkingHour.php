@@ -88,6 +88,95 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             ],
         ];
     }
+
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return void
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        $date = CandidateWorkingDate::find()->andWhere([
+            "candidate_id" => $this->candidate_id,
+            "store_id" => $this->store_id,
+            "date" => $this->date,
+        ])->one();
+
+        //start + end + manually added
+
+        if ($insert) {
+
+            if (!$date) {//this would be first session in a day
+                $date = new CandidateWorkingDate;
+                $date->store_id = $this->store_id;
+                $date->company_id = $this->store->company_id;
+                $date->candidate_id = $this->candidate_id;
+                $date->date = $this->date;
+                $date->start_time = $this->start_time;
+                $date->end_time = $this->end_time;
+                $date->total_time = $this->total_time;
+               // $this->status = $this->status;
+                if(!$date->save()) {
+                    Yii::error($date->errors);
+                }
+
+            } else { //if sub-sequent sessions
+
+                if ($this->end_time) { //for manual input
+                    $total_time = CandidateWorkingHour::find()->andWhere([
+                            "candidate_id" => $this->candidate_id,
+                            "store_id" => $this->store_id,
+                            "date" => $this->date,
+                        ])
+                        ->sum("total_time");
+
+                    CandidateWorkingDate::updateAll([
+                        "status" => $this->status,
+                        "total_time" => $total_time,
+                        "end_time" => $this->end_time
+                    ], [
+                        "candidate_id" => $this->candidate_id,
+                        "store_id" => $this->store_id,
+                        "date" => $this->date,
+                    ]);
+
+                } else { //when timer started
+
+                    CandidateWorkingDate::updateAll([
+                        "status" => $this->status, //reset status
+                        "total_time" => null, //reset total time as new session pending to finish
+                        "end_time" => null //as current session will be always latest session
+                    ], [
+                        "candidate_id" => $this->candidate_id,
+                        "store_id" => $this->store_id,
+                        "date" => $this->date,
+                    ]);
+                }
+            }
+        }
+        else //update will be always end session action
+        {
+            $total_time = CandidateWorkingHour::find()->andWhere([
+                    "candidate_id" => $this->candidate_id,
+                    "store_id" => $this->store_id,
+                    "date" => $this->date,
+                ])
+                ->sum("total_time");
+
+            CandidateWorkingDate::updateAll([
+                "status" => $this->status,
+                "total_time" => $total_time,
+                "end_time" => $this->end_time //as current session will be always latest session
+            ], [
+                "candidate_id" => $this->candidate_id,
+                "store_id" => $this->store_id,
+                "date" => $this->date,
+            ]);
+        }
+    }
+
     /**
      * {@inheritdoc}
      */

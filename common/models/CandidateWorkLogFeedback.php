@@ -121,6 +121,14 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
             "date" => $this->date,
         ]);
 
+        CandidateWorkingDate::updateAll([
+            "status" => $this->status,
+        ], [
+            "candidate_id" => $this->candidate_id,
+            "store_id" => $this->store_id,
+            "date" => $this->date,
+        ]);
+
         return true;
     }
 

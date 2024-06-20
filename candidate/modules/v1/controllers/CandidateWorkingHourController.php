@@ -157,6 +157,7 @@ class CandidateWorkingHourController extends Controller
         //$model->start_location_long = $long;
 
         if (!$model->save()) {
+
             return [
                 "operation" => "error",
                 "message" => $model->errors

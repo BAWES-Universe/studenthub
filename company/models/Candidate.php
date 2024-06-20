@@ -39,7 +39,7 @@ class Candidate extends \common\models\Candidate {
             $fields['candidate_new_email'],
             $fields['bank_account_name'],
             $fields['bank_id'],
-            $fields['store_id'],
+            //$fields['store_id'],
             $fields['store'],
             $fields['candidate_phone'],
             $fields['candidate_email'],
@@ -103,6 +103,10 @@ class Candidate extends \common\models\Candidate {
         }
 
         return [
+            "totalCandidateWorkingDate",
+            "latestCandidateWorkingDate",
+            "candidateWorkingDates",
+            'candidateWorkingHour',
             'storeAssignmentRequest',
             'store',
             'company',
@@ -295,5 +299,74 @@ class Candidate extends \common\models\Candidate {
     public function getSuggestion($modelClass = "\company\models\Suggestion")
     {
         return parent::getSuggestion ($modelClass);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkingDates($modelClass = "\common\models\CandidateWorkingDate")
+    {
+        $start_date = Yii::$app->request->get("start_date");
+        $end_date = Yii::$app->request->get("end_date");
+        $session_status = Yii::$app->request->get("session_status");
+
+        //todo: cache store list
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        if (isset($company->subCompanies) && count($company->subCompanies)>0) {
+            $query = $company
+                ->getSubCompanyStores();
+//                ->getSubCompanies();
+        } else {
+            $query = $company
+                ->getStores();
+        }
+
+        $query = parent::getCandidateWorkingDates ($modelClass)
+            ->andWhere(["IN", "candidate_working_date.store_id", $query->select('store_id')]);
+
+        if ($session_status || $start_date || $end_date) {
+
+            if ($session_status) {
+                $query->andWhere(['candidate_working_date.status' => $session_status]);
+            }
+
+            if ($start_date) {
+                $query->andWhere(new Expression('DATE(candidate_working_date.date) >= DATE("'. $start_date .'")'));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression('DATE(candidate_working_date.date) <= DATE("'. $end_date .'")'));
+            }
+        }
+
+        //todo: query cache?
+
+        return $query
+            ->orderBy("candidate_working_date.created_at DESC");
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
+    {
+        $company = Yii::$app->companyManager->getCompany();
+
+        if (isset($company->subCompanies) && count($company->subCompanies)>0) {
+            $query = $company
+                ->getSubCompanyStores();
+//                ->getSubCompanies();
+        } else {
+            $query = $company
+                ->getStores();
+        }
+
+        return parent::getCandidateWorkingHour ($modelClass)
+            ->andWhere(["IN", "candidate_working_hour.store_id", $query->select('store_id')])
+            ->orderBy("candidate_working_hour.created_at DESC");
     }
 }
