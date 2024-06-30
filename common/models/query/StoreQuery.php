@@ -25,7 +25,7 @@ class StoreQuery extends ActiveQuery
      */
     public function one($db = null)
     {
-        $this->andWhere(['{{%store}}.deleted'=>0]);
+        //$this->andWhere(['{{%store}}.deleted'=>0]);
         return parent::one($db);
     }
 
