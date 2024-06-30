@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CandidateWorkHistory;
 use common\models\CompanyContact;
 use common\models\Contact;
 use Yii;
@@ -646,6 +647,14 @@ class CompanyController extends Controller
             "operation" => "success",
             "message" => "Company account followup interval changed successfully"
         ];
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function actionFiringChart($id) {
+        return CandidateWorkHistory::getFiringChartData($id, 12);
     }
 
     /**

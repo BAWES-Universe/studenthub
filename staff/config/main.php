@@ -286,9 +286,11 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET firing-chart" => "firing-chart",
                         'GET assigned-list' => 'assigned-list',
                         'GET followups' => 'followups',
                         'GET payroll-email/<id>' => 'payroll-email',
+                        "GET firing-chart/<id>" => "firing-chart",
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
@@ -299,6 +301,7 @@ return [
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS firing-chart/<id>" => "options",
                         'OPTIONS followups' => 'options',
                         'OPTIONS assigned-list' => 'options',
                         'OPTIONS payroll-email/<id>' => 'options',
@@ -307,6 +310,7 @@ return [
                         'OPTIONS file-create/<id>' => 'options',
                         'OPTIONS add-followup-note/<id>' => 'options',
                         'OPTIONS change-status/<id>' => 'options',
+                        "OPTIONS firing-chart" => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
