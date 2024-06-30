@@ -192,6 +192,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET download-list-excel' => 'download-list-excel',
+                        "GET download-candidates-excel/<id>" => "download-candidates-excel",
                         'GET followups' => 'followups',
                         'GET sub-companies/<id>' => 'sub-companies',
                         'GET year-report' => 'year-report',
@@ -209,6 +210,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS download-candidates-excel/<id>" => 'options',
                         'OPTIONS login/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS followups' => 'options',
