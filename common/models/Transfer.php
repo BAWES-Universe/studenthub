@@ -529,7 +529,6 @@ class Transfer extends ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['parent_transfer_id'=>'transfer_id'])
             ->andWhere(['{{%transfer}}.deleted'=>0]);
-
     }
 
     /**

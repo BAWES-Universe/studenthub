@@ -2,6 +2,8 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\TransferCandidate;
+use common\models\CandidateWorkHistory;
 use common\models\CompanyContact;
 use common\models\Contact;
 use Illuminate\Support\Facades\Date;
@@ -797,6 +799,110 @@ class CompanyController extends Controller
         }
 
         return $stats;
+    }
+
+    /**
+     * @return void
+     * @throws \yii\db\Exception
+     */
+    public function actionDownloadCandidatesExcel($id)
+    {
+        /*$sql = "SELECT candidate.candidate_id, candidate_name, candidate_phone, candidate_email, start_date, end_date,
+            candidate_work_history.store_id, store.store_name, candidate_work_history.candidate_hourly_rate 
+            FROM `candidate_work_history`
+            left join candidate on candidate.candidate_id = candidate_work_history.candidate_id
+            left join store on store.store_id = candidate_work_history.store_id
+            where candidate_work_history.company_id=".$id." 
+            order by end_date DESC";
+
+        SELECT `candidate_work_history`.* FROM `candidate_work_history`
+        LEFT JOIN `candidate` WHERE `candidate_work_history`.`company_id`='23' ORDER BY `end_date` DESC",
+        */
+
+        $candidates = CandidateWorkHistory::find()
+           // ->joinWith(['candidate', 'store']) //not listing deleted candidates
+            ->leftJoin('candidate', "candidate.candidate_id = candidate_work_history.candidate_id")
+            ->leftJoin('store', "store.store_id = candidate_work_history.store_id")
+            ->andWhere(["candidate_work_history.company_id" => $id])
+            ->orderBy("end_date DESC")
+            ->all();
+
+        $transfers = [];
+
+        foreach ($candidates as $candidate) {
+
+            if(empty($candidate['candidate_id']))
+                continue;
+
+            //select SUM(candidate_total) as candidate_total, SUM(company_total - candidate_total - transfer_cost) as revenue
+            // from transfer_candidate where candidate_id=836 and store_id=111;
+
+            $transfers[$candidate['candidate_id']] = TransferCandidate::find()
+                ->select("SUM(candidate_total) as candidateTotal, SUM(company_total - candidate_total - transfer_cost) as revenue")
+                ->andWhere([
+                    'candidate_id' => $candidate['candidate_id'],
+                    "company_id" => $id,
+                    "paid" => 1 //paid by company
+                ])
+                ->asArray()
+                //->groupBy("candidate_id")
+                ->one();
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidates,
+            'columns' => [
+                [
+                    'attribute'=> 'candidate.candidate_id',
+                    'label'=> 'Candidate ID',
+                ],
+                [
+                    'attribute'=> 'candidate.candidate_name',
+                    'label'=> 'Candidate Name',
+                ],
+                [
+                    'attribute'=> 'candidate.candidate_phone',
+                    'label'=> 'Phone',
+                ],
+                [
+                    'attribute'=> 'candidate.candidate_email',
+                    'label'=> 'Email',
+                ],
+                'start_date',
+                "end_date",
+                [
+                    'attribute'=> "store_id",
+                    //"store_id"
+                ],
+                [
+                    'attribute'=> "store.store_name",
+                    'label'=> "Store",
+                ],
+                [
+                    'attribute'=> "candidate_hourly_rate",
+                    'label'=>"Candidate Hourly Rate",
+                ],
+                [
+                    'attribute'=> "Total money transferred",
+                    'label'=> "Total money transferred",
+                    'value' => function($model) use ($transfers) {
+                        return isset($transfers[$model['candidate_id']])?
+                            $transfers[$model['candidate_id']]['candidateTotal']: null;
+                    }
+                ],
+                [
+                    'attribute'=> 'Total money we made',
+                    'label'=> "Total money we made",
+                    'value' => function($model) use ($transfers) {
+                        return isset($transfers[$model['candidate_id']])?
+                            $transfers[$model['candidate_id']]['revenue']: null;
+                    }
+                ],
+            ]
+        ]);
     }
 
     /**
