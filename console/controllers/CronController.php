@@ -186,7 +186,7 @@ class CronController extends \yii\console\Controller {
         //check salary transfer not paid
         //Invoice::unpaidAlert();
 
-        DailyStandupQuestion::standupReport();
+       // DailyStandupQuestion::standupReport();
 
         FiringHitmap::updateHitMap();
     }

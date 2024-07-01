@@ -16,6 +16,7 @@ use yii\db\Expression;
  * @property int $firing_month
  * @property int $firing_year
  * @property int $total
+ * @property boolean $is_alerted
  * @property string $created_at
  * @property string $updated_at
  *
@@ -41,6 +42,7 @@ class FiringHitmap extends \yii\db\ActiveRecord
             [['company_id', 'firing_month', 'firing_year', 'total'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['fh_uuid'], 'string', 'max' => 60],
+            [['is_alerted'], 'boolean'],
             [['fh_uuid'], 'unique'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
@@ -130,7 +132,80 @@ class FiringHitmap extends \yii\db\ActiveRecord
                     print_r($model->errors);
                     die();
                 }
+
+                //check if spike
+
+                if (!$model->is_alerted) {
+
+                    $hitmap = FiringHitmap::find()
+                        ->orderBy("firing_year DESC, firing_month DESC")
+                        ->andWhere(['company_id' => $company->company_id])
+                        ->limit(12)
+                        ->all();
+
+                    $sumForAvg = 0;
+
+                    foreach ($hitmap as $value) {
+                        $sumForAvg += $value['total'];
+                    }
+
+                    $average = $sumForAvg / 12;
+
+                    // if total > average of last 12 months
+                    // if total > 2 * average of last 12 months
+
+                    if ($total > 2 * $average) {
+                        //danger
+                        self::firingSpike($company);
+                        $model->is_alerted = true;
+                        $model->save();
+                    } else if ($total > $average) {
+                        // warning
+                        self::firingSpike($company, "warning");
+                        $model->is_alerted = true;
+                        $model->save();
+                    }
+                }
             }
+        }
+    }
+
+    /**
+     * @param $company
+     * @param $type
+     * @return bool|void
+     */
+    public static function firingSpike($company, $type = "danger") {
+
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $name = !empty($company->company_common_name_en) ? $company->company_common_name_en : $company->company_name;
+
+        $subject = "Firing spike for " . $name;
+
+        $ml = new MailLog();
+        $ml->to = \Yii::$app->params['operationsEmail'];
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $subject;
+        $ml->save();
+
+        $mailer = Yii::$app->mailer->compose("staff/company-firing-spike-html",
+            [
+                "model" => $company,
+                "name" => $name,
+                "logo" => Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'https'),
+                'title' => $subject,
+                'type' => $type
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo([Yii::$app->params['operationsEmail'] => 'operations'])
+            ->setCc(['khalid@bawes.net'=>'Khalid'])
+            ->setSubject($subject);
+
+        try {
+            return  $mailer->send();
+        } catch (\Swift_TransportException $e) {
+            Yii::error($e->getMessage(), "email_campaign");
         }
     }
 
