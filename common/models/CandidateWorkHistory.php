@@ -218,7 +218,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      */
     public static function getFiringChartData($company_id, $months = 12) {
 
-        $dayTime = 60 * 60 * 24;
+        $dayTime =  60 * 60 * 24;
 
         $cacheDuration = $dayTime;// 1 day then delete from cache
 
@@ -251,7 +251,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
 
         $rows = CandidateWorkHistory::getDb()->cache(function($db) use($months, $company_id) {
             return CandidateWorkHistory::find()
-                ->andWhere(['company_id' => $company_id])
+                ->andWhere(['parent_company_id' => $company_id])
                 ->select ('end_date, COUNT(*) as total')
                 ->andWhere(new Expression("DATE(end_date) >= (NOW() - INTERVAL ".$months." MONTH)"))
                 ->groupBy (new Expression('MONTH(end_date), YEAR(end_date)'))

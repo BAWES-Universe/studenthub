@@ -361,6 +361,16 @@ return [
                         'OPTIONS all' => 'options'
                     ]
                 ],
+                [ // FiringHitmapController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/firing-hitmap',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // TagController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/tag',
