@@ -17,7 +17,6 @@ class m240702_075505_interview_note extends Migration
             // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
-        $this->dropTable('{{%interview_evaluation}}');
 
         $this->createTable('{{%interview_evaluation}}', [
             'interview_evaluation_uuid' => $this->char(60),

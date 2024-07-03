@@ -311,9 +311,7 @@ class Candidate extends \common\models\Candidate {
         $end_date = Yii::$app->request->get("end_date");
         $session_status = Yii::$app->request->get("session_status");
 
-        //todo: cache store list
-
-        $company = Yii::$app->companyManager->getCompany();
+        /*$company = Yii::$app->companyManager->getCompany();
 
         if (isset($company->subCompanies) && count($company->subCompanies)>0) {
             $query = $company
@@ -322,10 +320,14 @@ class Candidate extends \common\models\Candidate {
         } else {
             $query = $company
                 ->getStores();
-        }
+        }*/
+
+        $stores = Yii::$app->storeManager->getManagedStores();
+
+        $storeIds = ArrayHelper::getColumn($stores, "store_id");
 
         $query = parent::getCandidateWorkingDates ($modelClass)
-            ->andWhere(["IN", "candidate_working_date.store_id", $query->select('store_id')]);
+            ->andWhere(["IN", "candidate_working_date.store_id", $storeIds]);
 
         if ($session_status || $start_date || $end_date) {
 
