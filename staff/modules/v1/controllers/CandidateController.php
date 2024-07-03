@@ -83,7 +83,9 @@ class CandidateController extends Controller
     public function actionList()
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
         $candidate_civil_need_verification = Yii::$app->request->headers->get("candidate_civil_need_verification");
+        $filter_minor = Yii::$app->request->get('filter_minor');
 
         $query = Candidate::find();
 
@@ -93,6 +95,10 @@ class CandidateController extends Controller
 
         if ($candidate_civil_need_verification) {
             $query->andWhere(['candidate_civil_need_verification' => $candidate_civil_need_verification]);
+        }
+
+        if ($filter_minor) {
+            $query->andWhere(new Expression("candidate.candidate_birth_date < DATE_SUB(NOW(), INTERVAL 16 YEAR)"));
         }
 
         return new ActiveDataProvider([
@@ -113,6 +119,7 @@ class CandidateController extends Controller
         $name = Yii::$app->request->get("name");
         $email = Yii::$app->request->get("email");
         $filterSameRate = Yii::$app->request->get("filterSameRate");
+        $filter_minor = Yii::$app->request->get('filter_minor');
 
         $query = CandidateWorkHistory::find()
             ->joinWith('candidate')
@@ -140,6 +147,10 @@ class CandidateController extends Controller
 
         if($end_date) {
             $query->endDate($end_date, $working_time);
+        }
+
+        if ($filter_minor) {
+            $query->andWhere(new Expression("candidate.candidate_birth_date < DATE_SUB(NOW(), INTERVAL 16 YEAR)"));
         }
 
         return new ActiveDataProvider([
@@ -955,6 +966,7 @@ class CandidateController extends Controller
         $updatedAfter = Yii::$app->request->get("updatedAfter");
         $civilId = Yii::$app->request->get('civilId');
         $candidate_civil_need_verification = Yii::$app->request->get('candidate_civil_need_verification');
+        $filter_minor = Yii::$app->request->get('filter_minor');
 
         $query = Candidate::find();
 
@@ -1009,7 +1021,13 @@ class CandidateController extends Controller
         }
 
         $query->notDeleted();
+
+        if ($filter_minor) {
+            $query->andWhere(new Expression("candidate.candidate_birth_date < DATE_SUB(NOW(), INTERVAL 16 YEAR)"));
+        }
+
         $query->addOrderBy('candidate.candidate_id DESC');
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
