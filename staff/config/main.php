@@ -460,6 +460,22 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // InterviewEvaluationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/interview-evaluation',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH add-note/<id>' => 'add-note/',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS add-note/<id>' => 'options',
+                    ]
+                ],
                 [ // JiraController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/jira',

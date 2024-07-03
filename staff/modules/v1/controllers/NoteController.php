@@ -80,6 +80,7 @@ class NoteController extends Controller
         $staff_id = Yii::$app->request->get('staff_id');
         $contact_uuid = Yii::$app->request->get('contact_uuid');
         $story_id = Yii::$app->request->get('story_uuid');
+        $interview_evaluation_uuid = Yii::$app->request->get('interview_evaluation_uuid');
 
         $page = Yii::$app->request->get('page');
 
@@ -116,6 +117,10 @@ class NoteController extends Controller
 
         if($story_id) {
             $query->filterStory($story_id);
+        }
+
+        if ($interview_evaluation_uuid) {
+            $query->andWhere(['interview_evaluation_uuid' => $interview_evaluation_uuid]);
         }
 
         if(!$page) 
@@ -157,6 +162,7 @@ class NoteController extends Controller
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->request_checklist_uuid = Yii::$app->request->getBodyParam("request_checklist_uuid");
+        $model->interview_evaluation_uuid = Yii::$app->request->getBodyParam('interview_evaluation_uuid');
 
         if (!$model->save())
         {
@@ -204,6 +210,7 @@ class NoteController extends Controller
         $model->fulltimer_uuid = Yii::$app->request->getBodyParam("fulltimer_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->request_checklist_uuid = Yii::$app->request->getBodyParam("request_checklist_uuid");
+        $model->interview_evaluation_uuid = Yii::$app->request->getBodyParam('interview_evaluation_uuid');
 
         if (!$model->save())
         {

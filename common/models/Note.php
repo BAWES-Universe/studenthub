@@ -16,6 +16,7 @@ use yii\behaviors\AttributeBehavior;
  * @property integer $company_id
  * @property integer $candidate_id
  * @property string $request_uuid
+ * @property string $interview_evaluation_uuid
  * @property string $request_checklist_uuid
  * @property string $invitation_uuid
  * @property string $suggestion_uuid
@@ -48,6 +49,8 @@ class Note extends \yii\db\ActiveRecord
     const TYPE_INVITATION_ACCEPTED = "Invitation Accepted";
     const TYPE_INVITATION_REJECTED = "Invitation Rejected";
 
+    const TYPE_INTERVIEW_EVALUATION = "Interview Evaluation";
+
     /**
      * @inheritdoc
      */
@@ -74,7 +77,8 @@ class Note extends \yii\db\ActiveRecord
                 self::TYPE_ACCEPTED,
                 self::TYPE_REJECTED,
                 self::TYPE_INVITATION_ACCEPTED,
-                self::TYPE_INVITATION_REJECTED
+                self::TYPE_INVITATION_REJECTED,
+                self::TYPE_INTERVIEW_EVALUATION
             ]],
             ['request_uuid', 'validateRequest'],
             ['contact_uuid', 'validateContact'],
@@ -89,6 +93,7 @@ class Note extends \yii\db\ActiveRecord
             //[['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
             ['invitation_uuid', 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
             [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
+            [['interview_evaluation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => InterviewEvaluation::className(), 'targetAttribute' => ['interview_evaluation_uuid' => 'interview_evaluation_uuid']],
         ];
     }
 
@@ -129,6 +134,9 @@ class Note extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * @return array[]
+     */
     public function behaviors() {
         return [
             [
@@ -175,6 +183,7 @@ class Note extends \yii\db\ActiveRecord
             'note_uuid' => Yii::t('candidate', 'ID'),
             'candidate_id' => Yii::t('candidate', 'Candidate ID'),
             'request_uuid' => Yii::t('candidate', 'Request ID'),
+            "interview_evaluation_uuid" => Yii::t('candidate', 'Interview Evaluation ID'),
             'request_checklist_uuid' => Yii::t('app', 'Request Checklist Uuid'),
             'invitation_uuid' => Yii::t('candidate', 'Invitation ID'),
             'contact_uuid' => Yii::t('candidate', 'Contact ID'),
@@ -217,6 +226,11 @@ class Note extends \yii\db\ActiveRecord
         return true;
     }
 
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return bool
+     */
     public function afterSave($insert, $changedAttributes) {
         parent::afterSave($insert, $changedAttributes);
 
@@ -367,6 +381,13 @@ class Note extends \yii\db\ActiveRecord
      */
     public function getStory($modelClass = "\common\models\Story") {
         return $this->hasOne($modelClass::className(), ['story_uuid' => 'story_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInterviewEvaluation($modelClass = "\common\models\InterviewEvaluation") {
+        return $this->hasOne($modelClass::className(), ['interview_evaluation_uuid' => 'interview_evaluation_uuid']);
     }
 
     /**
