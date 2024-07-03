@@ -83,7 +83,7 @@ class CandidateWorkLogFeedbackController extends Controller
             $store = Store::find()->andWhere(['store_id' => $model->store_id])->one();
             $model->company_id = $store->company_id;
         }
-        
+
         if(!$model->save()) {
             return [
                 "operation" => "error",
