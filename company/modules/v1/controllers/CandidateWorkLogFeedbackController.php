@@ -71,7 +71,7 @@ class CandidateWorkLogFeedbackController extends Controller
         $model = new CandidateWorkLogFeedback();
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
-        //$model->company_id = "";//todo
+        $model->company_id = Yii::$app->request->getBodyParam("company_id");
         $model->date = date("Y-m-d", strtotime(Yii::$app->request->getBodyParam("date")));
         $model->status = Yii::$app->request->getBodyParam("status");
         $model->note = Yii::$app->request->getBodyParam("note");
@@ -79,6 +79,11 @@ class CandidateWorkLogFeedbackController extends Controller
         $model->rating = Yii::$app->request->getBodyParam("rating");
         $model->is_public = (int) Yii::$app->request->getBodyParam("is_public");
 
+        if (!$model->company_id) {
+            $store = Store::find()->andWhere(['store_id' => $model->store_id])->one();
+            $model->company_id = $store->company_id;
+        }
+        
         if(!$model->save()) {
             return [
                 "operation" => "error",
