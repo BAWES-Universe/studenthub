@@ -70,6 +70,32 @@ class CompanyContactController extends Controller
     }
 
     /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionLogin($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->generateAuthKey();
+
+        if(!$model->save(false)) {
+            return [
+                "operation" => "error",
+                'message' => $model->errors,
+                'redirect' => Yii::$app->params['companyAppUrl']
+            ];
+        }
+
+        $url = Yii::$app->params['companyAppUrl']. '?auth_key='.$model->contact_auth_key;
+
+        return [
+            'redirect' => $url
+        ];
+    }
+
+    /**
      * Return a List of CompanyContact Accounts available.
      * @return ActiveDataProvider
      */

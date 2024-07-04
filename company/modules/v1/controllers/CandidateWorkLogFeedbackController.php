@@ -3,6 +3,7 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
+use company\models\Store;
 use company\models\CandidateWorkLogFeedback;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;

@@ -846,6 +846,32 @@ class CandidateController extends Controller
     }
 
     /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionLogin($id)
+    {
+        $model = $this->findModel((int)$id);
+
+        $model->generateAuthKey();
+
+        if(!$model->save(false)) {
+            return [
+                "operation" => "error",
+                'message' => $model->errors,
+                'redirect' => Yii::$app->params['candidateAppUrl']
+            ];
+        }
+
+        $url = Yii::$app->params['candidateAppUrl']. '?auth_key='.$model->candidate_auth_key;
+
+        return [
+            'redirect' => $url
+        ];
+    }
+
+    /**
      * Return a List of Candidate not assigned to store
      */
     public function actionListNotAssigned()

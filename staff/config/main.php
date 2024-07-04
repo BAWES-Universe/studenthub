@@ -152,6 +152,7 @@ return [
                         'GET send-verification-email' => 'resend-verification-email',
                         'GET <id>' => 'view',
                         'GET' => 'list',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'PATCH add-to-team' => 'add-to-team',
                         'PATCH mark-email-verified' => 'mark-email-verified',
@@ -167,6 +168,7 @@ return [
                         'OPTIONS send-verification-email' => 'options',
                         'OPTIONS remove-from-team/<id>' =>'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                     ]
                 ],
                 [ // CandidateController
@@ -195,6 +197,7 @@ return [
                         'POST add-tag/<id>' => 'add-tag',
                         'POST warn-candidate/<id>' => 'warn-candidate',
                         'PATCH update-warning/<id>' => 'update-warning',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH merge' => 'merge',
@@ -249,6 +252,7 @@ return [
                         'OPTIONS export-candidate' => 'options',
                         'OPTIONS assigned-history-list' => 'options',
                         'OPTIONS export-assigned-history' => 'options',
+                        "OPTIONS login/<id>" => "options"
                     ]
                 ],
                 [ // StoreController
