@@ -218,6 +218,10 @@ class Transfer extends ActiveRecord
         $fields['transfer_status'] = function($model) {
             return (int) $model->transfer_status;
         };
+
+        $fields['transfer_status_name'] = function($model) {
+            return self::statusList()[$model->transfer_status];
+        };
         
         unset($fields['deleted']);
 
