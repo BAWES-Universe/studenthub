@@ -469,6 +469,7 @@ return [
                     'controller' => 'v1/interview-evaluation',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET versions/<id>" => "versions",
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         "POST add-new-version/<id>" => "add-new-version",
@@ -478,6 +479,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        "OPTIONS versions/<id>" => "options",
                         "OPTIONS add-new-version/<id>" => "options",
                         'OPTIONS add-note/<id>' => 'options',
                     ]

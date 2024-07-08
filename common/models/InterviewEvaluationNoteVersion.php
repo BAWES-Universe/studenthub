@@ -13,10 +13,12 @@ use yii\db\Expression;
  * @property string $ienv_uuid
  * @property string $interview_evaluation_uuid
  * @property int $version
+ * @property int $staff_id
  * @property string $created_at
  * @property string $updated_at
  *
- * @property InterviewEvaluation $interviewEvaluationUu
+ * @property InterviewEvaluation $interviewEvaluation
+ * @property Staff $staff
  */
 class InterviewEvaluationNoteVersion extends \yii\db\ActiveRecord
 {
@@ -35,10 +37,11 @@ class InterviewEvaluationNoteVersion extends \yii\db\ActiveRecord
     {
         return [
             [['interview_evaluation_uuid'], 'required'],
-            [['version'], 'integer'],
+            [['version', 'staff_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['ienv_uuid', 'interview_evaluation_uuid'], 'string', 'max' => 60],
             [['ienv_uuid'], 'unique'],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['interview_evaluation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => InterviewEvaluation::className(), 'targetAttribute' => ['interview_evaluation_uuid' => 'interview_evaluation_uuid']],
         ];
     }
@@ -78,6 +81,7 @@ class InterviewEvaluationNoteVersion extends \yii\db\ActiveRecord
             'ienv_uuid' => Yii::t('app', 'Ienv Uuid'),
             'interview_evaluation_uuid' => Yii::t('app', 'Interview Evaluation Uuid'),
             'version' => Yii::t('app', 'Version'),
+            "staff_id" => Yii::t('app', 'Staff ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
@@ -89,8 +93,17 @@ class InterviewEvaluationNoteVersion extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            "interviewEvaluationNotes"
+            "interviewEvaluationNotes",
+            "staff"
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStaff()
+    {
+        return $this->hasOne(Staff::className(), ['staff_id' => 'staff_id']);
     }
 
     /**

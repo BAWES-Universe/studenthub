@@ -22,11 +22,23 @@ class m240708_092502_interview_note extends Migration
             "ienv_uuid" => $this->char(60),
             'interview_evaluation_uuid' => $this->char(60),
             "version" => $this->tinyInteger(4)->defaultValue(1),
+            "staff_id" => $this->integer(11),
             "created_at" => $this->dateTime(),
             "updated_at" => $this->dateTime(),
         ], $tableOptions);
 
         $this->addPrimaryKey('PK', 'interview_evaluation_note_version', 'ienv_uuid');
+
+        //staff_id
+
+        $this->createIndex(
+            'idx-interview_evaluation_note_version-staff_id', 'interview_evaluation_note_version', 'staff_id'
+        );
+
+        $this->addForeignKey(
+            'fk-interview_evaluation_note_version-staff_id', 'interview_evaluation_note_version', 'staff_id',
+            'staff', 'staff_id'
+        );
 
         //interview_evaluation_uuid
 

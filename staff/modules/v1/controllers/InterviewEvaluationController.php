@@ -98,6 +98,24 @@ class InterviewEvaluationController extends Controller
     }
 
     /**
+     * return interview note versions
+     * @param $id
+     * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionVersions($id)
+    {
+        $model = $this->findModel($id);
+
+        $query = $model->getInterviewEvaluationNoteVersions()
+            ->orderBy("created_at DESC");
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
@@ -120,6 +138,7 @@ class InterviewEvaluationController extends Controller
         $model = new InterviewEvaluationNoteVersion();
         $model->interview_evaluation_uuid = $interview->interview_evaluation_uuid;
         $model->version = $latestVersion? $latestVersion->version + 1: 1;
+        $model->staff_id = Yii::$app->user->getId();
 
         if(!$model->save()) {
             return [
@@ -217,6 +236,7 @@ class InterviewEvaluationController extends Controller
 
         $interviewEvaluationNoteVersion = new InterviewEvaluationNoteVersion;
         $interviewEvaluationNoteVersion->interview_evaluation_uuid = $model->interview_evaluation_uuid;
+        $interviewEvaluationNoteVersion->staff_id = Yii::$app->user->getId();
 
         if(!$interviewEvaluationNoteVersion->save()) {
             return [
@@ -294,6 +314,46 @@ class InterviewEvaluationController extends Controller
                 return [
                     "operation" => "error",
                     "message" => "We've faced a problem updating, please contact us for assistance."
+                ];
+            }
+        }
+
+        $interviewEvaluationNotes = Yii::$app->request->getBodyParam("interviewEvaluationNotes", []);
+
+        //add new version
+
+        $latestVersion = $model->getLatestInterviewEvaluationNoteVersions()
+            ->one();
+
+        $interviewEvaluationNoteVersion = new InterviewEvaluationNoteVersion;
+        $interviewEvaluationNoteVersion->version = $latestVersion? $latestVersion->version + 1: 1;
+        $interviewEvaluationNoteVersion->interview_evaluation_uuid = $model->interview_evaluation_uuid;
+        $interviewEvaluationNoteVersion->staff_id = Yii::$app->user->getId();
+
+        if(!$interviewEvaluationNoteVersion->save()) {
+            return [
+                "operation" => "error",
+                "code" => 3,
+                "message" => $interviewEvaluationNoteVersion->errors
+            ];
+        }
+
+        //add notes
+
+        foreach ($interviewEvaluationNotes as $interviewEvaluationNote) {
+
+            if(empty($interviewEvaluationNote['note'])) {
+                continue;
+            }
+
+            $noteModal = new InterviewEvaluationNote();
+            $noteModal->ienv_uuid = $interviewEvaluationNoteVersion->ienv_uuid;
+            $noteModal->note = $interviewEvaluationNote['note'];
+            if(!$noteModal->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $noteModal->errors,
+                    "code" => 4
                 ];
             }
         }
