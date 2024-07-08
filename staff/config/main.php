@@ -471,12 +471,14 @@ return [
                         'GET' => 'list',
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        "POST add-new-version/<id>" => "add-new-version",
                         'PATCH add-note/<id>' => 'add-note/',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        "OPTIONS add-new-version/<id>" => "options",
                         'OPTIONS add-note/<id>' => 'options',
                     ]
                 ],

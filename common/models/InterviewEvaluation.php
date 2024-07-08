@@ -99,7 +99,9 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
             "staff",
             "request",
             "company",
-            "notes"
+            "notes",
+            "interviewEvaluationNoteVersions",
+            "latestInterviewEvaluationNoteVersions",
         ];
     }
 
@@ -131,6 +133,25 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      */
     public function getNotes($modelClass = "\common\models\Note")
+    {
+        return $this->hasMany($modelClass::className(), ['interview_evaluation_uuid' => 'interview_evaluation_uuid']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLatestInterviewEvaluationNoteVersions($modelClass = "\common\models\InterviewEvaluationNoteVersion")
+    {
+        return $this->hasOne($modelClass::className(), ['interview_evaluation_uuid' => 'interview_evaluation_uuid'])
+            ->orderBy("interview_evaluation_note_version.created_at DESC");
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getInterviewEvaluationNoteVersions($modelClass = "\common\models\InterviewEvaluationNoteVersion")
     {
         return $this->hasMany($modelClass::className(), ['interview_evaluation_uuid' => 'interview_evaluation_uuid']);
     }

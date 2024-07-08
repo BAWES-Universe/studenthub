@@ -2,6 +2,8 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\InterviewEvaluationNote;
+use common\models\InterviewEvaluationNoteVersion;
 use Yii;
 use common\models\InterviewEvaluation;
 use common\models\Note;
@@ -97,6 +99,64 @@ class InterviewEvaluationController extends Controller
 
     /**
      * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionAddNewVersion($id) {
+        $interview = $this->findModel($id);
+
+        $notes = Yii::$app->request->getBodyParam("interviewEvaluationNotes");
+
+        if(!$notes || sizeof($notes) == 0) {
+            return [
+                "operation" => "error",
+                "message" => "Notes required!"
+            ];
+        }
+
+        $latestVersion = $interview->getLatestInterviewEvaluationNoteVersions()
+            ->one();
+
+        $model = new InterviewEvaluationNoteVersion();
+        $model->interview_evaluation_uuid = $interview->interview_evaluation_uuid;
+        $model->version = $latestVersion? $latestVersion->version + 1: 1;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        //add version notes
+
+        foreach ($notes as $note) {
+
+            if(empty($note['note'])) {
+                continue;
+            }
+
+            $interviewEvaluationNote = new InterviewEvaluationNote();
+            $interviewEvaluationNote->ienv_uuid = $model->ienv_uuid;
+            $interviewEvaluationNote->note = $note['note'];
+
+            if(!$interviewEvaluationNote->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $interviewEvaluationNote->errors
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Interview evaluation version created successfully",
+            "data" => $model
+        ];
+    }
+
+    /**
+     * @param $id
      * @return array
      * @throws NotFoundHttpException
      */
@@ -151,7 +211,42 @@ class InterviewEvaluationController extends Controller
             }
         }
 
-        $notes = Yii::$app->request->getBodyParam("notes", []);
+        $interviewEvaluationNotes = Yii::$app->request->getBodyParam("interviewEvaluationNotes", []);
+
+        //add new version
+
+        $interviewEvaluationNoteVersion = new InterviewEvaluationNoteVersion;
+        $interviewEvaluationNoteVersion->interview_evaluation_uuid = $model->interview_evaluation_uuid;
+
+        if(!$interviewEvaluationNoteVersion->save()) {
+            return [
+                "operation" => "error",
+                "code" => 3,
+                "message" => $interviewEvaluationNoteVersion->errors
+            ];
+        }
+
+        //add notes
+
+        foreach ($interviewEvaluationNotes as $interviewEvaluationNote) {
+
+            if(empty($interviewEvaluationNote['note'])) {
+                continue;
+            }
+
+            $noteModal = new InterviewEvaluationNote();
+            $noteModal->ienv_uuid = $interviewEvaluationNoteVersion->ienv_uuid;
+            $noteModal->note = $interviewEvaluationNote['note'];
+            if(!$noteModal->save()) {
+                return [
+                    "operation" => "error",
+                    "message" => $noteModal->errors,
+                    "code" => 4
+                ];
+            }
+        }
+
+        /*$notes = Yii::$app->request->getBodyParam("notes", []);
 
         foreach ($notes as $note) {
             $noteModal = new Note();
@@ -167,7 +262,7 @@ class InterviewEvaluationController extends Controller
                     "code" => 3
                 ];
             }
-        }
+        }*/
 
         return [
             "operation" => "success",
