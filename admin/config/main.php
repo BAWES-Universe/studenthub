@@ -576,6 +576,34 @@ return [
                         'OPTIONS download-list-excel' => 'options',
                     ]
                 ],
+                [ // DiscountCategoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/discount-category',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
+                [ // DiscountController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/discount',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
                 [ // DegreeController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/degree',
