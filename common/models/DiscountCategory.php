@@ -91,14 +91,13 @@ class DiscountCategory extends \yii\db\ActiveRecord
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
 
-        $this->image = (YII_ENV == 'prod') ? "discount-category/". $fileName
-            : "dev/discount-category/". $fileName;
+        $filePath = "discount-category/". $fileName;
 
         // Copy using S3ResourceManager Component
 
         try {
 
-            return Yii::$app->resourceManager->copy($fileName, $this->image, $sourceBucket);
+            return Yii::$app->resourceManager->copy($fileName, $filePath, $sourceBucket);
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
@@ -141,8 +140,15 @@ class DiscountCategory extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if(isset($changedAttributes['image'])) {
+        if ($insert) {
+            //upload new
 
+            if ($this->image) {
+                $this->updateImage();
+            }
+        }
+        else if(isset($changedAttributes['image']))
+        {
             //remove old
 
             $oldImage = $this->getOldAttribute("image");

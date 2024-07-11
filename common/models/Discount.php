@@ -44,7 +44,7 @@ class Discount extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['discount_uuid', 'category_id', 'company_id', 'description_en'], 'required'],
+            [['category_id', 'company_id', 'description_en', "description_ar"], 'required'],
             [['category_id', 'company_id', 'store_id'], 'integer'],
             [['description_en', 'description_ar'], 'string'],
             [['valid_until', 'created_at', 'updated_at'], 'safe'],
@@ -126,14 +126,13 @@ class Discount extends \yii\db\ActiveRecord
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
 
-        $this->image = (YII_ENV == 'prod') ? "discount/". $fileName
-            : "dev/discount/". $fileName;
+        $filePath = "discount/". $fileName;
 
         // Copy using S3ResourceManager Component
 
         try {
 
-            return Yii::$app->resourceManager->copy($fileName, $this->image, $sourceBucket);
+            return Yii::$app->resourceManager->copy($fileName, $filePath, $sourceBucket);
 
         } catch (\Aws\S3\Exception\S3Exception $e) {
 
@@ -176,8 +175,15 @@ class Discount extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        if(isset($changedAttributes['image'])) {
+        if ($insert) {
+            //upload new
 
+            if ($this->image) {
+                $this->updateImage();
+            }
+        }
+        else if(isset($changedAttributes['image']))
+        {
             //remove old
 
             $oldImage = $this->getOldAttribute("image");
@@ -224,6 +230,16 @@ class Discount extends \yii\db\ActiveRecord
 
             return false;
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    public function extraFields()
+    {
+        return [
+            "company", "store", "category"
+        ];
     }
 
     /**

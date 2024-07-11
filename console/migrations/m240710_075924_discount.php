@@ -28,7 +28,18 @@ class m240710_075924_discount extends Migration
         ], $tableOptions);
 
         $this->createTable('{{%discount}}', [
-
+            "discount_uuid" => $this->char(60),
+            "category_id" => $this->integer(11)->notNull(),
+            "company_id" => $this->integer(11)->notNull(),
+            "store_id" => $this->integer(11),
+            "description_en" => $this->text()->notNull(),
+            "description_ar" => $this->text()->notNull(),
+            "how_to_apply_en" => $this->text(),
+            "how_to_apply_ar" => $this->text(),
+            "image" => $this->string(),
+            "valid_until" => $this->dateTime(),
+            "created_at" => $this->dateTime(),
+            "updated_at" => $this->dateTime(),
         ], $tableOptions);
 
         $this->addPrimaryKey('PK', 'discount', 'discount_uuid');

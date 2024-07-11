@@ -66,7 +66,21 @@ class DiscountController extends Controller
      */
     public function actionList()
     {
+        $company_id = Yii::$app->request->get("company_id");
+        $page = Yii::$app->request->get("page");
+
         $query = Discount::find();
+
+        if ($company_id) {
+            $query->andWhere(['company_id' => $company_id]);
+        }
+
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                "pagination" => false
+            ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

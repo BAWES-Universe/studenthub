@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
-class DiscountCategoryCategoryController extends Controller
+class DiscountCategoryController extends Controller
 {
     public function behaviors()
     {
@@ -149,6 +149,7 @@ class DiscountCategoryCategoryController extends Controller
 
         return [
             "operation" => "success",
+            "model" => $model,
             "message" => "Discount Category successfully updated"
         ];
 
