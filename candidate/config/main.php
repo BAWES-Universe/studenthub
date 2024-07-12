@@ -57,6 +57,24 @@ return [
                         'OPTIONS click/<id>' => 'options',
                     ]
                 ],
+                [// DiscountController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/discount',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
+                [// DiscountCategoryController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/discount-category',
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // AuthController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/auth',

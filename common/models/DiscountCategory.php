@@ -200,8 +200,8 @@ class DiscountCategory extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getDiscounts()
+    public function getDiscounts($modelClass = "\common\models\Discount")
     {
-        return $this->hasMany(Discount::className(), ['category_id' => 'category_id']);
+        return $this->hasMany($modelClass::className(), ['category_id' => 'category_id']);
     }
 }

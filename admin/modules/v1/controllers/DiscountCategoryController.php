@@ -65,7 +65,16 @@ class DiscountCategoryController extends Controller
      */
     public function actionList()
     {
+        $page = Yii::$app->request->get("page");
+
         $query = DiscountCategory::find();
+
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                "pagination" => false
+            ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

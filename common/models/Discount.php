@@ -245,24 +245,24 @@ class Discount extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCategory()
+    public function getCategory($modelClass = "\common\models\DiscountCategory")
     {
-        return $this->hasOne(DiscountCategory::className(), ['category_id' => 'category_id']);
+        return $this->hasOne($modelClass::className(), ['category_id' => 'category_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getCompany($modelClass = "\common\models\Company")
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStore()
+    public function getStore($modelClass = "\common\models\Store")
     {
-        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
     }
 }
