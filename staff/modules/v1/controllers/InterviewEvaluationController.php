@@ -211,6 +211,7 @@ class InterviewEvaluationController extends Controller
         $model = new InterviewEvaluation();
 
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->company_id = $model->request->company_id;//Yii::$app->request->getBodyParam("company_id");
         $model->staff_id = Yii::$app->user->getId();
 
@@ -300,6 +301,7 @@ class InterviewEvaluationController extends Controller
     {
         $model = $this->findModel($id);
 
+        //$model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $model->company_id = $model->request->company_id;// Yii::$app->request->getBodyParam("company_id");
         $model->staff_id = Yii::$app->user->getId();

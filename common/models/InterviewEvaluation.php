@@ -14,6 +14,7 @@ use yii\db\Expression;
  * @property string $request_uuid
  * @property int $company_id
  * @property int $staff_id
+ * @property int $candidate_id
  * @property string $created_at
  * @property string $updated_at
  *
@@ -38,11 +39,12 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['request_uuid', 'company_id'], 'required'],//'interview_evaluation_uuid',
+            [['request_uuid', 'company_id', "candidate_id"], 'required'],//'interview_evaluation_uuid',
             [['company_id', 'staff_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['interview_evaluation_uuid', 'request_uuid'], 'string', 'max' => 60],
             [['interview_evaluation_uuid'], 'unique'],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
@@ -85,6 +87,7 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
             'request_uuid' => Yii::t('app', 'Request Uuid'),
             'company_id' => Yii::t('app', 'Company ID'),
             'staff_id' => Yii::t('app', 'Staff ID'),
+            'candidate_id' => Yii::t('app', 'Candidate ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
@@ -99,6 +102,7 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
             "staff",
             "request",
             "company",
+            "candidate",
             "notes",
             "interviewEvaluationNoteVersions",
             "latestInterviewEvaluationNoteVersions",
@@ -111,6 +115,15 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
     public function getCompany($modelClass = "\common\models\Company")
     {
         return $this->hasOne($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($modelClass = "\common\models\Candidate")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
