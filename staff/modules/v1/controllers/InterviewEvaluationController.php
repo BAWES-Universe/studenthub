@@ -212,7 +212,7 @@ class InterviewEvaluationController extends Controller
 
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
-        $model->company_id = $model->request->company_id;//Yii::$app->request->getBodyParam("company_id");
+        $model->company_id = $model->request? $model->request->company_id: null;//Yii::$app->request->getBodyParam("company_id");
         $model->staff_id = Yii::$app->user->getId();
 
         if (!$model->save()) {
@@ -303,7 +303,7 @@ class InterviewEvaluationController extends Controller
 
         //$model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->request_uuid = Yii::$app->request->getBodyParam("request_uuid");
-        $model->company_id = $model->request->company_id;// Yii::$app->request->getBodyParam("company_id");
+        $model->company_id = $model->request? $model->request->company_id: null;// Yii::$app->request->getBodyParam("company_id");
         $model->staff_id = Yii::$app->user->getId();
 
         if (!$model->save()) {

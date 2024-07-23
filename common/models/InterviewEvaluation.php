@@ -39,7 +39,7 @@ class InterviewEvaluation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['request_uuid', 'company_id', "candidate_id"], 'required'],//'interview_evaluation_uuid',
+            [["candidate_id"], 'required'],//'interview_evaluation_uuid','request_uuid', 'company_id',
             [['company_id', 'staff_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['interview_evaluation_uuid', 'request_uuid'], 'string', 'max' => 60],
