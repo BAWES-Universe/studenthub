@@ -599,6 +599,39 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @return int
+     */
+    public function getAvgTimeToViewInvitations() {
+        return $this->getInvitations()
+            ->average("invitation_seen_in");
+    }
+
+    public function getInvitationStats() {
+        $total = $this->getInvitations()
+            ->andWhere( new Expression("invitation_seen_in IS NOT NULL"))
+            ->count();
+
+        $totalApp = $this->getInvitations()
+            ->andWhere(['invitation_seen_via' => "app"])
+            ->andWhere( new Expression("invitation_seen_in IS NOT NULL"))
+            ->count();
+
+        $totalEmail = $this->getInvitations()
+            ->andWhere(['invitation_seen_via' => "email"])
+            ->andWhere( new Expression("invitation_seen_in IS NOT NULL"))
+            ->count();
+
+
+        return [
+            "total" => $total,
+            "totalApp" => $totalApp,
+            "totalEmail" => $totalEmail,
+            "totalAppPercentage" => $total > 0? $totalApp * 100 / $total: null,
+            "totalEmailPercentage" => $total > 0? $totalEmail * 100 / $total: null,
+        ];
+    }
+
+    /**
      * @param $candidate_gender
      * @return string
      */
@@ -977,6 +1010,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            "invitationStats",
+            "avgTimeToViewInvitations",
             'storeAssignmentRequest',
             'campaign',
             'store',
