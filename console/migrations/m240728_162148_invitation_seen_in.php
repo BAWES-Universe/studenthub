@@ -12,10 +12,27 @@ class m240728_162148_invitation_seen_in extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn("invitation", "invitation_seen_in", $this->integer(11)
-            ->after("invitation_email_seen_at"));
-        $this->addColumn("invitation", "invitation_seen_via", $this->string(10)
-            ->after("invitation_seen_in"));
+        $columnInvitationSeenIn = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('invitation')
+            ->getColumn('invitation_seen_in');
+
+        if (!$columnInvitationSeenIn) {
+            $this->addColumn("invitation", "invitation_seen_in", $this->integer(11)
+                ->after("invitation_email_seen_at"));
+        }
+
+        $columnInvitationSeenVia = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('invitation')
+            ->getColumn('invitation_seen_via');
+
+        if(!$columnInvitationSeenVia) {
+            $this->addColumn("invitation", "invitation_seen_via", $this->string(10)
+                ->after("invitation_seen_in"));
+        }
 
         $query = \common\models\Invitation::find()
             ->andWhere(new \yii\db\Expression("invitation_app_seen_at IS NOT NULL OR 
@@ -57,7 +74,14 @@ class m240728_162148_invitation_seen_in extends Migration
 
                 $invitation->invitation_seen_in = strtotime($first_seen_at) - strtotime($invitation->invitation_created_at);
 
-                $invitation->save(false);
+                //$invitation->save(false);
+
+                \common\models\Invitation::updateAll([
+                    "invitation_seen_in" => $invitation->invitation_seen_in,
+                    "invitation_seen_via" => $invitation->invitation_seen_via
+                ], [
+                    "invitation_uuid" => $invitation->invitation_uuid
+                ]);
             }
         }
     }
@@ -67,9 +91,6 @@ class m240728_162148_invitation_seen_in extends Migration
      */
     public function safeDown()
     {
-        echo "m240728_162148_invitation_seen_in cannot be reverted.\n";
-
-        return false;
     }
 
     /*
