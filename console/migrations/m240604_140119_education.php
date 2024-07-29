@@ -21,9 +21,9 @@ class m240604_140119_education extends Migration
 
         $count = 0;
 
-        $total = $query->count();
+        //$total = $query->count();
 
-        Console::startProgress(0, $total);
+        //Console::startProgress(0, $total);
 
         $educations = [];
 
@@ -31,7 +31,7 @@ class m240604_140119_education extends Migration
             foreach ($candidates as $candidate) {
 
                 $count++;
-                Console::updateProgress($count, $total);
+                //Console::updateProgress($count, $total);
 
                 $educations[] = [
                     "education_uuid" => 'education_'.$count,
@@ -41,10 +41,12 @@ class m240604_140119_education extends Migration
                     "updated_at" => new \yii\db\Expression("NOW()")
                 ];
             }
-        }
 
-        Yii::$app->db->createCommand()->batchInsert('candidate_education',
-            ['education_uuid', 'candidate_id', "university_id", 'created_at', "updated_at"], $educations)->execute();
+            Yii::$app->db->createCommand()->batchInsert('candidate_education',
+                ['education_uuid', 'candidate_id', "university_id", 'created_at', "updated_at"], $educations)->execute();
+
+            $educations = [];
+        }
 
         echo "Migration completed \n";
 

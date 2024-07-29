@@ -125,6 +125,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     {
         return [
             //'candidate_hourly_rate', 'candidate_civil_expiry_date','candidate_civil_id',
+            [['candidate_birth_date'], "validateAge"],
             [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date',
                 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo',
                 'currency_code'], 'required'],
@@ -592,9 +593,42 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function validateAge()
     {
-        if($this->age < 18 || $this->age > 24) {
-            $this->addError('candidate_birth_date', Yii::t('candidate','Candidate age should be between 18 to 24.'));
+        if($this->age < 16 || $this->age > 25) {
+            $this->addError('candidate_birth_date', Yii::t('candidate','Candidate age should be between 16 to 25.'));
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getAvgTimeToViewInvitations() {
+        return $this->getInvitations()
+            ->average("invitation_seen_in");
+    }
+
+    public function getInvitationStats() {
+        $total = $this->getInvitations()
+            ->andWhere( new Expression("invitation_seen_in IS NOT NULL"))
+            ->count();
+
+        $totalApp = $this->getInvitations()
+            ->andWhere(['invitation_seen_via' => "app"])
+            ->andWhere( new Expression("invitation_seen_in IS NOT NULL"))
+            ->count();
+
+        $totalEmail = $this->getInvitations()
+            ->andWhere(['invitation_seen_via' => "email"])
+            ->andWhere( new Expression("invitation_seen_in IS NOT NULL"))
+            ->count();
+
+
+        return [
+            "total" => $total,
+            "totalApp" => $totalApp,
+            "totalEmail" => $totalEmail,
+            "totalAppPercentage" => $total > 0? $totalApp * 100 / $total: null,
+            "totalEmailPercentage" => $total > 0? $totalEmail * 100 / $total: null,
+        ];
     }
 
     /**
@@ -976,6 +1010,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            "invitationStats",
+            "avgTimeToViewInvitations",
             'storeAssignmentRequest',
             'campaign',
             'store',
@@ -998,6 +1034,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'profit',
             'revenue',
             'candidateStats',
+            "candidateWorkingHour",
+            "candidateWorkingDates"
         ];
     }
 
@@ -3334,6 +3372,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkingDates($modelClass = "\common\models\CandidateWorkingDate")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return array|\yii\db\ActiveRecord|null
+     */
+    public function getLatestCandidateWorkingDate($modelClass = "\common\models\CandidateWorkingDate") {
+        return self::getCandidateWorkingDates ($modelClass)
+            ->one();
+    }
+
+    /**
+     * @param $modelClass
+     * @return bool|int|string|null
+     */
+    public function getTotalCandidateWorkingDate($modelClass = "\common\models\CandidateWorkingDate") {
+        return (int) self::getCandidateWorkingDates ($modelClass)
+            ->count();
     }
 
     /**

@@ -8,6 +8,7 @@ use admin\models\TransferCandidate;
 use common\models\CandidateStats;
 use common\models\CompanyStats;
 use common\models\DailyStandupQuestion;
+use common\models\FiringHitmap;
 use common\models\MailLog;
 use common\models\RequestInterview;
 use common\models\StaffWorkSession;
@@ -185,7 +186,31 @@ class CronController extends \yii\console\Controller {
         //check salary transfer not paid
         //Invoice::unpaidAlert();
 
-        DailyStandupQuestion::standupReport();
+       // DailyStandupQuestion::standupReport();
+
+        FiringHitmap::updateHitMap();
+    }
+
+    public function actionGenHitMap() {
+
+        $arr = [
+            [7, 2023],
+            [8, 2023],
+            [9, 2023],
+            [10, 2023],
+            [11, 2023],
+            [12, 2023],
+            [1, 2024],
+            [2, 2024],
+            [3, 2024],
+            [4, 2024],
+            [5, 2024],
+            [6, 2024],
+        ];
+
+        foreach ($arr as $item) {
+            FiringHitmap::updateHitMap($item[0], $item[1]);
+        }
     }
 
     /**

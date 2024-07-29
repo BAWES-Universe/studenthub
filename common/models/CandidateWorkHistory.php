@@ -213,6 +213,64 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     }
 
     /**
+     * return firing by months
+     * @return array
+     */
+    public static function getFiringChartData($company_id, $months = 12) {
+
+        $dayTime =  60 * 60 * 24;
+
+        $cacheDuration = $dayTime;// 1 day then delete from cache
+
+        $cacheDependency = Yii::createObject([
+            'class' => 'yii\caching\DbDependency',
+            'reusable' => true,
+            'sql' => 'SELECT COUNT(*) FROM `candidate_work_history` WHERE end_date IS NULL AND company_id=' . $company_id,
+        ]);
+
+        $chart_data = [];
+
+        $day = date("d") > 29? date("d") - 29: 0;
+
+        for ($i = 0; $i < $months; $i++) {
+
+            $time = strtotime( '-'.($months - $i).' month');
+
+            //fix 29 days in feb
+            if ($day > 0) {
+                $time -= strtotime("-" . $day * $dayTime . " day");
+            }
+
+            $month = date('m', $time);
+
+            $chart_data[$month] = array(
+                'month'   => date('F', $time),
+                'total' => 0
+            );
+        }
+
+        $rows = CandidateWorkHistory::getDb()->cache(function($db) use($months, $company_id) {
+            return CandidateWorkHistory::find()
+                ->andWhere(['parent_company_id' => $company_id])
+                ->select ('end_date, COUNT(*) as total')
+                ->andWhere(new Expression("DATE(end_date) >= (NOW() - INTERVAL ".$months." MONTH)"))
+                ->groupBy (new Expression('MONTH(end_date), YEAR(end_date)'))
+                //->orderBy('end_date')
+                ->asArray()
+                ->all();
+        }, $cacheDuration, $cacheDependency);
+
+        foreach ($rows as $result) {
+            $chart_data[date ('m', strtotime ($result['end_date']))] = array(
+                'month' => Yii::t('app', date ('F', strtotime ($result['end_date']))),
+                'total' => (int) $result['total']
+            );
+        }
+
+        return array_values($chart_data);
+    }
+    
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCompany($className = '\common\models\Company') {

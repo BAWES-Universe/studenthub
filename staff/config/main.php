@@ -152,6 +152,7 @@ return [
                         'GET send-verification-email' => 'resend-verification-email',
                         'GET <id>' => 'view',
                         'GET' => 'list',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'PATCH add-to-team' => 'add-to-team',
                         'PATCH mark-email-verified' => 'mark-email-verified',
@@ -167,6 +168,7 @@ return [
                         'OPTIONS send-verification-email' => 'options',
                         'OPTIONS remove-from-team/<id>' =>'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS login/<id>' => 'options',
                     ]
                 ],
                 [ // CandidateController
@@ -195,6 +197,7 @@ return [
                         'POST add-tag/<id>' => 'add-tag',
                         'POST warn-candidate/<id>' => 'warn-candidate',
                         'PATCH update-warning/<id>' => 'update-warning',
+                        'POST login/<id>' => 'login',
                         'POST' => 'create',
                         'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH merge' => 'merge',
@@ -249,6 +252,7 @@ return [
                         'OPTIONS export-candidate' => 'options',
                         'OPTIONS assigned-history-list' => 'options',
                         'OPTIONS export-assigned-history' => 'options',
+                        "OPTIONS login/<id>" => "options"
                     ]
                 ],
                 [ // StoreController
@@ -286,9 +290,11 @@ return [
                     'controller' => 'v1/company',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET firing-chart" => "firing-chart",
                         'GET assigned-list' => 'assigned-list',
                         'GET followups' => 'followups',
                         'GET payroll-email/<id>' => 'payroll-email',
+                        "GET firing-chart/<id>" => "firing-chart",
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'POST file-create/<id>' => 'create-file',
@@ -299,6 +305,7 @@ return [
                         'PATCH <id>' => 'update',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS firing-chart/<id>" => "options",
                         'OPTIONS followups' => 'options',
                         'OPTIONS assigned-list' => 'options',
                         'OPTIONS payroll-email/<id>' => 'options',
@@ -307,6 +314,7 @@ return [
                         'OPTIONS file-create/<id>' => 'options',
                         'OPTIONS add-followup-note/<id>' => 'options',
                         'OPTIONS change-status/<id>' => 'options',
+                        "OPTIONS firing-chart" => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
@@ -355,6 +363,16 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS all' => 'options'
+                    ]
+                ],
+                [ // FiringHitmapController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/firing-hitmap',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
                     ]
                 ],
                 [ // TagController
@@ -444,6 +462,26 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                    ]
+                ],
+                [ // InterviewEvaluationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/interview-evaluation',
+                    'patterns' => [
+                        'GET' => 'list',
+                        "GET versions/<id>" => "versions",
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        "POST add-new-version/<id>" => "add-new-version",
+                        'PATCH add-note/<id>' => 'add-note/',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        "OPTIONS versions/<id>" => "options",
+                        "OPTIONS add-new-version/<id>" => "options",
+                        'OPTIONS add-note/<id>' => 'options',
                     ]
                 ],
                 [ // JiraController

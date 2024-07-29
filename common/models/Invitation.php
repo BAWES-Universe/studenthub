@@ -21,6 +21,8 @@ use yii\helpers\ArrayHelper;
  * @property int $invitation_status 1-Invited , 2-Rejected, 3-Accepted
  * @property string $invitation_app_seen_at
  * @property string $invitation_email_seen_at
+ * @property int $invitation_seen_in
+ * @property string $invitation_seen_via
  * @property int $invitation_created_by_staff
  * @property int $invitation_updated_by_staff
  * @property int $invitation_created_by_company
@@ -55,11 +57,12 @@ class Invitation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_id', 'invitation_status', 'invitation_created_by_staff', 'invitation_updated_by_staff', 'invitation_created_by_company', 'invitation_updated_by_company'], 'integer'],
+            [["invitation_seen_in", 'candidate_id', 'invitation_status', 'invitation_created_by_staff', 'invitation_updated_by_staff', 'invitation_created_by_company', 'invitation_updated_by_company'], 'integer'],
             [['request_uuid', 'candidate_id'], 'required'],
             [['request_uuid'], 'validateDuplicateRequest'],
-            [['invitation_email_seen_at', 'invitation_app_seen_at', 'invitation_created_at', 'invitation_updated_at'], 'safe'],
+            [["invitation_seen_via", 'invitation_email_seen_at', 'invitation_app_seen_at', 'invitation_created_at', 'invitation_updated_at'], 'safe'],
             [['invitation_uuid', 'request_uuid'], 'string', 'max' => 60],
+            //[['invitation_seen_via'], 'string'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['invitation_created_by_company'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['invitation_created_by_company' => 'company_id']],
             [['invitation_created_by_staff'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['invitation_created_by_staff' => 'staff_id']],

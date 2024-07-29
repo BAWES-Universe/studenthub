@@ -23,6 +23,8 @@ use yii\db\Expression;
  * @property string $start_location_long
  * @property string $end_location_lat
  * @property string $end_location_long
+ * @property string $note
+ * @property int $status
  * @property string $created_at
  * @property string $updated_at
  *
@@ -31,6 +33,10 @@ use yii\db\Expression;
  */
 class CandidateWorkingHour extends \yii\db\ActiveRecord
 {
+    const STATUS_PENDING = 0;
+    const STATUS_APPROVED = 1;
+    const STATUS_REJECTED = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -46,9 +52,10 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     {
         return [
             [['store_id','candidate_id'], 'required'],
-            [['candidate_id', 'store_id','total_time'], 'integer'],
+            [['candidate_id', 'store_id','total_time', 'status'], 'integer'],
             [['date', 'start_time', 'end_time', 'created_at', 'updated_at'], 'safe'],
             [['start_location_lat', 'start_location_long', 'end_location_lat', 'end_location_long'], 'number'],
+            [['note'], 'string'],
             [['candidate_working_hour_uuid'], 'string', 'max' => 60],
             [['candidate_working_hour_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -81,6 +88,95 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             ],
         ];
     }
+
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return void
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        $date = CandidateWorkingDate::find()->andWhere([
+            "candidate_id" => $this->candidate_id,
+            "store_id" => $this->store_id,
+            "date" => $this->date,
+        ])->one();
+
+        //start + end + manually added
+
+        if ($insert) {
+
+            if (!$date) {//this would be first session in a day
+                $date = new CandidateWorkingDate;
+                $date->store_id = $this->store_id;
+                $date->company_id = $this->store->company_id;
+                $date->candidate_id = $this->candidate_id;
+                $date->date = $this->date;
+                $date->start_time = $this->start_time;
+                $date->end_time = $this->end_time;
+                $date->total_time = $this->total_time;
+               // $this->status = $this->status;
+                if(!$date->save()) {
+                    Yii::error($date->errors);
+                }
+
+            } else { //if sub-sequent sessions
+
+                if ($this->end_time) { //for manual input
+                    $total_time = CandidateWorkingHour::find()->andWhere([
+                            "candidate_id" => $this->candidate_id,
+                            "store_id" => $this->store_id,
+                            "date" => $this->date,
+                        ])
+                        ->sum("total_time");
+
+                    CandidateWorkingDate::updateAll([
+                        "status" => $this->status,
+                        "total_time" => $total_time,
+                        "end_time" => $this->end_time
+                    ], [
+                        "candidate_id" => $this->candidate_id,
+                        "store_id" => $this->store_id,
+                        "date" => $this->date,
+                    ]);
+
+                } else { //when timer started
+
+                    CandidateWorkingDate::updateAll([
+                        "status" => $this->status, //reset status
+                        "total_time" => null, //reset total time as new session pending to finish
+                        "end_time" => null //as current session will be always latest session
+                    ], [
+                        "candidate_id" => $this->candidate_id,
+                        "store_id" => $this->store_id,
+                        "date" => $this->date,
+                    ]);
+                }
+            }
+        }
+        else //update will be always end session action
+        {
+            $total_time = CandidateWorkingHour::find()->andWhere([
+                    "candidate_id" => $this->candidate_id,
+                    "store_id" => $this->store_id,
+                    "date" => $this->date,
+                ])
+                ->sum("total_time");
+
+            CandidateWorkingDate::updateAll([
+                "status" => $this->status,
+                "total_time" => $total_time,
+                "end_time" => $this->end_time //as current session will be always latest session
+            ], [
+                "candidate_id" => $this->candidate_id,
+                "store_id" => $this->store_id,
+                "date" => $this->date,
+            ]);
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -98,6 +194,8 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             'start_location_long' => 'Star Location Long',
             'end_location_lat' => 'End Location Lat',
             'end_location_long' => 'End Location Long',
+            'status' => 'Status',
+            'note' => 'Note',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
@@ -111,39 +209,88 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             'company',
             'parentCompany',
             'dateListByCandidate',
+            'checkIn',
+            "checkOut",
+            "dateStatus",
+            "firstSession",
+            "lastSession"
         ];
     }
 
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCandidate()
-    {
-        return $this->hasOne(Candidate::className(), ['candidate_id' => 'candidate_id']);
+    public function getCheckIn() {
+        if ($this->firstSession) {
+            return $this->firstSession->start_time;
+        }
+    }
+
+    public function getCheckOut() {
+        if ($this->lastSession) {
+            return $this->lastSession->end_time;
+        }
+    }
+
+    public function getDateStatus() {
+        if ($this->lastSession) {
+            return $this->lastSession->status;
+        }
+    }
+
+    public function getLastSession() {
+        return CandidateWorkingHour::find()
+            ->andWhere(['date' => $this->date])
+            ->andWhere(['candidate_id' => $this->candidate_id])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at DESC')
+            ->one();
+    }
+
+    public function getFirstSession() {
+        return self::find()
+            ->andWhere(['date' => $this->date])
+            ->andWhere(['candidate_id' => $this->candidate_id])
+            // ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->orderBy('created_at ASC')
+            ->one();
+    }
+
+    public function getTotalTime() {
+        return CandidateWorkingHour::find()
+            ->andWhere(['date' => $this->date])
+            ->andWhere(['candidate_id' => $this->candidate_id])
+            ->andWhere(new Expression("end_time IS NOT NULL"))
+            ->sum("total_time");
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getStore()
+    public function getCandidate($className = '\common\models\Candidate')
     {
-        return $this->hasOne(Store::className(), ['store_id' => 'store_id']);
+        return $this->hasOne($className::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCompany()
+    public function getStore($className = '\common\models\Store')
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'company_id']);
+        return $this->hasOne($className::className(), ['store_id' => 'store_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getParentCompany()
+    public function getCompany($className = '\common\models\Company')
     {
-        return $this->hasOne(Company::className(), ['company_id' => 'parent_company_id']);
+        return $this->hasOne($className::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany($className = '\common\models\Company')
+    {
+        return $this->hasOne($className::className(), ['company_id' => 'parent_company_id']);
     }
 
     /**

@@ -310,7 +310,27 @@ class InvitationController extends Controller
             ->one();
 
         if($model && !$model->invitation_email_seen_at) {
+
             $model->invitation_email_seen_at = new Expression('NOW()');
+
+            if (!$model->invitation_seen_via) {
+
+                //check whatever is low
+
+                $first_seen_at = time();
+
+                if (
+                    !empty($model->invitation_app_seen_at) &&
+                    strtotime($model->invitation_app_seen_at) < time()
+                ) {
+                    $first_seen_at = strtotime($model->invitation_app_seen_at);
+                }
+
+                $model->invitation_seen_in = $first_seen_at - strtotime($model->invitation_created_at);
+
+                $model->invitation_seen_via = "email";
+            }
+
             $model->save(false);
         }
 
@@ -336,10 +356,42 @@ class InvitationController extends Controller
         Invitation::updateAll ([
             'invitation_app_seen_at' => new Expression('NOW()')
         ], [
+            'AND',
+            ['candidate_id' => Yii::$app->user->getId()],
+            new Expression('invitation_app_seen_at IS NULL')
+        ]);
+
+        /*Invitation::updateAll ([
+            'invitation_seen_via' => "app"
+        ], [
            'AND',
            ['candidate_id' => Yii::$app->user->getId()],
-           new Expression('invitation_app_seen_at IS NULL')
-        ]);
+           new Expression('invitation_seen_via IS NULL')
+        ]);*/
+
+        $invitations = Yii::$app->user->identity->getInvitations()
+            ->andWhere(new Expression("invitation_seen_in IS NULL"))
+            ->all();
+
+        foreach ($invitations as $invitation) {
+
+            //check whatever is low
+
+            $first_seen_at = $invitation->invitation_app_seen_at;
+
+            if (
+                $invitation->invitation_email_seen_at &&
+                strtotime($invitation->invitation_email_seen_at) < strtotime($invitation->invitation_app_seen_at)
+            ) {
+                $first_seen_at = $invitation->invitation_email_seen_at;
+            }
+
+            $invitation->invitation_seen_in = strtotime($first_seen_at) - strtotime($invitation->invitation_created_at);
+
+            $invitation->invitation_seen_via = "app";
+
+            $invitation->save(false);
+        }
 
         return [
             'operation' => 'success'

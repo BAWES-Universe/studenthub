@@ -1,0 +1,1 @@
+Firing spike detected for <?= $name ?>. Need to follow up to find root cause and fix. Severity: <?= $type ?>.
