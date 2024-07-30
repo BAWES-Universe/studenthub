@@ -80,6 +80,7 @@ class NoteController extends Controller
         $staff_id = Yii::$app->request->get('staff_id');
         $contact_uuid = Yii::$app->request->get('contact_uuid');
         $story_id = Yii::$app->request->get('story_uuid');
+        $note_type = Yii::$app->request->get('note_type');
         $interview_evaluation_uuid = Yii::$app->request->get('interview_evaluation_uuid');
 
         $page = Yii::$app->request->get('page');
@@ -87,6 +88,10 @@ class NoteController extends Controller
         $query = Note::find()
             ->orderBy('note_created_datetime DESC');
 
+        if ($note_type) {
+            $query->andWhere(['note_type' => $note_type]);
+        }
+        
         if($staff_id) {
             $query->filterCreatedBy($staff_id);
         }
@@ -123,11 +128,12 @@ class NoteController extends Controller
             $query->andWhere(['interview_evaluation_uuid' => $interview_evaluation_uuid]);
         }
 
-        if(!$page) 
+        if(!$page) {
             return new ActiveDataProvider([
                 'query' => $query,
                 'pagination' => false
             ]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
