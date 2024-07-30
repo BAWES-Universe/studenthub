@@ -35,7 +35,7 @@ use yii\helpers\ArrayHelper;
  * @property Staff $invitationCreatedByStaff
  * @property Company $invitationUpdatedByCompany
  * @property Staff $invitationUpdatedByStaff
- * @property Request $requestUu
+ * @property Request $request
  */
 class Invitation extends \yii\db\ActiveRecord
 {
