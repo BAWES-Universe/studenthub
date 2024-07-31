@@ -174,9 +174,14 @@ return [
     "Please find attached the transfer confirmation file." => "يرجى العثور على ملف تأكيد النقل المرفق.",
     "We've successfully transferred <b>KWD {amount}</b> to <b>{count} people</b>." => "لقد نجحنا في تحويل مبلغ <b> {amount} </ b> د.ك إلى <b> {count} شخص </ b>.",
     "We've successfully transferred <b>{currency_code} {amount}</b> to <b>{count} people</b>." => "لقد نجحنا في تحويل مبلغ <b>{currency_code} {amount} </b> د.ك إلى <b> {count} شخص </ b>.",
-    "Please find attached your payment confirmation {numInvoices, plural, =1{receipt} other{receipts}}." => "يرجى الاطلاع على مرفق تأكيد الدفع الخاص بك {numInvoices, plural, =1{receipt} other{receipts}}.",
-    "<b>Issues with the {numInvoices, plural, =1{invoice} other{invoices}}?</b> Please <a href='https://www.studenthub.co/contact'>contact us</a>, we'll be happy to assist" => "<b> المشكلات المتعلقة بـ {numInvoices، plural، = 1 {invoice} other {invoices}}؟ </b> يُرجى <a href='https://www.studenthub.co/contact'> الاتصال بنا </a> ، يسعدنا تقديم المساعدة",
-    "Please find the attached {numInvoices, plural, =1{invoice} other{invoices}} for your payment in order to proceed with the transfers." => "يرجى العثور على {numInvoices، plural، = 1 {invoice} other {invoices}} المرفقة لدفعتك من أجل متابعة عمليات التحويل.",
+
+    "Please find attached your payment confirmation {numInvoices, plural, =1{receipt} other{receipts}}." =>
+        "يرجى الاطلاع على مرفق تأكيد الدفع الخاص بك {numInvoices, plural, =1{receipt} other{receipts}}.",
+    "<b>Issues with the {numInvoices, plural, =1{invoice} other{invoices}}?</b> Please <a href='https://www.studenthub.co/contact'>contact us</a>, we'll be happy to assist" =>
+        "<b> المشكلات المتعلقة بـ {numInvoices, plural, =1{invoice} other{invoices}}؟ </b> يُرجى <a href='https://www.studenthub.co/contact'> الاتصال بنا </a> ، يسعدنا تقديم المساعدة",
+    "Please find the attached {numInvoices, plural, =1{invoice} other{invoices}} for your payment in order to proceed with the transfers." =>
+        "يرجى العثور على {numInvoices, plural, =1{invoice} other{invoices}} المرفقة لدفعتك من أجل متابعة عمليات التحويل.",
+
     "Video not available to delete." => "الفيديو غير متاح للحذف.",
     "Please specify your full name" => "يرجى تحديد الاسم الكامل الخاص بك",
     "Please specify your full arabic name" => "يرجى تحديد اسمك العربي بالكامل",
