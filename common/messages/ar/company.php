@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'Transfer status should be "Initiated" or "Locked" to delete it!' => 'يجب أن تكون حالة النقل "بدأت" أو "مقفلة" لحذفها!',
+    "Transfer deleted as requested." => "تم حذف النقل بناءً على الطلب.",
+    "Transfer has been cancelled." => "تم إلغاء النقل.",
+    "Transfer has been locked. Invoices will be sent to your email." => "تم قفل التحويل، سيتم إرسال الفواتير إلى بريدك الإلكتروني.",
     "{candidate}’s working hours has been approved!" => "تمت الموافقة على ساعات عمل {candidate}.",
     "{candidate}’s working hours has been rejected!" => "تم رفض ساعات عمل {candidate}!",
     "Account not found, please contact us for assistance." => "الحساب غير موجود ، يرجى الاتصال بنا للحصول على المساعدة.",
