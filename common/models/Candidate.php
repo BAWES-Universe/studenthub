@@ -606,6 +606,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->average("invitation_seen_in");
     }
 
+    /**
+     * @return array
+     */
     public function getInvitationStats() {
         $total = $this->getInvitations()
             ->andWhere( new Expression("invitation_seen_in IS NOT NULL"))
@@ -2677,6 +2680,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @param bool $insert
      */
     public function updateAlgoliaIndex($insert = false) {
+
+        if(empty(Yii::$app->params['algolia_candidate_index'])) {
+            return false;
+        }
 
         $data = $this->prepareAlgoliaData($insert);
 

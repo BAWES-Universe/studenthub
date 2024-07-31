@@ -192,9 +192,13 @@ class Invitation extends \yii\db\ActiveRecord
         }
 
         //update `request_updated_at` field
-        $this->request->request_updated_datetime = '';
-        $this->request->update(false);
-        
+        $request = $this->getRequest()->one();
+
+        if ($request) {
+            $request->request_updated_datetime = '';
+            $request->update(false);
+        }
+
         if(YII_ENV == 'prod') {
             if ($insert) {
 
