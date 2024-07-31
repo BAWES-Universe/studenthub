@@ -243,7 +243,8 @@ class AccountCest
     public function tryUpdateBirthDate(FunctionalTester $I)
     {
         $I->amGoingTo('try to update birth date');
-        $I->sendPOST('v1/account/update-birth-date', array('birth_date' => '1992-01-01'));
+        $date = date("Y-m-d", strtotime("-17 years"));
+        $I->sendPOST('v1/account/update-birth-date', array('birth_date' => $date));
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson(['operation' => 'success','message'=>'Candidate Birth Date Info Updated Successfully']);
     }

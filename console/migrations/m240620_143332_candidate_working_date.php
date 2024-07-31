@@ -72,6 +72,7 @@ class m240620_143332_candidate_working_date extends Migration
             ->all();
 
         foreach ($days as $day) {
+
             $total_time = CandidateWorkingHour::find()
                 ->andWhere([
                     "candidate_id" => $day->candidate_id,
