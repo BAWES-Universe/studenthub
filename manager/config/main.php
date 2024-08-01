@@ -44,6 +44,16 @@ return [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
+                [ // AWSController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/aws',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET config' => 'config',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // PingController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/ping',
