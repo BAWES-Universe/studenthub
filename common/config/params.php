@@ -13,6 +13,9 @@ return [
     'candidate_photo' => 'https://res.cloudinary.com/studenthub/image/upload/v1596525812/',
     'google_api_key' => 'AIzaSyBSM8o4WSIIRn-sNhn-PvO2s0ovZuLDAaw',
     'mailThreshold' => 500,
+    "aws_temp_access_key_id" => 'AKIAWMITDJRKTSQ4T67K',
+    "aws_temp_secret_access_key" => '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',
+
     'bankInfo' => [ //BAWES Bank Info
         'accountName' => 'BAWES FOR COMPUTER AND OPERATION CO',
         'accountNameArabic' => 'شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت',
