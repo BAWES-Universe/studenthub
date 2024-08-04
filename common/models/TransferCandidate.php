@@ -359,7 +359,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'bank',
             'transferFile',
             'profit',
-            'revenue'
+            'revenue',
+            "duplicates"
         ];
     }
     
@@ -612,6 +613,16 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function getBank($modelClass = "\common\models\Bank")
     {
         return $this->hasOne($modelClass::className(), ['bank_id' => 'bank_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDuplicates()
+    {
+        return self::find()
+            ->andWhere(new Expression("transfer_candidate.candidate_id = ". $this->candidate_id ." AND transfer_candidate.company_id = ".$this->company_id." AND YEAR(transfer_candidate.tc_created_at) = YEAR('". $this->tc_created_at."') AND MONTH(transfer_candidate.tc_created_at) = MONTH('". $this->tc_created_at."') AND deleted = 0 AND transfer_candidate.tc_id != " . $this->tc_id))
+            ->all();
     }
 
     /**

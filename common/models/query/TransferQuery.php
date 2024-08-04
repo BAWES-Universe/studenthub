@@ -36,6 +36,16 @@ class TransferQuery extends ActiveQuery
     }
 
     /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%transfer}}.deleted' => 0]);
+        return parent::count($q, $db);
+    }
+
+    /**
      * @param $transfer_id
      * @return $this
      */

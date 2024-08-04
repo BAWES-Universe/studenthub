@@ -86,9 +86,16 @@ class TransferController extends Controller
         $suspicious = Yii::$app->request->get('suspicious');
         $filterSameRate = Yii::$app->request->get('filterSameRate');
         $filterNoProfit = Yii::$app->request->get('filterNoProfit');
+        $filterDuplicate = Yii::$app->request->get("filterDuplicate");
+
         $transfer_id = Yii::$app->request->get('transfer_id');
+        $tc_id  = Yii::$app->request->get('tc_id');
 
         $query = TransferCandidate::find();
+
+        if ($filterDuplicate) {
+            $query->filterDuplicate();
+        }
 
         if($currency) {
             $query->andWhere(['transfer_candidate.currency_code' => $currency]);
@@ -96,6 +103,10 @@ class TransferController extends Controller
 
         if($transfer_id)
             $query->andWhere(['transfer_id' => $transfer_id]);
+
+        if ($tc_id) {
+            $query->andWhere(['tc_id' => $tc_id]);
+        }
 
         if ($company_name) {
             $query->joinWith(['company'])
@@ -124,6 +135,133 @@ class TransferController extends Controller
 
         return new ActiveDataProvider([
             'query' => $query
+        ]);
+    }
+
+    /**
+     * @return void
+     */
+    public function actionExportCandidateTransfers()
+    {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $company_name = Yii::$app->request->get('company_name');
+        $transfer_status = Yii::$app->request->get('transfer_status');
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+        $suspicious = Yii::$app->request->get('suspicious');
+        $filterSameRate = Yii::$app->request->get('filterSameRate');
+        $filterNoProfit = Yii::$app->request->get('filterNoProfit');
+        $filterDuplicate = Yii::$app->request->get("filterDuplicate");
+
+        $transfer_id = Yii::$app->request->get('transfer_id');
+        $tc_id = Yii::$app->request->get('tc_id');
+
+        $query = TransferCandidate::find();
+
+        if ($filterDuplicate) {
+            $query->filterDuplicate();
+        }
+
+        if ($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
+
+        if ($transfer_id)
+            $query->andWhere(['transfer_id' => $transfer_id]);
+
+        if ($tc_id) {
+            $query->andWhere(['tc_id' => $tc_id]);
+        }
+
+        if ($company_name) {
+            $query->joinWith(['company'])
+                ->filterCompany($company_name);
+        }
+
+        if ($transfer_status)
+            $query->filterStatus($transfer_status);
+
+        if ($filterSameRate) {
+            $query->filterSameRate();
+        }
+
+        if ($filterNoProfit) {
+            $query->filterNoProfit();
+        }
+
+        if ($start_date)
+            $query->startDate($start_date);
+
+        if ($end_date)
+            $query->endDate($end_date);
+
+        //$query->groupBy('{{%transfer}}.transfer_id');
+        $query->orderBy('{{%transfer_candidate}}.tc_updated_at DESC');
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $query->all(),
+            'columns' => [
+                /*[
+                    'header' => 'company name',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return ($model && $model->company) ? $model->company->company_common_name_en : '-';
+                    },
+                ],*/
+                [
+                    'header' => 'Transfer',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->transfer_id;//'# '.
+                    },
+                ],
+                [
+                    'header' => 'Candidate Transfer ID',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->tc_id;
+                    },
+                ],
+                "candidate_id",
+                /*[
+                    'header' => 'Duplicate Candidate Transfers',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        $result = [];
+
+                        foreach ($model->getDuplicates() as $duplicate) {
+                            $result[] = $duplicate->transfer_id . " -> " . $duplicate->tc_id;
+                        }
+
+                        return implode(", ", $result);
+                    },
+                ],*/
+                [
+                    'header' => 'Invoice Amount',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->company_total;
+                    },
+                ],
+                [
+                    'header' => 'Candidate Total',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->candidate_total;
+                    },
+                ],
+                'profit',
+                "hours",
+                "bonus",
+                "bonus_commission",
+                "transfer_cost",
+                "tc_created_at",
+                "tc_updated_at"
+            ]
         ]);
     }
 
@@ -700,7 +838,6 @@ class TransferController extends Controller
 
         $query->groupBy('{{%transfer}}.transfer_id');
         $query->orderBy('{{%transfer}}.transfer_updated_at DESC');
-        ;
 
         header('Access-Control-Allow-Origin: *');
 
