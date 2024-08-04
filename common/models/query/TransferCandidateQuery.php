@@ -32,6 +32,16 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
     }
 
     /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%transfer_candidate}}.deleted' => 0]);
+        return parent::count($q, $db);
+    }
+
+    /**
      * filter transfers where company paid
      * @return TransferQuery
      */
@@ -57,6 +67,27 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
     public function endDate($date)
     {
         return $this->joinWith(['transfer'])->andWhere("DATE(transfer_created_at) < '$date'");
+    }
+
+    public function filterDuplicate() {
+        //select t1.tc_id, 1.transfer_id, t2.tc_id as duplicate_tc_id, t2.transfer_id as duplicate_transfer_id from transfer_candidate t1
+        // left join transfer_candidate t2 on t1.candidate_id = t2.candidate_id AND
+        // MONTH(t1.tc_created_at) = MONTH(t2.tc_created_at) AND YEAR(t1.tc_created_at) = YEAR(t2.tc_created_at) AND
+        // t1.company_id = t2.company_id AND t2.deleted = 0 where t1.tc_id != t2.tc_id AND t1.deleted=0;
+
+        /**
+         * [
+        "transfer_candidate.candidate_id" => "t2.candidate_id",
+        // [new Expression("MONTH(transfer_candidate.tc_created_at) = MONTH(t2.tc_created_at) AND YEAR(transfer_candidate.tc_created_at) = YEAR(t2.tc_created_at)")],
+        "transfer_candidate.company_id" => "t2.company_id",
+        "t2.deleted" => 0
+        ]
+         */
+        return $this->leftJoin(["t2" => "transfer_candidate"], "transfer_candidate.candidate_id = t2.candidate_id AND
+         MONTH(transfer_candidate.tc_created_at) = MONTH(t2.tc_created_at) AND YEAR(transfer_candidate.tc_created_at) = YEAR(t2.tc_created_at) AND
+         transfer_candidate.company_id = t2.company_id AND t2.deleted = 0")
+            //->andWhere(new Expression("MONTH(transfer_candidate.tc_created_at) = MONTH(t2.tc_created_at) AND YEAR(transfer_candidate.tc_created_at) = YEAR(t2.tc_created_at)"))
+            ->andWhere(["!=", "transfer_candidate.tc_id", new Expression("t2.tc_id")]);
     }
 
     /**

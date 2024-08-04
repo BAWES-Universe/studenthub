@@ -685,6 +685,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET candidates' => 'list-candidate',
+                        "GET export-candidate-transfers" => "export-candidate-transfers",
                         'GET export-companies-transfer' => 'export-companies-transfer',
                         'GET transfer-excel-template/<id>' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',
@@ -708,6 +709,7 @@ return [
                         'OPTIONS edit-by-excel/<id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
+                        "OPTIONS export-candidate-transfers" => "options",
                         'OPTIONS export-companies-transfer' => 'options'
                     ]
                 ],
