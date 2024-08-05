@@ -998,6 +998,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return $model->getIsWorking();
         };
 
+        $fields['civilExpired'] = function ($model) {
+            return (strtotime($model->candidate_civil_expiry_date) < strtotime(date('Y-m-d')));
+        };
+
         unset(
             $fields['candidate_uid'],
             $fields['candidate_password_hash'],

@@ -336,4 +336,22 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
             new \yii\db\Expression('{{%transfer_candidate}}.hours IS NOT NULL AND {{%transfer_candidate}}.hours > 0'),
         ]);
     }
+
+    /**
+     * @return $this
+     */
+    public function civilIdExpired()
+    {
+        return $this->joinWith(['candidate'])
+            ->andWhere('DATE(candidate_civil_expiry_date) < DATE(NOW())');
+    }
+
+    /**
+     * @return CandidateQuery
+     */
+    public function activeCivilId()
+    {
+        return $this->joinWith(['candidate'])
+            ->andWhere('DATE({{%candidate}}.candidate_civil_expiry_date) >= DATE(NOW())');
+    }
 }

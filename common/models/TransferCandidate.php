@@ -664,6 +664,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $transferCandidates = self::find()
             ->payable()
             ->havingBankInfo()
+            ->activeCivilId()
             ->andWhere(['transfer_candidate.currency_code' => $currency_code])
             ->all();
 
@@ -749,6 +750,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $transferCandidates = self::find()
             ->payable()
             ->havingBankInfo()
+            ->activeCivilId()
             ->andWhere(['transfer_candidate.currency_code' => $currency_code])
             ->all();
 

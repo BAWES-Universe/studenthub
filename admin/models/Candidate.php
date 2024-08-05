@@ -27,6 +27,7 @@ class Candidate extends \common\models\Candidate {
         $fields['deleted'] = function($model){
             return $model->deleted;
         };
+
         $fields['candidate_name'] = function($model){
             return strtolower($model->candidate_name);
         };
