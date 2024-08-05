@@ -3,6 +3,7 @@
 namespace company\modules\v1\controllers;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use company\models\Transfer;
@@ -474,7 +475,19 @@ class TransferController extends Controller
      */
     public function actionTransferExcelTemplate()
     {
+        $preFilled = Yii::$app->request->get("preFilled");
+
         $company = Yii::$app->companyManager->getCompany();
+
+        $transferCandidates = [];
+
+        if ($preFilled) {
+            $latestTransfer = $company->getParentTransfers()->one();
+
+            if ($latestTransfer) {
+                $transferCandidates = ArrayHelper::index($latestTransfer->getTransferCandidates()->all(), "candidate_id");
+            }
+        }
 
         header('Access-Control-Allow-Origin: *');
 
@@ -508,14 +521,16 @@ class TransferController extends Controller
 	            ],
                 [
                     'header' => 'hours',
-                    'value' => function() {
-                        return 0;
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['hours']: 0;
                     }
                 ],
                 [
                     'header' => 'bonus',
-                    'value' => function() {
-                        return 0;
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['bonus']: 0;;
                     }
                 ]
             ]

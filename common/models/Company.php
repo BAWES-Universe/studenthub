@@ -571,6 +571,11 @@ class Company extends \yii\db\ActiveRecord
         ]);*/
     }
 
+    public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
     /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
