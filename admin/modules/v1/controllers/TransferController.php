@@ -795,7 +795,8 @@ class TransferController extends Controller
         }
 
         if($onlyPayable) {
-            $query->havingBankInfo();
+            $query->havingBankInfo()
+                ->activeCivilId();
         }
         
         $candidates = $query
@@ -803,16 +804,21 @@ class TransferController extends Controller
 
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
-        foreach ($candidates as $candidate) {
-            if (
-                $candidate->candidate &&
-                $candidate->candidate->isProfileCompleted &&
-                $candidate->candidate->bank_id &&
-                $candidate->transfer_benef_iban &&
-                $candidate->transfer_benef_name &&
-                $candidate->invoiceNumber) {
-                $payableCandidate[] = $candidate;
+        if ($onlyPayable) {
+            foreach ($candidates as $candidate) {
+                if (
+                    $candidate->candidate &&
+                    $candidate->candidate->isProfileCompleted &&
+                    $candidate->candidate->bank_id &&
+                    $candidate->transfer_benef_iban &&
+                    $candidate->transfer_benef_name &&
+                    $candidate->invoiceNumber
+                ) {
+                    $payableCandidate[] = $candidate;
+                }
             }
+        } else {
+            $payableCandidate = $candidates;
         }
 
         header('Access-Control-Allow-Origin: *');
@@ -829,7 +835,7 @@ class TransferController extends Controller
                     'attribute'=>'Beneficiary name',
                     'label'=>'Beneficiary name',
                     'value'=>function($data) {
-                        return $data->candidate->bank_account_name;
+                        return $data->candidate? $data->candidate->bank_account_name: $data->transfer_benef_name;
                     }
                 ],
                 'candidate.candidate_email',

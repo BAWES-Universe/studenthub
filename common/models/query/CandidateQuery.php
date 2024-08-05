@@ -140,6 +140,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere(['{{%candidate}}.university_id' => $university_id]);
     }
+
     /**
      * @param $university_id
      * @return $this
