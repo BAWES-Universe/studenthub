@@ -999,7 +999,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         };
 
         $fields['civilExpired'] = function ($model) {
-            return (strtotime($model->candidate_civil_expiry_date) < strtotime(date('Y-m-d')));
+            return $model->candidate_civil_expiry_date && (strtotime($model->candidate_civil_expiry_date) <
+                strtotime(date('Y-m-d')));
         };
 
         unset(
