@@ -20,6 +20,7 @@ use Segment\Segment;
  * @property integer $company_id
  * @property integer $total
  * @property integer $company_total
+ * @property integer $transfer_cost
  * @property string $currency_code
  * @property date $payment_received_on
  * @property integer $transfer_status
@@ -82,7 +83,7 @@ class Transfer extends ActiveRecord
             [['company_id', 'transfer_status'], 'integer'],
             [['start_date', 'end_date', "currency_code"], 'required'],
             [['transfer_status'], 'validateTransferStatus'],
-            [['total', 'company_total'], 'number'],
+            [['total', 'company_total', "transfer_cost"], 'number'],
             ['start_date', 'validateDates'],
             [["currency_code"], "string"],
             [['transfer_created_at', 'transfer_updated_at', 'payment_received_on','start_date','end_date'], 'safe'],
@@ -828,7 +829,7 @@ class Transfer extends ActiveRecord
                     $transfer->save(false);
                 }
 
-                $total = $company_total = 0;
+                $total = $company_total = $transfer_cost = 0;
 
                 //remove old candidates if exists
 
@@ -844,14 +845,21 @@ class Transfer extends ActiveRecord
 
                 foreach ($candidates as $key_one => $value) {
                     if ((int)$value['hours']>0 || $value['bonus'] > 0) {
+
                         //total amount we will pay to bank
-                        $total += $value['bonus'] - $value['bonus_commission'] + ($value['hours'] * $value['candidate_hourly_rate']) + $value['transfer_cost'];
+                        $total += $value['bonus'] - $value['bonus_commission'] +
+                            ($value['hours'] * $value['candidate_hourly_rate']);
+
                         //total amount company will pay to us
-                        $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate']);
+                        $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate'])
+                            + $value['transfer_cost'];
+
+                        $transfer_cost += $value['transfer_cost'];
                     }
                 }
 
                 // Save total in transfer
+                $transfer->transfer_cost = $transfer_cost;
                 $transfer->company_total = $company_total;
                 $transfer->total = $total;
                 $transfer->save(false);
@@ -1116,7 +1124,7 @@ class Transfer extends ActiveRecord
 
         // Save candidate data
 
-        $total = $company_total = 0;
+        $total = $company_total = $transfer_cost = 0;
 
         foreach ($candidates as $key => $value) {
 
@@ -1150,7 +1158,6 @@ class Transfer extends ActiveRecord
                 ->asArray()
                 ->one();
 
-
             if (!$candidate) {
                 if(empty(Yii::$app->params['inCodeception']))
                     $transaction->rollBack();
@@ -1181,6 +1188,7 @@ class Transfer extends ActiveRecord
             } else {
                 $total += $response['total'];
                 $company_total += $response['company_total'];
+                $transfer_cost += $response['transfer_cost'];
             }
         }
 
@@ -1195,6 +1203,7 @@ class Transfer extends ActiveRecord
             ];
         }
 
+        $transfer->transfer_cost = $transfer_cost;
         $transfer->company_total = $company_total;
         $transfer->total = $total;
         $transfer->save(false);
@@ -1288,7 +1297,7 @@ class Transfer extends ActiveRecord
 
         //save candidates
 
-        $total = $company_total = 0;
+        $total = $company_total = $transfer_cost = 0;
 
         if (count($candidates) == 0) {
 
@@ -1353,9 +1362,11 @@ class Transfer extends ActiveRecord
             } else {
                 $total += $response['total'];
                 $company_total += $response['company_total'];
+                $transfer_cost += $response['transfer_cost'];
             }
         }
 
+        $this->transfer_cost = $transfer_cost;
         $this->company_total = $company_total;
         $this->total = $total;
 
@@ -1429,7 +1440,7 @@ class Transfer extends ActiveRecord
                 ];
             }
 
-            $total = $company_total = 0;
+            $total = $company_total = $transfer_cost = 0;
 
             // Remove old candidate id exists
             TransferCandidate::deleteAll(['transfer_id' => $transfer->transfer_id]);
@@ -1443,12 +1454,19 @@ class Transfer extends ActiveRecord
             foreach ($candidates as $key => $value)
             {
                 if ((int)$value['hours']>0 || $value['bonus'] > 0) {
-                    $total += $value['bonus'] - $value['bonus_commission'] + ($value['hours'] * $value['candidate_hourly_rate']) + $value['transfer_cost'];
-                    $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate']);
+
+                    $total += $value['bonus'] - $value['bonus_commission']
+                        + ($value['hours'] * $value['candidate_hourly_rate']);
+
+                    $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate'])
+                        + $value['transfer_cost'];
+
+                    $transfer_cost += $value['transfer_cost'];
                 }
             }
 
             // Save total in transfer
+            $transfer->transfer_cost = $transfer_cost;
             $transfer->company_total = $company_total;
             $transfer->total = $total;
 
@@ -1555,6 +1573,7 @@ class Transfer extends ActiveRecord
         {
             $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
             $hours = (isset($value['hours'])) ? $value['hours'] : 0;
+            $transfer_cost = (isset($value['transfer_cost'])) ? $value['transfer_cost'] : 0;
 
             if($hours < 0)
             {
@@ -1605,7 +1624,7 @@ class Transfer extends ActiveRecord
                 $company_hourly_rate = $company->parentCompany['company_hourly_rate'];
             }
 
-            $company_total += $bonus + ($hours * $company_hourly_rate);
+            $company_total += $bonus + ($hours * $company_hourly_rate) + $transfer_cost;
         }
 
         // Case where transfer total is zero/empty

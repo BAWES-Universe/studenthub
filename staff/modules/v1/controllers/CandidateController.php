@@ -6,6 +6,7 @@ use common\models\CandidateToken;
 use common\models\CandidateWarning;
 use common\models\Request;
 use common\models\StoreAssignmentRequest;
+use common\models\TransferCost;
 use kartik\mpdf\Pdf;
 use staff\models\Company;
 use Yii;
@@ -508,6 +509,8 @@ class CandidateController extends Controller
         $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $start_date = Yii::$app->request->getBodyParam("start_date");
         $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
+        $transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
+        $company_transfer_cost = Yii::$app->request->getBodyParam("company_transfer_cost");
 
         $model = $this->findModel($id);
 
@@ -581,6 +584,7 @@ class CandidateController extends Controller
         $noteModel->company_id  = $model->store->company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
         $noteModel->note_text  = "Assigned to work at {$storeName}";
+
         if(!$noteModel->save()) {
 
             $transaction->rollBack();
@@ -592,8 +596,30 @@ class CandidateController extends Controller
             ];
         }
 
+        //save company level transfer cost
+
+        $company = $model->store->getCompany()->one();
+
+        $transfer_cost_model = new TransferCost();
+        $transfer_cost_model->candidate_id = $model->candidate_id;
+        $transfer_cost_model->company_id = !empty($company->parent_company_id) ?
+            $company->parent_company_id: $company->company_id;
+        $transfer_cost_model->transfer_cost = $company_transfer_cost;
+        if (!$transfer_cost_model->save()) {
+            return [
+                "operation" => "error",
+                "code" => 7,
+                "message" => $transfer_cost_model->errors,
+            ];
+        }
+
         // saving candidate work history
-        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory($model, $start_date, $company_hourly_rate);
+        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory(
+            $model,
+            $start_date,
+            $company_hourly_rate,
+            $transfer_cost
+        );
 
         if($candidateWorkHistory->errors) {
 
@@ -601,7 +627,7 @@ class CandidateController extends Controller
 
             return [
                 "operation" => "error",
-                "code" => 7,
+                "code" => 8,
                 "message" => $candidateWorkHistory->errors,
             ];
         }
@@ -626,6 +652,7 @@ class CandidateController extends Controller
 
                 return [
                     "operation" => "error",
+                    "code" => 9,
                     "message" => $sar->errors
                 ];
             }

@@ -11,13 +11,15 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         $result[$value->company_hourly_rate] = [
             'totalHours' => 0,
             'totalBonus' => 0,
-            'totalAmount' => 0
+            'totalAmount' => 0,
+            "totalTransferCost" => 0
         ];        
     }
     
     $result[$value->company_hourly_rate]['totalHours'] += $value->hours;
     $result[$value->company_hourly_rate]['totalBonus'] += $value->bonus;
-    $result[$value->company_hourly_rate]['totalAmount'] += ($value->hours * $value->company_hourly_rate);
+    $result[$value->company_hourly_rate]['totalTransferCost'] += $value->transfer_cost;
+    $result[$value->company_hourly_rate]['totalAmount'] += ($value->hours * $value->company_hourly_rate) + $value->transfer_cost;
 }
 ?>
 <div class="row">
@@ -55,7 +57,11 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <?php foreach ($result as $hourly_rate => $row) { ?>
             <tr>
                 <td align="left" style="text-align: left">
-                    <span><b><?= $row['totalHours'] ?> hours</b> worked x <b><?= $hourly_rate ?> KD</b> per hour</span>
+                    <span><b><?= $row['totalHours'] ?> hours</b> worked x <b><?= $hourly_rate ?> KD</b> per hour
+                        <?php if ($row['totalTransferCost'] > 0) { ?>
+                            + <?= $row['totalTransferCost'] ?> KD transfer cost
+                        <?php } ?>
+                    </span>
                 </td>
                 <td align="right" style="text-align: right">
                     <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['totalAmount'], 3)?></span>

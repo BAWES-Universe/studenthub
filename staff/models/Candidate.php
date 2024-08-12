@@ -47,7 +47,8 @@ class Candidate extends \common\models\Candidate {
             'invitationRejected',
             'suggested',
             'suggestionAccepted',
-            'suggestionRejected'
+            'suggestionRejected',
+            "currentWorkHistory"
         ], $fields);
     }
 
