@@ -1613,7 +1613,7 @@ class CandidateController extends Controller
      * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
      * @throws \yii\base\InvalidConfigException
      */
-    public function actionAppreciationCertificate($id,$wid) {
+    public function actionAppreciationCertificate($id, $wid) {
 
         $candidate = $this->findModel($id);
 
