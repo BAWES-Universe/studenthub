@@ -1076,7 +1076,7 @@ class CandidateController extends Controller
         $query->notDeleted();
 
         if ($filter_minor) {
-            $query->andWhere(new Expression("candidate.candidate_birth_date < DATE_SUB(NOW(), INTERVAL 16 YEAR)"));
+            $query->andWhere(new Expression("candidate.candidate_birth_date > DATE_SUB(NOW(), INTERVAL 16 YEAR)"));
         }
 
         $query->addOrderBy('candidate.candidate_id DESC');

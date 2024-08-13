@@ -194,7 +194,7 @@ class StatisticController extends Controller
 
         $result['totalMinor'] = (int) Candidate::find()
                 ->notDeleted()
-                ->andWhere(new Expression("candidate.candidate_birth_date < DATE_SUB(NOW(), INTERVAL 16 YEAR)"))
+                ->andWhere(new Expression("candidate.candidate_birth_date > DATE_SUB(NOW(), INTERVAL 16 YEAR)"))
                 //->andWhere(["<", 'candidate.candidate_birth_date', 16])
                 ->count();
 
