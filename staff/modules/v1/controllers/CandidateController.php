@@ -685,6 +685,7 @@ class CandidateController extends Controller
 
         // in case multiple store are assigned by mistake or system issue.
         if ($store_id  && $store_id != $model->store_id) {
+
             // else save unassigned history
             $candidateHistoryModel = \common\models\CandidateWorkHistory::find()
                 ->filterCandidate($model->candidate_id)
@@ -695,9 +696,11 @@ class CandidateController extends Controller
                 $storeName = $candidateHistoryModel->store->store_name;
                 $company_id = $candidateHistoryModel->store->company_id;
                 $commonCompanyName = $candidateHistoryModel->company->company_common_name_en;
+
                 $candidateHistoryModel->end_date  = new \yii\db\Expression('NOW()');
 
                 if (!$candidateHistoryModel->save()) {
+
                     $transaction->rollBack();
 
                     return [
@@ -705,6 +708,9 @@ class CandidateController extends Controller
                         "message" => $model->errors
                     ];
                 }
+
+                $candidateHistoryModel->generateCertificate();
+
             } else {
                 $transaction->rollBack();
 
@@ -718,6 +724,7 @@ class CandidateController extends Controller
             $storeName = $model->store->store_name;
             $company_id = $model->store->company_id;
             $commonCompanyName = $model->company->company_common_name_en;
+
             $model->store_id = null;
 
             if (!$model->save(false)) {
@@ -1640,7 +1647,7 @@ class CandidateController extends Controller
      * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
      * @throws \yii\base\InvalidConfigException
      */
-    public function actionAppreciationCertificate($id,$wid) {
+    public function actionAppreciationCertificate($id, $wid) {
 
         $candidate = $this->findModel($id);
 

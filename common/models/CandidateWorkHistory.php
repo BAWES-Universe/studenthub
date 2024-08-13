@@ -130,6 +130,40 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return bool
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        return true;
+    }
+
+    /**
+     * @return void
+     */
+    public function generateCertificate() {
+        $model = new CandidateCertificate();
+        $model->candidate_id = $this->candidate_id;
+        $model->candidate_work_history_id = $this->id;
+        $model->certificate_type = CandidateCertificate::TYPE_EXPERIENCE;
+        $model->store_id = $this->store_id;
+        $model->company_id = $this->company_id;
+        $model->parent_company_id = $this->parent_company_id;
+        $model->start_date = $this->start_date;
+        $model->end_date = !empty($this->end_date) ? $this->end_date: new \yii\db\Expression('NOW()');;
+        $model->staff_id = $this->staff_id;// Yii::$app->user->getId();
+
+        if(!$model->save()) {
+            echo "error";
+            print_r($model->errors);
+            Yii::error($model->errors);
+        }
+    }
+
+    /**
      * save candidate un-assign record
      * @param $candidate
      * @return array
@@ -158,6 +192,9 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
                 $model->end_date  = new \yii\db\Expression('NOW()');
 
                 if ($model->save()) {
+
+                    $model->generateCertificate();
+
                     return [
                         'operation' =>'success',
                         'message' =>Yii::t('candidate','record successfully updated')

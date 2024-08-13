@@ -662,6 +662,23 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CertificateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/certificate',
+                    'patterns' => [
+                        'GET' => 'list',
+                        "GET certificate/<id>" => "certificate",
+                        'POST from-work-history/<id>' => 'from-work-history',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'resend',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        "OPTIONS certificate/<id>" =>'options',
+                        "OPTIONS from-work-history/<id>" => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // SuggestionController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/suggestion',
