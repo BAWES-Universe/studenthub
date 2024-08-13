@@ -3,6 +3,8 @@
 namespace staff\modules\v1\controllers;
 
 use common\models\TransferCandidate;
+use common\models\TransferCost;
+use common\models\TransferRateExcel;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
@@ -748,6 +750,136 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]|void
+     * @throws \yii\db\Exception
+     */
+    public function actionUpdateTransferRatesByExcel($id) {
+
+        //$company = $this->findCompany($id);
+
+        $model = new TransferRateExcel();
+        $model->excel = Yii::$app->request->getBodyParam('excel');
+
+        if(!$model->validate())
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => $model->getErrors()
+            ];
+        }
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel);
+
+        //save in temp folder to process
+
+        $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
+
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        }
+
+        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+
+        //no need file anymore
+
+        @unlink($tmpFile);
+
+        // remove old data
+
+        TransferCost::deleteAll([
+            "company_id" => $id
+        ]);
+
+        //populate data
+
+        $rows = [];
+
+        foreach ($data as $key => $value)
+        {
+            //remove empty rows
+            if(empty($value['candidate_id']))
+                continue;
+
+            $rows[] = [
+                "company_id" => $id,
+                "candidate_id" => $value['candidate_id'],
+                "transfer_cost" => $value['transfer_cost'],
+                "created_at" => new \yii\db\Expression("NOW()"),
+                "updated_at" => new \yii\db\Expression("NOW()")
+            ];
+        }
+
+        Yii::$app->db->createCommand()->batchInsert('transfer_cost',
+            ["company_id", 'candidate_id', "transfer_cost", 'created_at', "updated_at"], $rows)->execute();
+
+        return [
+            "operation" => "success",
+            "message" => "Transfer rates updated successfully!"
+        ];
+    }
+
+    /**
+     * @param $id
+     * @return void
+     * @throws NotFoundHttpException
+     */
+    public function actionTransferRatesTemplate($id)
+    {
+        $preFilled = Yii::$app->request->get("preFilled");
+
+        $company = $this->findCompany($id);
+
+        $arrCompanyTransferRates = [];
+
+        if ($preFilled) {
+            $arrCompanyTransferRates = ArrayHelper::map(
+                $company->getTransferRates()->all(),
+                "candidate_id",
+                "transfer_cost");
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $company->candidates,
+            'columns' => [
+                [
+                    "header" => "candidate_id",
+                    "value" => function($data) {
+                        return $data->candidate_id;
+                    }
+                ],
+                [
+                    'header' => 'candidate_name',
+                    'value' => function($data) {
+                        return $data->candidate_name;
+                    }
+                ],
+                [
+                    'header' => 'store_name',
+                    'value' => function($data) {
+                        return $data->store->store_name;
+                    }
+                ],
+                [
+                    'header' => 'transfer_cost',
+                    'value' => function($data) use ($arrCompanyTransferRates, $preFilled) {
+                        return $preFilled && isset($arrCompanyTransferRates[$data->candidate_id]) ?
+                            $arrCompanyTransferRates[$data->candidate_id]: 0;;
+                    }
+                ]
+            ]
+        ]);
     }
 
     /**

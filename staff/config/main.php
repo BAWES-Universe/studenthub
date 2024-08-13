@@ -687,6 +687,8 @@ return [
                         'GET candidates' => 'list-candidate',
                         "GET export-candidate-transfers" => "export-candidate-transfers",
                         'GET export-companies-transfer' => 'export-companies-transfer',
+                        "GET transfer-rates-template/<id>" => "transfer-rates-template",
+                        "POST update-transfer-rates-by-excel/<id>" => "update-transfer-rates-by-excel",
                         'GET transfer-excel-template/<id>' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',
                         'GET <id>' => 'view',
@@ -709,6 +711,8 @@ return [
                         'OPTIONS edit-by-excel/<id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
+                        "OPTIONS transfer-rates-template/<id>" => "options",
+                        "OPTIONS update-transfer-rates-by-excel/<id>" => "options",
                         "OPTIONS export-candidate-transfers" => "options",
                         'OPTIONS export-companies-transfer' => 'options'
                     ]
