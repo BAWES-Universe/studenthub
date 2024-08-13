@@ -1043,7 +1043,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'revenue',
             'candidateStats',
             "candidateWorkingHour",
-            "candidateWorkingDates"
+            "candidateWorkingDates",
+            "certificates"
         ];
     }
 
@@ -1246,6 +1247,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return $this->hasOne($modelClass::className(), ['university_id' => 'university_id'])
             ->andWhere(['{{%university}}.deleted'=>0]);
 
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCertificates($modelClass = "\common\models\CandidateCertificate")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**

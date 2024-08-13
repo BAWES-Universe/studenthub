@@ -3,6 +3,9 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "candidate_certificate".
@@ -65,6 +68,32 @@ class CandidateCertificate extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function behaviors() {
+        return [
+            [
+                'class' => AttributeBehavior::className(),
+                'attributes' => [
+                    \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'certificate_uuid',
+                ],
+                'value' => function() {
+                    if(!$this->certificate_uuid)
+                        $this->certificate_uuid = 'certificate_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+
+                    return $this->certificate_uuid;
+                }
+            ],
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => new Expression('NOW()'),
+            ],
+        ];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()
@@ -96,7 +125,8 @@ class CandidateCertificate extends \yii\db\ActiveRecord
             'candidate',
             'store',
             'company',
-            'parentCompany'
+            'parentCompany',
+            "exam"
         ];
     }
 

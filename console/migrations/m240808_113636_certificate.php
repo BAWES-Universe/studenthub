@@ -248,6 +248,9 @@ class m240808_113636_certificate extends Migration
             'company', 'company_id'
         );
 
+        /**
+         * INSERT INTO `candidate_certificate` (`certificate_uuid`, `candidate_id`, `candidate_work_history_id`, `store_id`, `company_id`, `parent_company_id`, `start_date`, `end_date`, `staff_id`) SELECT UUID(), `candidate_id`, `id` as `candidate_work_history_id`, `store_id`, `company_id`, `parent_company_id`, `start_date`, `end_date`, `staff_id` FROM `candidate_work_history`
+         */
     }
 
     /**
