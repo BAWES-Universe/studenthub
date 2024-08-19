@@ -18,11 +18,11 @@ return [
 
     'bankInfo' => [ //BAWES Bank Info
         'accountName' => 'BAWES FOR COMPUTER AND OPERATION CO',
-        'accountNameArabic' => 'شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وادارة مواقع الانترنت',
-        'bankName' => 'Ahli United Bank Kuwait',
-        'bankNameArabic' => 'البنك الأهلي المتحد- الكويت',
-        'swiftCode' => 'BKMEKWKW',
-        'accountNumber' => '11622216',
-        'iban' => 'KW31 BKME 0000 0000 0000 0011 6222 16'
+        'accountNameArabic' => "شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وإدارة مواقع الانترنت",
+        'bankName' => 'Kuwait Finance House K.s.c.p.',
+        'bankNameArabic' => "",
+        'swiftCode' => 'KFHOKWKWXXX',
+        'accountNumber' => '011010933221',
+        'iban' => 'KW28 KFHO 0000 0000 0000 1101 0933 221'
     ]
 ];
