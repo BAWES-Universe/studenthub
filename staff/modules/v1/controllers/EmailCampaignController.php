@@ -174,7 +174,7 @@ class EmailCampaignController extends Controller
             }
         }
 
-        Yii::info('[Email Campaign Added: ' . $model->subject . '] By ' . Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[Email Campaign Added: ' . $model->subject . '] By ' . Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -227,7 +227,8 @@ class EmailCampaignController extends Controller
                 $cf = new EmailCampaignFilter();
             } else {
                 $cf = EmailCampaignFilter::find()
-                    ->andWhere(['cf_uuid' => $campaignFilter['cf_uuid']]);
+                    ->andWhere(['cf_uuid' => $campaignFilter['cf_uuid']])
+                    ->one();
             }
 
             $cf->campaign_uuid = $model->campaign_uuid;
@@ -247,7 +248,7 @@ class EmailCampaignController extends Controller
             ['campaign_uuid' => $id]
         ]);
 
-        Yii::info('[Email Campaign Updated: ' . $model->subject . '] By ' . Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[Email Campaign Updated: ' . $model->subject . '] By ' . Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
@@ -264,7 +265,7 @@ class EmailCampaignController extends Controller
     {
         $model = $this->findModel($id);
 
-        Yii::info('[Email Campaign Deleted: ' . $model->subject . '] By ' . Yii::$app->user->identity->admin_name, __METHOD__);
+        Yii::info('[Email Campaign Deleted: ' . $model->subject . '] By ' . Yii::$app->user->identity->staff_name, __METHOD__);
 
         if(!$model->delete()) {
             return [
