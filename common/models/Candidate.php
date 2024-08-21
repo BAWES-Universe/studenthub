@@ -1018,6 +1018,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            "transferCost",
             "invitationStats",
             "avgTimeToViewInvitations",
             'storeAssignmentRequest',
@@ -1043,8 +1044,49 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'revenue',
             'candidateStats',
             "candidateWorkingHour",
-            "candidateWorkingDates"
+            "candidateWorkingDates",
+            "certificates"
         ];
+    }
+
+    public function getTransferCost() {
+
+        if (!$this->store_id) {
+            return null;
+        }
+
+        //store level
+
+        $assignment = $this->getWorkHistory()
+            ->andWhere(new Expression("end_date IS NULL"))
+            ->orderBy("id DESC")//latest assignment
+            ->one();
+
+        if (!$assignment) {
+            return null;
+        }
+
+        if ($assignment->transfer_cost > 0) {
+            return $assignment->transfer_cost;
+        }
+
+        // company level
+
+        $company_id = empty($assignment->parent_company_id) ? $assignment->company_id:
+            $assignment->parent_company_id;
+
+        $model = TransferCost::find()
+            ->andWhere([
+                "candidate_id" => $this->candidate_id,
+                "company_id" => $company_id
+            ])
+            ->one();
+
+        if ($model && $model->transfer_cost > 0) {
+            return $model->transfer_cost;
+        }
+
+        return Yii::$app->params['transfer_cost']; //default transfer cost
     }
 
     /**
@@ -1251,6 +1293,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCertificates($modelClass = "\common\models\CandidateCertificate")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getNationality($modelClass = "\common\models\Country")
     {
         return $this->hasOne($modelClass::className(), ['country_id' => 'country_id']);
@@ -1362,6 +1412,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getAccessTokens($modelClass = "\common\models\CandidateToken")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrentWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andWhere(['store_id' => $this->store_id])
+            ->andWhere(new Expression("end_date IS NULL"));
     }
 
     /**

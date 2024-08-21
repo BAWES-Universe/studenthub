@@ -456,6 +456,15 @@ class Company extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTransferRates($modelClass = "\common\models\TransferCost")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
      * @param string $modelClass
      * @return $this
      */

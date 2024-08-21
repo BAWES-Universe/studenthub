@@ -148,9 +148,13 @@ class Candidate extends \common\models\Candidate {
 
         if (count($candidates)>0) {
             foreach ($candidates as $candidateTransfer) {
+                //$candidateTransfer['transfer_cost']
                 $totalAmount += round(
-                    Yii::$app->params['transfer_cost'] + $candidateTransfer['bonus'] - $candidateTransfer['bonus_commission'] +
-                    ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']),
+                    $candidateTransfer['bonus']
+                    - $candidateTransfer['bonus_commission'] +
+                    (
+                        $candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']
+                    ),
                 3
                 );
             }

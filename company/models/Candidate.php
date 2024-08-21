@@ -287,9 +287,7 @@ class Candidate extends \common\models\Candidate {
      */
     public function getCurrentWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
     {
-        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
-            ->andWhere(['store_id' => $this->store_id])
-            ->andWhere(new Expression("end_date IS NULL"));
+        return parent::getCurrentWorkHistory($modelClass);
     }
 
     /**

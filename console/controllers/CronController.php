@@ -6,6 +6,7 @@ use admin\models\Expense;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use common\models\CandidateStats;
+use common\models\CandidateWorkHistory;
 use common\models\CompanyStats;
 use common\models\DailyStandupQuestion;
 use common\models\FiringHitmap;
@@ -50,7 +51,7 @@ class CronController extends \yii\console\Controller {
             ->send ();*/
 
         //echo YII_ENV;
-        Transfer::triggerPayableCandidateEvent();
+        //Transfer::triggerPayableCandidateEvent();
     }
 
     /**

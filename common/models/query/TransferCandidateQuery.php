@@ -168,17 +168,16 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      * transfer cost will be on admin
      */
     public function profit() {
-        
+
         $expression = "
             (
                 (
                     {{%transfer_candidate}}.company_hourly_rate - {{%transfer_candidate}}.candidate_hourly_rate 
                 ) 
+                + {{%transfer_candidate}}.transfer_cost
                 * 
                 {{%transfer_candidate}}.hours
             ) 
-            - 
-            {{%transfer_candidate}}.transfer_cost
             +
             {{%transfer_candidate}}.bonus_commission";
                 

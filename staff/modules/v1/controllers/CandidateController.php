@@ -6,6 +6,7 @@ use common\models\CandidateToken;
 use common\models\CandidateWarning;
 use common\models\Request;
 use common\models\StoreAssignmentRequest;
+use common\models\TransferCost;
 use kartik\mpdf\Pdf;
 use staff\models\Company;
 use Yii;
@@ -508,6 +509,8 @@ class CandidateController extends Controller
         $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $start_date = Yii::$app->request->getBodyParam("start_date");
         $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
+        $transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
+        $company_transfer_cost = Yii::$app->request->getBodyParam("company_transfer_cost");
 
         $model = $this->findModel($id);
 
@@ -581,6 +584,7 @@ class CandidateController extends Controller
         $noteModel->company_id  = $model->store->company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
         $noteModel->note_text  = "Assigned to work at {$storeName}";
+
         if(!$noteModel->save()) {
 
             $transaction->rollBack();
@@ -592,8 +596,30 @@ class CandidateController extends Controller
             ];
         }
 
+        //save company level transfer cost
+
+        $company = $model->store->getCompany()->one();
+
+        $transfer_cost_model = new TransferCost();
+        $transfer_cost_model->candidate_id = $model->candidate_id;
+        $transfer_cost_model->company_id = !empty($company->parent_company_id) ?
+            $company->parent_company_id: $company->company_id;
+        $transfer_cost_model->transfer_cost = $company_transfer_cost;
+        if (!$transfer_cost_model->save()) {
+            return [
+                "operation" => "error",
+                "code" => 7,
+                "message" => $transfer_cost_model->errors,
+            ];
+        }
+
         // saving candidate work history
-        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory($model, $start_date, $company_hourly_rate);
+        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory(
+            $model,
+            $start_date,
+            $company_hourly_rate,
+            $transfer_cost
+        );
 
         if($candidateWorkHistory->errors) {
 
@@ -601,7 +627,7 @@ class CandidateController extends Controller
 
             return [
                 "operation" => "error",
-                "code" => 7,
+                "code" => 8,
                 "message" => $candidateWorkHistory->errors,
             ];
         }
@@ -626,6 +652,7 @@ class CandidateController extends Controller
 
                 return [
                     "operation" => "error",
+                    "code" => 9,
                     "message" => $sar->errors
                 ];
             }
@@ -658,6 +685,7 @@ class CandidateController extends Controller
 
         // in case multiple store are assigned by mistake or system issue.
         if ($store_id  && $store_id != $model->store_id) {
+
             // else save unassigned history
             $candidateHistoryModel = \common\models\CandidateWorkHistory::find()
                 ->filterCandidate($model->candidate_id)
@@ -668,9 +696,11 @@ class CandidateController extends Controller
                 $storeName = $candidateHistoryModel->store->store_name;
                 $company_id = $candidateHistoryModel->store->company_id;
                 $commonCompanyName = $candidateHistoryModel->company->company_common_name_en;
+
                 $candidateHistoryModel->end_date  = new \yii\db\Expression('NOW()');
 
                 if (!$candidateHistoryModel->save()) {
+
                     $transaction->rollBack();
 
                     return [
@@ -678,6 +708,9 @@ class CandidateController extends Controller
                         "message" => $model->errors
                     ];
                 }
+
+                $candidateHistoryModel->generateCertificate();
+
             } else {
                 $transaction->rollBack();
 
@@ -691,6 +724,7 @@ class CandidateController extends Controller
             $storeName = $model->store->store_name;
             $company_id = $model->store->company_id;
             $commonCompanyName = $model->company->company_common_name_en;
+
             $model->store_id = null;
 
             if (!$model->save(false)) {
@@ -1613,7 +1647,7 @@ class CandidateController extends Controller
      * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
      * @throws \yii\base\InvalidConfigException
      */
-    public function actionAppreciationCertificate($id,$wid) {
+    public function actionAppreciationCertificate($id, $wid) {
 
         $candidate = $this->findModel($id);
 

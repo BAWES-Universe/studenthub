@@ -352,9 +352,10 @@ class WalletTransfer extends \yii\db\ActiveRecord
             Yii::$app->params['transfer_cost'] = 0;
         }
 
+        //+ Yii::$app->params['transfer_cost'] we bearing transfer cost?
+
         return round(
-            $this->transfer_total +
-            Yii::$app->params['transfer_cost'], //we bearing transfer cost?
+            $this->transfer_total,
             3
         );
     }

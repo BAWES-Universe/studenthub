@@ -4,6 +4,7 @@ namespace common\models;
 
 use Yii;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%candidate_work_history}}".
@@ -18,6 +19,7 @@ use yii\db\Expression;
  * @property string $end_date
  * @property number $candidate_hourly_rate
  * @property number $company_hourly_rate
+ * @property number $transfer_cost
  */
 class CandidateWorkHistory extends \yii\db\ActiveRecord
 {
@@ -38,6 +40,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['candidate_id', 'store_id', 'parent_company_id', 'company_id'], 'integer'],
             [['candidate_id', 'store_id', 'company_id'], 'required'],
             [['start_date', 'end_date'], 'safe'],
+            [['transfer_cost'], 'number'],//, "max" => 1000
             [['candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['candidate_hourly_rate'], 'validateRate'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -93,6 +96,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             'end_date' => Yii::t('app', 'End Date'),
             'candidate_hourly_rate' => Yii::t('app', 'Candidate Hourly Rate'),
             'company_hourly_rate' => Yii::t('app', 'Company Hourly Rate'),
+            "transfer_cost" => Yii::t("app", "Transfer Cost")
         ];
     }
 
@@ -101,8 +105,12 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      * @param $candidate
      * @return bool
      */
-    public static function saveAssignedHistory($candidate, $start_date = null, $company_hourly_rate = null) {
-
+    public static function saveAssignedHistory(
+        $candidate,
+        $start_date = null,
+        $company_hourly_rate = null,
+        $transfer_cost = null
+    ) {
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
         $model->staff_id = Yii::$app->user->identity->getId();
@@ -112,12 +120,47 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->start_date = $start_date != null ? date('Y-m-d', strtotime($start_date)): new \yii\db\Expression('NOW()');
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
         $model->company_hourly_rate = $company_hourly_rate;
+        $model->transfer_cost = $transfer_cost;
 
         if ($model->save()) {
             $candidate->updateAlgoliaIndex();
         }  
 
         return $model;
+    }
+
+    /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return bool
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        return true;
+    }
+
+    /**
+     * @return void
+     */
+    public function generateCertificate() {
+        $model = new CandidateCertificate();
+        $model->candidate_id = $this->candidate_id;
+        $model->candidate_work_history_id = $this->id;
+        $model->certificate_type = CandidateCertificate::TYPE_EXPERIENCE;
+        $model->store_id = $this->store_id;
+        $model->company_id = $this->company_id;
+        $model->parent_company_id = $this->parent_company_id;
+        $model->start_date = $this->start_date;
+        $model->end_date = !empty($this->end_date) ? $this->end_date: new \yii\db\Expression('NOW()');;
+        $model->staff_id = $this->staff_id;// Yii::$app->user->getId();
+
+        if(!$model->save()) {
+            echo "error";
+            print_r($model->errors);
+            Yii::error($model->errors);
+        }
     }
 
     /**
@@ -149,6 +192,9 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
                 $model->end_date  = new \yii\db\Expression('NOW()');
 
                 if ($model->save()) {
+
+                    $model->generateCertificate();
+
                     return [
                         'operation' =>'success',
                         'message' =>Yii::t('candidate','record successfully updated')
@@ -202,14 +248,56 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         return $fields;
     }
 
+    /**
+     * @return string[]
+     */
     public function extraFields()
     {
         return [
             'candidate',
             'store',
             'company',
-            'parentCompany'
+            'parentCompany',
+            "transferCost"
         ];
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getTransferCost() {
+
+        if ($this->transfer_cost > 0) {
+            return $this->transfer_cost;
+        }
+
+        // company level
+
+        $company_id = empty($this->parent_company_id) ? $this->company_id:
+            $this->parent_company_id;
+
+        if (!isset(Yii::$app->params['arrTransferCosts'])) {
+
+            $transferCosts = TransferCost::find()
+                ->andWhere([
+                    //"candidate_id" => $this->candidate_id,
+                    "company_id" => $company_id
+                ])
+                ->all();
+
+            $arrTransferCosts = Yii::$app->params['arrTransferCosts'] = ArrayHelper::map($transferCosts, "candidate_id", "transfer_cost");
+        } else {
+            $arrTransferCosts = Yii::$app->params['arrTransferCosts'];
+        }
+
+        if (
+            isset($arrTransferCosts[$this->candidate_id]) &&
+            $arrTransferCosts[$this->candidate_id]['transfer_cost'] > 0
+        ) {
+            return $arrTransferCosts[$this->candidate_id]['transfer_cost'];
+        }
+
+        return Yii::$app->params['transfer_cost']; //default transfer cost
     }
 
     /**

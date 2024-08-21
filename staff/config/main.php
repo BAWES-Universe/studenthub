@@ -662,6 +662,23 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // CertificateController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/certificate',
+                    'patterns' => [
+                        'GET' => 'list',
+                        "GET certificate/<id>" => "certificate",
+                        'POST from-work-history/<id>' => 'from-work-history',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'resend',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        "OPTIONS certificate/<id>" =>'options',
+                        "OPTIONS from-work-history/<id>" => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // SuggestionController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/suggestion',
@@ -687,6 +704,8 @@ return [
                         'GET candidates' => 'list-candidate',
                         "GET export-candidate-transfers" => "export-candidate-transfers",
                         'GET export-companies-transfer' => 'export-companies-transfer',
+                        "GET transfer-rates-template/<id>" => "transfer-rates-template",
+                        "POST update-transfer-rates-by-excel/<id>" => "update-transfer-rates-by-excel",
                         'GET transfer-excel-template/<id>' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',
                         'GET <id>' => 'view',
@@ -709,6 +728,8 @@ return [
                         'OPTIONS edit-by-excel/<id>' => 'options',
                         'OPTIONS pdf/<id>' => 'options',
                         'OPTIONS cancel/<id>' => 'options',
+                        "OPTIONS transfer-rates-template/<id>" => "options",
+                        "OPTIONS update-transfer-rates-by-excel/<id>" => "options",
                         "OPTIONS export-candidate-transfers" => "options",
                         'OPTIONS export-companies-transfer' => 'options'
                     ]

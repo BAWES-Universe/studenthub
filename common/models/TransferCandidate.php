@@ -527,13 +527,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getTotalPaidToCandidate()
     {
-        if(!isset(Yii::$app->params['transfer_cost'])) {
+        /*if(!isset(Yii::$app->params['transfer_cost'])) {
             Yii::$app->params['transfer_cost'] = 0;
-        }
+        }*/
+
+        //+ Yii::$app->params['transfer_cost']
 
         return round(
-            ($this->candidate_hourly_rate * $this->hours) + $this->bonus - $this->bonus_commission +
-                Yii::$app->params['transfer_cost'],
+            ($this->candidate_hourly_rate * $this->hours) + $this->bonus - $this->bonus_commission,
             3
         );
     }
@@ -562,7 +563,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getProfit()
     {
-        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) - $this->transfer_cost
+        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) + $this->transfer_cost
             + $this->bonus_commission;
     }
 
@@ -848,14 +849,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
             ->orderBy(new Expression('start_date DESC'))
             ->one();
 
-        $hourly_rate = $assignment? $assignment->candidate_hourly_rate: $candidate['candidate_hourly_rate'];
+        $hourly_rate = $assignment ? $assignment->candidate_hourly_rate: $candidate['candidate_hourly_rate'];
+        $transfer_cost = $assignment ? $assignment->getTransferCost(): Yii::$app->params['transfer_cost'];
 
         $store = $candidate['store'];
         $company = $candidate['company'];
 
         $TCModel = new \company\models\TransferCandidate;
         $TCModel->attributes = $value;
-        $TCModel->transfer_cost = Yii::$app->params['transfer_cost'];
+        $TCModel->transfer_cost = $transfer_cost;
         $TCModel->candidate_hourly_rate = $hourly_rate;
         $TCModel->transfer_id = $model->transfer_id;
         $TCModel->store_id = $candidate['store_id'];
@@ -889,6 +891,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
             $company_bonus_commission = $parent['company_bonus_commission'];
             $company_hourly_rate = $parent['company_hourly_rate'];
+
         }
 
         //if bonus commission or hourly rate not set
@@ -912,10 +915,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         if ($hours > 0 || $bonus > 0) {
 
-            $total = $bonus - $TCModel->bonus_commission + ($hours * $hourly_rate) +
-                Yii::$app->params['transfer_cost'];
+            $total = $bonus - $TCModel->bonus_commission + ($hours * $hourly_rate);
 
-            $company_total = $bonus + ($hours * $company_hourly_rate);
+            $company_total = $bonus + ($hours * $company_hourly_rate) + $transfer_cost;
 
             $TCModel->candidate_total = round($total, 3);
 
@@ -948,7 +950,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
         return [
             "operation" => "success",
             "total" => $total,
-            "company_total" => $company_total
+            "company_total" => $company_total,
+            "transfer_cost" => $transfer_cost
         ];
     }
 
