@@ -25,10 +25,12 @@ class CandidateExperienceTest extends \Codeception\Test\Unit
     public function testValidate()
     {
         $exp = $this->tester->grabFixture('candidateExperience', 'candidate_experience0');
+
         expect('model adding new exp', $exp->save())->true();
 
         $exp->candidate_id = null;
         $exp->experience = null;
+
         expect('candidateExperience candidate_id should be required field', $exp->validate(['candidate_id']))->false();
         expect('candidateExperience exp should be required field', $exp->validate(['experience']))->false();
 

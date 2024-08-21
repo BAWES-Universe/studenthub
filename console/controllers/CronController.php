@@ -182,7 +182,7 @@ class CronController extends \yii\console\Controller {
 
         //check civil ID expiry date
 
-        //Candidate::civilIdExpire();
+        Candidate::civilIdExpire();
 
         //check salary transfer not paid
         //Invoice::unpaidAlert();
@@ -223,7 +223,7 @@ class CronController extends \yii\console\Controller {
         Suggestion::suggestionFulltimerNotification();
     }
 
-    /* todo: user separate email server for marketing?
+    // todo: user separate email server for marketing?
     public function actionProcessCampaign()
     {
         $campaigns = EmailCampaign::find()
@@ -235,7 +235,7 @@ class CronController extends \yii\console\Controller {
         }
 
         $this->stdout( sizeof($campaigns) . " Email Campaign processed \n", Console::FG_RED, Console::BOLD);
-    }*/
+    }
 
     /**
      * Method called by cron once a week
@@ -252,9 +252,9 @@ class CronController extends \yii\console\Controller {
     public function actionMidMonth() {
 
         //todo: stop until we found culprit
-        //Candidate::notifyMissingBankInfo();
+        Candidate::notifyMissingBankInfo();
 
-        //Candidate::notifyCivilIDExpiring();
+        Candidate::notifyCivilIDExpiring();
 
         return 0;
     }
@@ -268,9 +268,9 @@ class CronController extends \yii\console\Controller {
 
         //todo: stop until we found culprit
 
-        //Candidate::notifyMissingBankInfo();
+        Candidate::notifyMissingBankInfo();
 
-        //Candidate::notifyCivilIDExpiring();
+        Candidate::notifyCivilIDExpiring();
 
         return 0;
     }

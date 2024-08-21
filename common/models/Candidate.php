@@ -1818,11 +1818,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function civilIdExpire()
     {
+        //todo: either assigned to work or looking for job / having complete profile
+
         $query = Candidate::find()
             ->andWhere('YEAR(candidate_civil_expiry_date) = YEAR(NOW()) AND 
                 MONTH(candidate_civil_expiry_date) = MONTH(NOW()) AND 
                 DAY(candidate_civil_expiry_date) = DAY(NOW())')
-            ->andWhere(['candidate_email_verification' => 1]);
+            ->andWhere(['candidate_email_verification' => 1])
+            ->andWhere('candidate.store_id > 0'); //sending email to only assigned caniddate to avoid eamil account spam count issue
 
         foreach ($query->batch(100) as $candidates) {
 
@@ -3335,7 +3338,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $query = Candidate::find()
             ->andWhere('DATE(candidate_civil_expiry_date) < DATE(NOW() + INTERVAL 25 DAY)')
-            ->andWhere(['candidate_email_verification' => 1]);
+            ->andWhere(['candidate_email_verification' => 1])
+            ->andWhere('{{%candidate}}.store_id > 0');//to active students only, to filter old account with deleted/ invalid email
 
         $subject = "Civil ID is expiring";
 
