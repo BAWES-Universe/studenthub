@@ -62,7 +62,6 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             expect('Nothing required', count($model->errors))->equals(1);
         });
 
-
         $this->specify('validate invalid integer data', function () {
 
             $model = new TransferCandidate;
@@ -237,10 +236,10 @@ class TransferCandidateTest extends \Codeception\Test\Unit
         $transferCandidateID = 1;
         $transferCandidateData = TransferCandidate::findOne($transferCandidateID);
 
-        $CompanyTotal = ($transferCandidateData->company_hourly_rate * $transferCandidateData->hours) + $transferCandidateData->bonus;
-        $PaidToCandidate = ($transferCandidateData->candidate_hourly_rate * $transferCandidateData->hours) + $transferCandidateData->bonus;
-        $TransferCost = '.350';
-        $profit = round($CompanyTotal - $PaidToCandidate - $TransferCost, 3);
+        $CompanyTotal = ($transferCandidateData->company_hourly_rate * $transferCandidateData->hours) + $transferCandidateData->bonus + $transferCandidateData->transfer_cost;
+        $PaidToCandidate = ($transferCandidateData->candidate_hourly_rate * $transferCandidateData->hours) + $transferCandidateData->bonus - $transferCandidateData->bonus_commission;
+        //$TransferCost = '.350';
+        $profit = round($CompanyTotal - $PaidToCandidate, 3);//- $TransferCost
         expect('validate profit value ', round($transferCandidateData->getProfit(), 3))->equals($profit);
     }
 
