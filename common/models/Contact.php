@@ -201,9 +201,9 @@ class Contact extends \yii\db\ActiveRecord
                     ->andWhere("DATE(contact_created_at) = DATE('".date('Y-m-d')."')")
                     ->count();
 
-                if ($count > 1) {
+                if ($count > 10) {
                     Yii::error("too may contact signup from same ip");
-                    return $this->addError('ip_address', "Too many requests");
+                    //return $this->addError('ip_address', "Too many requests");
                 }
             }
         }
