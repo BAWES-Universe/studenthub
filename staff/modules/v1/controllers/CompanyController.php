@@ -428,7 +428,6 @@ class CompanyController extends Controller
         return Yii::getLogger()->getDbProfiling();
     }
 
-
     /**
      * Create a company account
      * @return array
@@ -461,17 +460,26 @@ class CompanyController extends Controller
             $contactModel->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
             $contactModel->contact_receive_email = 1;
 
-            if (!$contactModel->validate() || !$contactModel->sendVerificationEmail()) {
+            if (!$contactModel->save()) {
 
                 $transaction->rollBack();
 
-                return [
-                    "operation" => "error",
-                    "message" => $contactModel->errors
-                ];
+                if(isset($contactModel->errors)){
+                    return [
+                        "operation" => "error",
+                        "code" => 1,
+                        "message" => $contactModel->errors
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "code" => 1,
+                        "message" => "We've faced a problem creating the contact account, please contact us for assistance."
+                    ];
+                }
             }
 
-            //$contactModel->save(false);
+            $contactModel->sendVerificationEmail();
         }
 
         $model->company_name = Yii::$app->request->getBodyParam("name");
@@ -495,20 +503,24 @@ class CompanyController extends Controller
 
         if (!$model->save()) {
             $transaction->rollBack();
+
             if(isset($model->errors)){
                 return [
                     "operation" => "error",
+                    "code" => 2,
                     "message" => $model->errors
                 ];
             } else {
                 return [
                     "operation" => "error",
+                    "code" => 2,
                     "message" => "We've faced a problem creating the account, please contact us for assistance."
                 ];
             }
         }
 
         if ($model->scenario == "newAccount") {
+
             $companyContact = new CompanyContact();
             $companyContact->company_id = $model->company_id;
             $companyContact->contact_uuid = $contactModel->contact_uuid;
@@ -520,11 +532,14 @@ class CompanyController extends Controller
 
                 return [
                     "operation" => "error",
+                    "code" => 3,
                     "message" => $companyContact->errors
                 ];
             }
         }
+
         $transaction->commit();
+
         $mail = Company::companyCreateUpdateMail($model);
 
         Yii::info('['.$model->company_name.' Company Account Created] Company created by '.Yii::$app->user->identity->staff_name, __METHOD__);
@@ -534,9 +549,6 @@ class CompanyController extends Controller
             "message" => "Company account successfully created",
             "mail_status" => $mail
         ];
-
-        // Check SQL Query Count and Duration
-        return Yii::getLogger()->getDbProfiling();
     }
 
     /**
