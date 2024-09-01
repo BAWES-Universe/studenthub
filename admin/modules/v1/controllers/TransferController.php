@@ -593,6 +593,7 @@ class TransferController extends Controller
         }
 
         return [
+            'operation' => 'success',
             'total' => $total,
             "bank" => "AUB",
             'candidates' => $candidatesTransfers
@@ -722,10 +723,20 @@ class TransferController extends Controller
                     ->orderBy("tc_id DESC")
                     ->one();
 
-                if(!$transferCandidate || !$transferCandidate->candidate) {
+                if(!$transferCandidate) {
                     return [
                         'operation' => 'error',
-                        'message' => 'Invalid excel',
+                        'message' => "No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].
+                            " Amount: " . $value['Amount Deducted'],
+                        'errorCode' => 4
+                    ];
+                }
+
+                if (!$transferCandidate->candidate) {
+                    return [
+                        'operation' => 'error',
+                        'message' => "No candidate profile found with Beneficiary Account: " . $value['Beneficiary Account'].
+                            " Amount: " . $value['Amount Deducted'],
                         'errorCode' => 4
                     ];
                 }
@@ -756,6 +767,7 @@ class TransferController extends Controller
         }
 
         return [
+            'operation' => 'success',
             'total' => $total,
             "bank" => "KFH",
             'candidates' => $candidatesTransfers
