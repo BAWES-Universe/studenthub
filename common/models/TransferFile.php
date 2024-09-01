@@ -11,6 +11,7 @@ use yii\behaviors\TimestampBehavior;
  * This is the model class for table "transfer_file".
  *
  * @property int $transfer_file_id
+ * @property string $bank
  * @property string $transfer_file_s3_path
  * @property string $transfer_amount
  * @property string $currency_code
@@ -37,6 +38,7 @@ class TransferFile extends \yii\db\ActiveRecord
         return [
             [['transfer_file_s3_path', "currency_code"], 'required'],
             [['currency_code'], "string", "max" => 3],
+            [['bank'], "string", "max" => 100],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path'], 'string', 'max' => 255],
         ];
@@ -81,6 +83,7 @@ class TransferFile extends \yii\db\ActiveRecord
     {
         return [
             'transfer_file_id' => Yii::t('app', 'Transfer File ID'),
+            "bank" => Yii::t('app', 'Bank'),
             'transfer_file_s3_path' => Yii::t('app', 'Transfer File S3 Path'),
             'transfer_amount' => Yii::t('app', 'Transfer Amount'),
             'transfer_file_created_at' => Yii::t('app', 'Transfer File Created At'),
@@ -117,7 +120,7 @@ class TransferFile extends \yii\db\ActiveRecord
      * @param array $tc_ids
      * @param string $fileName
      */
-    public static function saveFile($tc_ids, $fileName) {
+    public static function saveFile($tc_ids, $fileName, $bank = "AUB") {
 
         $sourceBucket = Yii::$app->temporaryBucketResourceManager->bucket;
         
@@ -129,6 +132,7 @@ class TransferFile extends \yii\db\ActiveRecord
         $tf = new TransferFile();
         $tf->transfer_file_s3_path = $targetPath;
         $tf->currency_code = Yii::$app->request->getBodyParam('currency_code', "KWD");
+        $tf->bank = $bank;
 
         if(!$tf->currency_code) {
             $tf->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
@@ -219,6 +223,8 @@ class TransferFile extends \yii\db\ActiveRecord
 
         if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
 
+            Yii::error("Error reading file");
+
             return false;/*[
                 "operation" => "error",
                 "type" => "system",
@@ -232,11 +238,17 @@ class TransferFile extends \yii\db\ActiveRecord
 
         //remove first blank row
 
-        \yii\helpers\ArrayHelper::remove ($excelData, '1');
+        $totalRowsToRemove = $this->bank == "AUB" ? 1: 8;
+
+        for ($i = 1; $i < 9; $i++) {
+            \yii\helpers\ArrayHelper::remove($excelData, $i);
+        }
 
         //second row will be key
 
-        $keys = \yii\helpers\ArrayHelper::remove ($excelData, '2');
+        $keyIndex = $this->bank == "AUB"? 2: 9;
+
+        $keys = \yii\helpers\ArrayHelper::remove ($excelData, $keyIndex);
 
         //create array with key to read data
 
@@ -256,61 +268,86 @@ class TransferFile extends \yii\db\ActiveRecord
 
             //remove empty rows
 
-            if (empty($value['Status'])) {
+            if (
+                ($this->bank == "AUB" && empty($value['Status'])) ||
+                ($this->bank == "KFH" && empty($value['Refrence Number']))
+            ) {
                 continue;
             }
 
             $tfe_uuid = 'tfe_' . Yii::$app->db->createCommand ('SELECT uuid()')->queryScalar ();
 
-            $transferFileEntries[] = [
-                'tfe_uuid' => $tfe_uuid,
-                'transfer_file_id' => $this->transfer_file_id,
-                'status' => $value['Status'],
-                'status_description' => $value['Status Description'],
-                'section_index' => $value['Section Index'],
-                'transfer_method' => $value['Transfer Method'],
-                'credit_amount' => str_replace (',', '', $value['Credit Amount']),
-                'credit_currency' => $value['Credit Currency'],
-                'exchange_rate' => (float) $value['Exchange Rate'],
-                'dealRefNo' => $value['DealRefNo'],
-                'value_date' => $value['Value Date'],
-                'debit_account_no' => $value['Debit Account No'],
-                'credit_account_no' => $value['Credit Account No'],
-                'debit_narrative' => $value['Debit Narrative'],
-                'credit_narrative' => $value['Credit Narrative'],
-                'payment_details_1' => $value['Payment Details 1'],
-                'payment_details_2' => $value['Payment Details 2'],
-                'payment_details_3' => $value['Payment Details 3'],
-                'payment_details_4' => $value['Payment Details 4'],
-                'beneficiary_name' => $value['Beneficiary Name'],
-                'beneficiary_address_line_1' => $value['Beneficiary Address Line 1'],
-                'beneficiary_address_line_2' => $value['Beneficiary Address Line 2'],
-                'beneficiary_bank_name' => $value['Beneficiary Bank Name'],
-                'beneficiary_bank_address_1' => $value['Beneficiary Bank Address 1'],
-                'beneficiary_bank_address_2' => $value['Beneficiary Bank Address 2'],
-                'beneficiary_bank_address_3' => $value['Beneficiary Bank Address 3'],
-                'swift' => $value['Swift'],
-                'intermediary_account' => $value['Intermediary Account'],
-                'intermediary_swift' => $value['Intermediary Swift'],
-                'intrmediary_name' => $value['Intrmediary Name'],
-                'intermediary_address_1' => $value['Intermediary Address 1'],
-                'intermediary_address_2' => $value['Intermediary Address 2'],
-                'intermediary_address_3' => $value['Intermediary Address 3'],
-                'charges_type' => $value['Charges Type'],
-                'sort_code' => $value['Sort Code'],
-                'BIC_code' => $value['BIC Code'],
-                'IBAN' => $value['IBAN'],
-                'ABA_routing_code' => $value['ABA Routing Code'],
-                //'created_by' => null,
-                //'updated_by' => null,
-                'created_at' => date ('Y-m-d'),
-                'updated_at' => date ('Y-m-d'),
-            ];
+            if ($this->bank == "AUB") {
+                $transferFileEntries[] = [
+                    'tfe_uuid' => $tfe_uuid,
+                    'transfer_file_id' => $this->transfer_file_id,
+                    'status' => $value['Status'],
+                    'status_description' => $value['Status Description'],
+                    'section_index' => $value['Section Index'],
+                    'transfer_method' => $value['Transfer Method'],
+                    'credit_amount' => str_replace(',', '', $value['Credit Amount']),
+                    'credit_currency' => $value['Credit Currency'],
+                    'exchange_rate' => (float)$value['Exchange Rate'],
+                    'dealRefNo' => $value['DealRefNo'],
+                    'value_date' => $value['Value Date'],
+                    'debit_account_no' => $value['Debit Account No'],
+                    'credit_account_no' => $value['Credit Account No'],
+                    'debit_narrative' => $value['Debit Narrative'],
+                    'credit_narrative' => $value['Credit Narrative'],
+                    'payment_details_1' => $value['Payment Details 1'],
+                    'payment_details_2' => $value['Payment Details 2'],
+                    'payment_details_3' => $value['Payment Details 3'],
+                    'payment_details_4' => $value['Payment Details 4'],
+                    'beneficiary_name' => $value['Beneficiary Name'],
+                    'beneficiary_address_line_1' => $value['Beneficiary Address Line 1'],
+                    'beneficiary_address_line_2' => $value['Beneficiary Address Line 2'],
+                    'beneficiary_bank_name' => $value['Beneficiary Bank Name'],
+                    'beneficiary_bank_address_1' => $value['Beneficiary Bank Address 1'],
+                    'beneficiary_bank_address_2' => $value['Beneficiary Bank Address 2'],
+                    'beneficiary_bank_address_3' => $value['Beneficiary Bank Address 3'],
+                    'swift' => $value['Swift'],
+                    'intermediary_account' => $value['Intermediary Account'],
+                    'intermediary_swift' => $value['Intermediary Swift'],
+                    'intrmediary_name' => $value['Intrmediary Name'],
+                    'intermediary_address_1' => $value['Intermediary Address 1'],
+                    'intermediary_address_2' => $value['Intermediary Address 2'],
+                    'intermediary_address_3' => $value['Intermediary Address 3'],
+                    'charges_type' => $value['Charges Type'],
+                    'sort_code' => $value['Sort Code'],
+                    'BIC_code' => $value['BIC Code'],
+                    'IBAN' => $value['IBAN'],
+                    'ABA_routing_code' => $value['ABA Routing Code'],
+                    //'created_by' => null,
+                    //'updated_by' => null,
+                    'created_at' => date('Y-m-d'),
+                    'updated_at' => date('Y-m-d'),
+                ];
+            } else {
+                //if ($this->bank == "KFH")
+                $transferFileEntries[] = [
+                    'tfe_uuid' => $tfe_uuid,
+                    'transfer_file_id' => $this->transfer_file_id,
+                    'status' => "SUCCESS",
+                    'status_description' => $value['Refrence Number'],
+                    'credit_amount' => str_replace (',', '', $value['Amount']),
+                    'credit_currency' => $value['Transfer Currency'],
+                    'exchange_rate' => (float) $value['Exchange Rates'],
+                    'value_date' => null,// from excel?
+                    'debit_account_no' => null,
+                    'credit_account_no' => $value['Beneficiary Account'],
+                    'debit_narrative' => null, //fetch from db?
+                    'credit_narrative' => null, //fetch from db?
+                    'beneficiary_name' => $value['Beneficiary Name'],
+                    'beneficiary_bank_name' => $value['Bank'],
+                    'created_at' => date ('Y-m-d'),
+                    'updated_at' => date ('Y-m-d'),
+                ];
+            }
         }
 
         //populate entries
 
-        $columns = [
+        $columns = $this->bank == "AUB" ? [
             'tfe_uuid', 'transfer_file_id', 'status', 'status_description', 'section_index', 'transfer_method', 'credit_amount',
             'credit_currency', 'exchange_rate', 'dealRefNo', 'value_date', 'debit_account_no', 'credit_account_no', 'debit_narrative',
             'credit_narrative', 'payment_details_1', 'payment_details_2', 'payment_details_3', 'payment_details_4',
@@ -318,6 +355,23 @@ class TransferFile extends \yii\db\ActiveRecord
             'beneficiary_bank_address_1', 'beneficiary_bank_address_2', 'beneficiary_bank_address_3', 'swift', 'intermediary_account',
             'intermediary_swift', 'intrmediary_name', 'intermediary_address_1', 'intermediary_address_2', 'intermediary_address_3',
             'charges_type', 'sort_code', 'BIC_code', 'IBAN', 'ABA_routing_code', 'created_at', 'updated_at',
+        ]: [
+            'tfe_uuid',
+            'transfer_file_id',
+            'status',
+            'status_description',
+            'credit_amount',
+            'credit_currency',
+            'exchange_rate',
+            'value_date',
+            'debit_account_no',
+            'credit_account_no',
+            'debit_narrative',
+            'credit_narrative',
+            'beneficiary_name',
+            'beneficiary_bank_name',
+            'created_at',
+            'updated_at'
         ];
 
         Yii::$app->db->createCommand ()->batchInsert ('transfer_file_entry', $columns,
