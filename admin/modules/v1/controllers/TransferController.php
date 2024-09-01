@@ -140,10 +140,10 @@ class TransferController extends Controller
             if($transferCandidate->transferFileEntry) {
                 $candidate_hourly_rate = (
                         $transferCandidate->transferFileEntry->credit_amount -
-                        $transferCandidate->bonus +
-                        $transferCandidate->bonus_commission -
-                        $transferCandidate['transfer_cost']
+                        $transferCandidate->bonus + $transferCandidate->bonus_commission
                     ) / $transferCandidate->hours;
+
+                //- $transferCandidate['transfer_cost']
             }
 
             //if not processed + having same store
@@ -161,8 +161,8 @@ class TransferController extends Controller
             if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0) {
 
                 $transferCandidate->candidate_total = $transferCandidate['bonus'] - $transferCandidate['bonus_commission']
-                    + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate)
-                    + $transferCandidate['transfer_cost'];
+                    + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate);
+                    //+ $transferCandidate['transfer_cost'];
 
                 //total amount we will pay to bank
                 $total += $transferCandidate->candidate_total;
@@ -461,6 +461,147 @@ class TransferController extends Controller
      * @return type
      */
     public function actionImportExcel() {
+
+        $model = new TranferExcel;
+        $model->excel = Yii::$app->request->getBodyParam('excel');
+
+        if(!$model->validate())
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => $model->getErrors()
+            ];
+        }
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel);
+
+        //save in temp folder to process
+
+        $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
+
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        }
+
+        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+            'setFirstRecordAsKeys' => false
+        ]);
+
+        //remove first blank row
+
+        \yii\helpers\ArrayHelper::remove($excelData, '1');
+
+        //second row will be key
+
+        $keys = \yii\helpers\ArrayHelper::remove($excelData, '2');
+
+        if(empty($keys)) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];
+        }
+
+        //create array with key to read data
+
+        $data = [];
+
+        foreach ($excelData as $values)
+        {
+            $data[] = array_combine($keys, $values);
+        }
+
+        //no need file anymore
+
+        @unlink($tmpFile);
+
+        //remove empty rows
+
+        $total = 0;
+
+        $candidatesTransfers = [];
+
+        foreach ($data as $key => $value)
+        {
+            if(empty($value['Status'])) {
+                return [
+                    'operation' => 'error',
+                    'message' => 'Invalid excel',
+                    'errorCode' => 1
+                ];
+            }
+
+            if($value['Status'] == 'FAIL') {
+
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere(['tc_id' => $value['Credit Narrative']])
+                    ->one();
+
+                if($transferCandidate && $transferCandidate->candidate) {
+
+                    $transferCandidate->paid = TransferCandidate::UNPAID;
+                    $transferCandidate->transfer_benef_iban = null;
+                    $transferCandidate->transfer_benef_name = null;
+                    $transferCandidate->bank_id = null;
+
+                    if ($transferCandidate->save(false)) {
+
+                        $transferCandidate->candidate->bank_id = null;
+                        $transferCandidate->candidate->bank_account_name = null;
+                        $transferCandidate->candidate->candidate_iban = null;
+                        if ($transferCandidate->candidate->save(false)) {
+                            $transferCandidate->unpaidNotification();
+                        }
+                    }
+                }
+            }
+
+            if($value['Status'] == 'SUCCESS')
+            {
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere(['tc_id' => $value['Credit Narrative']])
+                    ->one();
+
+                if(!$transferCandidate || !$transferCandidate->candidate) {
+                    return [
+                        'operation' => 'error',
+                        'message' => 'Invalid excel',
+                        'errorCode' => 2
+                    ];
+                }
+
+                $candidatesTransfers[] = [
+                    'transfer_confirmation_id' => $value['Status Description'],
+                    'transfer_id' => $value['Debit Narrative'],
+                    'tc_id' => $value['Credit Narrative'],
+                    'candidate_id' => $transferCandidate->candidate->candidate_id,
+                    'candidate_name' => $transferCandidate->candidate->candidate_name,
+                    'total_amount' => $transferCandidate->totalPaidToCandidate,
+                    "currency_code" => $transferCandidate->currency_code
+                ];
+
+                $total += $transferCandidate->totalPaidToCandidate;
+            }
+        }
+
+        return [
+            'total' => $total,
+            "bank" => "AUB",
+            'candidates' => $candidatesTransfers
+        ];
+    }
+
+    /**
+     * import KFH bank excel to extract candidate data
+     * @return type
+     */
+    public function actionImportKfhExcel() {
     
         $model = new TranferExcel;        
         $model->excel = Yii::$app->request->getBodyParam('excel');
@@ -470,6 +611,7 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "type" => "system",
+                "errorCode" => 1,
                 "message" => $model->getErrors()
             ];
         }
@@ -484,6 +626,7 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "type" => "system",
+                "errorCode" => 2,
                 "message" => "Error reading file"
             ];
         } 
@@ -492,18 +635,21 @@ class TransferController extends Controller
             'setFirstRecordAsKeys' => false
         ]);
 
-        //remove first blank row 
-        
-        \yii\helpers\ArrayHelper::remove($excelData, '1');
+        //remove 8 title row
 
-        //second row will be key 
+        for ($i = 1; $i < 9; $i++) {
+            \yii\helpers\ArrayHelper::remove($excelData, $i);
+        }
+
+        //9th row will be key
         
-        $keys = \yii\helpers\ArrayHelper::remove($excelData, '2');
+        $keys = \yii\helpers\ArrayHelper::remove($excelData, '9');
 
         if(empty($keys)) {
             return [
                 "operation" => "error",
                 "type" => "system",
+                "errorCode" => 3,
                 "message" => "Error reading file"
             ];
         }
@@ -529,17 +675,17 @@ class TransferController extends Controller
 
         foreach ($data as $key => $value) 
         {
-            if(empty($value['Status'])) {
-                return [
-                    'operation' => 'error',
-                    'message' => 'Invalid excel',
-                    'errorCode' => 1
-                ];
+            if(empty($value['Refrence Number'])) {
+                continue;//ignore empty values
             }
-            
+
+            /* --------------- not having status on this bank's excel -----------------------
+
             if($value['Status'] == 'FAIL') {
 
-                $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere(['tc_id' => $value['Credit Narrative']])
+                    ->one();
 
                 if($transferCandidate && $transferCandidate->candidate) {
                     
@@ -558,37 +704,56 @@ class TransferController extends Controller
                         }
                     }
                 }
+            }*/
 
-            }
-
-            if($value['Status'] == 'SUCCESS')
-            {
-                $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
+            // assuming every row showing successful transfer
+            //if($value['Status'] == 'SUCCESS')
+            //{
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere([
+                        'transfer_benef_iban' => $value['Beneficiary Account'],
+                        "candidate_total" => $value['Amount'],
+                        "currency_code" => $value['Transfer Currency'], // good to have filter, if same bank account in 2 country
+                        "paid" => 0
+                    ])
+                    // having latest transfern as can have same bank account (for duplicate profile), same amount + currency (for previous month's transfer),
+                    ->orderBy("tc_id DESC")
+                    ->one();
 
                 if(!$transferCandidate || !$transferCandidate->candidate) {
                     return [
                         'operation' => 'error',
                         'message' => 'Invalid excel',
-                        'errorCode' => 2
+                        'errorCode' => 4
                     ];
                 }
 
                 $candidatesTransfers[] = [
-                    'transfer_confirmation_id' => $value['Status Description'],
-                    'transfer_id' => $value['Debit Narrative'],
-                    'tc_id' => $value['Credit Narrative'],
+                    'transfer_confirmation_id' => $value['Refrence Number'],
+                    "paid" => $transferCandidate->paid,
+                    'transfer_id' => $transferCandidate->transfer_id,
+                    'tc_id' => $transferCandidate->tc_id,
                     'candidate_id' => $transferCandidate->candidate->candidate_id,
                     'candidate_name' => $transferCandidate->candidate->candidate_name,
-                    'total_amount' => $transferCandidate->totalPaidToCandidate,
-                    "currency_code" => $transferCandidate->currency_code
+                    'total_amount' => $value['Amount'],//$transferCandidate->totalPaidToCandidate,
+                    "currency_code" => $value['Transfer Currency'], //$transferCandidate->currency_code
                 ];
 
                 $total += $transferCandidate->totalPaidToCandidate;
-            }
+            //}
         }
-        
+
+        if (sizeof($candidatesTransfers)  == 0) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid excel',
+                'errorCode' => 5
+            ];
+        }
+
         return [
             'total' => $total,
+            "bank" => "KFH",
             'candidates' => $candidatesTransfers
         ];
     }
@@ -647,10 +812,12 @@ class TransferController extends Controller
     public function actionMarkPaidAll()
     {
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
-      
+        $bank =  Yii::$app->request->getBodyParam('bank', "AUB");
+
         if(!is_array($candidate_ids) || sizeof($candidate_ids) == 0) {
             return [
                 'operation' => 'error',
+                "code" => 1,
                 'message' => 'Invalid request'
             ];
         }
@@ -665,6 +832,7 @@ class TransferController extends Controller
             return [
                 "operation" => "error",
                 "type" => "system",
+                "code" => 2,
                 "message" => $model->getErrors()
             ];
         }
@@ -673,17 +841,18 @@ class TransferController extends Controller
          
         $transaction = Yii::$app->db->beginTransaction();
 
-        try {
+       // try {
                 
             //save file used to mark transfers as paid 
              
             $tc_ids = \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'tc_id');
 
-            $tf = \admin\models\TransferFile::saveFile($tc_ids, $model->excel);
+            $tf = \admin\models\TransferFile::saveFile($tc_ids, $model->excel, $bank);
             
             if(!$tf || !$tf->transfer_file_id) {
                 return [
                     "operation" => "error",
+                    "code" => 3,
                     "message" => 'Error on trying to save transfer file'
                 ];
             }
@@ -698,12 +867,15 @@ class TransferController extends Controller
             
             foreach ($candidate_ids as $value)
             {
+                // if tc_id from request body not found in transfer candidate db table
+
                 if(empty($transferCandidatesMapped[$value['tc_id']]))
                 {
                     $transaction->rollBack();
                     
                     return [
                         "operation" => "error",
+                        "code" => 4,
                         'message' => 'Invalid request'
                     ];
                 }
@@ -720,6 +892,7 @@ class TransferController extends Controller
 
                     return [
                         "operation" => "error",
+                        "code" => 5,
                         "transfer_confirmation_id" => $value['transfer_confirmation_id'],
                         "transfer_file_id" => $tf->transfer_file_id,
                         "message" => $tc->getErrors()
@@ -747,12 +920,13 @@ class TransferController extends Controller
 
             Yii::info('[' . count($candidate_ids) . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             $transaction->rollBack();
             
             return [
                 "operation" => "error",
                 'message' => 'Invalid request',
+                "code" => 6,
                 'error' => $e
             ];
 
@@ -761,10 +935,11 @@ class TransferController extends Controller
 
             return [
                 "operation" => "error",
+                "code" => 7,
                 'message' => 'Invalid request',
                 'error' => $e
             ];
-        }
+        }*/
 
         if(YII_ENV == 'prod') {
             Transfer::triggerPayableCandidateEvent();
@@ -804,7 +979,9 @@ class TransferController extends Controller
 
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
+
         if ($onlyPayable) {
+            //todo: use batch function to lower memory usage?
             foreach ($candidates as $candidate) {
                 if (
                     $candidate->candidate &&

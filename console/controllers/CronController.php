@@ -15,6 +15,7 @@ use common\models\RequestInterview;
 use common\models\StaffWorkSession;
 use common\models\Suggestion;
 use common\models\Currency;
+use common\models\TransferFile;
 use common\models\VendorCampaign;
 use Yii;
 use yii\db\Expression;
@@ -52,6 +53,9 @@ class CronController extends \yii\console\Controller {
 
         //echo YII_ENV;
         //Transfer::triggerPayableCandidateEvent();
+
+        //$model = TransferFile::findOne(1199);
+        //$model->populateEntries();
     }
 
     /**
