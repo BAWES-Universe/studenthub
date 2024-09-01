@@ -140,10 +140,10 @@ class TransferController extends Controller
             if($transferCandidate->transferFileEntry) {
                 $candidate_hourly_rate = (
                         $transferCandidate->transferFileEntry->credit_amount -
-                        $transferCandidate->bonus +
-                        $transferCandidate->bonus_commission -
-                        $transferCandidate['transfer_cost']
+                        $transferCandidate->bonus + $transferCandidate->bonus_commission
                     ) / $transferCandidate->hours;
+
+                //- $transferCandidate['transfer_cost']
             }
 
             //if not processed + having same store
@@ -161,8 +161,8 @@ class TransferController extends Controller
             if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0) {
 
                 $transferCandidate->candidate_total = $transferCandidate['bonus'] - $transferCandidate['bonus_commission']
-                    + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate)
-                    + $transferCandidate['transfer_cost'];
+                    + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate);
+                    //+ $transferCandidate['transfer_cost'];
 
                 //total amount we will pay to bank
                 $total += $transferCandidate->candidate_total;
@@ -539,7 +539,9 @@ class TransferController extends Controller
             
             if($value['Status'] == 'FAIL') {
 
-                $transferCandidate = TransferCandidate::find()->andWhere(['tc_id' => $value['Credit Narrative']])->one();
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere(['tc_id' => $value['Credit Narrative']])
+                    ->one();
 
                 if($transferCandidate && $transferCandidate->candidate) {
                     
@@ -804,7 +806,9 @@ class TransferController extends Controller
 
         //https://www.pivotaltracker.com/story/show/176535038
         // to force users to complete there profile
+
         if ($onlyPayable) {
+            //todo: use batch function to lower memory usage?
             foreach ($candidates as $candidate) {
                 if (
                     $candidate->candidate &&

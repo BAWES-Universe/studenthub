@@ -838,7 +838,7 @@ class CompanyController extends Controller
             // from transfer_candidate where candidate_id=836 and store_id=111;
 
             $transfers[$candidate['candidate_id']] = TransferCandidate::find()
-                ->select("SUM(candidate_total) as candidateTotal, SUM(company_total - candidate_total - transfer_cost) as revenue")
+                ->select("SUM(candidate_total) as candidateTotal, SUM(company_total - candidate_total) as revenue")
                 ->andWhere([
                     'candidate_id' => $candidate['candidate_id'],
                     "company_id" => $id,
