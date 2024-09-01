@@ -580,8 +580,10 @@ class TransferController extends Controller
                     'transfer_confirmation_id' => $value['Status Description'],
                     'transfer_id' => $value['Debit Narrative'],
                     'tc_id' => $value['Credit Narrative'],
+                    "tc_created_at" => $transferCandidate->tc_created_at,
                     'candidate_id' => $transferCandidate->candidate->candidate_id,
                     'candidate_name' => $transferCandidate->candidate->candidate_name,
+                    "candidate_id" => $transferCandidate->candidate_id,
                     'total_amount' => $transferCandidate->totalPaidToCandidate,
                     "currency_code" => $transferCandidate->currency_code
                 ];
@@ -733,8 +735,10 @@ class TransferController extends Controller
                     "paid" => $transferCandidate->paid,
                     'transfer_id' => $transferCandidate->transfer_id,
                     'tc_id' => $transferCandidate->tc_id,
+                    "tc_created_at" => $transferCandidate->tc_created_at,
                     'candidate_id' => $transferCandidate->candidate->candidate_id,
                     'candidate_name' => $transferCandidate->candidate->candidate_name,
+                    "candidate_id" => $transferCandidate->candidate_id,
                     'total_amount' => $value['Amount'],//$transferCandidate->totalPaidToCandidate,
                     "currency_code" => $value['Transfer Currency'], //$transferCandidate->currency_code
                 ];
