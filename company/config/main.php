@@ -391,6 +391,29 @@ return [
                         'OPTIONS payable-list' => 'options',
                     ]
                 ],
+                [ // ConversationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/chat',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET messages/<id>' => 'messages',
+                        'GET new-messages/<id>' => 'new-messages',
+                        'GET unread-count' => 'unread-count',
+                        'GET <id>' => 'view',
+                        'POST send-message' => 'send-message',
+                        //'POST update-candidate-mute-conversation' => 'update-candidate-mute-conversation',
+                        'PATCH mark-read/<id>' => 'mark-read',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS messages/<id>' => 'options',
+                        'OPTIONS new-messages/<id>' => 'options',
+                        'OPTIONS send-message' => 'options',
+                        //'OPTIONS update-candidate-mute-conversation' => 'options',
+                        'OPTIONS unread-count' => 'options',
+                        'OPTIONS mark-read/<id>' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
             ],
         ],
     ],
