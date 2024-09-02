@@ -285,16 +285,17 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
                 ])
                 ->all();
 
-            $arrTransferCosts = Yii::$app->params['arrTransferCosts'] = ArrayHelper::map($transferCosts, "candidate_id", "transfer_cost");
+            $arrTransferCosts = Yii::$app->params['arrTransferCosts'] = ArrayHelper::map($transferCosts,
+                "candidate_id", "transfer_cost");
         } else {
             $arrTransferCosts = Yii::$app->params['arrTransferCosts'];
         }
 
         if (
             isset($arrTransferCosts[$this->candidate_id]) &&
-            $arrTransferCosts[$this->candidate_id]['transfer_cost'] > 0
+            $arrTransferCosts[$this->candidate_id] > 0
         ) {
-            return $arrTransferCosts[$this->candidate_id]['transfer_cost'];
+            return $arrTransferCosts[$this->candidate_id];
         }
 
         return Yii::$app->params['transfer_cost']; //default transfer cost
