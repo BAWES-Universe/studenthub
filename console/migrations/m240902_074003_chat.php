@@ -105,7 +105,7 @@ class m240902_074003_chat extends Migration
         $this->createTable('{{%chat_message}}', [
             "chat_message_uuid" => $this->char(60),
             "chat_uuid" => $this->char(60)->notNull(),
-            'from' => "Enum('candidate', 'company', 'staff')",
+            'from' => "Enum('candidate', 'company', 'staff', 'contact')",
             "message" => $this->text()->notNull(),
             "message_index" => $this->integer(11),
             "status" => $this->tinyInteger(1)->defaultValue(0)->comment("0-sent 1-received 2-read"),

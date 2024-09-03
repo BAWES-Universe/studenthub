@@ -854,6 +854,8 @@ return [
                         'GET unread-count' => 'unread-count',
                         'GET <id>' => 'view',
                         'POST send-message' => 'send-message',
+                        'POST start-chat' => 'start-chat',
+                        'POST start-client-chat' => 'start-client-chat',
                         //'POST update-candidate-mute-conversation' => 'update-candidate-mute-conversation',
                         'PATCH mark-read/<id>' => 'mark-read',
                         // OPTIONS VERBS
@@ -864,6 +866,8 @@ return [
                         //'OPTIONS update-candidate-mute-conversation' => 'options',
                         'OPTIONS unread-count' => 'options',
                         'OPTIONS mark-read/<id>' => 'options',
+                        'OPTIONS start-chat' => 'options',
+                        "OPTIONS start-client-chat" => "options",
                         'OPTIONS <id>' => 'options'
                     ]
                 ],

@@ -159,15 +159,68 @@ class ChatController extends Controller
         ];
 
         foreach($conversations as $conversation) {
-            $counts[$conversation->conversation_uuid] = [
-                'unreadEmailCount' => $conversation->getContactUnreadCount(),
+            $counts[$conversation->chat_uuid] = [
+                'unreadMessageCount' => $conversation->getContactUnreadCount(),
                 'recentMessage' => $conversation->recentMessage
             ];
 
-            $counts['total'] += $counts[$conversation->chat_uuid]['unreadEmailCount'];
+            $counts['total'] += $counts[$conversation->chat_uuid]['unreadMessageCount'];
         }
 
         return $counts;
+    }
+
+    /**
+     * start chat with candidate
+     * @return array
+     */
+    public function actionStartChat() {
+
+        $candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+
+        $candidate = Yii::$app->companyManager->getCompany()
+            ->getCandidates()
+            ->andWhere(['candidate_id' => $candidate_id])
+            ->one();
+
+        if (!$candidate) {
+            throw new NotFoundHttpException('The requested record does not exist.');
+        }
+
+        $model = Chat::find()
+            ->where([
+                "store_id" => $candidate->store_id,
+                "contact_uuid" => Yii::$app->user->getId(),
+                'candidate_id' => $candidate_id
+            ])
+            ->one();
+
+        if ($model) {
+            return [
+                "operation" => "success",
+                "chat" => $model
+            ];
+        }
+
+        $model = new Chat();
+        $model->candidate_id = $candidate_id;
+        $model->store_id = $candidate->store_id;
+        $model->company_id = $candidate->store->company_id;
+        $model->parent_company_id = $candidate->store->company->parent_company_id;
+        $model->contact_uuid = Yii::$app->user->getId();
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "chat" => $model,
+            "message" => "Chat initiated"
+        ];
     }
 
     /**
@@ -207,14 +260,14 @@ class ChatController extends Controller
     {
         $model = $this->findModel($id);
 
-        //mark emails from senders as read
+        //mark messages from senders as read
 
         \common\models\ChatMessage::updateAll([
             'status' => ChatMessage::STATUS_READ
         ], [
             "AND",
             [
-                "!=", 'email_sender_type', ChatMessage::FROM_CONTACT
+                "!=", 'from', ChatMessage::FROM_CONTACT
             ],
             ['chat_uuid' => $model->chat_uuid]
         ]);

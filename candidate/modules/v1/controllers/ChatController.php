@@ -2,6 +2,7 @@
 
 namespace candidate\modules\v1\controllers;
 
+use company\models\CompanyContact;
 use Yii;
 use common\models\Chat;
 use common\models\ChatMessage;
@@ -156,11 +157,11 @@ class ChatController extends Controller
 
         foreach($conversations as $conversation) {
             $counts[$conversation->chat_uuid] = [
-                'unreadEmailCount' => $conversation->getCandidateUnreadCount(),
+                'unreadMessageCount' => $conversation->getCandidateUnreadCount(),
                 'recentMessage' => $conversation->recentMessage
             ];
 
-            $counts['total'] += $counts[$conversation->chat_uuid]['unreadEmailCount'];
+            $counts['total'] += $counts[$conversation->chat_uuid]['unreadMessageCount'];
         }
 
         return $counts;
@@ -203,14 +204,14 @@ class ChatController extends Controller
     {
         $model = $this->findModel($id);
 
-        //mark emails from senders as read
+        //mark messages from senders as read
 
         \common\models\ChatMessage::updateAll([
             'status' => ChatMessage::STATUS_READ
         ], [
             "AND",
             [
-                "!=", 'email_sender_type', ChatMessage::FROM_CANDIDATE
+                "!=", 'from', ChatMessage::FROM_CANDIDATE
             ],
             ['chat_uuid' => $model->chat_uuid]
         ]);
@@ -230,6 +231,65 @@ class ChatController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
+    }
+
+    /**
+     * start chat with candidate
+     * @return array
+     */
+    public function actionStartChat() {
+
+        $user = Yii::$app->user->identity;
+
+        if (!$user->store_id) {
+            return [
+                "operation" => "error",
+                "message" => "You are not assigned to any store yet!"
+            ];
+        }
+
+        $model = Chat::find()
+            ->where([
+                "store_id" => $user->store_id,
+                'candidate_id' => Yii::$app->user->getId()
+            ])
+            ->one();
+
+        if ($model) {
+            return [
+                "operation" => "success",
+                "chat" => $model
+            ];
+        }
+
+        $model = new Chat();
+        $model->candidate_id = Yii::$app->user->getId();
+        $model->store_id = $model->candidate->store_id;
+        $model->company_id = $model->candidate->store->company_id;
+        $model->parent_company_id = $model->candidate->store->company->parent_company_id;
+
+        //get contact_uuid
+
+        $companyContact = CompanyContact::find()
+            ->andWhere([
+                "company_id" => empty($model->parent_company_id)? $model->company_id: $model->parent_company_id,
+                "allow_access" => 1])
+            ->one();
+
+        $model->contact_uuid = $companyContact->contact_uuid;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "chat" => $model,
+            "message" => "Chat initiated"
+        ];
     }
 
     /**

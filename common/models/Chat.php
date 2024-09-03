@@ -106,6 +106,25 @@ class Chat extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return string[]
+     */
+    public function extraFields()
+    {
+        return [
+          "contact",
+          "staff",
+          "candidate",
+          "company",
+          "parentCompany",
+            "store",
+            "recentMessage",
+            "staffUnreadCount",
+            "candidateUnreadCount",
+            "companyUnreadCount"
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getContact($modelClass = "\common\models\Contact")
@@ -166,7 +185,7 @@ class Chat extends \yii\db\ActiveRecord
      * @return array|\yii\db\ActiveRecord|null
      */
     public function getRecentMessage($modelClass = "\common\models\ChatMessage") {
-        return $this->getChatMessages()->orderBy("last_index DESC")->one();
+        return $this->getChatMessages($modelClass)->orderBy("message_index DESC")->one();
     }
 
     /**
@@ -193,6 +212,16 @@ class Chat extends \yii\db\ActiveRecord
      * @return int
      */
     public function getCompanyUnreadCount() {
+        return (int) $this->getChatMessages()
+            ->andWhere(['!=', "status", ChatMessage::STATUS_READ])
+            ->andWhere(["!=", "from", ChatMessage::FROM_CONTACT])
+            ->count();
+    }
+
+    /**
+     * @return int
+     */
+    public function getContactUnreadCount() {
         return (int) $this->getChatMessages()
             ->andWhere(['!=', "status", ChatMessage::STATUS_READ])
             ->andWhere(["!=", "from", ChatMessage::FROM_CONTACT])
