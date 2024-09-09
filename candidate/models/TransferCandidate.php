@@ -39,7 +39,8 @@ class TransferCandidate extends \common\models\TransferCandidate
         };
 
         $fields['total'] = function($model) {
-            return ($model->candidate_hourly_rate * $model->hours) + $model->bonus - $model->bonus_commission;
+            return $model->candidate_total;
+            //($model->candidate_hourly_rate * $model->hours) + $model->bonus - $model->bonus_commission;
         };
 
         $fields['tc_created_at'] = function($model) {

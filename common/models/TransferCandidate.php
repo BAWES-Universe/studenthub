@@ -26,6 +26,8 @@ use Segment\Segment;
  * @property decimal $candidate_hourly_rate - hourly rate candidate will receive
  * @property decimal $company_hourly_rate - hourly rate company paying 
  * @property decimal $hours - no of hours candidate have worked
+ * @property decimal $minutes - no of minutes candidate have worked
+ * @property decimal $seconds - no of seconds candidate have worked
  * @property decimal $bonus - bonus amount company paying 
  * @property decimal $bonus_commission - commission admin will take from bonus in 
  * @property decimal $transfer_cost - transfer cost of payment
@@ -77,7 +79,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['currency_code'], "string", "max" => 3],
             [['transfer_benef_name'], 'string', 'max' => 60],
             [['bank_id', 'transfer_confirmation_id', 'transfer_benef_name', 'transfer_benef_iban'], 'validateBankDetails'],
-            [['hours', 'transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
+            [['transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
+            [['hours'], 'integer'],
+            [["minutes", "seconds"], "integer", "max" => 59],
+
             //[['hours'], 'validateHours'],
             [['tc_created_at', 'tc_updated_at'], 'safe'],
             
@@ -177,6 +182,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'transfer_benef_name' => Yii::t('app','Transfer Benef Name'),
             'transfer_benef_iban' => Yii::t('app','Transfer Benef IBAN'),
             'hours' => Yii::t('app','Hours'),
+            'minutes' => Yii::t('app','Minutes'),
+            'seconds' => Yii::t('app','Seconds'),
             'candidate_hourly_rate' => Yii::t('app','Candidate Hourly Rate'),
             'company_hourly_rate' => Yii::t('app','Company Hourly Rate'),
             'transfer_cost' => Yii::t('app','Transfer cost'),
@@ -215,6 +222,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
          */
         $fields['hours'] = function ($model) {
             return (double)$this->hours;
+        };
+
+        $fields['minutes'] = function ($model) {
+            return (double)$this->minutes;
+        };
+
+        $fields['seconds'] = function ($model) {
+            return (double)$this->seconds;
         };
 
         $fields['bonus'] = function ($model) {
@@ -533,10 +548,12 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         //+ Yii::$app->params['transfer_cost']
 
-        return round(
+        return $this->candidate_total;
+
+        /*return round(
             ($this->candidate_hourly_rate * $this->hours) + $this->bonus - $this->bonus_commission,
             3
-        );
+        );*/
     }
 
     /**
@@ -554,7 +571,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getTotalPaidByCompany()
     {
-        return ($this->company_hourly_rate * $this->hours) + $this->bonus;
+        return $this->company_total; //($this->company_hourly_rate * $this->hours) + $this->bonus;
     }
 
     /**
@@ -563,8 +580,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getProfit()
     {
-        return (($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) + $this->transfer_cost
-            + $this->bonus_commission;
+        return $this->company_total - $this->candidate_total;
+        //(($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) + $this->transfer_cost
+        //    + $this->bonus_commission;
     }
 
     /**
@@ -692,8 +710,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 continue;
             }
 
-            //todo: differece between candidate_total and totalPaidToCandidate
-
             $totalAmount += $transferCandidate->totalPaidToCandidate;
 
             $list[] = [
@@ -778,8 +794,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 continue;
             }
 
-            //todo: differece between candidate_total and totalPaidToCandidate
-
             $totalAmount += $transferCandidate->totalPaidToCandidate;
 
             $list[] = [
@@ -833,6 +847,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public static function saveCandidateTransfer($candidate, $model, $value) {
 
+        if (!isset($value['minutes'])) {
+            $value['minutes'] = 0;
+        }
+
+        if (!isset($value['seconds'])) {
+            $value['seconds'] = 0;
+        }
+
         if(!isset(Yii::$app->params['transfer_cost'])) {
             Yii::$app->params['transfer_cost'] = 0;
         }
@@ -850,6 +872,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
             ->one();
 
         $hourly_rate = $assignment ? $assignment->candidate_hourly_rate: $candidate['candidate_hourly_rate'];
+        $minute_rate = $hourly_rate / 60;
+        $second_rate = $minute_rate / 60;
+
         $transfer_cost = $assignment ? $assignment->getTransferCost(): Yii::$app->params['transfer_cost'];
 
         $store = $candidate['store'];
@@ -891,7 +916,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
             $company_bonus_commission = $parent['company_bonus_commission'];
             $company_hourly_rate = $parent['company_hourly_rate'];
-
         }
 
         //if bonus commission or hourly rate not set
@@ -903,21 +927,30 @@ class TransferCandidate extends \yii\db\ActiveRecord
             ];
         }
 
+        $company_minute_rate = $company_hourly_rate/ 60;
+        $company_second_rate = $company_minute_rate / 60;
+
         //calculate and save bonus_commission
 
         $bonus = (float)$value['bonus'];
 
         $hours = (float)$value['hours'];
 
+        $minutes = (float)$value['minutes'];
+
+        $seconds = (float)$value['seconds'];
+
         $TCModel->bonus_commission = $bonus * $company_bonus_commission / 100;
 
         $TCModel->company_hourly_rate = $company_hourly_rate;
 
-        if ($hours > 0 || $bonus > 0) {
+        if ($minutes > 0 || $seconds > 0 || $hours > 0 || $bonus > 0) {
 
-            $total = $bonus - $TCModel->bonus_commission + ($hours * $hourly_rate);
+            $total = $bonus - $TCModel->bonus_commission + ($hours * $hourly_rate) + ($minutes * $minute_rate)
+                + ($seconds * $second_rate);
 
-            $company_total = $bonus + ($hours * $company_hourly_rate) + $transfer_cost;
+            $company_total = $bonus + ($hours * $company_hourly_rate) + ($minutes * $company_minute_rate)
+                + ($seconds * $company_second_rate) + $transfer_cost;
 
             $TCModel->candidate_total = round($total, 3);
 

@@ -780,7 +780,8 @@ class Transfer extends ActiveRecord
      */
     public function sendNewTransferNotification($transferCandidate)
     {
-        $total = ($transferCandidate->candidate_hourly_rate * $transferCandidate->hours) + $transferCandidate->bonus - $transferCandidate->bonus_commission;
+        $total = $transferCandidate->candidate_total;
+        //($transferCandidate->candidate_hourly_rate * $transferCandidate->hours) + $transferCandidate->bonus - $transferCandidate->bonus_commission;
         
         $heading = Yii::t('app', 'New transfer initiated');
         $subtitle = "@ " . $transferCandidate->store->store_name . ', ' . $transferCandidate->company->company_name;
@@ -844,14 +845,19 @@ class Transfer extends ActiveRecord
                     ->all();
 
                 foreach ($candidates as $key_one => $value) {
-                    if ((int)$value['hours']>0 || $value['bonus'] > 0) {
+                    if ((int)$value['minutes']>0 || (int)$value['seconds']>0 ||
+                        (int)$value['hours']>0 || $value['bonus'] > 0) {
 
                         //total amount we will pay to bank
                         $total += $value['bonus'] - $value['bonus_commission'] +
-                            ($value['hours'] * $value['candidate_hourly_rate']);
+                            ($value['hours'] * $value['candidate_hourly_rate']) +
+                            ($value['minutes'] * ($value['candidate_hourly_rate'] / 60)) +
+                            ($value['seconds'] * ($value['candidate_hourly_rate'] / 3600));
 
                         //total amount company will pay to us
                         $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate'])
+                            + ($value['minutes'] * ($value['company_hourly_rate'] / 60))
+                            + ($value['seconds'] * ($value['company_hourly_rate'] / 3600))
                             + $value['transfer_cost'];
 
                         $transfer_cost += $value['transfer_cost'];
@@ -1136,6 +1142,12 @@ class Transfer extends ActiveRecord
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if(empty($value['minutes']) || $value['minutes'] < 0)
+                $value['minutes'] = 0;
+
+            if(empty($value['seconds']) || $value['seconds'] < 0)
+                $value['seconds'] = 0;
+
             if($value['bonus'] == 0 && $value['hours'] == 0) {
                 continue;
             }
@@ -1320,6 +1332,12 @@ class Transfer extends ActiveRecord
             if(empty($value['hours']) || $value['hours'] < 0)
                 $value['hours'] = 0;
 
+            if(empty($value['minutes']) || $value['minutes'] < 0)
+                $value['minutes'] = 0;
+
+            if(empty($value['seconds']) || $value['seconds'] < 0)
+                $value['seconds'] = 0;
+
             if($value['bonus'] == 0 && $value['hours'] == 0) {
                 continue;
             }
@@ -1453,12 +1471,18 @@ class Transfer extends ActiveRecord
 
             foreach ($candidates as $key => $value)
             {
-                if ((int)$value['hours']>0 || $value['bonus'] > 0) {
+                if ((int) $value['minutes']>0 || (int)$value['seconds']>0 ||
+                    (int)$value['hours']>0 || $value['bonus'] > 0
+                ) {
 
                     $total += $value['bonus'] - $value['bonus_commission']
-                        + ($value['hours'] * $value['candidate_hourly_rate']);
+                        + ($value['hours'] * $value['candidate_hourly_rate'])
+                        + ($value['minutes'] * ($value['candidate_hourly_rate'] / 60))
+                        + ($value['seconds'] * ($value['candidate_hourly_rate'] / 3600));
 
                     $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate'])
+                        + ($value['minutes'] * ($value['company_hourly_rate'] / 60))
+                        + ($value['seconds'] * ($value['company_hourly_rate'] / 3600))
                         + $value['transfer_cost'];
 
                     $transfer_cost += $value['transfer_cost'];
@@ -1573,7 +1597,20 @@ class Transfer extends ActiveRecord
         {
             $bonus = (isset($value['bonus'])) ? $value['bonus'] : 0;
             $hours = (isset($value['hours'])) ? $value['hours'] : 0;
+            $minutes = (isset($value['minutes'])) ? $value['minutes'] : 0;
+            $seconds = (isset($value['seconds'])) ? $value['seconds'] : 0;
+
             $transfer_cost = (isset($value['transfer_cost'])) ? $value['transfer_cost'] : 0;
+
+            if($seconds < 0)
+            {
+                $this->addError($attribute, 'Seconds can not be negative');
+            }
+
+            if($minutes < 0)
+            {
+                $this->addError($attribute, 'Minutes can not be negative');
+            }
 
             if($hours < 0)
             {
@@ -1624,7 +1661,11 @@ class Transfer extends ActiveRecord
                 $company_hourly_rate = $company->parentCompany['company_hourly_rate'];
             }
 
-            $company_total += $bonus + ($hours * $company_hourly_rate) + $transfer_cost;
+            $company_minute_rate = $company_hourly_rate/ 60;
+            $company_second_rate = $company_minute_rate/ 60;
+
+            $company_total += $bonus + ($hours * $company_hourly_rate) + $transfer_cost + ($minutes * $company_minute_rate)
+                + ($seconds * $company_second_rate);
         }
 
         // Case where transfer total is zero/empty

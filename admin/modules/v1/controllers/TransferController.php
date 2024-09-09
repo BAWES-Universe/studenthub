@@ -141,7 +141,9 @@ class TransferController extends Controller
                 $candidate_hourly_rate = (
                         $transferCandidate->transferFileEntry->credit_amount -
                         $transferCandidate->bonus + $transferCandidate->bonus_commission
-                    ) / $transferCandidate->hours;
+                    ) / $transferCandidate->hours +
+                    ($transferCandidate->minutes / 60) +
+                    ($transferCandidate->seconds / 3600);
 
                 //- $transferCandidate['transfer_cost']
             }
@@ -158,10 +160,13 @@ class TransferController extends Controller
                 $transferCandidate->candidate_hourly_rate = $candidate_hourly_rate;
             }
 
-            if ((int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0) {
+            if ((int)$transferCandidate['minutes'] > 0 || (int)$transferCandidate['seconds'] > 0 ||
+                (int)$transferCandidate['hours'] > 0 || $transferCandidate['bonus'] > 0) {
 
                 $transferCandidate->candidate_total = $transferCandidate['bonus'] - $transferCandidate['bonus_commission']
-                    + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate);
+                    + ($transferCandidate['hours'] * $transferCandidate->candidate_hourly_rate)
+                    + ($transferCandidate['minutes'] * ($transferCandidate->candidate_hourly_rate / 60))
+                    + ($transferCandidate['seconds'] * ($transferCandidate->candidate_hourly_rate / 3600));
                     //+ $transferCandidate['transfer_cost'];
 
                 //total amount we will pay to bank
@@ -1035,6 +1040,8 @@ class TransferController extends Controller
                 'candidate.store.company.company_name',
                 'candidate.store.store_name',
                 'hours',
+                "minutes",
+                "seconds",
                 'candidate_hourly_rate',
                 [
                     'attribute'=>'bonus',
@@ -1175,6 +1182,8 @@ class TransferController extends Controller
                 'candidate.store.company.company_name',
                 'candidate.store.store_name',
                 'hours',
+                "minutes",
+                "seconds",
                 'candidate_hourly_rate',
                 [
                     'attribute'=>'bonus',

@@ -527,6 +527,20 @@ class TransferController extends Controller
                     }
                 ],
                 [
+                    'header' => 'minutes',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['minutes']: 0;
+                    }
+                ],
+                [
+                    'header' => 'seconds',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['seconds']: 0;
+                    }
+                ],
+                [
                     'header' => 'bonus',
                     'value' => function($data) use ($transferCandidates, $preFilled) {
                         return $preFilled && isset($transferCandidates[$data->candidate_id]) ?

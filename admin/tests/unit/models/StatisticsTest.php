@@ -88,7 +88,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ->andWhere([
                 'paid' => 0,
             ])
-            ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission');
+            ->sum('candidate_total');//(candidate_hourly_rate * hours) + bonus - bonus_commission
 
         expect('Total payable amount to candidate', $totalPayable)->equals($payableDetail['amount']);
     }

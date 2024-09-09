@@ -191,6 +191,8 @@ class TransferTest extends \Codeception\Test\Unit
 
             foreach ($transfer->childTransfers as $childTransfer)
             {
+                //todo: include tests for minutes + seconds
+
                 $total = $childTransfer
                     ->getTransferCandidates()
                     ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission');

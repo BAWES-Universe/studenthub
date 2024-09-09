@@ -139,9 +139,10 @@ class TransferFile extends \yii\db\ActiveRecord
         }
 
         //get total amount marked as paid by this file 
-        
+
         $tf->transfer_amount = TransferCandidate::find()
-           ->select(new Expression('SUM((candidate_hourly_rate * hours) + bonus - bonus_commission)'))
+           ->select(new Expression('SUM(candidate_total)'))
+            //(candidate_hourly_rate * hours) + bonus - bonus_commission
            ->andWhere(['in', 'tc_id', $tc_ids])
            ->scalar();
              

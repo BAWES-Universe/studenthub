@@ -35,7 +35,8 @@ class TransferCandidate extends \common\models\TransferCandidate
 
         //total amount candidate will receive 
         $fields['total'] = function($model) {
-            return ($model->candidate_hourly_rate * $model->hours) + $model->bonus - $model->bonus_commission;
+            return $model->candidate_total;
+            //($model->candidate_hourly_rate * $model->hours) + $model->bonus - $model->bonus_commission;
         };
 
         $fields['tc_created_at'] = function($model) {
@@ -76,7 +77,12 @@ class TransferCandidate extends \common\models\TransferCandidate
             ];
         }
 
-        if (!($transferCandidate->hours > 0)) {
+        if (
+            $transferCandidate->hours == 0 &&
+            $transferCandidate->minutes == 0 &&
+            $transferCandidate->seconds == 0 &&
+            $transferCandidate->bonus = 0
+        ) {
             return [
                 "operation" => "error",
                 "message" => "Candidate Transfer can't be mark as unpaid. As total paid amount is equal to zero"
@@ -310,6 +316,8 @@ class TransferCandidate extends \common\models\TransferCandidate
             [
                 'or',
                 ['>', 'hours', 0],
+                ['>', 'minutes', 0],
+                ['>', 'seconds', 0],
                 ['>', 'bonus', 0],
             ],
             ['in', 'tc_id', $transferCandidateList],

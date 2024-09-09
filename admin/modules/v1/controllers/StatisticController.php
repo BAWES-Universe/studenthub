@@ -330,8 +330,9 @@ class StatisticController extends Controller
                 AND tc_created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01')"))
             //->andWhere(new Expression("tc_created_at >= DATEADD(month, DATEDIFF(month, 0, GETDATE()) - 1, 0)
             //    AND tc_created_at < DATEADD(month, DATEDIFF(month, 0, GETDATE()), 0)"))
-            ->average(new Expression("((company_hourly_rate - candidate_hourly_rate) * hours) + transfer_cost
-                + bonus_commission"));//avg profit in candidate transfer in last month
+            ->average(new Expression("company_total - candidate_total"));
+        //((company_hourly_rate - candidate_hourly_rate) * hours) + transfer_cost + bonus_commission
+        //avg profit in candidate transfer in last month
 
         $averageMonthDurationPerAssignment = (int) CandidateWorkHistory::find()
             ->limit(100)

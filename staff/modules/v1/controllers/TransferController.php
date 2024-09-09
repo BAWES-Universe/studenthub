@@ -259,6 +259,8 @@ class TransferController extends Controller
                 ],
                 'profit',
                 "hours",
+                "minutes",
+                "seconds",
                 "bonus",
                 "bonus_commission",
                 "transfer_cost",
@@ -945,6 +947,20 @@ class TransferController extends Controller
                     }
                 ],
                 [
+                    'header' => 'minutes',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['minutes']: 0;
+                    }
+                ],
+                [
+                    'header' => 'seconds',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['seconds']: 0;
+                    }
+                ],
+                [
                     'header' => 'bonus',
                     'value' => function($data) use ($transferCandidates, $preFilled) {
                         return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
@@ -1038,6 +1054,20 @@ class TransferController extends Controller
                     "format" => "raw",
                     "value" => function ($model) {
                         return number_format($model->getTransferCandidates()->sum('hours'),3);
+                    },
+                ],
+                [
+                    'header' => 'Minutes',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return number_format($model->getTransferCandidates()->sum('minutes'),3);
+                    },
+                ],
+                [
+                    'header' => 'Seconds',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return number_format($model->getTransferCandidates()->sum('seconds'),3);
                     },
                 ],
                 [
