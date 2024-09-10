@@ -310,6 +310,9 @@ https://admin.api.studenthub.co/v1/xero/callback
 
 http://localhost:8888/bawes/studenthub/admin/web/v1/xero/callback
 
+# database diagram 
+https://dbdiagram.io/d/Studenthub-66e02334550cd927eabe2c68
+
 # todo 
 
 - company account password set 
