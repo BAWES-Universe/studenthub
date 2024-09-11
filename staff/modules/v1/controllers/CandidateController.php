@@ -497,6 +497,24 @@ class CandidateController extends Controller
         ];
     }
 
+    public function actionCompanyTransferCost($candidate_id, $store_id) {
+
+        $store = Store::find()->andWhere(['store_id' => $store_id])->one();
+
+        if (!$store) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $company = $store->getCompany()->one();
+
+        $company_id = !empty($company->parent_company_id) ?
+            $company->parent_company_id: $company->company_id;
+
+        return TransferCost::find()
+            ->andWhere(["candidate_id" => $candidate_id, "company_id" => $company_id])
+            ->one();
+    }
+
     /**
      * Assign Store to Candidate account
      * @param $id
@@ -600,11 +618,26 @@ class CandidateController extends Controller
 
         $company = $model->store->getCompany()->one();
 
-        $transfer_cost_model = new TransferCost();
-        $transfer_cost_model->candidate_id = $model->candidate_id;
-        $transfer_cost_model->company_id = !empty($company->parent_company_id) ?
+        // there is possibility that candidate just moved from old store to new store
+
+        $company_id = !empty($company->parent_company_id) ?
             $company->parent_company_id: $company->company_id;
+
+        $transfer_cost_model = TransferCost::find()
+            ->andWhere([
+                "candidate_id" => $model->candidate_id,
+                "company_id" => $company_id
+            ])
+            ->one();
+
+        if (!$transfer_cost_model) {
+            $transfer_cost_model = new TransferCost();
+            $transfer_cost_model->candidate_id = $model->candidate_id;
+            $transfer_cost_model->company_id = $company_id;
+        }
+
         $transfer_cost_model->transfer_cost = $company_transfer_cost;
+
         if (!$transfer_cost_model->save()) {
             return [
                 "operation" => "error",
