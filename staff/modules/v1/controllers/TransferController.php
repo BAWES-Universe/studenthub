@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CandidateWorkingDate;
 use common\models\TransferCandidate;
 use common\models\TransferCost;
 use common\models\TransferRateExcel;
@@ -844,9 +845,9 @@ class TransferController extends Controller
 
         if ($preFilled) {
             $arrCompanyTransferRates = ArrayHelper::map(
-                $company->getTransferRates()->all(),
-                "candidate_id",
-                "transfer_cost");
+                    $company->getTransferRates()->all(),
+                    "candidate_id",
+                    "transfer_cost");
         }
 
         header('Access-Control-Allow-Origin: *');
@@ -890,16 +891,50 @@ class TransferController extends Controller
     public function actionTransferExcelTemplate($id)
     {
         $preFilled = Yii::$app->request->get("preFilled");
+        $startDate = Yii::$app->request->get("startDate");
+        $endDate = Yii::$app->request->get("endDate");
 
         $company = $this->findCompany($id);
 
         $transferCandidates = [];
 
         if ($preFilled) {
-            $latestTransfer = $company->getParentTransfers()->one();
+            if ($preFilled == 'workLog') {
 
-            if ($latestTransfer) {
-                $transferCandidates = ArrayHelper::index($latestTransfer->getTransferCandidates()->all(), "candidate_id");
+                if(!$startDate) {
+                    $startDate = date('Y-m-01');
+                }
+
+                if (!$endDate) {
+                    $endDate = date("Y-m-d");
+                }
+
+                foreach ($company->candidates as $candidate) {
+
+                    $seconds = CandidateWorkingDate::find()->andWhere([
+                        "candidate_id" => $candidate->candidate_id,
+                        "store_id" => $candidate->store_id //filter by store, in case store changed in month
+                    ])
+                        ->filterByDateRange($startDate, $endDate)
+                        ->sum("total_time");
+
+                    $hours = floor($seconds/ 3600);
+                    $minutes = floor(($seconds - ($hours * 3600))/ 60);
+
+                    $transferCandidates[$candidate->candidate_id] = [
+                        "hours" => $hours,
+                        "minutes" => $minutes,
+                        "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
+                        "bonus" => 0
+                    ];
+                }
+
+            } else {
+                $latestTransfer = $company->getParentTransfers()->one();
+
+                if ($latestTransfer) {
+                    $transferCandidates = ArrayHelper::index($latestTransfer->getTransferCandidates()->all(), "candidate_id");
+                }
             }
         }
 

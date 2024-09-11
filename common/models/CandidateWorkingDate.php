@@ -123,4 +123,12 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
     }
+
+    /**
+     * @return query\CandidateWorkingDateQuery
+     */
+    public static function find()
+    {
+        return new query\CandidateWorkingDateQuery(get_called_class());
+    }
 }
