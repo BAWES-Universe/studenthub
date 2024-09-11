@@ -203,6 +203,7 @@ return [
                         'GET candidate-warnings/<id>' => 'candidate-warnings',
                         'GET total-to-review' => 'total-to-review',
                         'GET assigned-idle-candidate' => 'assigned-idle-candidates',
+                        "GET company-transfer-cost/<candidate_id>/<store_id>" => "company-transfer-cost",
                         'GET export-candidate' => 'export-candidate-data',
                         'POST add-tag/<id>' => 'add-tag',
                         'POST warn-candidate/<id>' => 'warn-candidate',
@@ -226,6 +227,7 @@ return [
                         'DELETE mark-duplicate/<id>' => 'mark-duplicate',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS company-transfer-cost/<candidate_id>/<store_id>" =>  "options",
                         "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS mark-duplicate/<id>' => 'options',
                         'OPTIONS update-warning/<id>' => 'options',
