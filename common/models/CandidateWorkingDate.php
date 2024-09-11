@@ -28,6 +28,10 @@ use yii\db\Expression;
  */
 class CandidateWorkingDate extends \yii\db\ActiveRecord
 {
+    const STATUS_PENDING = 0;
+    const STATUS_APPROVED = 1;
+    const STATUS_REJECTED = 2;
+
     /**
      * {@inheritdoc}
      */

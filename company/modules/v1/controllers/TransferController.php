@@ -501,7 +501,8 @@ class TransferController extends Controller
 
                     $seconds = CandidateWorkingDate::find()->andWhere([
                             "candidate_id" => $candidate->candidate_id,
-                            "store_id" => $candidate->store_id //filter by store, in case store changed in month
+                            "store_id" => $candidate->store_id, //filter by store, in case store changed in month
+                            "status" => CandidateWorkingDate::STATUS_APPROVED
                         ])
                         ->filterByDateRange($startDate, $endDate)
                         ->sum("total_time");
