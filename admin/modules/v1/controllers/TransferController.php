@@ -976,7 +976,7 @@ class TransferController extends Controller
 
         $payableCandidate = [];
         $onlyPayable = Yii::$app->request->get('only-payable');
-        
+
         // Candidates whose company paid to admin but admin have not paid yet
         $query = TransferCandidate::find()
             ->payable();
@@ -989,7 +989,7 @@ class TransferController extends Controller
             $query->havingBankInfo()
                 ->activeCivilId();
         }
-        
+
         $candidates = $query
             ->all();
 
@@ -1053,6 +1053,100 @@ class TransferController extends Controller
                 'candidate.candidate_iban',
                 'candidate.bank.bank_name',
                 "currency_code"
+            ]
+        ]);
+    }
+
+    /**
+     * Return a Excel Containing Payable Candidates for ABK bank
+     */
+    public function actionDownloadPaymentAdviceForAbk()
+    {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $payableCandidate = [];
+        $onlyPayable = Yii::$app->request->get('only-payable');
+        
+        // Candidates whose company paid to admin but admin have not paid yet
+        $query = TransferCandidate::find()
+            ->payable();
+
+        if($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
+
+        if($onlyPayable) {
+            $query->havingBankInfo()
+                ->activeCivilId();
+        }
+        
+        $candidates = $query
+            ->all();
+
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
+
+        if ($onlyPayable) {
+            //todo: use batch function to lower memory usage?
+            foreach ($candidates as $candidate) {
+                if (
+                    $candidate->candidate &&
+                    $candidate->candidate->isProfileCompleted &&
+                    $candidate->candidate->bank_id &&
+                    $candidate->transfer_benef_iban &&
+                    $candidate->transfer_benef_name &&
+                    $candidate->invoiceNumber
+                ) {
+                    $payableCandidate[] = $candidate;
+                }
+            }
+        } else {
+            $payableCandidate = $candidates;
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $payableCandidate,
+            'columns' => [
+                [
+                    "attribute" => 'candidate.candidate_iban',
+                    "label" => "IBAN"
+                ],
+                [
+                    'attribute'=> 'Name',
+                    'label'=> 'Name',
+                    'value'=>function($data) {
+                        return $data->candidate? $data->candidate->bank_account_name: $data->transfer_benef_name;
+                    }
+                ],
+                [
+                    "attribute" => "candidate.candidate_civil_id",
+                    "label" => "Civil ID",
+
+                ],
+                [
+                    'attribute'=> 'Type',
+                    'label'=> 'Type',
+                    'value'=> function($data) {
+                        return "SAL";
+                    }
+                ],
+                [
+                    "label" => "Amount",
+                    'attribute'=>'Amount',
+                    'value' => function($data){
+                        return $data->candidate_total;
+                    }
+                ],
+                [
+                    "attribute" => 'Bank Code',
+                    "label" => "Bank Code",
+                    'value' => function($data){
+                        return $data->candidate->bank? str_pad($data->candidate->bank->bank_code_abk, 3, '0', STR_PAD_LEFT): null;
+                    }
+                ]
             ]
         ]);
     }
