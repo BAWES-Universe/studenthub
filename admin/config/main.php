@@ -302,6 +302,7 @@ return [
                         'GET download-payment-advice' => 'download-payment-advice',
                         'GET payable-candidates' => 'payable-candidates',
                         'GET export-payable-candidates' => 'export-payable-candidates',
+                        "GET download-payment-advice-for-abk" => "download-payment-advice-for-abk",
                         'GET invoices/<id>' => 'invoices',
                         'GET export/<id>' => 'export',
                         'GET pdf/<id>/<type>' => 'pdf',
@@ -318,6 +319,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS download-payment-advice-for-abk" => 'options',
                         'OPTION download-payment-advice' => 'options',
                         'OPTIONS update-transfer-from-file/<id>' => 'options',
                         'OPTIONS payable-candidates' => 'options',
