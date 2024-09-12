@@ -12,6 +12,7 @@ use common\models\Candidate;
  * @property string $bank_name
  * @property string|null $bank_iban_code
  * @property string $bank_swift_code
+ * @property integer $bank_code_abk
  * @property string $bank_address
  * @property string $bank_transfer_type
  * @property integer $deleted
@@ -40,6 +41,7 @@ class Bank extends \yii\db\ActiveRecord
         return [
             [['bank_name','bank_swift_code','bank_address', 'bank_iban_code'], 'required'],
             [['bank_name','bank_transfer_type'], 'string', 'max' => 50],
+            [['bank_code_abk'], "number", "max"=> 100],
             [['bank_swift_code'], 'string', 'max' => 12],
             ['bank_transfer_type', 'in', 'range' => self::getBankCodeList()],
             [['bank_address'], 'string']
@@ -56,6 +58,7 @@ class Bank extends \yii\db\ActiveRecord
             'bank_name' => Yii::t('candidate','Name'),
             'bank_iban_code' => Yii::t('candidate','Bank IBAN'),
             'bank_swift_code' => Yii::t('candidate','Swift Code'),
+            "bank_code_abk" => Yii::t('candidate','Bank Code [ABK]'),
             'bank_address' => Yii::t('candidate','Address'),
             'bank_transfer_type' => Yii::t('candidate','Transfer Type'),
         ];
