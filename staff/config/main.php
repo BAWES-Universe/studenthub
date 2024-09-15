@@ -704,6 +704,7 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET candidates' => 'list-candidate',
+                        "GET approved-work-log/<id>" => "approved-work-log",
                         "GET export-candidate-transfers" => "export-candidate-transfers",
                         'GET export-companies-transfer' => 'export-companies-transfer',
                         "GET transfer-rates-template/<id>" => "transfer-rates-template",
@@ -721,6 +722,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS approved-work-log/<id>" => 'options',
                         'OPTIONS candidates' => 'options',
                         'OPTIONS transfer-excel-template/<id>' => 'options',
                         'OPTIONS <id>' => 'options',

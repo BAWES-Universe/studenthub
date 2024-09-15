@@ -886,6 +886,48 @@ class TransferController extends Controller
     }
 
     /**
+     * get approved hours by date range
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionApprovedWorkLog($id) {
+        $startDate = Yii::$app->request->get("start_date");
+        $endDate = Yii::$app->request->get("end_date");
+
+        $company = $this->findCompany($id);
+
+        $data = [];
+
+        foreach ($company->getCandidates()->batch(100) as $candidates) {
+
+            foreach ($candidates as $candidate) {
+
+                $seconds = CandidateWorkingDate::find()->andWhere([
+                    "candidate_id" => $candidate->candidate_id,
+                    "store_id" => $candidate->store_id, //filter by store, in case store changed in month
+                    "status" => CandidateWorkingDate::STATUS_APPROVED
+                ])
+                    ->filterByDateRange($startDate, $endDate)
+                    ->sum("total_time");
+
+                $hours = floor($seconds / 3600);
+                $minutes = floor(($seconds - ($hours * 3600)) / 60);
+
+                $data[] = [
+                    "candidate_id" => $candidate->candidate_id,
+                    "hours" => $hours,
+                    "minutes" => $minutes,
+                    "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
+                    //"bonus" => 0
+                ];
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Excel template to initiate transfer
      */
     public function actionTransferExcelTemplate($id)

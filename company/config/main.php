@@ -179,6 +179,7 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET approved-work-log" => "approved-work-log",
                         'GET transfer-excel-template' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',                        
                         'GET <id>' => 'view',
@@ -192,6 +193,7 @@ return [
                         'DELETE <id>' => 'delete',                        
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS approved-work-log" => "options",
                         'OPTIONS transfer-excel-template' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS create-by-excel' => 'options',
