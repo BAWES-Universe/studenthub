@@ -1158,6 +1158,91 @@ class TransferController extends Controller
         ]);
     }
 
+    public function actionDownloadTextPaymentAdviceForAbk()
+    {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $payableCandidates = [];
+        //$onlyPayable = Yii::$app->request->get('only-payable');
+
+        // Candidates whose company paid to admin but admin have not paid yet
+        $query = TransferCandidate::find()
+            ->payable();
+
+        if ($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
+
+        //if ($onlyPayable) {
+            $query->havingBankInfo()
+                ->activeCivilId();
+        //}
+
+        $transferCandidates = $query
+            ->all();
+
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
+
+        $totalAmount = 0;
+
+        //if ($onlyPayable) {
+            //todo: use batch function to lower memory usage?
+
+            foreach ($transferCandidates as $transferCandidate) {
+                if (
+                    $transferCandidate->candidate &&
+                    $transferCandidate->candidate->isProfileCompleted &&
+                    $transferCandidate->candidate->bank &&
+                    $transferCandidate->candidate->bank_id &&
+                    $transferCandidate->transfer_benef_iban &&
+                    $transferCandidate->transfer_benef_name &&
+                    $transferCandidate->invoiceNumber
+                ) {
+                    $payableCandidates[] = $transferCandidate;
+
+                    $totalAmount += $transferCandidate->totalPaidToCandidate;
+                }
+            }
+        /*} else {
+            $payableCandidate = $candidates;
+        }*/
+
+        $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
+        $batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $s1 = 'FHR,'.$batchId.','.date("Y-m-d") . ','. sizeof($payableCandidates) . ','. number_format($totalAmount, 3, '.', '') .";". PHP_EOL; // header line
+
+        $s2 = '';
+
+        foreach ($payableCandidates as $payableCandidate) {
+            $s2 .= "APO,0603022881001,603," . $payableCandidate->transfer_benef_name . ",KW," . $payableCandidate->transfer_benef_iban . ","
+                . "KW,KW,KW,KW,KW," . $payableCandidate->currency_code . ","
+                . number_format($payableCandidate->totalPaidToCandidate, 3, '.', '') . ","
+                . "KASIP,"
+                . $payableCandidate->bank->bank_swift_code . ",OPS,"
+                . $payableCandidate->company_name." Part-timers salaries #" . $payableCandidate->tc_id .",O,,,,,,,;"
+                . PHP_EOL;
+        }
+
+        $sAll = $s1.$s2;
+
+        $path = sys_get_temp_dir() .DIRECTORY_SEPARATOR. $fileName;
+
+        $handle = fopen($path, "w");
+        fwrite($handle, $sAll);
+        fclose($handle);
+
+        Yii::$app->response->headers->add('filename', $fileName);
+
+        Yii::$app->response->sendFile($path);
+
+        // Delete the file
+        if (!unlink($path)) {
+            Yii::error("File could not be deleted");
+        }
+    }
+
     /**
      * method to generate text file for all unpaid candidates
      * @return array
@@ -1236,7 +1321,12 @@ class TransferController extends Controller
 
         Yii::$app->response->headers->add('filename', $fileName);
 
-        return Yii::$app->response->sendFile($path);
+        Yii::$app->response->sendFile($path);
+
+        // Delete the file
+        if (!unlink($path)) {
+            Yii::error("File could not be deleted");
+        }
     }
 
     /**
