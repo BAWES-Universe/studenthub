@@ -43,6 +43,10 @@ class TransferCandidate extends \common\models\TransferCandidate
             //($model->candidate_hourly_rate * $model->hours) + $model->bonus - $model->bonus_commission;
         };
 
+       /* $fields['candidate_bonus'] = function($model) {
+            return $model->bonus - $model->bonus_commission;
+        };*/
+
         $fields['tc_created_at'] = function($model) {
             return Yii::$app->formatter->asDate($model->tc_created_at, "long");
         };
