@@ -2,6 +2,8 @@
 
 namespace company\modules\v1\controllers;
 
+use common\models\CandidateWorkingDate;
+use common\models\CandidateWorkingHour;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
@@ -82,6 +84,48 @@ class TransferController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+
+    /**
+     * get approved hours by date range
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionApprovedWorkLog() {
+        $startDate = Yii::$app->request->get("start_date");
+        $endDate = Yii::$app->request->get("end_date");
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        $data = [];
+
+        foreach ($company->getCandidates()->batch(100) as $candidates) {
+
+            foreach ($candidates as $candidate) {
+
+                $seconds = CandidateWorkingDate::find()->andWhere([
+                    "candidate_id" => $candidate->candidate_id,
+                    "store_id" => $candidate->store_id, //filter by store, in case store changed in month
+                    "status" => CandidateWorkingDate::STATUS_APPROVED
+                ])
+                    ->filterByDateRange($startDate, $endDate)
+                    ->sum("total_time");
+
+                $hours = floor($seconds / 3600);
+                $minutes = floor(($seconds - ($hours * 3600)) / 60);
+
+                $data[] = [
+                    "candidate_id" => $candidate->candidate_id,
+                    "hours" => $hours,
+                    "minutes" => $minutes,
+                    "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
+                    //"bonus" => 0
+                ];
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -476,16 +520,53 @@ class TransferController extends Controller
     public function actionTransferExcelTemplate()
     {
         $preFilled = Yii::$app->request->get("preFilled");
+        $startDate = Yii::$app->request->get("startDate");
+        $endDate = Yii::$app->request->get("endDate");
 
         $company = Yii::$app->companyManager->getCompany();
 
         $transferCandidates = [];
 
         if ($preFilled) {
-            $latestTransfer = $company->getParentTransfers()->one();
 
-            if ($latestTransfer) {
-                $transferCandidates = ArrayHelper::index($latestTransfer->getTransferCandidates()->all(), "candidate_id");
+            if ($preFilled == 'workLog') {
+
+                if(!$startDate) {
+                    $startDate = date('Y-m-01');
+                }
+
+                if (!$endDate) {
+                    $endDate = date("Y-m-d");
+                }
+
+                foreach ($company->candidates as $candidate) {
+
+                    $seconds = CandidateWorkingDate::find()->andWhere([
+                            "candidate_id" => $candidate->candidate_id,
+                            "store_id" => $candidate->store_id, //filter by store, in case store changed in month
+                            "status" => CandidateWorkingDate::STATUS_APPROVED
+                        ])
+                        ->filterByDateRange($startDate, $endDate)
+                        ->sum("total_time");
+
+                    $hours = floor($seconds/ 3600);
+                    $minutes = floor(($seconds - ($hours * 3600))/ 60);
+
+                    $transferCandidates[$candidate->candidate_id] = [
+                        "hours" => $hours,
+                        "minutes" => $minutes,
+                        "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
+                        "bonus" => 0
+                    ];
+                }
+
+            } else {
+                $latestTransfer = $company->getParentTransfers()->one();
+
+                if ($latestTransfer) {
+                    $transferCandidates = ArrayHelper::index($latestTransfer->getTransferCandidates()->all(),
+                        "candidate_id");
+                }
             }
         }
 
@@ -524,6 +605,20 @@ class TransferController extends Controller
                     'value' => function($data) use ($transferCandidates, $preFilled) {
                         return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
                             $transferCandidates[$data->candidate_id]['hours']: 0;
+                    }
+                ],
+                [
+                    'header' => 'minutes',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['minutes']: 0;
+                    }
+                ],
+                [
+                    'header' => 'seconds',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['seconds']: 0;
                     }
                 ],
                 [

@@ -40,13 +40,17 @@ class StatisticsCest
         $stats =  $this->token->candidate->accountStatistic;
 
         $totalHours = (int)$stats['hours'];
+        $totalMinutes = (int)$stats['minutes'];
+        $totalSeconds = (int)$stats['seconds'];
         $totalPaid  = (int)$stats['paid'];
         $totalBonus = (int)$stats['bonus'];
 
-        $return['total_hours'] = number_format($totalHours);
+        /*$return['total_hours'] = number_format($totalHours);
+        $return['total_minutes'] = number_format($totalMinutes);
+        $return['total_seconds'] = number_format($totalSeconds);
         $return['total_paid'] = $totalPaid;
         $return['total_bonus'] = $totalBonus;
-        $return['total_earning'] = $totalPaid + $totalBonus;
+        $return['total_earning'] = $totalPaid + $totalBonus;*/
 
         $I->wantTo('Validate candidate > statistics api response');
         $I->haveHttpHeader('Authorization', 'Bearer ' . $this->token->token_value);
@@ -54,6 +58,8 @@ class StatisticsCest
         $I->seeResponseCodeIs(HttpCode::OK); // 200
         $I->seeResponseContainsJson([
             'total_hours' => number_format($totalHours),
+            'total_minutes' => number_format($totalMinutes),
+            'total_seconds' => number_format($totalSeconds),
             'total_paid' => $totalPaid,
             'total_bonus' => $totalBonus,
             'total_earning' => $totalPaid + $totalBonus

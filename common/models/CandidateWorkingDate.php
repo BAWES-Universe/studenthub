@@ -28,6 +28,10 @@ use yii\db\Expression;
  */
 class CandidateWorkingDate extends \yii\db\ActiveRecord
 {
+    const STATUS_PENDING = 0;
+    const STATUS_APPROVED = 1;
+    const STATUS_REJECTED = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -122,5 +126,13 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
     public function getStore($modelClass = "\common\models\Store")
     {
         return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return query\CandidateWorkingDateQuery
+     */
+    public static function find()
+    {
+        return new query\CandidateWorkingDateQuery(get_called_class());
     }
 }

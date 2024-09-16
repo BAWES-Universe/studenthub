@@ -76,10 +76,15 @@ class StatisticController extends Controller
         $stats = $user->accountStatistic;
 
         $totalHours = (int)$stats['hours'];
+        $totalMinutes = (int)$stats['minutes'];
+        $totalSeconds = (int)$stats['seconds'];
+
         $totalPaid  = (int)$stats['paid'];
         $totalBonus = (int)$stats['bonus'];
 
         $result['total_hours'] = number_format($totalHours);
+        $result['total_minutes'] = number_format($totalMinutes);
+        $result['total_seconds'] = number_format($totalSeconds);
         $result['total_paid'] = $totalPaid;
         $result['total_bonus'] = $totalBonus;
         $result['total_earning'] = $totalPaid + $totalBonus;

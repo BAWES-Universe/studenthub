@@ -529,7 +529,9 @@ class Candidate extends \common\models\Candidate {
         $totalAmount = 0;
         if (count($candidates)>0) {
             foreach ($candidates as $candidateTransfer) {
-                $totalAmount += $candidateTransfer['bonus'] - $candidateTransfer['bonus_commission'] + ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
+                $totalAmount += $candidateTransfer->candidate_total;
+                //$candidateTransfer['bonus'] - $candidateTransfer['bonus_commission'] +
+                //    ($candidateTransfer['hours'] * $candidateTransfer['candidate_hourly_rate']);
             }
         }
         return $totalAmount;

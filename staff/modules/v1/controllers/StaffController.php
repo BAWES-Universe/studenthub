@@ -43,6 +43,8 @@ class StaffController extends Controller
                     'X-totalClosedRequests',
                     'X-totalInvitations',
                     'X-totalNoOfHours',
+                    'X-totalNoOfMinutes',
+                    'X-totalNoOfSeconds',
                     'X-totalVelocity'
                 ],
             ],

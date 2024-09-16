@@ -10,6 +10,8 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     {
         $result[$value->company_hourly_rate] = [
             'totalHours' => 0,
+            'totalMinutes' => 0,
+            'totalSeconds' => 0,
             'totalBonus' => 0,
             'totalAmount' => 0,
             "totalTransferCost" => 0
@@ -17,9 +19,24 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     }
     
     $result[$value->company_hourly_rate]['totalHours'] += $value->hours;
+    $result[$value->company_hourly_rate]['totalMinutes'] += $value->minutes;
+    $result[$value->company_hourly_rate]['totalSeconds'] += $value->seconds;
+
+    // round up
+    if ($result[$value->company_hourly_rate]['totalSeconds'] > 59) {
+        $result[$value->company_hourly_rate]['totalSeconds'] = $result[$value->company_hourly_rate]['totalSeconds'] % 60;
+        $result[$value->company_hourly_rate]['totalMinutes'] += Math.floor($result[$value->company_hourly_rate]['totalSeconds']/ 60);
+    }
+
+    if ($result[$value->company_hourly_rate]['totalMinutes'] > 59) {
+        $result[$value->company_hourly_rate]['totalMinutes'] = $result[$value->company_hourly_rate]['totalMinutes'] % 60;
+        $result[$value->company_hourly_rate]['totalHours'] += Math.floor($result[$value->company_hourly_rate]['totalMinutes']/ 60);
+    }
+
     $result[$value->company_hourly_rate]['totalBonus'] += $value->bonus;
     $result[$value->company_hourly_rate]['totalTransferCost'] += $value->transfer_cost;
-    $result[$value->company_hourly_rate]['totalAmount'] += ($value->hours * $value->company_hourly_rate) + $value->transfer_cost;
+    $result[$value->company_hourly_rate]['totalAmount'] += $value->company_total - $value->bonus;
+        //($value->hours * $value->company_hourly_rate) + $value->transfer_cost;
 }
 ?>
 <div class="row">
@@ -57,7 +74,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <?php foreach ($result as $hourly_rate => $row) { ?>
             <tr>
                 <td align="left" style="text-align: left">
-                    <span><b><?= $row['totalHours'] ?> hours</b> worked x <b><?= $hourly_rate ?> KD</b> per hour
+                    <span><b><?= $row['totalHours'] ?> hours <?= $row['totalMinutes'] ?> minutes <?= $row['totalSeconds'] ?> seconds </b> worked x <b><?= $hourly_rate ?> KD</b> per hour
                         <?php if ($row['totalTransferCost'] > 0) { ?>
                             + <?= $row['totalTransferCost'] ?> KD transfer cost
                         <?php } ?>

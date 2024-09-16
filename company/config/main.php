@@ -158,6 +158,8 @@ return [
                         'GET with-pagination' => 'list-with-pagination',
                         'GET search' => 'search',
                         'GET total' => 'total',
+                        "GET work-log-excel" => "work-log-excel",
+                        "GET work-log-stats" => "work-log-stats",
                         'GET work-history/<id>' => 'work-history',
                         'GET work-history-detail/<id>' => 'work-history-detail',
                         "GET applications/<candidate_id>" => "applications",
@@ -165,10 +167,12 @@ return [
                         // OPTIONS VERBS
                         "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS' => 'options',
+                        "OPTIONS work-log-stats" => "options",
                         "OPTIONS working-dates" => "options",
                         "OPTIONS with-pagination" => "options",
                         'OPTIONS total' => 'options',
                         'OPTIONS search' => 'options',
+                        "OPTIONS work-log-excel" => "options",
                         'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS work-history-detail/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
@@ -179,6 +183,7 @@ return [
                     'controller' => 'v1/transfer',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET approved-work-log" => "approved-work-log",
                         'GET transfer-excel-template' => 'transfer-excel-template',
                         'GET pdf/<id>' => 'pdf',                        
                         'GET <id>' => 'view',
@@ -192,6 +197,7 @@ return [
                         'DELETE <id>' => 'delete',                        
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS approved-work-log" => "options",
                         'OPTIONS transfer-excel-template' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS create-by-excel' => 'options',

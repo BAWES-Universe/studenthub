@@ -468,6 +468,8 @@ class CronController extends \yii\console\Controller {
                         'candidate.store.company.company_name',
                         'candidate.store.store_name',
                         'hours',
+                        "minutes",
+                        "seconds",
                         'candidate_hourly_rate',
                         [
                             'attribute' => 'bonus',
@@ -811,8 +813,8 @@ class CronController extends \yii\console\Controller {
                 $rows = \common\models\TransferCandidate::find()
                     ->andWhere(['candidate_id' => $candidate->candidate_id, "paid" => \common\models\TransferCandidate::PAID])
                     ->groupBy("currency_code")
-                    ->select("currency_code, SUM(((company_hourly_rate - candidate_hourly_rate) * hours) - 
-                        transfer_cost + bonus_commission) AS profit")
+                    ->select("currency_code, SUM(company_total - candidate_total) AS profit")
+                    //((company_hourly_rate - candidate_hourly_rate) * hours) - transfer_cost + bonus_commission
                     ->asArray()
                     ->all();
 
@@ -863,8 +865,8 @@ class CronController extends \yii\console\Controller {
                 $rows = \common\models\TransferCandidate::find()
                     ->andWhere(['company_id' => $company->company_id, "paid" => \common\models\TransferCandidate::PAID])
                     ->groupBy("currency_code")
-                    ->select("currency_code, SUM(((company_hourly_rate - candidate_hourly_rate) * hours) - 
-                        transfer_cost + bonus_commission) AS profit")
+                    ->select("currency_code, SUM(company_total - candidate_total) AS profit")
+                    //((company_hourly_rate - candidate_hourly_rate) * hours) - transfer_cost + bonus_commission
                     ->asArray()
                     ->all();
 
