@@ -1913,12 +1913,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getAccountStatistic() {
 
         $totalHours = 0;
+        $totalMinutes = 0;
+        $totalSeconds = 0;
         $totalPaid = 0;
         $totalBonus = 0;
 
         foreach ($this->transferCandidate as $transfer) {
 
             $totalHours += $transfer->hours;
+            $totalMinutes += $transfer->minutes;
+            $totalSeconds += $transfer->seconds;
 
             if (
                 $transfer->invoice &&
@@ -1929,8 +1933,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             }
         }
 
+        //fix
+        $totalMinutes += floor($totalSeconds / 60);
+        $totalHours += floor($totalMinutes / 60);
+
+        $totalMinutes = $totalMinutes % 60;
+        $totalSeconds = $totalSeconds % 60;
+
         return [
             'hours' => $totalHours,
+            'minutes' => $totalMinutes,
+            'seconds' => $totalSeconds,
             'paid' => $totalPaid,
             'bonus' => $totalBonus,
         ];
