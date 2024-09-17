@@ -593,7 +593,8 @@ class AccountController extends Controller
             ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
             ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
             ->filterCandidate(Yii::$app->user->identity->candidate_id)
-            ->orderBy('{{%transfer_candidate}}.tc_id DESC');
+            ->orderBy('{{%transfer_candidate}}.tc_id DESC')
+            ->andWhere(['paid' => TransferCandidate::PAID]);
 
         return new ActiveDataProvider([
 //            'allModels' => array_reverse($currentUser->paidTransferCandidate),
