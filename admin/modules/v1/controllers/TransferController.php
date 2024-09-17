@@ -1216,7 +1216,8 @@ class TransferController extends Controller
         $s2 = '';
 
         foreach ($payableCandidates as $payableCandidate) {
-            $s2 .= "APO,0603022881001,603," . $payableCandidate->transfer_benef_name . ",KW," . $payableCandidate->transfer_benef_iban . ","
+            $s2 .= "APO,0603022881001,603," . $payableCandidate->transfer_benef_name . "," . $payableCandidate->transfer_benef_iban . ",KW,"
+                . $payableCandidate->bank->bank_iban_code . ","
                 . "KW,KW,KW,KW,KW," . $payableCandidate->currency_code . ","
                 . number_format($payableCandidate->totalPaidToCandidate, 3, '.', '') . ","
                 . "KASIP,"
