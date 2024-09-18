@@ -292,6 +292,20 @@ return [
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
+                [ // YeasterController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/yeaster',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'GET download/<id>' => 'view',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS download/<id>' => 'options',
+                    ]
+                ],
                 [ // TransferController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/transfer',

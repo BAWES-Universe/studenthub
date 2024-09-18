@@ -21,6 +21,10 @@ return [
             'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',//todo:
             'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
         ],
+        'yeaster' => [
+            'class' => 'common\components\Yeaster',
+            "apiEndpoint" => "http://localhost:3001"
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],

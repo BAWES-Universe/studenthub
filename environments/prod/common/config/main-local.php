@@ -145,6 +145,10 @@ return [
              * https://studenthub-uploads.s3.amazonaws.com/folderName/fileName.jpg
              */
         ],
+        'yeaster' => [
+            'class' => 'common\components\Yeaster',
+            "apiEndpoint" => "http://ec2-18-130-75-235.eu-west-2.compute.amazonaws.com:3001"
+        ],
         'urlManagerStaff' => [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,

@@ -25,6 +25,10 @@ return [
             'class' => 'yii\redis\Cache',
             //'class' => 'yii\caching\FileCache',
         ],
+        'yeaster' => [
+            'class' => 'common\components\Yeaster',
+            "apiEndpoint" => "http://localhost:3001"
+        ],
         'xero' => [
             'class' => 'common\components\Xero',
             //sandbox web app
