@@ -979,12 +979,23 @@ class TransferController extends Controller
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
         $payableCandidate = [];
         $onlyPayable = Yii::$app->request->get('only-payable');
 
         // Candidates whose company paid to admin but admin have not paid yet
         $query = TransferCandidate::find()
             ->payable();
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
 
         if($currency) {
             $query->andWhere(['transfer_candidate.currency_code' => $currency]);
@@ -1071,12 +1082,23 @@ class TransferController extends Controller
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
         $payableCandidate = [];
         $onlyPayable = Yii::$app->request->get('only-payable');
         
         // Candidates whose company paid to admin but admin have not paid yet
         $query = TransferCandidate::find()
             ->payable();
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
 
         if($currency) {
             $query->andWhere(['transfer_candidate.currency_code' => $currency]);
@@ -1162,12 +1184,23 @@ class TransferController extends Controller
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
         $payableCandidates = [];
         //$onlyPayable = Yii::$app->request->get('only-payable');
 
         // Candidates whose company paid to admin but admin have not paid yet
         $query = TransferCandidate::find()
             ->payable();
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
 
         if ($currency) {
             $query->andWhere(['transfer_candidate.currency_code' => $currency]);
@@ -1252,10 +1285,13 @@ class TransferController extends Controller
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
         $s1 = 'S1,11622216,,MXD,M,,'.date('d/m/Y').','.date('dmY').'-01'.PHP_EOL; // header line
         $s2 = '';
 
-        $candidates = TransferCandidate::getPayableCandidateListFormat($currency);
+        $candidates = TransferCandidate::getPayableCandidateListFormat($currency, $offset, $limit);
 
         if(!$candidates) {
             return [
@@ -1291,6 +1327,9 @@ class TransferController extends Controller
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
         $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
         $batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
 
@@ -1298,7 +1337,7 @@ class TransferController extends Controller
         $s1 = 'H,'.$batchId.','.time().PHP_EOL; // header line
         $s2 = '';
 
-        $candidates = TransferCandidate::getPayableCandidateAdvice($currency);
+        $candidates = TransferCandidate::getPayableCandidateAdvice($currency, $offset, $limit);
 
         if(!$candidates) {
             return [
@@ -1337,10 +1376,24 @@ class TransferController extends Controller
      */
     public function actionExport($id)
     {
-        $transfer = $this->findModel((int)$id);
+        //validate
+        $this->findModel((int)$id);
 
-        $candidates = TransferCandidate::find()
-            ->candidatesByTransfer($id)
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
+        $query = TransferCandidate::find()
+            ->candidatesByTransfer($id);
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        $candidates = $query
             ->all();
 
         header('Access-Control-Allow-Origin: *');
