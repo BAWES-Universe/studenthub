@@ -158,6 +158,7 @@ class TransferCandidateController extends Controller
     }
 
     public function actionReplace($id) {
+
         $model =  TransferCandidate::find()
             ->andWhere(['tc_id' => $id])
             ->one();

@@ -69,6 +69,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['hours', "minutes", "seconds"], 'default', 'value'=> 0],
+
             [['currency_code'], 'required'],
             [['transfer_id', 'candidate_id', "prev_candidate_id", 'store_id', 'bank_id', 'company_id', 'transfer_file_id'], 'integer'],
             [['store_name', 'company_name'], 'string', 'max' => 225],
@@ -81,10 +83,13 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_benef_name'], 'string', 'max' => 60],
             [['bank_id', 'transfer_confirmation_id', 'transfer_benef_name', 'transfer_benef_iban'], 'validateBankDetails'],
             [['transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
-            [['hours'], 'integer'],
+
+           // [['hours'], 'integer'],
             [["minutes", "seconds"], "integer", "max" => 59],
 
             //[['hours'], 'validateHours'],
+
+
             [['tc_created_at', 'tc_updated_at'], 'safe'],
             
             ['company_hourly_rate', 'compare', 'compareAttribute' => 'candidate_hourly_rate', 'operator' => '>='],
