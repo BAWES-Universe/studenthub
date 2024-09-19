@@ -17,12 +17,12 @@ return [
     "aws_temp_secret_access_key" => 'N4XUhcfJXqnz6lhrgAh4lzjTGPrriduSCVnpZGk5',
 
     'bankInfo' => [ //BAWES Bank Info
-        'accountName' => 'BAWES FOR COMPUTER AND OPERATION CO',
+        'accountName' => 'BAWES FOR COMPUTER AND OPERATION COMPANY',
         'accountNameArabic' => "شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وإدارة مواقع الانترنت",
-        'bankName' => 'Kuwait Finance House K.s.c.p.',
+        'bankName' => 'AI AHLI BANK OF KUWAIT - Head Office Branch',
         'bankNameArabic' => "",
-        'swiftCode' => 'KFHOKWKWXXX',
-        'accountNumber' => '011010933221',
-        'iban' => 'KW28 KFHO 0000 0000 0000 1101 0933 221'
+        'swiftCode' => 'ABKKKWKWXXX',
+        'accountNumber' => '0603022881001',
+        'iban' => 'KW50 ABKK 0000 0000 0060 3022 881001'
     ]
 ];
