@@ -676,15 +676,25 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * for text export
      * @return array
      */
-    public static function getPayableCandidateListFormat($currency_code = "KWD")
+    public static function getPayableCandidateListFormat($currency_code = "KWD", $offset = null, $limit = null)
     {
         $totalAmount = 0;
 
-        $transferCandidates = self::find()
+        $query = self::find()
             ->payable()
             ->havingBankInfo()
             ->activeCivilId()
-            ->andWhere(['transfer_candidate.currency_code' => $currency_code])
+            ->andWhere(['transfer_candidate.currency_code' => $currency_code]);
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        $transferCandidates = $query
             ->all();
 
         if (!$transferCandidates) {
@@ -760,15 +770,25 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * for text export
      * @return array
      */
-    public static function getPayableCandidateAdvice($currency_code = "KWD")
+    public static function getPayableCandidateAdvice($currency_code = "KWD", $offset = null, $limit = null)
     {
         $totalAmount = 0;
 
-        $transferCandidates = self::find()
+        $query = self::find()
             ->payable()
             ->havingBankInfo()
             ->activeCivilId()
-            ->andWhere(['transfer_candidate.currency_code' => $currency_code])
+            ->andWhere(['transfer_candidate.currency_code' => $currency_code]);
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        $transferCandidates = $query
             ->all();
 
         if (!$transferCandidates) {
