@@ -2,7 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
-use common\models\BalanceAccount;
+use common\models\Candidate;
 use common\models\Loan;
 use Yii;
 use yii\rest\Controller;
@@ -155,6 +155,59 @@ class TransferCandidateController extends Controller
         }
         
         return $model;
+    }
+
+    public function actionReplace($id) {
+        $model =  TransferCandidate::find()
+            ->andWhere(['tc_id' => $id])
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model->prev_candidate_id = $model->candidate_id;
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+
+        $candidate = Candidate::find()
+            ->andWhere(['candidate_id' => $model->candidate_id])
+            ->one();
+
+        if(!$candidate) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        $model->bank_id = $candidate->bank_id;
+        $model->transfer_benef_name = $candidate->bank_account_name;
+        $model->transfer_benef_iban = $candidate->candidate_iban;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        //reload
+
+        $model =  TransferCandidate::find()
+            ->andWhere(['tc_id' => $id])
+            ->one();
+
+        return [
+            "operation" => "success",
+            "transfer" => $model,
+            "candidate" => [
+                "candidate_personal_photo" => $model->candidate->candidate_personal_photo,
+                "candidate_name" => $model->candidate->candidate_name,
+                "candidate_name_ar" => $model->candidate->candidate_name_ar,
+                "candidate_id" => $model->candidate_id,
+                "bank_id" => $model->candidate->bank_id,
+                "civilExpired" => $model->candidate->candidate_civil_expiry_date && (strtotime($model->candidate->candidate_civil_expiry_date) <
+                        strtotime(date('Y-m-d'))),
+                "isProfileCompleted" => $model->candidate->isProfileCompleted()
+            ]
+        ];
     }
 
     /**

@@ -13,6 +13,7 @@ use Segment\Segment;
  * @property integer $tc_id
  * @property integer $transfer_id
  * @property integer $candidate_id
+ * @property integer $prev_candidate_id
  * @property integer $store_id
  * @property string $store_name
  * @property integer $company_id
@@ -69,7 +70,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         return [
             [['currency_code'], 'required'],
-            [['transfer_id', 'candidate_id', 'store_id', 'bank_id', 'company_id', 'transfer_file_id'], 'integer'],
+            [['transfer_id', 'candidate_id', "prev_candidate_id", 'store_id', 'bank_id', 'company_id', 'transfer_file_id'], 'integer'],
             [['store_name', 'company_name'], 'string', 'max' => 225],
             [['company_email'], 'email'],
             [['transfer_confirmation_id'], 'string', 'max' => 128],
@@ -91,6 +92,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['prev_candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['prev_candidate_id' => 'candidate_id']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
             [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::className(), 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']]
@@ -171,6 +173,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'tc_id' => Yii::t('app','TC ID'),
             'transfer_id' => Yii::t('app','Transfer ID'),
             'candidate_id' => Yii::t('app','Candidate ID'),
+            "prev_candidate_id"=> Yii::t('app','Prev Candidate ID'),
             'store_id' => Yii::t('app','Store ID'),
             'store_name' => Yii::t('app','Store Name'),
             'company_id' => Yii::t('app','Company ID'),
@@ -614,6 +617,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function getCandidate($modelClass = "\common\models\Candidate")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPrevCandidate($modelClass = "\common\models\Candidate")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'prev_candidate_id']);
     }
 
     /**
