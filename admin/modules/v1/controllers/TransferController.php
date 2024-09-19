@@ -1244,16 +1244,22 @@ class TransferController extends Controller
         $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
         $batchId = "T".time();// 'BAWS-PAY-'.date('dmY').'-01.txt';
 
-        $s1 = 'FHR,'.$batchId.','.date("m/d/Y") . ','. sizeof($payableCandidates) . ','. number_format($totalAmount, 3, '.', '') .";". PHP_EOL; // header line
+        $s1 = 'FHR,'.$batchId.','.date("m/d/Y") . ','. sizeof($payableCandidates) . ','
+            . number_format($totalAmount, 3, '.', '') .";". PHP_EOL; // header line
 
         $s2 = '';
 
         foreach ($payableCandidates as $payableCandidate) {
+
+            //Payment Type (WIB/KASIP/SWI)
+
+            $paymentType = $payableCandidate->bank->bank_iban_code == "ABKK" ? "WIB": "KASIP";
+
             $s2 .= "APO,0603022881001,603," . $payableCandidate->transfer_benef_name . "," . $payableCandidate->transfer_benef_iban . ",KW,"
                 . $payableCandidate->bank->bank_iban_code . ","
                 . "KW,KW,KW,KW,KW," . $payableCandidate->currency_code . ","
                 . number_format($payableCandidate->totalPaidToCandidate, 3, '.', '') . ","
-                . "KASIP,"
+                . $paymentType. ","
                 . $payableCandidate->bank->bank_swift_code . ",OPS,"
                 . $payableCandidate->company_name." Part-timers salaries #" . $payableCandidate->tc_id .",O,,,,,,,;"
                 . PHP_EOL;
