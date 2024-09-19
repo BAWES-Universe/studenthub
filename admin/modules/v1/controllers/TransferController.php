@@ -1242,9 +1242,9 @@ class TransferController extends Controller
         }*/
 
         $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
-        $batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
+        $batchId = "T".time();// 'BAWS-PAY-'.date('dmY').'-01.txt';
 
-        $s1 = 'FHR,'.$batchId.','.date("Y-m-d") . ','. sizeof($payableCandidates) . ','. number_format($totalAmount, 3, '.', '') .";". PHP_EOL; // header line
+        $s1 = 'FHR,'.$batchId.','.date("m/d/Y") . ','. sizeof($payableCandidates) . ','. number_format($totalAmount, 3, '.', '') .";". PHP_EOL; // header line
 
         $s2 = '';
 
