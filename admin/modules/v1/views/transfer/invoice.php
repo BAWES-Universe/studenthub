@@ -25,12 +25,12 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     // round up
     if ($result[$value->company_hourly_rate]['totalSeconds'] > 59) {
         $result[$value->company_hourly_rate]['totalSeconds'] = $result[$value->company_hourly_rate]['totalSeconds'] % 60;
-        $result[$value->company_hourly_rate]['totalMinutes'] += Math.floor($result[$value->company_hourly_rate]['totalSeconds']/ 60);
+        $result[$value->company_hourly_rate]['totalMinutes'] += floor($result[$value->company_hourly_rate]['totalSeconds']/ 60);
     }
 
     if ($result[$value->company_hourly_rate]['totalMinutes'] > 59) {
         $result[$value->company_hourly_rate]['totalMinutes'] = $result[$value->company_hourly_rate]['totalMinutes'] % 60;
-        $result[$value->company_hourly_rate]['totalHours'] += Math.floor($result[$value->company_hourly_rate]['totalMinutes']/ 60);
+        $result[$value->company_hourly_rate]['totalHours'] += floor($result[$value->company_hourly_rate]['totalMinutes']/ 60);
     }
 
     $result[$value->company_hourly_rate]['totalBonus'] += $value->bonus;
