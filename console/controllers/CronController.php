@@ -57,11 +57,11 @@ class CronController extends \yii\console\Controller {
         //$model = TransferFile::findOne(1199);
         //$model->populateEntries();
 
-        Yii::$app->eventManager->track(
+        /*Yii::$app->eventManager->track(
             'Test event',
             [
                 'hello' => "world"
-            ]);
+            ]);*/
     }
 
     /**
