@@ -388,7 +388,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     }
 
     public static function extractAccountNumber($iban) {
-        return substr($iban, 8);
+        return str_replace("0000000000", "", substr($iban, 8));
     }
 
     /**

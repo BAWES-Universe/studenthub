@@ -1141,7 +1141,11 @@ class TransferController extends Controller
             'columns' => [
                 [
                     "attribute" => 'candidate.candidate_iban',
-                    "label" => "IBAN"
+                    "label" => "IBAN",
+                    "value" => function($data) {
+                        return $data->bank->bank_iban_code == "ABKK" ?
+                            TransferCandidate::extractAccountNumber($data->transfer_benef_iban): $data->transfer_benef_iban;
+                    }
                 ],
                 [
                     'attribute'=> 'Name',
