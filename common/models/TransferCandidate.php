@@ -386,7 +386,11 @@ class TransferCandidate extends \yii\db\ActiveRecord
             "duplicates"
         ];
     }
-    
+
+    public static function extractAccountNumber($iban) {
+        return substr($iban, 8);
+    }
+
     /**
      * mobile notification on transfer marked as paid
      */

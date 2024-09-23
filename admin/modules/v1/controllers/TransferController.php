@@ -1255,7 +1255,10 @@ class TransferController extends Controller
 
             $paymentType = $payableCandidate->bank->bank_iban_code == "ABKK" ? "WIB": "KASIP";
 
-            $s2 .= "APO,0603022881001,603," . $payableCandidate->transfer_benef_name . "," . $payableCandidate->transfer_benef_iban . ",KW,"
+            $accountNumber = $payableCandidate->bank->bank_iban_code == "ABKK" ?
+                TransferCandidate::extractAccountNumber($payableCandidate->transfer_benef_iban): $payableCandidate->transfer_benef_iban;
+
+            $s2 .= "APO,0603022881001,603," . $payableCandidate->transfer_benef_name . "," . $accountNumber . ",KW,"
                 . $payableCandidate->bank->bank_iban_code . ","
                 . "KW,KW,KW,KW,KW," . $payableCandidate->currency_code . ","
                 . number_format($payableCandidate->totalPaidToCandidate, 3, '.', '') . ","
