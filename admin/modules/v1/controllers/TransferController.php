@@ -847,7 +847,7 @@ class TransferController extends Controller
 
         foreach ($data as $key => $value)
         {
-            if(empty($value['Refrence Number']) || $value['Paid'] != "Yes") {
+            if(empty($value['Refrence Number']) || !in_array($value['Paid'], ["Yes", "YES"])) {
                 continue;//ignore empty values
             }
 
