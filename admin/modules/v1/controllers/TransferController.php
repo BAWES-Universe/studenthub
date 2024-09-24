@@ -883,12 +883,13 @@ class TransferController extends Controller
             //{
 
             $query = TransferCandidate::find()
+                ->joinWith(['candidate'])
                 ->andWhere([
                     //'transfer_benef_iban' => $value['Beneficiary Account'],
-                    "candidate_id" => $value['Candidate ID'],
-                    "candidate_total" => $value['Candidate Total'],
-                    "currency_code" => $value['Currency Code'], // good to have filter, if same bank account in 2 country
-                    "paid" => 0
+                    "transfer_candidate.candidate_id" => $value['Candidate ID'],
+                    "transfer_candidate.candidate_total" => $value['Candidate Total'],
+                    "transfer_candidate.currency_code" => $value['Currency Code'], // good to have filter, if same bank account in 2 country
+                    "transfer_candidate.paid" => 0
                 ]);
 
             /*if ($query->count() > 1) {
@@ -1117,7 +1118,7 @@ class TransferController extends Controller
 
             //save transfer file entries
 
-            $tf->populateEntries();
+            $tf->populateEntriesForManual();
 
             $transaction->commit();
 
