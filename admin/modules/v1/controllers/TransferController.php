@@ -892,12 +892,18 @@ class TransferController extends Controller
                 ]);
 
             if ($query->count() > 1) {
-                return [
+
+                Yii::error("Found more than one unpaid transfer with Candidate Account: #" . $value['Candidate ID'].
+                    " Amount: " . $value['Candidate Total']);
+
+                //. ", Store: " . $value['Store Name'] . "@" . $value['Company Name']
+                
+                /*return [
                     'operation' => 'error',
                     'message' => "Found more than one unpaid transfer with Candidate Account: #" . $value['Candidate ID'].
                         " Amount: " . $value['Candidate Total'],
                     'errorCode' => 4
-                ];
+                ];*/
             }
 
             $transferCandidate = $query
