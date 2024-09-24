@@ -779,6 +779,182 @@ class TransferController extends Controller
         ];
     }
 
+    public function actionImportGoogleExcel() {
+
+        $model = new TranferExcel;
+        $model->excel = Yii::$app->request->getBodyParam('excel');
+
+        if(!$model->validate())
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "errorCode" => 1,
+                "message" => $model->getErrors()
+            ];
+        }
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel);
+
+        //save in temp folder to process
+
+        $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
+
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "errorCode" => 2,
+                "message" => "Error reading file"
+            ];
+        }
+
+        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+            'setFirstRecordAsKeys' => false
+        ]);
+
+        //1st row will be key
+
+        $keys = \yii\helpers\ArrayHelper::remove($excelData, '1');
+
+        if(empty($keys)) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "errorCode" => 3,
+                "message" => "Error reading file"
+            ];
+        }
+
+        //create array with key to read data
+
+        $data = [];
+
+        foreach ($excelData as $values)
+        {
+            $data[] = array_combine($keys, $values);
+        }
+
+        //no need file anymore
+
+        @unlink($tmpFile);
+
+        //remove empty rows
+
+        $total = 0;
+
+        $candidatesTransfers = [];
+
+        foreach ($data as $key => $value)
+        {
+            if(empty($value['Refrence Number']) || $value['Paid'] != "Yes") {
+                continue;//ignore empty values
+            }
+
+            /* --------------- not having status on this bank's excel -----------------------
+
+            if($value['Status'] == 'FAIL') {
+
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere(['tc_id' => $value['Credit Narrative']])
+                    ->one();
+
+                if($transferCandidate && $transferCandidate->candidate) {
+
+                    $transferCandidate->paid = TransferCandidate::UNPAID;
+                    $transferCandidate->transfer_benef_iban = null;
+                    $transferCandidate->transfer_benef_name = null;
+                    $transferCandidate->bank_id = null;
+
+                    if ($transferCandidate->save(false)) {
+
+                        $transferCandidate->candidate->bank_id = null;
+                        $transferCandidate->candidate->bank_account_name = null;
+                        $transferCandidate->candidate->candidate_iban = null;
+                        if ($transferCandidate->candidate->save(false)) {
+                            $transferCandidate->unpaidNotification();
+                        }
+                    }
+                }
+            }*/
+
+            // assuming every row showing successful transfer
+            //if($value['Status'] == 'SUCCESS')
+            //{
+
+            $query = TransferCandidate::find()
+                ->andWhere([
+                    //'transfer_benef_iban' => $value['Beneficiary Account'],
+                    "candidate_id" => $value['Candidate ID'],
+                    "candidate_total" => $value['Candidate Total'],
+                    "currency_code" => $value['Currency Code'], // good to have filter, if same bank account in 2 country
+                    "paid" => 0
+                ]);
+
+            if ($query->count() > 1) {
+                return [
+                    'operation' => 'error',
+                    'message' => "Found more than one unpaid transfer with Candidate Account: #" . $value['Candidate ID'].
+                        " Amount: " . $value['Candidate Total'],
+                    'errorCode' => 4
+                ];
+            }
+
+            $transferCandidate = $query
+                // having latest transfern as can have same bank account (for duplicate profile), same amount + currency (for previous month's transfer),
+                ->orderBy("tc_id DESC")
+                ->one();
+
+            if(!$transferCandidate) {
+                return [
+                    'operation' => 'error',
+                    'message' => "No unpaid transfer found with Candidate Account: #" . $value['Candidate ID'].
+                        " Amount: " . $value['Candidate Total'],
+                    'errorCode' => 4
+                ];
+            }
+
+            if (!$transferCandidate->candidate) {
+                return [
+                    'operation' => 'error',
+                    'message' => "No candidate profile found with Candidate Account: " . $value['Candidate ID'].
+                        " Amount: " . $value['Candidate Total'],
+                    'errorCode' => 4
+                ];
+            }
+
+            $candidatesTransfers[] = [
+                'transfer_confirmation_id' => $value['Refrence Number'],
+                "paid" => $transferCandidate->paid,
+                'transfer_id' => $transferCandidate->transfer_id,
+                'tc_id' => $transferCandidate->tc_id,
+                "tc_created_at" => $transferCandidate->tc_created_at,
+                'candidate_name' => $transferCandidate->candidate->candidate_name,
+                "candidate_id" => $transferCandidate->candidate_id,
+                'total_amount' => $value['Candidate Total'],//$transferCandidate->totalPaidToCandidate,
+                "currency_code" => $value['Currency Code'], //$transferCandidate->currency_code
+            ];
+
+            $total += $transferCandidate->totalPaidToCandidate;
+            //}
+        }
+
+        if (sizeof($candidatesTransfers)  == 0) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid excel',
+                'errorCode' => 5
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'total' => $total,
+            "bank" => "",
+            'candidates' => $candidatesTransfers
+        ];
+    }
+
     /**
      * pay candidate by wallet
      * @param $id
