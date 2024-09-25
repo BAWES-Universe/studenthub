@@ -840,8 +840,6 @@ class TransferController extends Controller
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
             'columns' => [
-
-
                 [
                     "attribute" => 'candidate_id',
                     "label" => "Candidate ID"
@@ -934,7 +932,7 @@ class TransferController extends Controller
 
         foreach ($data as $key => $value)
         {
-            if(empty($value['Refrence Number']) || !in_array($value['Paid'], ["Yes", "YES"])) {
+            if(empty($value['Reference Number']) || !in_array($value['Paid'], ["Yes", "YES"])) {
                 continue;//ignore empty values
             }
 
@@ -1017,7 +1015,7 @@ class TransferController extends Controller
             }
 
             $candidatesTransfers[] = [
-                'transfer_confirmation_id' => $value['Refrence Number'],
+                'transfer_confirmation_id' => $value['Reference Number'],
                 "paid" => $transferCandidate->paid,
                 'transfer_id' => $transferCandidate->transfer_id,
                 'tc_id' => $transferCandidate->tc_id,
