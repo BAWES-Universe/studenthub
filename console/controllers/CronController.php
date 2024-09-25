@@ -233,6 +233,26 @@ class CronController extends \yii\console\Controller {
         Suggestion::suggestionFulltimerNotification();
     }
 
+    public function actionProcessTransferFiles() {
+        $query = TransferFile::find()->andWhere(['status' => TransferFile::STATUS_PENDING]);
+
+        foreach ($query->batch(100) as $transferFiles) {
+            foreach ($transferFiles as $transferFile) {
+
+                //$startTime = microtime(true);
+
+                $transferFile->process();
+
+                //$endTime = microtime(true);
+
+                // Calculate the time difference in seconds
+                //$executionTime = $endTime - $startTime;
+
+                //echo "Time taken: " . $executionTime . " seconds" . PHP_EOL;
+            }
+        }
+    }
+
     // todo: user separate email server for marketing?
     public function actionProcessCampaign()
     {

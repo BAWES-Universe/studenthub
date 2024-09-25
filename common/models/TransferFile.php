@@ -2,6 +2,8 @@
 
 namespace common\models;
 
+use admin\models\Transfer;
+use admin\models\TransferCandidate;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -17,11 +19,17 @@ use yii\behaviors\TimestampBehavior;
  * @property string $currency_code
  * @property string $transfer_file_created_at
  * @property string $transfer_file_updated_at
- *
+ * @property string $error
+ * @property number $status
+ * @property number $admin_id
  * @property TransferCandidate $tc
  */
 class TransferFile extends \yii\db\ActiveRecord
 {
+    const STATUS_PENDING = 0;
+    const STATUS_FAILED = 1;
+    const STATUS_PROCESSED = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -39,8 +47,11 @@ class TransferFile extends \yii\db\ActiveRecord
             [['transfer_file_s3_path', "currency_code"], 'required'],
             [['currency_code'], "string", "max" => 3],
             [['bank'], "string", "max" => 100],
+            ['status', 'in', 'range' => [self::STATUS_PENDING, self::STATUS_FAILED, self::STATUS_PROCESSED]],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
-            [['transfer_file_s3_path'], 'string', 'max' => 255],
+            [['transfer_file_s3_path', "error"], 'string', 'max' => 255],
+            [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['admin_id' => 'admin_id']],
+
         ];
     }
       
@@ -102,6 +113,10 @@ class TransferFile extends \yii\db\ActiveRecord
             return (int) $model->getTransferCandidates()->count();
         };
 
+        $fields['status'] = function ($model) {
+            return (int) $model->status;
+        };
+
         return $fields;
     }
     
@@ -130,6 +145,7 @@ class TransferFile extends \yii\db\ActiveRecord
         Yii::$app->resourceManager->copy($fileName, $targetPath, $sourceBucket);
 
         $tf = new TransferFile();
+        $tf->admin_id = Yii::$app->user->getId();
         $tf->transfer_file_s3_path = $targetPath;
         $tf->currency_code = Yii::$app->request->getBodyParam('currency_code', "KWD");
         $tf->bank = $bank;
@@ -147,8 +163,122 @@ class TransferFile extends \yii\db\ActiveRecord
            ->scalar();
              
         if($tf->save()) {
-            TransferFile::transferMail($tf, count($tc_ids), $fileName);
             return $tf;
+        }
+    }
+
+    public function process() {
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        //mark candidates as paid
+
+        $data = [];
+
+        if ($this->bank) {
+            $data = $this->populateEntries($transaction);
+        } else {
+            $data = $this->populateEntriesForManual($transaction);
+        }
+
+        if (!$data) {
+            $transaction->rollBack();
+
+            $this->markFailed("no data");
+
+            die();
+        }
+
+        $tc_ids = \yii\helpers\ArrayHelper::getColumn($data, 'tc_id');
+
+        $transferCandidates = TransferCandidate::find()
+            ->andWhere(['in', 'tc_id', $tc_ids])
+            ->all();
+
+        $transferCandidatesMapped = \yii\helpers\ArrayHelper::index($transferCandidates, 'tc_id');
+
+        foreach ($data as $value)
+        {
+            // if tc_id from request body not found in transfer candidate db table
+
+            if(empty($transferCandidatesMapped[$value['tc_id']]))
+            {
+                $transaction->rollBack();
+
+                $this->markFailed('Invalid request');
+
+                die();
+            }
+
+            $tc = $transferCandidatesMapped[$value['tc_id']];
+
+            $tc->setScenario(TransferCandidate::SCENARIO_MARKING_PAID);
+            $tc->paid = 1;
+            $tc->transfer_file_id = $this->transfer_file_id;
+            $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
+
+            //validation adding extra overhead in system
+            if(!$tc->update())
+            {
+                $transaction->rollBack();
+
+                $this->markFailed($tc->getErrors());
+
+                /*return [
+                    "operation" => "error",
+                    "code" => 5,
+                    "transfer_confirmation_id" => $value['transfer_confirmation_id'],
+                    "transfer_file_id" => $this->transfer_file_id,
+                    "message" => $tc->getErrors()
+                ];*/
+
+                die();
+            }
+
+            $tc->emailTransferSuccess();
+        }
+
+        // Check if all paid, mark transfer as complete
+
+        $transfer_ids = array_unique(
+            \yii\helpers\ArrayHelper::getColumn($data, 'transfer_id')
+        );
+
+        foreach($transfer_ids as $transfer_id) {
+            Transfer::markTransferCompleteOnCandidatePaid($transfer_id);
+        }
+
+        //save transfer file entries
+
+        //processing from cron
+        /*if ($bank) {
+            try {
+                $tf->populateEntries();
+            } catch (\yii\db\Exception $e) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    'message' => $e->getMessage(),
+                ];
+            }
+        } else {
+            $tf->populateEntriesForManual();
+        }*/
+
+        if ($this->admin) {
+            Yii::info('[' . count($data) . ' candidates have been marked as paid]  By ' . $this->admin->admin_name, __METHOD__);
+        } else {
+            Yii::info('[' . count($data) . ' candidates have been marked as paid]  By admin', __METHOD__);
+        }
+//Yii::$app->user->identity->admin_name
+
+        $this->markProcessed(count($data), basename($this->transfer_file_s3_path));
+
+        $transaction->commit();
+
+        if(YII_ENV == 'prod') {
+            Transfer::triggerPayableCandidateEvent();
         }
     }
 
@@ -212,7 +342,7 @@ class TransferFile extends \yii\db\ActiveRecord
      * populate transfer_file_entry table from transfer file
      * @throws \yii\db\Exception
      */
-    public function populateEntries() {
+    public function populateEntries($transaction) {
 
         //read file
 
@@ -224,9 +354,14 @@ class TransferFile extends \yii\db\ActiveRecord
 
         if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
 
+            $transaction->rollBack();
+
+            $this->markFailed("Error reading file");
+
             Yii::error("Error reading file");
 
-            return false;/*[
+            die();
+           /*[
                 "operation" => "error",
                 "type" => "system",
                 "message" => "Error reading file"
@@ -265,6 +400,8 @@ class TransferFile extends \yii\db\ActiveRecord
 
         $transferFileEntries = [];
 
+        $candidatesTransfers = [];
+
         foreach ($data as $key => $value) {
 
             //remove empty rows
@@ -279,6 +416,33 @@ class TransferFile extends \yii\db\ActiveRecord
             $tfe_uuid = 'tfe_' . Yii::$app->db->createCommand ('SELECT uuid()')->queryScalar ();
 
             if ($this->bank == "AUB") {
+
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere(['tc_id' => $value['Credit Narrative']])
+                    ->one();
+
+                if(!$transferCandidate || !$transferCandidate->candidate) {
+
+                    $this->markFailed("Invalid excel");
+
+                    $transaction->rollBack();
+
+                    Yii::error('Invalid excel');
+
+                    die();
+                }
+
+                $candidatesTransfers[] = [
+                    'transfer_confirmation_id' => $value['Status Description'],
+                    'transfer_id' => $value['Debit Narrative'],
+                    'tc_id' => $value['Credit Narrative'],
+                    "tc_created_at" => $transferCandidate->tc_created_at,
+                    'candidate_name' => $transferCandidate->candidate->candidate_name,
+                    "candidate_id" => $transferCandidate->candidate_id,
+                    'total_amount' => $transferCandidate->totalPaidToCandidate,
+                    "currency_code" => $transferCandidate->currency_code
+                ];
+
                 $transferFileEntries[] = [
                     'tfe_uuid' => $tfe_uuid,
                     'transfer_file_id' => $this->transfer_file_id,
@@ -324,6 +488,56 @@ class TransferFile extends \yii\db\ActiveRecord
                     'updated_at' => date('Y-m-d'),
                 ];
             } else {
+
+                $transferCandidate = TransferCandidate::find()
+                    ->andWhere([
+                        'transfer_benef_iban' => $value['Beneficiary Account'],
+                        "candidate_total" => $value['Amount'],
+                        "currency_code" => $value['Transfer Currency'], // good to have filter, if same bank account in 2 country
+                        "paid" => 0
+                    ])
+                    // having latest transfern as can have same bank account (for duplicate profile), same amount + currency (for previous month's transfer),
+                    ->orderBy("tc_id DESC")
+                    ->one();
+
+                if(!$transferCandidate) {
+
+                    $this->markFailed("No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].
+                        " Amount: " . $value['Amount Deducted']);
+
+                    $transaction->rollBack();
+
+                    Yii::error("No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].
+                        " Amount: " . $value['Amount Deducted']);
+
+                    die();
+                }
+
+                if (!$transferCandidate->candidate) {
+
+                    $this->markFailed("No candidate profile found with Beneficiary Account: " . $value['Beneficiary Account'].
+                        " Amount: " . $value['Amount Deducted']);
+
+                    $transaction->rollBack();
+
+                    Yii::error("No candidate profile found with Beneficiary Account: " . $value['Beneficiary Account'].
+                        " Amount: " . $value['Amount Deducted']);
+
+                    die();
+                }
+
+                $candidatesTransfers[] = [
+                    'transfer_confirmation_id' => $value['Refrence Number'],
+                    "paid" => $transferCandidate->paid,
+                    'transfer_id' => $transferCandidate->transfer_id,
+                    'tc_id' => $transferCandidate->tc_id,
+                    "tc_created_at" => $transferCandidate->tc_created_at,
+                   // 'candidate_name' => $transferCandidate->candidate->candidate_name,
+                    "candidate_id" => $transferCandidate->candidate_id,
+                    'total_amount' => $value['Amount'],//$transferCandidate->totalPaidToCandidate,
+                    "currency_code" => $value['Transfer Currency'], //$transferCandidate->currency_code
+                ];
+
                 //if ($this->bank == "KFH")
                 $transferFileEntries[] = [
                     'tfe_uuid' => $tfe_uuid,
@@ -379,10 +593,24 @@ class TransferFile extends \yii\db\ActiveRecord
             $transferFileEntries
         )->execute ();
 
-        return true;
+        return $candidatesTransfers;
     }
 
-    public function populateEntriesForManual() {
+    public function markFailed($error) {
+        $this->status = self::STATUS_FAILED;
+        $this->error = $error;
+        $this->update(false);
+    }
+
+    public function markProcessed($count, $fileName) {
+
+        $this->status = self::STATUS_PROCESSED;
+        $this->update(false);
+
+        TransferFile::transferMail($this, $count, $fileName);
+    }
+
+    public function populateEntriesForManual($transaction) {
 
         //read file
 
@@ -394,13 +622,13 @@ class TransferFile extends \yii\db\ActiveRecord
 
         if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
 
+            $this->markFailed("Error reading file");
+
             Yii::error("Error reading file");
 
-            return false;/*[
-                "operation" => "error",
-                "type" => "system",
-                "message" => "Error reading file"
-            ];*/
+            $transaction->rollBack();
+
+            die();
         }
 
         $excelData = \moonland\phpexcel\Excel::import ($tmpFile, [
@@ -435,11 +663,55 @@ class TransferFile extends \yii\db\ActiveRecord
 
         $transferFileEntries = [];
 
+        $candidatesTransfers = [];
+
         foreach ($data as $key => $value) {
 
-            if (empty($value['Reference Number'])) {
-                continue;
+            if(empty($value['Reference Number']) || !in_array(trim($value['Paid']), ["Yes", "YES"])) {
+                continue;//ignore empty values
             }
+
+            $transferCandidate = TransferCandidate::find()
+                //->joinWith(['candidate'])
+                ->andWhere([
+                    //'transfer_benef_iban' => $value['Beneficiary Account'],
+                    "transfer_candidate.candidate_id" => trim($value['Candidate ID']),
+                    "transfer_candidate.candidate_total" => trim($value['Candidate Total']),
+                    "transfer_candidate.currency_code" => trim($value['Currency Code']), // good to have filter, if same bank account in 2 country
+                    "transfer_candidate.paid" => 0
+                ])->orderBy("tc_id DESC")
+                ->one();
+
+            if (!$transferCandidate->candidate) {
+                /*return [
+                    'operation' => 'error',
+                    'message' => "No candidate profile found with Candidate Account: " . $value['Candidate ID'].
+                        " Amount: " . $value['Candidate Total'],
+                    'errorCode' => 4
+                ];*/
+
+                $this->markFailed("No candidate profile found with Candidate Account: " . $value['Candidate ID'].
+                    " Amount: " . $value['Candidate Total']);
+
+                $transaction->rollBack();
+
+                Yii::error("No candidate profile found with Candidate Account: " . $value['Candidate ID'].
+                    " Amount: " . $value['Candidate Total']);
+
+                die();
+            }
+
+            $candidatesTransfers[] = [
+                'transfer_confirmation_id' => trim($value['Reference Number']),
+                "paid" => $transferCandidate->paid,
+                'transfer_id' => $transferCandidate->transfer_id,
+                'tc_id' => $transferCandidate->tc_id,
+                "tc_created_at" => $transferCandidate->tc_created_at,
+                //'candidate_name' => $transferCandidate->candidate->candidate_name,
+                "candidate_id" => $transferCandidate->candidate_id,
+                'total_amount' => $value['Candidate Total'],//$transferCandidate->totalPaidToCandidate,
+                "currency_code" => $value['Currency Code'], //$transferCandidate->currency_code
+            ];
 
             //remove empty rows
 
@@ -473,7 +745,7 @@ class TransferFile extends \yii\db\ActiveRecord
             $transferFileEntries
         )->execute ();
 
-        return true;
+        return $candidatesTransfers;
     }
 
     public function uuidv4() {
@@ -508,5 +780,14 @@ class TransferFile extends \yii\db\ActiveRecord
     public function getTransferCandidates($modelClass = "\common\models\TransferCandidate")
     {
         return $this->hasMany($modelClass::className(), ['transfer_file_id' => 'transfer_file_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAdmin($modelClass = "\common\models\Admin")
+    {
+        return $this->hasOne($modelClass::className(), ['admin_id' => 'admin_id']);
     }
 }

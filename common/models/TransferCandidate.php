@@ -55,6 +55,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
     const PAID = 1;
     const UNPAID = 0;
 
+    const SCENARIO_MARKING_PAID = "marking-paid";
+
     /**
      * @inheritdoc
      */
@@ -167,6 +169,18 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 'value' => new Expression('NOW()'),
             ],
         ];
+    }
+
+    /**
+     * @return array|array[]
+     */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        $scenarios[TransferCandidate::SCENARIO_MARKING_PAID] = ['paid', 'transfer_file_id', "transfer_confirmation_id"];
+
+        return $scenarios;
     }
 
     /**
