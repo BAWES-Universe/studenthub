@@ -241,7 +241,7 @@ class TransferFile extends \yii\db\ActiveRecord
 
         $totalRowsToRemove = $this->bank == "AUB" ? 1: 8;
 
-        for ($i = 1; $i < 9; $i++) {
+        for ($i = 1; $i <  $totalRowsToRemove + 1; $i++) {
             \yii\helpers\ArrayHelper::remove($excelData, $i);
         }
 
@@ -380,6 +380,118 @@ class TransferFile extends \yii\db\ActiveRecord
         )->execute ();
 
         return true;
+    }
+
+    public function populateEntriesForManual() {
+
+        //read file
+
+        $fileUrl = Yii::$app->resourceManager->getUrl ($this->transfer_file_s3_path);
+
+        //save in temp folder to process
+
+        $tmpFile = sys_get_temp_dir () . '/' . basename ($this->transfer_file_s3_path);
+
+        if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
+
+            Yii::error("Error reading file");
+
+            return false;/*[
+                "operation" => "error",
+                "type" => "system",
+                "message" => "Error reading file"
+            ];*/
+        }
+
+        $excelData = \moonland\phpexcel\Excel::import ($tmpFile, [
+            'setFirstRecordAsKeys' => false
+        ]);
+
+        //remove first blank row
+
+        /*$totalRowsToRemove = 1;
+
+        for ($i = 1; $i < $totalRowsToRemove + 1; $i++) {
+            \yii\helpers\ArrayHelper::remove($excelData, $i);
+        }*/
+
+        //second row will be key
+
+        $keyIndex = 1;
+
+        $keys = \yii\helpers\ArrayHelper::remove ($excelData, $keyIndex);
+
+        //create array with key to read data
+
+        $data = [];
+
+        foreach ($excelData as $values) {
+            $data[] = array_combine ($keys, $values);
+        }
+
+        //no need file anymore
+
+        @unlink ($tmpFile);
+
+        $transferFileEntries = [];
+
+        foreach ($data as $key => $value) {
+
+            if (empty($value['Reference Number'])) {
+                continue;
+            }
+
+            //remove empty rows
+
+            $tfe_uuid = 'tfe_' . $this->uuidv4();
+                //Yii::$app->db->createCommand ('SELECT uuid()')->queryScalar ();
+
+                $transferFileEntries[] = [
+                    'tfe_uuid' => $tfe_uuid,
+                    'transfer_file_id' => $this->transfer_file_id,
+                    'status' => "SUCCESS",
+                    'status_description' => $value['Reference Number'],
+                    'credit_amount' => str_replace (',', '', $value['Candidate Total']),
+                    'credit_currency' => $value['Currency Code'],
+                    'debit_narrative' => null, //fetch from db?
+                    'credit_narrative' => null, //fetch from db?
+                    'beneficiary_name' => $value['Beneficiary Name'],
+                    'created_at' => date ('Y-m-d'),
+                    'updated_at' => date ('Y-m-d'),
+                ];
+        }
+
+        //populate entries
+
+        $columns = [
+            'tfe_uuid', 'transfer_file_id', 'status', 'status_description', 'credit_amount',
+            'credit_currency', 'debit_narrative',
+            'credit_narrative', 'beneficiary_name', 'created_at', 'updated_at',
+        ];
+
+        Yii::$app->db->createCommand ()->batchInsert ('transfer_file_entry', $columns,
+            $transferFileEntries
+        )->execute ();
+
+        return true;
+    }
+
+    public function uuidv4() {
+        /* 32 random HEX + space for 4 hyphens */
+        $out = bin2hex(random_bytes(18));
+
+        $out[8]  = "-";
+        $out[13] = "-";
+        $out[18] = "-";
+        $out[23] = "-";
+
+        /* UUID v4 */
+        $out[14] = "4";
+
+        /* variant 1 - 10xx */
+        $out[19] = ["8", "9", "a", "b"][random_int(0, 3)];
+
+        return $out;
     }
 
     /**

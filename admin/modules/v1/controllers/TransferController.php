@@ -779,7 +779,6 @@ class TransferController extends Controller
         ];
     }
 
-
     public function actionExportGoogleExcel() {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
@@ -864,6 +863,10 @@ class TransferController extends Controller
         ]);
     }
 
+    /**
+     * import manually generated excel
+     * @return array
+     */
     public function actionImportGoogleExcel() {
 
         $model = new TranferExcel;
@@ -932,7 +935,7 @@ class TransferController extends Controller
 
         foreach ($data as $key => $value)
         {
-            if(empty($value['Reference Number']) || !in_array($value['Paid'], ["Yes", "YES"])) {
+            if(empty($value['Reference Number']) || !in_array(trim($value['Paid']), ["Yes", "YES"])) {
                 continue;//ignore empty values
             }
 
@@ -968,15 +971,16 @@ class TransferController extends Controller
             //{
 
             $query = TransferCandidate::find()
+                ->joinWith(['candidate'])
                 ->andWhere([
                     //'transfer_benef_iban' => $value['Beneficiary Account'],
-                    "candidate_id" => $value['Candidate ID'],
-                    "candidate_total" => $value['Candidate Total'],
-                    "currency_code" => $value['Currency Code'], // good to have filter, if same bank account in 2 country
-                    "paid" => 0
+                    "transfer_candidate.candidate_id" => trim($value['Candidate ID']),
+                    "transfer_candidate.candidate_total" => trim($value['Candidate Total']),
+                    "transfer_candidate.currency_code" => trim($value['Currency Code']), // good to have filter, if same bank account in 2 country
+                    "transfer_candidate.paid" => 0
                 ]);
 
-            if ($query->count() > 1) {
+            /*if ($query->count() > 1) {
 
                 Yii::error("Found more than one unpaid transfer with Candidate Account: #" . $value['Candidate ID'].
                     " Amount: " . $value['Candidate Total']);
@@ -988,8 +992,8 @@ class TransferController extends Controller
                     'message' => "Found more than one unpaid transfer with Candidate Account: #" . $value['Candidate ID'].
                         " Amount: " . $value['Candidate Total'],
                     'errorCode' => 4
-                ];*/
-            }
+                ];*
+            }*/
 
             $transferCandidate = $query
                 // having latest transfern as can have same bank account (for duplicate profile), same amount + currency (for previous month's transfer),
@@ -1015,7 +1019,7 @@ class TransferController extends Controller
             }
 
             $candidatesTransfers[] = [
-                'transfer_confirmation_id' => $value['Reference Number'],
+                'transfer_confirmation_id' => trim($value['Reference Number']),
                 "paid" => $transferCandidate->paid,
                 'transfer_id' => $transferCandidate->transfer_id,
                 'tc_id' => $transferCandidate->tc_id,
@@ -1202,7 +1206,7 @@ class TransferController extends Controller
 
             //save transfer file entries
 
-            $tf->populateEntries();
+            $tf->populateEntriesForManual();
 
             $transaction->commit();
 
