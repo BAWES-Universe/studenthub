@@ -150,6 +150,9 @@ class RequestController extends Controller
         $model->gender = Yii::$app->request->getBodyParam("gender");
         $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
 
+        $model->our_fees_unit = Yii::$app->request->getBodyParam("our_fees_unit");
+        $model->our_fees = Yii::$app->request->getBodyParam("our_fees");
+
         if(!$model->currency_code) {
             $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
         }
@@ -216,6 +219,9 @@ class RequestController extends Controller
         $model->currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
         $model->gender = Yii::$app->request->getBodyParam("gender");
         $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
+
+        $model->our_fees_unit = Yii::$app->request->getBodyParam("our_fees_unit");
+        $model->our_fees = Yii::$app->request->getBodyParam("our_fees");
 
         if(!$model->currency_code) {
             $model->currency_code = Yii::$app->request->headers->get("Currency", "KWD");
