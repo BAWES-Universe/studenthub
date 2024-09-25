@@ -779,6 +779,93 @@ class TransferController extends Controller
         ];
     }
 
+
+    public function actionExportGoogleExcel() {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
+        $payableCandidate = [];
+        $onlyPayable = Yii::$app->request->get('only-payable');
+
+        // Candidates whose company paid to admin but admin have not paid yet
+        $query = TransferCandidate::find()
+            ->payable();
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        if($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
+
+        if($onlyPayable) {
+            $query->havingBankInfo()
+                ->activeCivilId();
+        }
+
+        $candidates = $query
+            ->all();
+
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
+
+        if ($onlyPayable) {
+            //todo: use batch function to lower memory usage?
+            foreach ($candidates as $candidate) {
+                if (
+                    $candidate->candidate &&
+                    $candidate->candidate->isProfileCompleted &&
+                    $candidate->candidate->bank_id &&
+                    $candidate->transfer_benef_iban &&
+                    $candidate->transfer_benef_name &&
+                    $candidate->invoiceNumber
+                ) {
+                    $payableCandidate[] = $candidate;
+                }
+            }
+        } else {
+            $payableCandidate = $candidates;
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $payableCandidate,
+            'columns' => [
+
+
+                [
+                    "attribute" => 'candidate_id',
+                    "label" => "Candidate ID"
+                ],
+                [
+                    "attribute" => "candidate_total",
+                    "label" => "Candidate Total"
+                ],
+                [
+                    "attribute" => "currency_code",
+                    "label" => "Currency Code"
+                ],
+                [
+                    "label" => 'Paid',
+                    "attribute" => "paid",
+                    "value" => function() {
+                        return "Yes";
+                    }
+                ],
+                'Refrence Number',
+            ]
+        ]);
+    }
+
     public function actionImportGoogleExcel() {
 
         $model = new TranferExcel;
