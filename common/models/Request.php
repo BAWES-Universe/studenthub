@@ -44,6 +44,8 @@ use Segment\Segment;
  * @property int $request_time_spent
  * @property int $nationality_id
  * @property int $gender
+ * @property int $our_fees
+ * @property string $our_fees_unit
  * @property Company $company
  * @property RequestSkill[] $requestSkills
  * @property CompanyContact $contactUu
@@ -65,6 +67,9 @@ class Request extends \yii\db\ActiveRecord
     const GENDER_OTHER = 3;
     const GENDER_ANY = 0;
 
+    const OUR_FEES_PER_HOUR = "per hour";
+    const OUR_FEES_PER_MONTH = "per month";
+
     /**
      * {@inheritdoc}
      */
@@ -85,12 +90,13 @@ class Request extends \yii\db\ActiveRecord
             [['request_created_datetime', 'request_updated_datetime'], 'safe'],
             [['request_additional_info','request_job_description','request_compensation', 'request_location'], 'string'],
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
+            [['our_fees_unit'], "string", "max" => 10],
             [['request_started_at', 'request_assigned_at', 'request_delivered_at', 'request_cancelled_at'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
-            [['num_hours_followup_interval'], 'number', 'min' => 0],
+            [["our_fees", 'num_hours_followup_interval'], 'number', 'min' => 0],
 
             ['gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER, self::GENDER_ANY]],
             [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(),

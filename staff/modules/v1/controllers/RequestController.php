@@ -479,6 +479,9 @@ class RequestController extends Controller
         $model->gender = Yii::$app->request->getBodyParam("gender");
         $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
 
+        $model->our_fees_unit = Yii::$app->request->getBodyParam("our_fees_unit");
+        $model->our_fees = Yii::$app->request->getBodyParam("our_fees");
+
         if (!$model->save())
         {
             if(isset($model->errors)){
@@ -564,6 +567,9 @@ class RequestController extends Controller
         $model->no_of_employees_per_story = Yii::$app->request->getBodyParam("no_of_employees_per_story");
         $model->gender = Yii::$app->request->getBodyParam("gender");
         $model->nationality_id = Yii::$app->request->getBodyParam("nationality_id");
+
+        $model->our_fees_unit = Yii::$app->request->getBodyParam("our_fees_unit");
+        $model->our_fees = Yii::$app->request->getBodyParam("our_fees");
 
         if (!$model->save())
         {

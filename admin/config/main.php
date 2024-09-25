@@ -315,6 +315,7 @@ return [
                         'GET text' => 'text',
                         'GET download-payment-advice' => 'download-payment-advice',
                         'GET payable-candidates' => 'payable-candidates',
+                        "GET export-google-excel" => "export-google-excel",
                         'GET export-payable-candidates' => 'export-payable-candidates',
                         "GET download-text-payment-advice-for-abk" => "download-text-payment-advice-for-abk",
                         "GET download-payment-advice-for-abk" => "download-payment-advice-for-abk",
@@ -335,6 +336,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS export-google-excel" => "options",
                         "OPTIONS download-text-payment-advice-for-abk" =>  'options',
                         "OPTIONS download-payment-advice-for-abk" => 'options',
                         'OPTION download-payment-advice' => 'options',

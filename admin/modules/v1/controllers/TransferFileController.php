@@ -76,7 +76,7 @@ class TransferFileController extends Controller
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $query = TransferFile::find()
-            ->innerJoinWith(['transferCandidates'])
+           // ->innerJoinWith(['transferCandidates'])
             ->groupBy('transfer_file_id')
             ->orderBy(new \yii\db\Expression('transfer_file_created_at DESC'));
 

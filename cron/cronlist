@@ -9,6 +9,7 @@
 
 # CRON every minute
 * * * * * php ~/www/yii cron/every-minute > /dev/null 2>&1
+* * * * * php ~/www/yii cron/process-transfer-files > /dev/null 2>&1
 
 # Daily CRON At 10:30 on every day-of-week from Sunday through Thursday
 #30 7 * * 0-4 php ~/www/yii cron/check-daily-attendance > /dev/null 2>&1

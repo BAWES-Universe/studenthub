@@ -586,7 +586,6 @@ class TransferController extends Controller
                     'transfer_id' => $value['Debit Narrative'],
                     'tc_id' => $value['Credit Narrative'],
                     "tc_created_at" => $transferCandidate->tc_created_at,
-                    'candidate_id' => $transferCandidate->candidate->candidate_id,
                     'candidate_name' => $transferCandidate->candidate->candidate_name,
                     "candidate_id" => $transferCandidate->candidate_id,
                     'total_amount' => $transferCandidate->totalPaidToCandidate,
@@ -752,7 +751,6 @@ class TransferController extends Controller
                     'transfer_id' => $transferCandidate->transfer_id,
                     'tc_id' => $transferCandidate->tc_id,
                     "tc_created_at" => $transferCandidate->tc_created_at,
-                    'candidate_id' => $transferCandidate->candidate->candidate_id,
                     'candidate_name' => $transferCandidate->candidate->candidate_name,
                     "candidate_id" => $transferCandidate->candidate_id,
                     'total_amount' => $value['Amount'],//$transferCandidate->totalPaidToCandidate,
@@ -777,6 +775,90 @@ class TransferController extends Controller
             "bank" => "KFH",
             'candidates' => $candidatesTransfers
         ];
+    }
+
+    public function actionExportGoogleExcel() {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        $offset = Yii::$app->request->get("offset");
+        $limit = Yii::$app->request->get("limit");
+
+        $payableCandidate = [];
+        $onlyPayable = Yii::$app->request->get('only-payable');
+
+        // Candidates whose company paid to admin but admin have not paid yet
+        $query = TransferCandidate::find()
+            ->payable();
+
+        if ($offset) {
+            $query->offset($offset);
+        }
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        if($currency) {
+            $query->andWhere(['transfer_candidate.currency_code' => $currency]);
+        }
+
+        if($onlyPayable) {
+            $query->havingBankInfo()
+                ->activeCivilId();
+        }
+
+        $candidates = $query
+            ->all();
+
+        //https://www.pivotaltracker.com/story/show/176535038
+        // to force users to complete there profile
+
+        if ($onlyPayable) {
+            //todo: use batch function to lower memory usage?
+            foreach ($candidates as $candidate) {
+                if (
+                    $candidate->candidate &&
+                    $candidate->candidate->isProfileCompleted &&
+                    $candidate->candidate->bank_id &&
+                    $candidate->transfer_benef_iban &&
+                    $candidate->transfer_benef_name &&
+                    $candidate->invoiceNumber
+                ) {
+                    $payableCandidate[] = $candidate;
+                }
+            }
+        } else {
+            $payableCandidate = $candidates;
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $payableCandidate,
+            'columns' => [
+                [
+                    "attribute" => 'candidate_id',
+                    "label" => "Candidate ID"
+                ],
+                [
+                    "attribute" => "candidate_total",
+                    "label" => "Candidate Total"
+                ],
+                [
+                    "attribute" => "currency_code",
+                    "label" => "Currency Code"
+                ],
+                [
+                    "label" => 'Paid',
+                    "attribute" => "paid",
+                    "value" => function() {
+                        return "Yes";
+                    }
+                ],
+                'Refrence Number',
+            ]
+        ]);
     }
 
     /**
@@ -1020,7 +1102,8 @@ class TransferController extends Controller
     public function actionMarkPaidAll()
     {
         $candidate_ids = Yii::$app->request->getBodyParam('candidates');
-        $bank =  Yii::$app->request->getBodyParam('bank', "AUB");
+        $bank =  Yii::$app->request->getBodyParam('bank');
+        $excel = Yii::$app->request->getBodyParam('excel');
 
         if(!is_array($candidate_ids) || sizeof($candidate_ids) == 0) {
             return [
@@ -1030,7 +1113,7 @@ class TransferController extends Controller
             ];
         }
         
-        $model = new TranferExcel;        
+        /*$model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
         
         //validate given excel 
@@ -1043,90 +1126,27 @@ class TransferController extends Controller
                 "code" => 2,
                 "message" => $model->getErrors()
             ];
-        }
+        }*/
         
         //save file used to mark transfers as paid 
-         
-        $transaction = Yii::$app->db->beginTransaction();
 
-       // try {
+        //try {
                 
             //save file used to mark transfers as paid 
              
             $tc_ids = \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'tc_id');
 
-            $tf = \admin\models\TransferFile::saveFile($tc_ids, $model->excel, $bank);
+            $tf = \admin\models\TransferFile::saveFile($tc_ids, $excel, $bank);
             
             if(!$tf || !$tf->transfer_file_id) {
+
                 return [
                     "operation" => "error",
-                    "code" => 3,
+                    "code" => 2,
                     "message" => 'Error on trying to save transfer file'
                 ];
             }
 
-            //mark candidates as paid 
-            
-            $transferCandidates = TransferCandidate::find()
-                ->andWhere(['in', 'tc_id', $tc_ids])
-                ->all();
-            
-            $transferCandidatesMapped = \yii\helpers\ArrayHelper::index($transferCandidates, 'tc_id');
-            
-            foreach ($candidate_ids as $value)
-            {
-                // if tc_id from request body not found in transfer candidate db table
-
-                if(empty($transferCandidatesMapped[$value['tc_id']]))
-                {
-                    $transaction->rollBack();
-                    
-                    return [
-                        "operation" => "error",
-                        "code" => 4,
-                        'message' => 'Invalid request'
-                    ];
-                }
-                
-                $tc = $transferCandidatesMapped[$value['tc_id']];
-                
-                $tc->paid = 1;
-                $tc->transfer_file_id = $tf->transfer_file_id;
-                $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
-
-                if(!$tc->save())
-                {
-                    $transaction->rollBack();
-
-                    return [
-                        "operation" => "error",
-                        "code" => 5,
-                        "transfer_confirmation_id" => $value['transfer_confirmation_id'],
-                        "transfer_file_id" => $tf->transfer_file_id,
-                        "message" => $tc->getErrors()
-                    ];
-                }
-
-                $tc->emailTransferSuccess();
-            }
-
-            // Check if all paid, mark transfer as complete
-
-            $transfer_ids = array_unique(
-                \yii\helpers\ArrayHelper::getColumn($candidate_ids, 'transfer_id')
-            );
-            
-            foreach($transfer_ids as $transfer_id) {
-                Transfer::markTransferCompleteOnCandidatePaid($transfer_id);
-            }
-
-            //save transfer file entries
-
-            $tf->populateEntriesForManual();
-
-            $transaction->commit();
-
-            Yii::info('[' . count($candidate_ids) . ' candidates have been marked as paid]  By '.Yii::$app->user->identity->admin_name, __METHOD__);
 
         /*} catch (\Exception $e) {
             $transaction->rollBack();
@@ -1149,13 +1169,10 @@ class TransferController extends Controller
             ];
         }*/
 
-        if(YII_ENV == 'prod') {
-            Transfer::triggerPayableCandidateEvent();
-        }
-
         return [
             'operation' => 'success',
-            'message' => count($candidate_ids). ' candidates have been marked as paid',
+            'message' => 'File uploaded, will be processed soon!',
+            //'message' => count($candidate_ids). ' candidates have been marked as paid',
         ];
     }
 
