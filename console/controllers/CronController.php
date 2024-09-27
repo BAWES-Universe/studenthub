@@ -57,11 +57,22 @@ class CronController extends \yii\console\Controller {
         //$model = TransferFile::findOne(1199);
         //$model->populateEntries();
 
-        /*Yii::$app->eventManager->track(
+        /*
+
+        $startTime = microtime(true);
+
+        Yii::$app->eventManager->track(
             'Test event',
             [
                 'hello' => "world"
-            ]);*/
+            ]);
+
+        $endTime = microtime(true);
+
+        // Calculate the time difference in seconds
+        $executionTime = $endTime - $startTime;
+
+        echo "Time taken: " . $executionTime . " seconds" . PHP_EOL;*/
     }
 
     /**
