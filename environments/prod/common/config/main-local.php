@@ -112,10 +112,12 @@ return [
         ],*/
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            "sqsRagion" => "eu-west-2",
-            "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
-            "sqsSecret" => "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",
-            "sqsQueue" => "438663597141/Studenthub"
+            //todo: commenting down as it's slowing down all apis
+            //"sqsRagion" => "eu-west-2",
+            //"sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
+            //"sqsSecret" => "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",
+            //"sqsQueue" => "438663597141/Studenthub",
+            //"sqsEndpoint" => "http://ec2-18-130-75-235.eu-west-2.compute.amazonaws.com:3001"
         ],
         'xero' => [
             'class' => 'common\components\Xero',

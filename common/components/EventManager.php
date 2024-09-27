@@ -8,7 +8,7 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 use Aws\Sqs\SqsClient;
 use Aws\Exception\AwsException;
-
+use yii\httpclient\Client;
 
 class EventManager extends Component
 {
@@ -19,6 +19,7 @@ class EventManager extends Component
     public $sqsKey;
     public $sqsSecret;
     public $sqsQueue;
+    public $sqsEndpoint;
 
 	/**
      * @var string Mixpanel key
@@ -227,6 +228,7 @@ class EventManager extends Component
             if($userId)
                 $mixpanelData['$distinct_id'] = $userId;
 
+
             $this->_client->track($event, $mixpanelData);
 
             //to fix order
@@ -264,8 +266,8 @@ class EventManager extends Component
 
         // send to queue
 
-        if ($this->_sqsClient && $this->sqsQueue) {
-            $queueUrl = 'https://sqs.' . $this->sqsRagion . '.amazonaws.com/' . $this->sqsQueue; // Replace with your queue URL
+        if ($this->sqsQueue) {
+
 
             //if login and userId not provided
 
@@ -281,17 +283,34 @@ class EventManager extends Component
                 "login_user_id" => $userId
             ]);
 
-            try {
-                $result = $this->_sqsClient->sendMessage([
-                    'QueueUrl' => $queueUrl,
-                    'MessageBody' => json_encode($data),
+            /* Time taken: 0.6483371257782 seconds
+             * ------------------------------------------------*/
+            if ($this->_sqsClient) {
+                try {
+
+                    $queueUrl = 'https://sqs.' . $this->sqsRagion . '.amazonaws.com/' . $this->sqsQueue; // Replace with your queue URL
+
+                    $this->_sqsClient->sendMessage([
+                        'QueueUrl' => $queueUrl,
+                        'MessageBody' => json_encode($data),
+                    ]);
+
+                    //Yii::debug("Message sent! Message ID: " . $result->get("MessageId"));
+
+
+                } catch (AwsException $e) {
+                    Yii::debug("Error sending message: " . $e->getMessage());
+                }
+            }
+
+            // Time taken: 0.080348968505859 seconds
+            if ($this->sqsEndpoint) {
+                $this->call("POST", $this->sqsEndpoint . "/send", [
+                    "message" => $data,
+                    "queue" => $this->sqsQueue
                 ]);
 
-                Yii::debug("Message sent! Message ID: " . $result->get('MessageId'));
-
-            } catch (AwsException $e) {
-                echo $e->getMessage();
-                Yii::debug("Error sending message: " . $e->getMessage());
+                //$result = json_decode($response->content);
             }
         }
 
@@ -302,6 +321,22 @@ class EventManager extends Component
         foreach ($webhooks as $webhook) {
             $webhook->callWebhook($eventData);
         }
+    }
+
+    public function call($method, $url, $data = []) {
+        $client = new Client();
+
+        return $client->createRequest()
+            ->setMethod($method)
+            ->setUrl($url)
+            ->setFormat(Client::FORMAT_JSON)
+            ->setData($data)
+            ->addHeaders([
+                'Authorization' =>'Bearer QstN8_18LmILpl37r2zvdDCp5JjWPCNh',
+                "Content-Type" => "application/json",
+                'User-Agent' => 'request',
+            ])
+            ->send();
     }
 
     public function flush()
