@@ -1452,7 +1452,7 @@ class TransferController extends Controller
         $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
         $batchId = "T".time();// 'BAWS-PAY-'.date('dmY').'-01.txt';
 
-        $s1 = 'FHR,'.$batchId.','.date("m/d/Y") . ','. sizeof($payableCandidates) . ','
+        $s1 = 'FHR,'.$batchId.','.date("m/d/Y") . ',T'. sizeof($payableCandidates) . 'V1,'
             . number_format($totalAmount, 3, '.', '') .";". PHP_EOL; // header line
 
         $s2 = '';
@@ -1471,8 +1471,8 @@ class TransferController extends Controller
                 . "KW,KW,KW,KW,KW," . $payableCandidate->currency_code . ","
                 . number_format($payableCandidate->totalPaidToCandidate, 3, '.', '') . ","
                 . $paymentType. ","
-                . $payableCandidate->bank->bank_swift_code . ",OPS,"
-                . $payableCandidate->company_name." Part-timers salaries #" . $payableCandidate->tc_id .",O,,,,,,,;"
+                . $payableCandidate->bank->bank_swift_code . "XXX,OBS,"
+                . $payableCandidate->company_name." salary " . $payableCandidate->tc_id .",O,,,,,,,;"
                 . PHP_EOL;
         }
 
