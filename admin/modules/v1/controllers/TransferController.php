@@ -1338,38 +1338,97 @@ class TransferController extends Controller
         }
 
         header('Access-Control-Allow-Origin: *');
-
+        
         \moonland\phpexcel\Excel::export([
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
             'columns' => [
                 [
-                    "attribute" => 'candidate.candidate_iban',
-                    "label" => "IBAN",
-                    "value" => function($data) {
-                        return $data->bank->bank_iban_code == "ABKK" ?
-                            TransferCandidate::extractAccountNumber($data->transfer_benef_iban): $data->transfer_benef_iban;
+                    'attribute'=> 'DEBIT ACCOUNT',
+                    'label'=> 'DEBIT ACCOUNT',
+                    'value'=> function($data) {
+                        return "0603022881001";
                     }
                 ],
                 [
                     'attribute'=> 'Name',
-                    'label'=> 'Name',
+                    'label'=> 'BENEFICIARY NAME',
                     'value'=>function($data) {
                         return $data->candidate? $data->candidate->bank_account_name: $data->transfer_benef_name;
                     }
                 ],
-                [
-                    "attribute" => "candidate.candidate_civil_id",
-                    "label" => "Civil ID",
 
-                ],
                 [
-                    'attribute'=> 'Type',
-                    'label'=> 'Type',
-                    'value'=> function($data) {
-                        return "SAL";
+                    "attribute" => 'candidate.candidate_iban',
+                    "label" => "BENEFICIARY ACCOUNT NUMBER",
+                    "value" => function($data) {
+                        return $data->bank->bank_iban_code == "ABKK" ?
+                            TransferCandidate::extractAccountNumber($data->transfer_benef_iban):
+                                $data->transfer_benef_iban;
                     }
                 ],
+                [
+                    'attribute'=> 'BENEFICIARY BANK ADDRESS',
+                    'label'=> 'BENEFICIARY BANK ADDRESS',
+                    'value'=> function($data) {
+                        return "KW";
+                    }
+                ],
+                [
+                    "attribute" => 'BENEFICIARY BANK NAME',
+                    "label" => "BENEFICIARY BANK NAME",
+                    'value' => function($data){
+                        return $data->candidate->bank? str_pad($data->candidate->bank->bank_code_abk, 3, '0', STR_PAD_LEFT): null;
+                    }
+                ],
+                [
+                    'attribute'=> 'BENEFICIARY BANK BRANCH ID',
+                    'label'=> 'BENEFICIARY BANK BRANCH ID',
+                    'value'=> function($data) {
+                        return "KW";
+                    }
+                ],
+
+                [
+                    'attribute'=> 'BENEFICIARY CITY',
+                    'label'=> 'BENEFICIARY CITY',
+                    'value'=> function($data) {
+                        return "KW";
+                    }
+                ],
+
+                [
+                    'attribute'=> 'BENEFICIARY COUNTRY',
+                    'label'=> 'BENEFICIARY COUNTRY',
+                    'value'=> function($data) {
+                        return "Kuwait";
+                    }
+                ],
+
+                [
+                    'attribute'=> 'BENEFICIARY ADDRESS 1',
+                    'label'=> 'BENEFICIARY ADDRESS 1',
+                    'value'=> function($data) {
+                        return "KW";
+                    }
+                ],
+
+                [
+                    'attribute'=> 'BENEFICIARY ADDRESS 2',
+                    'label'=> 'BENEFICIARY ADDRESS 2',
+                    'value'=> function($data) {
+                        return "KW";
+                    }
+                ],
+
+                [
+                    'attribute'=> 'TXN CURRENCY',
+                    'label'=> 'TXN CURRENCY',
+                    'value'=> function($data) {
+                        return "KWD";
+                    }
+                ],
+
                 [
                     "label" => "Amount",
                     'attribute'=>'Amount',
@@ -1377,13 +1436,51 @@ class TransferController extends Controller
                         return $data->candidate_total;
                     }
                 ],
+
                 [
-                    "attribute" => 'Bank Code',
-                    "label" => "Bank Code",
-                    'value' => function($data){
-                        return $data->candidate->bank? str_pad($data->candidate->bank->bank_code_abk, 3, '0', STR_PAD_LEFT): null;
+                    'attribute'=> 'Type',
+                    'label'=> 'Type',
+                    'value'=> function($data) {
+                        return $data->bank->bank_iban_code == "ABKK" ? "Within Bank": "Local Transfers";
                     }
-                ]
+                ],
+
+                [
+                    'attribute'=> 'BENEFICIARY BANK IDENTIFIER',
+                    'label'=> 'BENEFICIARY BANK IDENTIFIER',
+                    'value'=> function($data) {
+                        return $data->bank->bank_swift_code . "XXX";
+                    }
+                ],
+
+                [
+                    'attribute'=> 'PURPOSE OF TRANSFER',
+                    'label'=> 'PURPOSE OF TRANSFER',
+                    'value'=> function($data) {
+                        return "Bill Settlement";
+                    }
+                ],
+
+                [
+                    'attribute'=> 'PAYMENT DETAILS',
+                    'label'=> 'PAYMENT DETAILS',
+                    'value'=> function($data) {
+                        return $data->company_name." salary " . $data->tc_id;
+                    }
+                ],
+
+                [
+                    'attribute'=> 'Charge',
+                    'label'=> 'Charge',
+                    'value'=> function($data) {
+                        return "OUR";
+                    }
+                ],
+
+                /*[
+                    "attribute" => "candidate.candidate_civil_id",
+                    "label" => "Civil ID",
+                ],*/
             ]
         ]);
     }
