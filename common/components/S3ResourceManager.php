@@ -114,6 +114,18 @@ class S3ResourceManager extends Component
         return $this->getClient()->putObject($options);
     }
 
+    public function saveContent($fileName, $content, $contentType) {
+        $options = [
+            'Bucket' => $this->bucket,
+            'Key'    => $fileName,
+            'Body'   => $content,
+            'ACL' => 'public-read', // default to ACL public read
+            'ContentType' => $contentType,
+        ];
+
+        return $this->getClient()->putObject($options);
+    }
+
     /**
      * Creates a copy of a file from old key to new key
      * @param string $oldFile old file name / path that you wish to copy

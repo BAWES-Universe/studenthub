@@ -3,6 +3,7 @@
 namespace admin\modules\v1\controllers;
 
 
+use common\models\TransferBankAdvice;
 use Yii;
 use yii\base\Exception;
 use yii\rest\Controller;
@@ -14,6 +15,7 @@ use admin\models\TransferCandidate;
 use company\models\TranferExcel;
 use kartik\mpdf\Pdf;
 use yii\web\NotFoundHttpException;
+use yii\web\ServerErrorHttpException;
 
 
 /**
@@ -1546,9 +1548,13 @@ class TransferController extends Controller
             $payableCandidate = $candidates;
         }*/
 
-        $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
+        $transferBankAdvice = new TransferBankAdvice();
+        $transferBankAdvice->tba_uuid =  'tba_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+        $transferBankAdvice->serial_no = TransferBankAdvice::find()->count() + 1;
 
-        $batchId = "T".time() . "V1";// 'BAWS-PAY-'.date('dmY').'-01.txt';
+        $batchId = "T". $transferBankAdvice->serial_no . "V1";// 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $fileName = $batchId. '.txt'; //BAWS-ADV-'.date('dmY').
 
         $s1 = 'FHR,'.$batchId.','.date("m/d/Y") . ','. sizeof($payableCandidates) . ','
             . number_format($totalAmount, 3, '.', '') .";". PHP_EOL; // header line
@@ -1570,8 +1576,10 @@ class TransferController extends Controller
                 . number_format($payableCandidate->totalPaidToCandidate, 3, '.', '') . ","
                 . $paymentType. ","
                 . $payableCandidate->bank->bank_swift_code . "XXX,OBS,"
-                . $payableCandidate->company_name." salary " . $payableCandidate->tc_id .",O,,,,,,,;"
+                . "Salary " . $payableCandidate->tc_id .",O,,,,,,,;"
                 . PHP_EOL;
+
+            //$payableCandidate->company_name.
         }
 
         $sAll = $s1.$s2;
@@ -1582,7 +1590,23 @@ class TransferController extends Controller
         fwrite($handle, $sAll);
         fclose($handle);
 
-        Yii::$app->response->headers->add('filename', $fileName);
+        // Save to S3
+
+        $s3Response = $transferBankAdvice->saveFile($fileName, $sAll);
+
+        if (!$s3Response) {
+            throw new ServerErrorHttpException('Error processing your request.');
+        }
+
+        $transferBankAdvice->file_path = basename($s3Response['ObjectURL']);//$s3Response['Key'];
+
+        if(!$transferBankAdvice->save()) {
+            throw new ServerErrorHttpException("error to save doc". json_encode($transferBankAdvice->errors));
+       //     var_dump($transferBankAdvice->errors);
+       //     die();
+        }
+
+        Yii::$app->response->headers->add('filename', basename($s3Response['ObjectURL']));
 
         Yii::$app->response->sendFile($path);
 
@@ -1622,7 +1646,13 @@ class TransferController extends Controller
         $s3 = 'S3,'.count($candidates['candidate_list']).','.$candidates['total_amount']; // Footer
         $sAll = $s1.$s2.$s3;
 
-        $fileName = 'BAWS-PAY-'.date('dmY').'-01.txt';
+        $transferBankAdvice = new TransferBankAdvice();
+        $transferBankAdvice->tba_uuid =  'tba_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+        $transferBankAdvice->serial_no = TransferBankAdvice::find()->count() + 1;
+
+        $batchId = "T". $transferBankAdvice->serial_no . "V1";// 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $fileName = $batchId. '.txt'; //BAWS-PAY-'.date('dmY').'-01.txt';
 
         $path = sys_get_temp_dir() .DIRECTORY_SEPARATOR. $fileName;
 
@@ -1630,7 +1660,23 @@ class TransferController extends Controller
         fwrite($handle, $sAll);
         fclose($handle);
 
-        Yii::$app->response->headers->add('filename', $fileName);
+        // Save to S3
+
+        $s3Response = $transferBankAdvice->saveFile($fileName, $sAll);
+
+        if (!$s3Response) {
+            throw new ServerErrorHttpException('Error processing your request.');
+        }
+
+        $transferBankAdvice->file_path = basename($s3Response['ObjectURL']);//$s3Response['Key'];
+
+        if(!$transferBankAdvice->save()) {
+            throw new ServerErrorHttpException("error to save doc". json_encode($transferBankAdvice->errors));
+            //     var_dump($transferBankAdvice->errors);
+            //     die();
+        }
+
+        Yii::$app->response->headers->add('filename', basename($s3Response['ObjectURL']));
 
         return Yii::$app->response->sendFile($path);
     }
@@ -1645,8 +1691,16 @@ class TransferController extends Controller
         $offset = Yii::$app->request->get("offset");
         $limit = Yii::$app->request->get("limit");
 
-        $fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
-        $batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
+        $transferBankAdvice = new TransferBankAdvice();
+        $transferBankAdvice->tba_uuid =  'tba_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+        $transferBankAdvice->serial_no = TransferBankAdvice::find()->count() + 1;
+
+        $batchId = "T". $transferBankAdvice->serial_no . "V1";// 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $fileName = $batchId. '.txt'; //BAWS-PAY-'.date('dmY').'-01.txt';
+
+        //$fileName = 'BAWS-ADV-'.date('dmY').'-01.txt';
+        //$batchId = 'BAWS-PAY-'.date('dmY').'-01.txt';
 
         //todo: replace time() with reference number
         $s1 = 'H,'.$batchId.','.time().PHP_EOL; // header line
@@ -1674,7 +1728,23 @@ class TransferController extends Controller
         fwrite($handle, $sAll);
         fclose($handle);
 
-        Yii::$app->response->headers->add('filename', $fileName);
+        // Save to S3
+
+        $s3Response = $transferBankAdvice->saveFile($fileName, $sAll);
+
+        if (!$s3Response) {
+            throw new ServerErrorHttpException('Error processing your request.');
+        }
+
+        $transferBankAdvice->file_path = basename($s3Response['ObjectURL']);//$s3Response['Key'];
+
+        if(!$transferBankAdvice->save()) {
+            throw new ServerErrorHttpException("error to save doc". json_encode($transferBankAdvice->errors));
+            //     var_dump($transferBankAdvice->errors);
+            //     die();
+        }
+
+        Yii::$app->response->headers->add('filename', basename($s3Response['ObjectURL']));
 
         Yii::$app->response->sendFile($path);
 
