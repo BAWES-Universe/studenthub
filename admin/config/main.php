@@ -582,6 +582,21 @@ return [
                         'OPTIONS login/<id>' => 'options',
                     ]
                 ],
+                [
+                    //TransferBankAdviceController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/transfer-bank-advice',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // RequestChecklistController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/request-checklist',
