@@ -68,7 +68,8 @@ class TransferBankAdviceController extends Controller
      */
     public function actionList()
     {
-        $query = TransferBankAdvice::find();
+        $query = TransferBankAdvice::find()
+            ->orderBy("created_at DESC");
 
         return new ActiveDataProvider([
             'query' => $query

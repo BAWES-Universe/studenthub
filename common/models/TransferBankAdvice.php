@@ -127,6 +127,43 @@ class TransferBankAdvice extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
+    public function saveExcelFile($path, $fileName) {
+
+        try {
+            return Yii::$app->resourceManager->save(
+                null,
+                "transfer-bank-advice/" .$fileName,
+                [],
+                $path,
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+
+            /*return  Yii::$app->resourceManager->save(
+                $file,
+                $fileName
+            );*/
+
+        } catch (\Aws\S3\Exception\S3Exception $e) {
+
+             Yii::error($e->getMessage());
+
+             $this->addError('image', Yii::t('app', 'File not available to save.'));
+
+             return false;
+
+         } catch (\Exception $e) {
+
+             Yii::error($e->getMessage());
+
+             $this->addError('image', Yii::t('app', 'File not available to save.'));
+
+             return false;
+         }
+    }
+
+    /**
+     * @return bool
+     */
     public function saveFile($fileName, $source) {
 
      //   try {
