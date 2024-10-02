@@ -390,7 +390,7 @@ class TransferController extends Controller
      */
     public function actionUnlock($id)
     {
-        $transfer = $this->findModel((int)$id);
+        $transfer = $this->findModel($id);
 
         try {
             $transfer->unlock();
@@ -426,7 +426,7 @@ class TransferController extends Controller
      */
     public function actionLock($id)
     {
-        $transfer = $this->findModel((int)$id);
+        $transfer = $this->findModel($id);
 
         if(!$transfer)
         {
@@ -833,11 +833,23 @@ class TransferController extends Controller
             $payableCandidate = $candidates;
         }
 
+        $transferBankAdvice = new TransferBankAdvice();
+        $transferBankAdvice->tba_uuid =  'tba_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+        $transferBankAdvice->serial_no = TransferBankAdvice::find()->count() + 1;
+
+        $batchId = "T". $transferBankAdvice->serial_no . "V1";// 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $fileName = $batchId. '.xlsx';
+
+        $savePath = sys_get_temp_dir();
+
         header('Access-Control-Allow-Origin: *');
 
         \moonland\phpexcel\Excel::export([
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
+            'savePath' => $savePath,
+            'fileName' => $fileName,
             'columns' => [
                 [
                     "attribute" => 'candidate_id',
@@ -861,6 +873,33 @@ class TransferController extends Controller
                 'Refrence Number',
             ]
         ]);
+
+        // Save to S3
+
+        $path = $savePath .DIRECTORY_SEPARATOR. $fileName;
+
+        $s3Response = $transferBankAdvice->saveExcelFile($path, $fileName);
+
+        if (!$s3Response) {
+            throw new ServerErrorHttpException('Error processing your request.');
+        }
+
+        $transferBankAdvice->file_path = basename($s3Response['ObjectURL']);//$s3Response['Key'];
+
+        if(!$transferBankAdvice->save()) {
+            throw new ServerErrorHttpException("error to save doc". json_encode($transferBankAdvice->errors));
+            //     var_dump($transferBankAdvice->errors);
+            //     die();
+        }
+
+        Yii::$app->response->headers->add('filename', basename($s3Response['ObjectURL']));
+
+        Yii::$app->response->sendFile($path);
+
+        // Delete the file
+        if (!unlink($path)) {
+            Yii::error("File could not be deleted");
+        }
     }
 
     /**
@@ -1236,11 +1275,23 @@ class TransferController extends Controller
             $payableCandidate = $candidates;
         }
 
+        $transferBankAdvice = new TransferBankAdvice();
+        $transferBankAdvice->tba_uuid =  'tba_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+        $transferBankAdvice->serial_no = TransferBankAdvice::find()->count() + 1;
+
+        $batchId = "T". $transferBankAdvice->serial_no . "V1";// 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $fileName = $batchId. '.xlsx';
+
+        $savePath = sys_get_temp_dir();
+
         header('Access-Control-Allow-Origin: *');
 
         \moonland\phpexcel\Excel::export([
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
+            'savePath' => $savePath,
+            'fileName' => $fileName,
             'columns' => [
                 'tc_id',
                 'transfer_id',
@@ -1279,6 +1330,33 @@ class TransferController extends Controller
                 "currency_code"
             ]
         ]);
+
+        // Save to S3
+
+        $path = $savePath .DIRECTORY_SEPARATOR. $fileName;
+
+        $s3Response = $transferBankAdvice->saveExcelFile($path, $fileName);
+
+        if (!$s3Response) {
+            throw new ServerErrorHttpException('Error processing your request.');
+        }
+
+        $transferBankAdvice->file_path = basename($s3Response['ObjectURL']);//$s3Response['Key'];
+
+        if(!$transferBankAdvice->save()) {
+            throw new ServerErrorHttpException("error to save doc". json_encode($transferBankAdvice->errors));
+            //     var_dump($transferBankAdvice->errors);
+            //     die();
+        }
+
+        Yii::$app->response->headers->add('filename', basename($s3Response['ObjectURL']));
+
+        Yii::$app->response->sendFile($path);
+
+        // Delete the file
+        if (!unlink($path)) {
+            Yii::error("File could not be deleted");
+        }
     }
 
     /**
@@ -1339,11 +1417,23 @@ class TransferController extends Controller
             $payableCandidate = $candidates;
         }
 
+        $transferBankAdvice = new TransferBankAdvice();
+        $transferBankAdvice->tba_uuid =  'tba_' . Yii::$app->db->createCommand('SELECT uuid()')->queryScalar();
+        $transferBankAdvice->serial_no = TransferBankAdvice::find()->count() + 1;
+
+        $batchId = "T". $transferBankAdvice->serial_no . "V1";// 'BAWS-PAY-'.date('dmY').'-01.txt';
+
+        $fileName = $batchId. '.xlsx';
+
+        $savePath = sys_get_temp_dir();
+
         header('Access-Control-Allow-Origin: *');
         
         \moonland\phpexcel\Excel::export([
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
+            'savePath' => $savePath,
+            'fileName' => $fileName,
             'columns' => [
                 [
                     'attribute'=> 'DEBIT ACCOUNT',
@@ -1485,6 +1575,33 @@ class TransferController extends Controller
                 ],*/
             ]
         ]);
+
+        // Save to S3
+
+        $path = $savePath .DIRECTORY_SEPARATOR. $fileName;
+
+        $s3Response = $transferBankAdvice->saveExcelFile($path, $fileName);
+
+        if (!$s3Response) {
+            throw new ServerErrorHttpException('Error processing your request.');
+        }
+
+        $transferBankAdvice->file_path = basename($s3Response['ObjectURL']);//$s3Response['Key'];
+
+        if(!$transferBankAdvice->save()) {
+            throw new ServerErrorHttpException("error to save doc". json_encode($transferBankAdvice->errors));
+            //     var_dump($transferBankAdvice->errors);
+            //     die();
+        }
+
+        Yii::$app->response->headers->add('filename', basename($s3Response['ObjectURL']));
+
+        Yii::$app->response->sendFile($path);
+
+        // Delete the file
+        if (!unlink($path)) {
+            Yii::error("File could not be deleted");
+        }
     }
 
     public function actionDownloadTextPaymentAdviceForAbk()
@@ -1762,7 +1879,7 @@ class TransferController extends Controller
     public function actionExport($id)
     {
         //validate
-        $this->findModel((int)$id);
+        $this->findModel($id);
 
         $offset = Yii::$app->request->get("offset");
         $limit = Yii::$app->request->get("limit");
