@@ -688,7 +688,7 @@ class TransferController extends Controller
             //extract candidate transfer id
 
             // Define the regex pattern to match a number after "SALARY"
-            $pattern = '/SALARY\s+(\d+)/';
+            $pattern = '/S\s+(\d+)/';
 
             // Initialize a variable to store the extracted number
             $tc_id = null;
@@ -1730,7 +1730,7 @@ class TransferController extends Controller
                     'attribute'=> 'PAYMENT DETAILS',
                     'label'=> 'PAYMENT DETAILS',
                     'value'=> function($data) {
-                        return $data->company_name." salary " . $data->tc_id;
+                        return "S " . $data->tc_id;//$data->company_name.
                     }
                 ],
 
@@ -1871,7 +1871,7 @@ class TransferController extends Controller
                 . number_format($payableCandidate->totalPaidToCandidate, 3, '.', '') . ","
                 . $paymentType. ","
                 . $payableCandidate->bank->bank_swift_code . "XXX,OBS,"
-                . "Salary " . $payableCandidate->tc_id .",O,,,,,,,;"
+                . "S " . $payableCandidate->tc_id .",O,,,,,,,;"
                 . PHP_EOL;
 
             //$payableCandidate->company_name.
