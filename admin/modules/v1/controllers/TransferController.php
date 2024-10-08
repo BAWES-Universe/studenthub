@@ -711,7 +711,7 @@ class TransferController extends Controller
                 if(!$transferCandidate) {
                     return [
                         'operation' => 'error',
-                        'message' => "No unpaid transfer found with ID: " . $tc_id,
+                        'message' => "No unpaid transfer found with ID: " . $tc_id . ". Statement Description: ". $value['Description'],
                         'errorCode' => 4
                     ];
                 }
@@ -719,7 +719,7 @@ class TransferController extends Controller
                 if (!$transferCandidate->candidate) {
                     return [
                         'operation' => 'error',
-                        'message' => "No candidate profile found with ID: " . $tc_id,
+                        'message' => "No candidate profile found with ID: " . $tc_id . ". Statement Description: ". $value['Description'],
                         'errorCode' => 4
                     ];
                 }
@@ -1765,6 +1765,11 @@ class TransferController extends Controller
         }
     }
 
+    /**
+     * @return void
+     * @throws ServerErrorHttpException
+     * @throws \yii\db\Exception
+     */
     public function actionDownloadTextPaymentAdviceForAbk()
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
