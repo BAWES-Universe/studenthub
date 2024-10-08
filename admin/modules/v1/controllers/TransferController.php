@@ -681,6 +681,8 @@ class TransferController extends Controller
 
         $candidatesTransfers = [];
 
+        $errors = [];
+
         foreach ($data as $key => $value)
         {
             //extract candidate transfer id
@@ -709,19 +711,27 @@ class TransferController extends Controller
                 ->one();
 
                 if(!$transferCandidate) {
-                    return [
+                    /*return [
                         'operation' => 'error',
                         'message' => "No unpaid transfer found with ID: " . $tc_id . ". Statement Description: ". $value['Description'],
                         'errorCode' => 4
-                    ];
+                    ];*/
+
+                    $errors[]  = "No unpaid transfer found with ID: " . $tc_id . ". Statement Description: ". $value['Description'];
+
+                    continue;
                 }
 
                 if (!$transferCandidate->candidate) {
-                    return [
+                    /*return [
                         'operation' => 'error',
                         'message' => "No candidate profile found with ID: " . $tc_id . ". Statement Description: ". $value['Description'],
                         'errorCode' => 4
-                    ];
+                    ];*/
+
+                    $errors[]  = "No candidate profile found with ID: " . $tc_id . ". Statement Description: ". $value['Description'];
+
+                    continue;
                 }
 
                 //get reference number
@@ -741,6 +751,7 @@ class TransferController extends Controller
                     "currency_code" => $transferCandidate->currency_code,
                     "debited_amount" =>  isset($value['Debit']) ? (float)$value['Debit']: null,
                     "credited_amount" => isset($value['Credit']) ? (float) $value['Credit']: null,
+                   // "error" =>
                 ];
 
                 $total += $transferCandidate->totalPaidToCandidate;
@@ -758,7 +769,8 @@ class TransferController extends Controller
             'operation' => 'success',
             'total' => $total,
             "bank" => "Bank Statement",
-            'candidates' => $candidatesTransfers
+            'candidates' => $candidatesTransfers,
+            "errors" => $errors
         ];
     }
 
