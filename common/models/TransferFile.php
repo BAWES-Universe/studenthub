@@ -165,8 +165,15 @@ class TransferFile extends \yii\db\ActiveRecord
         if($tf->save()) {
             return $tf;
         }
+
+        return null;
     }
 
+    /**
+     * process transfer file via cron job
+     * @return void
+     * @throws \yii\db\Exception
+     */
     public function process() {
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -175,7 +182,9 @@ class TransferFile extends \yii\db\ActiveRecord
 
         $data = [];
 
-        if ($this->bank) {
+        if ($this->bank == "BankStatement") {
+            $data = $this->populateFromBankStatement($transaction);
+        } else  if ($this->bank) {
             $data = $this->populateEntries($transaction);
         } else {
             $data = $this->populateEntriesForManual($transaction);
@@ -610,6 +619,162 @@ class TransferFile extends \yii\db\ActiveRecord
         TransferFile::transferMail($this, $count, $fileName);
     }
 
+    public function populateFromBankStatement($transaction) {
+
+        $fileUrl = Yii::$app->resourceManager->getUrl ($this->transfer_file_s3_path);
+
+        //save in temp folder to process
+
+        $tmpFile = sys_get_temp_dir () . '/' . basename ($this->transfer_file_s3_path);
+
+        if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
+
+            $this->markFailed("Error reading file");
+
+            Yii::error("Error reading file");
+
+            $transaction->rollBack();
+
+            die();
+        }
+
+        $excelData = \moonland\phpexcel\Excel::import ($tmpFile, [
+            'setFirstRecordAsKeys' => false
+        ]);
+
+        //remove 7 title row
+
+        for ($i = 1; $i < 8; $i++) {
+            \yii\helpers\ArrayHelper::remove($excelData, $i);
+        }
+
+        //9th row will be key
+
+        $keys = \yii\helpers\ArrayHelper::remove($excelData, '8');
+
+        if(empty($keys)) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "errorCode" => 3,
+                "message" => "Error reading file"
+            ];
+        }
+
+        //create array with key to read data
+
+        $data = [];
+
+        foreach ($excelData as $values) {
+            $data[] = array_combine ($keys, $values);
+        }
+
+        //no need file anymore
+
+        @unlink ($tmpFile);
+
+        $transferFileEntries = [];
+
+        $candidatesTransfers = [];
+
+        foreach ($data as $key => $value) {
+
+            //extract candidate transfer id
+
+            // Define the regex pattern to match a number after "SALARY"
+            $pattern = '/SALARY\s+(\d+)/';
+
+            // Initialize a variable to store the extracted number
+            $tc_id = null;
+
+            // Perform the regex match
+            if (preg_match($pattern, $value['Description'], $matches)) {
+                // The first capturing group contains the number after "SALARY"
+                $tc_id = $matches[1];
+            }
+
+            if (!$tc_id) {
+                continue;
+            }
+
+            $transferCandidate = TransferCandidate::find()
+                ->andWhere([
+                    'tc_id' => $tc_id,
+                    "paid" => 0
+                ])
+                ->one();
+
+            if(!$transferCandidate || !$transferCandidate->candidate) {
+                /*return [
+                    'operation' => 'error',
+                    'message' => "No candidate profile found with Candidate Account: " . $value['Candidate ID'].
+                        " Amount: " . $value['Candidate Total'],
+                    'errorCode' => 4
+                ];*/
+
+                $this->markFailed("No candidate profile found for candidate transfer : " . $tc_id);
+
+                $transaction->rollBack();
+
+                Yii::error("No candidate profile found for candidate transfer: " . $tc_id);
+
+                die();
+            }
+
+            //get reference number
+            //example: IB/LOCAL TRANSFER/O-000004206364/MARIAN AKRAM MAGDY HABIB/BILL SETTLEMENT/SALARY 88467 000004206364
+
+            $data = explode("/", $value['Description']);
+
+            $candidatesTransfers[] = [
+                'transfer_confirmation_id' => isset($data[2])? $data[2]: $data[0],
+                "paid" => $transferCandidate->paid,
+                'transfer_id' => $transferCandidate->transfer_id,
+                'tc_id' => $transferCandidate->tc_id,
+                "tc_created_at" => $transferCandidate->tc_created_at,
+                'candidate_name' => $transferCandidate->candidate->candidate_name,
+                "candidate_id" => $transferCandidate->candidate_id,
+                'total_amount' => (float) $transferCandidate->totalPaidToCandidate,
+                "currency_code" => $transferCandidate->currency_code,
+                "debited_amount" =>  isset($value['Debit']) ? (float)$value['Debit']: null,
+                "credited_amount" => isset($value['Credit']) ? (float) $value['Credit']: null,
+            ];
+
+            //remove empty rows
+
+            $tfe_uuid = 'tfe_' . $this->uuidv4();
+            //Yii::$app->db->createCommand ('SELECT uuid()')->queryScalar ();
+
+            $transferFileEntries[] = [
+                'tfe_uuid' => $tfe_uuid,
+                'transfer_file_id' => $this->transfer_file_id,
+                'status' => "SUCCESS",
+                'status_description' => $value['Description'],
+                'credit_amount' => isset($value['Debit']) ? (float) $value['Debit']: null,
+                'credit_currency' => $transferCandidate->currency_code,
+                'debit_narrative' => $transferCandidate->transfer_id,
+                'credit_narrative' => $transferCandidate->tc_id,
+                'beneficiary_name' => isset($data[3])? $data[3]: $transferCandidate->candidate->candidate_name,
+                'created_at' => date ('Y-m-d'),
+                'updated_at' => date ('Y-m-d'),
+            ];
+        }
+
+        //populate entries
+
+        $columns = [
+            'tfe_uuid', 'transfer_file_id', 'status', 'status_description', 'credit_amount',
+            'credit_currency', 'debit_narrative',
+            'credit_narrative', 'beneficiary_name', 'created_at', 'updated_at',
+        ];
+
+        Yii::$app->db->createCommand ()->batchInsert ('transfer_file_entry', $columns,
+            $transferFileEntries
+        )->execute ();
+
+        return $candidatesTransfers;
+    }
+
     public function populateEntriesForManual($transaction) {
 
         //read file
@@ -748,6 +913,11 @@ class TransferFile extends \yii\db\ActiveRecord
         return $candidatesTransfers;
     }
 
+    /**
+     * generate uuid for primary key
+     * @return string
+     * @throws \Exception
+     */
     public function uuidv4() {
         /* 32 random HEX + space for 4 hyphens */
         $out = bin2hex(random_bytes(18));

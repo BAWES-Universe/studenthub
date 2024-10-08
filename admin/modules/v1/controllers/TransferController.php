@@ -607,6 +607,162 @@ class TransferController extends Controller
     }
 
     /**
+     * @return void
+     */
+    public function actionImportBankStatementExcel() {
+
+        $model = new TranferExcel;
+        $model->excel = Yii::$app->request->getBodyParam('excel');
+
+        if(!$model->validate())
+        {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "errorCode" => 1,
+                "message" => $model->getErrors()
+            ];
+        }
+
+        $fileUrl = Yii::$app->temporaryBucketResourceManager->getUrl($model->excel);
+
+        //save in temp folder to process
+
+        $tmpFile = sys_get_temp_dir() . '/' . $model->excel;
+
+        if(!file_put_contents($tmpFile, file_get_contents($fileUrl))) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "errorCode" => 2,
+                "message" => "Error reading file"
+            ];
+        }
+
+        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+            'setFirstRecordAsKeys' => false
+        ]);
+
+        //remove 7 title row
+
+        for ($i = 1; $i < 8; $i++) {
+            \yii\helpers\ArrayHelper::remove($excelData, $i);
+        }
+
+        //9th row will be key
+
+        $keys = \yii\helpers\ArrayHelper::remove($excelData, '8');
+
+        if(empty($keys)) {
+            return [
+                "operation" => "error",
+                "type" => "system",
+                "errorCode" => 3,
+                "message" => "Error reading file"
+            ];
+        }
+
+        //create array with key to read data
+
+        $data = [];
+
+        foreach ($excelData as $values)
+        {
+            $data[] = array_combine($keys, $values);
+        }
+
+        //no need file anymore
+
+        @unlink($tmpFile);
+
+        //remove empty rows
+
+        $total = 0;
+
+        $candidatesTransfers = [];
+
+        foreach ($data as $key => $value)
+        {
+            //extract candidate transfer id
+
+            // Define the regex pattern to match a number after "SALARY"
+            $pattern = '/SALARY\s+(\d+)/';
+
+            // Initialize a variable to store the extracted number
+            $tc_id = null;
+
+            // Perform the regex match
+            if (preg_match($pattern, $value['Description'], $matches)) {
+                // The first capturing group contains the number after "SALARY"
+                $tc_id = $matches[1];
+            }
+
+            if (!$tc_id) {
+                continue;
+            }
+
+            $transferCandidate = TransferCandidate::find()
+                ->andWhere([
+                    'tc_id' => $tc_id,
+                    "paid" => 0
+                ])
+                ->one();
+
+                if(!$transferCandidate) {
+                    return [
+                        'operation' => 'error',
+                        'message' => "No unpaid transfer found with ID: " . $tc_id,
+                        'errorCode' => 4
+                    ];
+                }
+
+                if (!$transferCandidate->candidate) {
+                    return [
+                        'operation' => 'error',
+                        'message' => "No candidate profile found with ID: " . $tc_id,
+                        'errorCode' => 4
+                    ];
+                }
+
+                //get reference number
+                //example: IB/LOCAL TRANSFER/O-000004206364/MARIAN AKRAM MAGDY HABIB/BILL SETTLEMENT/SALARY 88467 000004206364
+
+                $data = explode("/", $value['Description']);
+
+                $candidatesTransfers[] = [
+                    'transfer_confirmation_id' => isset($data[2])? $data[2]: $data[0],
+                    "paid" => $transferCandidate->paid,
+                    'transfer_id' => $transferCandidate->transfer_id,
+                    'tc_id' => $transferCandidate->tc_id,
+                    "tc_created_at" => $transferCandidate->tc_created_at,
+                    'candidate_name' => $transferCandidate->candidate->candidate_name,
+                    "candidate_id" => $transferCandidate->candidate_id,
+                    'total_amount' => (float) $transferCandidate->totalPaidToCandidate,
+                    "currency_code" => $transferCandidate->currency_code,
+                    "debited_amount" =>  isset($value['Debit']) ? (float)$value['Debit']: null,
+                    "credited_amount" => isset($value['Credit']) ? (float) $value['Credit']: null,
+                ];
+
+                $total += $transferCandidate->totalPaidToCandidate;
+        }
+
+        if (sizeof($candidatesTransfers)  == 0) {
+            return [
+                'operation' => 'error',
+                'message' => 'Invalid excel',
+                'errorCode' => 5
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            'total' => $total,
+            "bank" => "Bank Statement",
+            'candidates' => $candidatesTransfers
+        ];
+    }
+
+    /**
      * import KFH bank excel to extract candidate data
      * @return type
      */
@@ -779,6 +935,11 @@ class TransferController extends Controller
         ];
     }
 
+    /**
+     * @return void
+     * @throws ServerErrorHttpException
+     * @throws \yii\db\Exception
+     */
     public function actionExportGoogleExcel() {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 

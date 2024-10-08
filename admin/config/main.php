@@ -323,6 +323,7 @@ return [
                         'GET export/<id>' => 'export',
                         'GET pdf/<id>/<type>' => 'pdf',
                         'GET <id>' => 'view',
+                        "POST import-bank-statement-excel" => "import-bank-statement-excel",
                         'POST import-excel' => 'import-excel',
                         'POST import-kfh-excel' => 'import-kfh-excel',
                         "POST import-google-excel" => "import-google-excel",
@@ -336,6 +337,7 @@ return [
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS import-bank-statement-excel" =>  'options',
                         "OPTIONS export-google-excel" => "options",
                         "OPTIONS download-text-payment-advice-for-abk" =>  'options',
                         "OPTIONS download-payment-advice-for-abk" => 'options',
