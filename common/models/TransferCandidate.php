@@ -79,7 +79,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['company_email'], 'email'],
             [['transfer_confirmation_id'], 'string', 'max' => 128],
             [['transfer_benef_iban'], 'string', 'max' => 50],
-            [['transfer_confirmation_id'], 'unique'],
+
+            ['transfer_confirmation_id', 'unique', 'comboNotUnique' => 'Transfer confirmation id already exist.',
+                'targetAttribute' => ['transfer_confirmation_id', "bank_id", 'deleted']],
+
             ['paid', 'validateStatus'],
             [['currency_code'], "string", "max" => 3],
             [['transfer_benef_name'], 'string', 'max' => 60],
@@ -90,7 +93,6 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [["minutes", "seconds"], "integer", "max" => 59],
 
             //[['hours'], 'validateHours'],
-
 
             [['tc_created_at', 'tc_updated_at'], 'safe'],
             
