@@ -231,7 +231,8 @@ class TransferFile extends \yii\db\ActiveRecord
             {
                 $transaction->rollBack();
 
-                $this->markFailed($tc->getErrors());
+                $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
+                    json_encode($tc->getErrors()));
 
                 /*return [
                     "operation" => "error",
@@ -619,6 +620,11 @@ class TransferFile extends \yii\db\ActiveRecord
         TransferFile::transferMail($this, $count, $fileName);
     }
 
+    /**
+     * @param $transaction
+     * @return array|void
+     * @throws \yii\db\Exception
+     */
     public function populateFromBankStatement($transaction) {
 
         $fileUrl = Yii::$app->resourceManager->getUrl ($this->transfer_file_s3_path);
