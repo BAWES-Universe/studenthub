@@ -659,12 +659,30 @@ class TransferFile extends \yii\db\ActiveRecord
         $keys = \yii\helpers\ArrayHelper::remove($excelData, '8');
 
         if(empty($keys)) {
-            return [
+            $this->markFailed("Error reading bank statement file");
+
+            Yii::error("Error reading bank statement");
+
+            $transaction->rollBack();
+
+            die();
+
+            /*return [
                 "operation" => "error",
                 "type" => "system",
                 "errorCode" => 3,
-                "message" => "Error reading file"
-            ];
+                "message" => ""
+            ];*/
+        }
+
+        if (!isset($keys['Description'])) {
+            $this->markFailed("Invalid file format for bank statement");
+
+            Yii::error("Invalid file format for bank statement");
+
+            $transaction->rollBack();
+
+            die();
         }
 
         //create array with key to read data
