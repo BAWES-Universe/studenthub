@@ -1690,6 +1690,7 @@ class Transfer extends ActiveRecord
         $candidate_ids = ArrayHelper::map($this->candidates, 'candidate_id', 'candidate_id');
 
         $missing = Candidate::find()
+            ->andWhere(['deleted' => 0])
             ->andWhere(['in', 'store_id', $store_ids])
             ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
             ->count();
