@@ -1025,6 +1025,14 @@ class TransferController extends Controller
             'fileName' => $fileName,
             'columns' => [
                 [
+                    "attribute" => 'transfer_id',
+                    "label" => "Transfer ID"
+                ],
+                [
+                    "attribute" => 'tc_id',
+                    "label" => "Candidate Transfer ID"
+                ],
+                [
                     "attribute" => 'candidate_id',
                     "label" => "Candidate ID"
                 ],
@@ -2082,6 +2090,14 @@ class TransferController extends Controller
             'isMultipleSheet' => false,
             'models' => $candidates,
             'columns' => [
+                [
+                    "attribute" => 'transfer_id',
+                    "label" => "Transfer ID"
+                ],
+                [
+                    "attribute" => 'tc_id',
+                    "label" => "Candidate Transfer ID"
+                ],
                 'candidate_id',
                 [
                     'attribute'=>'Candidate Name',
