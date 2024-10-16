@@ -2953,6 +2953,40 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data['candidate_updated_at_timestamp'] = strtotime($data['candidate_updated_at']);
         }
 
+        //candidate_certificate
+
+        $data['candidateCertificates'] = [];
+
+        foreach ($this->getCandidateCertificates()->all() as $candidateCertificate) {
+
+            $arrCertificate = [
+                "certificate_type" => $candidateCertificate->certificate_type,
+                'created_at_timestamp' => $candidateCertificate['created_at']?
+                        strtotime($candidateCertificate['created_at']): null,
+            ];
+
+            $arrCertificate['certificateName'] = [
+                "en" => "Other",
+                "ar" => "آخر"
+            ];
+
+            if ($candidateCertificate->certificate_type == CandidateCertificate::TYPE_EXAM) {
+                $arrCertificate['certificateName'] = [
+                    "en" => $candidateCertificate->exam->title_en,
+                    "ar" => $candidateCertificate->exam->title_ar
+                ];
+            } else if ($candidateCertificate->certificate_type == CandidateCertificate::TYPE_EXPERIENCE) {
+                $arrCertificate['certificateName'] = [
+                   // "en" => "Experience",
+                   // "ar" => "Experience",
+                    "en" => "Worked @ " .$candidateCertificate->company->company_common_name_en,
+                    "ar" =>"عملت @ " .$candidateCertificate->company->company_common_name_ar,
+                ];
+            }
+
+            $data['candidateCertificates'][] = $arrCertificate;
+        }
+
         //candidate_educations
 
         $data['candidateEducations'] = [];
@@ -3041,18 +3075,24 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         //call api in batch
 
         $query = self::find()
-            ->andWhere(['deleted' => 0]);
+            ->andWhere(['candidate.deleted' => 0]);
 
-        /* ->joinWith([
-          'city',
-          //'country',
-          'nationality',
-          'candidateEducations',
-          'candidateSkills',
-          'candidateLanguages',
-          'candidateExperiences',
-          'candidateConclusions'
-          ]); */
+            /*->joinWith([
+                "candidateCertificates"
+                ], "true", "inner join");*/
+
+        /*
+            ->joinWith([
+                //'city',
+                //'country',
+                'nationality',
+                'candidateEducations',
+                'candidateSkills',
+                //'candidateLanguages',
+                'candidateExperiences',
+               // 'candidateConclusions',
+                'candidateCertificates'
+            ]);*/
 
         $total = $query->count();
 
@@ -3115,6 +3155,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * @return \yii\db\ActiveQuery
      */
     public function getCandidateTags($modelClass = "\common\models\CandidateTag")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateCertificates($modelClass = "\common\models\CandidateCertificate")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
