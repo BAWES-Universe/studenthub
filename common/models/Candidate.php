@@ -2957,7 +2957,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $data['candidateCertificates'] = [];
 
-        foreach ($this->getCandidateCertificates()->all() as $candidateCertificate) {
+        $candidateCertificates = $this->getCandidateCertificates()
+            ->joinWith(['company', "exam"])
+            ->all();
+
+        foreach ($candidateCertificates as $candidateCertificate) {
 
             $arrCertificate = [
                 "certificate_type" => $candidateCertificate->certificate_type,
@@ -2987,11 +2991,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data['candidateCertificates'][] = $arrCertificate;
         }
 
+        unset($candidateCertificates);
+
         //candidate_educations
 
         $data['candidateEducations'] = [];
 
-        foreach ($this->getCandidateEducations()->all() as $education) {
+        $candidateEducations = $this->getCandidateEducations()
+            ->joinWith(['university', 'degree', 'major'])
+            ->all();
+
+        foreach ($candidateEducations as $education) {
 
             $arrEducation = [
                 "graduation_year" => $education->graduation_year,
@@ -3029,6 +3039,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             $data['candidateEducations'][] = $arrEducation;
         }
+
+        unset($candidateEducations);
 
         //candidate_experience
 
@@ -3077,11 +3089,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $query = self::find()
             ->andWhere(['candidate.deleted' => 0]);
 
+
             /*->joinWith([
                 "candidateCertificates"
-                ], "true", "inner join");*/
+                ], "true", "inner join");*
 
-        /*
+            ->joinWith([
+                "store",
+                "store.company"
+            ], "true");
+
             ->joinWith([
                 //'city',
                 //'country',
@@ -3109,15 +3126,28 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             foreach ($candidates as $candidate) {
                 $algoliaData = $candidate->prepareAlgoliaData();
 
-                if ($algoliaData)
+                if ($algoliaData) {
                     $data[] = $algoliaData;
+                    gc_collect_cycles();
+                    unset($algoliaData);
+                }
+
+                //echo (memory_get_usage()/ 1000) . "KB \n";
             }
-            if ($data)
+
+            if ($data) {
                 Yii::$app->algolia->updates(Yii::$app->params['algolia_candidate_index'], $data);
+            }
 
             $n += sizeof($data);
 
+            unset($data);
+            unset($candidates);
+            gc_collect_cycles();
+
             Console::updateProgress($n, $total);
+
+            //sleep(0.01);
         }
 
         return $total;
