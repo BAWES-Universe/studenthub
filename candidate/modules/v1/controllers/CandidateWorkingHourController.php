@@ -142,6 +142,7 @@ class CandidateWorkingHourController extends Controller
 
         $start_time = strtotime(Yii::$app->request->getBodyParam("start_time"));
         $end_time = strtotime(Yii::$app->request->getBodyParam("end_time"));
+        $date = Yii::$app->request->getBodyParam("date");
 
         $model = new CandidateWorkingHour();
         $model->start_time = date('Y-m-d H:i:s', $start_time);
@@ -150,7 +151,7 @@ class CandidateWorkingHourController extends Controller
         $model->status = CandidateWorkingHour::STATUS_PENDING;
         $model->candidate_id = Yii::$app->user->getId();
         $model->store_id = Yii::$app->user->identity->store_id;
-        $model->date  = date('Y-m-d');
+        $model->date  = $date ? date('Y-m-d', strtotime($date)): date('Y-m-d');
         $model->total_time = $end_time - $start_time;
 
         //$model->start_location_lat = $lat;

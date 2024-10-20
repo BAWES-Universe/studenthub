@@ -33,6 +33,8 @@ class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
 
+       // Yii::error("test error");
+
         //https://studenthub-uploads-dev-server.s3.amazonaws.com/photos/MBK-Civil-ID-1600531990157.png
 
         //$r = Yii::$app->idExpiryDateExtractor

@@ -79,7 +79,7 @@ class CompanyContactController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->generateAuthKey();
+        $model->generateAuthKey(null);
 
         if(!$model->save(false)) {
             return [
