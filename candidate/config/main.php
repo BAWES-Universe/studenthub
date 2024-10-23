@@ -255,10 +255,12 @@ return [
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET work-history' => 'work-history',
+                        'GET work-history/<id>' => 'work-history-detail',
                         'GET appreciation-certificate/<wid>' => 'appreciation-certificate',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS work-history' => 'options',
+                        'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],

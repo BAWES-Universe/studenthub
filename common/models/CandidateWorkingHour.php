@@ -302,4 +302,12 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             ->orderBy('created_at')
             ->all();
     }
+
+    /**
+     * @return query\CandidateWorkingHourQuery
+     */
+    public static function find()
+    {
+        return new query\CandidateWorkingHourQuery(get_called_class());
+    }
 }

@@ -79,6 +79,8 @@ class CandidateWorkingHourController extends Controller
     {
         $candidate_id = Yii::$app->request->get('candidate_id', null);
         $store_id = Yii::$app->request->get('store_id', null);
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
 
         if (!$candidate_id && $candidate_id == 'null') {
             return [
@@ -120,6 +122,14 @@ class CandidateWorkingHourController extends Controller
         $query->orderBy('date DESC');
         $query->andWhere(['candidate_id' => $candidate_id]);
         $query->andWhere(['store_id' => $store_id]);
+
+        if ($start_date) {
+            $query->filterFrom($start_date);
+        }
+
+        if ($end_date) {
+            $query->filterTo($end_date);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

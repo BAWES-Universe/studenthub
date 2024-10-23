@@ -3,6 +3,7 @@
 namespace candidate\modules\v1\controllers;
 
 use kartik\mpdf\Pdf;
+use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 use Yii;
 use yii\base\BaseObject;
 use yii\rest\Controller;
@@ -81,6 +82,22 @@ class CandidateController extends Controller
 
         if(!$model)
             return [];
+
+        return $model;
+    }
+
+    public function actionWorkHistoryDetail($id)
+    {
+        $model = CandidateWorkHistory::find()
+            ->filterCandidate(\Yii::$app->user->id)
+//            ->with('store')
+//            ->asArray()
+            ->andWhere(['id' => $id])
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested record does not exist.');
+        }
 
         return $model;
     }

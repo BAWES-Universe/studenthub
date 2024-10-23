@@ -74,11 +74,23 @@ class CandidateWorkingHourController extends Controller
      */
     public function actionListDate()
     {
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
         $query = CandidateWorkingHour::find();
         $query->addSelect('sum(total_time) as total_time,date, store_id, candidate_id');
         $query->groupBy('date');
         $query->andWhere(['candidate_id'=>Yii::$app->user->getId()]);
         $query->orderBy('date DESC');
+
+
+        if ($start_date) {
+            $query->filterFrom($start_date);
+        }
+
+        if ($end_date) {
+            $query->filterTo($end_date);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
