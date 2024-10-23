@@ -85,6 +85,20 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array|false|int[]|string[]
+     */
+    public function extraFields()
+    {
+        $fields =  parent::extraFields();
+
+        /*$fields['via'] = function ($model) {
+            $model->getCandidate
+        };*/
+
+        return $fields;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function attributeLabels()

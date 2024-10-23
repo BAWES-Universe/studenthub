@@ -3,7 +3,6 @@
 namespace candidate\modules\v1\controllers;
 
 use kartik\mpdf\Pdf;
-use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 use Yii;
 use yii\base\BaseObject;
 use yii\rest\Controller;

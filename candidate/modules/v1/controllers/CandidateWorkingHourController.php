@@ -165,6 +165,7 @@ class CandidateWorkingHourController extends Controller
         $model->store_id = Yii::$app->user->identity->store_id;
         $model->date  = $date ? date('Y-m-d', strtotime($date)): date('Y-m-d');
         $model->total_time = $end_time - $start_time;
+        $model->via = "Manual Log";
 
         //$model->start_location_lat = $lat;
         //$model->start_location_long = $long;

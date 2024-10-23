@@ -1492,6 +1492,7 @@ class AccountController extends Controller
         $model->date  = date('Y-m-d');
         $model->start_location_lat = $lat;
         $model->start_location_long = $long;
+        $model->via = "Timer";
 
         if (!$model->save()) {
             return [

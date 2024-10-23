@@ -7,6 +7,7 @@ use company\models\Candidate;
 use company\models\Store;
 use Yii;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -136,7 +137,9 @@ class CandidateWorkingHourController extends Controller
         ]);
     }
 
-
+    /**
+     * @return array
+     */
     public function actionStats()
     {
         $date = Yii::$app->request->get('date');
@@ -164,13 +167,22 @@ class CandidateWorkingHourController extends Controller
 
         $checkIn = $firstSession ? $firstSession->start_time: null;
         $checkOut = $lastSession ? $lastSession->end_time: null;
-        $status = $lastSession ? $lastSession->status: null;
+
+        //$status = $lastSession ? $lastSession->status: null;
+
+        $health = \candidate\models\CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => $candidate_id])
+            ->groupBy('status')
+            ->asArray()
+            ->select("status, COUNT(*) as total")
+            ->all();
 
         return [
             "checkIn" => $checkIn,
             "checkOut" => $checkOut,
             "totalTime" => $totalTime,
-            "status" => $status
+            "health" => ArrayHelper::map($health, "status", "total")
         ];
     }
 

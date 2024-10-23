@@ -79,6 +79,7 @@ class CandidateWorkLogFeedbackController extends Controller
         $model->reason = Yii::$app->request->getBodyParam("reason");
         $model->rating = Yii::$app->request->getBodyParam("rating");
         $model->is_public = (int) Yii::$app->request->getBodyParam("is_public");
+        $model->candidate_working_hour_uuid = Yii::$app->request->getBodyParam("candidate_working_hour_uuid");
 
         if (!$model->company_id) {
             $store = Store::find()->andWhere(['store_id' => $model->store_id])->one();
