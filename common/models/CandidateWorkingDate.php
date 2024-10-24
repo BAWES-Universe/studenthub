@@ -6,6 +6,7 @@ use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "candidate_working_date".
@@ -94,6 +95,20 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
         /*$fields['via'] = function ($model) {
             $model->getCandidate
         };*/
+
+        $fields['health'] = function ($model) {
+            $health = \candidate\models\CandidateWorkingHour::find()
+                ->andWhere(['date' => $this->date])
+                ->andWhere(['candidate_id' => $this->candidate_id, "store_id" => $this->store_id])
+                ->groupBy('status')
+                ->asArray()
+                ->select("status, COUNT(*) as total")
+                ->all();
+
+            return ArrayHelper::map($health, "status", "total");
+        };
+
+
 
         return $fields;
     }

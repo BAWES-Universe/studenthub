@@ -4,6 +4,7 @@ namespace common\models;
 
 
 use Yii;
+use yii\db\Exception;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\ArrayHelper;
@@ -1022,6 +1023,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             "invitationStats",
             "avgTimeToViewInvitations",
             'storeAssignmentRequest',
+            "latestCandidateWorkHistory",
             'campaign',
             'store',
             'company',
@@ -3349,6 +3351,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getCandidateWorkHistories($modelClass = "\common\models\CandidateWorkHistory")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLatestCandidateWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andWhere(new Exception("end_date IS NULL"))
+            ->orderBy("start_date DESC");
     }
 
     /**

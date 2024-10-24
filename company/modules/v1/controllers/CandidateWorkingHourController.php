@@ -170,6 +170,7 @@ class CandidateWorkingHourController extends Controller
 
         //$status = $lastSession ? $lastSession->status: null;
 
+        //todo: what if candidate switched store in same day and having session from 2 different store in same day
         $health = \candidate\models\CandidateWorkingHour::find()
             ->andWhere(['date' => $date])
             ->andWhere(['candidate_id' => $candidate_id])
