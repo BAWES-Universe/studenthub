@@ -94,6 +94,8 @@ class CandidateController extends BaseController
     public function actionWorkingDates() {
 
         $candidate_id = Yii::$app->request->get("candidate_id");
+        //$start_date = Yii::$app->request->get("start_date");
+        //$end_date = Yii::$app->request->get("end_date");
 
         $candidate = Yii::$app->companyManager->getCompany()
             ->getCandidates()
@@ -105,6 +107,10 @@ class CandidateController extends BaseController
         }
 
         $query = $candidate->getCandidateWorkingDates();
+
+        /*if ($start_date && $end_date) {
+            $query->filterByDateRange($start_date, $end_date);
+        }*/
 
         return new ActiveDataProvider([
             'query' => $query

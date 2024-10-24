@@ -366,8 +366,10 @@ return [
                     'controller' => 'v1/candidate-work-log-feedback',
                     'patterns' => [
                         'POST' => 'save',
+                        "POST bulk-save" => "bulk-save",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS bulk-save' => 'options',
                     ]
                 ],
                 [ // CandidateWorkingHourController
