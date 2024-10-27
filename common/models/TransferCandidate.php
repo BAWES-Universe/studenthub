@@ -90,6 +90,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
 
            // [['hours'], 'integer'],
+            [['hours'], 'number'],
             [["minutes", "seconds"], "integer", "max" => 59],
 
             //[['hours'], 'validateHours'],
