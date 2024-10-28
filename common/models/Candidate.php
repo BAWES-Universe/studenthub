@@ -1295,6 +1295,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCandidateNotifications($modelClass = "\common\models\CandidateNotification")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUnreadCandidateNotifications($modelClass = "\common\models\CandidateNotification")
+    {
+        return $this->getCandidateNotifications($modelClass)
+            ->andWhere(['is_new' => true]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCertificates($modelClass = "\common\models\CandidateCertificate")
     {
         return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);

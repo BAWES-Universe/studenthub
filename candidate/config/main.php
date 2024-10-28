@@ -250,6 +250,20 @@ return [
                         'OPTIONS place-predictions' => 'options'
                     ]
                 ],
+                [
+                    //CandidateNotificationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-notification',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'PATCH mark-read/<id>' => 'mark-read',
+                        'PATCH mark-read-all' => 'mark-read-all',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS mark-read/<id>' => 'options',
+                        'OPTIONS mark-read-all' => 'options',
+                    ]
+                ],
                 [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',

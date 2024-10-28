@@ -108,13 +108,13 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
 
         //calculate via
 
-        $sessionsInDay = self::find()
+        /*$sessionsInDay = self::find()
             ->andWhere([
                 "candidate_id" => $this->candidate_id,
                 "store_id" => $this->store_id,
                 "date" => $this->date,
             ])
-            ->all();
+            ->all();*/
 
         //$arrVia = array_unique(ArrayHelper::getColumn($sessionsInDay, "via"));
 
@@ -131,7 +131,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 $date->candidate_id = $this->candidate_id;
                 $date->date = $this->date;
                 $date->start_time = $this->start_time;
-                $date->end_time = $this->end_time;
+                $date->end_time = $this->end_time;//can have end_time in manual input
                 $date->total_time = $this->total_time;
                 //$date->via = $via;
                // $this->status = $this->status;
@@ -162,6 +162,9 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
 
                 } else { //when timer started
 
+                    //as we have health indicator now + working tag, no more need to reset status
+
+                    /*
                     CandidateWorkingDate::updateAll([
                         "status" => $this->status, //reset status
                         "total_time" => null, //reset total time as new session pending to finish
@@ -171,7 +174,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                         "candidate_id" => $this->candidate_id,
                         "store_id" => $this->store_id,
                         "date" => $this->date,
-                    ]);
+                    ]);*/
                 }
             }
         }
@@ -194,6 +197,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 "store_id" => $this->store_id,
                 "date" => $this->date,
             ]);
+
         }
     }
 

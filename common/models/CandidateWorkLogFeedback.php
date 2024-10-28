@@ -4,6 +4,7 @@ namespace common\models;
 
 use Yii;
 use yii\behaviors\AttributeBehavior;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 
@@ -21,12 +22,14 @@ use yii\db\Expression;
  * @property string $reason
  * @property int $is_public
  * @property int $rating
+ * @property int $created_by
  * @property string $created_at
  * @property string $updated_at
  *
  * @property Candidate $candidate
  * @property Company $company
  * @property Store $store
+ * @property Contact $createdBy
  * @property CandidateWorkingHour $candidateWorkingHour
  */
 class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
@@ -56,6 +59,7 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
             [['cwlf_uuid', "candidate_working_hour_uuid"], 'string', 'max' => 60],
             [['reason'], 'string', 'max' => 255],
             //[['cwlf_uuid'], 'unique'],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'created_by']],
             [['candidate_working_hour_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHour::className(), 'targetAttribute' => ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
@@ -79,6 +83,11 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
                     return $this->cwlf_uuid;
                 }
+            ],
+            [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => null
             ],
             [
                 'class' => TimestampBehavior::className(),
@@ -106,9 +115,20 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
             'reason' => Yii::t('app', 'Reason'),
             'is_public' => Yii::t('app', 'Is Public'),
             'rating' => Yii::t('app', 'Rating'),
+            'created_by' => Yii::t('app', 'Created By'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function extraFields()
+    {
+        return array_merge(parent::extraFields(), [
+            "createdBy"
+        ]);
     }
 
     /**
@@ -158,7 +178,56 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
             ]);
         }
 
+        $this->notifyCandidate();
+
         //todo: update status for selected sessions only
+
+        return true;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function notifyCandidate() {
+
+        $date = CandidateWorkingDate::find()->andWhere([
+            "candidate_id" => $this->candidate_id,
+            "store_id" => $this->store_id,
+            "date" => $this->date,
+        ])->one();
+
+        if (!$date) {
+            Yii::error("No working date on trying to notify work log feedback" . print_r([
+                    "candidate_id" => $this->candidate_id,
+                    "store_id" => $this->store_id,
+                    "date" => $this->date,
+                ], true), __METHOD__);
+            return false;
+        }
+
+        if ($this->status == self::STATUS_APPROVED) {
+            $model = new CandidateNotification();
+            $model->cwlf_uuid = $this->cwlf_uuid;
+            $model->candidate_id = $this->candidate_id;
+            $model->candidate_working_date_uuid = $date->cwd_uuid;
+            $model->company_id = $this->company_id;
+            $model->store_id = $this->store_id;
+            $model->type = CandidateNotification::TYPE_WORK_APPROVED;
+            if (!$model->save()) {
+                Yii::error("Error saving notification: " . print_r($model->errors, true));
+            }
+        } else if ($this->status == self::STATUS_REJECTED) {
+            $model = new CandidateNotification();
+            $model->cwlf_uuid = $this->cwlf_uuid;
+            $model->candidate_id = $this->candidate_id;
+            $model->candidate_working_date_uuid = $date->cwd_uuid;
+            $model->company_id = $this->company_id;
+            $model->store_id = $this->store_id;
+            $model->type = CandidateNotification::TYPE_WORK_REJECTED;
+            if (!$model->save()) {
+                Yii::error("Error saving notification: " . print_r($model->errors, true));
+            }
+        }
 
         return true;
     }
@@ -193,5 +262,14 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
     public function getStore($className = '\common\models\Store')
     {
         return $this->hasOne($className::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @param $className
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($className = '\common\models\Contact')
+    {
+        return $this->hasOne($className::className(), ['contact_uuid' => 'created_by']);
     }
 }

@@ -802,6 +802,16 @@ class Transfer extends ActiveRecord
         ];
 
         MobileNotification::notifyCandidate($heading, $params, $filters, $subtitle, $content);
+
+        $model = new CandidateNotification();
+        $model->candidate_id = $transferCandidate->candidate_id;
+        $model->tc_id = $transferCandidate->tc_id;
+        $model->company_id = $this->company_id;
+        $model->store_id = $transferCandidate->store_id;
+        $model->type = CandidateNotification::TYPE_TRANSFER_INIT;
+        if (!$model->save()) {
+            Yii::error("Error saving notification: " . print_r($model->errors, true));
+        }
     }
 
     /**

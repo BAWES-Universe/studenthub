@@ -138,6 +138,33 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
+        if ($insert) {
+
+            $model = new CandidateNotification();
+            $model->candidate_id = $this->candidate_id;
+            $model->candidate_work_history_id = $this->id;
+            $model->company_id = $this->company_id;
+            $model->store_id = $this->store_id;
+            $model->type = CandidateNotification::TYPE_ASSIGNMENT;
+            $model->staff_id = $this->staff_id;
+            if (!$model->save()) {
+                Yii::error("Error saving notification: " . print_r($model->errors, true));
+            }
+
+        } /*else if (array_key_exists('end_date', $changedAttributes) && $this->end_date) {
+
+            $model = new CandidateNotification();
+            $model->candidate_id = $this->candidate_id;
+            $model->candidate_work_history_id = $this->id;
+            $model->company_id = $this->company_id;
+            $model->store_id = $this->store_id;
+            $model->staff_id = $this->staff_id;
+            $model->type = CandidateNotification::TYPE_UNASSIGNED;
+            if (!$model->save()) {
+                Yii::error("Error saving notification: " . print_r($model->errors, true));
+            }
+        }*/
+
         return true;
     }
 

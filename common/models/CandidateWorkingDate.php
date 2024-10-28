@@ -108,8 +108,6 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
             return ArrayHelper::map($health, "status", "total");
         };
 
-
-
         return $fields;
     }
 
