@@ -73,7 +73,9 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
             <?php foreach ($result as $hourly_rate => $row) { ?>
                 <tr>
                     <td align="left" style="text-align: left">
-                        <span><b><?= $row['totalHours'] ?> hours <?= $row['totalMinutes'] ?> minutes <?= $row['totalSeconds'] ?> seconds </b> worked x <b><?= $hourly_rate ?> KD</b> per hour
+                        <span><b>
+
+                                <?= $row['totalHours'] > 0 ?$row['totalHours'] . " hours": "" ?>  <?= $row['totalMinutes'] > 0 ? $row['totalMinutes'] . " minutes": "" ?> <?= $row['totalSeconds'] > 0 ? $row['totalSeconds'] . " seconds": "" ?> </b> worked x <b><?= $hourly_rate ?> KD</b> per hour
                         <?php if ($row['totalTransferCost'] > 0) { ?>
                             + <?= $row['totalTransferCost'] ?> KD transfer cost
                         <?php } ?>
