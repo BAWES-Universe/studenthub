@@ -559,7 +559,6 @@ class RequestController extends Controller
         $model->contact_uuid = Yii::$app->request->getBodyParam("contact_uuid");
         $model->request_position_type = (int)Yii::$app->request->getBodyParam("position_type");
         $model->request_position_title = Yii::$app->request->getBodyParam("position_title");
-        //$model->request_number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
         $model->request_location = Yii::$app->request->getBodyParam("location");
         $model->request_additional_info = Yii::$app->request->getBodyParam("additional_info");
         $model->request_job_description = Yii::$app->request->getBodyParam("job_description");
@@ -570,6 +569,12 @@ class RequestController extends Controller
 
         $model->our_fees_unit = Yii::$app->request->getBodyParam("our_fees_unit");
         $model->our_fees = Yii::$app->request->getBodyParam("our_fees");
+
+        $number_of_employees = Yii::$app->request->getBodyParam("number_of_employees");
+
+        if ($number_of_employees > 0) {
+            $model->request_number_of_employees = $number_of_employees;
+        }
 
         if (!$model->save())
         {
