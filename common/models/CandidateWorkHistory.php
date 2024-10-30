@@ -11,6 +11,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property integer $id
  * @property integer $candidate_id
+ * @property string $contract_uuid
  * @property integer $store_id
  * @property integer $company_id
  * @property integer $parent_company_id
@@ -43,6 +44,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['transfer_cost'], 'number'],//, "max" => 1000
             [['candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['candidate_hourly_rate'], 'validateRate'],
+            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
@@ -88,6 +90,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
+            "contract_uuid"=> Yii::t('app', 'Contract ID'),
             'store_id' => Yii::t('app', 'Store ID'),
             'parent_company_id' => Yii::t('app', 'parent company ID'),
             'company_id' => Yii::t('app', 'company ID'),
@@ -109,7 +112,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $candidate,
         $start_date = null,
         $company_hourly_rate = null,
-        $transfer_cost = null
+        $transfer_cost = null,
+        $contract_uuid = null
     ) {
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
@@ -121,7 +125,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
         $model->company_hourly_rate = $company_hourly_rate;
         $model->transfer_cost = $transfer_cost;
-
+        $model->contract_uuid = $contract_uuid;
         if ($model->save()) {
             $candidate->updateAlgoliaIndex();
         }  
@@ -285,7 +289,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             'store',
             'company',
             'parentCompany',
-            "transferCost"
+            "transferCost",
+            "contract"
         ];
     }
 
@@ -412,6 +417,14 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      */
     public function getStore($className = '\common\models\Store') {
         return $this->hasOne($className::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContract($className = '\common\models\Contract')
+    {
+        return $this->hasOne($className::className(), ['contract_uuid' => 'contract_uuid']);
     }
 
     /**
