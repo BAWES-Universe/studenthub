@@ -530,6 +530,7 @@ class CandidateController extends Controller
         $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
         $transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
         $company_transfer_cost = Yii::$app->request->getBodyParam("company_transfer_cost");
+        $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
 
         $model = $this->findModel($id);
 
@@ -652,7 +653,8 @@ class CandidateController extends Controller
             $model,
             $start_date,
             $company_hourly_rate,
-            $transfer_cost
+            $transfer_cost,
+            $contract_uuid
         );
 
         if($candidateWorkHistory->errors) {
