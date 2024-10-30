@@ -51,6 +51,7 @@ use yii\helpers\ArrayHelper;
  * @property Transfer[] $parentTransfers
  * @property Store[] $subCompanyStores
  * @property Note[] $notes
+ * @property Contract[] $contracts
  *
  * E.g.
  * company_hourly_rate = 1.5 KWD
@@ -286,6 +287,7 @@ class Company extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
+            "contracts",
 //            'company',
             'candidates',
             'suggestions',
@@ -1156,5 +1158,13 @@ class Company extends \yii\db\ActiveRecord
     public function getStaff($modelClass = "\common\models\Staff")
     {
         return $this->hasOne($modelClass::className(), ['staff_id' => 'staff_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContracts($modelClass = "\common\models\Contract")
+    {
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
     }
 }
