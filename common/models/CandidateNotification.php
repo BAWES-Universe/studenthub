@@ -134,6 +134,20 @@ class CandidateNotification extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array|false|int[]|string[]
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['is_new'] = function ($data) {
+            return (boolean) $data->is_new;
+        };
+
+        return $fields;
+    }
+
+    /**
      * @return string[]
      */
     public function extraFields()

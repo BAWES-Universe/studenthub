@@ -112,7 +112,7 @@ class AuthController extends Controller
         $auth_key = Yii::$app->request->getBodyParam('auth_key');
 
         $candidate = Candidate::find()
-            ->andWhere(['candidate_auth_key' => $auth_key])
+            ->andWhere(['candidate_auth_key' => $auth_key, "deleted" => false])
             ->one();
 
         if(!$candidate) {
@@ -197,7 +197,7 @@ class AuthController extends Controller
         }
 
         $candidate = Candidate::find()
-            ->andWhere(['candidate_email' => $userInfo['email']])
+            ->andWhere(['candidate_email' => $userInfo['email'], "deleted" => false])
             ->one();
 
         if(!$candidate)
@@ -889,7 +889,8 @@ class AuthController extends Controller
         }
 
         $model = Candidate::find()->where([
-            'candidate_email' => $response->email
+            'candidate_email' => $response->email,
+            "deleted" => false
         ])->one();
 
         if (!$model) {
@@ -974,7 +975,7 @@ class AuthController extends Controller
         $givenName = Yii::$app->request->getBodyParam("givenName");
 
         $candidate = Candidate::find()
-            ->andWhere(['candidate_email' => $email])
+            ->andWhere(['candidate_email' => $email, "deleted" => false])
             ->one();
 
         if (!$candidate) {

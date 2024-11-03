@@ -89,7 +89,7 @@ class CandidateNotificationController extends Controller
     public function actionMarkRead($id)
     {
         $model = $this->findModel($id);
-        $model->is_new = true;
+        $model->is_new = false;
 
         if (!$model->save()) {
             return [
