@@ -74,11 +74,23 @@ class CandidateWorkingHourController extends Controller
      */
     public function actionListDate()
     {
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
+
         $query = CandidateWorkingHour::find();
         $query->addSelect('sum(total_time) as total_time,date, store_id, candidate_id');
         $query->groupBy('date');
         $query->andWhere(['candidate_id'=>Yii::$app->user->getId()]);
         $query->orderBy('date DESC');
+
+
+        if ($start_date) {
+            $query->filterFrom($start_date);
+        }
+
+        if ($end_date) {
+            $query->filterTo($end_date);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -142,6 +154,7 @@ class CandidateWorkingHourController extends Controller
 
         $start_time = strtotime(Yii::$app->request->getBodyParam("start_time"));
         $end_time = strtotime(Yii::$app->request->getBodyParam("end_time"));
+        $date = Yii::$app->request->getBodyParam("date");
 
         $model = new CandidateWorkingHour();
         $model->start_time = date('Y-m-d H:i:s', $start_time);
@@ -150,8 +163,9 @@ class CandidateWorkingHourController extends Controller
         $model->status = CandidateWorkingHour::STATUS_PENDING;
         $model->candidate_id = Yii::$app->user->getId();
         $model->store_id = Yii::$app->user->identity->store_id;
-        $model->date  = date('Y-m-d');
+        $model->date  = $date ? date('Y-m-d', strtotime($date)): date('Y-m-d');
         $model->total_time = $end_time - $start_time;
+        $model->via = "Manual Log";
 
         //$model->start_location_lat = $lat;
         //$model->start_location_long = $long;

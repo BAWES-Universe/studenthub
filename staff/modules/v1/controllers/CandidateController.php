@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CandidateNotification;
 use common\models\CandidateToken;
 use common\models\CandidateWarning;
 use common\models\Request;
@@ -529,6 +530,7 @@ class CandidateController extends Controller
         $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
         $transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
         $company_transfer_cost = Yii::$app->request->getBodyParam("company_transfer_cost");
+        $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
 
         $model = $this->findModel($id);
 
@@ -651,7 +653,8 @@ class CandidateController extends Controller
             $model,
             $start_date,
             $company_hourly_rate,
-            $transfer_cost
+            $transfer_cost,
+            $contract_uuid
         );
 
         if($candidateWorkHistory->errors) {
@@ -715,6 +718,8 @@ class CandidateController extends Controller
         $sar_id = Yii::$app->request->getBodyParam("sar_id");
 
         $transaction = Yii::$app->db->beginTransaction();
+
+        $candidateHistoryModel = null;
 
         // in case multiple store are assigned by mistake or system issue.
         if ($store_id  && $store_id != $model->store_id) {
@@ -786,6 +791,7 @@ class CandidateController extends Controller
         $noteModel->company_id  = $company_id;
         $noteModel->note_type  = Note::TYPE_INTERNAL_NOTE;
         $noteModel->note_text  = "No longer assigned to work at {$storeName} for {$commonCompanyName} because {$feedback}";
+
         if(!$noteModel->save()) {
             $transaction->rollBack();
 
@@ -817,6 +823,25 @@ class CandidateController extends Controller
                     "message" => $sar->errors
                 ];
             }
+        }
+
+        $candidateNotification = new CandidateNotification();
+        $candidateNotification->candidate_id = $id;
+        $candidateNotification->candidate_work_history_id = $candidateHistoryModel ? $candidateHistoryModel->id: null;
+        $candidateNotification->company_id = $company_id;
+        $candidateNotification->store_id = $store_id;
+        $candidateNotification->staff_id = Yii::$app->user->getId();
+        $candidateNotification->message = $feedback;
+        $candidateNotification->type = CandidateNotification::TYPE_UNASSIGNED;
+        if (!$candidateNotification->save()) {
+            $transaction->rollBack();
+
+            Yii::error("Error saving notification: " . print_r($candidateNotification->errors, true));
+
+            return [
+                "operation" => "error",
+                "message" => $candidateNotification->errors
+            ];
         }
 
         $transaction->commit();

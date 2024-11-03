@@ -90,6 +90,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             [['transfer_cost', 'bonus', 'bonus_commission', 'candidate_hourly_rate', 'company_hourly_rate'], 'number'],
 
            // [['hours'], 'integer'],
+            [['hours'], 'number'],
             [["minutes", "seconds"], "integer", "max" => 59],
 
             //[['hours'], 'validateHours'],
@@ -434,6 +435,16 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
 
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+
+        $model = new CandidateNotification();
+        $model->candidate_id = $this->candidate_id;
+        $model->tc_id = $this->tc_id;
+        $model->company_id = $this->company_id;
+        $model->store_id = $this->store_id;
+        $model->type = CandidateNotification::TYPE_TRANSFER_PAID;
+        if (!$model->save()) {
+            Yii::error("Error saving notification: " . print_r($model->errors, true));
+        }
     }
 
     /**
@@ -499,7 +510,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         if(YII_ENV == 'prod') {
 
-            $name = $this->candidate->candidate_name? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
+            $name = !empty($this->candidate->candidate_name) ? $this->candidate->candidate_name: $this->candidate->candidate_name_ar;
 
             //Un-Paid
             Yii::$app->eventManager->track('Candidate Transfer Paid',  [
@@ -535,6 +546,16 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
 
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+
+        $model = new CandidateNotification();
+        $model->candidate_id = $this->candidate_id;
+        $model->tc_id = $this->tc_id;
+        $model->company_id = $this->company_id;
+        $model->store_id = $this->store_id;
+        $model->type = CandidateNotification::TYPE_TRANSFER_UNPAID;
+        if (!$model->save()) {
+            Yii::error("Error saving notification: " . print_r($model->errors, true));
+        }
     }
     
     /**
@@ -562,6 +583,16 @@ class TransferCandidate extends \yii\db\ActiveRecord
         ];
 
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+
+        $model = new CandidateNotification();
+        $model->candidate_id = $this->candidate_id;
+        $model->tc_id = $this->tc_id;
+        $model->company_id = $this->company_id;
+        $model->store_id = $this->store_id;
+        $model->type = CandidateNotification::TYPE_TRANSFER_INIT;
+        if (!$model->save()) {
+            Yii::error("Error saving notification: " . print_r($model->errors, true));
+        }
     }
 
     /**

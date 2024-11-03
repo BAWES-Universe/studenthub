@@ -7,6 +7,7 @@ use company\models\Candidate;
 use company\models\Store;
 use Yii;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -79,6 +80,8 @@ class CandidateWorkingHourController extends Controller
     {
         $candidate_id = Yii::$app->request->get('candidate_id', null);
         $store_id = Yii::$app->request->get('store_id', null);
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
 
         if (!$candidate_id && $candidate_id == 'null') {
             return [
@@ -121,12 +124,22 @@ class CandidateWorkingHourController extends Controller
         $query->andWhere(['candidate_id' => $candidate_id]);
         $query->andWhere(['store_id' => $store_id]);
 
+        if ($start_date) {
+            $query->filterFrom($start_date);
+        }
+
+        if ($end_date) {
+            $query->filterTo($end_date);
+        }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);
     }
 
-
+    /**
+     * @return array
+     */
     public function actionStats()
     {
         $date = Yii::$app->request->get('date');
@@ -154,13 +167,23 @@ class CandidateWorkingHourController extends Controller
 
         $checkIn = $firstSession ? $firstSession->start_time: null;
         $checkOut = $lastSession ? $lastSession->end_time: null;
-        $status = $lastSession ? $lastSession->status: null;
+
+        //$status = $lastSession ? $lastSession->status: null;
+
+        //todo: what if candidate switched store in same day and having session from 2 different store in same day
+        $health = \candidate\models\CandidateWorkingHour::find()
+            ->andWhere(['date' => $date])
+            ->andWhere(['candidate_id' => $candidate_id])
+            ->groupBy('status')
+            ->asArray()
+            ->select("status, COUNT(*) as total")
+            ->all();
 
         return [
             "checkIn" => $checkIn,
             "checkOut" => $checkOut,
             "totalTime" => $totalTime,
-            "status" => $status
+            "health" => ArrayHelper::map($health, "status", "total")
         ];
     }
 
@@ -172,6 +195,8 @@ class CandidateWorkingHourController extends Controller
     {
         $store_id = Yii::$app->request->get('store_id');
         $candidate_id = Yii::$app->request->get('candidate_id', null);
+        $start_date = Yii::$app->request->get('start_date');
+        $end_date = Yii::$app->request->get('end_date');
 
         if (!$candidate_id && $candidate_id == 'null') {
             return [
@@ -221,6 +246,14 @@ class CandidateWorkingHourController extends Controller
 
         if ($date && $date != 'null') {
             $query->andWhere(['date'=>$date]);
+        }
+
+        if ($start_date) {
+            $query->filterFrom($start_date);
+        }
+
+        if ($end_date) {
+            $query->filterTo($end_date);
         }
 
         return new ActiveDataProvider([

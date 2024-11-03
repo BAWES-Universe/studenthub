@@ -312,6 +312,7 @@ class Company extends \common\models\Company {
             'documents' => $this->getFiles()->count(),
             'transfers' => $this->getParentTransfers()->count(),
             'subCompanies' => $this->getSubCompanies()->count(),
+            "contracts" => $this->getContracts()->count(),
         ];
     }
 }

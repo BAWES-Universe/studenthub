@@ -2,12 +2,14 @@
 
 namespace company\modules\v1\controllers;
 
+use common\models\CandidateWorkingDate;
 use Yii;
 use company\models\Store;
 use company\models\CandidateWorkLogFeedback;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
 use yii\rest\Controller;
+use yii\web\NotFoundHttpException;
 
 class CandidateWorkLogFeedbackController extends Controller
 {
@@ -79,6 +81,7 @@ class CandidateWorkLogFeedbackController extends Controller
         $model->reason = Yii::$app->request->getBodyParam("reason");
         $model->rating = Yii::$app->request->getBodyParam("rating");
         $model->is_public = (int) Yii::$app->request->getBodyParam("is_public");
+        $model->candidate_working_hour_uuid = Yii::$app->request->getBodyParam("candidate_working_hour_uuid");
 
         if (!$model->company_id) {
             $store = Store::find()->andWhere(['store_id' => $model->store_id])->one();
@@ -101,6 +104,64 @@ class CandidateWorkLogFeedbackController extends Controller
                 "candidate" => Yii::$app->language == "ar" ?
                     $model->candidate->candidate_name_ar: $model->candidate->candidate_name
             ])
+        ];
+    }
+
+    /**
+     * @throws \yii\db\Exception
+     * @throws NotFoundHttpException
+     */
+    public function actionBulkSave() {
+        $arr_cwd_uuid = Yii::$app->request->getBodyParam("arr_cwd_uuid");
+        $status = Yii::$app->request->getBodyParam("status");
+        $note = Yii::$app->request->getBodyParam("note");
+        $reason = Yii::$app->request->getBodyParam("reason");
+        $rating = Yii::$app->request->getBodyParam("rating");
+        $is_public = (int) Yii::$app->request->getBodyParam("is_public");
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        foreach ($arr_cwd_uuid as $cwd_uuid) {
+
+            $cwd = CandidateWorkingDate::findOne($cwd_uuid);
+
+            if(!$cwd) {
+                $transaction->rollBack();
+                throw new NotFoundHttpException('The requested page does not exist.');
+            }
+
+            $model = new CandidateWorkLogFeedback();
+            $model->candidate_id = $cwd->candidate_id;
+            $model->store_id = $cwd->store_id;
+            $model->company_id = $cwd->company_id;
+            $model->date = $cwd->date;
+            $model->status = $status;
+            $model->note = $note;
+            $model->reason = $reason;
+            $model->rating = $rating;
+            $model->is_public = $is_public;
+
+            //add sessions/ hours will be updated
+            //$model->candidate_working_hour_uuid = Yii::$app->request->getBodyParam("candidate_working_hour_uuid");
+
+            if (!$model->company_id) {
+                $store = Store::find()->andWhere(['store_id' => $model->store_id])->one();
+                $model->company_id = $store->company_id;
+            }
+
+            if(!$model->save()) {
+                $transaction->rollBack();
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }
+        }
+
+        $transaction->commit();
+
+        return [
+            "operation" => "success"
         ];
     }
 }

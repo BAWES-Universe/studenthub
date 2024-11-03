@@ -250,15 +250,31 @@ return [
                         'OPTIONS place-predictions' => 'options'
                     ]
                 ],
+                [
+                    //CandidateNotificationController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-notification',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'PATCH mark-read/<id>' => 'mark-read',
+                        'PATCH mark-read-all' => 'mark-read-all',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS mark-read/<id>' => 'options',
+                        'OPTIONS mark-read-all' => 'options',
+                    ]
+                ],
                 [ // CandidateController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate',
                     'patterns' => [
                         'GET work-history' => 'work-history',
+                        'GET work-history/<id>' => 'work-history-detail',
                         'GET appreciation-certificate/<wid>' => 'appreciation-certificate',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS work-history' => 'options',
+                        'OPTIONS work-history/<id>' => 'options',
                         'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],

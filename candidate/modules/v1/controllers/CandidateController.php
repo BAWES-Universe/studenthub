@@ -85,6 +85,22 @@ class CandidateController extends Controller
         return $model;
     }
 
+    public function actionWorkHistoryDetail($id)
+    {
+        $model = CandidateWorkHistory::find()
+            ->filterCandidate(\Yii::$app->user->id)
+//            ->with('store')
+//            ->asArray()
+            ->andWhere(['id' => $id])
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested record does not exist.');
+        }
+
+        return $model;
+    }
+
     /**
      * @param $id
      * @return mixed|string[]

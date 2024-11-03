@@ -255,6 +255,16 @@ class Invitation extends \yii\db\ActiveRecord
         ];
 
         MobileNotification::notifyCandidate($heading, $data, $filters, $subtitle, $content);
+
+        $model = new CandidateNotification();
+        $model->candidate_id = $this->candidate_id;
+        $model->invitation_uuid = $this->invitation_uuid;
+        $model->company_id = $this->request->company_id;
+       // $model->store_id = $this->request->store;
+        $model->type = CandidateNotification::TYPE_INVITATION;
+        if (!$model->save()) {
+            Yii::error("Error saving notification: " . print_r($model->errors, true));
+        }
     }
 
     /**

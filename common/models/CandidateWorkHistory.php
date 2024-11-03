@@ -11,6 +11,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property integer $id
  * @property integer $candidate_id
+ * @property string $contract_uuid
  * @property integer $store_id
  * @property integer $company_id
  * @property integer $parent_company_id
@@ -43,6 +44,10 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['transfer_cost'], 'number'],//, "max" => 1000
             [['candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['candidate_hourly_rate'], 'validateRate'],
+            [['contract_uuid'], 'validateContract'],
+            /*[['contract_uuid'], 'exist', 'skipOnError' => true,
+                'targetClass' => Contract::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']
+            ],*/
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
@@ -50,10 +55,40 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     * @return bool|null
+     */
+    public function validateContract($attribute, $params, $validator)
+    {
+        $model = Contract::find()
+            ->andWhere(['contract_uuid' => $this->contract_uuid])
+            //contract either at parent or given child level
+            ->andWhere([
+                "OR",
+                ["company_id" => $this->parent_company_id],
+                ["company_id" => $this->company_id],
+            ])
+            ->one();
+
+        if (!$model) {
+            $this->addError('contract_uuid', "Invalid contract");
+            return null;
+        }
+
+        return true;
+    }
+
+    /**
      * @inheritdoc
      */
     public function validateRate($attribute, $params, $validator) {
 
+        if ($this->contract_uuid) {
+            return true;
+        }
+        
         if($this->candidate_hourly_rate <= 0)
         {
             $this->addError('candidate_hourly_rate', Yii::t('candidate','Candidate hourly rate should be greater than 0.'));
@@ -88,6 +123,7 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
+            "contract_uuid"=> Yii::t('app', 'Contract ID'),
             'store_id' => Yii::t('app', 'Store ID'),
             'parent_company_id' => Yii::t('app', 'parent company ID'),
             'company_id' => Yii::t('app', 'company ID'),
@@ -109,7 +145,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $candidate,
         $start_date = null,
         $company_hourly_rate = null,
-        $transfer_cost = null
+        $transfer_cost = null,
+        $contract_uuid = null
     ) {
         $model = new CandidateWorkHistory();
         $model->candidate_id = $candidate->candidate_id;
@@ -118,9 +155,26 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         $model->company_id = (isset($candidate->company->company_id)) ? $candidate->company->company_id : null;
         $model->parent_company_id = (isset($candidate->company->parent_company_id)) ? $candidate->company->parent_company_id : $candidate->company->company_id;
         $model->start_date = $start_date != null ? date('Y-m-d', strtotime($start_date)): new \yii\db\Expression('NOW()');
-        $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
-        $model->company_hourly_rate = $company_hourly_rate;
-        $model->transfer_cost = $transfer_cost;
+        $model->contract_uuid = $contract_uuid;
+
+        if ($contract_uuid) {
+
+            if (!$model->contract || !$model->contract->amount) {
+                $model->addError("contract_uuid", "Invalid contract");
+            }
+
+            $model->transfer_cost = $model->contract->transfer_cost;
+
+            if ($model->contract->type == Contract::TYPE_HOURLY) {
+                $model->candidate_hourly_rate = $model->contract->amount->candidate_hourly_rate;
+                $model->company_hourly_rate = $model->contract->amount->company_hourly_rate;
+            }
+
+        } else {
+            $model->candidate_hourly_rate = $candidate->candidate_hourly_rate;
+            $model->company_hourly_rate = $company_hourly_rate;
+            $model->transfer_cost = $transfer_cost;
+        }
 
         if ($model->save()) {
             $candidate->updateAlgoliaIndex();
@@ -137,6 +191,33 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
+        if ($insert) {
+
+            $model = new CandidateNotification();
+            $model->candidate_id = $this->candidate_id;
+            $model->candidate_work_history_id = $this->id;
+            $model->company_id = $this->company_id;
+            $model->store_id = $this->store_id;
+            $model->type = CandidateNotification::TYPE_ASSIGNMENT;
+            $model->staff_id = $this->staff_id;
+            if (!$model->save()) {
+                Yii::error("Error saving notification: " . print_r($model->errors, true));
+            }
+
+        } /*else if (array_key_exists('end_date', $changedAttributes) && $this->end_date) {
+
+            $model = new CandidateNotification();
+            $model->candidate_id = $this->candidate_id;
+            $model->candidate_work_history_id = $this->id;
+            $model->company_id = $this->company_id;
+            $model->store_id = $this->store_id;
+            $model->staff_id = $this->staff_id;
+            $model->type = CandidateNotification::TYPE_UNASSIGNED;
+            if (!$model->save()) {
+                Yii::error("Error saving notification: " . print_r($model->errors, true));
+            }
+        }*/
 
         return true;
     }
@@ -258,7 +339,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             'store',
             'company',
             'parentCompany',
-            "transferCost"
+            "transferCost",
+            "contract"
         ];
     }
 
@@ -385,6 +467,19 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      */
     public function getStore($className = '\common\models\Store') {
         return $this->hasOne($className::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContract($className = '\common\models\Contract')
+    {
+        return $this->hasOne($className::className(), ['contract_uuid' => 'contract_uuid'])
+            ->andWhere([
+                "OR",
+                ["company_id" => $this->parent_company_id],
+                ["company_id" => $this->company_id],
+            ]);
     }
 
     /**

@@ -176,7 +176,8 @@ class Store extends \yii\db\ActiveRecord
             'candidateWorkHistory',
             'candidateWorkHistoryByLast40Days',
             'profit',
-            'revenue'
+            'revenue',
+            "contracts"
         ];
     }
 
@@ -197,7 +198,19 @@ class Store extends \yii\db\ActiveRecord
     {
         return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
     }
-    
+
+    /**
+     * @return Contract[]
+     */
+    public function getContracts() {
+        $contracts =  $this->company->contracts;
+
+        if ($this->company->parentCompany)
+            $contracts = array_merge($contracts, $this->company->parentCompany->contracts);
+
+        return $contracts;
+    }
+
     /**
      * @param string $modelClass
      * @return $this

@@ -8,6 +8,7 @@ use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "candidate_working_hour".
@@ -25,6 +26,7 @@ use yii\db\Expression;
  * @property string $end_location_long
  * @property string $note
  * @property int $status
+ * @property string $via
  * @property string $created_at
  * @property string $updated_at
  *
@@ -55,7 +57,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             [['candidate_id', 'store_id','total_time', 'status'], 'integer'],
             [['date', 'start_time', 'end_time', 'created_at', 'updated_at'], 'safe'],
             [['start_location_lat', 'start_location_long', 'end_location_lat', 'end_location_long'], 'number'],
-            [['note'], 'string'],
+            [['note', 'via'], 'string'],
             [['candidate_working_hour_uuid'], 'string', 'max' => 60],
             [['candidate_working_hour_uuid'], 'unique'],
             [['candidate_id'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
@@ -104,6 +106,20 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             "date" => $this->date,
         ])->one();
 
+        //calculate via
+
+        /*$sessionsInDay = self::find()
+            ->andWhere([
+                "candidate_id" => $this->candidate_id,
+                "store_id" => $this->store_id,
+                "date" => $this->date,
+            ])
+            ->all();*/
+
+        //$arrVia = array_unique(ArrayHelper::getColumn($sessionsInDay, "via"));
+
+        //$via = implode(", ", $arrVia);
+
         //start + end + manually added
 
         if ($insert) {
@@ -115,8 +131,9 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 $date->candidate_id = $this->candidate_id;
                 $date->date = $this->date;
                 $date->start_time = $this->start_time;
-                $date->end_time = $this->end_time;
+                $date->end_time = $this->end_time;//can have end_time in manual input
                 $date->total_time = $this->total_time;
+                //$date->via = $via;
                // $this->status = $this->status;
                 if(!$date->save()) {
                     Yii::error($date->errors);
@@ -135,7 +152,8 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                     CandidateWorkingDate::updateAll([
                         "status" => $this->status,
                         "total_time" => $total_time,
-                        "end_time" => $this->end_time
+                        "end_time" => $this->end_time,
+                      //  "via" => $via
                     ], [
                         "candidate_id" => $this->candidate_id,
                         "store_id" => $this->store_id,
@@ -144,15 +162,19 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
 
                 } else { //when timer started
 
+                    //as we have health indicator now + working tag, no more need to reset status
+
+                    /*
                     CandidateWorkingDate::updateAll([
                         "status" => $this->status, //reset status
                         "total_time" => null, //reset total time as new session pending to finish
-                        "end_time" => null //as current session will be always latest session
+                        "end_time" => null, //as current session will be always latest session
+                     //   "via" => $via
                     ], [
                         "candidate_id" => $this->candidate_id,
                         "store_id" => $this->store_id,
                         "date" => $this->date,
-                    ]);
+                    ]);*/
                 }
             }
         }
@@ -168,12 +190,14 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             CandidateWorkingDate::updateAll([
                 "status" => $this->status,
                 "total_time" => $total_time,
-                "end_time" => $this->end_time //as current session will be always latest session
+                "end_time" => $this->end_time, //as current session will be always latest session
+               // "via" => $via
             ], [
                 "candidate_id" => $this->candidate_id,
                 "store_id" => $this->store_id,
                 "date" => $this->date,
             ]);
+
         }
     }
 
@@ -196,6 +220,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             'end_location_long' => 'End Location Long',
             'status' => 'Status',
             'note' => 'Note',
+            "via" => "Via",
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
@@ -301,5 +326,13 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             ->andWhere(['date' => $this->date,'candidate_id'=>$this->candidate_id])
             ->orderBy('created_at')
             ->all();
+    }
+
+    /**
+     * @return query\CandidateWorkingHourQuery
+     */
+    public static function find()
+    {
+        return new query\CandidateWorkingHourQuery(get_called_class());
     }
 }
