@@ -15,6 +15,7 @@ use yii\db\Expression;
  * @property int $type
  * @property int $candidate_work_history_id
  * @property string $candidate_working_date_uuid
+ * @property string $candidate_working_hour_uuid
  * @property string $invitation_uuid
  * @property string $request_uuid
  * @property number $tc_id
@@ -31,6 +32,7 @@ use yii\db\Expression;
  * @property CandidateWorkLogFeedback $candidateWorkLogFeedback
  * @property CandidateWorkHistory $candidateWorkHistory
  * @property CandidateWorkingDate $candidateWorkingDate
+ * @property CandidateWorkingHour $candidateWorkingHour
  * @property Company $company
  * @property Invitation $invitation
  * @property Request $request
@@ -46,6 +48,8 @@ class CandidateNotification extends \yii\db\ActiveRecord
     const TYPE_TRANSFER_INIT = 5;
     const TYPE_TRANSFER_PAID = 6;
     const TYPE_TRANSFER_UNPAID = 7;
+    const TYPE_WORK_SESSION_APPROVED = 8;
+    const TYPE_WORK_SESSION_REJECTED = 9;
 
     /**
      * {@inheritdoc}
@@ -76,6 +80,7 @@ class CandidateNotification extends \yii\db\ActiveRecord
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['candidate_work_history_id'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkHistory::className(), 'targetAttribute' => ['candidate_work_history_id' => 'id']],
             [['candidate_working_date_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingDate::className(), 'targetAttribute' => ['candidate_working_date_uuid' => 'cwd_uuid']],
+            [['candidate_working_hour_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHour::className(), 'targetAttribute' => ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['invitation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
@@ -93,6 +98,7 @@ class CandidateNotification extends \yii\db\ActiveRecord
             'type' => Yii::t('app', 'Type'),
             'candidate_work_history_id' => Yii::t('app', 'Candidate Work History ID'),
             'candidate_working_date_uuid' => Yii::t('app', 'Candidate Working Date Uuid'),
+            "candidate_working_hour_uuid" => Yii::t('app', 'Candidate Working Hour Uuid'),
             'invitation_uuid' => Yii::t('app', 'Invitation Uuid'),
             'request_uuid' => Yii::t('app', 'Request Uuid'),
             "tc_id" => Yii::t('app', 'Candidate Transfer ID'),
@@ -156,6 +162,7 @@ class CandidateNotification extends \yii\db\ActiveRecord
             "candidate",
             "candidateWorkHistory",
             "candidateWorkingDate",
+            "candidateWorkingHour",
             "candidateWorkLogFeedback",
             "company",
             "store",
@@ -195,6 +202,14 @@ class CandidateNotification extends \yii\db\ActiveRecord
     public function getCandidateWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
     {
         return $this->hasOne($modelClass::className(), ['id' => 'candidate_work_history_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']);
     }
 
     /**

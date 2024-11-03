@@ -154,6 +154,8 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
             //todo: update date status or ignore if status will be replaced with "health indicator"
 
+            $this->notifyCandidate($this->candidate_working_hour_uuid);
+
         } else {
 
             /*
@@ -169,6 +171,19 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
             //update all sessions
 
+            $hours = CandidateWorkingHour::find()
+                ->andWhere([
+                    "candidate_id" => $this->candidate_id,
+                    "store_id" => $this->store_id,
+                    "date" => $this->date,
+                    "status" => CandidateWorkingHour::STATUS_PENDING
+                ])
+                ->all();
+
+            foreach ($hours as $hour) {
+                $this->notifyCandidate($hour->candidate_working_hour_uuid);
+            }
+
             CandidateWorkingHour::updateAll([
                 "status" => $this->status,
             ], [
@@ -176,9 +191,8 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
                 "store_id" => $this->store_id,
                 "date" => $this->date,
             ]);
-        }
 
-        $this->notifyCandidate();
+        }
 
         //todo: update status for selected sessions only
 
@@ -188,9 +202,9 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
     /**
      * @return boolean
      */
-    public function notifyCandidate() {
+    public function notifyCandidate($candidate_working_hour_uuid) {
 
-        $date = CandidateWorkingDate::find()->andWhere([
+        /*$date = CandidateWorkingDate::find()->andWhere([
             "candidate_id" => $this->candidate_id,
             "store_id" => $this->store_id,
             "date" => $this->date,
@@ -203,30 +217,19 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
                     "date" => $this->date,
                 ], true), __METHOD__);
             return false;
-        }
+        }*/
 
-        if ($this->status == self::STATUS_APPROVED) {
-            $model = new CandidateNotification();
-            $model->cwlf_uuid = $this->cwlf_uuid;
-            $model->candidate_id = $this->candidate_id;
-            $model->candidate_working_date_uuid = $date->cwd_uuid;
-            $model->company_id = $this->company_id;
-            $model->store_id = $this->store_id;
-            $model->type = CandidateNotification::TYPE_WORK_APPROVED;
-            if (!$model->save()) {
-                Yii::error("Error saving notification: " . print_r($model->errors, true));
-            }
-        } else if ($this->status == self::STATUS_REJECTED) {
-            $model = new CandidateNotification();
-            $model->cwlf_uuid = $this->cwlf_uuid;
-            $model->candidate_id = $this->candidate_id;
-            $model->candidate_working_date_uuid = $date->cwd_uuid;
-            $model->company_id = $this->company_id;
-            $model->store_id = $this->store_id;
-            $model->type = CandidateNotification::TYPE_WORK_REJECTED;
-            if (!$model->save()) {
-                Yii::error("Error saving notification: " . print_r($model->errors, true));
-            }
+        $model = new CandidateNotification();
+        $model->cwlf_uuid = $this->cwlf_uuid;
+        $model->candidate_id = $this->candidate_id;
+        // $model->candidate_working_date_uuid = $date->cwd_uuid;
+        $model->candidate_working_hour_uuid = $candidate_working_hour_uuid;
+        $model->company_id = $this->company_id;
+        $model->store_id = $this->store_id;
+        $model->type = $this->status == self::STATUS_APPROVED ?
+            CandidateNotification::TYPE_WORK_SESSION_APPROVED: CandidateNotification::TYPE_WORK_SESSION_REJECTED;
+        if (!$model->save()) {
+            Yii::error("Error saving notification: " . print_r($model->errors, true));
         }
 
         return true;
