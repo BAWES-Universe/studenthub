@@ -149,10 +149,15 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                         ])
                         ->sum("total_time");
 
+                    $latestHour = $date->getLatestCandidateWorkingHour()
+                        ->one();
+
+                    $end_time = $latestHour? $latestHour->end_time: $this->end_time;
+
                     CandidateWorkingDate::updateAll([
                         "status" => $this->status,
                         "total_time" => $total_time,
-                        "end_time" => $this->end_time,
+                        "end_time" => $end_time, //$this->end_time,
                       //  "via" => $via
                     ], [
                         "candidate_id" => $this->candidate_id,
@@ -186,10 +191,15 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 ])
                 ->sum("total_time");
 
+            $latestHour = $date->getLatestCandidateWorkingHour()
+                ->one();
+
+            $end_time = $latestHour? $latestHour->end_time: $this->end_time;
+
             CandidateWorkingDate::updateAll([
                 "status" => $this->status,
                 "total_time" => $total_time,
-                "end_time" => $this->end_time, //as current session will be always latest session
+                "end_time" => $end_time, //$this->end_time, //not anymore: as current session will be always latest session
                // "via" => $via
             ], [
                 "candidate_id" => $this->candidate_id,

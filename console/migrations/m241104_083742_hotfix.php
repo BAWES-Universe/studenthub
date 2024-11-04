@@ -14,9 +14,17 @@ class m241104_083742_hotfix extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn("candidate_working_date", "total_approved", $this->integer(11));
-        $this->addColumn("candidate_working_date", "total_rejected", $this->integer(11));
-        $this->addColumn("candidate_working_date", "total_pending", $this->integer(11));
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('candidate_working_date')
+            ->getColumn('total_approved');
+
+        if (!$columnData) {
+            $this->addColumn("candidate_working_date", "total_approved", $this->integer(11));
+            $this->addColumn("candidate_working_date", "total_rejected", $this->integer(11));
+            $this->addColumn("candidate_working_date", "total_pending", $this->integer(11));
+        }
 
         $query = CandidateWorkingDate::find();
           //  ->andWhere(['total_time' => 0]);
@@ -37,8 +45,12 @@ class m241104_083742_hotfix extends Migration
                 $date->total_time = $total_time;
 
                 //if (!$date->end_time) {
-                    $date->end_time = $date->getCandidateWorkingHours()
-                        ->one()->end_time;
+                $latestHour = $date->getCandidateWorkingHours()
+                    ->one();
+
+                if ($latestHour) {
+                    $date->end_time = $latestHour->end_time;
+                }
                 //}
 
                 //set stats
