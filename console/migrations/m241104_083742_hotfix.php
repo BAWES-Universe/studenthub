@@ -37,8 +37,12 @@ class m241104_083742_hotfix extends Migration
                 $date->total_time = $total_time;
 
                 //if (!$date->end_time) {
-                    $date->end_time = $date->getCandidateWorkingHours()
-                        ->one()->end_time;
+                $latestHour = $date->getCandidateWorkingHours()
+                    ->one();
+
+                if ($latestHour) {
+                    $date->end_time = $latestHour->end_time;
+                }
                 //}
 
                 //set stats
