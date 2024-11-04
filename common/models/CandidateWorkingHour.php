@@ -164,11 +164,10 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
 
                     //as we have health indicator now + working tag, no more need to reset status
 
-                    /*
-                    CandidateWorkingDate::updateAll([
+                    /*CandidateWorkingDate::updateAll([
                         "status" => $this->status, //reset status
-                        "total_time" => null, //reset total time as new session pending to finish
-                        "end_time" => null, //as current session will be always latest session
+                     //   "total_time" => null, //reset total time as new session pending to finish
+                     //   "end_time" => null, //as current session will be always latest session
                      //   "via" => $via
                     ], [
                         "candidate_id" => $this->candidate_id,
@@ -197,8 +196,23 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 "store_id" => $this->store_id,
                 "date" => $this->date,
             ]);
-
         }
+
+        //set stats
+
+        $date->total_approved = $date->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_APPROVED])
+            ->count();
+
+        $date->total_rejected = $date->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_REJECTED])
+            ->count();
+
+        $date->total_pending = $date->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_PENDING])
+            ->count();
+
+        $date->save(false);
     }
 
     /**
