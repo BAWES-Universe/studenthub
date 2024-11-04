@@ -168,13 +168,14 @@ class TransferController extends Controller
         $start_date = Yii::$app->request->getBodyParam("start_date");
         $end_date = Yii::$app->request->getBodyParam("end_date");
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $contract_uuid = Yii::$app->request->getBodyParam('contract_uuid');
 
         if(!$currency_code) {
             Yii::$app->request->headers->get('currency');
         }
 
         //save transfer
-        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
     
     /**
@@ -190,6 +191,7 @@ class TransferController extends Controller
         $start_date = Yii::$app->request->getBodyParam('start_date');
         $end_date = Yii::$app->request->getBodyParam('end_date');
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $contract_uuid = Yii::$app->request->getBodyParam('contract_uuid');
 
         if(!$currency_code) {
             Yii::$app->request->headers->get('currency');
@@ -237,7 +239,7 @@ class TransferController extends Controller
         }
 
         //save transfer
-        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
 
     /**
@@ -252,6 +254,7 @@ class TransferController extends Controller
         $start_date = Yii::$app->request->getBodyParam('start_date');
         $end_date = Yii::$app->request->getBodyParam('end_date');
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $contract_uuid = Yii::$app->request->getBodyParam('contract_uuid');
 
         if(!$currency_code) {
             Yii::$app->request->headers->get('currency');
@@ -302,7 +305,7 @@ class TransferController extends Controller
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
 
     /**
@@ -316,6 +319,7 @@ class TransferController extends Controller
         $start_date = Yii::$app->request->getBodyParam('start_date');
         $end_date = Yii::$app->request->getBodyParam('end_date');
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
+        $contract_uuid = Yii::$app->request->getBodyParam('contract_uuid');
 
         if(!$currency_code) {
             Yii::$app->request->headers->get('currency');
@@ -323,7 +327,7 @@ class TransferController extends Controller
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
 
     /**
@@ -522,6 +526,7 @@ class TransferController extends Controller
         $preFilled = Yii::$app->request->get("preFilled");
         $startDate = Yii::$app->request->get("startDate");
         $endDate = Yii::$app->request->get("endDate");
+        $contract_uuid = Yii::$app->request->get("contract_uuid");
 
         $company = Yii::$app->companyManager->getCompany();
 
@@ -572,9 +577,16 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
+        $candidateQuery = $company->getCandidates();
+
+        if ($contract_uuid) {
+            $candidateQuery->joinWith(['latestCandidateWorkHistory'])
+                ->andWhere(['candidate_work_history.contract_uuid' => $contract_uuid]);
+        }
+
         \moonland\phpexcel\Excel::export([
             'isMultipleSheet' => false,
-            'models' => $company->candidates,
+            'models' => $candidateQuery->all(),
             'columns' => [
                 [
                     'header' => 'candidate_id',

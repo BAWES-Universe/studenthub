@@ -1158,11 +1158,17 @@ class Transfer extends ActiveRecord
             $transaction = Yii::$app->db->beginTransaction();
 
         $transfer = new Transfer;
+        $transfer->contract_uuid = $contract_uuid;
         $transfer->company_id = $company->company_id;
         $transfer->candidates = $candidates;
         $transfer->start_date = $start_date;
         $transfer->end_date   = $end_date;
         $transfer->currency_code = $currency_code;
+
+        if ($transfer->contract) {
+            $transfer->contract_type = $transfer->contract->type;
+            $transfer->currency_code = $transfer->contract->currency_code;
+        }
 
         if(!$transfer->save()) {
             if(isset($transfer->errors)) {
@@ -1185,7 +1191,7 @@ class Transfer extends ActiveRecord
 
         foreach ($candidates as $key => $value) {
 
-            $value['currency_code'] = $currency_code;
+            $value['currency_code'] = $transfer->currency_code;
 
             if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
@@ -1199,7 +1205,11 @@ class Transfer extends ActiveRecord
             if(empty($value['seconds']) || $value['seconds'] < 0)
                 $value['seconds'] = 0;
 
-            if($value['bonus'] == 0 && $value['hours'] == 0) {
+            if (
+                (!$transfer->contract || $transfer->contract->type == Contract::TYPE_HOURLY) &&
+                $value['bonus'] == 0 &&
+                $value['hours'] == 0
+            ) {
                 continue;
             }
 
@@ -1324,6 +1334,12 @@ class Transfer extends ActiveRecord
         $this->end_date = $end_date;
         $this->currency_code = $currency_code;
 
+        if ($this->contract) {
+            $this->transfer_cost = $this->contract->transfer_cost;
+            $this->contract_type = $this->contract->type;
+            $this->currency_code = $this->contract->currency_code;
+        }
+
         if($this->parent_transfer_id > 0) {
             return [
                 "operation" => "error",
@@ -1389,7 +1405,11 @@ class Transfer extends ActiveRecord
             if(empty($value['seconds']) || $value['seconds'] < 0)
                 $value['seconds'] = 0;
 
-            if($value['bonus'] == 0 && $value['hours'] == 0) {
+            if (
+                (!$this->contract || $this->contract->type == Contract::TYPE_HOURLY) &&
+                $value['bonus'] == 0 &&
+                $value['hours'] == 0
+            ) {
                 continue;
             }
 
@@ -1522,11 +1542,12 @@ class Transfer extends ActiveRecord
 
             foreach ($candidates as $key => $value)
             {
-                if ((int) $value['minutes']>0 || (int)$value['seconds']>0 ||
-                    (int)$value['hours']>0 || $value['bonus'] > 0
-                ) {
+                //(int) $value['minutes']>0 || (int)$value['seconds']>0 ||
+                //                    (int)$value['hours']>0 || $value['bonus'] > 0
 
-                    $total += $value['bonus'] - $value['bonus_commission']
+                if ($company_total > 0) {
+
+                    /*$total += $value['bonus'] - $value['bonus_commission']
                         + ($value['hours'] * $value['candidate_hourly_rate'])
                         + ($value['minutes'] * ($value['candidate_hourly_rate'] / 60))
                         + ($value['seconds'] * ($value['candidate_hourly_rate'] / 3600));
@@ -1534,8 +1555,10 @@ class Transfer extends ActiveRecord
                     $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate'])
                         + ($value['minutes'] * ($value['company_hourly_rate'] / 60))
                         + ($value['seconds'] * ($value['company_hourly_rate'] / 3600))
-                        + $value['transfer_cost'];
+                        + $value['transfer_cost'];*/
 
+                    $company_total += $value['company_total'];
+                    $total += $value['candidate_total'];
                     $transfer_cost += $value['transfer_cost'];
                 }
             }
