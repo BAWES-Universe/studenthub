@@ -196,6 +196,28 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
         //todo: update status for selected sessions only
 
+        //set stats
+
+        $date = CandidateWorkingDate::find()->andWhere([
+            "candidate_id" => $this->candidate_id,
+            "store_id" => $this->store_id,
+            "date" => $this->date,
+        ])->one();
+
+        $date->total_approved = $date->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_APPROVED])
+            ->count();
+
+        $date->total_rejected = $date->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_REJECTED])
+            ->count();
+
+        $date->total_pending = $date->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_PENDING])
+            ->count();
+
+        $date->save();
+
         return true;
     }
 
