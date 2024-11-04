@@ -197,7 +197,6 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 "store_id" => $this->store_id,
                 "date" => $this->date,
             ]);
-
         }
     }
 

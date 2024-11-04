@@ -18,6 +18,8 @@ use Segment\Segment;
  * @property integer $transfer_id
  * @property integer $parent_transfer_id
  * @property integer $company_id
+ * @property string $contract_uuid
+ * @property string $contract_type
  * @property integer $total
  * @property integer $company_total
  * @property integer $transfer_cost
@@ -85,8 +87,10 @@ class Transfer extends ActiveRecord
             [['transfer_status'], 'validateTransferStatus'],
             [['total', 'company_total', "transfer_cost"], 'number'],
             ['start_date', 'validateDates'],
-            [["currency_code"], "string"],
+            ['contract_uuid', 'validateContract'],
+            [["currency_code", "contract_type"], "string"],
             [['transfer_created_at', 'transfer_updated_at', 'payment_received_on','start_date','end_date'], 'safe'],
+            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
     }
@@ -94,8 +98,31 @@ class Transfer extends ActiveRecord
     /**
      * @return void
      */
+    public function validateContract() {
+
+        //validate contract date range matched transfer date
+
+        if ($this->contract) {
+
+            if ($this->contract->start_date) {
+                if (strtotime($this->contract->start_date) <= strtotime($this->start_date)) {
+                    $this->addError('start_date', 'Start date should be greater then or equal to contract start date');
+                }
+            }
+
+            if ($this->contract->end_date) {
+                if (strtotime($this->contract->end_date) >= strtotime($this->end_date)) {
+                    $this->addError('end_date', 'End date should be less then or equal to contract end date');
+                }
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
     public function validateDates() {
-        if(strtotime($this->end_date) <= strtotime($this->start_date)){
+        if(strtotime($this->end_date) <= strtotime($this->start_date)) {
             $this->addError('start_date','End date should be greater then start date');
         }
     }
@@ -166,6 +193,10 @@ class Transfer extends ActiveRecord
             if(!$this->currency_code) {
                 $this->currency_code = "KWD";
             }
+        }
+
+        if (!$this->contract_type && $this->contract) {
+            $this->contract_type = $this->contract->type;
         }
 
         return true;
@@ -290,6 +321,7 @@ class Transfer extends ActiveRecord
             'updatedBy',
             'invoices',
             'company',
+            "contract",
             'invoices',
             'transferCandidates',
             'childTransfers',
@@ -416,6 +448,15 @@ class Transfer extends ActiveRecord
             'series' => $series,
             'categories' => array_keys ($data)
         ];
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContract($modelClass = "\common\models\Contract")
+    {
+        return $this->hasOne($modelClass::className(), ['contract_uuid' => 'contract_uuid']);
     }
 
     /**
@@ -1111,7 +1152,7 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD") {
+    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null) {
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
@@ -1277,7 +1318,7 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD") {
+    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null) {
 
         $this->start_date = $start_date;
         $this->end_date = $end_date;
