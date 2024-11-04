@@ -329,8 +329,14 @@ class Candidate extends \common\models\Candidate {
 
         if ($session_status || $start_date || $end_date) {
 
-            if ($session_status) {
-                $query->andWhere(['candidate_working_date.status' => $session_status]);
+            if ($session_status !== null) {
+                if ($session_status == \common\models\CandidateWorkingHour::STATUS_APPROVED) {
+                    $query->andWhere(new Expression('candidate_working_date.total_approved > 0'));
+                } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_REJECTED) {
+                    $query->andWhere(new Expression('candidate_working_date.total_rejected > 0'));
+                } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_PENDING) {
+                    $query->andWhere(new Expression('candidate_working_date.total_pending > 0'));
+                }
             }
 
             if ($start_date) {

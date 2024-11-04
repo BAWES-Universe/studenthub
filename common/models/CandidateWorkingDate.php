@@ -20,6 +20,9 @@ use yii\helpers\ArrayHelper;
  * @property string $end_time
  * @property int $total_time
  * @property int $status
+ * @property int $total_approved
+ * @property int $total_rejected
+ * @property int $total_pending
  * @property string $created_at
  * @property string $updated_at
  *
@@ -49,7 +52,7 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
         return [
             //'cwd_uuid',
             [['candidate_id', 'store_id', 'company_id', 'date', 'start_time'], 'required'],
-            [['candidate_id', 'store_id', 'company_id', 'total_time', 'status'], 'integer'],
+            [['candidate_id', 'store_id', 'company_id', 'total_time', 'status', "total_approved", "total_rejected", "total_pending"], 'integer'],
             [['date', 'start_time', 'end_time', 'created_at', 'updated_at'], 'safe'],
             [['cwd_uuid'], 'string', 'max' => 60],
             [['cwd_uuid'], 'unique'],
@@ -108,7 +111,37 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
             return ArrayHelper::map($health, "status", "total");
         };
 
-        return $fields;
+        return array_merge($fields, [
+            "latestCandidateWorkingHour",
+            "candidateWorkingHours"
+        ]);
+    }
+
+    /**
+     * @param $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        //set stats
+/*
+        $this->total_approved = $this->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_APPROVED])
+            ->count();
+
+        $this->total_rejected = $this->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_REJECTED])
+            ->count();
+
+        $this->total_pending = $this->getCandidateWorkingHours()
+            ->andWhere(['status' => CandidateWorkingHour::STATUS_PENDING])
+            ->count();*/
+
+        return true;
     }
 
     /**
@@ -128,7 +161,31 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
             'status' => Yii::t('app', 'Status'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
+            "total_approved" => Yii::t('app', 'Total Approved'),
+            "total_rejected" => Yii::t('app', 'Total Rejected'),
+            "total_pending" => Yii::t('app', 'Total Pending'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLatestCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
+    {
+        return $this->getCandidateWorkingHours($modelClass::className())
+            ->one();
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkingHours($modelClass = "\common\models\CandidateWorkingHour")
+    {
+        return $this->hasMany($modelClass::className(), [
+            'candidate_id' => 'candidate_id',
+            "store_id" => "store_id",
+            "date" => "date"
+        ])->orderBy("end_time DESC");
     }
 
     /**
