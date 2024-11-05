@@ -1165,6 +1165,7 @@ class Company extends \yii\db\ActiveRecord
      */
     public function getContracts($modelClass = "\common\models\Contract")
     {
-        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id']);
+        return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
+            ->orderBy("contract.created_at DESC");
     }
 }

@@ -1106,8 +1106,8 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         return [
             "operation" => "success",
-            "total" => $total,
-            "company_total" => $company_total,
+            "total" => $TCModel->candidate_total,
+            "company_total" => $TCModel->company_total,
             "transfer_cost" => $TCModel->transfer_cost
         ];
     }

@@ -4,6 +4,7 @@ namespace company\modules\v1\controllers;
 
 use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHour;
+use common\models\Contract;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
@@ -532,6 +533,13 @@ class TransferController extends Controller
 
         $transferCandidates = [];
 
+        $candidateQuery = $company->getCandidates();
+
+        if ($contract_uuid) {
+            $candidateQuery->joinWith(['latestCandidateWorkHistory'])
+                ->andWhere(['candidate_work_history.contract_uuid' => $contract_uuid]);
+        }
+
         if ($preFilled) {
 
             if ($preFilled == 'workLog') {
@@ -544,29 +552,39 @@ class TransferController extends Controller
                     $endDate = date("Y-m-d");
                 }
 
-                foreach ($company->candidates as $candidate) {
+                foreach ($candidateQuery->batch(100) as $candidates) {
 
-                    $seconds = CandidateWorkingDate::find()->andWhere([
+                    foreach ($candidates as $candidate) {
+
+                        $seconds = CandidateWorkingDate::find()->andWhere([
                             "candidate_id" => $candidate->candidate_id,
                             "store_id" => $candidate->store_id, //filter by store, in case store changed in month
                             "status" => CandidateWorkingDate::STATUS_APPROVED
                         ])
-                        ->filterByDateRange($startDate, $endDate)
-                        ->sum("total_time");
+                            ->filterByDateRange($startDate, $endDate)
+                            ->sum("total_time");
 
-                    $hours = floor($seconds/ 3600);
-                    $minutes = floor(($seconds - ($hours * 3600))/ 60);
+                        $hours = floor($seconds / 3600);
+                        $minutes = floor(($seconds - ($hours * 3600)) / 60);
 
-                    $transferCandidates[$candidate->candidate_id] = [
-                        "hours" => $hours,
-                        "minutes" => $minutes,
-                        "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
-                        "bonus" => 0
-                    ];
+                        $transferCandidates[$candidate->candidate_id] = [
+                            "hours" => $hours,
+                            "minutes" => $minutes,
+                            "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
+                            "bonus" => 0
+                        ];
+                    }
                 }
 
             } else {
-                $latestTransfer = $company->getParentTransfers()->one();
+
+                $latestTransferQuery = $company->getParentTransfers();
+
+                if ($contract_uuid) {
+                    $latestTransferQuery->andWhere(['contract_uuid' => $contract_uuid]);
+                }
+
+                $latestTransfer = $latestTransferQuery->one();
 
                 if ($latestTransfer) {
                     $transferCandidates = ArrayHelper::index($latestTransfer->getTransferCandidates()->all(),
@@ -577,46 +595,51 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        $candidateQuery = $company->getCandidates();
+        $columns = [
+            [
+                'header' => 'candidate_id',
+                'value' => function($data) {
+                    return $data->candidate_id;
+                }
+            ],
+            [
+                'header' => 'candidate_name',
+                'value' => function($data) {
+                    return $data->candidate_name;
+                }
+            ],
+            [
+                'header' => 'company_name',
+                'value' => function($data) {
+                    return $data->company->company_name;
+                }
+            ],
+            [
+                'header' => 'store_name',
+                'value' => function($data) {
+                    return $data->store->store_name;
+                }
+            ],
+        ];
 
-        if ($contract_uuid) {
-            $candidateQuery->joinWith(['latestCandidateWorkHistory'])
-                ->andWhere(['candidate_work_history.contract_uuid' => $contract_uuid]);
-        }
+        $contract = $company->getContracts()
+            ->andWhere(['contract_uuid' => $contract_uuid])
+            ->one();
 
-        \moonland\phpexcel\Excel::export([
-            'isMultipleSheet' => false,
-            'models' => $candidateQuery->all(),
-            'columns' => [
+        if (!$contract || $contract->type == Contract::TYPE_HOURLY) {
+            $columns = array_merge($columns, [
                 [
-                    'header' => 'candidate_id',
-                    'value' => function($data) {
-                        return $data->candidate_id;
+                    'header' => 'bonus',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['bonus']: 0;
                     }
                 ],
-                [
-                    'header' => 'candidate_name',
-                    'value' => function($data) {
-                        return $data->candidate_name;
-                    }
-                ],
-	            [
-		            'header' => 'company_name',
-		            'value' => function($data) {
-			            return $data->company->company_name;
-		            }
-	            ],
-	            [
-		            'header' => 'store_name',
-		            'value' => function($data) {
-			            return $data->store->store_name;
-		            }
-	            ],
                 [
                     'header' => 'hours',
                     'value' => function($data) use ($transferCandidates, $preFilled) {
-                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
-                            $transferCandidates[$data->candidate_id]['hours']: 0;
+                    return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                        $transferCandidates[$data->candidate_id]['hours']: 0;
                     }
                 ],
                 [
@@ -633,17 +656,38 @@ class TransferController extends Controller
                             $transferCandidates[$data->candidate_id]['seconds']: 0;
                     }
                 ],
+            ]);
+        } /*else { //fixed or monthly
+            $columns = array_merge($columns, [
                 [
-                    'header' => 'bonus',
+                    'header' => 'candidate_total',
                     'value' => function($data) use ($transferCandidates, $preFilled) {
                         return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
-                            $transferCandidates[$data->candidate_id]['bonus']: 0;;
+                            $transferCandidates[$data->candidate_id]['candidate_total']: 0;
                     }
-                ]
-            ]
+                ],
+                [
+                    'header' => 'company_total',
+                    'value' => function($data) use ($transferCandidates, $preFilled) {
+                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
+                            $transferCandidates[$data->candidate_id]['company_total']: 0;
+                    }
+                ],
+            ]);
+        }*/
+
+        \moonland\phpexcel\Excel::export([
+            'isMultipleSheet' => false,
+            'models' => $candidateQuery->all(),
+            'columns' => $columns
         ]);        
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
     protected function findModel($id)
     {
         $company = Yii::$app->companyManager->getCompany();

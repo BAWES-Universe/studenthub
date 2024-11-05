@@ -3377,8 +3377,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getLatestCandidateWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
-            ->andWhere(new Exception("end_date IS NULL"))
-            ->orderBy("start_date DESC");
+            ->andWhere(new Expression("end_date IS NULL"));
+           // ->orderBy("start_date DESC");
     }
 
     /**

@@ -73,6 +73,26 @@ class HourlyContract extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param $insert
+     * @param $changedAttributes
+     * @return bool
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        CandidateWorkHistory::updateAll([
+            "candidate_hourly_rate" => $this->candidate_hourly_rate,
+            "company_hourly_rate" => $this->company_hourly_rate,
+            "transfer_cost" => $this->contract->transfer_cost
+        ], [
+            "contract_uuid" => $this->contract_uuid
+        ]);
+
+        return true;
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getContract($className = '\common\models\Contract')
