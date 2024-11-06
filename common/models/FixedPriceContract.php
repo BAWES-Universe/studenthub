@@ -70,12 +70,12 @@ class FixedPriceContract extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        CandidateWorkHistory::updateAll([
+        /*CandidateWorkHistory::updateAll([
             "candidate_total" => $this->candidate_total,
             "company_total" => $this->company_total,
         ], [
             "contract_uuid" => $this->contract_uuid
-        ]);
+        ]);*/
 
         return true;
     }

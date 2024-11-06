@@ -54,6 +54,17 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [// ContractController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/contract',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'detail',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [// CampaignController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/campaign',

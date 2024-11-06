@@ -947,31 +947,11 @@ class TransferCandidate extends \yii\db\ActiveRecord
             Yii::$app->params['transfer_cost'] = 0;
         }
 
-        $total = 0;
-        $company_total = 0;
-        $hourly_rate = 0;
-
-        $assignment = CandidateWorkHistory::find()
-            ->andWhere ([
-                'candidate_id' => $candidate['candidate_id'],
-                'store_id' => $candidate['store_id'],
-            ])
-            ->orderBy(new Expression('start_date DESC'))
-            ->one();
-
-        $hourly_rate = $assignment ? $assignment->candidate_hourly_rate: $candidate['candidate_hourly_rate'];
-        $minute_rate = $hourly_rate / 60;
-        $second_rate = $minute_rate / 60;
-
-        $transfer_cost = $assignment ? $assignment->getTransferCost(): Yii::$app->params['transfer_cost'];
-
         $store = $candidate['store'];
         $company = $candidate['company'];
 
         $TCModel = new \company\models\TransferCandidate;
         $TCModel->attributes = $value;
-        $TCModel->transfer_cost = $transfer_cost;
-        $TCModel->candidate_hourly_rate = $hourly_rate;
         $TCModel->transfer_id = $model->transfer_id;
         $TCModel->store_id = $candidate['store_id'];
         if ($store) {
@@ -984,69 +964,125 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $TCModel->transfer_benef_name = $candidate['bank_account_name'];
         $TCModel->transfer_benef_iban = $candidate['candidate_iban'];
 
+        $total = 0;
+        $company_total = 0;
+        $minute_rate = 0;
+        $second_rate = 0;
+
+        //todo: ability to override from contract form
         $company_bonus_commission = $company['company_bonus_commission'];
-        $company_hourly_rate = $assignment && $assignment->company_hourly_rate > 0 ?
-            $assignment->company_hourly_rate: $company['company_hourly_rate'];
 
-        //if value not set take from parent company
-
-        if(($company_bonus_commission + $company_hourly_rate == 0) && $company['parent_company_id'])
+        if (!$model->contract)
         {
-            $parent = Company::findOne(['company_id' => $company['parent_company_id']]);
+            $assignment = CandidateWorkHistory::find()
+                ->andWhere ([
+                    'candidate_id' => $candidate['candidate_id'],
+                    'store_id' => $candidate['store_id'],
+                ])
+                ->orderBy(new Expression('start_date DESC'))
+                ->one();
 
-            if(!$parent)
+            $TCModel->candidate_hourly_rate = $assignment ? $assignment->candidate_hourly_rate : $candidate['candidate_hourly_rate'];
+            $minute_rate = $TCModel->candidate_hourly_rate / 60;
+            $second_rate = $minute_rate / 60;
+
+            $TCModel->company_hourly_rate = $assignment && $assignment->company_hourly_rate > 0 ?
+                $assignment->company_hourly_rate: $company['company_hourly_rate'];
+
+            //if value not set take from parent company
+
+            if(($company_bonus_commission + $TCModel->company_hourly_rate == 0) && $company['parent_company_id'])
             {
+                $parent = Company::findOne(['company_id' => $company['parent_company_id']]);
+
+                if(!$parent)
+                {
+                    return [
+                        "operation" => "error",
+                        "message" => "Parent not found."
+                    ];
+                }
+
+                $company_bonus_commission = $parent['company_bonus_commission'];
+
+                $TCModel->company_hourly_rate = $parent['company_hourly_rate'];
+            }
+
+            $TCModel->transfer_cost = $assignment ? $assignment->getTransferCost() : Yii::$app->params['transfer_cost'];
+        }
+        else if ($model->contract->type == Contract::TYPE_HOURLY)
+        {
+            $TCModel->candidate_hourly_rate = $model->contract->amount->candidate_hourly_rate;
+
+            $TCModel->company_hourly_rate = $model->contract->amount->company_hourly_rate;
+
+            $minute_rate = $TCModel->candidate_hourly_rate / 60;
+            $second_rate = $minute_rate / 60;
+
+            $TCModel->transfer_cost = $model->contract->transfer_cost;
+        }
+        else if ($model->contract->type == Contract::TYPE_MONTHLY_SALARY)
+        {
+            $TCModel->transfer_cost = $model->contract->transfer_cost;
+
+            $TCModel->candidate_total = $model->contract->amount->candidate_total;
+
+            $TCModel->company_total = $model->contract->amount->company_total;
+        }
+        else if ($model->contract->type == Contract::TYPE_FIXED_PRICE)
+        {
+            $TCModel->transfer_cost = $model->contract->transfer_cost;
+
+            //todo: based on contract completion percentage
+            $TCModel->candidate_total = $model->contract->amount->candidate_total;
+
+            $TCModel->company_total = $model->contract->amount->company_total;
+        }
+
+        // hourly based calculation
+
+        if (!$model->contract || $model->contract->type == Contract::TYPE_HOURLY) {
+
+            //if bonus commission or hourly rate not set
+
+            if($company_bonus_commission == 0 && $TCModel->company_hourly_rate == 0) {
                 return [
                     "operation" => "error",
-                    "message" => "Parent not found."
+                    "message" => "Company hourly rate not set, please contact us for assistance"
                 ];
             }
 
-            $company_bonus_commission = $parent['company_bonus_commission'];
-            $company_hourly_rate = $parent['company_hourly_rate'];
-        }
+            $company_minute_rate = $TCModel->company_hourly_rate/ 60;
+            $company_second_rate = $company_minute_rate / 60;
 
-        //if bonus commission or hourly rate not set
+            //calculate and save bonus_commission
 
-        if($company_bonus_commission == 0 && $company_hourly_rate == 0) {
-            return [
-                "operation" => "error",
-                "message" => "Company hourly rate not set, please contact us for assistance"
-            ];
-        }
+            $bonus = (float)$value['bonus'];
 
-        $company_minute_rate = $company_hourly_rate/ 60;
-        $company_second_rate = $company_minute_rate / 60;
+            $hours = (float)$value['hours'];
 
-        //calculate and save bonus_commission
+            $minutes = (float)$value['minutes'];
 
-        $bonus = (float)$value['bonus'];
+            $seconds = (float)$value['seconds'];
 
-        $hours = (float)$value['hours'];
+            $TCModel->bonus_commission = $bonus * $company_bonus_commission / 100;
 
-        $minutes = (float)$value['minutes'];
+            if ($minutes > 0 || $seconds > 0 || $hours > 0 || $bonus > 0) {
 
-        $seconds = (float)$value['seconds'];
+                $total = $bonus - $TCModel->bonus_commission + ($hours * $TCModel->candidate_hourly_rate) + ($minutes * $minute_rate)
+                    + ($seconds * $second_rate);
 
-        $TCModel->bonus_commission = $bonus * $company_bonus_commission / 100;
+                $company_total = $bonus + ($hours * $TCModel->company_hourly_rate) + ($minutes * $company_minute_rate)
+                    + ($seconds * $company_second_rate) + $TCModel->transfer_cost ;
 
-        $TCModel->company_hourly_rate = $company_hourly_rate;
+                $TCModel->candidate_total = round($total, 3);
 
-        if ($minutes > 0 || $seconds > 0 || $hours > 0 || $bonus > 0) {
-
-            $total = $bonus - $TCModel->bonus_commission + ($hours * $hourly_rate) + ($minutes * $minute_rate)
-                + ($seconds * $second_rate);
-
-            $company_total = $bonus + ($hours * $company_hourly_rate) + ($minutes * $company_minute_rate)
-                + ($seconds * $company_second_rate) + $transfer_cost;
-
-            $TCModel->candidate_total = round($total, 3);
-
-            $TCModel->company_total = round($company_total, 3);
+                $TCModel->company_total = round($company_total, 3);
+            }
         }
 
         // in case if amount is 0
-        if ($total  == 0) {
+        if ($TCModel->company_total  == 0) {
             return [
                 "operation" => "error",
                 "message" => "Can not create candidate transfer with 0 amount."
@@ -1070,9 +1106,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         return [
             "operation" => "success",
-            "total" => $total,
-            "company_total" => $company_total,
-            "transfer_cost" => $transfer_cost
+            "total" => $TCModel->candidate_total,
+            "company_total" => $TCModel->company_total,
+            "transfer_cost" => $TCModel->transfer_cost
         ];
     }
 

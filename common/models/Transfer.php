@@ -18,6 +18,8 @@ use Segment\Segment;
  * @property integer $transfer_id
  * @property integer $parent_transfer_id
  * @property integer $company_id
+ * @property string $contract_uuid
+ * @property string $contract_type
  * @property integer $total
  * @property integer $company_total
  * @property integer $transfer_cost
@@ -85,8 +87,10 @@ class Transfer extends ActiveRecord
             [['transfer_status'], 'validateTransferStatus'],
             [['total', 'company_total', "transfer_cost"], 'number'],
             ['start_date', 'validateDates'],
-            [["currency_code"], "string"],
+            ['contract_uuid', 'validateContract'],
+            [["currency_code", "contract_type"], "string"],
             [['transfer_created_at', 'transfer_updated_at', 'payment_received_on','start_date','end_date'], 'safe'],
+            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
         ];
     }
@@ -94,8 +98,31 @@ class Transfer extends ActiveRecord
     /**
      * @return void
      */
+    public function validateContract() {
+
+        //validate contract date range matched transfer date
+
+        if ($this->contract) {
+
+            if ($this->contract->start_date) {
+                if (strtotime($this->start_date) < strtotime($this->contract->start_date)) {
+                    $this->addError('start_date', 'Start date should be greater then or equal to contract start date');
+                }
+            }
+
+            if ($this->contract->end_date) {
+                if (strtotime($this->end_date) > strtotime($this->contract->end_date)) {
+                    $this->addError('end_date', 'End date should be less then or equal to contract end date');
+                }
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
     public function validateDates() {
-        if(strtotime($this->end_date) <= strtotime($this->start_date)){
+        if(strtotime($this->end_date) <= strtotime($this->start_date)) {
             $this->addError('start_date','End date should be greater then start date');
         }
     }
@@ -166,6 +193,10 @@ class Transfer extends ActiveRecord
             if(!$this->currency_code) {
                 $this->currency_code = "KWD";
             }
+        }
+
+        if (!$this->contract_type && $this->contract) {
+            $this->contract_type = $this->contract->type;
         }
 
         return true;
@@ -286,10 +317,12 @@ class Transfer extends ActiveRecord
     public function extraFields()
     {
         return [
+            "contract",
             'createdBy',
             'updatedBy',
             'invoices',
             'company',
+            "contract",
             'invoices',
             'transferCandidates',
             'childTransfers',
@@ -416,6 +449,15 @@ class Transfer extends ActiveRecord
             'series' => $series,
             'categories' => array_keys ($data)
         ];
+    }
+
+    /**
+     * @param string $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContract($modelClass = "\common\models\Contract")
+    {
+        return $this->hasOne($modelClass::className(), ['contract_uuid' => 'contract_uuid']);
     }
 
     /**
@@ -1111,17 +1153,30 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD") {
+    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null) {
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
 
+        $contract = Contract::find()
+            ->andWhere([
+                "company_id" => $company->company_id,
+                'contract_uuid' => $contract_uuid
+            ])
+            ->one();
+
         $transfer = new Transfer;
+        $transfer->contract_uuid = $contract_uuid;
         $transfer->company_id = $company->company_id;
         $transfer->candidates = $candidates;
         $transfer->start_date = $start_date;
         $transfer->end_date   = $end_date;
         $transfer->currency_code = $currency_code;
+
+        if ($contract) {
+            $transfer->contract_type = $contract->type;
+            $transfer->currency_code = $contract->currency_code;
+        }
 
         if(!$transfer->save()) {
             if(isset($transfer->errors)) {
@@ -1144,7 +1199,7 @@ class Transfer extends ActiveRecord
 
         foreach ($candidates as $key => $value) {
 
-            $value['currency_code'] = $currency_code;
+            $value['currency_code'] = $transfer->currency_code;
 
             if(empty($value['bonus']) || $value['bonus'] < 0)
                 $value['bonus'] = 0;
@@ -1158,7 +1213,11 @@ class Transfer extends ActiveRecord
             if(empty($value['seconds']) || $value['seconds'] < 0)
                 $value['seconds'] = 0;
 
-            if($value['bonus'] == 0 && $value['hours'] == 0) {
+            if (
+                (!$contract || $contract->type == Contract::TYPE_HOURLY) &&
+                $value['bonus'] == 0 &&
+                $value['hours'] == 0
+            ) {
                 continue;
             }
 
@@ -1277,11 +1336,17 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD") {
+    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null) {
 
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->currency_code = $currency_code;
+
+        if ($this->contract) {
+            $this->transfer_cost = $this->contract->transfer_cost;
+            $this->contract_type = $this->contract->type;
+            $this->currency_code = $this->contract->currency_code;
+        }
 
         if($this->parent_transfer_id > 0) {
             return [
@@ -1348,7 +1413,11 @@ class Transfer extends ActiveRecord
             if(empty($value['seconds']) || $value['seconds'] < 0)
                 $value['seconds'] = 0;
 
-            if($value['bonus'] == 0 && $value['hours'] == 0) {
+            if (
+                (!$this->contract || $this->contract->type == Contract::TYPE_HOURLY) &&
+                $value['bonus'] == 0 &&
+                $value['hours'] == 0
+            ) {
                 continue;
             }
 
@@ -1481,11 +1550,12 @@ class Transfer extends ActiveRecord
 
             foreach ($candidates as $key => $value)
             {
-                if ((int) $value['minutes']>0 || (int)$value['seconds']>0 ||
-                    (int)$value['hours']>0 || $value['bonus'] > 0
-                ) {
+                //(int) $value['minutes']>0 || (int)$value['seconds']>0 ||
+                //                    (int)$value['hours']>0 || $value['bonus'] > 0
 
-                    $total += $value['bonus'] - $value['bonus_commission']
+                if ($company_total > 0) {
+
+                    /*$total += $value['bonus'] - $value['bonus_commission']
                         + ($value['hours'] * $value['candidate_hourly_rate'])
                         + ($value['minutes'] * ($value['candidate_hourly_rate'] / 60))
                         + ($value['seconds'] * ($value['candidate_hourly_rate'] / 3600));
@@ -1493,8 +1563,10 @@ class Transfer extends ActiveRecord
                     $company_total += $value['bonus'] + ($value['hours'] * $value['company_hourly_rate'])
                         + ($value['minutes'] * ($value['company_hourly_rate'] / 60))
                         + ($value['seconds'] * ($value['company_hourly_rate'] / 3600))
-                        + $value['transfer_cost'];
+                        + $value['transfer_cost'];*/
 
+                    $company_total += $value['company_total'];
+                    $total += $value['candidate_total'];
                     $transfer_cost += $value['transfer_cost'];
                 }
             }
@@ -1610,8 +1682,6 @@ class Transfer extends ActiveRecord
             $minutes = (isset($value['minutes'])) ? $value['minutes'] : 0;
             $seconds = (isset($value['seconds'])) ? $value['seconds'] : 0;
 
-            $transfer_cost = (isset($value['transfer_cost'])) ? $value['transfer_cost'] : 0;
-
             if($seconds < 0)
             {
                 $this->addError($attribute, 'Seconds can not be negative');
@@ -1662,26 +1732,45 @@ class Transfer extends ActiveRecord
                 $this->addError($attribute, 'Candidate "' . $candidate->candidate_name . '" is not your employee.');
             }
 
-            $company_hourly_rate = $company['company_hourly_rate'];
+            if (!$this->contract_uuid || $this->contract_type == Contract::TYPE_HOURLY) {
 
-            //if value not set take from parent company
+                $company_hourly_rate = 0;
+                $transfer_cost = 0;
 
-            if($company['company_hourly_rate'] == 0 &&  $company['company_bonus_commission'] == 0 && $company->parentCompany)
-            {
-                $company_hourly_rate = $company->parentCompany['company_hourly_rate'];
+                if ($this->contract) {
+                    $company_hourly_rate = $this->contract->amount->company_hourly_rate;
+                    $transfer_cost = $this->contract->amount->transfer_cost;
+                } else {
+                    $company_hourly_rate = $company['company_hourly_rate'];
+
+                    //if value not set take from parent company
+
+                    if ($company['company_hourly_rate'] == 0 && $company['company_bonus_commission'] == 0
+                        && $company->parentCompany) {
+                        $company_hourly_rate = $company->parentCompany['company_hourly_rate'];
+                    }
+
+                    $transfer_cost = (isset($value['transfer_cost'])) ? $value['transfer_cost'] : 0;
+                }
+
+                $company_minute_rate = $company_hourly_rate / 60;
+                $company_second_rate = $company_minute_rate / 60;
+
+                $company_total += $bonus + ($hours * $company_hourly_rate) + $transfer_cost + ($minutes * $company_minute_rate)
+                    + ($seconds * $company_second_rate);
+            } else {
+                $company_total += $this->contract->amount->company_total;
             }
-
-            $company_minute_rate = $company_hourly_rate/ 60;
-            $company_second_rate = $company_minute_rate/ 60;
-
-            $company_total += $bonus + ($hours * $company_hourly_rate) + $transfer_cost + ($minutes * $company_minute_rate)
-                + ($seconds * $company_second_rate);
         }
 
         // Case where transfer total is zero/empty
         if ($company_total == 0) {
             $this->addError($attribute, "Transfer total is zero. Please input the actual hours worked.");
         }
+
+        //commenting as some candidate might be paid in different transfer
+
+        /*
 
         // Get list of all subcompanies belonging to this company.
         $companies = Company::findAll(['parent_company_id' => $this->company_id]);
@@ -1690,24 +1779,24 @@ class Transfer extends ActiveRecord
 
         // Use subcompany list to Get list of all stores belonging to the parent company
         $stores = Store::find()
-            ->andWhere(['in', 'company_id', $company_ids])
-            ->all();
+           ->andWhere(['in', 'company_id', $company_ids])
+           ->all();
 
-        $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
+       $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');
 
-        // Find all candidates that work in stores belonging to company but not included in candidate list
-        // that is being validated. Show error if any missing
-        $candidate_ids = ArrayHelper::map($this->candidates, 'candidate_id', 'candidate_id');
+       // Find all candidates that work in stores belonging to company but not included in candidate list
+       // that is being validated. Show error if any missing
+       $candidate_ids = ArrayHelper::map($this->candidates, 'candidate_id', 'candidate_id');
 
-        $missing = Candidate::find()
-            ->andWhere(['deleted' => 0])
-            ->andWhere(['in', 'store_id', $store_ids])
-            ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
-            ->count();
+       $missing = Candidate::find()
+           ->andWhere(['deleted' => 0])
+           ->andWhere(['in', 'store_id', $store_ids])
+           ->andWhere(['NOT IN', 'candidate_id', $candidate_ids])
+           ->count();
 
-        if($missing > 0)
-        {
-            $this->addError($attribute, 'Missing ' . $missing . ' candidate(s).');
-        }
+       if($missing > 0)
+       {
+           $this->addError($attribute, 'Missing ' . $missing . ' candidate(s).');
+       }*/
     }
 }
