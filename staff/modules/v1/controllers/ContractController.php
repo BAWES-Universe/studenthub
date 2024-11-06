@@ -99,7 +99,9 @@ class ContractController extends Controller
     {
         $model = $this->findModel($id);
 
-        if (!$model->delete()) {
+        $model->deleted = true;
+
+        if (!$model->save()) {
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",

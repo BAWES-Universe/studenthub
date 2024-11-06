@@ -21,6 +21,7 @@ use yii\db\Expression;
  * @property string $currency_code
  * @property int $status
  * @property int $created_by
+ * @property boolean $deleted
  * @property string $created_at
  * @property string $updated_at
  *
@@ -55,6 +56,7 @@ class Contract extends \yii\db\ActiveRecord
             [['company_id', 'type'], 'required'],
             [['company_id', 'status', 'created_by'], 'integer'],
             [['detail'], 'string'],
+            [['deleted'], 'boolean'],
             [["status"], "default", "value" => 0],
             [['transfer_cost'],  "default", "value" => 0],
             [['currency_code'],  "default", "value" => "KWD"],
@@ -116,6 +118,7 @@ class Contract extends \yii\db\ActiveRecord
             'currency_code' => Yii::t('app', 'Currency Code'),
             'status' => Yii::t('app', 'Status'),
             'created_by' => Yii::t('app', 'Created By'),
+            "deleted" => Yii::t('app', 'Deleted'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
@@ -137,6 +140,10 @@ class Contract extends \yii\db\ActiveRecord
      * @return array|string[]|void
      */
     public function afterSave($insert, $changedAttributes) {
+
+        if (isset($changedAttributes['deleted'])) {
+            return true;
+        }
 
         if (!$insert && isset($changedAttributes['type'])) {
             $this->amount->delete();
@@ -294,5 +301,13 @@ class Contract extends \yii\db\ActiveRecord
     public function getMonthlySalaryContract($className = '\common\models\MonthlySalaryContract')
     {
         return $this->hasOne($className::className(), ['contract_uuid' => 'contract_uuid']);
+    }
+
+    /**
+     * @return query\ContractQuery
+     */
+    public static function find()
+    {
+        return new query\ContractQuery(get_called_class());
     }
 }
