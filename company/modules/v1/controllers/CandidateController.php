@@ -83,8 +83,21 @@ class CandidateController extends BaseController
      */
     public function actionList()
     {
-        return Yii::$app->companyManager->getCompany()
-            ->getCandidates()->all();
+        $contract_uuid = Yii::$app->request->get('contract_uuid');
+
+        $query = Yii::$app->companyManager->getCompany()
+            ->getCandidates();
+
+        if ($contract_uuid) {
+            $query->joinWith(['candidateWorkHistories'])
+                ->andWhere([
+                    "AND",
+                    ['contract_uuid' => $contract_uuid],
+                    [new Expression("end_date IS NULL")]
+                ]);
+        }
+
+        return $query->all();
     }
 
     /**
@@ -147,8 +160,8 @@ class CandidateController extends BaseController
 
         if ($session_status || $start_date || $end_date) {
 
-            $query->joinWith(['candidateWorkingDates'])
-                ->andWhere(new Expression('end_time IS NOT NULL'));
+            $query->joinWith(['candidateWorkingDates']);
+                //->andWhere(new Expression('end_time IS NOT NULL'));
 
             if ($session_status) {
                 $query->andWhere(['candidate_working_date.status' => $session_status]);
@@ -311,11 +324,21 @@ class CandidateController extends BaseController
 
         if ($with_session || $session_status || $start_date || $end_date) {
             
-            $query->joinWith(['candidateWorkingDates'])
-                ->andWhere(new Expression('end_time IS NOT NULL'));
+            $query->joinWith(['candidateWorkingDates']);
+               // ->andWhere(new Expression('end_time IS NOT NULL'));
 
-            if ($session_status) {
+            /*if ($session_status) {
                 $query->andWhere(['candidate_working_date.status' => $session_status]);
+            }*/
+
+            if ($session_status !== null) {
+                if ($session_status == \common\models\CandidateWorkingHour::STATUS_APPROVED) {
+                    $query->andWhere(new Expression('candidate_working_date.total_approved > 0'));
+                } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_REJECTED) {
+                    $query->andWhere(new Expression('candidate_working_date.total_rejected > 0'));
+                } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_PENDING) {
+                    $query->andWhere(new Expression('candidate_working_date.total_pending > 0'));
+                }
             }
 
             if ($start_date) {

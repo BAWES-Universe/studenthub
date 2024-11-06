@@ -5,6 +5,7 @@ namespace staff\modules\v1\controllers;
 use common\models\CandidateNotification;
 use common\models\CandidateToken;
 use common\models\CandidateWarning;
+use common\models\Contract;
 use common\models\Request;
 use common\models\StoreAssignmentRequest;
 use common\models\TransferCost;
@@ -638,9 +639,39 @@ class CandidateController extends Controller
             $transfer_cost_model->company_id = $company_id;
         }
 
-        $transfer_cost_model->transfer_cost = $company_transfer_cost;
+        if ($contract_uuid) {
+
+            $contract = Contract::find()
+                ->andWhere([
+                    "AND",
+                    ['contract_uuid' => $contract_uuid],
+                    [
+                        "IN",
+                        "company_id", [
+                            $company->company_id,
+                            $company->parent_company_id,
+                        ]
+                    ]
+                ])
+                ->one();
+
+            if (!$contract) {
+                $transaction->rollBack();
+
+                return [
+                    "operation" => "error",
+                    "message" => "Contract not found"
+                ];
+            }
+
+            $transfer_cost_model->transfer_cost = $contract->transfer_cost;
+        } else {
+            $transfer_cost_model->transfer_cost = $company_transfer_cost;
+        }
 
         if (!$transfer_cost_model->save()) {
+            $transaction->rollBack();
+
             return [
                 "operation" => "error",
                 "code" => 7,
