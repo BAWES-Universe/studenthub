@@ -93,7 +93,7 @@ class CandidateController extends BaseController
                 ->andWhere([
                     "AND",
                     ['contract_uuid' => $contract_uuid],
-                    [new Expression("end_date IS NULL")]
+                    new Expression("end_date IS NULL")
                 ]);
         }
 
