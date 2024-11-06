@@ -42,6 +42,7 @@ class Transfer extends \common\models\Transfer
     {
         return [
             'company',
+            "contract",
             'invoices',
             'transferCandidates',
             'childTransferInvoices',
