@@ -83,8 +83,21 @@ class CandidateController extends BaseController
      */
     public function actionList()
     {
-        return Yii::$app->companyManager->getCompany()
-            ->getCandidates()->all();
+        $contract_uuid = Yii::$app->request->get('contract_uuid');
+
+        $query = Yii::$app->companyManager->getCompany()
+            ->getCandidates();
+
+        if ($contract_uuid) {
+            $query->joinWith(['candidateWorkHistories'])
+                ->andWhere([
+                    "AND",
+                    ['contract_uuid' => $contract_uuid],
+                    [new Expression("end_date IS NULL")]
+                ]);
+        }
+
+        return $query->all();
     }
 
     /**
