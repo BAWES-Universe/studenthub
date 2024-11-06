@@ -258,7 +258,9 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             $expression = "candidate_id='".$candidate->candidate_id."' AND 
                 DATE(start_date) >= DATE('".date('Y-m-d')."')";
 
-            return CandidateWorkHistory::deleteAll(new Expression($expression));
+            return CandidateWorkHistory::updateAll(["deleted" => true],
+                new Expression($expression)
+            );
 
         } else {
             
