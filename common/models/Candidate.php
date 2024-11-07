@@ -160,8 +160,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 return $model->{$attribute} !== $model->getOldAttribute($attribute);
             }],//, "on" => "updateCivilPhotoBack"
 
-            ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => [
-                'candidate_civil_id', 'deleted']],
+            [['candidate_civil_id'], 'validateCivilIdNumber'],
+           /* ['candidate_civil_id', 'unique', 'comboNotUnique' => 'Civil Id already exist.', 'targetAttribute' => [
+                'candidate_civil_id', 'deleted']],*/
 
            /* ['candidate_civil_photo_back', 'validateCivilID', 'when' => function($model, $attribute) {
                 return $model->{$attribute} !== $model->getOldAttribute($attribute) &&
@@ -377,6 +378,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateProfileUrl'] = ['profile_url', 'is_incomplete_profile'];
 
         return $scenarios;
+    }
+
+    /**
+     * @return void
+     */
+    public function validateCivilIdNumber() {
+
+        //check if there is other candidate with same civil id + not deleted
+
+        $exists = self::find()
+            ->andWhere(["!=", "candidate_id" , $this->candidate_id])
+            ->andWhere(["candidate_civil_id" => $this->candidate_civil_id, 'deleted' => false])
+            ->exists();
+
+        if ($exists) {
+            $this->addError('candidate_civil_id', Yii::t('app', "Civil ID number already in use with other account!"));
+        }
     }
 
     /**

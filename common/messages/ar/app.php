@@ -1,6 +1,7 @@
 <?php
 
 return [
+    "Civil ID number already in use with other account!" => "رقم البطاقة المدنية مستخدم بالفعل مع حساب آخر!",
     "Invalid Civil ID"=>  "البطاقة المدنية غير صالحة",
     "Invalid Civil ID (Expired)" => "البطاقة المدنية غير صالحة (منتهية الصلاحية)",
     "We found account with same email, Please login with same email!" => "لقد وجدنا حسابًا بنفس البريد الإلكتروني، يرجى تسجيل الدخول بنفس البريد الإلكتروني!",
