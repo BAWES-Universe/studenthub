@@ -50,12 +50,16 @@ class TransferCandidate extends \common\models\TransferCandidate
     	return $fields;
     }
 
+    /**
+     * @return array|string[]
+     */
     public function extraFields()
     {
         $fields =  parent::extraFields ();
 
         return array_merge ($fields, [
-            'transferFileEntry'
+            'transferFileEntry',
+            "transfer"
         ]);
     }
 

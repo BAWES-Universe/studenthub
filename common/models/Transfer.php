@@ -1530,6 +1530,8 @@ class Transfer extends ActiveRecord
                 $transfer->attributes = $this->attributes;
                 $transfer->parent_transfer_id = $this->transfer_id;
                 $transfer->company_id = $sub_company['company_id'];
+                $transfer->contract_uuid = $this->contract_uuid;
+                $transfer->contract_type = $this->contract_type;
             }
 
             if(!$transfer->save(false))
