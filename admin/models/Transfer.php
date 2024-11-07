@@ -78,10 +78,13 @@ class Transfer extends \common\models\Transfer
         if($this->transfer_status == Transfer::STATUS_LOCK) {
             throw new Exception('Transfer already locked.');
         }
+
         if($this->transfer_status != Transfer::STATUS_PAYMENT_SENT) {
             throw new Exception('Transfer needs to be marked as "Payment Sent" to revert to "Locked" status.');
         }
+
         $this->transfer_status = Transfer::STATUS_LOCK;
+
         return $this->save(false);
     }
 
@@ -317,7 +320,7 @@ class Transfer extends \common\models\Transfer
             ->andWhere([
                 'transfer_id' => $transfer_id
             ])
-            ->andWhere('hours > 0 OR minutes > 0 OR seconds > 0 OR bonus > 0')
+            ->andWhere(new Expression('company_total > 0'))
             ->sum('transfer_cost');
     }
 

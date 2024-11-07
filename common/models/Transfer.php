@@ -897,7 +897,7 @@ class Transfer extends ActiveRecord
                     ->all();
 
                 foreach ($candidates as $key_one => $value) {
-                    if ((int)$value['minutes']>0 || (int)$value['seconds']>0 ||
+                    /*if ((int)$value['minutes']>0 || (int)$value['seconds']>0 ||
                         (int)$value['hours']>0 || $value['bonus'] > 0) {
 
                         //total amount we will pay to bank
@@ -913,7 +913,13 @@ class Transfer extends ActiveRecord
                             + $value['transfer_cost'];
 
                         $transfer_cost += $value['transfer_cost'];
-                    }
+                    }*/
+
+                    $total += $value['candidate_total'];
+
+                    $company_total += $value['company_total'];
+
+                    $transfer_cost += $value['transfer_cost'];
                 }
 
                 // Save total in transfer
