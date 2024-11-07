@@ -223,7 +223,8 @@ class m241027_101214_notification extends Migration
      */
     public function safeDown()
     {
-    //    $this->dropTable('{{%candidate_notification}}');
+        $this->dropColumn("candidate_work_log_feedback", "created_by");
+        $this->dropTable('{{%candidate_notification}}');
     }
 
     /*

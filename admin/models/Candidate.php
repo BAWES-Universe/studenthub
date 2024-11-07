@@ -87,6 +87,10 @@ class Candidate extends \common\models\Candidate {
      */
     public static function candidateCountByCondition($condition = false, $startDate = null, $endDate = null, $currency_code = "KWD") {
         $query = Candidate::find();
+        /*
+            ->andWhere([
+                '{{%candidate}}.deleted' => 0
+            ]);*/
 
         switch ($condition) {
             case 'assigned':
@@ -97,6 +101,7 @@ class Candidate extends \common\models\Candidate {
                 $query->byApprovalStatus(1);
                 break;
         }
+
         if($startDate) {
             $query->andWhere(new Expression("DATE(candidate_created_at) >= DATE('" . $startDate . "')"));
         }
