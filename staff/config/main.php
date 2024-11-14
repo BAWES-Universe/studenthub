@@ -238,6 +238,7 @@ return [
                         'PATCH update-warning/<id>' => 'update-warning',
                         'POST login/<id>' => 'login',
                         'POST' => 'create',
+                        'PATCH mark-not-deleted/<id>' => 'mark-not-deleted',
                         'PATCH toggle-committed' => 'toggle-committed',
                         'PATCH merge' => 'merge',
                         'PATCH update-tags/<id>' => 'update-tags',
@@ -255,6 +256,7 @@ return [
                         'DELETE mark-duplicate/<id>' => 'mark-duplicate',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS mark-not-deleted/<id>' => 'options',
                         "OPTIONS company-transfer-cost/<candidate_id>/<store_id>" =>  "options",
                         "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS mark-duplicate/<id>' => 'options',

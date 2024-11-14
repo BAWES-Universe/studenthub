@@ -841,6 +841,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     'updatePendingProfile',
                     'changePassword',
                     'updatePasswordToken',
+                    "undoDelete"
                     //'verifyEmail'
                 ]
             )
@@ -1908,6 +1909,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 }
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function undoDelete()
+    {
+        $this->setScenario("undoDelete");
+
+        $this->deleted = 0;
+
+        $id = explode("-", $this->candidate_civil_id);
+
+        $this->candidate_civil_id = isset($id[1]) ? $id[1]: null;
+        $this->candidate_password_reset_token = null;
+
+        return $this->save(false);
     }
 
     /**
