@@ -27,4 +27,14 @@ class ContactQuery extends \yii\db\ActiveQuery
         $this->andWhere(['{{%contact}}.deleted' => 0]);
         return parent::one($db);
     }
+
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%contact}}.deleted' => 0]);
+        return parent::count($q);
+    }
 }

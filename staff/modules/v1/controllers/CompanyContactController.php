@@ -429,7 +429,7 @@ class CompanyContactController extends Controller
     {
         $model = $this->findModel($id);
 
-        $notes = $model->getNotes()->count();
+        /*$notes = $model->getNotes()->count();
         $requests = $model->getRequests()->count();
 
         if ($notes || $requests) {
@@ -439,7 +439,7 @@ class CompanyContactController extends Controller
             ];
         }
 
-        /*if(!$model) {
+        if(!$model) {
             return [
                 "operation" => "error",
                 "message" => "Company Contact not found or already deleted"

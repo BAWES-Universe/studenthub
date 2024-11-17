@@ -8,6 +8,17 @@ namespace common\models\query;
  */
 class UniversityQuery extends \yii\db\ActiveQuery
 {
+
+     /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%university}}.deleted' => 0]);
+        return parent::count($q);
+    }
+
     /**
      * @param null $db
      * @return array|\yii\db\ActiveRecord[]

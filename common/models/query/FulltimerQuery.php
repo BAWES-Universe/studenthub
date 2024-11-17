@@ -10,7 +10,6 @@ use common\models\Fulltimer;
  */
 class FulltimerQuery extends \yii\db\ActiveQuery
 {
-
     /**
      * @inheritdoc
      * @return Fulltimer[]|array

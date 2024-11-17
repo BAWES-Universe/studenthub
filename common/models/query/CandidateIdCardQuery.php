@@ -36,4 +36,14 @@ class CandidateIdCardQuery extends \yii\db\ActiveQuery
     {
         return $this->andWhere('DATE(expiry_date) < DATE(NOW())');
     }
+
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%candidate_id_card}}.deleted' => 0]);
+        return parent::count($q);
+    }
 }

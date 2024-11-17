@@ -143,6 +143,10 @@ class Contact extends \yii\db\ActiveRecord
             $this->campaign->save(false);
         }
 
+        /*if (isset($changedAttributes['deleted']) && $changedAttributes['deleted'] == 1) {
+            CompanyContact::deleteAll(['contact_uuid' => $this->contact_uuid]);
+        }*/
+
         return true;
     }
 
@@ -710,4 +714,14 @@ class Contact extends \yii\db\ActiveRecord
             Yii::error($e->getMessage(), "password-reset-token");
         }
     }
+
+    /**
+     * @inheritdoc
+     * @return query\ContactQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\ContactQuery(get_called_class());
+    }
+
 }

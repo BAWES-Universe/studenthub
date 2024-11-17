@@ -10,6 +10,15 @@ use common\models\FulltimerSkill;
  */
 class FulltimerSkillQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%fulltimer_skill}}.deleted' => 0]);
+        return parent::count($q);
+    }
 
     /**
      * @inheritdoc

@@ -12,6 +12,16 @@ use common\models\ContactInvitation;
 class ContactInvitationQuery extends \yii\db\ActiveQuery {
 
     /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%contact_invitation}}.is_deleted' => 0]);
+        return parent::count($q);
+    }
+
+    /**
      * @inheritdoc
      * @return Candidate[]|array
      */
