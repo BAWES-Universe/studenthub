@@ -18,6 +18,16 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
     }*/
 
     /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%candidate_work_history}}.deleted' => 0]);
+        return parent::count($q);
+    }
+
+    /**
      * @inheritdoc
      * @return CandidateWorkHistory[]|array
      */

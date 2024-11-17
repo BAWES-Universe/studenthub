@@ -27,5 +27,15 @@ class BankQuery extends \yii\db\ActiveQuery
         $this->andWhere(['{{%bank}}.deleted'=>0]);
         return parent::one($db);
     }
+
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%bank}}.deleted' => 0]);
+        return parent::count($q);
+    }
 }
 	

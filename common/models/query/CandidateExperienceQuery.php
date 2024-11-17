@@ -29,4 +29,14 @@ class CandidateExperienceQuery extends \yii\db\ActiveQuery
         $this->andWhere (['{{%candidate_experience}}.deleted' => 0]);
         return parent::one($db);
     }
+
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%candidate_experience}}.deleted' => 0]);
+        return parent::count($q);
+    }
 }

@@ -10,6 +10,16 @@ use yii\db\ActiveQuery;
 class StoreQuery extends ActiveQuery
 {
     /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%store}}.deleted' => 0]);
+        return parent::count($q);
+    }
+
+    /**
      * @inheritdoc
      * @return Store[]|array
      */

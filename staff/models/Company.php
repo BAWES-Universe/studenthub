@@ -306,7 +306,8 @@ class Company extends \common\models\Company {
         return [
             'requests' => $this->getRequests()->count(),
             'stores' => $this->getStores()->count(),
-            'contacts' => $this->getCompanyContacts()->count(),
+            'contacts' => $this->getContacts()
+                ->count(),
             'brands' => $this->getBrands()->count(),
             'malls' => $this->getMalls()->count(),
             'documents' => $this->getFiles()->count(),

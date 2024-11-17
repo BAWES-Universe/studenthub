@@ -10,7 +10,16 @@ use common\models\CandidateTag;
  */
 class CandidateTagQuery extends \yii\db\ActiveQuery
 {
-
+    /**
+     * @param null $db
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->andWhere(['{{%candidate_tag}}.deleted' => 0]);
+        return parent::count($q);
+    }
+    
     /**
      * @inheritdoc
      * @return CandidateTag[]|array
