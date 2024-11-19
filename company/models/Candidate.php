@@ -301,6 +301,26 @@ class Candidate extends \common\models\Candidate {
 
     /**
      * @param $modelClass
+     * @return array|\yii\db\ActiveRecord|null
+     */
+    public function getLatestCandidateWorkingDate($modelClass = "\common\models\CandidateWorkingDate")
+    {
+        return self::getCandidateWorkingDates ($modelClass)
+            ->one();
+    }
+
+    /**
+     * @param $modelClass
+     * @return bool|int|string|null
+     */
+    public function getTotalCandidateWorkingDate($modelClass = "\common\models\CandidateWorkingDate")
+    {
+        return (int) self::getCandidateWorkingDates ($modelClass)
+            ->count();
+    }
+
+    /**
+     * @param $modelClass
      * @return \yii\db\ActiveQuery
      */
     public function getCandidateWorkingDates($modelClass = "\common\models\CandidateWorkingDate")
