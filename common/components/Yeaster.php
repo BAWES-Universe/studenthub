@@ -4,10 +4,17 @@ namespace common\components;
 
 use yii\httpclient\Client;
 
+/**
+ * component to connect to voice-mail microservice - node.js microservice that sync voice-mails by running
+ * cron in background
+ * node /var/www/studenthub-microservices/yeastar-voicemails/console/sync.js
+ * node /var/www/studenthub-microservices/yeastar-voicemails/console/process.js
+ */
 class Yeaster
 {
     public $microserviceApiKey = "QstN8_18LmILpl37r2zvdDCp5JjWPCNh";
 
+    //point to microservice handling voicemails, overriding from main-local.php
     public $apiEndpoint = "http://localhost:3001";
 
     public function listVoicemails($page, $limit = 10) {
