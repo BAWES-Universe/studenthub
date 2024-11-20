@@ -7,6 +7,8 @@ use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use common\models\CandidateStats;
 use common\models\CandidateWorkHistory;
+use common\models\CandidateWorkingDate;
+use common\models\CandidateWorkingHour;
 use common\models\CompanyStats;
 use common\models\DailyStandupQuestion;
 use common\models\FiringHitmap;
@@ -930,6 +932,29 @@ class CronController extends \yii\console\Controller {
 
                 $count++;
                 Console::updateProgress($count, $total);
+            }
+        }
+    }
+
+    /**
+     * setting end_time to null to show "On-Going"
+     * @return void
+     */
+    public function actionFixWorkLogs() {
+
+        $query = CandidateWorkingHour::find()
+            ->andWhere(new Expression("end_time IS NULL"));
+
+        foreach ($query->batch() as $hours) {
+            foreach ($hours as $hour) {
+                CandidateWorkingDate::updateAll([
+                    "total_time" => null, //reset total time as new session pending to finish
+                    "end_time" => null, //as current session will be always latest session
+                ], [
+                    "candidate_id" => $hour->candidate_id,
+                    "store_id" => $hour->store_id,
+                    "date" => $hour->date,
+                ]);
             }
         }
     }

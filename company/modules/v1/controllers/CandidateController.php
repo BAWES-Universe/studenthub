@@ -372,14 +372,21 @@ class CandidateController extends BaseController
      */
     public function actionWorkHistory($id)
     {
-        $model = CandidateWorkHistory::find()
-            ->filterCandidate($id)
-            ->all();
+        $store_id = Yii::$app->request->get('store_id');
+        $date = Yii::$app->request->get('date');
 
-        if(!$model)
-            return [];
+        $query = CandidateWorkHistory::find()
+            ->filterCandidate($id);
 
-        return $model;
+        if ($store_id) {
+            $query->andWhere(['store_id' => $store_id]);
+        }
+
+        if ($date) {
+            $query->filterByDate($date);
+        }
+
+        return $query->all();
     }
 
     public function actionWorkHistoryDetail($id)
