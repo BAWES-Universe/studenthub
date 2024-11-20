@@ -2,12 +2,14 @@
 namespace candidate\modules\v1\controllers;
 
 use candidate\models\CandidateWorkingHour;
+use common\models\CandidateWorkingDate;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
 
 /**
  * CandidateWorkingHour controller - Manage Invitation as Candidate
@@ -83,7 +85,6 @@ class CandidateWorkingHourController extends Controller
         $query->andWhere(['candidate_id'=>Yii::$app->user->getId()]);
         $query->orderBy('date DESC');
 
-
         if ($start_date) {
             $query->filterFrom($start_date);
         }
@@ -97,6 +98,27 @@ class CandidateWorkingHourController extends Controller
         ]);
     }
 
+    /**
+     * @param $date
+     * @return array|\yii\db\ActiveRecord|null
+     */
+    public function actionDateDetail($date) {
+       // $date = Yii::$app->request->get('date');
+        //$candidate_id = Yii::$app->request->get('candidate_id');
+        //$store_id= Yii::$app->request->get('store_id');
+
+        return CandidateWorkingDate::find()
+            ->andWhere([
+                "date" => $date,
+                "candidate_id" => Yii::$app->user->getId(),
+                //"store_id" => $store_id
+            ])
+            ->one();
+    }
+
+    /**
+     * @return array
+     */
     public function actionStats()
     {
         $date = Yii::$app->request->get('date');
@@ -195,8 +217,29 @@ class CandidateWorkingHourController extends Controller
         $query = CandidateWorkingHour::find()
             ->andWhere(['date' => $date])
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
-            ->andWhere(new Expression("end_time IS NOT NULL"))
+            //->andWhere(new Expression("end_time IS NOT NULL"))
             ->orderBy('created_at ASC');
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
+    /**
+     * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionWorkingDates() {
+
+        $candidate = Yii::$app->user->identity;
+        //$start_date = Yii::$app->request->get("start_date");
+        //$end_date = Yii::$app->request->get("end_date");
+
+        $query = $candidate->getCandidateWorkingDates();
+
+        /*if ($start_date && $end_date) {
+            $query->filterByDateRange($start_date, $end_date);
+        }*/
 
         return new ActiveDataProvider([
             'query' => $query

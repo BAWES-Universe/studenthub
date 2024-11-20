@@ -387,10 +387,12 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-working-hour',
                     'patterns' => [
+                        "GET date-detail" => "date-detail",
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
                         'GET stats' => 'stats',
                         // OPTIONS VERBS
+                        "OPTIONS date-detail" => "date-detail",
                         'OPTIONS stats' => "stats",
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',

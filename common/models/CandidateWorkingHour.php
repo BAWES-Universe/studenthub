@@ -147,9 +147,11 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                             "store_id" => $this->store_id,
                             "date" => $this->date,
                         ])
+                        ->andWhere(new Expression("end_time IS NOT NULL"))
                         ->sum("total_time");
 
                     $latestHour = $date->getLatestCandidateWorkingHour()
+                        ->andWhere(new Expression("end_time IS NOT NULL"))
                         ->one();
 
                     $end_time = $latestHour? $latestHour->end_time: $this->end_time;
@@ -189,9 +191,11 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                     "store_id" => $this->store_id,
                     "date" => $this->date,
                 ])
+                ->andWhere(new Expression("end_time IS NOT NULL"))
                 ->sum("total_time");
 
             $latestHour = $date->getLatestCandidateWorkingHour()
+                ->andWhere(new Expression("end_time IS NOT NULL"))
                 ->one();
 
             $end_time = $latestHour? $latestHour->end_time: $this->end_time;

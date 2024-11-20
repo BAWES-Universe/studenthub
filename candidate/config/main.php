@@ -286,13 +286,17 @@ return [
                         'GET hour' => 'list-hour',
                         'GET stats' => 'stats',
                         'GET date/<date>' => 'hours-detail',
+                        'GET date-detail/<date>' => 'date-detail',
+                        "GET working-dates" => "working-dates",
                         'POST' => "add-hour",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
                         'OPTIONS stats' => 'options',
+                        "OPTIONS working-dates" => 'options',
                         'OPTIONS date/<date>' => 'options',
+                        'OPTIONS date-detail/<date>' => 'options',
                     ]
                 ],
                 [ // StatisticController

@@ -3,6 +3,7 @@
 namespace company\modules\v1\controllers;
 
 use admin\models\CandidateWorkingHour;
+use common\models\CandidateWorkingDate;
 use company\models\Candidate;
 use company\models\Store;
 use Yii;
@@ -135,6 +136,24 @@ class CandidateWorkingHourController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord|null
+     */
+    public function actionDateDetail()
+    {
+        $date = Yii::$app->request->get('date');
+        $candidate_id = Yii::$app->request->get('candidate_id');
+        $store_id= Yii::$app->request->get('store_id');
+
+        return CandidateWorkingDate::find()
+            ->andWhere([
+                "date" => $date,
+                "candidate_id" => $candidate_id,
+                "store_id" => $store_id
+            ])
+            ->one();
     }
 
     /**

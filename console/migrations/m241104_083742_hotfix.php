@@ -35,23 +35,37 @@ class m241104_083742_hotfix extends Migration
                 //$total_time = $date->getCandidateWorkingHours()
                 //    ->sum("total_time");
 
-                $total_time = CandidateWorkingHour::find()->andWhere([
+                $isWorking = CandidateWorkingHour::find()->andWhere([
                     "candidate_id" => $date->candidate_id,
                     "store_id" => $date->store_id,
                     "date" => $date->date,
-                ])
-                    ->sum("total_time");
+                ])->andWhere(new \yii\db\Expression("end_time IS NULL"))
+                    ->exists();
 
-                $date->total_time = $total_time;
-
-                //if (!$date->end_time) {
-                $latestHour = $date->getCandidateWorkingHours()
-                    ->one();
-
-                if ($latestHour) {
-                    $date->end_time = $latestHour->end_time;
+                if ($isWorking)
+                {
+                    $date->total_time = 0;
+                    $date->end_time = 0;
                 }
-                //}
+                else
+                {
+                    $total_time = CandidateWorkingHour::find()->andWhere([
+                            "candidate_id" => $date->candidate_id,
+                            "store_id" => $date->store_id,
+                            "date" => $date->date,
+                        ])
+                        ->sum("total_time");
+
+                    $date->total_time = $total_time;
+
+                    //if (!$date->end_time) {
+                    $latestHour = $date->getCandidateWorkingHours()
+                        ->one();
+
+                    if ($latestHour) {
+                        $date->end_time = $latestHour->end_time;
+                    }
+                }
 
                 //set stats
 
@@ -67,7 +81,10 @@ class m241104_083742_hotfix extends Migration
                     ->andWhere(['status' => CandidateWorkingHour::STATUS_PENDING])
                     ->count();
 
-                $date->save(false);
+                if (!$date->save(false)) {
+                    print_r($date->errors);
+                    die();
+                }
             }
         }
     }

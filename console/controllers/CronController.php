@@ -958,6 +958,61 @@ class CronController extends \yii\console\Controller {
             }
         }
     }
+
+    /**
+     * fix: https://linear.app/bawes/issue/TECH-598/bug-report-total-hours-showing-0-hours-completed-in-work-log-list
+     * @return void
+     */
+    public function actionFixWorkLogDates() {
+
+        $query = CandidateWorkingDate::find();
+        //  ->andWhere(['total_time' => 0]);
+
+        foreach ($query->batch() as $dates) {
+            foreach ($dates as $date) {
+
+                //$total_time = $date->getCandidateWorkingHours()
+                //    ->sum("total_time");
+
+                $isWorking = CandidateWorkingHour::find()->andWhere([
+                    "candidate_id" => $date->candidate_id,
+                    "store_id" => $date->store_id,
+                    "date" => $date->date,
+                ])->andWhere(new \yii\db\Expression("end_time IS NULL"))
+                    ->exists();
+
+                if ($isWorking)
+                {
+                    $date->total_time = 0;
+                    $date->end_time = 0;
+                }
+                else
+                {
+                    $total_time = CandidateWorkingHour::find()->andWhere([
+                        "candidate_id" => $date->candidate_id,
+                        "store_id" => $date->store_id,
+                        "date" => $date->date,
+                    ])
+                        ->sum("total_time");
+
+                    $date->total_time = $total_time;
+
+                    //if (!$date->end_time) {
+                    $latestHour = $date->getCandidateWorkingHours()
+                        ->one();
+
+                    if ($latestHour) {
+                        $date->end_time = $latestHour->end_time;
+                    }
+                }
+
+                if (!$date->save(false)) {
+                    print_r($date->errors);
+                    die();
+                }
+            }
+        }
+    }
 }
 
 
