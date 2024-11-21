@@ -270,11 +270,13 @@ return [
                     'patterns' => [
                         'GET work-history' => 'work-history',
                         'GET work-history/<id>' => 'work-history-detail',
+                        "GET working-dates" => "working-dates",
                         'GET appreciation-certificate/<wid>' => 'appreciation-certificate',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS work-history' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        "OPTIONS working-dates" => "options",
                         'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],

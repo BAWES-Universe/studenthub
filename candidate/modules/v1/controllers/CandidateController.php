@@ -5,6 +5,7 @@ namespace candidate\modules\v1\controllers;
 use kartik\mpdf\Pdf;
 use Yii;
 use yii\base\BaseObject;
+use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -150,5 +151,27 @@ class CandidateController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
+    }
+
+
+    /**
+     * @return ActiveDataProvider
+     * @throws NotFoundHttpException
+     */
+    public function actionWorkingDates() {
+
+        $candidate = Yii::$app->user->identity;
+        //$start_date = Yii::$app->request->get("start_date");
+        //$end_date = Yii::$app->request->get("end_date");
+
+        $query = $candidate->getCandidateWorkingDates();
+
+        /*if ($start_date && $end_date) {
+            $query->filterByDateRange($start_date, $end_date);
+        }*/
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 }

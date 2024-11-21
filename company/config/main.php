@@ -391,11 +391,13 @@ return [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
                         'GET stats' => 'stats',
+                        "GET working-dates" => "working-dates",
                         // OPTIONS VERBS
-                        "OPTIONS date-detail" => "date-detail",
-                        'OPTIONS stats' => "stats",
+                        "OPTIONS date-detail" => "options",
+                        'OPTIONS stats' => "options",
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        "OPTIONS working-dates" => "options"
                     ]
                 ],
                 [ // BalanceController
