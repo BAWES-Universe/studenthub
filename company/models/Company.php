@@ -61,6 +61,7 @@ class Company extends \common\models\Company {
     {
         return [
 //            'company',
+            "contracts",
             'candidates',
             'stores',
             'subCompanies',

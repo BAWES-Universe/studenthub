@@ -3,6 +3,7 @@ namespace staff\models;
 
 use Yii;
 use yii\base\Exception;
+use yii\db\Expression;
 
 
 /**
@@ -219,7 +220,7 @@ class Transfer extends \common\models\Transfer
             ->andWhere([
                 'transfer_id' => $transfer_id
             ])
-            ->andWhere('hours > 0 OR minutes > 0 OR seconds > 0 OR bonus > 0')
+            ->andWhere(new Expression("company_total > 0"))//hours > 0 OR minutes > 0 OR seconds > 0 OR bonus > 0
             ->sum('transfer_cost');
     }
 

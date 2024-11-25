@@ -4,39 +4,50 @@ use yii\helpers\Url;
 
 $result = [];
 
-foreach ($invoice->transfer->transferCandidates as $key => $value) {  
-    
-    if(empty($result[$value->company_hourly_rate]))
-    {
-        $result[$value->company_hourly_rate] = [
-            'totalHours' => 0,
-            'totalMinutes' => 0,
-            'totalSeconds' => 0,
-            'totalBonus' => 0,
-            'totalAmount' => 0,
-            "totalTransferCost" => 0
-        ];        
-    }
-    
-    $result[$value->company_hourly_rate]['totalHours'] += $value->hours;
-    $result[$value->company_hourly_rate]['totalMinutes'] += $value->minutes;
-    $result[$value->company_hourly_rate]['totalSeconds'] += $value->seconds;
+$main_transfer = $invoice->transfer->parent_transfer_id? $invoice->transfer->parentTransfer : $invoice->transfer;
 
-    // round up
-    if ($result[$value->company_hourly_rate]['totalSeconds'] > 59) {
-        $result[$value->company_hourly_rate]['totalSeconds'] = $result[$value->company_hourly_rate]['totalSeconds'] % 60;
-        $result[$value->company_hourly_rate]['totalMinutes'] += floor($result[$value->company_hourly_rate]['totalSeconds']/ 60);
-    }
+if (!$main_transfer->contract_type || $main_transfer->contract_type == 'HOURLY') {
+    foreach ($invoice->transfer->transferCandidates as $key => $value) {
 
-    if ($result[$value->company_hourly_rate]['totalMinutes'] > 59) {
-        $result[$value->company_hourly_rate]['totalMinutes'] = $result[$value->company_hourly_rate]['totalMinutes'] % 60;
-        $result[$value->company_hourly_rate]['totalHours'] += floor($result[$value->company_hourly_rate]['totalMinutes']/ 60);
-    }
+        if (empty($result[$value->company_hourly_rate])) {
+            $result[$value->company_hourly_rate] = [
+                'totalHours' => 0,
+                'totalMinutes' => 0,
+                'totalSeconds' => 0,
+                'totalBonus' => 0,
+                'totalAmount' => 0,
+                "totalTransferCost" => 0
+            ];
+        }
 
-    $result[$value->company_hourly_rate]['totalBonus'] += $value->bonus;
-    $result[$value->company_hourly_rate]['totalTransferCost'] += $value->transfer_cost;
-    $result[$value->company_hourly_rate]['totalAmount'] += $value->company_total - $value->bonus;
+        $result[$value->company_hourly_rate]['totalHours'] += $value->hours;
+        $result[$value->company_hourly_rate]['totalMinutes'] += $value->minutes;
+        $result[$value->company_hourly_rate]['totalSeconds'] += $value->seconds;
+
+        // round up
+        if ($result[$value->company_hourly_rate]['totalSeconds'] > 59) {
+            $result[$value->company_hourly_rate]['totalSeconds'] = $result[$value->company_hourly_rate]['totalSeconds'] % 60;
+            $result[$value->company_hourly_rate]['totalMinutes'] += floor($result[$value->company_hourly_rate]['totalSeconds'] / 60);
+        }
+
+        if ($result[$value->company_hourly_rate]['totalMinutes'] > 59) {
+            $result[$value->company_hourly_rate]['totalMinutes'] = $result[$value->company_hourly_rate]['totalMinutes'] % 60;
+            $result[$value->company_hourly_rate]['totalHours'] += floor($result[$value->company_hourly_rate]['totalMinutes'] / 60);
+        }
+
+        $result[$value->company_hourly_rate]['totalBonus'] += $value->bonus;
+        $result[$value->company_hourly_rate]['totalTransferCost'] += $value->transfer_cost;
+        $result[$value->company_hourly_rate]['totalAmount'] += $value->company_total - $value->bonus;
+
         //($value->hours * $value->company_hourly_rate) + $value->transfer_cost;
+    }
+} else if (isset($invoice->transfer->transferCandidates[0])) {
+    $result[] = [
+         "totalBonus" => 0, //not having bonus on contract
+        'totalAmount' => $invoice->transfer->company_total,
+        "totalTransferCost" => $invoice->transfer->transfer_cost,
+        "perCandidate" => $invoice->transfer->transferCandidates[0]['company_total']
+    ];
 }
 ?>
 <div class="row">
@@ -74,6 +85,7 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
         <?php foreach ($result as $hourly_rate => $row) { ?>
             <tr>
                 <td align="left" style="text-align: left">
+                    <?php if (!$main_transfer->contract_type || $main_transfer->contract_type == 'HOURLY') { ?>
                     <span>
                         <b>
                             <?= $row['totalHours'] > 0 ?$row['totalHours'] . " hours": "" ?>
@@ -84,9 +96,18 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
                             + <?= $row['totalTransferCost'] ?> KD transfer cost
                         <?php } ?>
                     </span>
+                    <?php } else { ?>
+                    <span>
+                        <b>Per candidate</b>
+                    </span>
+                    <?php } ?>
                 </td>
                 <td align="right" style="text-align: right">
-                    <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['totalAmount'], 3)?></span>
+                    <?php if (!$main_transfer->contract_type || $main_transfer->contract_type == 'HOURLY') { ?>
+                        <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['totalAmount'], 3)?></span>
+                    <?php } else { ?>
+                        <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['perCandidate'], 3)?></span>
+                    <?php } ?>
                 </td>
             </tr>
             <?php if($row['totalBonus'] > 0) { ?>

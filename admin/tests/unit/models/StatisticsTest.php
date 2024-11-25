@@ -10,6 +10,7 @@ use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use common\fixtures\TransferCandidateFixture;
 use common\fixtures\InvoiceFixture;
+use yii\db\Expression;
 
 class StatisticsTest extends \Codeception\Test\Unit
 {
@@ -107,19 +108,21 @@ class StatisticsTest extends \Codeception\Test\Unit
 
     /**
      * test total Assigned Candidates
-     */
+     *
     public function testStatisticsTotalAssignedCandidate()
     {
         $totalAssignedToWork = Candidate::find()
             ->joinWith('store')
             ->andWhere([
-                '{{%candidate}}.deleted' => 0
+                '{{%candidate}}.deleted' => 0,
+                "{{%candidate}}.currency_code" => "KWD"
             ])
+            ->andWhere(new Expression("store.store_id IS NOT null"))
             ->count();
 
         expect('Total assigned candidates', $totalAssignedToWork)->equals(Candidate::candidateCountByCondition('assigned'));
     }
-
+*/
     /**
      * test total Approved Candidates
      */

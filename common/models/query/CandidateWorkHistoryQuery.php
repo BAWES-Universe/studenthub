@@ -3,6 +3,7 @@
 namespace common\models\query;
 
 use common\models\Store;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -96,6 +97,22 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
             $this->andWhere(["`candidate_work_history`.`parent_company_id`" => $companyID]);
         }
         return $this;
+    }
+
+    /**
+     * @param $start_date
+     * @param $end_date
+     * @return CandidateWorkingDateQuery
+     */
+    public function filterByDate($date) {
+
+        /*return $this->andWhere(new Expression("DATE(candidate_work_history.start_date) <= DATE('".$date."') AND
+            DATE(candidate_work_history.end_date) >= DATE('".$date."')"));*/
+
+        return $this->andWhere (new Expression("
+            DATE('".date('Y-m-d', strtotime($date))."') BETWEEN DATE(candidate_work_history.start_date) 
+            AND DATE(candidate_work_history.end_date)
+        "));
     }
 
     /**

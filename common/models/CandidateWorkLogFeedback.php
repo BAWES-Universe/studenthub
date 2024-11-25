@@ -145,7 +145,10 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
             CandidateWorkingHour::updateAll([
                 "status" => $this->status,
             ], [
-                "candidate_working_hour_uuid" => $this->candidate_working_hour_uuid
+                "AND",
+                ["candidate_working_hour_uuid" => $this->candidate_working_hour_uuid],
+                new Expression("end_time IS NOT NULL")
+
                 /*
                 "candidate_id" => $this->candidate_id,
                 "store_id" => $this->store_id,
@@ -187,11 +190,14 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
             CandidateWorkingHour::updateAll([
                 "status" => $this->status,
             ], [
-                "candidate_id" => $this->candidate_id,
-                "store_id" => $this->store_id,
-                "date" => $this->date,
+                "AND",
+                [
+                    "candidate_id" => $this->candidate_id,
+                    "store_id" => $this->store_id,
+                    "date" => $this->date,
+                ],
+                new Expression("end_time IS NOT NULL")
             ]);
-
         }
 
         //todo: update status for selected sessions only

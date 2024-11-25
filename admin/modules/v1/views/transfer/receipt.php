@@ -4,7 +4,10 @@ use yii\helpers\Url;
 
 $result = [];
 
-foreach ($invoice->transfer->transferCandidates as $key => $value) {  
+$main_transfer = $invoice->transfer->parent_transfer_id? $invoice->transfer->parentTransfer : $invoice->transfer;
+
+if (!$main_transfer->contract_type || $main_transfer->contract_type == 'HOURLY') {
+    foreach ($invoice->transfer->transferCandidates as $key => $value) {
     
     if(empty($result[$value->company_hourly_rate]))
     {
@@ -37,6 +40,14 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
     $result[$value->company_hourly_rate]['totalTransferCost'] += $value->transfer_cost;
     $result[$value->company_hourly_rate]['totalAmount'] += $value->company_total - $value->bonus;
     //($value->hours * $value->company_hourly_rate) + $value->transfer_cost;
+}
+} else if (isset($invoice->transfer->transferCandidates[0])) {
+    $result[] = [
+         "totalBonus" => 0, //not having bonus on contract
+        'totalAmount' => $invoice->transfer->company_total,
+        "totalTransferCost" => $invoice->transfer->transfer_cost,
+        "perCandidate" => $invoice->transfer->transferCandidates[0]['company_total']
+    ];
 }
 ?>
     <div class="row">
@@ -73,18 +84,29 @@ foreach ($invoice->transfer->transferCandidates as $key => $value) {
             <?php foreach ($result as $hourly_rate => $row) { ?>
                 <tr>
                     <td align="left" style="text-align: left">
-                        <span><b>
-
+                        <?php if (!$main_transfer->contract_type || $main_transfer->contract_type == 'HOURLY') { ?>
+                        <span>
+                            <b>
                                 <?= $row['totalHours'] > 0 ?$row['totalHours'] . " hours": "" ?>  <?= $row['totalMinutes'] > 0 ? $row['totalMinutes'] . " minutes": "" ?> <?= $row['totalSeconds'] > 0 ? $row['totalSeconds'] . " seconds": "" ?> </b> worked x <b><?= $hourly_rate ?> KD</b> per hour
-                        <?php if ($row['totalTransferCost'] > 0) { ?>
-                            + <?= $row['totalTransferCost'] ?> KD transfer cost
-                        <?php } ?>
+                                <?php if ($row['totalTransferCost'] > 0) { ?>
+                                + <?= $row['totalTransferCost'] ?> KD transfer cost
+                                <?php } ?>
                         </span>
+                        <?php } else { ?>
+                            <span>
+                                <b>Per candidate</b>
+                            </span>
+                        <?php } ?>
                     </td>
                     <td align="right" style="text-align: right">
-                        <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['totalAmount'], 3) ?></span>
+                        <?php if (!$main_transfer->contract_type || $main_transfer->contract_type == 'HOURLY') { ?>
+                            <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['totalAmount'], 3) ?></span>
+                        <?php } else { ?>
+                            <span><?= $invoice->transfer->currency_code ?> <?= number_format($row['perCandidate'], 3)?></span>
+                        <?php } ?>
                     </td>
-                </tr>            
+                </tr>
+
                 <?php if($row['totalBonus'] > 0) { ?>
                 <tr>
                     <td align="left" style="text-align: left">

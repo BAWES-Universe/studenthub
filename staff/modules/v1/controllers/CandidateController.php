@@ -903,6 +903,33 @@ class CandidateController extends Controller
     }
 
     /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionMarkNotDeleted($id) {
+        $model = $this->findModel($id);
+
+        if (!$model->undoDelete()) {
+            if(isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->errors
+                ];
+            }else{
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem marking candidate not deleted, please contact us for assistance."
+                ];
+            }
+        }
+
+        return [
+            "operation" => "success",
+        ];
+    }
+
+    /**
      * Toggle Candidate committed and create a note
      * @return array
      */

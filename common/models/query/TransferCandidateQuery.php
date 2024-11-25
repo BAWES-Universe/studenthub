@@ -329,11 +329,13 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
      * @return this
      */
     public function willGetPaid() {
-        return $this->andWhere([
+        return $this->andWhere(new \yii\db\Expression('{{%transfer_candidate}}.company_total > 0'));
+
+        /*return $this->andWhere([
             'OR',
             new \yii\db\Expression('{{%transfer_candidate}}.bonus IS NOT NULL AND {{%transfer_candidate}}.bonus > 0'),
             new \yii\db\Expression('{{%transfer_candidate}}.hours IS NOT NULL AND {{%transfer_candidate}}.hours > 0'),
-        ]);
+        ]);*/
     }
 
     /**

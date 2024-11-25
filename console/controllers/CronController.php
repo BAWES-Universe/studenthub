@@ -7,6 +7,8 @@ use admin\models\Transfer;
 use admin\models\TransferCandidate;
 use common\models\CandidateStats;
 use common\models\CandidateWorkHistory;
+use common\models\CandidateWorkingDate;
+use common\models\CandidateWorkingHour;
 use common\models\CompanyStats;
 use common\models\DailyStandupQuestion;
 use common\models\FiringHitmap;
@@ -930,6 +932,84 @@ class CronController extends \yii\console\Controller {
 
                 $count++;
                 Console::updateProgress($count, $total);
+            }
+        }
+    }
+
+    /**
+     * setting end_time to null to show "On-Going"
+     * @return void
+     */
+    public function actionFixWorkLogs() {
+
+        $query = CandidateWorkingHour::find()
+            ->andWhere(new Expression("end_time IS NULL"));
+
+        foreach ($query->batch() as $hours) {
+            foreach ($hours as $hour) {
+                CandidateWorkingDate::updateAll([
+                    "total_time" => null, //reset total time as new session pending to finish
+                    "end_time" => null, //as current session will be always latest session
+                ], [
+                    "candidate_id" => $hour->candidate_id,
+                    "store_id" => $hour->store_id,
+                    "date" => $hour->date,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * fix: https://linear.app/bawes/issue/TECH-598/bug-report-total-hours-showing-0-hours-completed-in-work-log-list
+     * @return void
+     */
+    public function actionFixWorkLogDates() {
+
+        $query = CandidateWorkingDate::find();
+        //  ->andWhere(['total_time' => 0]);
+
+        foreach ($query->batch() as $dates) {
+            foreach ($dates as $date) {
+
+                //$total_time = $date->getCandidateWorkingHours()
+                //    ->sum("total_time");
+
+                $isWorking = CandidateWorkingHour::find()->andWhere([
+                    "candidate_id" => $date->candidate_id,
+                    "store_id" => $date->store_id,
+                    "date" => $date->date,
+                ])->andWhere(new \yii\db\Expression("end_time IS NULL"))
+                    ->exists();
+
+                if ($isWorking)
+                {
+                    $date->total_time = 0;
+                    $date->end_time = 0;
+                }
+                else
+                {
+                    $total_time = CandidateWorkingHour::find()->andWhere([
+                        "candidate_id" => $date->candidate_id,
+                        "store_id" => $date->store_id,
+                        "date" => $date->date,
+                    ])
+                        ->sum("total_time");
+
+                    $date->total_time = $total_time;
+
+                    //if (!$date->end_time) {
+                    $latestHour = $date->getCandidateWorkingHours()
+                        ->one();
+
+                    if ($latestHour) {
+                        $date->end_time = $latestHour->end_time;
+                    }
+                }
+
+                if (!$date->save(false)) {
+                    print_r($date->errors);
+                    die();
+                }
             }
         }
     }

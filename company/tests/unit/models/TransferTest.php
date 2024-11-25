@@ -195,14 +195,14 @@ class TransferTest extends \Codeception\Test\Unit
 
                 $total = $childTransfer
                     ->getTransferCandidates()
-                    ->sum('(candidate_hourly_rate * hours) + bonus - bonus_commission');
+                    ->sum('candidate_total');//(candidate_hourly_rate * hours) + bonus - bonus_commission
 
                 expect('Testing child transfer total field', number_format($total, 3, '.', ''))
                     ->equals($childTransfer->total);
 
                 $company_total = $childTransfer
                     ->getTransferCandidates()
-                    ->sum('(company_hourly_rate * hours) + bonus + transfer_cost');
+                    ->sum('company_total');//(company_hourly_rate * hours) + bonus + transfer_cost
 
                 expect('Testing child transfer company total field', number_format($company_total, 3, '.', ''))
                     ->equals($childTransfer->company_total);

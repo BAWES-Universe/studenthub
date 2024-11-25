@@ -270,11 +270,13 @@ return [
                     'patterns' => [
                         'GET work-history' => 'work-history',
                         'GET work-history/<id>' => 'work-history-detail',
+                        "GET working-dates" => "working-dates",
                         'GET appreciation-certificate/<wid>' => 'appreciation-certificate',
                         //'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS work-history' => 'options',
                         'OPTIONS work-history/<id>' => 'options',
+                        "OPTIONS working-dates" => "options",
                         'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],
@@ -286,13 +288,17 @@ return [
                         'GET hour' => 'list-hour',
                         'GET stats' => 'stats',
                         'GET date/<date>' => 'hours-detail',
+                        'GET date-detail/<date>' => 'date-detail',
+                        "GET working-dates" => "working-dates",
                         'POST' => "add-hour",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
                         'OPTIONS stats' => 'options',
+                        "OPTIONS working-dates" => 'options',
                         'OPTIONS date/<date>' => 'options',
+                        'OPTIONS date-detail/<date>' => 'options',
                     ]
                 ],
                 [ // StatisticController

@@ -54,6 +54,17 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [// ContractController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/contract',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'detail',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [// CampaignController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/campaign',
@@ -376,13 +387,17 @@ return [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-working-hour',
                     'patterns' => [
+                        "GET date-detail" => "date-detail",
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
                         'GET stats' => 'stats',
+                        "GET working-dates" => "working-dates",
                         // OPTIONS VERBS
-                        'OPTIONS stats' => "stats",
+                        "OPTIONS date-detail" => "options",
+                        'OPTIONS stats' => "options",
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        "OPTIONS working-dates" => "options"
                     ]
                 ],
                 [ // BalanceController

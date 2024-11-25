@@ -147,9 +147,11 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                             "store_id" => $this->store_id,
                             "date" => $this->date,
                         ])
+                        ->andWhere(new Expression("end_time IS NOT NULL"))
                         ->sum("total_time");
 
                     $latestHour = $date->getLatestCandidateWorkingHour()
+                        ->andWhere(new Expression("end_time IS NOT NULL"))
                         ->one();
 
                     $end_time = $latestHour? $latestHour->end_time: $this->end_time;
@@ -169,16 +171,16 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
 
                     //as we have health indicator now + working tag, no more need to reset status
 
-                    /*CandidateWorkingDate::updateAll([
-                        "status" => $this->status, //reset status
-                     //   "total_time" => null, //reset total time as new session pending to finish
-                     //   "end_time" => null, //as current session will be always latest session
-                     //   "via" => $via
+                    CandidateWorkingDate::updateAll([
+                       // "status" => $this->status, //reset status
+                        "total_time" => null, //reset total time as new session pending to finish
+                        "end_time" => null, //as current session will be always latest session
+                       // "via" => $via
                     ], [
                         "candidate_id" => $this->candidate_id,
                         "store_id" => $this->store_id,
                         "date" => $this->date,
-                    ]);*/
+                    ]);
                 }
             }
         }
@@ -189,9 +191,11 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                     "store_id" => $this->store_id,
                     "date" => $this->date,
                 ])
+                ->andWhere(new Expression("end_time IS NOT NULL"))
                 ->sum("total_time");
 
             $latestHour = $date->getLatestCandidateWorkingHour()
+                ->andWhere(new Expression("end_time IS NOT NULL"))
                 ->one();
 
             $end_time = $latestHour? $latestHour->end_time: $this->end_time;

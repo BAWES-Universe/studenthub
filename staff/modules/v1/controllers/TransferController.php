@@ -8,6 +8,7 @@ use common\models\TransferCost;
 use common\models\TransferRateExcel;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\filters\Cors;
@@ -351,6 +352,7 @@ class TransferController extends Controller
         $transfer = Transfer::find()
             ->filterTransfer($id)
             ->with([
+               // "contract",
                 'transferCandidates',
                 'transferCandidates.candidate',
                 'transferCandidates.candidate.store',
@@ -373,6 +375,8 @@ class TransferController extends Controller
     public function actionCreate()
     {
         $company_id = Yii::$app->request->getBodyParam("company_id");
+        $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
+
         $candidates = Yii::$app->request->getBodyParam("candidates");
         $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("start_date")));
         $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("end_date")));
@@ -392,7 +396,7 @@ class TransferController extends Controller
         }
 
         //save transfer
-        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
 
     /**
@@ -402,6 +406,7 @@ class TransferController extends Controller
     public function actionCreateByExcel()
     {
         $company_id = Yii::$app->request->getBodyParam("company_id");
+        $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
 
         $company = $this->findCompany($company_id);
 
@@ -463,7 +468,7 @@ class TransferController extends Controller
             $candidates[] = $value;
         }
         //save transfer
-        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code);
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
 
     /**
@@ -473,6 +478,8 @@ class TransferController extends Controller
      */
     public function actionEditByExcel($id)
     {
+        $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
+
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
         $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
@@ -528,7 +535,7 @@ class TransferController extends Controller
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
 
     /**
@@ -538,6 +545,8 @@ class TransferController extends Controller
      */
     public function actionEdit($id)
     {
+        $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
+
         $company = Yii::$app->user->identity;
 
         $company_id = Yii::$app->request->getBodyParam("company_id");
@@ -552,7 +561,7 @@ class TransferController extends Controller
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid);
     }
 
     /**
@@ -932,6 +941,7 @@ class TransferController extends Controller
      */
     public function actionTransferExcelTemplate($id)
     {
+        $contract_uuid = Yii::$app->request->get("contract_uuid");
         $preFilled = Yii::$app->request->get("preFilled");
         $startDate = Yii::$app->request->get("startDate");
         $endDate = Yii::$app->request->get("endDate");
@@ -951,29 +961,55 @@ class TransferController extends Controller
                     $endDate = date("Y-m-d");
                 }
 
-                foreach ($company->candidates as $candidate) {
+                $candidateQuery = $company->getCandidates();
 
-                    $seconds = CandidateWorkingDate::find()->andWhere([
-                            "candidate_id" => $candidate->candidate_id,
-                            "store_id" => $candidate->store_id, //filter by store, in case store changed in month
-                            "status" => CandidateWorkingDate::STATUS_APPROVED
-                        ])
-                        ->filterByDateRange($startDate, $endDate)
-                        ->sum("total_time");
+                if ($contract_uuid) {
+                    $candidateQuery
+                        ->joinWith(['candidateWorkHistory'])
+                        ->andWhere(["contract_uuid" => $contract_uuid]);
+                } else {
+                    $candidateQuery
+                        ->joinWith(['candidateWorkHistory'])
+                        ->andWhere(new Expression("contract_uuid IS NULL"));
+                }
 
-                    $hours = floor($seconds/ 3600);
-                    $minutes = floor(($seconds - ($hours * 3600))/ 60);
+                foreach ($candidateQuery->batch() as $candidates) {
 
-                    $transferCandidates[$candidate->candidate_id] = [
-                        "hours" => $hours,
-                        "minutes" => $minutes,
-                        "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
-                        "bonus" => 0
-                    ];
+                    foreach ($candidates as $candidate) {
+
+                        $seconds = CandidateWorkingDate::find()->andWhere([
+                                "candidate_id" => $candidate->candidate_id,
+                                "store_id" => $candidate->store_id, //filter by store, in case store changed in month
+                                "status" => CandidateWorkingDate::STATUS_APPROVED
+                            ])
+                            ->filterByDateRange($startDate, $endDate)
+                            ->sum("total_time");
+
+                        $hours = floor($seconds / 3600);
+                        $minutes = floor(($seconds - ($hours * 3600)) / 60);
+
+                        $transferCandidates[$candidate->candidate_id] = [
+                            "hours" => $hours,
+                            "minutes" => $minutes,
+                            "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
+                            "bonus" => 0
+                        ];
+                    }
                 }
 
             } else {
-                $latestTransfer = $company->getParentTransfers()->one();
+
+                $latestTransferQuery = $company->getParentTransfers();
+
+                if ($contract_uuid) {
+                    $latestTransferQuery
+                        ->andWhere(["contract_uuid" => $contract_uuid]);
+                } else {
+                    $latestTransferQuery
+                        ->andWhere(new Expression("contract_uuid IS NULL"));
+                }
+
+                $latestTransfer = $latestTransferQuery->one();
 
                 if ($latestTransfer) {
                     $transferCandidates = ArrayHelper::index($latestTransfer->getTransferCandidates()->all(), "candidate_id");
@@ -1169,10 +1205,22 @@ class TransferController extends Controller
                         return $model->end_date;
                     },
                 ],
+                [
+                    'header' => 'contract_uuid',
+                    "format" => "raw",
+                    "value" => function ($model) {
+                        return $model->contract_uuid;
+                    },
+                ],
             ]
         ]);
     }
 
+    /**
+     * @param $id
+     * @return Company|null
+     * @throws NotFoundHttpException
+     */
     protected function findCompany($id)
     {
         if (($model = Company::findOne($id)) !== null) {
@@ -1182,6 +1230,11 @@ class TransferController extends Controller
         }
     }
 
+    /**
+     * @param $id
+     * @return Transfer|null
+     * @throws NotFoundHttpException
+     */
     protected function findModel($id)
     {
         if (($model = Transfer::findOne($id)) !== null) {

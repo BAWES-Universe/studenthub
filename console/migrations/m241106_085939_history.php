@@ -12,8 +12,6 @@ class m241106_085939_history extends Migration
      */
     public function safeUp()
     {
-
-
         $columnData = $this
             ->getDb()
             ->getSchema()

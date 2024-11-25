@@ -83,8 +83,21 @@ class CandidateController extends BaseController
      */
     public function actionList()
     {
-        return Yii::$app->companyManager->getCompany()
-            ->getCandidates()->all();
+        $contract_uuid = Yii::$app->request->get('contract_uuid');
+
+        $query = Yii::$app->companyManager->getCompany()
+            ->getCandidates();
+
+        if ($contract_uuid) {
+            $query->joinWith(['candidateWorkHistories'])
+                ->andWhere([
+                    "AND",
+                    ['contract_uuid' => $contract_uuid],
+                    new Expression("end_date IS NULL")
+                ]);
+        }
+
+        return $query->all();
     }
 
     /**
@@ -359,14 +372,21 @@ class CandidateController extends BaseController
      */
     public function actionWorkHistory($id)
     {
-        $model = CandidateWorkHistory::find()
-            ->filterCandidate($id)
-            ->all();
+        $store_id = Yii::$app->request->get('store_id');
+        $date = Yii::$app->request->get('date');
 
-        if(!$model)
-            return [];
+        $query = CandidateWorkHistory::find()
+            ->filterCandidate($id);
 
-        return $model;
+        if ($store_id) {
+            $query->andWhere(['store_id' => $store_id]);
+        }
+
+        if ($date) {
+            $query->filterByDate($date);
+        }
+
+        return $query->all();
     }
 
     public function actionWorkHistoryDetail($id)
