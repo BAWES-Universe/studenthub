@@ -13,6 +13,9 @@ use yii\db\Expression;
  * @property string $candidate_experience_id
  * @property string $candidate_id
  * @property string $experience
+ * @property string $employer
+ * @property number $start_year
+ * @property number $end_year
  * @property string $deleted
  * @property string $candidate_experience_created_at
  *
@@ -36,7 +39,8 @@ class CandidateExperience extends \yii\db\ActiveRecord
         return [
             [['candidate_id', 'experience'], 'required'],
             [['candidate_experience_created_at'], 'safe'],
-            [['experience'], 'string', 'max' => 128],
+            [['experience', 'employer'], 'string', 'max' => 128],
+            [['start_year', 'end_year'], 'number'],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
     }
@@ -61,7 +65,9 @@ class CandidateExperience extends \yii\db\ActiveRecord
         return [
             'candidate_experience_id' => Yii::t('app', 'Candidate Experience ID'),
             'candidate_id' => Yii::t('app', 'Candidate ID'),
-            'experience' => Yii::t('app', 'Experience'),
+            'employer' => Yii::t('app', 'Employer'),
+            'start_year' => Yii::t('app', 'Start Year'),
+            'end_year' => Yii::t('app', 'End Year'),
             'candidate_experience_created_at' => Yii::t('app', 'Candidate Experience Created At'),
         ];
     }
