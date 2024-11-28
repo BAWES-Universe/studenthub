@@ -71,11 +71,19 @@ class UniversityController extends Controller
     public function actionList()
     {
         $q = Yii::$app->request->getQueryParam('q');
-        
+        $page = Yii::$app->request->get("page");
+
         $query = University::find();
         
         if ($q) {
             $query->filterName($q);
+        }
+
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false,
+            ]);
         }
 
         return new ActiveDataProvider([

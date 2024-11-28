@@ -27,7 +27,7 @@ class Module extends \yii\base\Module
 
         if ($lang && $lang != Yii::$app->language)
         {
-            Yii::$app->language = $lang;
+        //    Yii::$app->language = $lang;
         }
 
         if(YII_ENV == 'prod') {

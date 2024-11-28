@@ -137,11 +137,12 @@ class AccountController extends Controller
      */
     public function actionUpdateSkills()
     {
-        $skills = Yii::$app->request->getBodyParam("skills");
+        $skills_array = Yii::$app->request->getBodyParam("skills");
 
-        $skills_array = explode(',',$skills);
+        if (!is_array($skills_array))
+            $skills_array = explode(',', $skills_array);
         
-        if (empty($skills) || count($skills_array) == 0) 
+        if (count($skills_array) == 0)
         {
             return [
                 "operation" => "error",
@@ -327,6 +328,7 @@ class AccountController extends Controller
 
         return [
             'operation' => 'success',
+            "candidate_personal_photo" => $model->candidate_personal_photo
         ];
     }
 
@@ -693,6 +695,7 @@ class AccountController extends Controller
 
         return [
             "operation" => "success",
+            "country" => $candidate->country,
             "message" => Yii::t('candidate', "Candidate Nationality Info Updated Successfully"),
         ];
     }
@@ -1152,7 +1155,32 @@ class AccountController extends Controller
             'message' => Yii::t('candidate', 'Resume Uploaded Successfully')
         ];
     }
-    
+
+    /**
+     * Remove Resume
+     */
+    public function actionRemoveResume() {
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if ($model->candidate_resume) {
+            $model->deleteResume();
+        }
+
+        $model->candidate_resume = null;
+        $model->scenario = 'updateResume';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+
     /**
      * update civil photo back
      * @return type
