@@ -80,20 +80,24 @@ class CandidateExperienceController extends Controller
      */
     public function actionSave() {
 
-        $CandidateExperiences = Yii::$app->request->getBodyParam("CandidateExperiences", []);
+        $candidateExperiences = Yii::$app->request->getBodyParam("candidateExperiences", []);
 
         $transaction = Yii::$app->db->beginTransaction();
 
-        foreach ($CandidateExperiences as $CandidateExperience) {
+        foreach ($candidateExperiences as $candidateExperience) {
 
-            $model = empty($CandidateExperience['candidate_experience_id']) ? new CandidateExperience():
-                $this->findModel($CandidateExperience['candidate_experience_id']);
+            $model = empty($candidateExperience['candidate_experience_id']) ? new CandidateExperience():
+                $this->findModel($candidateExperience['candidate_experience_id']);
 
             $model->candidate_id = Yii::$app->user->getId();
-            $model->experience = $CandidateExperience['experience'];
-            $model->employer = $CandidateExperience['employer'];
-            $model->start_year = $CandidateExperience['start_year'];
-            $model->end_year = $CandidateExperience['end_year'];
+            $model->experience = isset($candidateExperience['experience'])?
+                $candidateExperience['experience']: null;
+            $model->employer = isset($candidateExperience['employer']) ?
+                $candidateExperience['employer']: null;
+            $model->start_year = isset($candidateExperience['start_year'])?
+                $candidateExperience['start_year']: null;
+            $model->end_year = isset($candidateExperience['end_year'])?
+                $candidateExperience['end_year']: null;
 
             if (!$model->save()) {
 
@@ -108,12 +112,12 @@ class CandidateExperienceController extends Controller
 
         $transaction->commit();
 
-        $CandidateExperiences = Yii::$app->user->identity->getCandidateExperiences()
+        $candidateExperiences = Yii::$app->user->identity->getCandidateExperiences()
             ->all();
 
         return [
             'operation' => 'success',
-            "CandidateExperiences" => $CandidateExperiences
+            "candidateExperiences" => $candidateExperiences
         ];
     }
 

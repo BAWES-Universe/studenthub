@@ -81,8 +81,19 @@ class CandidateEducationController extends Controller
      * @return ActiveDataProvider
      */
     public function actionListMajor() {
-        $query = Major::find();
+
         $page = Yii::$app->request->get("page");
+        $q = Yii::$app->request->get("q");
+
+        $query = Major::find();
+
+        if ($q) {
+            $query->andWhere([
+                "OR",
+                ["like", "major_name_en", $q],
+                ["like", "major_name_ar", $q],
+            ]);
+        }
 
         if ($page == -1) {
             return new ActiveDataProvider([
@@ -119,8 +130,18 @@ class CandidateEducationController extends Controller
      * @return ActiveDataProvider
      */
     public function actionListDegree() {
-        $query = Degree::find();
         $page = Yii::$app->request->get("page");
+        $q = Yii::$app->request->get("q");
+
+        $query = Degree::find();
+        
+        if ($q) {
+            $query->andWhere([
+                "OR",
+                ["like", "degree_name_en", $q],
+                ["like", "degree_name_ar", $q],
+            ]);
+        }
 
         if ($page == -1) {
             return new ActiveDataProvider([
