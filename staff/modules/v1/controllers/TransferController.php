@@ -965,11 +965,11 @@ class TransferController extends Controller
 
                 if ($contract_uuid) {
                     $candidateQuery
-                        ->joinWith(['candidateWorkHistory'])
+                        ->joinWith(['candidateWorkHistories'])
                         ->andWhere(["contract_uuid" => $contract_uuid]);
                 } else {
                     $candidateQuery
-                        ->joinWith(['candidateWorkHistory'])
+                        ->joinWith(['candidateWorkHistories'])
                         ->andWhere(new Expression("contract_uuid IS NULL"));
                 }
 
