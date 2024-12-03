@@ -106,13 +106,13 @@ class CandidateWorkHistoryQuery extends \yii\db\ActiveQuery
      */
     public function filterByDate($date) {
 
-        /*return $this->andWhere(new Expression("DATE(candidate_work_history.start_date) <= DATE('".$date."') AND
-            DATE(candidate_work_history.end_date) >= DATE('".$date."')"));*/
+        return $this->andWhere(new Expression("DATE(candidate_work_history.start_date) <= DATE('".$date."') AND
+            (candidate_work_history.end_date IS NULL OR DATE(candidate_work_history.end_date) >= DATE('".$date."'))"));
 
-        return $this->andWhere (new Expression("
+        /*return $this->andWhere (new Expression("
             DATE('".date('Y-m-d', strtotime($date))."') BETWEEN DATE(candidate_work_history.start_date) 
             AND DATE(candidate_work_history.end_date)
-        "));
+        "));*/
     }
 
     /**
