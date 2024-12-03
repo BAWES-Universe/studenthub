@@ -965,10 +965,18 @@ class CronController extends \yii\console\Controller {
      */
     public function actionFixWorkLogDates() {
 
-        $query = CandidateWorkingDate::find();
+        $query = CandidateWorkingDate::find()
+            ->andWhere(new Expression("end_time IS NULL"));
         //  ->andWhere(['total_time' => 0]);
 
+        $total = $query->count();
+
+        Console::startProgress(0, $total);
+
+        $n = 0;
+
         foreach ($query->batch() as $dates) {
+
             foreach ($dates as $date) {
 
                 //$total_time = $date->getCandidateWorkingHours()
@@ -984,7 +992,7 @@ class CronController extends \yii\console\Controller {
                 if ($isWorking)
                 {
                     $date->total_time = 0;
-                    $date->end_time = 0;
+                    $date->end_time = null;
                 }
                 else
                 {
@@ -1010,6 +1018,10 @@ class CronController extends \yii\console\Controller {
                     print_r($date->errors);
                     die();
                 }
+
+                $n++;
+
+                Console::updateProgress($n, $total);
             }
         }
     }
