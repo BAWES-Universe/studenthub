@@ -965,7 +965,8 @@ class CronController extends \yii\console\Controller {
      */
     public function actionFixWorkLogDates() {
 
-        $query = CandidateWorkingDate::find();
+        $query = CandidateWorkingDate::find()
+            ->andWhere(new Expression("end_time IS NULL"));
         //  ->andWhere(['total_time' => 0]);
 
         foreach ($query->batch() as $dates) {
