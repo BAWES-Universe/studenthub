@@ -379,9 +379,10 @@ class AuthController extends Controller
             }
         }
 
-        $candidate = Candidate::findOne([
-            'candidate_email' => $emailInput,
-        ]);
+        $candidate = Candidate::find()->andWhere([
+                'candidate_email' => $emailInput
+            ])
+            ->one();
 
         $errors = false;
         $errorCode = null; //error code
@@ -506,14 +507,15 @@ class AuthController extends Controller
      * Sends password reset sms to user
      * @return array
      */
-    public function actionSMSResetPassword() {
+    public function actionSMSResetPassword()
+    {
 
         $phone_number = Yii::$app->request->getBodyParam("phone_number");
         $token = Yii::$app->request->getBodyParam("token");
 
         //TODO: make token as required field once we update android app
 
-        if(YII_ENV != 'test') {
+        if (YII_ENV != 'test') {
             $response = Yii::$app->reCaptcha->verify($token);
 
             if (!$response->data || !$response->data['success']) {
@@ -533,13 +535,14 @@ class AuthController extends Controller
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
-                'message' => isset($model->errors['phone_number'])?isset($model->errors['phone_number']): $model->errors
+                'message' => isset($model->errors['phone_number']) ? isset($model->errors['phone_number']) : $model->errors
             ];
         }
 
-        $candidate = Candidate::findOne([
+        $candidate = Candidate::find()->andWhere([
             'candidate_phone' => $model->phone_number,
-        ]);
+        ])
+        ->one();
 
         if (!$candidate) {
             return [
@@ -547,6 +550,13 @@ class AuthController extends Controller
                 'message' => 'candidate not found'
             ];
         }
+
+        /*if (!$this->candidate_email_verification) {
+            return [
+                'operation' => 'error',
+                'message' => 'Please verify email to set password'
+            ];
+        }*/
 
         //Check if this user sent an email in past few minutes (to limit email spam)
         $emailLimitDatetime = new \DateTime($candidate->candidate_limit_sms);

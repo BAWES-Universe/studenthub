@@ -1556,8 +1556,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function sendPasswordResetEmail()
     {
-        if(!$this->candidate_email_verification)
-            return false;
+        //if(!$this->candidate_email_verification)
+        //    return false;
 
         $this->setScenario('updatePasswordToken');
         $this->generatePasswordResetToken();
