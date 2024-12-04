@@ -182,14 +182,14 @@ class CandidateController extends BaseController
 
             foreach ($candidates as $candidate) {
 
-                $query = CandidateWorkingDate::find()->andWhere([
+                $query = CandidateWorkingHour::find()->andWhere([
                         "candidate_id" => $candidate->candidate_id,
                         "store_id" => $candidate->store_id, //filter by store, in case store changed in month
                     ])
                     ->filterByDateRange($start_date, $end_date);
 
                 if ($approved) {
-                    $query->andWhere(["status" => CandidateWorkingDate::STATUS_APPROVED]);
+                    $query->andWhere(["status" => CandidateWorkingHour::STATUS_APPROVED]);
                 }
 
                 $seconds = $query
