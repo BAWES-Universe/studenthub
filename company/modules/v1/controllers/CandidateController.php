@@ -240,25 +240,25 @@ class CandidateController extends BaseController
                 [
                     'header' => 'hours',
                     'value' => function($data) use ($logData) {
-                        return $logData[$data->candidate_id]['hours'];
+                        return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['hours']: null;
                     }
                 ],
                 [
                     'header' => 'minutes',
                     'value' => function($data) use ($logData) {
-                        return $logData[$data->candidate_id]['minutes'];
+                        return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['minutes']: null;
                     }
                 ],
                 [
                     'header' => 'seconds',
                     'value' => function($data) use ($logData) {
-                        return $logData[$data->candidate_id]['seconds'];
+                        return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['seconds']: null;
                     }
                 ],
                 [
                     'header' => 'bonus',
                     'value' => function($data) use ($logData) {
-                        return $logData[$data->candidate_id]['bonus'];
+                        return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['bonus']: null;
                     }
                 ]
             ]
