@@ -130,7 +130,9 @@ return [
                     'controller' => 'v1/account',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET salary/<id>' => 'salary-detail',
                         'GET salary' => 'salary',
+
                         'GET profile' => 'profile',
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
@@ -189,6 +191,7 @@ return [
                         'OPTIONS update-skills' => 'options',
                         'OPTIONS profile' => 'options',
                         'OPTIONS salary' => 'options',
+                        'OPTIONS salary/<id>' => 'options',
                         'OPTIONS update-email' => 'options', 
                         'OPTIONS change-password' => 'options',
                         'OPTIONS language-pref' => 'options', 

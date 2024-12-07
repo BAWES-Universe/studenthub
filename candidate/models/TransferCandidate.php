@@ -18,7 +18,7 @@ class TransferCandidate extends \common\models\TransferCandidate
         $fields = parent::fields();
 
         // remove fields that contain sensitive information
-        unset($fields['tc_id'],
+        unset(
             $fields['store_id'],
             $fields['company_id'],
             $fields['company_email'],

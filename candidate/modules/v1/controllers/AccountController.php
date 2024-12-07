@@ -15,6 +15,7 @@ use candidate\models\CandidateExperience;
 use candidate\models\TransferCandidate;
 use candidate\models\Transfer;
 use candidate\models\Area;
+use yii\web\NotFoundHttpException;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -605,6 +606,27 @@ class AccountController extends Controller
                 'pageSize' => 10,
             ],
         ]);
+    }
+
+    public function actionSalaryDetail($id)
+    {
+        $status = [
+            Transfer::STATUS_TRANSFER_COMPLETE,
+            Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS
+        ];
+
+        $model = TransferCandidate::find()
+            ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
+            ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
+            ->filterCandidate(Yii::$app->user->identity->candidate_id)
+            ->andWhere(['tc_id' => $id])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException("Item not found!");
+        }
+
+        return $model;
     }
 
     /**
