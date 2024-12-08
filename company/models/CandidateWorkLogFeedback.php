@@ -18,7 +18,21 @@ class CandidateWorkLogFeedback extends \common\models\CandidateWorkLogFeedback
 
         //validate candidate_id, store_id, company_id
 
-        $store_id = empty($this->store_id)? $this->candidate->store_id: $this->store_id;
+        $store_id = $this->store_id;
+
+        //get store_id from candidate_history of date provided
+        if (empty($this->store_id)) {
+            $history = \common\models\CandidateWorkHistory::find()
+                ->andWhere(['candidate_id' => $this->candidate_id])
+                ->filterByDate($this->date)
+                ->one();
+
+            if ($history)
+                $store_id = $history->store_id;
+        }
+
+        if (empty($this->store_id))
+           $store_id = $this->candidate->store_id;
 
         //make sure store belongs to login user
 
