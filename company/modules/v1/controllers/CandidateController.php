@@ -119,7 +119,8 @@ class CandidateController extends BaseController
             throw new NotFoundHttpException('The requested page does not exist.');
         }
 
-        $query = $candidate->getCandidateWorkingDates();
+        $query = $candidate->getCandidateWorkingDates()
+            ->orderBy("date DESC");
 
         /*if ($start_date && $end_date) {
             $query->filterByDateRange($start_date, $end_date);
