@@ -232,14 +232,14 @@ class CandidateWorkingHourController extends Controller
     public function actionWorkingDates() {
 
         $candidate = Yii::$app->user->identity;
-        //$start_date = Yii::$app->request->get("start_date");
-        //$end_date = Yii::$app->request->get("end_date");
+        $start_date = Yii::$app->request->get("start_date");
+        $end_date = Yii::$app->request->get("end_date");
 
         $query = $candidate->getCandidateWorkingDates();
 
-        /*if ($start_date && $end_date) {
+        if ($start_date && $end_date) {
             $query->filterByDateRange($start_date, $end_date);
-        }*/
+        }
 
         return new ActiveDataProvider([
             'query' => $query
