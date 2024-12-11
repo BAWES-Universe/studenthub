@@ -71,7 +71,9 @@ class CandidateCest
     public function restCallToMergeAccounts(FunctionalTester $I)
     {
         $source = Candidate::findOne(['deleted'=>0]);
-        $destination = Candidate::find()->andWhere(['deleted'=>0])->andWhere(['<>','candidate_id',$source->candidate_id])->one();
+        $destination = Candidate::find()->andWhere(['deleted'=>0])
+            ->andWhere(['!=','candidate_id',$source->candidate_id])
+            ->one();
         $I->wantTo('Merge to account');
         $I->sendPATCH('v1/candidates/merge', [
             'source' => $source->candidate_id,

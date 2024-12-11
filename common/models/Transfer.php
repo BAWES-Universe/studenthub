@@ -742,7 +742,8 @@ class Transfer extends ActiveRecord
             $contacts = Contact::find()
                 ->andWhere(['contact_receive_email' => 1])
                 ->andWhere(['in', 'contact_uuid', $subQuery])
-                ->andWhere(['<>', 'contact_email', null])
+                ->andWhere(new Expression('contact_email IS NOT NULL'))
+                //->andWhere(['<>', 'contact_email', null])
                 ->all();
 
             $emails = array_merge($emails, ArrayHelper::getColumn($contacts, 'contact_email'));
@@ -771,7 +772,8 @@ class Transfer extends ActiveRecord
             $contacts = Contact::find()
                 ->andWhere(['contact_receive_email' => 1])
                 ->andWhere(['in', 'contact_uuid', $subQuery])
-                ->andWhere(['<>', 'contact_email', null])
+                //->andWhere(['<>', 'contact_email', null])
+                ->andWhere(new Expression('contact_email IS NOT NULL'))
                 ->all();
 
             $emails = array_merge($emails, ArrayHelper::getColumn($contacts, 'contact_email'));
