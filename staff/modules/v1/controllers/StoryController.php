@@ -160,7 +160,7 @@ class StoryController extends Controller
 
         $query = Story::find();
         $query->andWhere(['staff_id' => $id])
-            ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+            ->andWhere(['!=', 'story_status', Story::STATUS_STARTED])
             ->orderBy('story_last_updated_at DESC');
 
         return new ActiveDataProvider([

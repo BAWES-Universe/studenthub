@@ -3,6 +3,7 @@ namespace staff\models;
 
 use common\models\StaffToken;
 use Yii;
+use yii\db\Expression;
 
 /**
  * This is the model class for table "Staff".
@@ -75,7 +76,7 @@ class Staff extends \common\models\Staff {
     public function getActiveStoriesActivities($modelClass = "\staff\models\StoryActivity")
     {
         return $this->getStoryActivities()
-            ->andWhere(['<>','activity_time_spent','null'])
+            ->andWhere(new Expression('activity_time_spent IS NOT null'))
             ->andWhere(['activity_status'=> 1])
             ->one();
     }
@@ -98,7 +99,7 @@ class Staff extends \common\models\Staff {
     public function getOldStories()
     {
         return $this->getStories()
-            ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+            ->andWhere(['!=', 'story_status', Story::STATUS_STARTED])
             ->orderBy('story_last_updated_at DESC');
     }
 
