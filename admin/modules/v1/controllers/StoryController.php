@@ -111,7 +111,7 @@ class StoryController extends Controller
     public function actionAllOldStories()
     {
         $model = Story::find()->andWhere(['staff_id' => Yii::$app->user->getId()])
-            ->andWhere(['<>','story_status',Story::STATUS_STARTED])
+            ->andWhere(['!=','story_status',Story::STATUS_STARTED])
             ->all();
 
         if ($model !== null) {
