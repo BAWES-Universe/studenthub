@@ -1,5 +1,3 @@
-version: '3.2'
-
 services:
   mysql:
     image: mysql:5.7
@@ -33,7 +31,7 @@ services:
 
   # Start container to install composer deps and kill after
   composer-deps:
-    build: backend
+    build: admin
     command: composer install
     volumes:
       # Re-use local composer cache via host-volume
@@ -43,7 +41,7 @@ services:
 
   # Start container to init dev environment and kill after
   init-environment:
-    build: backend
+    build: admin
     command: ./init --env=Development --overwrite=All
     volumes:
       # Re-use local composer cache via host-volume
@@ -55,7 +53,7 @@ services:
 
   # Start container to run db migrations and kill after
   db-migration:
-    build: backend
+    build: admin
     command: bash -c "sleep 20 && ./yii migrate --interactive=0 && ./yii_test migrate --interactive=0"
     volumes:
       # Re-use local composer cache via host-volume
@@ -70,7 +68,7 @@ services:
 
   # Load fixture data
   load-fixture:
-    build: backend
+    build: admin
     command: bash -c "sleep 20 && ./yii fixture/load '*' --interactive=0"
     volumes:
       # Re-use local composer cache via host-volume
@@ -81,7 +79,7 @@ services:
       - "db-migration"
 
   cron:
-    build: backend
+    build: admin
     volumes:
       # Re-use local composer cache via host-volume
       - ~/.composer-docker/cache:/root/.composer/cache:delegated
@@ -91,7 +89,7 @@ services:
       - "load-fixture"
 
   admin:
-    build: backend
+    build: admin
     ports:
       - 21080:80
     volumes:
@@ -103,7 +101,7 @@ services:
       - "load-fixture"
 
   candidate:
-    build: backend
+    build: candidate
     ports:
       - 22080:80
     volumes:
@@ -115,7 +113,7 @@ services:
       - "load-fixture"
 
   company:
-    build: backend
+    build: company
     ports:
       - 23080:80
     volumes:
@@ -127,7 +125,7 @@ services:
       - "load-fixture"
 
   inspector:
-    build: backend
+    build: inspector
     ports:
       - 24080:80
     volumes:
@@ -139,7 +137,7 @@ services:
       - "load-fixture"
 
   staff:
-    build: backend
+    build: staff
     ports:
       - 25080:80
     volumes:
@@ -151,7 +149,7 @@ services:
       - "load-fixture"
 
   verification:
-    build: backend
+    build: verification
     ports:
       - 26080:80
     volumes:
