@@ -3,6 +3,7 @@
 ## Database Diagram
 The database structure can be viewed and edited at:
 [Database Diagram Link](https://dbdiagram.io/d/Studenthub-66e02334550cd927eabe2c68) 
+[Database Schema Documentation](./schema.md) 
 
 ## Core Entities
 
