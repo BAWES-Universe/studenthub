@@ -44,15 +44,15 @@ sudo npm install --global --unsafe-perm puppeteer
 sudo chmod -R o+rx /usr/lib/node_modules/puppeteer/.local-chromium
 ```
 
-## Maintenance Commands
+## Console Commands and Maintenance
 
-### Algolia Sync
+### Algolia Search Index Updates
 ```bash
 cd console && ../yii algolia/index fulltimer
 cd console && ../yii algolia/index candidate
 ```
 
-### Update Stats
+### Cron Jobs
 ```bash
 ./yii cron/update-candidate-stats
 ./yii cron/update-company-stats

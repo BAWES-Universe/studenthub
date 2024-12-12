@@ -29,6 +29,3 @@
 ### Code Generator
 - Local: http://localhost:8888/bawes/studenthub/admin/web/gii
 - Server: http://localhost/studenthub/admin/web/gii
-
-### Database Diagram
-- [Database Diagram Link](https://dbdiagram.io/d/Studenthub-66e02334550cd927eabe2c68) 

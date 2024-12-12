@@ -1,11 +1,13 @@
 # User Roles and Permissions
 
-## Studenthub Staff
-Staff members who provide trainee recruitment and administrative services:
-- Create and manage Employee accounts
-- Assign and unassign employees to companies
+## Staff
+Studenthub staff members who provide trainee recruitment and administrative services:
+- Create and manage Candidate accounts
+- Assign and unassign candidates to companies
+- Review candidate applications and documentation
+- Support basic user inquiries
 
-## Corporate Users
+## Company Users
 Companies participating in the trainee program:
 - Sign contracts with admin for fixed hourly trainee rates
 - View details of assigned trainees
@@ -14,17 +16,31 @@ Companies participating in the trainee program:
 - Receive receipts upon admin transfer confirmation
 - Get notifications for pending transfer requests
 
-## Employees
+## Candidates
 Program trainees recruited by Studenthub staff:
 - Must sign contract and provide:
   - Identity documents
   - Bank information
 - Required to sign "Tanazol" document
 - Can be assigned to work for companies
+- Submit timesheets and work reports
 
 ## Admin
-System administrators with payment processing capabilities:
+System administrators with full system access:
+- Manage user accounts and permissions
 - Approve transfer requests
 - Send receipts to employers
 - Process payments via payment company API
-- Transfer salaries to employees 
+- Transfer salaries to candidates
+- Generate system reports
+
+## Inspector
+Quality assurance and compliance officers:
+- Review and verify candidate documentation
+- Conduct periodic audits of company records
+- Monitor compliance with program requirements
+- Generate inspection reports
+- Flag compliance issues
+
+## Manager
+TBD

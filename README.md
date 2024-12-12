@@ -21,6 +21,7 @@ Detailed documentation is available in the `docs/` directory:
 - [Setup Guide](docs/setup.md) - Installation and configuration
 - [User Roles](docs/user-roles.md) - User types and permissions
 - [API Endpoints](docs/api-endpoints.md) - Available API endpoints
+- [Database Documentation](docs/database/README.md) - Database structure and diagrams
 - [Cron Jobs](docs/cron-jobs.md) - Scheduled tasks
 - [Analytics](docs/analytics.md) - Event tracking and analytics
 
