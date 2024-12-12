@@ -235,7 +235,8 @@ class CandidateWorkingHourController extends Controller
         $start_date = Yii::$app->request->get("start_date");
         $end_date = Yii::$app->request->get("end_date");
 
-        $query = $candidate->getCandidateWorkingDates();
+        $query = $candidate->getCandidateWorkingDates()
+            ->orderBy('date DESC');
 
         if ($start_date && $end_date) {
             $query->filterByDateRange($start_date, $end_date);
