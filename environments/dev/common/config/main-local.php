@@ -3,16 +3,16 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=payroll',
-            'username' => 'payrollUser',
-            'password' => 'pay',
+            'dsn' => 'mysql:host=mysql;dbname=studenthub', // Docker mysql service name for host
+            'username' => 'studenthubuser',
+            'password' => '12345',
             'charset' => 'utf8',
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=wallet',
-            'username' => 'payrollUser',
-            'password' => 'pay',
+            'dsn' => 'mysql:host=mysql;dbname=wallet', // Docker mysql service name for host
+            'username' => 'studenthubuser',
+            'password' => '12345',
             'charset' => 'utf8',
         ],
         'walletManager' => [
