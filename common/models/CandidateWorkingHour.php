@@ -100,6 +100,25 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
+        $this->updateStats($insert);
+    }
+
+    /**
+     * @return void
+     */
+    public function afterDelete()
+    {
+        parent::afterDelete();
+
+        $this->updateStats();
+    }
+
+    /**
+     * update stats
+     * @param $insert
+     * @return void
+     */
+    public function updateStats($insert = false) {
         $date = CandidateWorkingDate::find()->andWhere([
             "candidate_id" => $this->candidate_id,
             "store_id" => $this->store_id,
@@ -134,7 +153,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 $date->end_time = $this->end_time;//can have end_time in manual input
                 $date->total_time = $this->total_time;
                 //$date->via = $via;
-               // $this->status = $this->status;
+                // $this->status = $this->status;
                 if(!$date->save()) {
                     Yii::error($date->errors);
                 }
@@ -143,10 +162,10 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
 
                 if ($this->end_time) { //for manual input
                     $total_time = CandidateWorkingHour::find()->andWhere([
-                            "candidate_id" => $this->candidate_id,
-                            "store_id" => $this->store_id,
-                            "date" => $this->date,
-                        ])
+                        "candidate_id" => $this->candidate_id,
+                        "store_id" => $this->store_id,
+                        "date" => $this->date,
+                    ])
                         ->andWhere(new Expression("end_time IS NOT NULL"))
                         ->sum("total_time");
 
@@ -160,7 +179,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                         "status" => $this->status,
                         "total_time" => $total_time,
                         "end_time" => $end_time, //$this->end_time,
-                      //  "via" => $via
+                        //  "via" => $via
                     ], [
                         "candidate_id" => $this->candidate_id,
                         "store_id" => $this->store_id,
@@ -172,10 +191,10 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                     //as we have health indicator now + working tag, no more need to reset status
 
                     CandidateWorkingDate::updateAll([
-                       // "status" => $this->status, //reset status
-                        "total_time" => null, //reset total time as new session pending to finish
+                        // "status" => $this->status, //reset status
+                        "total_time" => 0, //reset total time as new session pending to finish
                         "end_time" => null, //as current session will be always latest session
-                       // "via" => $via
+                        // "via" => $via
                     ], [
                         "candidate_id" => $this->candidate_id,
                         "store_id" => $this->store_id,
@@ -187,10 +206,10 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
         else //update will be always end session action
         {
             $total_time = CandidateWorkingHour::find()->andWhere([
-                    "candidate_id" => $this->candidate_id,
-                    "store_id" => $this->store_id,
-                    "date" => $this->date,
-                ])
+                "candidate_id" => $this->candidate_id,
+                "store_id" => $this->store_id,
+                "date" => $this->date,
+            ])
                 ->andWhere(new Expression("end_time IS NOT NULL"))
                 ->sum("total_time");
 
@@ -204,7 +223,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 "status" => $this->status,
                 "total_time" => $total_time,
                 "end_time" => $end_time, //$this->end_time, //not anymore: as current session will be always latest session
-               // "via" => $via
+                // "via" => $via
             ], [
                 "candidate_id" => $this->candidate_id,
                 "store_id" => $this->store_id,

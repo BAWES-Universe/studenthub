@@ -1564,6 +1564,7 @@ class AccountController extends Controller
      * @throws \yii\db\StaleObjectException
      */
     public function actionDiscardSession() {
+
         $model = CandidateWorkingHour::find()
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
             ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
