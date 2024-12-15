@@ -127,7 +127,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return [
             //'candidate_hourly_rate', 'candidate_civil_expiry_date','candidate_civil_id',
             [['candidate_birth_date'], "validateAge"],
-            [['university_id', 'country_id', 'candidate_email', 'candidate_phone', 'candidate_birth_date',
+            // 'candidate_phone',
+            [['university_id', 'country_id', 'candidate_email', 'candidate_birth_date',
                 'candidate_civil_photo_front', 'candidate_civil_photo_back', 'candidate_personal_photo',
                 'currency_code'], 'required'],
             [['candidate_name','candidate_name_ar'], 'trim'],
@@ -1555,8 +1556,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function sendPasswordResetEmail()
     {
-        if(!$this->candidate_email_verification)
-            return false;
+        //if(!$this->candidate_email_verification)
+        //    return false;
 
         $this->setScenario('updatePasswordToken');
         $this->generatePasswordResetToken();
@@ -1745,7 +1746,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function generateAuthKey()
     {
-        $this->candidate_auth_key = Yii::$app->security->generateRandomString();
+        $this->candidate_auth_key = Yii::$app->security->generateRandomString(4);
     }
 
     /**
@@ -2066,7 +2067,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         } else {
             return [
                 'success' => false,
-                'message' =>Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
+                'message' => Yii::t('candidate','This email verification link is no longer valid, please login to send a new one')
             ];
         }
     }
@@ -3103,7 +3104,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         foreach ($this->getCandidateExperiences()->all() as $experience) {
             $data['candidateExperiences'][] = [
-                'experience' => $experience->experience
+                'experience' => $experience->experience,
+                'employer' => $experience->employer,
+                'start_year' => $experience->start_year,
+                'end_year' => $experience->end_year,
             ];
         }
 

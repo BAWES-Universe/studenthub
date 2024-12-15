@@ -179,6 +179,7 @@ class AuthController extends Controller
         $lang = Yii::$app->request->headers->get('language');
 
         $accessToken = Yii::$app->request->getBodyParam('accessToken');
+        $utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
         $response = Yii::$app->auth0->getUserInfo($accessToken);
 
@@ -218,7 +219,7 @@ class AuthController extends Controller
             $candidate->candidate_phone = isset($userInfo['phone_number'])? $userInfo['phone_number']: '';
             $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
             $candidate->approved = true;
-            $candidate->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
+            $candidate->utm_uuid = !empty($utm_uuid)? $utm_uuid: null;
 
             if (!$candidate->signup()) {
 
@@ -378,9 +379,10 @@ class AuthController extends Controller
             }
         }
 
-        $candidate = Candidate::findOne([
-            'candidate_email' => $emailInput,
-        ]);
+        $candidate = Candidate::find()->andWhere([
+                'candidate_email' => $emailInput
+            ])
+            ->one();
 
         $errors = false;
         $errorCode = null; //error code
@@ -505,14 +507,15 @@ class AuthController extends Controller
      * Sends password reset sms to user
      * @return array
      */
-    public function actionSMSResetPassword() {
+    public function actionSMSResetPassword()
+    {
 
         $phone_number = Yii::$app->request->getBodyParam("phone_number");
         $token = Yii::$app->request->getBodyParam("token");
 
         //TODO: make token as required field once we update android app
 
-        if(YII_ENV != 'test') {
+        if (YII_ENV != 'test') {
             $response = Yii::$app->reCaptcha->verify($token);
 
             if (!$response->data || !$response->data['success']) {
@@ -532,13 +535,14 @@ class AuthController extends Controller
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
-                'message' => isset($model->errors['phone_number'])?isset($model->errors['phone_number']): $model->errors
+                'message' => isset($model->errors['phone_number']) ? isset($model->errors['phone_number']) : $model->errors
             ];
         }
 
-        $candidate = Candidate::findOne([
+        $candidate = Candidate::find()->andWhere([
             'candidate_phone' => $model->phone_number,
-        ]);
+        ])
+        ->one();
 
         if (!$candidate) {
             return [
@@ -546,6 +550,13 @@ class AuthController extends Controller
                 'message' => 'candidate not found'
             ];
         }
+
+        /*if (!$this->candidate_email_verification) {
+            return [
+                'operation' => 'error',
+                'message' => 'Please verify email to set password'
+            ];
+        }*/
 
         //Check if this user sent an email in past few minutes (to limit email spam)
         $emailLimitDatetime = new \DateTime($candidate->candidate_limit_sms);
@@ -747,9 +758,11 @@ class AuthController extends Controller
         $model = new Candidate();
         $model->scenario = "signup";
 
-        $firstname = ucfirst(Yii::$app->request->getBodyParam('name'));
+        $name = ucfirst(Yii::$app->request->getBodyParam('name'));
+        $name_ar = ucfirst(Yii::$app->request->getBodyParam('name_ar'));
         $lang = Yii::$app->request->getBodyParam('lang');
         $token = Yii::$app->request->getBodyParam('token');
+        $utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
         //TODO: make token as required field once we update android app
 
@@ -765,7 +778,7 @@ class AuthController extends Controller
             }
         }
 
-        if (!$firstname) {
+        if (!$name) {
             return [
                 "operation" => "error",
                 "code" => 1,
@@ -773,12 +786,17 @@ class AuthController extends Controller
             ];
         }
 
-        if ($lang == 'ar') {
-            $model->candidate_name_ar = $firstname;
-            $model->candidate_name = null;
-        } else  {
-            $model->candidate_name = $firstname;
-            $model->candidate_name_ar = null;
+        if (!$name_ar) {
+            if ($lang == 'ar') {
+                $model->candidate_name_ar = $name;
+                $model->candidate_name = null;
+            } else {
+                $model->candidate_name = $name;
+                $model->candidate_name_ar = null;
+            }
+        } else {
+            $model->candidate_name = $name;
+            $model->candidate_name_ar = $name_ar;
         }
 
         $model->candidate_email = Yii::$app->request->getBodyParam('email');
@@ -787,7 +805,7 @@ class AuthController extends Controller
         $model->candidate_password_hash = Yii::$app->request->getBodyParam('password');
         $model->candidate_status = \candidate\models\Candidate::STATUS_PENDING;
         $model->approved = false;
-        $model->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
+        $model->utm_uuid = !empty($utm_uuid) ? $utm_uuid: null;
 
         if (!$model->signup()) {
 
@@ -816,8 +834,8 @@ class AuthController extends Controller
             $param = [
                 'email' => Yii::$app->request->getBodyParam('email'),
                 'password' => Yii::$app->request->getBodyParam('password'),
-                'name' => $firstname,
-                'nickname' => $firstname,
+                'name' => $name,
+                'nickname' => $name,
                 'user_metadata' => ['app' => 'SH-candidate', 'user_id' => $model->candidate_id]
             ];
             Yii::$app->auth0->createUser($param);
@@ -874,6 +892,7 @@ class AuthController extends Controller
     public function actionLoginByGoogle() {
 
         $token = Yii::$app->request->getBodyParam("idToken");
+        $utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" . $token);
@@ -910,7 +929,7 @@ class AuthController extends Controller
                 'candidate_email_verification' => Candidate::EMAIL_VERIFIED,
                 'candidate_status' => Candidate::STATUS_ACTIVE,
                 'approved' => 1,
-                'utm_uuid' => Yii::$app->request->getBodyParam("utm_uuid")
+                'utm_uuid' =>  !empty($utm_uuid)? $utm_uuid : null
             ];
 
             $model->setAttributes($data);
@@ -944,6 +963,8 @@ class AuthController extends Controller
      * Sign up with apple login
      */
     public function actionLoginByApple() {
+
+        $utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
 
         try {
 
@@ -988,7 +1009,7 @@ class AuthController extends Controller
             $candidate->candidate_email = $email;
             $candidate->candidate_status = \candidate\models\Candidate::STATUS_ACTIVE;
             $candidate->approved = 1;
-            $candidate->utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");
+            $candidate->utm_uuid = !empty($utm_uuid)? $utm_uuid: null;
 
             if (!$candidate->signup()) {
 

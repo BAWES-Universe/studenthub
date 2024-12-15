@@ -15,6 +15,7 @@ use candidate\models\CandidateExperience;
 use candidate\models\TransferCandidate;
 use candidate\models\Transfer;
 use candidate\models\Area;
+use yii\web\NotFoundHttpException;
 
 /**
  * Account controller will return the actual Instagram Accounts and all controls associated
@@ -137,11 +138,12 @@ class AccountController extends Controller
      */
     public function actionUpdateSkills()
     {
-        $skills = Yii::$app->request->getBodyParam("skills");
+        $skills_array = Yii::$app->request->getBodyParam("skills");
 
-        $skills_array = explode(',',$skills);
+        if (!is_array($skills_array))
+            $skills_array = explode(',', $skills_array);
         
-        if (empty($skills) || count($skills_array) == 0) 
+        if (count($skills_array) == 0)
         {
             return [
                 "operation" => "error",
@@ -327,6 +329,7 @@ class AccountController extends Controller
 
         return [
             'operation' => 'success',
+            "candidate_personal_photo" => $model->candidate_personal_photo
         ];
     }
 
@@ -605,6 +608,27 @@ class AccountController extends Controller
         ]);
     }
 
+    public function actionSalaryDetail($id)
+    {
+        $status = [
+            Transfer::STATUS_TRANSFER_COMPLETE,
+            Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS
+        ];
+
+        $model = TransferCandidate::find()
+            ->leftJoin('transfer','transfer.transfer_id=transfer_candidate.transfer_id')
+            ->andWhere('{{%transfer}}.transfer_status IN('.implode(',', $status).')')
+            ->filterCandidate(Yii::$app->user->identity->candidate_id)
+            ->andWhere(['tc_id' => $id])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException("Item not found!");
+        }
+
+        return $model;
+    }
+
     /**
      * update change password
      * @return type
@@ -693,6 +717,7 @@ class AccountController extends Controller
 
         return [
             "operation" => "success",
+            "country" => $candidate->country,
             "message" => Yii::t('candidate', "Candidate Nationality Info Updated Successfully"),
         ];
     }
@@ -1152,7 +1177,32 @@ class AccountController extends Controller
             'message' => Yii::t('candidate', 'Resume Uploaded Successfully')
         ];
     }
-    
+
+    /**
+     * Remove Resume
+     */
+    public function actionRemoveResume() {
+        $model = Candidate::findOne(Yii::$app->user->getId());
+
+        if ($model->candidate_resume) {
+            $model->deleteResume();
+        }
+
+        $model->candidate_resume = null;
+        $model->scenario = 'updateResume';
+
+        if (!$model->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $model->getErrors()
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+        ];
+    }
+
     /**
      * update civil photo back
      * @return type

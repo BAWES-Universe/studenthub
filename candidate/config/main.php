@@ -46,6 +46,7 @@ return [
                         'GET config' => 'config',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS config' => 'options',
                     ]
                 ],
                 [ // PingController
@@ -129,7 +130,9 @@ return [
                     'controller' => 'v1/account',
                     'pluralize' => false,
                     'patterns' => [
+                        'GET salary/<id>' => 'salary-detail',
                         'GET salary' => 'salary',
+
                         'GET profile' => 'profile',
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
@@ -167,13 +170,14 @@ return [
                         'POST update-civil-id-expiry-date' => 'update-civil-id-expiry-date',
                         'POST update-preferred-time' => 'update-preferred-time',
                         'POST update-profile-url' => 'profile-url',
+                        'POST validate-password' => 'validate-user-password',
                         'DELETE discard-session' => 'discard-session',
                         'DELETE remove-photo' => 'remove-photo',
                         'DELETE remove-video' => 'remove-video',
+                        'DELETE remove-resume' => 'remove-resume',
                         'DELETE remove-civil-photo-front' => 'remove-civil-photo-front',
                         'DELETE remove-civil-photo-back' => 'remove-civil-photo-back',
                         'DELETE remove-candidate-profile' => 'delete-profile',
-                        'POST validate-password' => 'validate-user-password',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS discard-session' => 'options',
@@ -187,6 +191,7 @@ return [
                         'OPTIONS update-skills' => 'options',
                         'OPTIONS profile' => 'options',
                         'OPTIONS salary' => 'options',
+                        'OPTIONS salary/<id>' => 'options',
                         'OPTIONS update-email' => 'options', 
                         'OPTIONS change-password' => 'options',
                         'OPTIONS language-pref' => 'options', 
@@ -207,6 +212,7 @@ return [
                         'OPTIONS video' => 'options',
                         'OPTIONS remove-photo' => 'options',
                         'OPTIONS remove-video' => 'options',
+                        'OPTIONS remove-resume' => 'options',
                         'OPTIONS update-bank-detail' => 'options',
                         'OPTIONS update-phone' => 'options',
                         'OPTIONS remove-civil-photo-back' => 'options',
@@ -319,6 +325,22 @@ return [
                         'GET majors' => 'list-major',
                         'GET degrees' => 'list-degree',
                         'GET degree-groups' => 'list-degree-group',
+                        'GET <id>' => 'view',
+                        'POST save' => 'save',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
+                [
+                    //CandidateExperienceController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-experience',
+                    'patterns' => [
+                        'GET' => 'list',
                         'GET <id>' => 'view',
                         'POST save' => 'save',
                         'POST' => 'create',

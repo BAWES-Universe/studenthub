@@ -2,18 +2,15 @@
 
 namespace candidate\modules\v1\controllers;
 
-use common\models\Degree;
-use common\models\DegreeGroup;
-use common\models\Major;
 use Yii;
-use common\models\CandidateEducation;
+use candidate\models\CandidateExperience;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
-class CandidateEducationController extends Controller
+class CandidateExperienceController extends Controller
 {
     public function behaviors()
     {
@@ -69,7 +66,7 @@ class CandidateEducationController extends Controller
      * @return ActiveDataProvider
      */
     public function actionList() {
-        $query = CandidateEducation::find()
+        $query = CandidateExperience::find()
             ->andWhere(['candidate_id' => Yii::$app->user->getId()]);
 
         return new ActiveDataProvider([
@@ -77,104 +74,30 @@ class CandidateEducationController extends Controller
         ]);
     }
 
-    /**
-     * @return ActiveDataProvider
-     */
-    public function actionListMajor() {
-
-        $page = Yii::$app->request->get("page");
-        $q = Yii::$app->request->get("q");
-
-        $query = Major::find();
-
-        if ($q) {
-            $query->andWhere([
-                "OR",
-                ["like", "major_name_en", $q],
-                ["like", "major_name_ar", $q],
-            ]);
-        }
-
-        if ($page == -1) {
-            return new ActiveDataProvider([
-                'query' => $query,
-                'pagination' => false,
-            ]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * @return ActiveDataProvider
-     */
-    public function actionListDegreeGroup() {
-        $query = DegreeGroup::find();
-        $page = Yii::$app->request->get("page");
-
-        if ($page == -1) {
-            return new ActiveDataProvider([
-                'query' => $query,
-                'pagination' => false,
-            ]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
-
-    /**
-     * @return ActiveDataProvider
-     */
-    public function actionListDegree() {
-        $page = Yii::$app->request->get("page");
-        $q = Yii::$app->request->get("q");
-
-        $query = Degree::find();
-        
-        if ($q) {
-            $query->andWhere([
-                "OR",
-                ["like", "degree_name_en", $q],
-                ["like", "degree_name_ar", $q],
-            ]);
-        }
-
-        if ($page == -1) {
-            return new ActiveDataProvider([
-                'query' => $query,
-                'pagination' => false,
-            ]);
-        }
-
-        return new ActiveDataProvider([
-            'query' => $query
-        ]);
-    }
 
     /**
      * @return array|string[]
      */
     public function actionSave() {
 
-        $candidateEducations = Yii::$app->request->getBodyParam("candidateEducations", []);
+        $candidateExperiences = Yii::$app->request->getBodyParam("candidateExperiences", []);
 
         $transaction = Yii::$app->db->beginTransaction();
 
-        foreach ($candidateEducations as $candidateEducation) {
+        foreach ($candidateExperiences as $candidateExperience) {
 
-            $model = empty($candidateEducation['education_uuid']) ? new CandidateEducation():
-                $this->findModel($candidateEducation['education_uuid']);
+            $model = empty($candidateExperience['candidate_experience_id']) ? new CandidateExperience():
+                $this->findModel($candidateExperience['candidate_experience_id']);
 
             $model->candidate_id = Yii::$app->user->getId();
-            $model->university_id = $candidateEducation['university_id'];
-            $model->degree_uuid = $candidateEducation['degree_uuid'];
-            $model->major_uuid = $candidateEducation['major_uuid'];
-            $model->graduation_year = $candidateEducation['graduation_year'];
-            $model->is_currently_studying = $candidateEducation['is_currently_studying'];
+            $model->experience = isset($candidateExperience['experience'])?
+                $candidateExperience['experience']: null;
+            $model->employer = isset($candidateExperience['employer']) ?
+                $candidateExperience['employer']: null;
+            $model->start_year = isset($candidateExperience['start_year'])?
+                $candidateExperience['start_year']: null;
+            $model->end_year = isset($candidateExperience['end_year'])?
+                $candidateExperience['end_year']: null;
 
             if (!$model->save()) {
 
@@ -189,14 +112,12 @@ class CandidateEducationController extends Controller
 
         $transaction->commit();
 
-        $candidateEducations = Yii::$app->user->identity->getCandidateEducations()
-            ->with(['major', 'degree', 'university'])
-            ->asArray()
+        $candidateExperiences = Yii::$app->user->identity->getCandidateExperiences()
             ->all();
 
         return [
             'operation' => 'success',
-            "candidateEducations" => $candidateEducations
+            "candidateExperiences" => $candidateExperiences
         ];
     }
 
@@ -205,14 +126,13 @@ class CandidateEducationController extends Controller
      */
     public function actionCreate() {
 
-        $model = new CandidateEducation();
+        $model = new CandidateExperience();
 
         $model->candidate_id = Yii::$app->user->getId();
-        $model->university_id = Yii::$app->request->getBodyParam("university_id");
-        $model->degree_uuid = Yii::$app->request->getBodyParam("degree_uuid");
-        $model->major_uuid = Yii::$app->request->getBodyParam("major_uuid");
-        $model->graduation_year = Yii::$app->request->getBodyParam("graduation_year");
-        $model->is_currently_studying = Yii::$app->request->getBodyParam("is_currently_studying");
+        $model->experience = Yii::$app->request->getBodyParam("experience");
+        $model->employer = Yii::$app->request->getBodyParam("employer");
+        $model->start_year = Yii::$app->request->getBodyParam("start_year");
+        $model->end_year = Yii::$app->request->getBodyParam("end_year");
 
         if (!$model->save()) {
             return [
@@ -236,11 +156,10 @@ class CandidateEducationController extends Controller
         $model = $this->findModel($id);
 
         //$model->candidate_id = Yii::$app->user->getId();
-        $model->university_id = Yii::$app->request->getBodyParam("university_id");
-        $model->degree_uuid = Yii::$app->request->getBodyParam("degree_uuid");
-        $model->major_uuid = Yii::$app->request->getBodyParam("major_uuid");
-        $model->graduation_year = Yii::$app->request->getBodyParam("graduation_year");
-        $model->is_currently_studying = Yii::$app->request->getBodyParam("is_currently_studying");
+        $model->experience = Yii::$app->request->getBodyParam("experience");
+        $model->employer = Yii::$app->request->getBodyParam("employer");
+        $model->start_year = Yii::$app->request->getBodyParam("start_year");
+        $model->end_year = Yii::$app->request->getBodyParam("end_year");
 
         if (!$model->save()) {
             return [
@@ -287,15 +206,15 @@ class CandidateEducationController extends Controller
 
     /**
      * @param $id
-     * @return CandidateEducation
+     * @return CandidateExperience
      * @throws NotFoundHttpException
      */
     protected function findModel($id)
     {
-        $model = CandidateEducation::find()
+        $model = CandidateExperience::find()
             ->andWhere ([
                 "candidate_id" => Yii::$app->user->getId(),
-                'education_uuid' => $id
+                'candidate_experience_id' => $id
             ])
             ->one();
 

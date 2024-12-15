@@ -68,6 +68,7 @@ class DiscountController  extends Controller
     public function actionList()
     {
         $category_id = Yii::$app->request->get("category_id");
+        $page = Yii::$app->request->get("page");
 
         $query = Discount::find()
             ->andWhere(new Expression("valid_until >= CURDATE() OR valid_until IS NULL"))
@@ -75,6 +76,13 @@ class DiscountController  extends Controller
 
         if ($category_id) {
             $query->andWhere(['category_id' => $category_id]);
+        }
+
+        if ($page == -1) {
+            return new ActiveDataProvider([
+                'query' => $query,
+                'pagination' => false
+            ]);
         }
 
         return new ActiveDataProvider([
