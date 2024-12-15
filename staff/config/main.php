@@ -811,9 +811,13 @@ return [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
                         'GET date/<date>/<candidateId>' => 'hours-detail',
+                        "DELETE day/<id>" => 'delete-day',
+                        "DELETE session/<id>" => 'delete-session',
                         // OPTIONS VERBS
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        'OPTIONS day/<id>' => 'options',
+                        'OPTIONS session/<id>' => 'options',
                         'OPTIONS date/<date>/<candidateId>' => 'options',
                     ]
                 ],

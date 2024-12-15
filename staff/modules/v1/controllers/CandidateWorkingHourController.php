@@ -2,12 +2,14 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CandidateWorkingDate;
 use staff\models\CandidateWorkingHour;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
+use yii\web\NotFoundHttpException;
 
 /**
  * CandidateWorkingHour controller - Manage Invitation as Candidate
@@ -126,5 +128,49 @@ class CandidateWorkingHourController extends Controller
             ->andWhere(['date'=>$date])
             ->andWhere(['candidate_id'=>$candidateId])
             ->one();
+    }
+
+    public function actionDeleteDay($id) {
+        $model = CandidateWorkingDate::find()
+            ->andWhere(['cwd_uuid' => $id])
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        if (!$model->delete()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Work Log removed successfully"),
+        ];
+    }
+
+    public function actionDeleteSession($id) {
+        $model = CandidateWorkingHour::find()
+            ->andWhere(['candidate_working_hour_uuid' => $id])
+            ->one();
+
+        if(!$model) {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+
+        if (!$model->delete()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Session removed successfully"),
+        ];
     }
 }
