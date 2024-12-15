@@ -120,6 +120,7 @@ class CandidateController extends BaseController
         }
 
         $query = $candidate->getCandidateWorkingDates()
+
             ->orderBy("date DESC");
 
         /*if ($start_date && $end_date) {
