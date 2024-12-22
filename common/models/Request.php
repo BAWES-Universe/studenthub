@@ -287,6 +287,9 @@ class Request extends \yii\db\ActiveRecord
         return $scenarios;
     }
 
+    /**
+     * @return array|false|int[]|string[]
+     */
     public function fields()
     {
         $fields = parent::fields();
@@ -531,7 +534,8 @@ class Request extends \yii\db\ActiveRecord
                 $story->staff_id = $this->staff_id;
                 $story->request_uuid = $this->request_uuid;
                 $story->story_status = Story::STATUS_UNSTARTED;
-                $story->number_of_employees = 1; // TODO need to change once team is easy, they can add as many as stories
+                $story->number_of_employees = 1;
+                // TODO need to change once team is easy, they can add as many as stories
 
                 if(!$story->save()) {
                     Yii::error($story->errors);

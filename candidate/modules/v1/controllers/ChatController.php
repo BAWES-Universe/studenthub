@@ -114,7 +114,8 @@ class ChatController extends Controller
         }
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            
         ]);
     }
 

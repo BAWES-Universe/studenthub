@@ -302,6 +302,7 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET contracts/<id>" => "contracts",
                         'GET <id>' => 'view',
                         'POST login/<id>' => 'login',
                         'POST' => 'create',
@@ -312,6 +313,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS login/<id>' => 'options',
+                        'OPTIONS contracts/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-manager/<id>' => 'options',
                         'OPTIONS remove-manager/<id>' => 'options',

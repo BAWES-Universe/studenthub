@@ -322,6 +322,17 @@ class StoreController extends Controller
 
     /**
      * @param $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function actionContracts($id)
+    {
+        return $this->findModel($id)
+            ->getContracts();
+    }
+
+    /**
+     * @param $id
      * @return \yii\web\Response
      * @throws NotFoundHttpException
      */
