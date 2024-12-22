@@ -102,6 +102,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const GENDER_FEMALE = 2;
     const GENDER_OTHER = 3;
 
+    const HAVE_DRIVING_LICENCE = 1;
+    const NOT_HAVE_DRIVING_LICENCE = 2;
+
     public $pendingProfile = [];
     
     // Array of attribute names and folder names to store them in the permanent bucket
@@ -110,6 +113,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         'candidate_civil_photo_front' => 'civil-id',
         'candidate_civil_photo_back' => 'civil-id'
     ];
+
 
     /**
      * @inheritdoc

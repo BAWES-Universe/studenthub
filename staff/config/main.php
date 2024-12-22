@@ -302,6 +302,7 @@ return [
                     'controller' => 'v1/store',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET contracts/<id>" => "contracts",
                         'GET <id>' => 'view',
                         'POST login/<id>' => 'login',
                         'POST' => 'create',
@@ -312,6 +313,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS login/<id>' => 'options',
+                        'OPTIONS contracts/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                         'OPTIONS update-manager/<id>' => 'options',
                         'OPTIONS remove-manager/<id>' => 'options',
@@ -811,9 +813,13 @@ return [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
                         'GET date/<date>/<candidateId>' => 'hours-detail',
+                        "DELETE day/<id>" => 'delete-day',
+                        "DELETE session/<id>" => 'delete-session',
                         // OPTIONS VERBS
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        'OPTIONS day/<id>' => 'options',
+                        'OPTIONS session/<id>' => 'options',
                         'OPTIONS date/<date>/<candidateId>' => 'options',
                     ]
                 ],
