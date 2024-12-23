@@ -27,6 +27,7 @@ use yii\db\Expression;
  * @property string $message
  * @property string $created_at
  * @property string $updated_at
+ * @property string $appeal_uuid
  *
  * @property Candidate $candidate
  * @property CandidateWorkLogFeedback $candidateWorkLogFeedback
@@ -70,7 +71,7 @@ class CandidateNotification extends \yii\db\ActiveRecord
             [['is_new'], "boolean"],
             [['is_new'], 'default', 'value'=> true],
             [['created_at', 'updated_at'], 'safe'],
-            [['cn_uuid', 'candidate_working_date_uuid', 'invitation_uuid', 'request_uuid'], 'string', 'max' => 60],
+            [['cn_uuid', 'candidate_working_date_uuid', 'invitation_uuid', 'request_uuid', "appeal_uuid"], 'string', 'max' => 60],
             [['cn_uuid'], 'unique'],
             [['message'], "string"],
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
@@ -84,6 +85,7 @@ class CandidateNotification extends \yii\db\ActiveRecord
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
             [['invitation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['appeal_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHourAppeal::className(), 'targetAttribute' => ['appeal_uuid' => 'appeal_uuid']],
         ];
     }
 

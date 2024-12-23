@@ -32,6 +32,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property Candidate $candidate
  * @property Store $store
+ * @property CandidateWorkingHourAppeal $candidateWorkingHourAppeals
  */
 class CandidateWorkingHour extends \yii\db\ActiveRecord
 {
@@ -273,6 +274,9 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public function extraFields()
     {
         return [
@@ -285,7 +289,10 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             "checkOut",
             "dateStatus",
             "firstSession",
-            "lastSession"
+            "lastSession",
+            "candidateWorkingHourAppeals",
+            "candidateWorkingHourAppeal",
+            "candidateWorkLogFeedback"
         ];
     }
 
@@ -363,6 +370,40 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     public function getParentCompany($className = '\common\models\Company')
     {
         return $this->hasOne($className::className(), ['company_id' => 'parent_company_id']);
+    }
+
+    public function getCandidateWorkingDate() {
+        return CandidateWorkingDate::find()->andWhere([
+            "candidate_id" => $this->candidate_id,
+            "store_id" => $this->store_id,
+            "date" => $this->date,
+        ]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkingHourAppeal($className = '\common\models\CandidateWorkingHourAppeal')
+    {
+        return $this->hasOne($className::className(), ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkingHourAppeals($className = '\common\models\CandidateWorkingHourAppeal')
+    {
+        return $this->hasMany($className::className(), ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']);
+    }
+
+    /**
+     * @param $className
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateWorkLogFeedback($className = '\common\models\CandidateWorkLogFeedback')
+    {
+        return $this->hasOne($className::className(), ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']);
     }
 
     /**

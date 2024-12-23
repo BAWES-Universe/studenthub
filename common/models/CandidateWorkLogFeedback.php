@@ -127,7 +127,8 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return array_merge(parent::extraFields(), [
-            "createdBy"
+            "createdBy",
+            "store"
         ]);
     }
 
