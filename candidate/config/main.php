@@ -296,9 +296,12 @@ return [
                         'GET date/<date>' => 'hours-detail',
                         'GET date-detail/<date>' => 'date-detail',
                         "GET working-dates" => "working-dates",
+                        "GET appeal/<id>" => "appeal-detail",
+                        "POST appeal/<id>" => "appeal",
                         'POST' => "add-hour",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS appeal/<id>" => "options",
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
                         'OPTIONS stats' => 'options',

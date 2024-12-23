@@ -3,6 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use common\models\CandidateWorkingDate;
+use common\models\CandidateWorkingHourAppeal;
 use staff\models\CandidateWorkingHour;
 use Yii;
 use yii\rest\Controller;
@@ -130,6 +131,13 @@ class CandidateWorkingHourController extends Controller
             ->one();
     }
 
+    /**
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
     public function actionDeleteDay($id) {
         $model = CandidateWorkingDate::find()
             ->andWhere(['cwd_uuid' => $id])
@@ -152,6 +160,13 @@ class CandidateWorkingHourController extends Controller
         ];
     }
 
+    /**
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
     public function actionDeleteSession($id) {
         $model = CandidateWorkingHour::find()
             ->andWhere(['candidate_working_hour_uuid' => $id])
@@ -172,5 +187,70 @@ class CandidateWorkingHourController extends Controller
             "operation" => "success",
             "message" => Yii::t('candidate', "Session removed successfully"),
         ];
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function actionAppealUpdate($id) {
+        $model = $this->findAppeal($id);
+        $model->update =  Yii::$app->request->getBodyParam("update");
+        $model->detail = Yii::$app->request->getBodyParam("detail");
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation"  => "success",
+            "message" => "Appeal update posted"
+        ];
+    }
+
+    /**
+     * @param $id
+     * @return array|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function actionAppealDetail($id) {
+        return $this->findAppeal($id);
+    }
+
+    /**
+     * @param $id
+     * @return array|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function findAppeal($id) {
+        $model = CandidateWorkingHourAppeal::find()
+            ->andWhere(['appeal_uuid' => $id])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException("record not found");
+        }
+
+        return $model;
+    }
+
+    /**
+     * @param $id
+     * @return array|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function findModel($id) {
+        $model = \candidate\models\CandidateWorkingHour::find()
+            ->andWhere(['candidate_working_hour_uuid' => $id])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException("record not found");
+        }
+
+        return $model;
     }
 }

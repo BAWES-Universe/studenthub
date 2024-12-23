@@ -72,9 +72,15 @@ class CandidateNotificationController extends Controller
      */
     public function actionList()
     {
+        $appeal_uuid = Yii::$app->request->get('appeal_uuid');
+
         $query = CandidateNotification::find()
             ->andWhere(['candidate_id'=>Yii::$app->user->getId()])
             ->orderBy('created_at DESC');
+
+        if ($appeal_uuid) {
+            $query->andWhere(['appeal_uuid' => $appeal_uuid]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
