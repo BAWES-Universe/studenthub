@@ -2,6 +2,7 @@
 
 namespace staff\modules\v1\controllers;
 
+use common\models\CandidateWorkingHourAppeal;
 use common\models\CompanyRequest;
 use common\models\Contact;
 use common\models\RequestInterview;
@@ -126,6 +127,13 @@ class StatisticController extends Controller
         $result = null;
 
         $result['refresh'] = $refresh;
+
+        $result['workLogAppeals'] = CandidateWorkingHourAppeal::find()
+            ->joinWith(['candidate'])
+            ->andWhere([
+                'candidate_working_hour_appeal.status' => CandidateWorkingHourAppeal::STATUS_SUBMITTED
+            ])
+            ->count();
 
         $result['totalUnverifiedEmails'] = Contact::find()
             ->joinWith(['companies'])

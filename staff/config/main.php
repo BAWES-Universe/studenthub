@@ -813,6 +813,7 @@ return [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
                         'GET date/<date>/<candidateId>' => 'hours-detail',
+                        "GET appeals" => "appeal-list",
                         "GET appeal/<id>" => "appeal-detail",
                         "POST appeal-update/<id>" => "appeal-update",
                         "DELETE day/<id>" => 'delete-day',
@@ -820,6 +821,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        'OPTIONS appeals' => 'options',
                         "OPTIONS appeal/<id>" => "options",
                         "OPTIONS appeal-update/<id>" => "options",
                         'OPTIONS day/<id>' => 'options',

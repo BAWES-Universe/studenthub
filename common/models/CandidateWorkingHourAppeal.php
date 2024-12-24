@@ -23,7 +23,7 @@ use yii\db\Expression;
  */
 class CandidateWorkingHourAppeal extends \yii\db\ActiveRecord
 {
-    const STATUS_SUBMITTED = 0;
+    const STATUS_SUBMITTED = 10;
     const STATUS_AWAITING_REVIEW = 1;
     const STATUS_IN_PROGRESS = 2;
     const STATUS_RESOLVED = 3;

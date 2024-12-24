@@ -6,6 +6,7 @@ use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHourAppeal;
 use staff\models\CandidateWorkingHour;
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use yii\filters\Cors;
@@ -209,6 +210,45 @@ class CandidateWorkingHourController extends Controller
             "operation"  => "success",
             "message" => "Appeal update posted"
         ];
+    }
+
+    /**
+     * @return ActiveDataProvider
+     */
+    public  function actionAppealList()
+    {
+        $from = Yii::$app->request->get("from");
+        $to = Yii::$app->request->get("to");
+        $status = Yii::$app->request->get("status");
+        $q = Yii::$app->request->get("q");
+
+        $query = CandidateWorkingHourAppeal::find()
+            ->joinWith(['candidate'])
+            ->orderBy("candidate_working_hour_appeal.created_at DESC");
+
+        if ($from) {
+            $query->andWhere(new Expression("DATE(created_at) >= DATE('".date("y-m-d", strtotime($from) )."')"));
+        }
+
+        if ($to) {
+            $query->andWhere(new Expression("DATE(created_at) <= DATE('".date("y-m-d", strtotime($to) )."')"));
+        }
+
+        if (in_array($status, [10,1,2,3])) {
+            $query->andWhere(['candidate_working_hour_appeal.status' => $status]);
+        }
+
+        if ($q) {
+            $query->andWhere([
+                "OR",
+                ['like', 'candidate_name', $q],
+                ['like', 'candidate_name_ar', $q],
+            ]);
+        }
+
+        return new ActiveDataProvider([
+            'query' => $query
+        ]);
     }
 
     /**
