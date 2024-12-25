@@ -17,7 +17,8 @@ use yii\db\Expression;
  * @property string $detail
  * @property string $created_at
  * @property string $updated_at
- *
+ * @property int $created_by
+ * @property int $updated_by
  * @property CandidateWorkingHourAppeal $appealUu
  */
 class CandidateWorkingHourAppealUpdates extends \yii\db\ActiveRecord
@@ -40,6 +41,11 @@ class CandidateWorkingHourAppealUpdates extends \yii\db\ActiveRecord
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
+            ],
+            [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'created_by',
+                'updatedByAttribute' => 'updated_by'
             ],
             [
                 'class' => AttributeBehavior::className(),
@@ -69,6 +75,10 @@ class CandidateWorkingHourAppealUpdates extends \yii\db\ActiveRecord
             [['appeal_update_uuid', 'appeal_uuid'], 'string', 'max' => 60],
             [['update'], 'string', 'max' => 255],
             [['appeal_update_uuid'], 'unique'],
+            [['is_new'], "boolean"],
+            [['is_new'], 'default', 'value'=> true],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
+            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id' ]],
             [['appeal_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHourAppeal::className(), 'targetAttribute' => ['appeal_uuid' => 'appeal_uuid']],
         ];
     }
@@ -89,10 +99,36 @@ class CandidateWorkingHourAppealUpdates extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array|false|int[]|string[]
+     */
+    public function extraFields()
+    {
+        return array_merge(['createdBy', 'updatedBy', 'appeal'], parent::extraFields());
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getAppeal($modelClass = "\common\models\CandidateWorkingHourAppeal")
     {
         return $this->hasOne($modelClass::className(), ['appeal_uuid' => 'appeal_uuid']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCreatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'created_by']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUpdatedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'updated_by']);
     }
 }

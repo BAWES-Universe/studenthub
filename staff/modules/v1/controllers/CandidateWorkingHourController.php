@@ -4,6 +4,7 @@ namespace staff\modules\v1\controllers;
 
 use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHourAppeal;
+use common\models\CandidateWorkingHourAppealUpdates;
 use staff\models\CandidateWorkingHour;
 use Yii;
 use yii\db\Expression;
@@ -191,11 +192,54 @@ class CandidateWorkingHourController extends Controller
     }
 
     /**
+     * add manually
+     * @return array
+     */
+    public function actionAddHour($id) {
+
+        $appeal = $this->findAppeal($id);
+
+        $start_time = strtotime(Yii::$app->request->getBodyParam("start_time"));
+        $end_time = strtotime(Yii::$app->request->getBodyParam("end_time"));
+        $date = Yii::$app->request->getBodyParam("date");
+
+        $model = new \candidate\models\CandidateWorkingHour();
+        $model->start_time = date('Y-m-d H:i:s', $start_time);
+        $model->end_time = date('Y-m-d H:i:s', $end_time);
+        $model->note = Yii::$app->request->getBodyParam("note");
+        $model->status = CandidateWorkingHour::STATUS_APPROVED;
+
+        $model->candidate_id = $appeal->candidate_id;
+        $model->store_id  = $appeal->originalHour->store_id;
+        $model->appeal_uuid = $appeal->appeal_uuid;
+        $model->date  = $date ? date('Y-m-d', strtotime($date)): date('Y-m-d');
+        $model->total_time = $end_time - $start_time;
+        $model->via = "Manual Log";
+
+        //$model->start_location_lat = $lat;
+        //$model->start_location_long = $long;
+
+        if (!$model->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Session saved successfully")
+        ];
+    }
+
+    /**
      * @param $id
      * @return array
      */
     public function actionAppealUpdate($id) {
-        $model = $this->findAppeal($id);
+        $model = new CandidateWorkingHourAppealUpdates();
+        $model->appeal_uuid = $id;
         $model->update =  Yii::$app->request->getBodyParam("update");
         $model->detail = Yii::$app->request->getBodyParam("detail");
 
@@ -209,6 +253,23 @@ class CandidateWorkingHourController extends Controller
         return [
             "operation"  => "success",
             "message" => "Appeal update posted"
+        ];
+    }
+
+    public function actionAppealUpdateStatus($id) {
+        $model = $this->findAppeal($id);
+        $model->status =  Yii::$app->request->getBodyParam("status");
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation"  => "success",
+            "message" => "Appeal status updated"
         ];
     }
 
