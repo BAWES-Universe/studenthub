@@ -551,7 +551,10 @@ $logo = \Yii::$app->urlManagerStaff->createAbsoluteUrl('../images/logo.png', 'ht
                                                     <div
                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:15px;line-height:24px;text-align:left;color:#000000;"
                                                     >
-                                                        <?=$staff->staff_name?>
+                                                        Recruitment team
+                                                        <?php
+                                                        //echo $staff->staff_name;
+                                                        ?>
                                                     </div>
 
                                                 </td>

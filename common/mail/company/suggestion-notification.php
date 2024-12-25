@@ -262,7 +262,10 @@ $subject = 'Suggested candidates for your ' . $type . ' ' . $model->request_posi
                                             <tr>
                                                 <td align="left" style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:5px;word-break:break-word;">
                                                     <div style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;">
-                                                        <?=$staff->staff_name?>
+                                                        Recruitment team
+                                                        <?php
+                                                        //echo $staff->staff_name;
+                                                        ?>
                                                     </div>
                                                 </td>
                                             </tr>
