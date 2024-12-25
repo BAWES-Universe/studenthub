@@ -456,7 +456,7 @@ class Suggestion extends \yii\db\ActiveRecord
                     $setTo = array_unique(self::getContactEmailByRequest($request));
                 }
 
-                $setCc = array_merge(
+                /*$setCc = array_merge(
                     [
                         Yii::$app->params['operationsEmail'] => 'Operations',
                         $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
@@ -468,7 +468,12 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 if($author && $author->staff_email != $suggestedByStaff->staff_email) {
                     $setCc[$author->staff_email] = $author->staff_name;
-                }
+                }*/
+
+                $setCc = [
+                    Yii::$app->params['operationsEmail'] => 'Operations',
+                    Yii::$app->params['accountManagerEmail'] => 'Account Manager'
+                ];
 
                 $ml = new MailLog();
                 $ml->to = $setTo;
@@ -476,11 +481,12 @@ class Suggestion extends \yii\db\ActiveRecord
                 $ml->subject = $request->suggestionEmailSubject;
                 $ml->save();
 
-                $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
-                    ->setReplyTo([$staff->staff_email => $staff->staff_name])
+                $message->setFrom([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
+                    //->setReplyTo([$staff->staff_email => $staff->staff_name])
+                    ->setReplyTo([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
                     ->setTo($setTo)
                     ->setCc($setCc)
-                    ->setBcc([$staff->staff_email => $staff->staff_name])
+                    //->setBcc([$staff->staff_email => $staff->staff_name])
                     ->setSubject($request->suggestionEmailSubject);
 
                 try {
