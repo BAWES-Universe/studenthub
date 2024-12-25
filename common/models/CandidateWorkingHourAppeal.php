@@ -102,7 +102,7 @@ class CandidateWorkingHourAppeal extends \yii\db\ActiveRecord
      */
     public function extraFields()
     {
-        return array_merge(['correctedHours', 'originalHour', 'updates', 'candidateWorkingDate'],
+        return array_merge(['correctedHours', 'originalHour', 'updates', 'candidateWorkingDate', 'candidate', "candidateWorkingHourAppealUpdates"],
             parent::extraFields());
     }
 
@@ -148,8 +148,18 @@ class CandidateWorkingHourAppeal extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCandidateWorkingHourAppealUpdates($modelClass = "\common\models\CandidateWorkingHourAppealUpdates")
+    {
+        return $this->hasMany($modelClass::className(), ['appeal_uuid' => 'appeal_uuid'])
+            ->orderBy("created_at DESC");
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getUpdates($modelClass = "\common\models\CandidateWorkingHourAppealUpdates")
     {
-        return $this->hasMany($modelClass::className(), ['appeal_uuid' => 'appeal_uuid']);
+        return $this->hasMany($modelClass::className(), ['appeal_uuid' => 'appeal_uuid'])
+            ->orderBy("created_at DESC");
     }
 }

@@ -113,7 +113,8 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
 
         return array_merge($fields, [
             "latestCandidateWorkingHour",
-            "candidateWorkingHours"
+            "candidateWorkingHours",
+            "company"
         ]);
     }
 

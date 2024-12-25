@@ -816,6 +816,7 @@ return [
                         "GET appeals" => "appeal-list",
                         "GET appeal/<id>" => "appeal-detail",
                         "POST appeal-update/<id>" => "appeal-update",
+                        "POST appeal-update-status/<id>" => "appeal-update-status",
                         "DELETE day/<id>" => 'delete-day',
                         "DELETE session/<id>" => 'delete-session',
                         // OPTIONS VERBS
@@ -826,6 +827,7 @@ return [
                         "OPTIONS appeal-update/<id>" => "options",
                         'OPTIONS day/<id>' => 'options',
                         'OPTIONS session/<id>' => 'options',
+                        "OPTIONS appeal-update-status/<id>"=> 'options',
                         'OPTIONS date/<date>/<candidateId>' => 'options',
                     ]
                 ],

@@ -299,6 +299,7 @@ return [
                         "GET appeal/<id>" => "appeal-detail",
                         "POST appeal/<id>" => "appeal",
                         'POST' => "add-hour",
+                        "PATCH mark-read-appeal-update/<id>"=> "mark-read-appeal-update",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         "OPTIONS appeal/<id>" => "options",
@@ -306,6 +307,7 @@ return [
                         'OPTIONS hour' => 'options',
                         'OPTIONS stats' => 'options',
                         "OPTIONS working-dates" => 'options',
+                        "OPTIONS mark-read-appeal-update/<id>"=>'options',
                         'OPTIONS date/<date>' => 'options',
                         'OPTIONS date-detail/<date>' => 'options',
                     ]

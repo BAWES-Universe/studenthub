@@ -4,6 +4,7 @@ namespace candidate\modules\v1\controllers;
 use candidate\models\CandidateWorkingHour;
 use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHourAppeal;
+use common\models\CandidateWorkingHourAppealUpdates;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -267,6 +268,25 @@ class CandidateWorkingHourController extends Controller
             ->andWhere(['date'=>$date])
             ->andWhere(['candidate_id'=>Yii::$app->user->getId()])
             ->one();
+    }
+
+    public function actionMarkReadAppealUpdate($id) {
+        $model = CandidateWorkingHourAppealUpdates::find()
+            ->andWhere(['appeal_update_uuid' => $id])
+            ->one();
+
+        $model->is_new = false;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation"  => "success",
+        ];
     }
 
     /**

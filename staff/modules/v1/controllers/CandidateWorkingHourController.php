@@ -4,6 +4,7 @@ namespace staff\modules\v1\controllers;
 
 use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHourAppeal;
+use common\models\CandidateWorkingHourAppealUpdates;
 use staff\models\CandidateWorkingHour;
 use Yii;
 use yii\db\Expression;
@@ -195,7 +196,8 @@ class CandidateWorkingHourController extends Controller
      * @return array
      */
     public function actionAppealUpdate($id) {
-        $model = $this->findAppeal($id);
+        $model = new CandidateWorkingHourAppealUpdates();
+        $model->appeal_uuid = $id;
         $model->update =  Yii::$app->request->getBodyParam("update");
         $model->detail = Yii::$app->request->getBodyParam("detail");
 
@@ -209,6 +211,23 @@ class CandidateWorkingHourController extends Controller
         return [
             "operation"  => "success",
             "message" => "Appeal update posted"
+        ];
+    }
+
+    public function actionAppealUpdateStatus($id) {
+        $model = $this->findAppeal($id);
+        $model->status =  Yii::$app->request->getBodyParam("status");
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation"  => "success",
+            "message" => "Appeal status updated"
         ];
     }
 
