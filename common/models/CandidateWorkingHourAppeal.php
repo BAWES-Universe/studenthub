@@ -133,7 +133,7 @@ class CandidateWorkingHourAppeal extends \yii\db\ActiveRecord
      */
     public function getCorrectedHours($modelClass = "\common\models\CandidateWorkingHour")
     {
-        return $this->hasOne($modelClass::className(), ['appeal_uuid' => 'appeal_uuid']);
+        return $this->hasMany($modelClass::className(), ['appeal_uuid' => 'appeal_uuid']);
     }
 
     /**
