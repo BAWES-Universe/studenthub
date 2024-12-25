@@ -27,6 +27,7 @@ use yii\helpers\ArrayHelper;
  * @property string $note
  * @property int $status
  * @property string $via
+ * @property string $cwlf_uuid
  * @property string $created_at
  * @property string $updated_at
  *
@@ -61,6 +62,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             [['note', 'via'], 'string'],
             [['candidate_working_hour_uuid'], 'string', 'max' => 60],
             [['candidate_working_hour_uuid'], 'unique'],
+            [['cwlf_uuid'], 'exist', 'skipOnError' => false, 'targetClass' => CandidateWorkLogFeedback::className(), 'targetAttribute' => ['cwlf_uuid' => 'cwlf_uuid']],
             [['candidate_id'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
             [['store_id'], 'exist', 'skipOnError' => false, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
         ];
@@ -403,7 +405,8 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
      */
     public function getCandidateWorkLogFeedback($className = '\common\models\CandidateWorkLogFeedback')
     {
-        return $this->hasOne($className::className(), ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']);
+        //return $this->hasOne($className::className(), ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']);
+        return $this->hasOne($className::className(), ['cwlf_uuid' => 'cwlf_uuid']);
     }
 
     /**

@@ -145,6 +145,7 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
             CandidateWorkingHour::updateAll([
                 "status" => $this->status,
+                "cwlf_uuid" => $this->cwlf_uuid
             ], [
                 "AND",
                 ["candidate_working_hour_uuid" => $this->candidate_working_hour_uuid],
@@ -190,6 +191,7 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
             CandidateWorkingHour::updateAll([
                 "status" => $this->status,
+                "cwlf_uuid" => $this->cwlf_uuid
             ], [
                 "AND",
                 [
