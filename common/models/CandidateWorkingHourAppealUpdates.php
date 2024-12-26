@@ -69,7 +69,7 @@ class CandidateWorkingHourAppealUpdates extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['appeal_uuid', "update", "detail"], 'required'],//'appeal_update_uuid',
+            [['appeal_uuid',  "detail"], 'required'],//'appeal_update_uuid',"update",
             [['detail'], 'string'],
             [['created_at', 'updated_at'], 'safe'],
             [['appeal_update_uuid', 'appeal_uuid'], 'string', 'max' => 60],
