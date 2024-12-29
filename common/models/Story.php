@@ -194,7 +194,8 @@ class Story extends \yii\db\ActiveRecord
             'staffs',
             'story',
             'storyActivities',
-            'latestStoryActivity'
+            'latestStoryActivity',
+            "job"
         ];
     }
 
@@ -214,6 +215,23 @@ class Story extends \yii\db\ActiveRecord
             'story_created_at' => 'Story Created At',
             'story_last_updated_at' => 'Story Last Updated At',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getJob($modelClass = "\common\models\Job")
+    {
+        return $this->hasOne($modelClass::className(), ['story_uuid' => 'story_uuid'])
+            ->orderBy('created_at DESC');//get latest job for story
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getJobs($modelClass = "\common\models\Job")
+    {
+        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
     }
 
     /**
