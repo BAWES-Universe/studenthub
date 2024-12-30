@@ -6,9 +6,10 @@ version: 2
 jobs:
   build:
     branches:
-      only: |
+      only: 
         - master
         - develop
+
     docker:
       # specify the version you desire here
       - image: cimg/php:7.4.30-browsers
