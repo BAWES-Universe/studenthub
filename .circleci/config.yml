@@ -29,7 +29,7 @@ jobs:
             mysqld --sql-mode=NO_ENGINE_SUBSTITUTION 
                  --character-set-server=utf8mb4 
                  --collation-server=utf8mb4_bin 
-                 --innodb-large-prefix=true
+                 
             
     # Specify Server Type. Keep it as small as possible to reduce costs
     resource_class: small
@@ -60,10 +60,12 @@ jobs:
           command: |
             mysql -h 127.0.0.1 -u root -prootpw -e "
               CREATE DATABASE wallet_test;
-              GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd';
-              FLUSH PRIVILEGES;
+              CREATE USER 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd';
+              GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1';
             "
-
+            
+#  FLUSH PRIVILEGES;
+            
       - run:
           name: Install PHP exts
           command: |
