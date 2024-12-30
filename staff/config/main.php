@@ -485,12 +485,16 @@ return [
                     'controller' => 'v1/job',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET interests' => 'list-interests',
+                        'GET interest/<id>' => 'view-interest',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
                         'DELETE <id>' => 'delete',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS interests' => 'options',
+                        'OPTIONS interest/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],
