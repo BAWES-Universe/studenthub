@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     branches:
-      only:
+      only: |
         - master
         - develop
     docker:
@@ -24,9 +24,12 @@ jobs:
           MYSQL_DATABASE: payroll_test
           MYSQL_USER: bawes
           MYSQL_PASSWORD: passw0rd
-        command:
-            mysqld --sql-mode=NO_ENGINE_SUBSTITUTION --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --innodb-large-prefix=true
-
+        command: >
+            mysqld --sql-mode=NO_ENGINE_SUBSTITUTION 
+                 --character-set-server=utf8mb4 
+                 --collation-server=utf8mb4_bin 
+                 --innodb-large-prefix=true
+            
     # Specify Server Type. Keep it as small as possible to reduce costs
     resource_class: small
 
@@ -40,6 +43,25 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client ffmpeg
+
+      - run:
+          name: Wait for MySQL to be ready
+          command: |
+            for i in `seq 1 30`; do
+              nc -z 127.0.0.1 3306 && echo "MySQL is ready" && exit 0
+              echo "Waiting for MySQL..."
+              sleep 1
+            done
+            echo "MySQL did not become ready in time" && exit 1
+
+      - run:
+          name: Create Additional Database and User Privileges
+          command: |
+            mysql -h 127.0.0.1 -u root -prootpw -e "
+              CREATE DATABASE wallet_test;
+              GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd';
+              FLUSH PRIVILEGES;
+            "
 
       - run:
           name: Install PHP exts
@@ -105,14 +127,14 @@ jobs:
           name: Install DB Migrations
           command: ./yii_test migrate --interactive=0
 
-      - run:
-          name: Configure secondary database for wallet
-          command: mysql -h 127.0.0.1 -u root -prootpw -e "CREATE DATABASE wallet_test"
+      #- run:
+      #    name: Configure secondary database for wallet
+      #    command: mysql -h 127.0.0.1 -u root -prootpw -e "CREATE DATABASE wallet_test"
           #command: mysql -h 127.0.0.1 -u bawes -ppassw0rd -e "CREATE DATABASE wallet_test"
 
-      - run:
-          name: Grant priviledges to database for wallet
-          command: mysql -h 127.0.0.1 -u root -prootpw -e "GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd'"
+      #- run:
+      #    name: Grant priviledges to database for wallet
+      #    command: mysql -h 127.0.0.1 -u root -prootpw -e "GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd'"
 
       #- run:
       #    name: Seed secondary database for wallet
