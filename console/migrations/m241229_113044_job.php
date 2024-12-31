@@ -162,9 +162,9 @@ class m241229_113044_job extends Migration
             'job_uuid' => $this->char(60)->notNull(),
             'status' => $this->string()->defaultValue('PENDING')->comment("INTERESTED | SHORTLISTED | REJECTED"),
             'notes' => $this->text(),
-            "seen_at"=> $this->timestamp(),
-            'created_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP'),
-            'updated_at' => $this->timestamp()->defaultExpression('CURRENT_TIMESTAMP')
+            "seen_at"=> $this->dateTime()->null(),
+            'created_at' => $this->dateTime(),
+            'updated_at' => $this->dateTime()->null()
         ], $tableOptions);
 
         $this->addPrimaryKey('pk-job_interest-job_uuid',

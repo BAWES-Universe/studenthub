@@ -292,10 +292,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
-                        'POST apply' => 'apply',
+                        'POST apply/<id>' => 'apply',
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        'OPTIONS apply/<id>' => 'options',
                     ]
                 ],
                 [ // CandidateWorkingHourController

@@ -76,28 +76,28 @@ class JobController extends Controller
     {
         $applied = Yii::$app->request->get("applied");
 
-        $candidate = Yii::$app->user->identity;
-
-        $filter = 'available_from IS NULL OR DATE(available_from) >= DATE(NOW()) AND '.
-            'available_to IS NULL OR DATE(available_to) <= DATE(NOW()) AND '.
-            'min_age IS NULL OR min_age >= '. $candidate->getAge() . ' AND '.
-            'max_age IS NULL OR max_age <= '. $candidate->getAge() . ' AND '.
-            'gender IS NULL or gender =' . $candidate->candidate_gender;
-
         $query = Job::find()
             ->joinWith(['jobSkills', "area", "area.country"])
-            ->andWhere( new Expression($filter))
-           // ->andWhere(['status' => Job::STATUS_ACTIVE])
+            ->andWhere(['status' => Job::STATUS_ACTIVE])
             ->orderBy('job.created_at DESC');
 
         $subQuery = JobInterest::find()
-            ->select('candidate_id')
+            ->select('job_uuid')
             ->andWhere(['candidate_id' => Yii::$app->user->getId()]);
 
         if ($applied) {
-            $query->andWhere(['IN', 'job_uuid', $subQuery]);
+            $query->andWhere(['IN', 'job.job_uuid', $subQuery]);
         } else {
-            $query->andWhere(['NOT IN', 'job_uuid', $subQuery]);
+            $candidate = Yii::$app->user->identity;
+
+            $filter = 'available_from IS NULL OR DATE(available_from) >= DATE(NOW()) AND '.
+                'available_to IS NULL OR DATE(available_to) <= DATE(NOW()) AND '.
+                'min_age IS NULL OR min_age >= '. $candidate->getAge() . ' AND '.
+                'max_age IS NULL OR max_age <= '. $candidate->getAge() . ' AND '.
+                'gender IS NULL or gender =' . $candidate->candidate_gender;
+
+            $query->andWhere(['NOT IN', 'job.job_uuid', $subQuery])
+                ->andWhere( new Expression($filter));
         }
 
         return new ActiveDataProvider([
@@ -137,11 +137,14 @@ class JobController extends Controller
             ];
         }
 
+        $seen_at = Yii::$app->request->getBodyParam("seen_at");
+
         $model = new JobInterest();
         $model->candidate_id = Yii::$app->user->getId();
         $model->job_uuid = $id;
         $model->notes =  Yii::$app->request->getBodyParam("notes");
-        $model->seen_at = Yii::$app->request->getBodyParam("seen_at");
+        $model->seen_at = $seen_at?
+            date("Y-m-d H:i:s", strtotime($seen_at)) : null;
 
         if (!$model->save()) {
             return [
