@@ -86,7 +86,8 @@ class StoryActivity extends \yii\db\ActiveRecord
             return false;
         }
 
-        if($this->activity_status == self::STATUS_UNSTARTED) {
+        //if($this->activity_status == self::STATUS_UNSTARTED) {
+        if(in_array($this->activity_status, [self::STATUS_UNSTARTED, self::STATUS_STARTED, self::STATUS_REWORK])) {
             $this->activity_time_spent = 0;
             return true;
         }
