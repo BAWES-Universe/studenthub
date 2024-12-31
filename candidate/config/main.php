@@ -286,6 +286,18 @@ return [
                         'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],
+                [ // JobController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/job',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST apply' => 'apply',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                    ]
+                ],
                 [ // CandidateWorkingHourController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-working-hour',

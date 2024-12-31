@@ -16,6 +16,7 @@ use yii\db\Expression;
  * @property string $job_uuid
  * @property string $status
  * @property string $notes
+ * @property string $seen_at
  * @property string $created_at
  * @property string $updated_at
  *
@@ -46,7 +47,7 @@ class JobInterest extends \yii\db\ActiveRecord
             [['candidate_id', 'job_uuid'], 'required'],
             [['candidate_id'], 'integer'],
             [['notes'], 'string'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['created_at', 'updated_at', "seen_at"], 'safe'],
             [['job_interest_uuid', 'job_uuid'], 'string', 'max' => 60],
             [['status'], 'string', 'max' => 255],
             ['status', 'default', 'value' => self::STATUS_INTERESTED],
@@ -94,6 +95,7 @@ class JobInterest extends \yii\db\ActiveRecord
             'job_uuid' => Yii::t('app', 'Job Uuid'),
             'status' => Yii::t('app', 'Status'),
             'notes' => Yii::t('app', 'Notes'),
+            "seen_at" => Yii::t('app', 'Seen At'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
         ];
