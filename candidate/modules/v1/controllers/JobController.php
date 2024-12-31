@@ -75,6 +75,7 @@ class JobController extends Controller
     public function actionList()
     {
         $applied = Yii::$app->request->get("applied");
+        $q = Yii::$app->request->get("q");
 
         $query = Job::find()
             ->joinWith(['jobSkills', "area", "area.country"])
@@ -85,16 +86,26 @@ class JobController extends Controller
             ->select('job_uuid')
             ->andWhere(['candidate_id' => Yii::$app->user->getId()]);
 
+        if ($q) {
+            $query->andWhere([
+                "OR",
+                ['like', 'position', $q],
+                ['like', 'position_ar', $q],
+                ['like', 'description', $q],
+                ['like', 'description_ar', $q],
+            ]);
+        }
+
         if ($applied) {
             $query->andWhere(['IN', 'job.job_uuid', $subQuery]);
         } else {
             $candidate = Yii::$app->user->identity;
 
-            $filter = 'available_from IS NULL OR DATE(available_from) >= DATE(NOW()) AND '.
-                'available_to IS NULL OR DATE(available_to) <= DATE(NOW()) AND '.
-                'min_age IS NULL OR min_age >= '. $candidate->getAge() . ' AND '.
-                'max_age IS NULL OR max_age <= '. $candidate->getAge() . ' AND '.
-                'gender IS NULL or gender =' . $candidate->candidate_gender;
+            $filter = '(available_from IS NULL OR DATE(available_from) >= DATE(NOW())) AND '.
+                '(available_to IS NULL OR DATE(available_to) <= DATE(NOW())) AND '.
+                '(min_age IS NULL OR min_age >= '. $candidate->getAge() . ') AND '.
+                '(max_age IS NULL OR max_age <= '. $candidate->getAge() . ') AND '.
+                '(gender IS NULL or gender =' . $candidate->candidate_gender . ')';
 
             $query->andWhere(['NOT IN', 'job.job_uuid', $subQuery])
                 ->andWhere( new Expression($filter));
