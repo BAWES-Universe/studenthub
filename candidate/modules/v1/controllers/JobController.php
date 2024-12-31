@@ -2,6 +2,7 @@
 
 namespace candidate\modules\v1\controllers;
 
+use common\models\JobInterest;
 use Yii;
 use candidate\models\Job;
 use yii\data\ActiveDataProvider;
@@ -73,6 +74,8 @@ class JobController extends Controller
      */
     public function actionList()
     {
+        $applied = Yii::$app->request->get("applied");
+
         $candidate = Yii::$app->user->identity;
 
         $filter = 'available_from IS NULL OR DATE(available_from) >= DATE(NOW()) AND '.
@@ -86,6 +89,16 @@ class JobController extends Controller
             ->andWhere( new Expression($filter))
            // ->andWhere(['status' => Job::STATUS_ACTIVE])
             ->orderBy('job.created_at DESC');
+
+        $subQuery = JobInterest::find()
+            ->select('candidate_id')
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()]);
+
+        if ($applied) {
+            $query->andWhere(['IN', 'job_uuid', $subQuery]);
+        } else {
+            $query->andWhere(['NOT IN', 'job_uuid', $subQuery]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -101,6 +114,46 @@ class JobController extends Controller
     public function actionView($id)
     {
         return $this->findModel($id);
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionApply($id) {
+        $job = $this->findModel($id);
+
+        //check if already applied
+
+        $interest = JobInterest::find()
+            ->andWhere(['candidate_id' => Yii::$app->user->getId(), 'job_uuid' => $id])
+            ->one();
+
+        if ($interest) {
+            return [
+                "operation" => 'error',
+                "message" => 'Already applied!'
+            ];
+        }
+
+        $model = new JobInterest();
+        $model->candidate_id = Yii::$app->user->getId();
+        $model->job_uuid = $id;
+        $model->notes =  Yii::$app->request->getBodyParam("notes");
+        $model->seen_at = Yii::$app->request->getBodyParam("seen_at");
+
+        if (!$model->save()) {
+            return [
+                "operation" => 'error',
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => 'success',
+            "message" => "Applied!"
+        ];
     }
 
     /**
