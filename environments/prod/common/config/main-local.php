@@ -35,7 +35,7 @@ return [
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=bawes_wallet',
+            'dsn' => 'mysql:host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=wallet',
             'username' => 'bawes',
             'password' => 'bawes12student!hub',
             
