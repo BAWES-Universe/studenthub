@@ -1,5 +1,8 @@
 <?php
+
 namespace common\components;
+
+use Algolia\AlgoliaSearch\SearchClient;
 
 /**
  * $result = Yii::$app->algolia->search('getstarted_actors', 'cat');
@@ -17,10 +20,11 @@ class Algolia {
      */
     public function getSecureApiKey($params = []) 
     {
-        $client = $this->getClient();
-        
-        return $client::generateSecuredApiKey(
-            $this->publicKey,//apiKey
+        //$client = $this->getClient();
+        //$client::generateSecuredApiKey(publicKey,
+
+        return SearchClient::generateSecuredApiKey(
+            $this->apiKey,
             $params
         );
     }

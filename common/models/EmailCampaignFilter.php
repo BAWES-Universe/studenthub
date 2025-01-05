@@ -38,14 +38,14 @@ class EmailCampaignFilter extends \yii\db\ActiveRecord
             [['param'], 'string', 'max' => 50],
             [['value'], 'string', 'max' => 100],
             [['cf_uuid'], 'unique'],
-            [['campaign_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => EmailCampaign::className(), 'targetAttribute' => ['campaign_uuid' => 'campaign_uuid']],
+            [['campaign_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => EmailCampaign::class, 'targetAttribute' => ['campaign_uuid' => 'campaign_uuid']],
         ];
     }
 
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'cf_uuid',
                 ],

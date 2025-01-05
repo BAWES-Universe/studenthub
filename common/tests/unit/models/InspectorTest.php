@@ -16,7 +16,7 @@ class InspectorTest extends \Codeception\Test\Unit {
     protected $tester;
 
     public function _fixtures() {
-        return ['inspector' => InspectorFixture::className()];
+        return ['inspector' => InspectorFixture::class];
     }
 
     protected function _before() {

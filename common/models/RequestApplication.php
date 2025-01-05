@@ -49,9 +49,9 @@ class RequestApplication extends \yii\db\ActiveRecord
             [['application_uuid', 'request_uuid', 'fulltimer_uuid'], 'string', 'max' => 60],
             [['request_uuid'], "validateUniqueApplication"],
             [['application_uuid'], 'unique'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::class, 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
         ];
     }
 
@@ -91,7 +91,7 @@ class RequestApplication extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'application_uuid',
                 ],
@@ -103,7 +103,7 @@ class RequestApplication extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

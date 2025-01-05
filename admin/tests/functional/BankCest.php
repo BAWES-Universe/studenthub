@@ -18,9 +18,9 @@ class BankCest
     public function _fixtures()
     {
         return [
-            'admin' => AdminFixture::className(),
-            'adminToken' => AdminTokenFixture::className(),
-            'bank' => BankFixture::className(),
+            'admin' => AdminFixture::class,
+            'adminToken' => AdminTokenFixture::class,
+            'bank' => BankFixture::class,
         ];
     }
 

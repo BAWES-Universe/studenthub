@@ -31,9 +31,9 @@ class TransferTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'company' => CompanyFixture::className(),
-            'transfer' => TransferFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className()
+            'company' => CompanyFixture::class,
+            'transfer' => TransferFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class
         ];
     }
 

@@ -18,7 +18,7 @@ class FileTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'fileToken' => FileFixture::className()
+            'fileToken' => FileFixture::class
         ];
     }
 

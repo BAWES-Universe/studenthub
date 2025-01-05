@@ -47,7 +47,7 @@ class File extends \yii\db\ActiveRecord
             [['file_title', 'file_name'], 'string', 'max' => 255],
             [['file_type'], 'string', 'max' => 100],
             [['file_s3_path'], 'string', 'max' => 225],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -79,7 +79,7 @@ class File extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'file_uuid',
                 ],
@@ -91,7 +91,7 @@ class File extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'file_created_datetime',
                 'updatedAtAttribute' => false,
                 'value' => new Expression('NOW()'),

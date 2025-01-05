@@ -20,9 +20,9 @@ class InvitationCest
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className (),
-            'invitation' => InvitationFixture::className (),
-            'candidate' => CandidateFixture::className (),
+            'staffToken' => StaffTokenFixture::class,
+            'invitation' => InvitationFixture::class,
+            'candidate' => CandidateFixture::class,
         ];
     }
 

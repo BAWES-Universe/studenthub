@@ -11,7 +11,7 @@ class CountryTest extends \Codeception\Test\Unit
 
     public function _fixtures()
     {
-        return ['country' => CountryFixture::className()];
+        return ['country' => CountryFixture::class];
     }
 
     protected function _before(){}

@@ -19,8 +19,8 @@ class MallCest
     public function _fixtures()
     {
         return [
-        	'staffToken' => StaffTokenFixture::className(),
-            'mall' => MallFixture::className(),
+        	'staffToken' => StaffTokenFixture::class,
+            'mall' => MallFixture::class,
         ];
     }
 

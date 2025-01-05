@@ -58,9 +58,9 @@ class ExamQuestionAnswer extends \yii\db\ActiveRecord
                         $model->question->question_type == Question::TYPE_FILE_INPUT;
                 }
             ],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['exam_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Exam::className(), 'targetAttribute' => ['exam_uuid' => 'exam_uuid']],
-            [['question_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => ExamQuestion::className(), 'targetAttribute' => ['question_uuid' => 'question_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['exam_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Exam::class, 'targetAttribute' => ['exam_uuid' => 'exam_uuid']],
+            [['question_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => ExamQuestion::class, 'targetAttribute' => ['question_uuid' => 'question_uuid']],
         ];
     }
 
@@ -70,7 +70,7 @@ class ExamQuestionAnswer extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'answer_uuid',
                 ],
@@ -82,7 +82,7 @@ class ExamQuestionAnswer extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => "updated_at",
                 'value' => new Expression('NOW()'),

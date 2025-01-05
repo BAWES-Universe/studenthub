@@ -13,7 +13,7 @@ class AreaTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'area' => AreaFixture::className()
+            'area' => AreaFixture::class
         ];
     }
 

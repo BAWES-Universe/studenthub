@@ -21,9 +21,9 @@ class InvitationTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'invitation' => InvitationFixture::className(),
-            'story' => StoryFixture::className(),
-            'candidate' => CandidateFixture::className(),
+            'invitation' => InvitationFixture::class,
+            'story' => StoryFixture::class,
+            'candidate' => CandidateFixture::class,
         ];
     }
 

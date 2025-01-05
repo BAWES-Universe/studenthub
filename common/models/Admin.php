@@ -69,7 +69,7 @@ class Admin extends ActiveRecord implements IdentityInterface {
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'admin_created_at',
                 'updatedAtAttribute' => 'admin_updated_at',
                 'value' => new Expression('NOW()'),

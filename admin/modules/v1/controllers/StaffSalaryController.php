@@ -26,7 +26,7 @@ class StaffSalaryController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -44,7 +44,7 @@ class StaffSalaryController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -101,6 +101,7 @@ class StaffSalaryController extends Controller
 
         $list = Yii::$app->request->post('list');
         $date = Yii::$app->request->post('month');
+
         foreach ($list as $each) {
             $staff = Staff::findOne($each);
             $model = new StaffSalary();
@@ -108,7 +109,7 @@ class StaffSalaryController extends Controller
             $model->salary = $staff->staff_salary;
             $model->salary_currency = $staff->staff_salary_currency;
             $model->comment = 'Monthly Salary';
-            $model->salary_date = date('Y-m-d',strtotime($date));
+            $model->salary_date = empty($date)? date('Y-m-d'): date('Y-m-d',strtotime($date));
             $model->save(false);
         }
 
@@ -168,7 +169,10 @@ class StaffSalaryController extends Controller
         $model->salary =Yii::$app->request->getBodyParam("salary");
         $model->salary_currency = Yii::$app->request->getBodyParam("salary_currency");
         $model->comment = Yii::$app->request->getBodyParam("comment");
-        $model->salary_date = date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("salary_date")));
+
+        $salary_day = Yii::$app->request->getBodyParam("salary_date");
+
+        $model->salary_date = empty($salary_day)? date('Y-m-d'):  date('Y-m-d', strtotime($salary_day));
 
         if (!$model->save())
         {
@@ -211,7 +215,10 @@ class StaffSalaryController extends Controller
         $model->salary =Yii::$app->request->getBodyParam("salary");
         $model->salary_currency = Yii::$app->request->getBodyParam("salary_currency");
         $model->comment = Yii::$app->request->getBodyParam("comment");
-        $model->salary_date = date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("salary_date")));
+
+        $salary_day = Yii::$app->request->getBodyParam("salary_date");
+
+        $model->salary_date = empty($salary_day)? date('Y-m-d'):  date('Y-m-d', strtotime($salary_day));
 
         if (!$model->save())
         {

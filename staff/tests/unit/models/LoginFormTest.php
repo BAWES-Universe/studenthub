@@ -16,7 +16,7 @@ class LoginFormTest extends \Codeception\Test\Unit
 
 	public function _fixtures()
 	{
-        return [ 'staff' => StaffFixture::className()];
+        return [ 'staff' => StaffFixture::class];
     }
 
     /**

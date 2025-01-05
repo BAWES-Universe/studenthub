@@ -74,18 +74,18 @@ class CandidateNotification extends \yii\db\ActiveRecord
             [['cn_uuid', 'candidate_working_date_uuid', 'invitation_uuid', 'request_uuid', "appeal_uuid"], 'string', 'max' => 60],
             [['cn_uuid'], 'unique'],
             [['message'], "string"],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
-            [['cwlf_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkLogFeedback::className(), 'targetAttribute' => ['cwlf_uuid' => 'cwlf_uuid']],
-            [['tc_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferCandidate::className(), 'targetAttribute' => ['tc_id' => 'tc_id']],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['candidate_work_history_id'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkHistory::className(), 'targetAttribute' => ['candidate_work_history_id' => 'id']],
-            [['candidate_working_date_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingDate::className(), 'targetAttribute' => ['candidate_working_date_uuid' => 'cwd_uuid']],
-            [['candidate_working_hour_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHour::className(), 'targetAttribute' => ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['invitation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
-            [['appeal_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHourAppeal::className(), 'targetAttribute' => ['appeal_uuid' => 'appeal_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
+            [['cwlf_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkLogFeedback::class, 'targetAttribute' => ['cwlf_uuid' => 'cwlf_uuid']],
+            [['tc_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferCandidate::class, 'targetAttribute' => ['tc_id' => 'tc_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['candidate_work_history_id'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkHistory::class, 'targetAttribute' => ['candidate_work_history_id' => 'id']],
+            [['candidate_working_date_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingDate::class, 'targetAttribute' => ['candidate_working_date_uuid' => 'cwd_uuid']],
+            [['candidate_working_hour_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHour::class, 'targetAttribute' => ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['invitation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Invitation::class, 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['appeal_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHourAppeal::class, 'targetAttribute' => ['appeal_uuid' => 'appeal_uuid']],
         ];
     }
 
@@ -121,13 +121,13 @@ class CandidateNotification extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'cn_uuid',
                 ],

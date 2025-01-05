@@ -21,11 +21,11 @@ class InvitationCest
 
     public function _fixtures() {
         return [
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'contactToken' => ContactTokenFixture::className(),
-            'candidate'    => CandidateFixture::className(),
-            'invitation' => InvitationFixture::className (),
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'contactToken' => ContactTokenFixture::class,
+            'candidate'    => CandidateFixture::class,
+            'invitation' => InvitationFixture::class,
         ];
     }
 

@@ -63,11 +63,11 @@ class Suggestion extends \yii\db\ActiveRecord
             [['request_uuid'], 'validateDuplicateRequest'],
             [['suggestion_uuid', 'request_uuid', 'fulltimer_uuid', 'note_uuid','story_uuid'], 'string', 'max' => 60],
             [['suggestion_uuid'], 'unique'],
-            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
-            [['note_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Note::className(), 'targetAttribute' => ['note_uuid' => 'note_uuid']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::class, 'targetAttribute' => ['story_uuid' => 'story_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::class, 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
+            [['note_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Note::class, 'targetAttribute' => ['note_uuid' => 'note_uuid']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
         ];
     }
 
@@ -186,7 +186,7 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'suggestion_uuid',
                 ],
@@ -198,7 +198,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'suggestion_datetime',
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),

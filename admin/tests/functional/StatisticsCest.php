@@ -17,8 +17,8 @@ class StatisticsCest
     public function _fixtures() 
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'candidateIdCard' =>  CandidateIdCardFixture::className(),
+            'adminToken' => AdminTokenFixture::class,
+            'candidateIdCard' =>  CandidateIdCardFixture::class,
         ];
     }
 

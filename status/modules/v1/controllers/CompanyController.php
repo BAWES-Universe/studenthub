@@ -18,7 +18,7 @@ class CompanyController extends Controller
         unset($behaviors['authenticator']);
 
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => \yii\filters\Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],

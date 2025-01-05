@@ -14,7 +14,7 @@ class CandidateExperienceTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidateExperience' => CandidateExperienceFixture::className()
+            'candidateExperience' => CandidateExperienceFixture::class
         ];
     }
 

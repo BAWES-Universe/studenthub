@@ -15,7 +15,7 @@ class MallTest extends \Codeception\Test\Unit
     protected $tester;
 
     public function _fixtures(){
-        return ['admin' => MallFixture::className()];
+        return ['admin' => MallFixture::class];
     }
 
     protected function _before(){}

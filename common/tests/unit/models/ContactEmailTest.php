@@ -14,7 +14,7 @@ class ContactEmailTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'contactEmail' => ContactEmailFixture::className()
+            'contactEmail' => ContactEmailFixture::class
         ];
     }
 

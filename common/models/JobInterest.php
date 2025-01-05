@@ -52,8 +52,8 @@ class JobInterest extends \yii\db\ActiveRecord
             [['status'], 'string', 'max' => 255],
             ['status', 'default', 'value' => self::STATUS_INTERESTED],
             [['job_interest_uuid'], 'unique'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['job_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Job::className(), 'targetAttribute' => ['job_uuid' => 'job_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['job_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Job::class, 'targetAttribute' => ['job_uuid' => 'job_uuid']],
         ];
     }
 

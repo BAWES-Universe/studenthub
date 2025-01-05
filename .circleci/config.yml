@@ -12,11 +12,9 @@ jobs:
 
     docker:
       # specify the version you desire here
-      - image: cimg/php:7.4.30-browsers
+      - image: cimg/php:8.4.2
         environment:
           PUPPETEER_SKIP_DOWNLOAD: true
-
-    #older: 7.3-apache-stretch-node-browsers
 
       - image: cimg/mysql:8.0 #5.7
         environment:

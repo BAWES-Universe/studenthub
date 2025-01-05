@@ -21,7 +21,7 @@ class PasswordResetRequestForm extends Model
         return [
             [['email'], 'required'],
             [['email'], 'email'],
-            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => \common\models\Inspector::className(), 'targetAttribute' => ['email' => 'inspector_email']],
+            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => \common\models\Inspector::class, 'targetAttribute' => ['email' => 'inspector_email']],
         ];
     }
 

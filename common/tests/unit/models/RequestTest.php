@@ -17,7 +17,7 @@ class RequestTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'request' => RequestFixture::className(),
+            'request' => RequestFixture::class,
         ];
     }
 

@@ -35,7 +35,7 @@ class HourlyContract extends \yii\db\ActiveRecord
             [['candidate_hourly_rate', 'company_hourly_rate'], 'number'],
             [['h_contract_uuid', 'contract_uuid'], 'string', 'max' => 60],
             [['h_contract_uuid'], 'unique'],
-            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
+            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::class, 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
         ];
     }
 
@@ -45,7 +45,7 @@ class HourlyContract extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'h_contract_uuid',
                 ],

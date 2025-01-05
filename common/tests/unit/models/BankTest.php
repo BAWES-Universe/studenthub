@@ -12,7 +12,7 @@ class BankTest extends \Codeception\Test\Unit
 
     public function _fixtures()
     {
-        return ['bank' => BankFixture::className()];
+        return ['bank' => BankFixture::class];
     }
 
     protected function _before(){}

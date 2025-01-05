@@ -46,10 +46,10 @@ class CandidateEducation extends \yii\db\ActiveRecord
             [['created_at', 'updated_at'], 'safe'],
             [['education_uuid', 'degree_uuid', 'major_uuid'], 'string', 'max' => 60],
             [['education_uuid'], 'unique'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['degree_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Degree::className(), 'targetAttribute' => ['degree_uuid' => 'degree_uuid']],
-            [['major_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Major::className(), 'targetAttribute' => ['major_uuid' => 'major_uuid']],
-            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['degree_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Degree::class, 'targetAttribute' => ['degree_uuid' => 'degree_uuid']],
+            [['major_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Major::class, 'targetAttribute' => ['major_uuid' => 'major_uuid']],
+            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::class, 'targetAttribute' => ['university_id' => 'university_id']],
         ];
     }
 
@@ -59,7 +59,7 @@ class CandidateEducation extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'education_uuid',
                 ],
@@ -71,7 +71,7 @@ class CandidateEducation extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

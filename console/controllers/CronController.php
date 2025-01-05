@@ -147,7 +147,8 @@ class CronController extends \yii\console\Controller {
                 if ($response['operation'] == "success" ) {
 
                     $date = array_pop($response['matches']);
-                    $dateTime = strtotime(str_replace("/", "-", $date));
+
+                    $dateTime = $date? strtotime(str_replace("/", "-", $date)): time();
                     //$date = end($response['matches']);
 
                     /*if($candidate->candidate_civil_expiry_date &&
@@ -157,7 +158,7 @@ class CronController extends \yii\console\Controller {
 
                     //if correct date was added
 
-                    if($dateTime == strtotime($candidate->candidate_civil_expiry_date)) {
+                    if($candidate->candidate_civil_expiry_date && $dateTime == strtotime($candidate->candidate_civil_expiry_date)) {
                         continue;
                     }
 

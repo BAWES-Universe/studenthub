@@ -24,8 +24,8 @@ class StatisticsTest extends \Codeception\Test\Unit
 	public function _fixtures()
 	{
 		return [
-			'transferCandidate' => TransferCandidateFixture::className(),
-			'invoice' => InvoiceFixture::className()
+			'transferCandidate' => TransferCandidateFixture::class,
+			'invoice' => InvoiceFixture::class
 		];
 	}
 

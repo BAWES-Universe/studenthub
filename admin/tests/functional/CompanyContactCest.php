@@ -21,11 +21,11 @@ class CompanyContactCest
     public function _fixtures()
     {
         return [
-            'admin' => AdminFixture::className(),
-            'adminToken' => AdminTokenFixture::className(),
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'contact' => ContactFixture::className(),
+            'admin' => AdminFixture::class,
+            'adminToken' => AdminTokenFixture::class,
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'contact' => ContactFixture::class,
         ];
     }
 

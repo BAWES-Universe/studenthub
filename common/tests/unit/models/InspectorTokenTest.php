@@ -18,7 +18,7 @@ class InspectorTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'inspectorToken' => InspectorTokenFixture::className()
+            'inspectorToken' => InspectorTokenFixture::class
         ];
     }
 

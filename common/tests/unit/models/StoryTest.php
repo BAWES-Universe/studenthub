@@ -19,7 +19,7 @@ class StoryTest extends \Codeception\Test\Unit
 
     public function _fixtures() {
         return [
-            'story' => StoryFixture::className(),
+            'story' => StoryFixture::class,
         ];
     }
 

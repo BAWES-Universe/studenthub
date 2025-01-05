@@ -17,8 +17,8 @@ class CountryCest
     public function _fixtures()
     {
         return [
-            'candidateToken' => CandidateTokenFixture::className(),
-            'country' => CountryFixture::className()
+            'candidateToken' => CandidateTokenFixture::class,
+            'country' => CountryFixture::class
         ];
     }
 

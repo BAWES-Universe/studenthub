@@ -23,11 +23,11 @@ class CandidateTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidates' => CandidateFixture::className(),
-            'country' => CountryFixture::className(),
-            'university' => UniversityFixture::className(),
-            'store' => StoreFixture::className(),
-            'candidateToken' => CandidateTokenFixture::className(),
+            'candidates' => CandidateFixture::class,
+            'country' => CountryFixture::class,
+            'university' => UniversityFixture::class,
+            'store' => StoreFixture::class,
+            'candidateToken' => CandidateTokenFixture::class,
         ];
     }
 

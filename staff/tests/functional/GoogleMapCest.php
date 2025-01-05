@@ -14,7 +14,7 @@ class GoogleMapCest
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className(),
+            'staffToken' => StaffTokenFixture::class,
         ];
     }
 

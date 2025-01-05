@@ -28,11 +28,11 @@ class TransferTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'contactToken' => ContactTokenFixture::className(),
-            'company'      => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'candidate'    => CandidateFixture::className(),
-            'invoice'      => InvoiceFixture::className()
+            'contactToken' => ContactTokenFixture::class,
+            'company'      => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'candidate'    => CandidateFixture::class,
+            'invoice'      => InvoiceFixture::class
         ];
     }
 

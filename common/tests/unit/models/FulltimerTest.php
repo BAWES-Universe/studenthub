@@ -22,10 +22,10 @@ class FulltimerTest extends \Codeception\Test\Unit
 
     public function _fixtures(){
         return [
-            'fulltimer' => FulltimerFixture::className(),
-            'area' => AreaFixture::className(),
-            'country' => CountryFixture::className(),
-            'university' => UniversityFixture::className(),
+            'fulltimer' => FulltimerFixture::class,
+            'area' => AreaFixture::class,
+            'country' => CountryFixture::class,
+            'university' => UniversityFixture::class,
         ];
     }
 

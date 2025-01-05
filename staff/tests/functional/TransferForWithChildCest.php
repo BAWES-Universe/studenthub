@@ -38,9 +38,9 @@ class TransferForWithChildCest
     public function _fixtures()
     {
             return [
-                    'staffToken' => StaffTokenFixture::className(),
-                    'candidate'    => CandidateFixture::className(),
-                    'invoice'    => InvoiceFixture::className()
+                    'staffToken' => StaffTokenFixture::class,
+                    'candidate'    => CandidateFixture::class,
+                    'invoice'    => InvoiceFixture::class
             ];
     }
 

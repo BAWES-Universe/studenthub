@@ -18,8 +18,8 @@ class StaffTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className(),
-            'staff' => StaffFixture::className(),
+            'staffToken' => StaffTokenFixture::class,
+            'staff' => StaffFixture::class,
         ];
     }
 

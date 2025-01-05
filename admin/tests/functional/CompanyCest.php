@@ -21,10 +21,10 @@ class CompanyCest
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'company' => CompanyFixture::className(),
-            'files' => FileFixture::className(),
-            'country' => CountryFixture::className()
+            'adminToken' => AdminTokenFixture::class,
+            'company' => CompanyFixture::class,
+            'files' => FileFixture::class,
+            'country' => CountryFixture::class
         ];
     }
 

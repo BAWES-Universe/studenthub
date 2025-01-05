@@ -62,9 +62,9 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
             [['note', 'via'], 'string'],
             [['candidate_working_hour_uuid'], 'string', 'max' => 60],
             [['candidate_working_hour_uuid'], 'unique'],
-            [['cwlf_uuid'], 'exist', 'skipOnError' => false, 'targetClass' => CandidateWorkLogFeedback::className(), 'targetAttribute' => ['cwlf_uuid' => 'cwlf_uuid']],
-            [['candidate_id'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['store_id'], 'exist', 'skipOnError' => false, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['cwlf_uuid'], 'exist', 'skipOnError' => false, 'targetClass' => CandidateWorkLogFeedback::class, 'targetAttribute' => ['cwlf_uuid' => 'cwlf_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['store_id'], 'exist', 'skipOnError' => false, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
 
@@ -74,7 +74,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'candidate_working_hour_uuid',
                 ],
@@ -86,7 +86,7 @@ class CandidateWorkingHour extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

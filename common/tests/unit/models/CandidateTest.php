@@ -38,18 +38,18 @@ class CandidateTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidates' => CandidateFixture::className(),
-            'country'    => CountryFixture::className(),
-            'bank'    => BankFixture::className(),
-            'university' => UniversityFixture::className(),
-            'store'      => StoreFixture::className(),
-            'transfer'      => TransferFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className(),
-            'workHistory' => CandidateWorkHistoryFixture::className(),
-            'accessToken' => CandidateTokenFixture::className(),
-            'candidateIdCards' => CandidateIdCardFixture::className(),
-            'candidateSkills' => CandidateSkillFixture::className(),
-            'candidateExperience' => CandidateExperienceFixture::className(),
+            'candidates' => CandidateFixture::class,
+            'country'    => CountryFixture::class,
+            'bank'    => BankFixture::class,
+            'university' => UniversityFixture::class,
+            'store'      => StoreFixture::class,
+            'transfer'      => TransferFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class,
+            'workHistory' => CandidateWorkHistoryFixture::class,
+            'accessToken' => CandidateTokenFixture::class,
+            'candidateIdCards' => CandidateIdCardFixture::class,
+            'candidateSkills' => CandidateSkillFixture::class,
+            'candidateExperience' => CandidateExperienceFixture::class,
         ];
     }
 

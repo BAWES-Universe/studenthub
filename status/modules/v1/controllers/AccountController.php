@@ -19,7 +19,7 @@ class AccountController extends Controller
         unset($behaviors['authenticator']);
 
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => \yii\filters\Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -31,7 +31,7 @@ class AccountController extends Controller
         
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => \yii\filters\auth\HttpBearerAuth::class,
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];

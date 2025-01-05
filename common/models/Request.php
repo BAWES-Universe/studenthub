@@ -92,14 +92,14 @@ class Request extends \yii\db\ActiveRecord
             [['request_position_title', 'request_feedback'], 'string', 'max' => 255],
             [['our_fees_unit'], "string", "max" => 10],
             [['request_started_at', 'request_assigned_at', 'request_delivered_at', 'request_cancelled_at'], 'safe'],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::class, 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
             //['contact_uuid', 'validateContact'] contact can be removed from company
             [["our_fees", 'num_hours_followup_interval'], 'number', 'min' => 0],
 
             ['gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER, self::GENDER_ANY]],
-            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(),
+            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class,
                 'targetAttribute' => ['nationality_id' => 'country_id']],
 
             [['request_number_of_employees', 'no_of_employees_per_story'], 'number', 'min' => 1],
@@ -139,7 +139,7 @@ class Request extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'request_uuid',
                 ],
@@ -151,13 +151,13 @@ class Request extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'request_created_datetime',
                 'updatedAtAttribute' => 'request_updated_datetime',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'request_created_by',
                 'updatedByAttribute' => 'request_updated_by',
             ],

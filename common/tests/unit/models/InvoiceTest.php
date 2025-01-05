@@ -23,13 +23,13 @@ class InvoiceTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidates' => CandidateFixture::className(),
-            'country' => CountryFixture::className(),
-            'university' => UniversityFixture::className(),
-            'store' => StoreFixture::className(),
-            'transfer' => TransferFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className(),
-            'invoice' => InvoiceFixture::className(),
+            'candidates' => CandidateFixture::class,
+            'country' => CountryFixture::class,
+            'university' => UniversityFixture::class,
+            'store' => StoreFixture::class,
+            'transfer' => TransferFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class,
+            'invoice' => InvoiceFixture::class,
         ];
     }
 

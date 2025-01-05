@@ -18,8 +18,8 @@ class StoreTest extends \Codeception\Test\Unit {
 
     public function _fixtures() {
         return [
-            'company' => CompanyFixture::className(),
-            'store' => StoreFixture::className()
+            'company' => CompanyFixture::class,
+            'store' => StoreFixture::class
         ];
     }
 

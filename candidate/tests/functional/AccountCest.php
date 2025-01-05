@@ -18,10 +18,10 @@ class AccountCest
     public function _fixtures()
     {
         return [
-            'candidateToken' => CandidateTokenFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className(),
-            'invoice' => InvoiceFixture::className(),
-            'area' => AreaFixture::className(),
+            'candidateToken' => CandidateTokenFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class,
+            'invoice' => InvoiceFixture::class,
+            'area' => AreaFixture::class,
         ];
     }
 

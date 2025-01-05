@@ -23,13 +23,13 @@ class NoteCest
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'company' => CompanyFixture::className(),
-            'contact' => ContactFixture::className(),
-            'invitation' => InvitationFixture::className (),
-            'suggestion' => SuggestionFixture::className (),
-            'staff' => StaffFixture::className(),
-            'note' => NoteFixture::className(),
+            'adminToken' => AdminTokenFixture::class,
+            'company' => CompanyFixture::class,
+            'contact' => ContactFixture::class,
+            'invitation' => InvitationFixture::class,
+            'suggestion' => SuggestionFixture::class,
+            'staff' => StaffFixture::class,
+            'note' => NoteFixture::class,
         ];
     }
 

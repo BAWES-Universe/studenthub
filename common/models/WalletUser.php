@@ -65,14 +65,14 @@ class WalletUser extends ActiveRecord implements IdentityInterface
             ['auth_key', 'default', 'value' => ""],
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
-            [['bank_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletBank::className(), 'targetAttribute' => ['bank_uuid' => 'bank_uuid']],
+            [['bank_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletBank::class, 'targetAttribute' => ['bank_uuid' => 'bank_uuid']],
         ];
     }
 
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'user_uuid',
                 ],
@@ -84,7 +84,7 @@ class WalletUser extends ActiveRecord implements IdentityInterface
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

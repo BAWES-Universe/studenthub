@@ -44,8 +44,8 @@ class Webhook extends \yii\db\ActiveRecord
             [['created_at', 'updated_at'], 'safe'],
             [['event'], 'string', 'max' => 50],
             [['endpoint'], 'string', 'max' => 255],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
-            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['created_by' => 'staff_id']],
+            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['updated_by' => 'staff_id']],
         ];
     }
 
@@ -55,7 +55,7 @@ class Webhook extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'value' => new Expression('NOW()'),
             ],
         ];

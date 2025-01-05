@@ -28,7 +28,7 @@ class PasswordResetRequestForm extends Model
                 'message' => Yii::t('app', "Phone must be 8 digit number")
             ],
             [['email'], 'email'],
-            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['email' => 'candidate_email']],
+            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::class, 'targetAttribute' => ['email' => 'candidate_email']],
         ];
     }
     public function validateAnyOne($attribute) {

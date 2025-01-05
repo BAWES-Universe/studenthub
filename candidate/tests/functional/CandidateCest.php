@@ -18,9 +18,9 @@ class CandidateCest
     public function _fixtures()
     {
         return [
-            'candidateToken' => CandidateTokenFixture::className(),
-            'candidateWorkHistory' => CandidateWorkHistoryFixture::className(),
-            'candidate' => CandidateFixture::className()
+            'candidateToken' => CandidateTokenFixture::class,
+            'candidateWorkHistory' => CandidateWorkHistoryFixture::class,
+            'candidate' => CandidateFixture::class
         ];
     }
 

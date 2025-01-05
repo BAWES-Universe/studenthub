@@ -99,13 +99,13 @@ class TransferCandidate extends \yii\db\ActiveRecord
             
             ['company_hourly_rate', 'compare', 'compareAttribute' => 'candidate_hourly_rate', 'operator' => '>='],
 
-            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['prev_candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['prev_candidate_id' => 'candidate_id']],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
-            [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::className(), 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']]
+            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::class, 'targetAttribute' => ['bank_id' => 'bank_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['prev_candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['prev_candidate_id' => 'candidate_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::class, 'targetAttribute' => ['transfer_id' => 'transfer_id']],
+            [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::class, 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']]
         ];
     }
 
@@ -166,7 +166,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'tc_created_at',
                 'updatedAtAttribute' => 'tc_updated_at',
                 'value' => new Expression('NOW()'),

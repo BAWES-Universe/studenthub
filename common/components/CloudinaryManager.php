@@ -26,7 +26,7 @@ class CloudinaryManager {
         foreach (['cloud_name', 'api_key', 'api_secret'] as $attribute) {
             if ($this->$attribute === null) {
                 throw new yii\base\InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                    '{class}' => static::className(),
+                    '{class}' => static::class,
                     '{attribute}' => '$' . $attribute
                 ]));
             }

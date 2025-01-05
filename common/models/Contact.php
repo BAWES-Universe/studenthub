@@ -69,8 +69,8 @@ class Contact extends \yii\db\ActiveRecord
             [['contact_uuid'], 'unique'],//'contact_email'
             [['contact_password_reset_token'], 'unique'],
             [['contact_status', 'contact_email_verified_by'], 'number'],
-            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
-            [['contact_email_verified_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['contact_email_verified_by' => 'staff_id']],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::class, 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
+            [['contact_email_verified_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['contact_email_verified_by' => 'staff_id']],
         ];
     }
 
@@ -109,7 +109,7 @@ class Contact extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'contact_uuid',
                 ],
@@ -121,7 +121,7 @@ class Contact extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'contact_created_at',
                 'updatedAtAttribute' => 'contact_updated_at',
                 'value' => new Expression('NOW()'),

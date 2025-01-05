@@ -47,10 +47,10 @@ class Store extends \yii\db\ActiveRecord
             [['store_created_at', 'store_updated_at','deleted','brand_uuid'], 'safe'],
             [['store_name'], 'string', 'max' => 255],
             [['company_id'], 'validateCompanyHasSubcompanies'],
-            [['store_manager_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::className(), 'targetAttribute' => ['store_manager_uuid' => 'contact_uuid']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['brand_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::className(), 'targetAttribute' => ['brand_uuid' => 'brand_uuid']],
-            [['mall_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Mall::className(), 'targetAttribute' => ['mall_uuid' => 'mall_uuid']],
+            [['store_manager_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CompanyContact::class, 'targetAttribute' => ['store_manager_uuid' => 'contact_uuid']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['brand_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Brand::class, 'targetAttribute' => ['brand_uuid' => 'brand_uuid']],
+            [['mall_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Mall::class, 'targetAttribute' => ['mall_uuid' => 'mall_uuid']],
         ];
     }
 
@@ -85,7 +85,7 @@ class Store extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'store_created_at',
                 'updatedAtAttribute' => 'store_updated_at',
                 'value' => new Expression('NOW()'),

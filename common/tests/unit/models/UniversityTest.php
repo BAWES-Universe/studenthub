@@ -16,7 +16,7 @@ class UniversityTest extends \Codeception\Test\Unit
 
     public function _fixtures()
     {
-        return ['university' => UniversityFixture::className()];
+        return ['university' => UniversityFixture::class];
     }
 
     protected function _before(){}

@@ -46,7 +46,7 @@ class BankTransactionLineItem extends \yii\db\ActiveRecord
             [['line_item_id', 'bank_transaction_id'], 'string', 'max' => 60],
             [['account_code', 'account_id', 'description', 'item_code', 'repeating_invoice_id', 'tax_type'], 'string', 'max' => 255],
             [['line_item_id'], 'unique'],
-            [['bank_transaction_id'], 'exist', 'skipOnError' => true, 'targetClass' => BankTransaction::className(), 'targetAttribute' => ['bank_transaction_id' => 'bank_transaction_id']],
+            [['bank_transaction_id'], 'exist', 'skipOnError' => true, 'targetClass' => BankTransaction::class, 'targetAttribute' => ['bank_transaction_id' => 'bank_transaction_id']],
         ];
     }
 

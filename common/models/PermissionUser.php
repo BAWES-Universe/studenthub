@@ -33,7 +33,7 @@ class PermissionUser extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'permission_user_uuid',
                 ],
@@ -45,7 +45,7 @@ class PermissionUser extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => false,
                 'value' => new Expression('NOW()'),
@@ -63,9 +63,9 @@ class PermissionUser extends \yii\db\ActiveRecord
             [['created_at'], 'safe'],
             [['permission_user_uuid', 'permission_sub_section_uuid'], 'string', 'max' => 60],
             [['permission_user_uuid'], 'unique'],
-            [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['admin_id' => 'admin_id']],
-            [['permission_sub_section_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => PermissionSubSection::className(), 'targetAttribute' => ['permission_sub_section_uuid' => 'permission_sub_section_uuid']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['admin_id' => 'admin_id']],
+            [['permission_sub_section_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => PermissionSubSection::class, 'targetAttribute' => ['permission_sub_section_uuid' => 'permission_sub_section_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 

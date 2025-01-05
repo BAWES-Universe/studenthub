@@ -16,7 +16,7 @@ class StaffTest extends \Codeception\Test\Unit {
     protected $tester;
 
     public function _fixtures() {
-        return ['staff' => StaffFixture::className()];
+        return ['staff' => StaffFixture::class];
     }
 
     protected function _before() {

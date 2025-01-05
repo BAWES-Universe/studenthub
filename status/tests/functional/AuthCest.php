@@ -17,8 +17,8 @@ class AuthCest
 	public function _fixtures()
 	{
         return [
-            'statuss' => InspectorFixture::className(),
-            'token' => InspectorTokenFixture::className()
+            'statuss' => InspectorFixture::class,
+            'token' => InspectorTokenFixture::class
         ];
 	}
 

@@ -43,7 +43,7 @@ class TransferBankAdvice extends \yii\db\ActiveRecord
             [['file_path'], 'string', 'max' => 255],
             [['tba_uuid'], 'unique'],
             [['is_deleted'], "boolean"],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['created_by' => 'admin_id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['created_by' => 'admin_id']],
         ];
     }
 
@@ -53,7 +53,7 @@ class TransferBankAdvice extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'tba_uuid',
                 ],
@@ -65,7 +65,7 @@ class TransferBankAdvice extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'created_by',
                 'updatedByAttribute' => null,
                 'value' => function() {
@@ -74,7 +74,7 @@ class TransferBankAdvice extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

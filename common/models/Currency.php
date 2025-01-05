@@ -106,7 +106,7 @@ class Currency extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className (),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => null,
                 'updatedAtAttribute' => 'datetime',
                 'value' => new Expression('NOW()'),

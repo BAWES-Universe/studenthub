@@ -20,7 +20,7 @@ class CandidateTest extends \Codeception\Test\Unit
     public function _fixtures()
 	{
         return [
-            'candidates' => CandidateFixture::className(),
+            'candidates' => CandidateFixture::class,
         ];
     }
 

@@ -50,7 +50,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ['status', 'in', 'range' => [self::STATUS_PENDING, self::STATUS_FAILED, self::STATUS_PROCESSED]],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path', "error"], 'string', 'max' => 255],
-            [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['admin_id' => 'admin_id']],
+            [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['admin_id' => 'admin_id']],
 
         ];
     }
@@ -62,7 +62,7 @@ class TransferFile extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'transfer_file_created_at',
                 'updatedAtAttribute' => 'transfer_file_updated_at',
                 'value' => new Expression('NOW()'),

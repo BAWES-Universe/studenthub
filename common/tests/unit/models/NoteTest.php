@@ -18,7 +18,7 @@ class NoteTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'note' => NoteFixture::className(),
+            'note' => NoteFixture::class,
         ];
     }
 

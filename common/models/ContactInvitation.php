@@ -49,7 +49,7 @@ class ContactInvitation extends \yii\db\ActiveRecord {
                 ['contact_uuid'],
                 'exist', 
                 'skipOnError' => true, 
-                'targetClass' => Contact::className(),
+                'targetClass' => Contact::class,
                 'targetAttribute' => ['contact_uuid' => 'contact_uuid']
             ],
             [['company_id'], 'validateCompany'],
@@ -64,13 +64,13 @@ class ContactInvitation extends \yii\db\ActiveRecord {
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'contact_invitation_uuid',
                 ],

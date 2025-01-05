@@ -28,17 +28,17 @@ class TransferCandidateTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'company' => CompanyFixture::className(),
-            'store' => StoreFixture::className(),
-            'bank' => BankFixture::className(),
-            'candidate' => CandidateFixture::className(),
-            'candidateSkill' => CandidateSkillFixture::className(),
-            'candidateExperience' => CandidateExperienceFixture::className(),
-            'university' => UniversityFixture::className(),
-            'country' => CountryFixture::className(),
-            'transfer' => TransferFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className(),
-            'invoice' => InvoiceFixture::className(),
+            'company' => CompanyFixture::class,
+            'store' => StoreFixture::class,
+            'bank' => BankFixture::class,
+            'candidate' => CandidateFixture::class,
+            'candidateSkill' => CandidateSkillFixture::class,
+            'candidateExperience' => CandidateExperienceFixture::class,
+            'university' => UniversityFixture::class,
+            'country' => CountryFixture::class,
+            'transfer' => TransferFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class,
+            'invoice' => InvoiceFixture::class,
         ];
     }
 

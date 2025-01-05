@@ -17,8 +17,8 @@ class AuthCest {
 
     public function _fixtures() {
         return [
-            'candidates' => CandidateFixture::className(),
-            'candidateToken' => CandidateTokenFixture::className()
+            'candidates' => CandidateFixture::class,
+            'candidateToken' => CandidateTokenFixture::class
         ];
     }
 

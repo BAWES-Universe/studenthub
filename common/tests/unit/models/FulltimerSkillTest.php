@@ -17,7 +17,7 @@ class FulltimerSkillTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'fulltimerSkill' => FulltimerSkillFixture::className()
+            'fulltimerSkill' => FulltimerSkillFixture::class
         ];
     }
 

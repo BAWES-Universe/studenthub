@@ -105,7 +105,7 @@ class Company extends \yii\db\ActiveRecord
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website',
                 'company_status_override', 'last_request_datetime', 'last_payment_datetime'], 'safe'],
             /**
@@ -134,7 +134,7 @@ class Company extends \yii\db\ActiveRecord
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
-            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['country_id' => 'country_id']],
         ];
     }
   
@@ -174,7 +174,7 @@ class Company extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'company_created_at',
                 'updatedAtAttribute' => 'company_updated_at',
                 'value' => new Expression('NOW()'),

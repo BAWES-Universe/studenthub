@@ -15,7 +15,7 @@ class CandidateSkillTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidateSkill' => CandidateSkillFixture::className()
+            'candidateSkill' => CandidateSkillFixture::class
         ];
     }
 

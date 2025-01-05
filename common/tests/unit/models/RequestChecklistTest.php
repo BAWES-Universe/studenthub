@@ -20,7 +20,7 @@ class RequestChecklistTest extends \Codeception\Test\Unit
 
     public function _fixtures() {
         return [
-            'requestChecklist' => RequestChecklistFixture::className(),
+            'requestChecklist' => RequestChecklistFixture::class,
         ];
     }
 

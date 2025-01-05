@@ -18,9 +18,9 @@ class CandidateCest
     public function _fixtures() 
     {
         return [
-            'candidate' => CandidateFixture::className(),
-            'adminToken' => AdminTokenFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className()
+            'candidate' => CandidateFixture::class,
+            'adminToken' => AdminTokenFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class
         ];
     }
 

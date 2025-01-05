@@ -16,8 +16,8 @@ class AdminCest
 
     public function _fixtures() {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'admin' => AdminFixture::className(),
+            'adminToken' => AdminTokenFixture::class,
+            'admin' => AdminFixture::class,
         ];
     }
 

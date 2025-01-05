@@ -19,7 +19,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit {
 
     public function _fixtures() {
         return [
-            'transferCandidate' => TransferCandidateFixture::className()
+            'transferCandidate' => TransferCandidateFixture::class
         ];
     }
 

@@ -16,10 +16,10 @@ class AlgoliaCest
 
     public function _fixtures() {
         return [
-            'tokens' => ContactTokenFixture::className(),
-            'company' => CompanyFixture::className (),
-            'companyContact' => CompanyContactFixture::className (),
-            //'contact' => ContactFixture::className ()
+            'tokens' => ContactTokenFixture::class,
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            //'contact' => ContactFixture::class
         ];
     }
 

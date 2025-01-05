@@ -23,7 +23,7 @@ class CandidateWorkLogFeedbackController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -41,7 +41,7 @@ class CandidateWorkLogFeedbackController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -116,11 +116,13 @@ class CandidateWorkLogFeedbackController extends Controller
      * @return array|string[]
      */
     public function actionSave() {
+        $date = Yii::$app->request->getBodyParam("date");
+
         $model = new CandidateWorkLogFeedback();
         $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
         $model->store_id = Yii::$app->request->getBodyParam("store_id");
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
-        $model->date = date("Y-m-d", strtotime(Yii::$app->request->getBodyParam("date")));
+        $model->date = $date? date("Y-m-d", strtotime($date)): null;
         $model->status = Yii::$app->request->getBodyParam("status");
         $model->note = Yii::$app->request->getBodyParam("note");
         $model->reason = Yii::$app->request->getBodyParam("reason");

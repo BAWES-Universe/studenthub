@@ -223,7 +223,7 @@ class Staff extends ActiveRecord implements IdentityInterface
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'staff_created_at',
                 'updatedAtAttribute' => 'staff_updated_at',
                 'value' => new Expression('NOW()'),

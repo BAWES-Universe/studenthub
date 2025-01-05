@@ -18,7 +18,7 @@ class AdminTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className()
+            'adminToken' => AdminTokenFixture::class
         ];
     }
 

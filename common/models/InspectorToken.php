@@ -44,7 +44,7 @@ class InspectorToken extends \yii\db\ActiveRecord
         return [
             [['inspector_uuid', 'token_value', 'token_status'], 'required'],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
-            //[['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['admin_id' => 'admin_id']],
+            //[['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['admin_id' => 'admin_id']],
         ];
     }
 
@@ -55,7 +55,7 @@ class InspectorToken extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'token_uuid',
                 ],
@@ -67,7 +67,7 @@ class InspectorToken extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'token_created_datetime',
                 'updatedAtAttribute' => 'token_last_used_datetime',
                 'value' => new Expression('NOW()'),

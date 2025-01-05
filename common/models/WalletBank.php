@@ -58,7 +58,7 @@ class WalletBank extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'bank_uuid',
                 ],

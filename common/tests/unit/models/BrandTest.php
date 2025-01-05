@@ -13,7 +13,7 @@ class BrandTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'brand' => BrandFixture::className()
+            'brand' => BrandFixture::class
         ];
     }
 

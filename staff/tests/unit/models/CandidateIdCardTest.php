@@ -19,8 +19,8 @@ class CandidateIdCardTest extends \Codeception\Test\Unit {
 
     public function _fixtures() {
         return [
-            'candidates' => \common\fixtures\CandidateFixture::className(),
-            'candidateIdCardFixture' => CandidateIdCardFixture::className()
+            'candidates' => \common\fixtures\CandidateFixture::class,
+            'candidateIdCardFixture' => CandidateIdCardFixture::class
         ];
     }
 

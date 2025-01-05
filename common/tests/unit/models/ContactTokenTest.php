@@ -19,8 +19,8 @@ class ContactTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'contact' => ContactFixture::className(),
-            'contactToken' => ContactTokenFixture::className()
+            'contact' => ContactFixture::class,
+            'contactToken' => ContactTokenFixture::class
         ];
     }
 

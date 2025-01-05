@@ -16,7 +16,7 @@ class CandidateVideoLogTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidate' => CandidateFixture::className ()
+            'candidate' => CandidateFixture::class
         ];
     }
 

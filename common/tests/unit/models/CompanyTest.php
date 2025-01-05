@@ -19,9 +19,9 @@ class CompanyTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'company' => CompanyFixture::className(),
-            'store' => StoreFixture::className(),
-            'candidates' => CandidateFixture::className()
+            'company' => CompanyFixture::class,
+            'store' => StoreFixture::class,
+            'candidates' => CandidateFixture::class
         ];
     }
 

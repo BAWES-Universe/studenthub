@@ -83,17 +83,17 @@ class Note extends \yii\db\ActiveRecord
             ['request_uuid', 'validateRequest'],
             ['contact_uuid', 'validateContact'],
             [['note_created_datetime', 'note_updated_datetime'], 'safe'],//,'created_by','updated_by'
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
-            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
-            [['request_checklist_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => RequestChecklist::className(), 'targetAttribute' => ['request_checklist_uuid' => 'request_checklist_uuid']],
-            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
-            //[['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['created_by' => 'staff_id']],
-            //[['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['updated_by' => 'staff_id']],
-            ['invitation_uuid', 'exist', 'skipOnError' => true, 'targetClass' => Invitation::className(), 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
-            [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
-            [['interview_evaluation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => InterviewEvaluation::className(), 'targetAttribute' => ['interview_evaluation_uuid' => 'interview_evaluation_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::class, 'targetAttribute' => ['story_uuid' => 'story_uuid']],
+            [['request_checklist_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => RequestChecklist::class, 'targetAttribute' => ['request_checklist_uuid' => 'request_checklist_uuid']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::class, 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
+            //[['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['created_by' => 'staff_id']],
+            //[['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['updated_by' => 'staff_id']],
+            ['invitation_uuid', 'exist', 'skipOnError' => true, 'targetClass' => Invitation::class, 'targetAttribute' => ['invitation_uuid' => 'invitation_uuid']],
+            [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::class, 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
+            [['interview_evaluation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => InterviewEvaluation::class, 'targetAttribute' => ['interview_evaluation_uuid' => 'interview_evaluation_uuid']],
         ];
     }
 
@@ -140,7 +140,7 @@ class Note extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'note_uuid',
                 ],
@@ -152,20 +152,20 @@ class Note extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'note_created_datetime',
                 'updatedAtAttribute' => 'note_updated_datetime',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'created_by',
                 'defaultValue' => function() {
                     return $this->created_by;//for guest user
                 }
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'updatedByAttribute' => 'updated_by',
                 'defaultValue' => function() {
                     return $this->updated_by;//for guest user
@@ -343,9 +343,9 @@ class Note extends \yii\db\ActiveRecord
     public function getCreatedBy($modelClass = "\common\models\Staff", $candidateClass = "\common\models\Candidate")
     {
         if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
-            return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
+            return $this->hasOne ($candidateClass::className(), ['candidate_id' => 'created_by']);
         } else {
-            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+            return $this->hasOne ($modelClass::className(), ['staff_id' => 'created_by']);
         }
     }
 
@@ -355,9 +355,9 @@ class Note extends \yii\db\ActiveRecord
     public function getUpdatedBy($modelClass = "\common\models\Staff", $candidateClass = "\common\models\Candidate")
     {
         if ($this->note_type == self::TYPE_INVITATION_ACCEPTED || $this->note_type == self::TYPE_INVITATION_REJECTED) {
-            return $this->hasOne ($candidateClass::className (), ['candidate_id' => 'created_by']);
+            return $this->hasOne ($candidateClass::className(), ['candidate_id' => 'created_by']);
         } else {
-            return $this->hasOne ($modelClass::className (), ['staff_id' => 'created_by']);
+            return $this->hasOne ($modelClass::className(), ['staff_id' => 'created_by']);
         }
     }
 

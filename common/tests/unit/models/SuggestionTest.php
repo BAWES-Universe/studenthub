@@ -22,7 +22,7 @@ class SuggestionTest extends \Codeception\Test\Unit
 
     public function _fixtures() {
         return [
-            'suggestion' => SuggestionFixture::className(),
+            'suggestion' => SuggestionFixture::class,
         ];
     }
 
