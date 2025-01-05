@@ -378,8 +378,10 @@ return [
                     'patterns' => [
                         'POST' => 'save',
                         "POST bulk-save" => "bulk-save",
+                        "PATCH undo/<id>" => "undo",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        'OPTIONS undo/<id>' => 'options',
                         'OPTIONS bulk-save' => 'options',
                     ]
                 ],

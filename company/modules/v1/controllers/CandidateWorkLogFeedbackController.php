@@ -3,6 +3,7 @@
 namespace company\modules\v1\controllers;
 
 use common\models\CandidateWorkingDate;
+use company\models\CandidateWorkingHour;
 use Yii;
 use company\models\Store;
 use company\models\CandidateWorkLogFeedback;
@@ -64,6 +65,50 @@ class CandidateWorkLogFeedbackController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * undo feedback
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     */
+    public function actionUndo($id) {
+        //make sure store belongs to login user
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        if (isset($company->subCompanies) && count($company->subCompanies)>0) {
+            $storeQuery = $company
+                ->getSubCompanyStores()
+                ->select('store_id');
+//                ->getSubCompanies();
+        } else {
+            $storeQuery = $company
+                ->getStores()->select('store_id');
+        }
+
+        $model = CandidateWorkingHour::find()
+            ->andWhere(['candidate_working_hour_uuid' => $id])
+            ->andWhere(["IN", "store_id", $storeQuery])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException("not found!");
+        }
+
+        $model->status = CandidateWorkingHour::STATUS_PENDING;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+        ];
     }
 
     /**
