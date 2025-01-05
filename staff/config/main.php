@@ -485,7 +485,7 @@ return [
                     'controller' => 'v1/job',
                     'patterns' => [
                         'GET' => 'list',
-                        'GET interests' => 'list-interests',
+                        'GET interests' => 'list-interest',
                         'GET interest/<id>' => 'view-interest',
                         'GET <id>' => 'view',
                         'POST' => 'create',
