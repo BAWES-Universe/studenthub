@@ -35,9 +35,13 @@ return [
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=wallet-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=bawes_wallet',
-            'username' => 'wll3t1232',
-            'password' => '24uJQLOx55q$',
+            'dsn' => 'mysql:host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=wallet',
+            'username' => 'bawes',
+            'password' => 'bawes12student!hub',
+            
+            //'dsn' => 'mysql:host=wallet-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=bawes_wallet',
+            //'username' => 'wll3t1232',
+            //'password' => '24uJQLOx55q$',
             'charset' => 'utf8',
             // Enable Caching of Schema to Reduce SQL Queries
             'enableSchemaCache' => true,
