@@ -28,7 +28,7 @@ use yii\db\Expression;
  * @property string $compensation_description_ar
  * @property int $min_age
  * @property int $max_age
- * @property int $gender MALE = 1, FEMALE = 2, OTHER = 3
+ * @property int $gender MALE = 1, FEMALE = 2, OTHER = 3, Any = 4
  * @property string $available_from
  * @property string $available_to
  * @property int $status 0 -DRAFT | 1 - ACTIVE | 2- CLOSED
@@ -54,6 +54,11 @@ class Job extends \yii\db\ActiveRecord
     const TYPE_FIXED_PRICE = "FIXED_PRICE";
     const TYPE_HOURLY = "HOURLY";
     const TYPE_MONTHLY_SALARY = "MONTHLY_SALARY";
+
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 3;
+    const GENDER_ANY = 4;
 
     /**
      * {@inheritdoc}
