@@ -11,7 +11,7 @@ services:
     command:
     #  - ./init --env=Krushn --overwrite=All
       - ./yii migrate
-      
+
     ports:
       - "8080:80" #app endpoint
       - "3001:3001" # Yeaster microservice
