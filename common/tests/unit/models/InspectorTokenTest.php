@@ -31,19 +31,19 @@ class InspectorTokenTest extends \Codeception\Test\Unit
      */
     public function testValidation()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Inspector is in the table', Inspector::find()->one())->notNull();
-            expect('Inspector Token is in the table', InspectorToken::find()->one())->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(Inspector::find()->one());
+            $this->assertNotNull(InspectorToken::find()->one());
+        //});
 
-        $this->specify('Test Validator', function() {
+        //$this->specify('Test Validator', function() {
             $model = new InspectorToken();
             $model->validate();
-            expect('inspector_uuid required error',$model->errors)->hasKey('inspector_uuid');
-            expect('token_value required error',$model->errors)->hasKey('token_value');
-            expect('token_status required error',$model->errors)->hasKey('token_status');
-            expect('total 3 errors',count($model->errors))->equals(3);
-        });
+            $this->assertArrayHasKey('inspector_uuid', $model->errors);
+            $this->assertArrayHasKey('token_value', $model->errors);
+            $this->assertArrayHasKey('token_status', $model->errors);
+            $this->assertEquals(3, count($model->errors));
+        //});
     }
 
     /**
@@ -52,15 +52,12 @@ class InspectorTokenTest extends \Codeception\Test\Unit
      */
     public function testGenerateToken()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Inspector Token is in the table', InspectorToken::find()->one())->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(InspectorToken::find()->one());
+        //});
 
-        $this->specify('Test existing Token', function() {
-            expect(
-                'unique token string',
-                InspectorToken::findOne(['token_value' => InspectorToken::generateUniqueTokenString()])
-            )->null();
-        });
+        //$this->specify('Test existing Token', function() {
+            $this->assertNull(InspectorToken::findOne(['token_value' => InspectorToken::generateUniqueTokenString()]));
+        //});
     }
 }

@@ -33,22 +33,22 @@ class StoryActivityTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        /*$this->specify('Fixtures should be loaded', function() {
+        /*//$this->specify('Fixtures should be loaded', function() {
             expect('Check story loaded',
                 Story::find()->one()
             )->notNull();
-        });*/
+        //});*/
 
-        $this->specify('model fields validation', function () {
+        //$this->specify('model fields validation', function () {
             $model = new StoryActivity();
 
-            expect('should not accept empty story_uuid', $model->validate(['story_uuid']))->false();
+            $this->assertFalse($model->validate(['story_uuid']));
 
             $model->staff_id = 'test';
-            expect('should not accept random string for staff_id', $model->validate(['staff_id']))->false();
+            $this->assertFalse($model->validate(['staff_id']));
 
             $model->staff_id = 999;
-            expect('should not accept invalid value for staff_id', $model->validate(['staff_id']))->false();
-        });
+            $this->assertFalse($model->validate(['staff_id']));
+        //});
     }
 }

@@ -26,7 +26,7 @@ class S3FileExistValidator extends Validator
     
     /**
      * File extensions allowed 
-     * @var type 
+     * @var string 
      */
     public $extensions;
     

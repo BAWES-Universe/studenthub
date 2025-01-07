@@ -6,7 +6,7 @@ use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
-
+use Cloudinary\Cloudinary;
 
 /**
  * This is the model class for table "brand".
@@ -38,6 +38,9 @@ class Brand extends \yii\db\ActiveRecord
     {
         return [
             [['company_id','brand_name_en','brand_name_ar'], 'required'],
+            [['company_id'], 'integer'],
+            [['brand_name_en', 'brand_name_ar'], 'string', 'max' => 255],
+            [['brand_logo'], 'string', 'max' => 100],
             [['brand_created_datetime', 'brand_updated_datetime'], 'safe'],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
 
@@ -97,7 +100,7 @@ class Brand extends \yii\db\ActiveRecord
                 $this->addError('brand_logo', Yii::t('app', 'Image not available to save.'));
                 return false;
             }
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'common');
 
@@ -170,7 +173,7 @@ class Brand extends \yii\db\ActiveRecord
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'common');
 

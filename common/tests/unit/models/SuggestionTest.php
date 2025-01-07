@@ -35,25 +35,23 @@ class SuggestionTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Check suggestion loaded',
-                Suggestion::find()->one()
-            )->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(Suggestion::find()->one());
+        //});
 
-        $this->specify('model fields validation', function () {
+        //$this->specify('model fields validation', function () {
             $model = new Suggestion();
          
-            expect('should not accept empty request_uuid', $model->validate(['request_uuid']))->false();
-            expect('should not accept empty candidate_id', $model->validate(['candidate_id']))->false();
-            expect('should not accept empty note_uuid', $model->validate(['note_uuid']))->false();
+            $this->assertFalse($model->validate(['request_uuid']));
+            $this->assertFalse($model->validate(['candidate_id']));
+            $this->assertFalse($model->validate(['note_uuid']));
 
             $model->suggestion_status = 9999999;
 
             //$model->validate();
 
-            expect('should not accept random string for suggestion_status', $model->validate(['suggestion_status']))->false();
-        });
+            $this->assertFalse($model->validate(['suggestion_status']));
+        //});
     }
 
     /**
@@ -61,7 +59,7 @@ class SuggestionTest extends \Codeception\Test\Unit
      */
     public function testCrud()
     {
-        $this->specify('Create New', function () {
+        //$this->specify('Create New', function () {
 
             $request = Request::find()->where(['request_status' => Request::STATUS_STARTED])->one();
         
@@ -77,15 +75,15 @@ class SuggestionTest extends \Codeception\Test\Unit
             $note->note_text = 'Test model';
             $note->save();
 
-            expect('Note created successfully', $note->save())->true();
+            $this->assertTrue($note->save());
 
             $model = new Suggestion();
             $model->request_uuid = $request->request_uuid;
             $model->fulltimer_uuid = $fulltimer->fulltimer_uuid;
             $model->note_uuid = $note->note_uuid;
           
-            expect('Created successfully', $model->save())->true();
-            expect('Record is in database', $model->findOne(['note_uuid' => $note->note_uuid]))->notNull();
-        });
+            $this->assertTrue($model->save());
+            $this->assertNotNull($model->findOne(['note_uuid' => $note->note_uuid]));
+        //});
     }
 }

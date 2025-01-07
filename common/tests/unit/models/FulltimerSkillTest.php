@@ -31,10 +31,10 @@ class FulltimerSkillTest extends \Codeception\Test\Unit
 
         $skill->fulltimer_uuid = null;
         $skill->skill = null;
-        expect('fulltimerSkill fulltimer_uuid should be required field', $skill->validate(['fulltimer_uuid']))->false();
-        expect('fulltimerSkill skill should be required field', $skill->validate(['skill']))->false();
+        $this->assertFalse($skill->validate(['fulltimer_uuid']));
+        $this->assertFalse($skill->validate(['skill']));
 
         $skill->fulltimer_uuid = '123123123';
-        expect('Invalid fulltimer uuid', $skill->validate(['fulltimer_uuid']))->false();
+        $this->assertFalse($skill->validate(['fulltimer_uuid']));
     }
 }

@@ -42,24 +42,24 @@ class InvoiceTest extends \Codeception\Test\Unit
      */
     public function testValidatorRequired()
     {
-        $this->specify('Fixtures Data loaded Test', function() {
-            expect('table data is in the table', Invoice::findOne(['transfer_id'=>'2']))->notNull();
-        });
+        //$this->specify('Fixtures Data loaded Test', function() {
+            $this->assertNotNull(Invoice::findOne(['transfer_id'=>'2']));
+        //});
 
-        $this->specify('Create New Data validate', function () {
+        //$this->specify('Create New Data validate', function () {
             $model = new Invoice();
             $model->transfer_id = 'John';
             $model->validate();
-            expect('invalid transfer id', $model->errors)->haskey('transfer_id');
-            expect('error count', count($model->errors))->equals(1);
-        });
+            $this->assertArrayHasKey('transfer_id', $model->errors);
+            $this->assertEquals(1, count($model->errors));
+        //});
 
-        $this->specify('check if transfer exist', function () {
+        //$this->specify('check if transfer exist', function () {
             $model = new Invoice();
             $model->transfer_id = '93';
             $model->validate();
-            expect('invalid transfer id', $model->errors)->haskey('transfer_id');
-            expect('error count', count($model->errors))->equals(1);
-        });
+            $this->assertArrayHasKey('transfer_id', $model->errors);
+            $this->assertEquals(1, count($model->errors));
+        //});
     }
 }

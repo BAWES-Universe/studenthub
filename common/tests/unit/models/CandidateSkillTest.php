@@ -29,14 +29,14 @@ class CandidateSkillTest extends \Codeception\Test\Unit
 
         $skill = CandidateSkill::find()->one();
 
-        expect('model adding new skill', $skill->save())->true();
+        $this->assertTrue($skill->save(), 'model adding new skill');
 
         $skill->candidate_id = null;
         $skill->skill = null;
-        expect('candidateSkill candidate_id should be required field', $skill->validate(['candidate_id']))->false();
-        expect('candidateSkill skill should be required field', $skill->validate(['skill']))->false();
+        $this->assertFalse($skill->validate(['candidate_id']), 'candidateSkill candidate_id should be required field');
+        $this->assertFalse($skill->validate(['skill']), 'candidateSkill skill should be required field');
 
         $skill->candidate_id = '123123123';
-        expect('Invalid candidate id', $skill->validate(['candidate_id']))->false();
+        $this->assertFalse($skill->validate(['candidate_id'], 'Invalid candidate id'));
     }
 }

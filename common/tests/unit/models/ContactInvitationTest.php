@@ -30,16 +30,16 @@ class ContactInvitationTest extends \Codeception\Test\Unit
         $model = new ContactInvitation();
 
         $model->email_to_invite = null;
-        expect('ContactInvitation email_to_invite should be required field', $model->validate(['email_to_invite']))->false();
+        $this->assertFalse($model->validate(['email_to_invite']));
 
         $model->email_to_invite = 'unique';
-        expect('ContactInvitation email_to_invite should be email field', $model->validate(['email_to_invite']))->false();
+        $this->assertFalse($model->validate(['email_to_invite']));
 
         $model->contact_uuid = '123123123';
-        expect('Invalid contact uuid', $model->validate(['contact_uuid']))->false();
+        $this->assertFalse($model->validate(['contact_uuid']));
 
         $model->company_id = '123123123';
-        expect('Invalid company id', $model->validate(['company_id']))->false();
+        $this->assertFalse($model->validate(['company_id']));
 
         //role
     }

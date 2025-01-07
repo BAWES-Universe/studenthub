@@ -24,12 +24,11 @@ class AreaTest extends \Codeception\Test\Unit
     public function testValidate()
     {
         $area = $this->tester->grabFixture('area', 'area0');
-        expect('model adding new area', $area->save())->true();
+        $this->assertTrue($area->save(), 'model adding new area');
 
         $area->area_name_en = null;
         $area->area_name_ar = null;
-        expect('area name should be required field', $area->validate(['area_name_en']))->false();
-        expect('area name should be required field', $area->validate(['area_name_ar']))->false();
+        $this->assertFalse($area->validate(['area_name_en']), 'area name should be required field');
+        $this->assertFalse($area->validate(['area_name_ar']), 'area name should be required field');
     }
-
 }

@@ -51,18 +51,18 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     public function testValidations()
     {
-        $this->specify('fixture data load test', function () {
-            expect('if data exist', TransferCandidate::find()->count())->greaterThan(0);
-        });
+        //$this->specify('fixture data load test', function () {
+            $this->assertGreaterThan(0, TransferCandidate::find()->count());
+        //});
 
-        $this->specify('validate required data', function () {
+        //$this->specify('validate required data', function () {
 
             $model = new TransferCandidate;
             $model->validate();
-            expect('Nothing required', count($model->errors))->equals(1);
-        });
+            $this->assertEquals(1, count($model->errors));
+        //});
 
-        $this->specify('validate invalid integer data', function () {
+        //$this->specify('validate invalid integer data', function () {
 
             $model = new TransferCandidate;
             $model->transfer_id = 'transfer_id';
@@ -72,14 +72,14 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $model->currency_code = "KWD";
             $model->validate();
 
-            expect('invalid transfer_id', $model->errors)->hasKey('transfer_id');
-            expect('invalid candidate_id', $model->errors)->hasKey('candidate_id');
-            expect('invalid store_id', $model->errors)->hasKey('store_id');
-            expect('invalid company_id', $model->errors)->hasKey('company_id');
-            expect('invalid Values', count($model->errors))->equals(4);
-        });
+            $this->assertArrayHasKey('transfer_id', $model->errors);
+            $this->assertArrayHasKey('candidate_id', $model->errors);
+            $this->assertArrayHasKey('store_id', $model->errors);
+            $this->assertArrayHasKey('company_id', $model->errors);
+            $this->assertEquals(4, count($model->errors));
+        //});
 
-        $this->specify('validate invalid email data', function () {
+        //$this->specify('validate invalid email data', function () {
 
             $model = new TransferCandidate;
             $model->currency_code = "KWD";
@@ -90,10 +90,10 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $model->currency_code = "KWD";
             $model->company_email = 'email';
             $model->validate();
-            expect('invalid email', $model->errors)->hasKey('company_email');
-        });
+            $this->assertArrayHasKey('company_email', $model->errors);
+        //});
 
-       /* $this->specify('validate invalid data length', function () {
+       /* //$this->specify('validate invalid data length', function () {
 
             $storeName = 'StoreNameStoreNameStoreNameStoreNameStoreNameStoreNameStoreNameStoreNameStoreName';
             $storeName .= 'StoreNameStoreNameStoreNameStoreNameStoreNameStoreNameStoreNameStoreNameStoreName';
@@ -112,9 +112,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $model->validate();
            // expect('invalid store_name Length', $model->errors)->hasKey('store_name');
             expect('invalid company_name Length', $model->errors)->hasKey('company_name');
-        });*/
+        //});*/
 
-        $this->specify('validate invalid number value', function () {
+        //$this->specify('validate invalid number value', function () {
 
             $model = new TransferCandidate;
             $model->currency_code = "KWD";
@@ -134,14 +134,14 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
             $model->validate();
 
-            expect('invalid hours Length', $model->errors)->hasKey('hours');
-            expect('invalid transfer_cost Length', $model->errors)->hasKey('transfer_cost');
-            expect('invalid bonus Length', $model->errors)->hasKey('bonus');
-            expect('invalid candidate_hourly_rate data type', $model->errors)->hasKey('candidate_hourly_rate');
-            expect('invalid company_hourly_rate data type', $model->errors)->hasKey('company_hourly_rate');
-        });
+            $this->assertArrayHasKey('hours', $model->errors);
+            $this->assertArrayHasKey('transfer_cost', $model->errors);
+            $this->assertArrayHasKey('bonus', $model->errors);
+            $this->assertArrayHasKey('candidate_hourly_rate', $model->errors);
+            $this->assertArrayHasKey('company_hourly_rate', $model->errors);
+        //});
 
-        $this->specify('validate non-existing data like candidate_id,transfer_id..', function () {
+        //$this->specify('validate non-existing data like candidate_id,transfer_id..', function () {
 
             $model = new TransferCandidate;
             $model->currency_code = "KWD";
@@ -161,15 +161,15 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
             $model->validate();
 
-            expect('invalid transfer_id', $model->errors)->hasKey('transfer_id');
-            expect('invalid candidate_id', $model->errors)->hasKey('candidate_id');
-            expect('invalid store_id', $model->errors)->hasKey('store_id');
-            expect('invalid company_id', $model->errors)->hasKey('company_id');
+            $this->assertArrayHasKey('transfer_id', $model->errors);
+            $this->assertArrayHasKey('candidate_id', $model->errors);
+            $this->assertArrayHasKey('store_id', $model->errors);
+            $this->assertArrayHasKey('company_id', $model->errors);
 
-            expect('error count', count($model->errors))->equals(4);
-        });
+            $this->assertEquals(4, count($model->errors));
+        //});
 
-        $this->specify('validate valid and existing data', function () {
+        //$this->specify('validate valid and existing data', function () {
 
             $model = new TransferCandidate;
             $model->currency_code = "KWD";
@@ -188,8 +188,8 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             $model->company_hourly_rate = '2.0';
 
             $model->validate();
-            expect('error count', count($model->errors))->equals(0);
-        });
+            $this->assertEquals(0, count($model->errors));
+        //});
     }
 
     /**
@@ -197,9 +197,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      *
     public function testTotalPaidToCandidate()
     {
-        $this->specify('fixture data load test', function () {
-            expect('if data exist', TransferCandidate::find()->count())->greaterThan(0);
-        });
+        //$this->specify('fixture data load test', function () {
+            $this->assertGreaterThan(0, TransferCandidate::find()->count());
+        //});
 
         $transferCandidateID = 1;
         $transferCandidateData = TransferCandidate::findOne($transferCandidateID);
@@ -209,7 +209,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             (($transferCandidateData->candidate_hourly_rate / 3600) * $transferCandidateData->seconds) +
             $transferCandidateData->bonus - $transferCandidateData->bonus_commission;
 
-        expect('validate paid to candidate data ', $transferCandidateData->getTotalPaidToCandidate())->equals($output);
+        $this->assertEquals($output, $transferCandidateData->getTotalPaidToCandidate());
     }*/
 
     /**
@@ -217,9 +217,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      *
     public function testTotalPaidByCompany()
     {
-        $this->specify('fixture data load test', function () {
-            expect('if data exist', TransferCandidate::findOne(1))->notNull();
-        });
+        //$this->specify('fixture data load test', function () {
+            $this->assertNotNull(TransferCandidate::findOne(1));
+        //});
 
         $transferCandidateID = 1;
         $transferCandidateData = TransferCandidate::findOne($transferCandidateID);
@@ -228,7 +228,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
             + (($transferCandidateData->company_hourly_rate / 60) * $transferCandidateData->minutes)
             + (($transferCandidateData->company_hourly_rate / 3600) * $transferCandidateData->seconds)
             + $transferCandidateData->bonus + $transferCandidateData->transfer_cost;
-        expect('validate paid to candidate data ', $transferCandidateData->getTotalPaidByCompany())->equals($output);
+        $this->assertEquals($output, $transferCandidateData->getTotalPaidByCompany());
     }*/
 
     /**
@@ -236,9 +236,9 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      *
     public function testProfit()
     {
-        $this->specify('fixture data load test', function () {
-            expect('if data exist', TransferCandidate::findOne(1))->notNull();
-        });
+        //$this->specify('fixture data load test', function () {
+            $this->assertNotNull(TransferCandidate::findOne(1));
+        //});
 
         $transferCandidateID = 1;
         $transferCandidateData = TransferCandidate::findOne($transferCandidateID);
@@ -255,7 +255,7 @@ class TransferCandidateTest extends \Codeception\Test\Unit
 
         //$TransferCost = '.350';
         $profit = round($CompanyTotal - $PaidToCandidate, 3);//- $TransferCost
-        expect('validate profit value ', round($transferCandidateData->getProfit(), 3))->equals($profit);
+        $this->assertEquals($profit, round($transferCandidateData->getProfit(), 3));
     }*/
 
     /**
@@ -263,12 +263,12 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     public function testGetPayableCandidateListFormat() {
 
-        $this->specify('fixture data load test & test to check payable amount is with 3 digit after point', function () {
+        //$this->specify('fixture data load test & test to check payable amount is with 3 digit after point', function () {
 
             $transferCandidateData = TransferCandidate::getPayableCandidateListFormat();
 
             if ($transferCandidateData && count($transferCandidateData['candidate_list']) >0 ) {
-                expect('if data exist', count($transferCandidateData['candidate_list']))->greaterThan(0);
+                $this->assertGreaterThan(0, count($transferCandidateData['candidate_list']));
 
                 $testingData = $transferCandidateData['candidate_list'][0];
 
@@ -276,13 +276,13 @@ class TransferCandidateTest extends \Codeception\Test\Unit
                 list($whole, $decimal) = explode('.', $testingData['amount']);
                 list($whole1, $decimal1) = explode('.', $transferCandidateData['total_amount']);
 
-                expect('length should be 3', strlen($decimal))->equals(3);
-                expect('length should be 3', strlen($decimal1))->equals(3);
-                expect('with comma test case', strpos('11,11', ','))->equals(2);
-                expect('no comma in first value', strpos($whole, ','))->false();
-                expect('no comma in first value', strpos($whole1, ','))->false();
+                $this->assertEquals(3, strlen($decimal));
+                $this->assertEquals(3, strlen($decimal1));
+                $this->assertEquals(2, strpos('11,11', ','));
+                $this->assertFalse(strpos($whole, ','));
+                $this->assertFalse(strpos($whole1, ','));
             }
-        });
+        //});
     }
 
     /**
@@ -290,12 +290,12 @@ class TransferCandidateTest extends \Codeception\Test\Unit
      */
     public function testToCheckNotAbleToEditTransferBankAfterPaid() {
 
-        $this->specify('unit test to check if transfer is paid then bank detail should not be editable', function () {
+        //$this->specify('unit test to check if transfer is paid then bank detail should not be editable', function () {
             $transfer = TransferCandidate::findOne(['paid'=>TransferCandidate::PAID]);
 
             $transfer->bank_id = 2;
-            expect('validation error',$transfer->validate())->false();
-            expect('error msg',$transfer->getErrors())->hasKey('bank_id');
-        });
+            $this->assertFalse($transfer->validate());
+            $this->assertArrayHasKey('bank_id', $transfer->getErrors());
+        //});
     }
 }

@@ -35,28 +35,28 @@ class StoreTest extends \Codeception\Test\Unit {
      * test case for validate required fields
      */
     public function testValidatorRequired() {
-        $this->specify('Fixtures Data loaded Test', function() {
-            expect('table data is in the table', Store::find()->one())->notNull();
-        });
+        //$this->specify('Fixtures Data loaded Test', function() {
+            $this->assertNotNull(Store::find()->one());
+        //});
 
-        $this->specify('model should not accept empty required fields', function () {
+        //$this->specify('model should not accept empty required fields', function () {
             $model = new Store();
             $model->validate();
-            expect('store name is required', $model->errors)->hasKey('store_name');
-            expect('store location is required', $model->errors)->hasKey('store_location');
-        });
+            $this->assertArrayHasKey('store_name', $model->errors);
+            $this->assertArrayHasKey('store_location', $model->errors);
+        //});
 
-        $this->specify('model Data Type fields test', function () {
+        //$this->specify('model Data Type fields test', function () {
             $model = new Store();
             $model->store_name = 'GR Outlets';
             $model->company_id = "Company Name";
             $model->store_status = 'Store Status';
             $model->validate();
-            expect('company id should accept only integer', $model->errors)->hasKey('company_id');
-            expect('store status should accept only integer', $model->errors)->hasKey('store_status');
-        });
+            $this->assertArrayHasKey('company_id', $model->errors);
+            $this->assertArrayHasKey('store_status', $model->errors);
+        //});
 
-        $this->specify('model foreign key fields test', function () {
+        //$this->specify('model foreign key fields test', function () {
             $model = new Store();
 
             $model->store_manager_uuid = 2113123132;
@@ -64,17 +64,17 @@ class StoreTest extends \Codeception\Test\Unit {
             $model->mall_uuid = 2113123132;
 
             $model->validate();
-            expect('should not accept random value for store_manager_uuid', $model->errors)->hasKey('store_manager_uuid');
-            expect('should not accept random value for brand_uuid', $model->errors)->hasKey('brand_uuid');
-            expect('should not accept random value for mall_uuid', $model->errors)->hasKey('mall_uuid');
-        });
+            $this->assertArrayHasKey('store_manager_uuid', $model->errors);
+            $this->assertArrayHasKey('brand_uuid', $model->errors);
+            $this->assertArrayHasKey('mall_uuid', $model->errors);
+        //});
     }
 
     /**
      * test case for validate length
      */
     public function testValidatorLength() {
-        $this->specify('model Data Type fields test', function () {
+        //$this->specify('model Data Type fields test', function () {
             $StoreName = 'GR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR Outlets';
             $StoreName .= 'GR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR Outlets';
             $StoreName .= 'GR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR OutletsGR Outlets';
@@ -82,24 +82,23 @@ class StoreTest extends \Codeception\Test\Unit {
             $model = new Store();
             $model->validate();
             $model->store_name = $StoreName;
-            expect('store name should only accept less then equal to 255', $model->errors)->hasKey('store_name');
-        });
+            $this->assertArrayHasKey('store_name', $model->errors);
+        //});
     }
 
     /**
      * Test case for soft Delete
     public function testSoftDelete() {
-        $this->specify('Store check record exist', function () {
-            expect('store record is in the table', Store::findOne(['store_id' => 2])
-            )->notNull();
-        });
+        //$this->specify('Store check record exist', function () {
+            $this->assertNotNull(Store::findOne(['store_id' => 2]));
+        //});
 
-        $this->specify('Soft delete Testing', function () {
+        //$this->specify('Soft delete Testing', function () {
             $model = Store::findOne(['store_id' => 2]);
             $model->deleted = 1;
-            expect('updated successfully', $model->save())->true();
-            expect('checking is soft delete Record updated in database', $model->findOne(['store_id' => 2]))->null();
-        });
+            $this->assertTrue($model->save());
+            $this->assertNull(Store::findOne(['store_id' => 2]));
+        //});
     } */
 
     /**
@@ -107,7 +106,7 @@ class StoreTest extends \Codeception\Test\Unit {
      */
     public function testValidatorValidCompany() {
 
-        $this->specify('Testing Invalid Company', function () {
+        //$this->specify('Testing Invalid Company', function () {
             $model = new Store();
             $model->company_id = 1; // company id 1 has Sub Company
             $model->store_name = 'New Store';
@@ -117,8 +116,8 @@ class StoreTest extends \Codeception\Test\Unit {
             $model->store_updated_at = '2017-02-23 18:04:42';
             $model->deleted = '0';
             $model->validate();
-            expect('error count', count($model->errors))->equals(1);
-            expect('sub company error case ', $model->errors)->hasKey('company_id');
-        });
+            $this->assertEquals(1, count($model->errors));
+            $this->assertArrayHasKey('company_id', $model->errors);
+        //});
     }
 }

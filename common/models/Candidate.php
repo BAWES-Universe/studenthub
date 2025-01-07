@@ -138,7 +138,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license','candidate_mom_kuwaiti'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video', 'candidate_video_job_id'], 'string', 'max' => 255],
+            [['candidate_name','candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video', 'candidate_video_job_id'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
@@ -2374,7 +2374,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return true;
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
@@ -2432,7 +2432,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
@@ -3314,8 +3314,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $query = Candidate::find()
             ->andWhere(['candidate_email_verification' => true])
             ->verifiedProfile()
-            ->candidateMomKuwaitiFieldIsNull()
-            ->all();
+            ->candidateMomKuwaitiFieldIsNull();
+            //->all();
 
         foreach ($query->batch(100) as $candidates) {
 

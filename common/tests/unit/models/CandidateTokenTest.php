@@ -44,18 +44,18 @@ class CandidateTokenTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Token is in the table', CandidateToken::findOne(['candidate_id'=>'1']))->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(CandidateToken::findOne(['candidate_id'=>'1']));
+        //});
 
-        $this->specify('Test Validator', function() {
+        //$this->specify('Test Validator', function() {
             $model = new CandidateToken();
             $model->validate();
-            expect('Candidate_id required error',$model->errors)->hasKey('candidate_id');
-            expect('token_value required error',$model->errors)->hasKey('token_value');
-            expect('token_status required error',$model->errors)->hasKey('token_status');
-            expect('total 3 errors',count($model->errors))->equals(3);
-        });
+            $this->assertEquals(isset($model->errors['candidate_id']),true);
+            $this->assertEquals(isset($model->errors['token_value']),true);
+            $this->assertEquals(isset($model->errors['token_status']),true);
+            $this->assertEquals(count($model->errors),3);
+        //});
     }
 
     /**
@@ -64,20 +64,20 @@ class CandidateTokenTest extends \Codeception\Test\Unit
      */
     public function testGenerateToken()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Token is in the table', CandidateToken::findOne(['candidate_id'=>'1']))->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(CandidateToken::findOne(['candidate_id'=>'1']));
+        //});
 
 
-        $this->specify('Test existing Token', function() {
-            expect('unique token string',strlen(CandidateToken::generateUniqueTokenString()))->greaterThan(31);
-        });
+        //$this->specify('Test existing Token', function() {
+            $this->assertGreaterThan(31,strlen(CandidateToken::generateUniqueTokenString()));
+        //});
 
-        $this->specify('relation testing', function() {
+        //$this->specify('relation testing', function() {
             
             $candidate_email = CandidateToken::findOne(['candidate_id'=>'1'])->candidate->candidate_email;
            
-            expect('relative data testing', $candidate_email)->equals($this->tester->grabFixture('candidates', 'candidate0')->candidate_email);
-        });
+            $this->assertEquals($candidate_email,$this->tester->grabFixture('candidates', 'candidate0')->candidate_email);
+        //});
     }
 }

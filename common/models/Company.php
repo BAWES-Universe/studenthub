@@ -716,7 +716,7 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('commercial_licence', Yii::t('app', 'Image not available to save.'));
+            $this->addError('commercial_licence', Yii::t('app', $e->getMessage() . ': Image not available to save.'));//
 
             return false;
         }
@@ -762,7 +762,7 @@ class Company extends \yii\db\ActiveRecord
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 
@@ -774,7 +774,7 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('commercial_licence', Yii::t('app', 'Image not available to save.'));
+            $this->addError('commercial_licence', Yii::t('app', $e->getMessage() . ': Image not available to save.'));
 
             return false;
         }
@@ -795,7 +795,7 @@ class Company extends \yii\db\ActiveRecord
                 return Yii::$app->cloudinaryManager->delete($path . $this->commercial_licence);
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 
@@ -814,20 +814,20 @@ class Company extends \yii\db\ActiveRecord
      */
     public function updateCompanyLogo() {
 
-        try {
+        //try {
 
             $url = Yii::$app->temporaryBucketResourceManager->getUrl($this->company_logo);
 
             return $this->setCompanyLogo($url);
 
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+            $this->addError('company_logo', Yii::t('app', $e->getMessage(). ': Image not available to save.'));
 
             return false;
-        }
+        }*/
     }
 
     /**
@@ -844,7 +844,7 @@ class Company extends \yii\db\ActiveRecord
             $this->deleteProfilePhotoFromCloudinary();
         }
 
-        try {
+        //try {
             $path = (YII_ENV == 'prod') ?  "company-logo/" : "dev/company-logo/";
 
             $result = Yii::$app->cloudinaryManager->upload(
@@ -870,7 +870,7 @@ class Company extends \yii\db\ActiveRecord
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        /*} catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 
@@ -882,10 +882,10 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+            $this->addError('company_logo', Yii::t('app', $e->getMessage(). ': Image not available to save.'));
 
             return false;
-        }
+        }*/
     }
 
     /**
@@ -904,7 +904,7 @@ class Company extends \yii\db\ActiveRecord
                 return Yii::$app->cloudinaryManager->delete($path . $this->company_logo);
             }
             
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 

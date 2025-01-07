@@ -54,48 +54,48 @@ class TransferTest extends \Codeception\Test\Unit
 
     public function testValidations()
     {
-        $this->specify('Transfer model : Company ID validation', function () {
+        //$this->specify('Transfer model : Company ID validation', function () {
             $model = new Transfer();
 
             $model->company_id = 'test';
-            expect('passing random string', $model->validate(['company_id']))->false();
+            $this->assertFalse($model->validate(['company_id']));
 
             $model->company_id = 1;
-            expect('passing valid company id', $model->validate(['company_id']))->true();
+            $this->assertTrue($model->validate(['company_id']));
 
             $model->company_id = 9999;
-            expect('passing invalid company id', $model->validate(['company_id']))->false();
-        });
+            $this->assertFalse($model->validate(['company_id']));
+        //});
 
-        $this->specify('Transfer model : Transfer status ID validation', function () {
+        //$this->specify('Transfer model : Transfer status ID validation', function () {
             $model = new Transfer();
 
             $model->transfer_status = Transfer::STATUS_INITIATED;
-            expect('passing valid transfer status', $model->validate(['transfer_status']))->true();
+            $this->assertTrue($model->validate(['transfer_status']));
 
             $model->transfer_status = 99;
-            expect('passing invalid transfer status', $model->validate(['transfer_status']))->false();
-        });
+            $this->assertFalse($model->validate(['transfer_status']));
+        //});
 
-        $this->specify('Transfer model : Transfer total validation', function () {
+        //$this->specify('Transfer model : Transfer total validation', function () {
             $model = new Transfer();
 
             $model->total = 43.56;
-            expect('passing valid transfer total', $model->validate(['total']))->true();
+            $this->assertTrue($model->validate(['total']));
 
             $model->total = 'test';
-            expect('passing invalid transfer total', $model->validate(['total']))->false();
-        });
+            $this->assertFalse($model->validate(['total']));
+        //});
 
-        $this->specify('Transfer model : Transfer company total validation', function () {
+        //$this->specify('Transfer model : Transfer company total validation', function () {
             $model = new Transfer();
 
             $model->company_total = 43.56;
-            expect('passing valid transfer company total', $model->validate(['company_total']))->true();
+            $this->assertTrue($model->validate(['company_total']));
 
             $model->company_total = 'test';
-            expect('passing invalid transfer company total', $model->validate(['company_total']))->false();
-        });
+            $this->assertFalse($model->validate(['company_total']));
+        //});
     }
 
 //    public function testSaveTransfer() {

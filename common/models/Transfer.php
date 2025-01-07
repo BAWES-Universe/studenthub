@@ -854,6 +854,7 @@ class Transfer extends ActiveRecord
         $model->company_id = $this->company_id;
         $model->store_id = $transferCandidate->store_id;
         $model->type = CandidateNotification::TYPE_TRANSFER_INIT;
+        $model->appeal_uuid = null;
         if (!$model->save()) {
             Yii::error("Error saving notification: " . print_r($model->errors, true));
         }

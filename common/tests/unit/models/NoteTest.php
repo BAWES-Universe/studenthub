@@ -33,35 +33,35 @@ class NoteTest extends \Codeception\Test\Unit
     {
         $data = new Note();
         $data->note_text = null;
-        expect('note note_text should be required field', $data->validate(['note_text']))->false();
+        $this->assertFalse($data->validate(['note_text']), "Note Text is not valid");
 
         $data->candidate_id = '123123123';
         $data->request_uuid = '123123123';
         $data->company_id = '123123123';
         $data->created_by = '123123123';
         $data->updated_by = '123123123';
-        expect('Invalid Company id', $data->validate(['company_id']))->false();
-        //expect('Invalid staff id', $data->validate(['created_by']))->false();
-        //expect('Invalid staff id', $data->validate(['updated_by']))->false();
-        expect('Invalid request id', $data->validate(['request_uuid']))->false();
-        expect('Invalid candidate id', $data->validate(['candidate_id']))->false();
+        $this->assertFalse($data->validate(['company_id']), "Company ID is not valid");
+        //$this->assertFalse($data->validate(['created_by']), "Created By is not valid");
+        //$this->assertFalse($data->validate(['updated_by']), "Updated By is not valid");
+        $this->assertFalse($data->validate(['request_uuid']), "Request UUID is not valid");
+        $this->assertFalse($data->validate(['candidate_id']), "Candidate ID is not valid");
 
         $data->request_checklist_uuid = 'random string';
-        expect('Invalid request_checklist_uuid', $data->validate(['request_checklist_uuid']))->false();
+        $this->assertFalse($data->validate(['request_checklist_uuid']), "Request Checklist UUID is not valid");
 
         $data->invitation_uuid = 'random string';
-        expect('Invalid invitation_uuid', $data->validate(['invitation_uuid']))->false();
+        $this->assertFalse($data->validate(['invitation_uuid']), "Invitation UUID is not valid" );
 
         $data->suggestion_uuid = 'random string';
-        expect('Invalid suggestion_uuid', $data->validate(['suggestion_uuid']))->false();
+        $this->assertFalse($data->validate(['suggestion_uuid']), "Suggestion UUID is not valid");
 
         $data->note_type = 'random string';
-        expect('Invalid note_type', $data->validate(['note_type']))->false();
+        $this->assertFalse($data->validate(['note_type']), "Note Type is not valid");
 
         $data->contact_uuid = 'random string';
-        expect('Invalid contact_uuid', $data->validate(['contact_uuid']))->false();
+        $this->assertFalse($data->validate(['contact_uuid']), "Contact UUID is not valid"   );
 
         $data->fulltimer_uuid = 'random string';
-        expect('Invalid fulltimer_uuid', $data->validate(['fulltimer_uuid']))->false();
+        $this->assertFalse($data->validate(['fulltimer_uuid']), "Fulltimer UUID is not valid");
     }
 }

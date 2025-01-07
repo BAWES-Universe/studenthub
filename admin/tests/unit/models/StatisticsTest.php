@@ -34,11 +34,11 @@ class StatisticsTest extends \Codeception\Test\Unit
      */
     public function testStatisticsFixtureLoaded()
     {
-        expect('Company is in the table', Company::findOne(['company_id' => 1]))->notNull();
-        expect('Store is in the table', Store::find()->one())->notNull();
-        expect('Candidate is in the table', Candidate::find()->one())->notNull();
-        expect('Transfer is in the table', Transfer::find()->one())->notNull();
-        expect('Transfer Candidate is in the table', TransferCandidate::find()->one())->notNull();
+        $this->assertNotNull(Company::findOne(['company_id' => 1]));
+        $this->assertNotNull(Store::find()->one());
+        $this->assertNotNull(Candidate::find()->one());
+        $this->assertNotNull(Transfer::find()->one());
+        $this->assertNotNull(TransferCandidate::find()->one());
     }
 
     /**
@@ -65,7 +65,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ])
             ->count();
 
-        expect('Total payable candidate', $totalPayableCandidate)->equals($payableDetail['payable']);
+        $this->assertEquals($totalPayableCandidate, $payableDetail['payable']);
     }
 
     /**
@@ -91,7 +91,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ])
             ->sum('candidate_total');//(candidate_hourly_rate * hours) + bonus - bonus_commission
 
-        expect('Total payable amount to candidate', $totalPayable)->equals($payableDetail['amount']);
+        $this->assertEquals($totalPayable, $payableDetail['amount']);
     }
 
     /**
@@ -103,7 +103,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ->andWhere(['candidate.deleted' => 0])
             ->count();
 
-        expect('Total candidates', $totalCandidate)->equals(Candidate::candidateCountByCondition());
+        $this->assertEquals($totalCandidate, Candidate::candidateCountByCondition());
     }
 
     /**
@@ -120,7 +120,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ->andWhere(new Expression("store.store_id IS NOT null"))
             ->count();
 
-        expect('Total assigned candidates', $totalAssignedToWork)->equals(Candidate::candidateCountByCondition('assigned'));
+        $this->assertEquals($totalAssignedToWork, Candidate::candidateCountByCondition('assigned'));
     }
 */
     /**
@@ -135,7 +135,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ])
             ->count();
 
-        expect('Total approved candidates', $approved)->equals(Candidate::candidateCountByCondition('approved'));
+        $this->assertEquals($approved, Candidate::candidateCountByCondition('approved'));
     }
 
     /**
@@ -152,8 +152,7 @@ class StatisticsTest extends \Codeception\Test\Unit
             ])
             ->count();
 
-        expect('Total locked transfer', $locked)
-            ->equals((isset($lockedTransfers['total'])) ? (int)$lockedTransfers['total'] : 0);
+        $this->assertEquals($locked, (isset($lockedTransfers['total'])) ? (int)$lockedTransfers['total'] : 0);
     }*/
 
     /**
@@ -170,7 +169,6 @@ class StatisticsTest extends \Codeception\Test\Unit
             ])
             ->count();
 
-        expect('Total "Payment Sent" transfer', $paymentSent)
-                ->equals((isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0);
+        $this->assertEquals($paymentSent, (isset($paymentSentTransfers['total']))? (int)$paymentSentTransfers['total'] : 0);
     }
 }

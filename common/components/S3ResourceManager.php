@@ -2,6 +2,7 @@
 
 namespace common\components;
 
+use Aws;
 use Aws\Credentials\CredentialProvider;
 use Yii;
 use Aws\S3\S3Client;
@@ -276,7 +277,8 @@ class S3ResourceManager extends Component
             }
 
             // Create S3 client instance
-            $this->_client = S3Client::factory($factoryParams);
+           // $this->_client = S3Client::factory($factoryParams);
+            $this->_client = new S3Client($factoryParams);
         }
         return $this->_client;
     }

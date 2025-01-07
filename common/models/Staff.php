@@ -610,7 +610,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'common');
 
@@ -642,7 +642,7 @@ class Staff extends ActiveRecord implements IdentityInterface
                 $this->addError('staff_photo', Yii::t('app', 'Image not available to save.'));
                 return false;
             }
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'common');
 

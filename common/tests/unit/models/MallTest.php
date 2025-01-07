@@ -27,17 +27,15 @@ class MallTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Check mall loaded',
-                Mall::find()->one()
-            )->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(Mall::find()->one());
+        //});
 
-        $this->specify('Admin model fields validation', function () {
+        //$this->specify('Admin model fields validation', function () {
             $admin = new Mall();
-            expect('should not accept empty name english', $admin->validate(['mall_name_en']))->false();
-            expect('should not accept empty name arabic', $admin->validate(['mall_name_ar']))->false();
-        });
+            $this->assertFalse($admin->validate(['mall_name_en']));
+            $this->assertFalse($admin->validate(['mall_name_ar']));
+        //});
     }
 
     /**
@@ -45,20 +43,20 @@ class MallTest extends \Codeception\Test\Unit
      */
     public function testCrud()
     {
-        $this->specify('Create New Admin', function () {
+        //$this->specify('Create New Admin', function () {
             $model = new Mall();
             $model->mall_name_en = 'BigBazar';
             $model->mall_name_ar = 'بيج بازار';
-            expect('Created successfully', $model->save())->true();
-            expect('Record is in database', $model->findOne(['mall_name_en' => 'BigBazar']))->notNull();
-        });
+            $this->assertTrue($model->save());
+            $this->assertNotNull($model->findOne(['mall_name_en' => 'BigBazar']));
+        //});
 
-        $this->specify('Update university Data', function() {
+        //$this->specify('Update university Data', function() {
             $model = Mall::find()->one();
             $model->mall_name_en = 'Matro';
             $model->mall_name_ar = 'فقط';
-            expect('updated successfully', $model->save())->true();
-            expect('Updated Record is in database', $model->findOne(['mall_name_en' => 'Matro']))->notNull();
-        });
+            $this->assertTrue($model->save());
+            $this->assertNotNull($model->findOne(['mall_name_en' => 'Matro']));
+        //});
     }
 }

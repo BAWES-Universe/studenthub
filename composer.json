@@ -32,7 +32,8 @@
         "spatie/browsershot": "^3.52",
         "segmentio/analytics-php": "^3.0",
         "yiisoft/yii2-redis": "^2.0.17",
-        "xeroapi/xero-php-oauth2": "^7.0"
+        "xeroapi/xero-php-oauth2": "^7.0",
+        "yiisoft/yii2-symfonymailer": "^4.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "^2.1",
