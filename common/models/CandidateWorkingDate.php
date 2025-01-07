@@ -173,7 +173,7 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
      */
     public function getLatestCandidateWorkingHour($modelClass = "\common\models\CandidateWorkingHour")
     {
-        return $this->getCandidateWorkingHours($modelClass::class);
+        return $this->getCandidateWorkingHours($modelClass::className());
     }
 
     /**

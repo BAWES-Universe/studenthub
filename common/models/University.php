@@ -140,7 +140,7 @@ class University extends \yii\db\ActiveRecord
      */
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany($modelClass::class,['university_id'=>'university_id']);
+        return $this->hasMany($modelClass::className(),['university_id'=>'university_id']);
     }
 
     /**

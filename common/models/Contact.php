@@ -519,7 +519,7 @@ class Contact extends \yii\db\ActiveRecord
      * @param type $length
      * @return type
      */
-    public function generateUniqueRandomString($attribute, $length = 32) {
+    public function generateUniqueRandomString(string $attribute, $length = 32) {
         $min = pow(10, $length - 1);
         $max = pow(10, $length) - 1;
         $randomString = mt_rand($min, $max);

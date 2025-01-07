@@ -3,31 +3,31 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost:8889;dbname=studenthub',
+            'dsn' => 'mysql:host=192.168.1.5:8889;dbname=studenthub',
             'username' => 'root',
             'password' => 'root',
             'charset' => 'utf8',
         ],
+        'yeaster' => [
+            'class' => 'common\components\Yeaster',
+            "apiEndpoint" => "http://localhost:3001"
+        ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=wallet',
+            'dsn' => 'mysql:host=192.168.1.5:8889;dbname=wallet',
             'username' => 'root',
-            'password' => '',
+            'password' => 'root',
             'charset' => 'utf8',
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => 'localhost',
-            'port' => 6379,
+            'hostname' => '192.168.1.5',
+            'port' => 7777,//6379,
             'database' => 0,
         ],
         'cache' => [
             'class' => 'yii\redis\Cache',
             //'class' => 'yii\caching\FileCache',
-        ],
-        'yeaster' => [
-            'class' => 'common\components\Yeaster',
-            "apiEndpoint" => "http://localhost:3001"
         ],
         'xero' => [
             'class' => 'common\components\Xero',
@@ -73,10 +73,11 @@ return [
         ],
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            "sqsRagion" => "eu-west-2",
-            "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
-            "sqsSecret" => "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",
-            "sqsQueue" => "438663597141/StudenthubDev"
+            // "sqsRagion" => "eu-west-2",
+            // "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
+            //  "sqsSecret" => "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",
+            //  "sqsQueue" => "438663597141/StudenthubDev",
+            // "sqsEndpoint" => "http://localhost:3001"
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',

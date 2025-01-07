@@ -144,8 +144,8 @@ class TransferController extends Controller
                         $transferCandidate->transferFileEntry->credit_amount -
                         $transferCandidate->bonus + $transferCandidate->bonus_commission
                     ) / $transferCandidate->hours +
-                    ($transferCandidate->minutes / 60) +
-                    ($transferCandidate->seconds / 3600);
+                    ( (double) $transferCandidate->minutes / 60.0) +
+                    ( (double) $transferCandidate->seconds / 3600);
 
                 //- $transferCandidate['transfer_cost']
             }

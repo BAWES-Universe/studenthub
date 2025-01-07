@@ -1,165 +1,39 @@
+version: '3.8'
+
+networks:
+  studenthub-network:
+    driver: bridge
+
 services:
-  mysql:
-    image: mysql:5.7
-    restart: always
+  app:
+    build: .
+    container_name: studenthub-backend
+    command:
+    #  - ./init --env=Krushn --overwrite=All
+      - ./yii migrate
+    #  - sudo apt-get install -yq gconf-service libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
+
+    ports:
+      - "8080:80" #app endpoint
+      - "3001:3001" # Yeaster microservice
+      - "3306:3306" # mysql port
     volumes:
-      - mysql-data:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=12345
-      - MYSQL_DATABASE=studenthub
-      - MYSQL_USER=studenthubuser
-      - MYSQL_PASSWORD=12345
-    entrypoint:
-      sh -c "echo 'CREATE DATABASE IF NOT EXISTS studenthub;CREATE DATABASE IF NOT EXISTS studenthub_test;CREATE DATABASE IF NOT EXISTS wallet;' > /docker-entrypoint-initdb.d/init.sql;
-        /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+      - .:/var/www/html
+    depends_on:
+      - redis
+    networks:
+      - studenthub-network
 
   redis:
     image: redis:6.2.3
+    ports:
+      - "7777:7777"
+    networks:
+      - studenthub-network
+    command:
+      - redis-server --port 7777
     volumes:
       - redis-data:/data
 
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    #ports:
-    #  - 8080:8080
-    environment:
-      - PMA_HOST=mysql
-      - PMA_PORT=8888
-    depends_on:
-      - "mysql"
-
-  # Start container to install composer deps and kill after
-  composer-deps:
-    build: admin
-    command: composer install
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-
-  # Start container to init dev environment and kill after
-  init-environment:
-    build: admin
-    command: ./init --env=Development --overwrite=All
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "composer-deps"
-
-  # Start container to run db migrations and kill after
-  db-migration:
-    build: admin
-    command: bash -c "sleep 20 && ./yii migrate --interactive=0 && ./yii_test migrate --interactive=0"
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "init-environment"
-      - "mysql"
-      - "redis"
-      - "composer-deps"
-
-  # Load fixture data
-  load-fixture:
-    build: admin
-    command: bash -c "sleep 20 && ./yii fixture/load '*' --interactive=0"
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "db-migration"
-
-  cron:
-    build: admin
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "load-fixture"
-
-  admin:
-    build: admin
-    ports:
-      - 21080:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "load-fixture"
-
-  candidate:
-    build: candidate
-    ports:
-      - 22080:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "load-fixture"
-
-  company:
-    build: company
-    ports:
-      - 23080:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "load-fixture"
-
-  inspector:
-    build: inspector
-    ports:
-      - 24080:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "load-fixture"
-
-  staff:
-    build: staff
-    ports:
-      - 25080:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "load-fixture"
-
-  verification:
-    build: verification
-    ports:
-      - 26080:80
-    volumes:
-      # Re-use local composer cache via host-volume
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      # Mount source-code for development
-      - ./:/app
-    depends_on:
-      - "load-fixture"
-
 volumes:
-  mysql-data:
   redis-data:

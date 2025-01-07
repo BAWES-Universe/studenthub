@@ -5,6 +5,7 @@ paths:
     log: tests/_output
     data: tests/_data
     helpers: tests/_support
+    output: tests/_output
 bootstrap: _bootstrap.php
 settings:
     colors: true

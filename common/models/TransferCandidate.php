@@ -262,15 +262,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
         };
         
         $fields['bonus_commission'] = function ($model) {
-            return (double)$this->bonus_commission;
+            return (double) $this->bonus_commission;
         };
         
         $fields['candidate_bonus'] = function ($model) {
-            return $this->bonus - $this->bonus_commission;
+            return (double) $this->bonus - (double) $this->bonus_commission;
         };
         
         $fields['transfer_cost'] = function ($model) {
-            return (double)$this->transfer_cost;
+            return (double) $this->transfer_cost;
         };
 
         $fields['candidate_hourly_rate'] = function ($model) {
@@ -639,7 +639,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getProfit()
     {
-        return $this->company_total - $this->candidate_total;
+        return (double) $this->company_total - (double) $this->candidate_total;
         //(($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) + $this->transfer_cost
         //    + $this->bonus_commission;
     }

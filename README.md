@@ -31,6 +31,11 @@ Detailed documentation is available in the `docs/` directory:
 - Access backend container: `docker-compose exec backend bash`
 - Code generator: http://localhost:8888/bawes/studenthub/admin/web/gii
 
+## allow access from docker to local mysql server 
+
+`GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.5' IDENTIFIED BY 'root' WITH GRANT OPTION;`
+
+
 ## License
 
 Proprietary software. All rights reserved.
