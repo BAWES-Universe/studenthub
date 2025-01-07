@@ -99,6 +99,17 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
             $model->getCandidate
         };*/
 
+        $fields['isWorking']= function ($model) {
+            return \candidate\models\CandidateWorkingHour::find()
+                ->andWhere(['date' => $this->date])
+                ->andWhere([
+                    'candidate_id' => $this->candidate_id,
+                    "store_id" => $this->store_id
+                ])
+                ->andWhere(new Expression("end_time IS NULL"))
+                ->exists();
+        };
+
         $fields['health'] = function ($model) {
             $health = \candidate\models\CandidateWorkingHour::find()
                 ->andWhere(['date' => $this->date])

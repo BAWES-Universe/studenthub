@@ -62,11 +62,11 @@ class Currency extends \yii\db\ActiveRecord
         };
 
         $fields['title'] = function($model) {
-            return mb_convert_encoding($model->title, 'UTF-8', 'UTF-8');
+            return $model->title? mb_convert_encoding($model->title, 'UTF-8', 'UTF-8'): $model->title;
         };
 
         $fields['currency_symbol'] = function($model) {
-            return mb_convert_encoding($model->currency_symbol, 'UTF-8', 'UTF-8');
+            return $model->currency_symbol? mb_convert_encoding($model->currency_symbol, 'UTF-8', 'UTF-8'): $model->currency_symbol;
         };
 
         return $fields;
