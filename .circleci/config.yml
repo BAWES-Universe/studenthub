@@ -9,11 +9,11 @@ jobs:
       only: 
         - master
         - develop
-        - kk/tech-766-upgrade-apps-aws-ec2-instances-to-use-latest-mysql-and-php #test upgrade 
+        - kk/tech-766-upgrade-apps-aws-ec2-instances-to-use-latest-mysql-and-php #test upgrade
 
     docker:
       # specify the version you desire here
-      - image: cimg/php:8.4.2
+      - image: cimg/php:8.2.27
         environment:
           PUPPETEER_SKIP_DOWNLOAD: true
 

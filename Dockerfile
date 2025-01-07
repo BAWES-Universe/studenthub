@@ -3,20 +3,38 @@ FROM php:8.2-apache
 
 # Install required PHP extensions
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
-    unzip \
-    git \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql zip opcache
+     libtool \
+     libfdk-aac-dev \
+     libass-dev \
+     libvpx-dev \
+     libopus-dev \
+     libx264-dev \
+     libpng-dev \
+     libjpeg-dev \
+     libfreetype6-dev \
+     libzip-dev \
+     unzip \
+     git \
+     ffmpeg \
+     && docker-php-ext-configure gd --with-freetype --with-jpeg \
+     && docker-php-ext-install gd pdo pdo_mysql zip opcache
+
+# Install PHP dependencies
+RUN pecl install ffmpeg \
+    && docker-php-ext-enable ffmpeg \
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Install Composer
+#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 # Set working directory in the container
 WORKDIR /var/www/html
+
+# Install FFMpeg PHP Library via Composer
+#COPY composer.json /var/www/html
+#RUN composer install
 
 # Copy application files to the container
 COPY . /var/www/html
