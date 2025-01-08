@@ -4,7 +4,7 @@ namespace common\components;
 
 use yii\httpclient\Client;
 
-class WalletManager
+class WalletManager extends \yii\base\Component
 {
     public $apiKey;
 

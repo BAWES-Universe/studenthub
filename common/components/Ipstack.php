@@ -7,7 +7,7 @@ use common\models\Currency;
 use GuzzleHttp\Exception\ClientException;
 use Yii;
 
-class Ipstack {
+class Ipstack extends \yii\base\Component {
 
     // Prefix to the IP cache object
 //    public $ipPrefix = "client_ip:";

@@ -7,7 +7,7 @@ use Algolia\AlgoliaSearch\SearchClient;
 /**
  * $result = Yii::$app->algolia->search('getstarted_actors', 'cat');
  */
-class Algolia {
+class Algolia extends \yii\base\Component {
     
     public $appId;
     

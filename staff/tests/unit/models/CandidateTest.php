@@ -35,18 +35,18 @@ class CandidateTest extends \Codeception\Test\Unit
         $model = Candidate::findOne(1);
         $model->password = 'x12345';
 
-        expect_that($model->sendWelcomeEmail());
+        $this->assertTrue($model->sendWelcomeEmail());
 
         // using Yii2 module actions to check email was sent
         $this->tester->seeEmailIsSent();
 
         $emailMessage = $this->tester->grabLastSentEmail();
-        expect('valid email is sent', $emailMessage)->isInstanceOf('yii\mail\MessageInterface');
-        expect($emailMessage->getTo())->hasKey($model->candidate_email);
-        expect($emailMessage->getFrom())->hasKey(Yii::$app->params['supportEmail']);
-        expect($emailMessage->getSubject())->equals('Welcome to the '.Yii::$app->name);
-        expect($emailMessage->toString())->contains($model->candidate_name);
-        expect($emailMessage->toString())->contains($model->candidate_email);
-        expect($emailMessage->toString())->contains('x12345');
+        $this->assertInstanceOf('yii\mail\MessageInterface', $emailMessage);
+        $this->assertContains($model->candidate_email, $emailMessage->getTo());
+        $this->assertContains(Yii::$app->params['supportEmail'], $emailMessage->getFrom());
+        $this->assertEquals('Welcome to the '.Yii::$app->name, $emailMessage->getSubject());
+        $this->assertContains($model->candidate_name, $emailMessage->toString());
+        $this->assertContains($model->candidate_email, $emailMessage->toString());
+        $this->assertContains('x12345', $emailMessage->toString());
     }*/
 }

@@ -44,8 +44,8 @@ class TransferTest extends \Codeception\Test\Unit
      */
     public function testFixturesHaveLoaded()
     {
-        expect('Transfer is in the table', Transfer::findOne(['transfer_id' => 1]))->notNull();
-        expect('Transfer Candidate is in the table', TransferCandidate::find()->one())->notNull();
+        $this->assertNotNull(Transfer::findOne(['transfer_id' => 1]));
+        $this->assertNotNull(TransferCandidate::find()->one());
     }
 
     /**
@@ -54,7 +54,7 @@ class TransferTest extends \Codeception\Test\Unit
     public function testMarkTransferAsPaymentSentFromLockedStatus()
     {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
-        expect('Mark as "Payment Sent" from "Locked" status', $transfer->paymentSent())->true();
+        $this->assertTrue($transfer->paymentSent());
     }
 
     /**
@@ -75,7 +75,7 @@ class TransferTest extends \Codeception\Test\Unit
     public function testCompanyCanLockATransferDraft()
     {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
-        expect('Mark as lock from "Initiated" status', $transfer->lock())->true();
+        $this->assertTrue($transfer->lock());
     }
 
     /**
@@ -94,13 +94,13 @@ class TransferTest extends \Codeception\Test\Unit
     public function testCompanyCantDeleteTransferWhichIsntADraft()
     {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
-        expect('Able to delete transfer having Draft/Initiated status', Transfer::deleteTransfer($transfer))->true();
+        $this->assertTrue(Transfer::deleteTransfer($transfer));
 
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
-        expect('Unable to delete transfer having Locked status', Transfer::deleteTransfer($transfer))->true();
+        $this->assertTrue(Transfer::deleteTransfer($transfer));
 
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
-        expect('Unable to delete transfer having Payment sent status', Transfer::deleteTransfer($transfer))->false();
+        $this->assertFalse(Transfer::deleteTransfer($transfer));
     }
 
     /**
@@ -110,7 +110,7 @@ class TransferTest extends \Codeception\Test\Unit
     {
         // Transfer Model Without Child Company ============================================
 
-        $this->specify('Transfer model without child company', function () {
+        //$this->specify('Transfer model without child company', function () {
 
             $transfer = Transfer::find()
                 ->andWhere([
@@ -122,11 +122,9 @@ class TransferTest extends \Codeception\Test\Unit
             //generate invoice
             $transfer->lock();
 
-            expect('Should generate 1 invoice for main transfer', count($transfer->invoices))
-                ->equals(1);
+            $this->assertEquals(1, count($transfer->invoices));
 
-            expect('Should generate child transfer for each sub company of candidates in transfer', sizeof($transfer->childTransfers))
-                ->equals(0);
+            $this->assertEquals(0, sizeof($transfer->childTransfers));
 
             /*$total = $transfer
                 ->getTransferCandidates()
@@ -141,12 +139,12 @@ class TransferTest extends \Codeception\Test\Unit
 
             expect('Testing transfer company total field', number_format($company_total, 3, '.', ''))
                 ->equals($transfer->company_total);*/
-        });
+        //});
 
 
         // Test case for Transfer model with child company ============================================
 
-        $this->specify('Transfer model with child company', function () {
+       // $this->specify('Transfer model with child company', function () {
             $transfer = Transfer::find()
                 ->andWhere([
                     'company_id' => 1,
@@ -162,14 +160,11 @@ class TransferTest extends \Codeception\Test\Unit
             //generate invoice
             $transfer->lock();
 
-            expect('Should generate invoice for each sub company of candidates in transfer', sizeof($transfer->invoices))
-                ->equals($companiesCount);
+            $this->assertEquals($companiesCount, sizeof($transfer->invoices));
 
-            expect('Should generate child transfer for each sub company of candidates in transfer', sizeof($transfer->childTransfers))
-                ->equals($companiesCount);
+            $this->assertEquals($companiesCount, sizeof($transfer->childTransfers));
 
-            expect('Testing childTransferInvoices method', sizeof($transfer->childTransferInvoices))
-                ->equals($companiesCount);
+            $this->assertEquals($companiesCount, sizeof($transfer->childTransferInvoices));
 
             //for main transfer
 
@@ -197,17 +192,15 @@ class TransferTest extends \Codeception\Test\Unit
                     ->getTransferCandidates()
                     ->sum('candidate_total');//(candidate_hourly_rate * hours) + bonus - bonus_commission
 
-                expect('Testing child transfer total field', number_format($total, 3, '.', ''))
-                    ->equals($childTransfer->total);
+                $this->assertEquals(number_format($total, 3, '.', ''), $childTransfer->total);
 
                 $company_total = $childTransfer
                     ->getTransferCandidates()
                     ->sum('company_total');//(company_hourly_rate * hours) + bonus + transfer_cost
 
-                expect('Testing child transfer company total field', number_format($company_total, 3, '.', ''))
-                    ->equals($childTransfer->company_total);
+                $this->assertEquals(number_format($company_total, 3, '.', ''), $childTransfer->company_total);
             }
-        });
+     //   });
     }
 
     /**

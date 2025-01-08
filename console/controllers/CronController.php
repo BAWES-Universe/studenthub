@@ -35,6 +35,9 @@ class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
 
+        echo "cloud name: " . Yii::$app->cloudinaryManager->cloud_name;
+         die();
+
        // Yii::error("test error");
 
         //https://studenthub-uploads-dev-server.s3.amazonaws.com/photos/MBK-Civil-ID-1600531990157.png

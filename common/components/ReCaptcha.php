@@ -5,7 +5,7 @@ namespace common\components;
 use Yii;
 use yii\httpclient\Client;
 
-class ReCaptcha
+class ReCaptcha extends \yii\base\Component
 {
     public $secretKey;
 

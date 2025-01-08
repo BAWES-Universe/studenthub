@@ -3,7 +3,7 @@
 namespace common\components;
 
 
-class JiraComponent
+class JiraComponent extends \yii\base\Component
 {
     public $jiraUrl;
     public $email;
