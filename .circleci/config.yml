@@ -120,7 +120,6 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
 
-
       - run:
           name: Initialize Dev Environment
           command: ./init --env=Circle-CI --overwrite=All
@@ -150,7 +149,7 @@ jobs:
 
       - run:
          name: Run Staff app Codeception tests and store result output
-         command: ./vendor/bin/codecept run staff/tests/unit --xml --html --fail-fast
+         command: cd ./staff && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
       #---------- company app --------------#
 
@@ -160,7 +159,7 @@ jobs:
 
       - run:
           name: Run Company app Codeception tests and store result output
-          command: ./vendor/bin/codecept run company/tests/unit --xml --html --fail-fast
+          command: cd ./company && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
       #---------- manager app --------------#
 
