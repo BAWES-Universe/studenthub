@@ -2,7 +2,11 @@
 
 namespace staff\modules\v1\controllers;
 
+use candidate\models\CandidateSkill;
 use common\models\JobInterest;
+use common\models\Candidate;
+use common\models\Area;
+use staff\models\Country;
 use Yii;
 use common\models\Job;
 use common\models\JobSkills;
@@ -26,6 +30,53 @@ class JobController extends BaseController
     }
 
     /**
+     * @return array
+     */
+    public function actionInterestsFilter() {
+        $job_uuid = Yii::$app->request->get("job_uuid");
+
+        $candidateIDQuery = JobInterest::find()
+            ->select('candidate_id')
+            ->orderBy("created_at DESC")
+            ->andWhere(['job_uuid' => $job_uuid]);
+
+        $candidateQuery = Candidate::find()
+            ->select(['country_id', 'candidate_area_uuid', 'candidate_id'])
+            ->andWhere(['IN', 'candidate_id', $candidateIDQuery])
+            ->all();
+
+        $countries = Country::find()
+            ->andWhere([
+                'IN',
+                'country_id',
+                ArrayHelper::getColumn($candidateQuery, 'country_id')
+            ])
+            ->all();
+
+        $areas = Area::find()
+            ->andWhere([
+                'IN',
+                'area_uuid',
+                ArrayHelper::getColumn($candidateQuery, 'candidate_area_uuid')
+            ])
+            ->all();
+
+        $skills = CandidateSkill::find()
+            ->andWhere([
+                'IN',
+                'candidate_id',
+                ArrayHelper::getColumn($candidateQuery, 'candidate_id')
+            ])
+            ->all();
+
+        return [
+            "nationalities" => $countries,
+            "skills" => $skills,
+            "areas" => $areas
+        ];
+    }
+
+    /**
      * list interest
      * @return ActiveDataProvider
      */
@@ -34,8 +85,16 @@ class JobController extends BaseController
         $job_uuid = Yii::$app->request->get("job_uuid");
         $status = Yii::$app->request->get("status");
         $candidate_id = Yii::$app->request->get("candidate_id");
+        $country_id = Yii::$app->request->get("country_id");
+        $nationality_country_id = Yii::$app->request->get("nationality_country_id");
+        $age_from = Yii::$app->request->get("age_from");
+        $age_to = Yii::$app->request->get("age_to");
+        $gender = Yii::$app->request->get("gender");
+        $skills = Yii::$app->request->get("skills");
+        $areas = Yii::$app->request->get("areas");
 
         $query = JobInterest::find()
+            ->joinWith(['candidate', 'candidate.area', 'candidate.candidateSkills'])
             ->orderBy("created_at DESC");
 
         if ($job_uuid) {
@@ -48,6 +107,31 @@ class JobController extends BaseController
 
         if ($status) {
             $query->andWhere(['status' => $status]);
+        }
+
+        if ($country_id) {
+            $query->andWhere(['area.country_id' => $country_id]);
+        }
+
+        if ($nationality_country_id) {
+            $query->andWhere(['candidate.country_id' => $nationality_country_id]);
+        }
+
+        if ($age_from && $age_to) {
+            $query->andWhere(new Expression('TIMESTAMPDIFF(YEAR, candidate.candidate_birth_date, 
+                CURDATE()) BETWEEN '.$age_from.' AND '.$age_to));
+        }
+
+        if ($gender) {
+            $query->andWhere(['gender' => $gender]);
+        }
+
+        if ($areas) {
+            $query->andWhere(['IN', 'candidate.candidate_area_uuid', explode(",", $areas)]);
+        }
+
+        if ($skills) {
+            $query->andWhere(['IN', 'candidate_skill.skill', explode(",", $skills)]);
         }
 
         return new ActiveDataProvider([

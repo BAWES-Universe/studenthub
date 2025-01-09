@@ -485,6 +485,7 @@ return [
                     'controller' => 'v1/job',
                     'patterns' => [
                         'GET' => 'list',
+                        "GET interests/filter" => "interests-filter",
                         'GET interests' => 'list-interest',
                         'GET interest/<id>' => 'view-interest',
                         'GET <id>' => 'view',
@@ -494,6 +495,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS interests' => 'options',
+                        "OPTIONS interests/filter" => 'options',
                         'OPTIONS interest/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
