@@ -206,7 +206,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $query->all(),
             'columns' => [
@@ -458,7 +458,7 @@ class TransferController extends Controller
             ];
         }
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore
 
@@ -524,7 +524,7 @@ class TransferController extends Controller
             ];
         }
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore
 
@@ -811,7 +811,7 @@ class TransferController extends Controller
             ];
         }
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore
 
@@ -873,7 +873,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $company->candidates,
             'columns' => [
@@ -1031,7 +1031,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $company->candidates,
             'columns' => [
@@ -1130,7 +1130,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $query->all(),
             'columns' => [

@@ -3,7 +3,7 @@
 namespace common\components;
 
 
-class Excel extends \moonland\phpexcel\Excel {
+class Excel extends \common\components\PhpExcel {
 
     /**
      * saving the xls file to download or to path

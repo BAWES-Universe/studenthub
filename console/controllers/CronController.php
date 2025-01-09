@@ -482,7 +482,7 @@ class CronController extends \yii\console\Controller {
 
             if ($payableCandidate && count($payableCandidate) > 0) {
 
-                \moonland\phpexcel\Excel::export([
+                \common\components\PhpExcel::export([
                     'isMultipleSheet' => false,
                     'fileName' => 'payable_candidate',
                     'savePath' => sys_get_temp_dir() . '/',

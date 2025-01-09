@@ -223,7 +223,7 @@ class TransferController extends Controller
             ];
         } 
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore 
         
@@ -286,7 +286,7 @@ class TransferController extends Controller
             ];
         } 
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore 
 
@@ -676,7 +676,7 @@ class TransferController extends Controller
             ]);
         }*/
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $candidateQuery->all(),
             'columns' => $columns

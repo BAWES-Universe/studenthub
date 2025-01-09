@@ -166,7 +166,7 @@ class StaffWorkSessionController extends Controller
         $query->filterByOrder();
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $query->all(),
             'columns' => [

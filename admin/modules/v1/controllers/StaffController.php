@@ -192,7 +192,7 @@ class StaffController extends Controller
             ];
         }
 
-        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+        $excelData  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel,  [
             'setFirstRecordAsKeys' => false
         ]);
 

@@ -1886,7 +1886,7 @@ class CandidateController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $candidates,
             'columns' => [
@@ -1965,7 +1965,7 @@ class CandidateController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $candidates,
             'columns' => [

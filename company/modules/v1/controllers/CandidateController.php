@@ -302,7 +302,7 @@ class CandidateController extends BaseController
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => true,
            // 'activeSheet' => 'summary',
             'models' => array_merge([
@@ -445,7 +445,7 @@ class CandidateController extends BaseController
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $company->candidates,
             'columns' => [

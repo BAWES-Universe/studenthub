@@ -199,7 +199,7 @@ class CountryController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $query->all(),
             'columns' => [

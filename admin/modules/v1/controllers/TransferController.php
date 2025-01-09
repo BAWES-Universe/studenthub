@@ -495,7 +495,7 @@ class TransferController extends Controller
             ];
         }
 
-        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+        $excelData  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel,  [
             'setFirstRecordAsKeys' => false
         ]);
 
@@ -639,7 +639,7 @@ class TransferController extends Controller
             ];
         }
 
-        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+        $excelData  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel,  [
             'setFirstRecordAsKeys' => false
         ]);
 
@@ -808,7 +808,7 @@ class TransferController extends Controller
             ];
         } 
 
-        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+        $excelData  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel,  [
             'setFirstRecordAsKeys' => false
         ]);
 
@@ -1018,7 +1018,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
             'savePath' => $savePath,
@@ -1117,7 +1117,7 @@ class TransferController extends Controller
             ];
         }
 
-        $excelData  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel,  [
+        $excelData  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel,  [
             'setFirstRecordAsKeys' => false
         ]);
 
@@ -1468,7 +1468,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
             'savePath' => $savePath,
@@ -1610,7 +1610,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
         
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $payableCandidate,
             'savePath' => $savePath,
@@ -2086,7 +2086,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $candidates,
             'columns' => [
