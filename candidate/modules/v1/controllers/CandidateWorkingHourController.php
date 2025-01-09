@@ -176,13 +176,20 @@ class CandidateWorkingHourController extends Controller
             ];
         }
 
-        $start_time = strtotime(Yii::$app->request->getBodyParam("start_time"));
-        $end_time = strtotime(Yii::$app->request->getBodyParam("end_time"));
+        $start_time = Yii::$app->request->getBodyParam("start_time");
+        $end_time = Yii::$app->request->getBodyParam("end_time");
+
+        if ($start_time)
+            $start_time = strtotime($start_time);
+
+        if($end_time)
+            $end_time = strtotime($end_time);
+
         $date = Yii::$app->request->getBodyParam("date");
 
         $model = new CandidateWorkingHour();
-        $model->start_time = date('Y-m-d H:i:s', $start_time);
-        $model->end_time = date('Y-m-d H:i:s', $end_time);
+        $model->start_time = $start_time? date('Y-m-d H:i:s', $start_time): null;
+        $model->end_time = $end_time? date('Y-m-d H:i:s', $end_time): null;
         $model->note = Yii::$app->request->getBodyParam("note");
         $model->status = CandidateWorkingHour::STATUS_PENDING;
         $model->candidate_id = Yii::$app->user->getId();

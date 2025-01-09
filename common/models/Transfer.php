@@ -122,7 +122,7 @@ class Transfer extends ActiveRecord
      * @return void
      */
     public function validateDates() {
-        if(strtotime($this->end_date) <= strtotime($this->start_date)) {
+        if($this->end_date && $this->start_date && strtotime($this->end_date) <= strtotime($this->start_date)) {
             $this->addError('start_date','End date should be greater then start date');
         }
     }
@@ -232,7 +232,7 @@ class Transfer extends ActiveRecord
         };
 
         $fields['transfer_updated_at_unix'] = function($model) {
-            return date('Y-m-d',strtotime($model->transfer_updated_at));
+            return $model->transfer_updated_at? date('Y-m-d',strtotime($model->transfer_updated_at)): null;
         };
 
         $fields['transfer_created_at'] = function($model) {

@@ -329,7 +329,7 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime,
             'have_resume' => $this->fulltimer_pdf_cv? 'Yes': 'No',
             'fulltimer_employed' => $this->fulltimer_employed? 'Yes': 'No',
-            'fulltimer_birth_timestamp' => strtotime($this->fulltimer_birth_date),
+            'fulltimer_birth_timestamp' =>$this->fulltimer_birth_date? strtotime($this->fulltimer_birth_date): null,
             'fulltimer_driving_license' => $this->fulltimer_driving_license
         ];
 
@@ -407,8 +407,8 @@ class Fulltimer extends \yii\db\ActiveRecord
             $data['fulltimer_created_datetime'] = $this->fulltimer_created_datetime;
             //could be `new Expression('NOW()')` on update
             $data['fulltimer_updated_datetime'] = is_string($this->fulltimer_updated_datetime) ? $this->fulltimer_updated_datetime : date('Y-m-d H:i:s');
-            $data['fulltimer_created_timestamp'] = strtotime($this->fulltimer_created_datetime);
-            $data['fulltimer_updated_timestamp'] = strtotime($this->fulltimer_updated_datetime);
+            $data['fulltimer_created_timestamp'] = $this->fulltimer_created_datetime? strtotime($this->fulltimer_created_datetime): null;
+            $data['fulltimer_updated_timestamp'] = $this->fulltimer_updated_datetime? strtotime($this->fulltimer_updated_datetime): null;
         }
 
         //fulltimer_tags

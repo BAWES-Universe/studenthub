@@ -1401,7 +1401,7 @@ class AccountController extends Controller
         
         $birth_date = Yii::$app->request->getBodyParam('birth_date');
         
-        $candidate->candidate_birth_date = date('Y-m-d', strtotime($birth_date));
+        $candidate->candidate_birth_date = $birth_date? date('Y-m-d', strtotime($birth_date)): null;
 
         $candidate->scenario = "updateBirthDate";
 

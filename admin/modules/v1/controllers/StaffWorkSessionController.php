@@ -202,14 +202,14 @@ class StaffWorkSessionController extends Controller
                     'attribute'=>'created_at',
                     'label'=>'From',
                     'value'=>function($model) {
-                        return date('Y-m-d',strtotime($model->created_at));
+                        return $model->created_at? date('Y-m-d',strtotime($model->created_at)): null;
                     }
                 ],
                 [
                     'attribute'=>'updated_at',
                     'label'=>'To',
                     'value'=>function($model) {
-                        return date('Y-m-d',strtotime($model->updated_at));
+                        return $model->updated_at? date('Y-m-d',strtotime($model->updated_at)): null;
                     }
                 ],
             ]

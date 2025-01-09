@@ -377,9 +377,12 @@ class TransferController extends Controller
         $company_id = Yii::$app->request->getBodyParam("company_id");
         $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
 
+        $start_date = Yii::$app->request->getBodyParam("start_date");
+        $end_date = Yii::$app->request->getBodyParam("end_date");
+
         $candidates = Yii::$app->request->getBodyParam("candidates");
-        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("start_date")));
-        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam("end_date")));
+        $start_date = $start_date?date('Y-m-d', strtotime ($start_date)): null;
+        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
@@ -417,10 +420,13 @@ class TransferController extends Controller
             ];
         }
 
+        $start_date = Yii::$app->request->getBodyParam("start_date");
+        $end_date = Yii::$app->request->getBodyParam("end_date");
+
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
-        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
+        $start_date =$start_date? date('Y-m-d', strtotime ($start_date)): null;
+        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
@@ -480,10 +486,13 @@ class TransferController extends Controller
     {
         $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
 
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
+
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
-        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
+        $start_date = $start_date?date('Y-m-d', strtotime ($start_date)): null;
+        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
@@ -547,12 +556,15 @@ class TransferController extends Controller
     {
         $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
 
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
+
         $company = Yii::$app->user->identity;
 
         $company_id = Yii::$app->request->getBodyParam("company_id");
         $candidates = Yii::$app->request->getBodyParam("candidates");
-        $start_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('start_date')));
-        $end_date = date('Y-m-d', strtotime (Yii::$app->request->getBodyParam('end_date')));
+        $start_date = $start_date? date('Y-m-d', strtotime ($start_date)): null;
+        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {

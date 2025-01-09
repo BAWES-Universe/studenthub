@@ -443,14 +443,14 @@ class CandidateController extends Controller
 
         $model = $this->findModel($id);
 
-        if (strtotime($date) < time()) {
+        if ($date && strtotime($date) < time()) {
             return [
                 "operation" => "error",
                 "message" => "Civil id should be future date"
             ];
         }
 
-        $model->candidate_civil_expiry_date = date('Y-m-d', strtotime($date));
+        $model->candidate_civil_expiry_date = $date? date('Y-m-d', strtotime($date)): null;
 
         $model->scenario = "updateCivilExpiryDate";
 

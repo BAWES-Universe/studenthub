@@ -1200,14 +1200,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->candidate_uid = $this->generateUid();
         }
 
-        $this->bank_id = null;
+        if ($this->candidate_iban) {
+            $this->bank_id = null;
 
-        $banks = Bank::find()->all();
+            $banks = Bank::find()->all();
 
-        foreach($banks as $bank) {
-            if($bank->bank_iban_code && strpos(strtolower($this->candidate_iban), strtolower($bank->bank_iban_code)) > -1) {
-                $this->bank_id = $bank->bank_id;
-                break;
+            foreach($banks as $bank) {
+                if($bank->bank_iban_code && strpos(strtolower($this->candidate_iban), strtolower($bank->bank_iban_code)) > -1) {
+                    $this->bank_id = $bank->bank_id;
+                    break;
+                }
             }
         }
 
@@ -2943,8 +2945,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ->one();
 
             if($candidateWorkHistory) {
-                $data['start_date_timestamp'] = strtotime($candidateWorkHistory['start_date']);
-                $data['end_date_timestamp'] = strtotime($candidateWorkHistory['end_date']);
+                $data['start_date_timestamp'] = $candidateWorkHistory['start_date']? strtotime($candidateWorkHistory['start_date']): null;
+                $data['end_date_timestamp'] = $candidateWorkHistory['end_date']?strtotime($candidateWorkHistory['end_date']): null;
                 //could be `new Expression('NOW()')` on update
 
                 $data['candidateWorkHistory'] = $candidateWorkHistory;

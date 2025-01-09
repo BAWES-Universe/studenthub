@@ -239,7 +239,7 @@ class StaffController extends Controller
             $model->salary = $value['salary'];
             $model->salary_currency = $value['salary_currency'];
             $model->comment = $value['comment'];
-            $model->salary_date = date('Y-m-d', strtotime($value['salary_date']));
+            $model->salary_date =$value['salary_date']? date('Y-m-d', strtotime($value['salary_date'])): null;
 
             if (!$model->save())
             {

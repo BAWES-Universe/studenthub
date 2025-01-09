@@ -157,7 +157,7 @@ class CronController extends \yii\console\Controller {
 
                     //if correct date was added
 
-                    if($dateTime == strtotime($candidate->candidate_civil_expiry_date)) {
+                    if($candidate->candidate_civil_expiry_date && $dateTime == strtotime($candidate->candidate_civil_expiry_date)) {
                         continue;
                     }
 

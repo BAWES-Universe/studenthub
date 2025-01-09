@@ -202,6 +202,7 @@ class Job extends \yii\db\ActiveRecord
         $fields = parent::fields();
 
         $fields['is_available'] = function ($data) {
+
             if ($data->available_from && strtotime(date("Y-m-d")) < strtotime($data->available_from)) {
                 return false;
             }

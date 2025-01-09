@@ -40,7 +40,9 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
             ?></div>
             <div class="at">At</div>
             <div class="store"><?=($workHistory && $workHistory->store) ? $workHistory->store->store_name : '-';?></div>
+            <?php if ($workHistory->start_date) { ?>
             <div class="date">From <?=date('F j, Y',strtotime($workHistory->start_date))?> to <?=($workHistory->end_date) ? date('F j, Y',strtotime($workHistory->end_date)) : date('F j, Y',strtotime('now'))?></div>
+            <?php } ?>
         </div>
         <div class="footer">
             <div class="row">

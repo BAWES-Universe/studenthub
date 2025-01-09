@@ -108,7 +108,7 @@ class StaffSalaryController extends Controller
             $model->salary = $staff->staff_salary;
             $model->salary_currency = $staff->staff_salary_currency;
             $model->comment = 'Monthly Salary';
-            $model->salary_date = date('Y-m-d',strtotime($date));
+            $model->salary_date = $date? date('Y-m-d',strtotime($date)): null;
             $model->save(false);
         }
 
@@ -168,7 +168,10 @@ class StaffSalaryController extends Controller
         $model->salary =Yii::$app->request->getBodyParam("salary");
         $model->salary_currency = Yii::$app->request->getBodyParam("salary_currency");
         $model->comment = Yii::$app->request->getBodyParam("comment");
-        $model->salary_date = date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("salary_date")));
+
+        $salary_day = Yii::$app->request->getBodyParam("salary_date");
+
+        $model->salary_date = $salary_day? date('Y-m-d', strtotime($salary_day)): null;
 
         if (!$model->save())
         {
@@ -211,7 +214,10 @@ class StaffSalaryController extends Controller
         $model->salary =Yii::$app->request->getBodyParam("salary");
         $model->salary_currency = Yii::$app->request->getBodyParam("salary_currency");
         $model->comment = Yii::$app->request->getBodyParam("comment");
-        $model->salary_date = date('Y-m-d', strtotime(Yii::$app->request->getBodyParam("salary_date")));
+
+        $salary_day = Yii::$app->request->getBodyParam("salary_date");
+
+        $model->salary_date = $salary_day? date('Y-m-d', strtotime($salary_day)): null;
 
         if (!$model->save())
         {
