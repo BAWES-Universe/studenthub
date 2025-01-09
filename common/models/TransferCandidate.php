@@ -931,9 +931,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * @param type $candidate
      * @param type $model
      * @param type $value
+     * @param number $noOfPayout - how many times we paying per month, so can divide and pay
      * @return type
      */
-    public static function saveCandidateTransfer($candidate, $model, $value) {
+    public static function saveCandidateTransfer($candidate, $model, $value, $noOfPayout = 1) {
 
         if (!isset($value['minutes'])) {
             $value['minutes'] = 0;
@@ -1025,9 +1026,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         {
             $TCModel->transfer_cost = $model->contract->transfer_cost;
 
-            $TCModel->candidate_total = $model->contract->amount->candidate_total;
+            $TCModel->candidate_total = $model->contract->amount->candidate_total/ $noOfPayout;
 
-            $TCModel->company_total = $model->contract->amount->company_total;
+            $TCModel->company_total = $model->contract->amount->company_total/ $noOfPayout;
         }
         else if ($model->contract->type == Contract::TYPE_FIXED_PRICE)
         {

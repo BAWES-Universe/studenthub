@@ -19,7 +19,8 @@ class m220729_081818_update_work_history_tbl extends Migration
             $candidate_id = $note['candidate_id'];
             $company_id = $note['company_id'];
             $staff_id = $note['created_by'];
-            $date = date('Y-m-d',strtotime($note['note_created_datetime']));
+            $date = $note['note_created_datetime']? date('Y-m-d',strtotime($note['note_created_datetime'])): null;
+
             if ($candidate_id) {
                 $sql = "update `candidate_work_history` set staff_id = '$staff_id' WHERE `candidate_id` = '$candidate_id' AND `start_date` = '$date'";
                 $this->db->createCommand($sql)->execute();

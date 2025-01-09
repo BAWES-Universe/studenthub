@@ -206,7 +206,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $query->all(),
             'columns' => [
@@ -425,6 +425,9 @@ class TransferController extends Controller
             ];
         }
 
+        $start_date = Yii::$app->request->getBodyParam("start_date");
+        $end_date = Yii::$app->request->getBodyParam("end_date");
+
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
 
@@ -469,7 +472,7 @@ class TransferController extends Controller
             ];
         }
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore
 
@@ -496,6 +499,9 @@ class TransferController extends Controller
     public function actionEditByExcel($id)
     {
         $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
+
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
 
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
@@ -540,7 +546,7 @@ class TransferController extends Controller
             ];
         }
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore
 
@@ -571,6 +577,9 @@ class TransferController extends Controller
     public function actionEdit($id)
     {
         $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
+
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
 
         $company = Yii::$app->user->identity;
 
@@ -832,7 +841,7 @@ class TransferController extends Controller
             ];
         }
 
-        $data  = \moonland\phpexcel\Excel::import(sys_get_temp_dir() . '/' . $model->excel);
+        $data  = \common\components\PhpExcel::import(sys_get_temp_dir() . '/' . $model->excel);
 
         //no need file anymore
 
@@ -894,7 +903,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $company->candidates,
             'columns' => [
@@ -1052,7 +1061,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $company->candidates,
             'columns' => [
@@ -1151,7 +1160,7 @@ class TransferController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $query->all(),
             'columns' => [

@@ -124,7 +124,7 @@ if (!$main_transfer->contract_type || $main_transfer->contract_type == 'HOURLY')
         <?php if ($invoice->transfer->start_date && $invoice->transfer->end_date) { ?>
             <tr>
                 <td align="left" style="text-align: left">
-                    For time period: <?=date('F j, Y',strtotime($invoice->transfer->start_date));?> to <?=date('F j, Y',strtotime($invoice->transfer->end_date));?>
+                    For time period: <?= date('F j, Y',strtotime($invoice->transfer->start_date)); ?> to <?=date('F j, Y',strtotime($invoice->transfer->end_date));?>
                 </td>
             </tr>
         <?php } ?>

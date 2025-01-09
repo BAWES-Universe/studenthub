@@ -132,6 +132,240 @@ class CandidateController extends BaseController
         ]);
     }
 
+    /**
+     * @return void
+     */
+    public function actionWorkLogDetailedExcel() {
+
+        $start_date = Yii::$app->request->get("start_date");
+        $end_date = Yii::$app->request->get("end_date");
+
+        $session_status = Yii::$app->request->get("session_status");
+        $store_id = Yii::$app->request->get("store_id");
+        $approved = Yii::$app->request->get("approved");
+
+        $q = Yii::$app->request->get("q");
+
+        $company = Yii::$app->companyManager->getCompany();
+
+        $query = $company
+            ->getCandidates();
+
+        if($store_id) {
+            $query->andWhere(['candidate.store_id' => $store_id]);
+        }
+
+        if($q) {
+            $query->andWhere([
+                "OR",
+                ["like", 'candidate_name', $q],
+                ["like", 'candidate_name_ar', $q],
+            ]);
+        }
+
+        if ($session_status || $start_date || $end_date) {
+
+            $query->joinWith(['candidateWorkingDates']);
+            //->andWhere(new Expression('end_time IS NOT NULL'));
+
+            if ($session_status) {
+                $query->andWhere(['candidate_working_date.status' => $session_status]);
+            }
+
+            if ($start_date) {
+                $query->andWhere(new Expression('DATE(candidate_working_date.date) >= DATE("'. $start_date .'")'));
+            }
+
+            if ($end_date) {
+                $query->andWhere(new Expression('DATE(candidate_working_date.date) <= DATE("'. $end_date .'")'));
+            }
+        }
+
+        $sessionColumns = [
+            [
+                'header' => '#',
+                'attribute' => 'candidate_working_hour_uuid'
+            ],
+            [
+                'header' => 'Candidate ID',
+                'attribute' => 'candidate_id'
+            ],
+            [
+                'header' => 'Store ID',
+                'attribute' => 'store_id'
+            ],
+            [
+                'header' => 'Date',
+                'attribute' => 'date',
+                'value' => function($data) {
+                    return $data->date?date("d M, Y", strtotime($data->date)): null;
+                }
+            ],
+            [
+                'header' => 'Start Time',
+                'attribute' => 'start_time',
+                'value' => function($data) {
+                    return $data->start_time?date("h:i:s a", strtotime($data->start_time)): null;
+                }
+            ],
+            [
+                'header' => 'End Time',
+                'attribute' => 'end_time',
+                'value' => function($data) {
+                    return $data->end_time?date("h:i:s a", strtotime($data->end_time)): null;
+                }
+            ],
+            [
+                'header' => 'Total Time',
+                'attribute' => 'total_time',
+                'value' => function($data) {
+                    $seconds = $data->total_time;
+                    $hours = floor($seconds / 3600);
+                    $minutes = floor(($seconds - ($hours * 3600)) / 60);
+                    $remainingSeconds = $seconds - ($hours * 3600) - ($minutes * 60);
+
+                    return  $hours. " hour " . $minutes. " minutes " . $remainingSeconds . " seconds";
+                }
+            ],
+            'note',
+            [
+                'header' => 'Status',
+                'attribute' => 'status',
+                'value' => function($data) {
+                    if($data->status == CandidateWorkingHour::STATUS_PENDING) {
+                        return "Pending";
+                    } else if($data->status == CandidateWorkingHour::STATUS_APPROVED) {
+                        return "Approved";
+                    } else if($data->status == CandidateWorkingHour::STATUS_REJECTED) {
+                        return "Rejected";
+                    }
+                }
+            ],
+            'via',
+            [
+                'header' => 'Created At',
+                'attribute' => 'created_at',
+                'value' => function($data) {
+                    return $data->created_at?date("d M, Y h:i:s a", strtotime($data->created_at)): null;
+                }
+            ],
+            [
+                'header' => 'Updated At',
+                'attribute' => 'updated_at',
+                'value' => function($data) {
+                    return $data->updated_at?date("d M, Y h:i:s a", strtotime($data->updated_at)): null;
+                }
+            ]
+        ];
+
+        $logData = [];
+        $models = [];
+        $columns = [];
+
+        foreach ($query->batch(100) as $candidates) {
+
+            foreach ($candidates as $candidate) {
+
+                $query = CandidateWorkingHour::find()->andWhere([
+                    "candidate_id" => $candidate->candidate_id,
+                    "store_id" => $candidate->store_id, //filter by store, in case store changed in month
+                ])
+                    ->filterByDateRange($start_date, $end_date);
+
+                if ($approved) {
+                    $query->andWhere(["status" => CandidateWorkingHour::STATUS_APPROVED]);
+                }
+
+                $seconds = $query
+                    ->sum("total_time");
+
+                $hours = floor($seconds / 3600);
+                $minutes = floor(($seconds - ($hours * 3600)) / 60);
+
+                $logData[$candidate->candidate_id] = [
+                    "hours" => $hours,
+                    "minutes" => $minutes,
+                    "seconds" => $seconds - ($hours * 3600) - ($minutes * 60),
+                    "bonus" => 0
+                ];
+
+                if ($query->count() == 0) {
+                    continue;
+                }
+
+                $key = explode(" ", $candidate->candidate_name)[0] . " #" . $candidate->candidate_id;
+
+                $models[$key] = $query->all();
+                $columns[$key] = $sessionColumns;
+            }
+        }
+
+        header('Access-Control-Allow-Origin: *');
+
+        \common\components\PhpExcel::export([
+            'isMultipleSheet' => true,
+           // 'activeSheet' => 'summary',
+            'models' => array_merge([
+                'summary' => $company->candidates
+            ], $models),
+            'columns' => array_merge([
+                'summary' => [
+                    [
+                        'header' => 'candidate_id',
+                        'value' => function($data) {
+                            return $data->candidate_id;
+                        }
+                    ],
+                    [
+                        'header' => 'candidate_name',
+                        'value' => function($data) {
+                            return $data->candidate_name;
+                        }
+                    ],
+                    [
+                        'header' => 'company_name',
+                        'value' => function($data) {
+                            return $data->company->company_name;
+                        }
+                    ],
+                    [
+                        'header' => 'store_name',
+                        'value' => function($data) {
+                            return $data->store->store_name;
+                        }
+                    ],
+                    [
+                        'header' => 'hours',
+                        'value' => function($data) use ($logData) {
+                            return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['hours']: null;
+                        }
+                    ],
+                    [
+                        'header' => 'minutes',
+                        'value' => function($data) use ($logData) {
+                            return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['minutes']: null;
+                        }
+                    ],
+                    [
+                        'header' => 'seconds',
+                        'value' => function($data) use ($logData) {
+                            return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['seconds']: null;
+                        }
+                    ],
+                    [
+                        'header' => 'bonus',
+                        'value' => function($data) use ($logData) {
+                            return isset($logData[$data->candidate_id])? $logData[$data->candidate_id]['bonus']: null;
+                        }
+                    ]
+                ]
+            ], $columns),
+        ]);
+    }
+
+    /**
+     * @return void
+     */
     public function actionWorkLogExcel() {
 
         $start_date = Yii::$app->request->get("start_date");
@@ -211,7 +445,7 @@ class CandidateController extends BaseController
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $company->candidates,
             'columns' => [

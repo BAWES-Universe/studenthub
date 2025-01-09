@@ -1,6 +1,7 @@
 <?php
 namespace company\components;
 
+use common\models\Company;
 use Yii;
 use company\models\Store;
 use yii\helpers\ArrayHelper;
@@ -15,10 +16,10 @@ class StoreManager
     /**
      * @var \company\models\Store
      */
-    private $managedStores = false;
+    private $_managedStores = false;
 
     /**
-     * Sets up the CompanyManager component for use to manage companys
+     * Sets up the CompanyManager component for use to manage companies
      *
      * @param  array
      * $config name-value pairs that will be used to initialize the object properties
@@ -31,7 +32,7 @@ class StoreManager
             die("ILLEGAL USAGE OF STORE MANAGER, THROW IN JAIL");
         }
 
-        // Getting a list of companys this agent manages
+        // Getting a list of companies this agent manages
         /*$cacheDependency = Yii::createObject([
             'class' => 'yii\caching\DbDependency',
             'reusable' => true,
@@ -62,13 +63,13 @@ class StoreManager
         }, $cacheDuration);//$cacheDependency
 
         // No cache
-        //$this->_managedStores = Yii::$app->user->identity->getCompanys()->all();
+        //$this->_managedStores = Yii::$app->user->identity->getcompanies()->all();
 
         //parent::__construct($config);
     }
 
     /**
-     * Returns the companys managed by this agent
+     * Returns the companies managed by this agent
      * @return \company\models\Company
      */
     public function getManagedStores(){
@@ -77,8 +78,8 @@ class StoreManager
 
     /**
      * Return company
-     * @param type $company_id
-     * @return type
+     * @param number $company_id
+     * @return Company
      * @throws \yii\web\BadRequestHttpException
      *
     public function getManagedCompany($company_id) {
@@ -93,8 +94,8 @@ class StoreManager
     
     /**
      * Return store
-     * @param type $store_id
-     * @return type
+     * @param number $store_id
+     * @return Store
      * @throws \yii\web\BadRequestHttpException
      */
     public function getManagedStore($store_id) {

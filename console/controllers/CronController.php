@@ -10,6 +10,7 @@ use common\models\CandidateWorkHistory;
 use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHour;
 use common\models\CompanyStats;
+use common\models\Contract;
 use common\models\DailyStandupQuestion;
 use common\models\FiringHitmap;
 use common\models\MailLog;
@@ -291,9 +292,43 @@ class CronController extends \yii\console\Controller {
      * Method called by cron once a week
      */
     public function actionWeekly() {
-        //Code here
 
-        return 0;
+        $noOfPayout = 4;// 4 weeks per month/ salary/4 = 1 week salary
+
+        $query = Contract::find()
+            //contract already started
+            ->andWhere(new Expression("start_date IS NULL OR DATE(start_date) <= CURDATE()"))
+            //not finished
+            ->andWhere(new Expression("end_date IS NULL OR DATE(end_date) >= CURDATE()"))
+            ->andWhere(['type' => Contract::TYPE_MONTHLY_SALARY, 'deleted' => 0]);
+
+        foreach ($query->each() as $contract) {
+            $company = $contract->company->parent_company_id?
+                $contract->company->parentCompany: $contract->company;
+
+            $start_date = date("Y-m-d", strtotime("-6 days"));
+            $end_date = date("Y-m-d");
+
+            $candidates =  CandidateWorkHistory::find()
+                ->select(['candidate_id'])
+                ->andWhere(['contract_uuid' => $contract->contract_uuid])
+                //currently, working or was working on current payroll period
+                ->andWhere(new Expression("end_date IS NULL OR DATE(end_date) >= DATE('".$start_date."')"))
+                ->asArray()
+                ->all();
+
+            //save transfer
+
+            return \company\models\Transfer::saveTransfer(
+                $company,
+                $candidates,
+                $start_date,
+                $end_date,
+                $contract->currency_code,
+                $contract->contract_uuid,
+                $noOfPayout
+            );
+        }
     }
 
     /**
@@ -486,7 +521,7 @@ class CronController extends \yii\console\Controller {
 
             if ($payableCandidate && count($payableCandidate) > 0) {
 
-                \moonland\phpexcel\Excel::export([
+                \common\components\PhpExcel::export([
                     'isMultipleSheet' => false,
                     'fileName' => 'payable_candidate',
                     'savePath' => sys_get_temp_dir() . '/',

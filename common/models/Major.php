@@ -138,7 +138,7 @@ class Major extends \yii\db\ActiveRecord
             'major_name_ar' => $this->major_name_ar,
             'major_created_at' => $this->major_created_at,
             'major_updated_at' => $this->major_updated_at,
-            'data_source' => (int) mb_convert_encoding($this->data_source, "UTF-8")
+            'data_source' => (int) ($this->data_source? mb_convert_encoding($this->data_source, "UTF-8"): $this->data_source)
         ];
     }
 

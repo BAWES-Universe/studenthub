@@ -378,7 +378,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ];*/
         }
 
-        $excelData = \moonland\phpexcel\Excel::import ($tmpFile, [
+        $excelData = \common\components\PhpExcel::import ($tmpFile, [
             'setFirstRecordAsKeys' => false
         ]);
 
@@ -644,7 +644,7 @@ class TransferFile extends \yii\db\ActiveRecord
             die();
         }
 
-        $excelData = \moonland\phpexcel\Excel::import ($tmpFile, [
+        $excelData = \common\components\PhpExcel::import ($tmpFile, [
             'setFirstRecordAsKeys' => false
         ]);
 
@@ -820,7 +820,7 @@ class TransferFile extends \yii\db\ActiveRecord
             die();
         }
 
-        $excelData = \moonland\phpexcel\Excel::import ($tmpFile, [
+        $excelData = \common\components\PhpExcel::import ($tmpFile, [
             'setFirstRecordAsKeys' => false
         ]);
 

@@ -450,7 +450,7 @@ class CandidateController extends Controller
             ];
         }
 
-        $model->candidate_civil_expiry_date = $date? date('Y-m-d', strtotime($date)): date('Y-m-d');
+        $model->candidate_civil_expiry_date = $date? date('Y-m-d', strtotime($date)): null;
 
         $model->scenario = "updateCivilExpiryDate";
 
@@ -1886,7 +1886,7 @@ class CandidateController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $candidates,
             'columns' => [
@@ -1965,7 +1965,7 @@ class CandidateController extends Controller
 
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $candidates,
             'columns' => [

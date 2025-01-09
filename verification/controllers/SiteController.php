@@ -51,7 +51,7 @@ class SiteController extends Controller
 
         // don't show if candidate ID is expired or candidate not assigned to store
 
-        if($id && time() > strtotime($id->expiry_date) || !$candidate->store)
+        if($id && (($id->expiry_date && time() > strtotime($id->expiry_date)) || !$candidate->store))
         {
             $id = null;
         }

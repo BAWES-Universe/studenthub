@@ -159,7 +159,8 @@ class Ticket extends \yii\db\ActiveRecord
             if($this->ticket_status == self::STATUS_COMPLETED)
             {
                 $this->ticket_completed_at = new Expression("NOW()");
-                $this->resolution_time = time() - strtotime($this->ticket_started_at);
+
+                $this->resolution_time = $this->ticket_started_at?time() - strtotime($this->ticket_started_at): 0;
 
                     Yii::$app->eventManager->track('Ticket Resolved', [
                         'ticket_id' => $this->ticket_uuid,

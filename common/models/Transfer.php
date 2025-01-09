@@ -122,7 +122,7 @@ class Transfer extends ActiveRecord
      * @return void
      */
     public function validateDates() {
-        if(strtotime($this->end_date) <= strtotime($this->start_date)) {
+        if($this->end_date && $this->start_date && strtotime($this->end_date) <= strtotime($this->start_date)) {
             $this->addError('start_date','End date should be greater then start date');
         }
     }
@@ -1163,7 +1163,7 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null) {
+    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null, $noOfPayout = 1) {
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
@@ -1268,7 +1268,7 @@ class Transfer extends ActiveRecord
                 ];
             }
 
-            $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+            $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value, $noOfPayout);
 
             if ($response['operation'] == "error") {
 

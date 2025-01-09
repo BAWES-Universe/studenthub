@@ -169,6 +169,7 @@ return [
                         'GET with-pagination' => 'list-with-pagination',
                         'GET search' => 'search',
                         'GET total' => 'total',
+                        "GET work-log-detailed-excel" => "work-log-detailed-excel",
                         "GET work-log-excel" => "work-log-excel",
                         "GET work-log-stats" => "work-log-stats",
                         'GET work-history/<id>' => 'work-history',
@@ -178,6 +179,7 @@ return [
                         // OPTIONS VERBS
                         "OPTIONS applications/<candidate_id>" => "options",
                         'OPTIONS' => 'options',
+                        "OPTIONS work-log-detailed-excel"=> 'options',
                         "OPTIONS work-log-stats" => "options",
                         "OPTIONS working-dates" => "options",
                         "OPTIONS with-pagination" => "options",

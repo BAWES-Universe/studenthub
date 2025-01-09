@@ -101,14 +101,14 @@ class JobController extends Controller
         } else {
             $candidate = Yii::$app->user->identity;
 
-            $filter = '(available_from IS NULL OR DATE(available_from) >= DATE(NOW())) AND '.
+            /*$filter = '(available_from IS NULL OR DATE(available_from) >= DATE(NOW())) AND '.
                 '(available_to IS NULL OR DATE(available_to) <= DATE(NOW())) AND '.
                 '(min_age IS NULL OR min_age >= '. $candidate->getAge() . ') AND '.
                 '(max_age IS NULL OR max_age <= '. $candidate->getAge() . ') AND '.
-                '(gender IS NULL or gender =' . $candidate->candidate_gender . ')';
+                '(gender IS NULL or gender =' . $candidate->candidate_gender . ')';*/
 
-            $query->andWhere(['NOT IN', 'job.job_uuid', $subQuery])
-                ->andWhere( new Expression($filter));
+            $query->andWhere(['NOT IN', 'job.job_uuid', $subQuery]);
+                //->andWhere( new Expression($filter));
         }
 
         return new ActiveDataProvider([
