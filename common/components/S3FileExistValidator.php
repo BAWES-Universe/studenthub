@@ -90,8 +90,8 @@ class S3FileExistValidator extends Validator
         if($this->maxDuration)
         {
             $ffprobe = \FFMpeg\FFProbe::create([
-                'ffmpeg.binaries' => exec('which ffmpeg'), //'/usr/local/bin/ffmpeg'
-                'ffprobe.binaries' => exec('which ffprobe'), //'/usr/local/bin/ffprobe'
+                'ffmpeg.binaries' => exec('which ffmpeg'), //'/usr/local/bin/ffmpeg' '/usr/bin/ffmpeg',//
+                'ffprobe.binaries' =>  exec('which ffprobe'), //'/usr/local/bin/ffprobe' '/usr/bin/ffprobe',//
                 'timeout'          => 3600, // the timeout for the underlying process
                 'ffmpeg.threads'   => 12,   // the number of threads that FFMpeg should use
             ]);
@@ -110,12 +110,12 @@ class S3FileExistValidator extends Validator
 
             /**
              * in case video missing duration detail 
-             */
+             *
             if(!$duration) {
                 //ffmpeg -i $path -vcodec copy -acodec copy $tmpPath. $filename
                 
                 $duration = $this->resourceManager->getDuration($filename);
-            }
+            }*/
             
             if(!$duration) {
                 $this->addError($model, $attribute, Yii::t('app', 'Video must be longer than 1 second'));
