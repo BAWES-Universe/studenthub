@@ -273,7 +273,7 @@ class SuggestionController extends Controller
         
         $model = $this->findModel($id);
 
-        $transaction = Yii::$app->db->beginTransaction();
+        //$transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
         $note->request_uuid = $model->request_uuid;
@@ -286,7 +286,7 @@ class SuggestionController extends Controller
 
         if(!$note->save()) 
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($note->errors)){
                 return [
@@ -305,7 +305,7 @@ class SuggestionController extends Controller
 
         if (!$model->save())
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($model->errors)){
                 return [
@@ -320,7 +320,7 @@ class SuggestionController extends Controller
             }
         }
 
-        $transaction->commit();
+        //$transaction->commit();
 
         return [
             "operation" => "success",
@@ -338,7 +338,7 @@ class SuggestionController extends Controller
         
         $model = $this->findModel($id);
 
-        $transaction = Yii::$app->db->beginTransaction();
+        //$transaction = Yii::$app->db->beginTransaction();
 
         $note = new Note;
         $note->request_uuid = $model->request_uuid;
@@ -351,7 +351,7 @@ class SuggestionController extends Controller
 
         if(!$note->save()) 
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($note->errors)){
                 return [
@@ -370,7 +370,7 @@ class SuggestionController extends Controller
 
         if (!$model->save())
         {
-            $transaction->rollBack();
+            //$transaction->rollBack();
 
             if(isset($model->errors)){
                 return [
@@ -385,7 +385,7 @@ class SuggestionController extends Controller
             }
         }
 
-        $transaction->commit();
+        //$transaction->commit();
 
         return [
             "operation" => "success",
