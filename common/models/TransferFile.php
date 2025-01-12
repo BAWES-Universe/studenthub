@@ -227,22 +227,37 @@ class TransferFile extends \yii\db\ActiveRecord
             $tc->transfer_confirmation_id = $value['transfer_confirmation_id'];
 
             //validation adding extra overhead in system
-            if(!$tc->update())
-            {
-                $transaction->rollBack();
 
-                $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                    json_encode($tc->getErrors()));
+            for ($i = 0; $i < 3; $i++) {
+                try {
 
-                /*return [
-                    "operation" => "error",
-                    "code" => 5,
-                    "transfer_confirmation_id" => $value['transfer_confirmation_id'],
-                    "transfer_file_id" => $this->transfer_file_id,
-                    "message" => $tc->getErrors()
-                ];*/
+                    // Execute your query
+                    if(!$tc->update())
+                    {
+                        $transaction->rollBack();
 
-                die();
+                        $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
+                            json_encode($tc->getErrors()));
+
+                        /*return [
+                            "operation" => "error",
+                            "code" => 5,
+                            "transfer_confirmation_id" => $value['transfer_confirmation_id'],
+                            "transfer_file_id" => $this->transfer_file_id,
+                            "message" => $tc->getErrors()
+                        ];*/
+
+                        die();
+                    }
+
+                    break; // Exit loop if successful
+                } catch (Exception $e) {
+                    if ($e->getCode() == 1213) { // Deadlock
+                        sleep(1); // Brief pause before retry
+                        continue;
+                    }
+                    throw $e; // Rethrow other exceptions
+                }
             }
 
             $tc->emailTransferSuccess();
