@@ -4,6 +4,7 @@ namespace candidate\modules\v1\controllers;
 
 use candidate\models\CandidateToken;
 use common\models\CandidateWorkingHour;
+use common\models\Country;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
@@ -708,7 +709,6 @@ class AccountController extends Controller
         $candidate->scenario = "updateNationality";
 
         if (!$candidate->save()) {
-
             return [
                 "operation" => "error",
                 "message" => $candidate->errors
@@ -717,7 +717,7 @@ class AccountController extends Controller
 
         return [
             "operation" => "success",
-            "country" => $candidate->country,
+            "country" => Country::findOne($candidate->country_id),
             "message" => Yii::t('candidate', "Candidate Nationality Info Updated Successfully"),
         ];
     }

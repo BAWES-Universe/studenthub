@@ -1121,7 +1121,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getAge()
     {
-        return floor((time() - strtotime($this->candidate_birth_date))/31556926);
+        return $this->candidate_birth_date?
+            floor((time() - strtotime($this->candidate_birth_date))/31556926): null;
     }
 
     /**
