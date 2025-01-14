@@ -950,6 +950,8 @@ class AccountController extends Controller
 
         return [
             "operation" => "success",
+            "area" => $candidate->getArea()->one(),
+            "country"=> $candidate->getCountry()->one(),
             "message" => Yii::t('candidate', "Candidate Location Info Updated Successfully"),
         ];
     }
