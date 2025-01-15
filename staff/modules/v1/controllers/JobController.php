@@ -51,6 +51,9 @@ class JobController extends BaseController
                 'country_id',
                 ArrayHelper::getColumn($candidateQuery, 'country_id')
             ])
+            //->select(['area_name_en', 'area_name_ar', 'country_id'])
+            //->distinct('area_name_en')
+            //->asArray()
             ->all();
 
         $areas = Area::find()
@@ -59,6 +62,9 @@ class JobController extends BaseController
                 'area_uuid',
                 ArrayHelper::getColumn($candidateQuery, 'candidate_area_uuid')
             ])
+            //->select(['area_name_en', 'area_name_ar', 'area_uuid'])
+            //->distinct('area_name_en')
+            //->asArray()
             ->all();
 
         $skills = CandidateSkill::find()
@@ -67,6 +73,9 @@ class JobController extends BaseController
                 'candidate_id',
                 ArrayHelper::getColumn($candidateQuery, 'candidate_id')
             ])
+            ->select(['skill'])
+            ->distinct('skill')
+            ->asArray()
             ->all();
 
         return [
@@ -123,7 +132,7 @@ class JobController extends BaseController
         }
 
         if ($gender) {
-            $query->andWhere(['gender' => $gender]);
+            $query->andWhere(['candidate.candidate_gender' => $gender]);
         }
 
         if ($areas) {
