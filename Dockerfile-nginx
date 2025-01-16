@@ -1,0 +1,74 @@
+FROM php:8.2-fpm
+
+# Install required PHP extensions
+RUN apt-get update && apt-get install -y \
+     libpng-dev \
+     libjpeg-dev \
+     libfreetype6-dev \
+     libzip-dev \
+     unzip \
+     git \
+     ffmpeg \
+     nginx \
+     cron \
+    # composer \
+     && docker-php-ext-configure gd --with-freetype --with-jpeg \
+     && docker-php-ext-install gd pdo pdo_mysql zip opcache exif 
+
+# Install PHP dependencies
+#RUN pecl install ffmpeg \
+#    && docker-php-ext-enable ffmpeg
+
+#COPY ./nginx/basic.conf /etc/nginx/nginx.conf
+
+#COPY ./nginx/basic.conf /etc/nginx/sites-available/basic.conf
+
+#RUN ln -s /etc/nginx/sites-available/basic.conf /etc/nginx/sites-enabled/
+    
+# Copy Nginx site configuration files
+#COPY ./nginx/development.conf /etc/nginx/conf.d/development.conf
+#COPY ./nginx/basic.conf /etc/nginx/conf.d/basic.conf
+# Ensure the configuration files have the correct permissions
+#RUN chmod 644 /etc/nginx/conf.d/*.conf
+
+# Create sites-available and sites-enabled directories if they don't exist
+#RUN mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
+
+# Create symbolic links to enable the sites
+#RUN ln -sf /etc/nginx/conf.d/development.conf /etc/nginx/sites-enabled/
+#RUN ln -sf /etc/nginx/conf.d/basic.conf /etc/nginx/sites-enabled/
+
+# Set working directory in the container
+WORKDIR /var/www/html
+
+# Copy application files to the container
+COPY . /var/www/html
+
+# Install Composer
+#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Set permissions for the web server
+#RUN chown -R www-data:www-data /var/www/html \
+#    && chmod -R 775 /var/www/html
+
+RUN cd /var/www/html
+
+#RUN composer install --no-dev
+
+#COPY ./wait-for-it.sh /usr/local/bin/wait-for-it
+#RUN chmod +x /usr/local/bin/wait-for-it
+
+COPY ./cron/cronlist /etc/cron.d/cronlist
+RUN chmod 0644 /etc/cron.d/cronlist
+RUN crontab /etc/cron.d/cronlist
+
+RUN ./init --env=Dev-Server --overwrite=All 
+COPY ./nginx/basic.conf /etc/nginx/sites-available/basic.conf
+RUN ln -s /etc/nginx/sites-available/basic.conf /etc/nginx/sites-enabled/
+       
+# Expose port 80
+EXPOSE 80
+
+# Start Nginx and PHP-FPM
+CMD ["sh", "-c", "service nginx start && ./yii migrate && php-fpm "]
+#CMD ["sh", "-c", "service nginx start"]        

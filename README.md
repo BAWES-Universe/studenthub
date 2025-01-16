@@ -35,7 +35,19 @@ Detailed documentation is available in the `docs/` directory:
 
 `GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.5' IDENTIFIED BY 'root' WITH GRANT OPTION;`
 
+# copy to s3 
+
+`aws s3 cp ./db.sql s3://studenthub-uploads-dev-server/exports/db.sql`
+
+# Docker 
+
+`docker-compose -f docker-compose-dev.yml down`
+`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d`
+ 
+ `docker-compose -f docker-compose-dev.yml -p studenthub-dev-server-app up app`
 
 ## License
 
 Proprietary software. All rights reserved.
+
+

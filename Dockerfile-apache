@@ -16,25 +16,21 @@ RUN apt-get update && apt-get install -y \
      unzip \
      git \
      ffmpeg \
+     cron \
      && docker-php-ext-configure gd --with-freetype --with-jpeg \
-     && docker-php-ext-install gd pdo pdo_mysql zip opcache
+     && docker-php-ext-install gd pdo pdo_mysql zip opcache exif
 
 # Install PHP dependencies
 RUN pecl install ffmpeg \
-    && docker-php-ext-enable ffmpeg \
-
+    && docker-php-ext-enable ffmpeg 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
 # Install Composer
-#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Set working directory in the container
 WORKDIR /var/www/html
-
-# Install FFMpeg PHP Library via Composer
-#COPY composer.json /var/www/html
-#RUN composer install
 
 # Copy application files to the container
 COPY . /var/www/html
@@ -45,10 +41,18 @@ RUN chown -R www-data:www-data /var/www/html \
 
 RUN cd /var/www/html
 
+# Install FFMpeg PHP Library via Composer
+#COPY composer.json /var/www/html
+RUN composer install --no-dev
+
 #RUN ./init --env=Krushn --overwrite=All
 
 #RUN ./yii migrate
 
+COPY cron/cronlist /etc/cron.d/cronlist
+RUN chmod 0644 /etc/cron.d/cronlist
+RUN crontab /etc/cron.d/cronlist
+      
 # Expose port 80
 EXPOSE 80
 
