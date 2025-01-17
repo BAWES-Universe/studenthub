@@ -10,8 +10,8 @@ services:
     image: mysql:8.4.3
     restart: always
     volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - mysql-data:/var/lib/mysql
-      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
     environment:
       - MYSQL_ROOT_PASSWORD=studenthub
       - MYSQL_DATABASE=studenthub

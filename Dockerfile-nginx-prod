@@ -75,6 +75,4 @@ RUN ln -s /etc/nginx/sites-available/production.conf /etc/nginx/sites-enabled/
 EXPOSE 80
 
 # Start Nginx and PHP-FPM
-CMD ["sh", "-c", "service nginx start && ./yii migrate"] 
-# && php-fpm 
-#CMD ["sh", "-c", "service nginx start"]        
+CMD ["sh", "-c", "sleep 5 && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
