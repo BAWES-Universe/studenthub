@@ -25,9 +25,8 @@ services:
   app:
     build: 
       context: .
-      dockerfile: ./Dockerfile-nginx
+      dockerfile: ./Dockerfile-nginx-dev
     container_name: studenthub-backend-dev
-    
     #command:
     #  - /bin/sh
     #  - -c
@@ -41,30 +40,35 @@ services:
     #    tail -f /dev/null  # Keep container running
     ports:
       - "8080:80" #app endpoint
+      - "21080:21080" # admin app port
+      - "22080:22080" # candidate app port
+      - "23080:23080" # employer app port
+      - "24080:24080" # inspector app port
+      - "25080:25080" # staff app port
+      - "26080:26080" # verification app port
       - "3001:3001" # Yeaster microservice todo
       - "3306:3306" # mysql port
     volumes:
       - .:/var/www/html
       #- ./nginx/basic.conf:/etc/nginx/sites-available/basic.conf
     depends_on:
-      #- redis
-     - mysql
+      - redis
+      - mysql
     networks:
       - studenthub-network
 
-  #redis:
-  #  image: redis:6.2.3
-  #  ports:
-  #    - "7777:7777"
-  #    - "6379:6379"
-   # networks:
-   #   - studenthub-network
+  redis:
+    image: redis:6.2.3
+    ports:
+      - "6379:6379"
+    networks:
+      - studenthub-network
    # command:
    #   - redis-server --port 7777
-   # volumes:
-  #  - redis-data:/data
+    volumes:
+    - redis-data:/data
 
 volumes:
-  #redis-data:
+  redis-data:
   mysql-data: 
 

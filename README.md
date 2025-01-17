@@ -46,6 +46,12 @@ Detailed documentation is available in the `docs/` directory:
  
  `docker-compose -f docker-compose-dev.yml -p studenthub-dev-server-app up app`
 
+## mysql 
+
+`docker-compose exec mysql mysql -u root -p`
+
+`docker-compose exec mysql mysql -u studenthubuser -pstudenthub -h mysql-1`
+
 ## License
 
 Proprietary software. All rights reserved.
