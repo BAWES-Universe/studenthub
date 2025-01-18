@@ -46,14 +46,50 @@ Detailed documentation is available in the `docs/` directory:
 
 `docker-compose -f docker-compose-dev.yml down`
 `docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d`
- 
-`docker-compose -f docker-compose-local.yml -p studenthub-local-server up`
+`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server down`
+
+## CI/ CD 
+
+### Build image 
+
+`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server build`
+
+### Run container 
+
+`docker-compose -f docker-compose-local.yml -p studenthub-local-server up --force-recreate`
+
+## execute docker build 
+
+`docker exec -it <container_id> /bin/bash`
+
+## fixes 
+- why composer install not working 
+
+## publish to ecr
+
+### login
+- aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 438663597141.dkr.ecr.eu-west-2.amazonaws.com 
+
+### basic 
+- docker build  -t studenthub/backend-dev .
+
+### cross platform build 
+- docker buildx build --platform linux/amd64 -t studenthub/backend-dev -f Dockerfile-nginx-dev .
+
+### tag and push 
+- docker tag studenthub/backend-dev:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
+- docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
+
+## using docker compose 
+- docker-compose -f docker-compose-dev.yml build --build-arg platform=linux/amd64 tag=studenthub/backend-dev .
+- docker-compose -f docker-compose-dev.yml up --build
 
 ## mysql 
 
 `docker-compose exec mysql mysql -u root -p`
 
 `docker-compose exec mysql mysql -u studenthubuser -pstudenthub -h mysql-1`
+
 
 ## License
 

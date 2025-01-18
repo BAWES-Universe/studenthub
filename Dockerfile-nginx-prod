@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
      ffmpeg \
      nginx \
      cron \
-    # composer \
+     #composer \
      && docker-php-ext-configure gd --with-freetype --with-jpeg \
      && docker-php-ext-install gd pdo pdo_mysql zip opcache exif 
 
@@ -45,15 +45,16 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # Install Composer
-#RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Set permissions for the web server
 #RUN chown -R www-data:www-data /var/www/html \
-#    && chmod -R 775 /var/www/html
+RUN chmod -R 775 /var/www/html
 
 RUN cd /var/www/html
 
-#RUN composer install --no-dev
+#RUN composer install 
+#--no-dev
 
 #COPY ./wait-for-it.sh /usr/local/bin/wait-for-it
 #RUN chmod +x /usr/local/bin/wait-for-it
@@ -76,4 +77,4 @@ EXPOSE 80
 
 # Start Nginx and PHP-FPM
 #CMD ["sh", "-c", "sleep 5 && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
-CMD ["sh", "-c", "./init --env=Production-Nginx --overwrite=All && sleep 5 && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
+CMD ["sh", "-c", "composer install && ./init --env=Production-Nginx --overwrite=All && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
