@@ -21,9 +21,9 @@ class BrandCest
      */
 	public function _fixtures() {
 		return [
-			'company'       => CompanyFixture::className(),
-			'brand'       => BrandFixture::className(),
-			'staffToken' => StaffTokenFixture::className()
+			'company'       => CompanyFixture::class,
+			'brand'       => BrandFixture::class,
+			'staffToken' => StaffTokenFixture::class
 		];
 	}
 

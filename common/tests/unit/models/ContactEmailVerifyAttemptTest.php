@@ -29,11 +29,11 @@ class ContactEmailVerifyAttemptTest extends \Codeception\Test\Unit
         $model->code = null;
         $model->ip_address = null;
 
-        expect('email should be required field', $model->validate(['email']))->false();
-        expect('code should be required field', $model->validate(['code']))->false();
-        expect('ip address should be required field', $model->validate(['ip_address']))->false();
+        $this->assertFalse($model->validate(['email']));
+        $this->assertFalse($model->validate(['code']));
+        $this->assertFalse($model->validate(['ip_address']));
 
         $model->email = '123123123';
-        expect('Invalid email', $model->validate(['email']))->false();
+        $this->assertFalse($model->validate(['email']));
     }
 }

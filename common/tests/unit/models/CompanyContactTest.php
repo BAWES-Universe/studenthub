@@ -19,7 +19,7 @@ class CompanyContactTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'companyContact' => CompanyContactFixture::className()
+            'companyContact' => CompanyContactFixture::class
         ];
     }
 
@@ -29,21 +29,19 @@ class CompanyContactTest extends \Codeception\Test\Unit
 
     public function testValidate()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Company Contact is in the table',
-                CompanyContact::find()->one()
-            )->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(CompanyContact::find()->one());
+        //});
 
-        $this->specify('Field validation', function() {
+        //$this->specify('Field validation', function() {
                 
             $model = new CompanyContact;
 
             $model->company_id = '123123123';
-            expect('Invalid Company id', $model->validate(['company_id']))->false();
+            $this->assertFalse($model->validate(['company_id']));
 
             $model->contact_uuid = '123123123';
-            expect('Invalid Contact id', $model->validate(['contact_uuid']))->false();
+            $this->assertFalse($model->validate(['contact_uuid']));
 
             //company_id + contact_uuid should be unique combo
 
@@ -54,8 +52,8 @@ class CompanyContactTest extends \Codeception\Test\Unit
             $model->company_id = $companyContact->company_id;
             $model->contact_uuid = $companyContact->contact_uuid;
             
-            expect('Invalid Company id', $model->validate(['company_id']))->false();
-            //expect('Invalid Contact id', $model->validate(['contact_uuid']))->false();
+            $this->assertFalse($model->validate(['company_id']));
+            //$this->assertFalse($model->validate(['contact_uuid']));
 
             //try to add different value
 
@@ -66,8 +64,8 @@ class CompanyContactTest extends \Codeception\Test\Unit
                 'company_contact_uuid' => $companyContact->company_contact_uuid
             ]);
 
-            expect('Valid Company id', $model->validate(['company_id']))->true();
-            expect('Valid Contact id', $model->validate(['contact_uuid']))->true();
-        });
+            $this->assertTrue($model->validate(['company_id']));
+            $this->assertTrue($model->validate(['contact_uuid']));
+        //});
     }
 }

@@ -3,7 +3,10 @@
 namespace common\components;
 
 use Yii; 
-
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
+use Cloudinary\Api\Admin\AdminApi;
 
 /**
  *
@@ -12,26 +15,44 @@ use Yii;
  * @author Khalid Al-Mutawa <khalid@bawes.net>
  * @link http://www.bawes.net
  */
-class CloudinaryManager {
+class CloudinaryManager extends \yii\base\Component {
 
     public $cloud_name;
     public $api_key;
     public $api_secret;
     
+    private $cloudinary;
+
     /**
      * @inheritdoc
      */
     public function init()
     {
+        parent::init();
+
         foreach (['cloud_name', 'api_key', 'api_secret'] as $attribute) {
             if ($this->$attribute === null) {
                 throw new yii\base\InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                    '{class}' => static::className(),
+                    '{class}' => static::class,
                     '{attribute}' => '$' . $attribute
                 ]));
             }
         }
-//        parent::init();
+
+        /*define('CLOUDINARY_CLOUD_NAME', $this->cloud_name);
+        define('CLOUDINARY_API_KEY', $this->api_key);
+        define('CLOUDINARY_API_SECRET', $this->api_secret);
+*/
+        Configuration::instance([
+            'cloud' => [
+                "cloud_name" => $this->cloud_name,
+                "api_key" => $this->api_key,
+                "api_secret" => $this->api_secret
+            ], 
+            'url' => [
+                'secure' => true
+            ]
+        ]);
     }
 
     /**
@@ -42,13 +63,7 @@ class CloudinaryManager {
      */
     public function upload($filePath, $options) 
     {
-        \Cloudinary::config(array( 
-          "cloud_name" => $this->cloud_name,
-          "api_key" => $this->api_key,
-          "api_secret" => $this->api_secret
-        ));
-    
-        return \Cloudinary\Uploader::upload(
+        return (new uploadApi())->upload(
             $filePath, 
             $options
         );
@@ -56,24 +71,19 @@ class CloudinaryManager {
     
     /**
      * Delete image
-     * @param type $path
-     * @return type
+     * @param string $path
+     * @return array
      */
     public function delete($path, $type = "image")
     {
-        \Cloudinary::config(array( 
-          "cloud_name" => $this->cloud_name,
-          "api_key" => $this->api_key,
-          "api_secret" => $this->api_secret
-        ));
-        
         //remove extension from path to get public_id
         
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         
         $public_id = str_replace(".".$ext, "", $path);
-        
-        $result = \Cloudinary\Uploader::destroy($public_id, [
+        //$this->cloudinary->delete
+
+        $result = (new uploadApi())->destroy($public_id, [
             "invalidate" => true,//remove from CDN cache if any
             "resource_type" => $type
         ]);
@@ -83,17 +93,17 @@ class CloudinaryManager {
     
     /**
      * Get image url by public_id
-     * @param type $public_id
-     * @return type
+     * @param string $public_id
+     * @return array
      */
     public function getUrl($public_id, $type = "image")
-    {   
-        \Cloudinary::config(array( 
-          "cloud_name" => $this->cloud_name,
-          "api_key" => $this->api_key,
-          "api_secret" => $this->api_secret
-        ));
-        return cloudinary_url($public_id,["resource_type" => $type]);
+    {
+        $result = (new adminApi())->asset($public_id);
+
+        if ($result['secure_url']) {
+            return $result['secure_url'];
+        }
+        //return  ($public_id, ["resource_type" => $type]);
     }
 }
 

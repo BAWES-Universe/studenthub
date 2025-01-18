@@ -37,7 +37,7 @@ class MonthlySalaryContract extends \yii\db\ActiveRecord
             [['salary_day'], 'integer'],
             [['ms_contract_uuid', 'contract_uuid'], 'string', 'max' => 60],
             [['ms_contract_uuid'], 'unique'],
-            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
+            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::class, 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
         ];
     }
 
@@ -47,7 +47,7 @@ class MonthlySalaryContract extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'ms_contract_uuid',
                 ],

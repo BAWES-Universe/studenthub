@@ -33,7 +33,7 @@ class Invoice extends ActiveRecord
             [['transfer_id'], 'integer'],
             [['invoice_date'], 'safe'],
             [['invoice_status'], 'string'],
-            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
+            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::class, 'targetAttribute' => ['transfer_id' => 'transfer_id']],
         ];
     }
 

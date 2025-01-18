@@ -20,7 +20,7 @@ class PasswordResetRequestForm extends Model
         return [
             [['email'], 'required'],
             [['email'], 'email'],
-            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Staff::className(), 'targetAttribute' => ['email' => 'staff_email']],
+            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Staff::class, 'targetAttribute' => ['email' => 'staff_email']],
         ];
     }
 

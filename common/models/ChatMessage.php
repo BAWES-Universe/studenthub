@@ -52,7 +52,7 @@ class ChatMessage extends \yii\db\ActiveRecord
             [['created_at', 'updated_at'], 'safe'],
             [['chat_message_uuid', 'chat_uuid'], 'string', 'max' => 60],
             [['chat_message_uuid'], 'unique'],
-            [['chat_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Chat::className(), 'targetAttribute' => ['chat_uuid' => 'chat_uuid']],
+            [['chat_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Chat::class, 'targetAttribute' => ['chat_uuid' => 'chat_uuid']],
         ];
     }
 
@@ -78,7 +78,7 @@ class ChatMessage extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'chat_message_uuid',
                 ],
@@ -93,7 +93,7 @@ class ChatMessage extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

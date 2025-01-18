@@ -15,8 +15,8 @@ class CountryCest
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'country' => CountryFixture::className()
+            'adminToken' => AdminTokenFixture::class,
+            'country' => CountryFixture::class
         ];
     }
 

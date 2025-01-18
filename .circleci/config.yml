@@ -9,14 +9,13 @@ jobs:
       only: 
         - master
         - develop
+        - kk/tech-766-upgrade-apps-aws-ec2-instances-to-use-latest-mysql-and-php #test upgrade
 
     docker:
       # specify the version you desire here
-      - image: cimg/php:7.4.30-browsers
+      - image: cimg/php:8.2.27
         environment:
           PUPPETEER_SKIP_DOWNLOAD: true
-
-    #older: 7.3-apache-stretch-node-browsers
 
       - image: cimg/mysql:8.0 #5.7
         environment:
@@ -121,7 +120,6 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
 
-
       - run:
           name: Initialize Dev Environment
           command: ./init --env=Circle-CI --overwrite=All
@@ -151,7 +149,7 @@ jobs:
 
       - run:
          name: Run Staff app Codeception tests and store result output
-         command: ./vendor/bin/codecept run staff/tests/unit --xml --html --fail-fast
+         command: cd ./staff && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
       #---------- company app --------------#
 
@@ -161,7 +159,7 @@ jobs:
 
       - run:
           name: Run Company app Codeception tests and store result output
-          command: ./vendor/bin/codecept run company/tests/unit --xml --html --fail-fast
+          command: cd ./company && ../vendor/bin/codecept run unit --xml --html --fail-fast
 
       #---------- manager app --------------#
 

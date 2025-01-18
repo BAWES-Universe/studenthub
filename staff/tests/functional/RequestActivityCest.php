@@ -18,10 +18,10 @@ class RequestActivityCest
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className(),
-            'request' => RequestFixture::className(),
-            'note' => NoteFixture::className(),
-            'company' => CompanyFixture::className(),
+            'staffToken' => StaffTokenFixture::class,
+            'request' => RequestFixture::class,
+            'note' => NoteFixture::class,
+            'company' => CompanyFixture::class,
         ];
     }
 

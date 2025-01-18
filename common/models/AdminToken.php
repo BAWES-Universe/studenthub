@@ -43,7 +43,7 @@ class AdminToken extends \yii\db\ActiveRecord
         return [
             [['admin_id', 'token_value', 'token_status'], 'required'],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
-            //[['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['admin_id' => 'admin_id']],
+            //[['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['admin_id' => 'admin_id']],
         ];
     }
 
@@ -62,7 +62,7 @@ class AdminToken extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'token_created_datetime',
                 'updatedAtAttribute' => 'token_last_used_datetime',
                 'value' => new Expression('NOW()'),

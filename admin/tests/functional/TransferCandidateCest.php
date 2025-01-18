@@ -19,10 +19,10 @@ class TransferCandidateCest
     public function _fixtures() 
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className(),
-            'transferFile' => TransferFileFixture::className(),
-            'invoice' => InvoiceFixture::className()
+            'adminToken' => AdminTokenFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class,
+            'transferFile' => TransferFileFixture::class,
+            'invoice' => InvoiceFixture::class
         ];
     }
 

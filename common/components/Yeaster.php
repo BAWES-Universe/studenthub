@@ -10,7 +10,7 @@ use yii\httpclient\Client;
  * node /var/www/studenthub-microservices/yeastar-voicemails/console/sync.js
  * node /var/www/studenthub-microservices/yeastar-voicemails/console/process.js
  */
-class Yeaster
+class Yeaster extends \yii\base\Component
 {
     public $microserviceApiKey = "QstN8_18LmILpl37r2zvdDCp5JjWPCNh";
 

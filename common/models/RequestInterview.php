@@ -60,12 +60,12 @@ class RequestInterview extends \yii\db\ActiveRecord
             [['internal_note', 'interview_note'], 'string'],
             [['request_interview_uuid', 'application_uuid', 'request_uuid', 'fulltimer_uuid', 'created_by'], 'string', 'max' => 60],
             [['request_interview_uuid'], 'unique'],
-            [['application_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => RequestApplication::className(), 'targetAttribute' => ['application_uuid' => 'application_uuid']],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['created_by' => 'contact_uuid']],
-            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['application_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => RequestApplication::class, 'targetAttribute' => ['application_uuid' => 'application_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::class, 'targetAttribute' => ['created_by' => 'contact_uuid']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::class, 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 
@@ -75,7 +75,7 @@ class RequestInterview extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'request_interview_uuid',
                 ],
@@ -87,13 +87,13 @@ class RequestInterview extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'created_by',
                 'updatedByAttribute' => null
             ],

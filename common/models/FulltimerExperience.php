@@ -37,7 +37,7 @@ class FulltimerExperience extends \yii\db\ActiveRecord
             [['fulltimer_uuid', 'experience'], 'required'],
             [['fulltimer_experience_created_at'], 'safe'],
             [['experience'], 'string', 'max' => 128],
-            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::class, 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
         ];
     }
 
@@ -73,7 +73,7 @@ class FulltimerExperience extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'fulltimer_experience_created_at',
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),

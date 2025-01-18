@@ -33,7 +33,7 @@ class JobSkills extends \yii\db\ActiveRecord
             [['skill'], 'string', 'max' => 255],
             [['job_uuid', 'skill'], 'unique', 'targetAttribute' => ['job_uuid', 'skill']],
             [['job_uuid'], 'exist', 'skipOnError' => true,
-                'targetClass' => Job::className(), 'targetAttribute' => ['job_uuid' => 'job_uuid']],
+                'targetClass' => Job::class, 'targetAttribute' => ['job_uuid' => 'job_uuid']],
         ];
     }
 

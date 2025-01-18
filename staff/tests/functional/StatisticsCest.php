@@ -17,8 +17,8 @@ class StatisticsCest
 	public function _fixtures()
 	{
         return [
-            'candidateIdCardFixture' => CandidateIdCardFixture::className(),
-            'staffToken' => StaffTokenFixture::className()
+            'candidateIdCardFixture' => CandidateIdCardFixture::class,
+            'staffToken' => StaffTokenFixture::class
         ];
 	}
 

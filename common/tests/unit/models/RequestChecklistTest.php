@@ -20,7 +20,7 @@ class RequestChecklistTest extends \Codeception\Test\Unit
 
     public function _fixtures() {
         return [
-            'requestChecklist' => RequestChecklistFixture::className(),
+            'requestChecklist' => RequestChecklistFixture::class,
         ];
     }
 
@@ -33,16 +33,16 @@ class RequestChecklistTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        /*$this->specify('Fixtures should be loaded', function() {
+        /*//$this->specify('Fixtures should be loaded', function() {
             expect('Check data loaded',
                 RequestChecklist::find()->one()
             )->notNull();
-        });*/
+        //});*/
 
-        $this->specify('model fields validation', function () {
+        //$this->specify('model fields validation', function () {
             $model = new RequestChecklist();
 
-            expect('should not accept empty status_name', $model->validate(['status_name']))->false();
-        });
+            $this->assertFalse($model->validate(['status_name']));
+        //});
     }
 }

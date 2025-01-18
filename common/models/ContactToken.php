@@ -49,7 +49,7 @@ class ContactToken extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'token_created_datetime',
                 'updatedAtAttribute' => 'token_last_used_datetime',
                 'value' => new Expression('NOW()'),

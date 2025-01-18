@@ -8,11 +8,15 @@ return [
             'password' => 'root',
             'charset' => 'utf8',
         ],
+        'yeaster' => [
+            'class' => 'common\components\Yeaster',
+            "apiEndpoint" => "http://localhost:3001"
+        ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=wallet',
+            'dsn' => 'mysql:host=localhost:8889;dbname=wallet',
             'username' => 'root',
-            'password' => '',
+            'password' => 'root',
             'charset' => 'utf8',
         ],
         'redis' => [
@@ -24,10 +28,6 @@ return [
         'cache' => [
             'class' => 'yii\redis\Cache',
             //'class' => 'yii\caching\FileCache',
-        ],
-        'yeaster' => [
-            'class' => 'common\components\Yeaster',
-            "apiEndpoint" => "http://localhost:3001"
         ],
         'xero' => [
             'class' => 'common\components\Xero',
@@ -73,10 +73,11 @@ return [
         ],
         'eventManager' => [
             'class' => 'common\components\EventManager',
-            "sqsRagion" => "eu-west-2",
-            "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
-            "sqsSecret" => "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",
-            "sqsQueue" => "438663597141/StudenthubDev"
+            // "sqsRagion" => "eu-west-2",
+            // "sqsKey" => "AKIAWMITDJRKXNWDOBNJ",
+            //  "sqsSecret" => "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",
+            //  "sqsQueue" => "438663597141/StudenthubDev",
+            // "sqsEndpoint" => "http://localhost:3001"
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',

@@ -41,8 +41,8 @@ class InterviewEvaluationNoteVersion extends \yii\db\ActiveRecord
             [['created_at', 'updated_at'], 'safe'],
             [['ienv_uuid', 'interview_evaluation_uuid'], 'string', 'max' => 60],
             [['ienv_uuid'], 'unique'],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
-            [['interview_evaluation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => InterviewEvaluation::className(), 'targetAttribute' => ['interview_evaluation_uuid' => 'interview_evaluation_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['interview_evaluation_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => InterviewEvaluation::class, 'targetAttribute' => ['interview_evaluation_uuid' => 'interview_evaluation_uuid']],
         ];
     }
 
@@ -52,7 +52,7 @@ class InterviewEvaluationNoteVersion extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'ienv_uuid',
                 ],
@@ -64,7 +64,7 @@ class InterviewEvaluationNoteVersion extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

@@ -16,7 +16,7 @@ class LoginFormTest extends \Codeception\Test\Unit
 
 	public function _fixtures()
 	{
-        return [ 'staff' => StaffFixture::className()];
+        return [ 'staff' => StaffFixture::class];
     }
 
     /**
@@ -24,7 +24,7 @@ class LoginFormTest extends \Codeception\Test\Unit
      */
     public function testLoadingFixture()
     {
-        expect('check if fixture data loaded', \staff\models\Staff::find()->count())->greaterThan(0);
+        $this->assertGreaterThan(0, \staff\models\Staff::find()->count(),'check if fixture data loaded');
     }
 
     /**
@@ -37,10 +37,10 @@ class LoginFormTest extends \Codeception\Test\Unit
             'password' => '',
         ]);
         $model->validate();
-        expect('Email error', $model->errors)->hasKey('email');
-        expect('Email error', $model->errors['email'][0])->equals('Email cannot be blank.');
-        expect('Password error', $model->errors)->hasKey('password');
-        expect('Password error', $model->errors['password'][0])->equals('Password cannot be blank.');
+        $this->assertArrayHasKey('email', $model->errors, 'Email error');
+        $this->assertEquals('Email cannot be blank.', $model->errors['email'][0], 'Email error message');
+        $this->assertArrayHasKey('password', $model->errors, 'Password error');
+        $this->assertEquals('Password cannot be blank.', $model->errors['password'][0], 'Password error message');
     }
 
 
@@ -54,8 +54,8 @@ class LoginFormTest extends \Codeception\Test\Unit
             'password' => 'test',
         ]);
         $model->validate();
-        expect('invalid Email error', $model->errors)->hasKey('email');
-        expect('invalid Email error', $model->errors['email'][0])->equals('Email is not a valid email address.');
+        $this->assertArrayHasKey('email', $model->errors, 'invalid Email error');
+        $this->assertEquals('Email is not a valid email address.', $model->errors['email'][0], 'invalid Email error message');
     }
 
     /**
@@ -69,8 +69,8 @@ class LoginFormTest extends \Codeception\Test\Unit
             'password' => 'invalid password',
         ]);
         $model->validate();
-        expect('invalid Password error', $model->errors)->hasKey('password');
-        expect('invalid Password error', $model->errors['password'][0])->equals('Incorrect email or password.');
+        $this->assertArrayHasKey('password', $model->errors, 'invalid Password error');
+        $this->assertEquals('Incorrect email or password.', $model->errors['password'][0], 'invalid Password error message');
     }
 
     /**
@@ -84,8 +84,8 @@ class LoginFormTest extends \Codeception\Test\Unit
             'password' => '12345',
         ]);
         $model->validate();
-        expect('model should login user', $model->login())->true();
-        expect('error message should not be set', $model->errors)->hasntKey('password');
-        expect('user should be logged in', Yii::$app->user->isGuest)->false();
+        $this->assertTrue($model->login());
+        $this->assertArrayNotHasKey('password', $model->errors, 'error message should not be set');
+        $this->assertFalse(Yii::$app->user->isGuest, 'user should be logged in');
     }
 }

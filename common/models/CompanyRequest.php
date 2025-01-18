@@ -57,7 +57,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
             [['company_request_uuid'], 'string', 'max' => 60],
             [['company_name', 'contact_position'], 'string', 'max' => 100],
             [['company_email', 'requesting_for'], 'string', 'max' => 255],
-            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::class, 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
         ];
     }
 
@@ -84,7 +84,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'company_request_uuid',
                 ],
@@ -96,7 +96,7 @@ class CompanyRequest extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

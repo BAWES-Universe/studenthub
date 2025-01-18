@@ -32,7 +32,7 @@ class FulltimerTags extends \yii\db\ActiveRecord
             [['fulltimer_uuid', 'tag'], 'required'],
             [['fulltimer_uuid'], 'string', 'max' => 60],
             [['tag'], 'string', 'max' => 255],
-            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::class, 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
         ];
     }
 

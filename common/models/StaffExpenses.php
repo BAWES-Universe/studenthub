@@ -54,7 +54,7 @@ class StaffExpenses extends \yii\db\ActiveRecord
             [['staff_expense_uuid'], 'string', 'max' => 60],
             [['supplier', 'file'], 'string', 'max' => 225],
             [['staff_expense_uuid'], 'unique'],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
             [
                 ['file'],
                 '\common\components\S3FileExistValidator',
@@ -76,7 +76,7 @@ class StaffExpenses extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'staff_expense_uuid',
                 ],
@@ -88,13 +88,13 @@ class StaffExpenses extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'created_by',
                 'updatedByAttribute' => 'updated_by'
             ],

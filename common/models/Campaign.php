@@ -58,7 +58,7 @@ class Campaign extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className (),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'utm_uuid',
                 ],
@@ -70,7 +70,7 @@ class Campaign extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 //'createdAtAttribute' => 'candidate_created_at',
                 //'updatedAtAttribute' => 'candidate_updated_at',
                 'value' => new Expression('NOW()'),

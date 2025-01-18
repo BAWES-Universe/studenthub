@@ -45,7 +45,7 @@ class Mall extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'mall_uuid',
                 ],
@@ -57,7 +57,7 @@ class Mall extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'mall_created_datetime',
                 'updatedAtAttribute' => 'mall_updated_datetime',
                 'value' => new Expression('NOW()'),

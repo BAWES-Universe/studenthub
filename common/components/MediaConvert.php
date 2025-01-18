@@ -76,7 +76,7 @@ class MediaConvert extends Component
         foreach ($requiredAttributes as $attribute) {
             if ($this->$attribute === null) {
                 throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                    '{class}' => static::className(),
+                    '{class}' => static::class,
                     '{attribute}' => '$' . $attribute
                 ]));
             }

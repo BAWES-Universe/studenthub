@@ -28,10 +28,10 @@ class SuggestionCest
     public function _fixtures()
     {
         return [
-        	'staffToken' => StaffTokenFixture::className(),
-            'suggestion' => SuggestionFixture::className(),
-            'story' => StoryFixture::className(),
-            'candidate' => CandidateFixture::className(),
+        	'staffToken' => StaffTokenFixture::class,
+            'suggestion' => SuggestionFixture::class,
+            'story' => StoryFixture::class,
+            'candidate' => CandidateFixture::class,
         ];
     }
 

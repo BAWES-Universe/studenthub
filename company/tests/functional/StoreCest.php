@@ -22,11 +22,11 @@ class StoreCest
 
 	public function _fixtures() {
 		return [
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'contactToken' => ContactTokenFixture::className(),
-            'candidate'    => CandidateFixture::className(),
-			'store'        => StoreFixture::className()
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'contactToken' => ContactTokenFixture::class,
+            'candidate'    => CandidateFixture::class,
+			'store'        => StoreFixture::class
 		];
 	}
 

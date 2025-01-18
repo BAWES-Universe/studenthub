@@ -19,7 +19,7 @@ class StoryTest extends \Codeception\Test\Unit
 
     public function _fixtures() {
         return [
-            'story' => StoryFixture::className(),
+            'story' => StoryFixture::class,
         ];
     }
 
@@ -32,38 +32,38 @@ class StoryTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        /*$this->specify('Fixtures should be loaded', function() {
+        /*//$this->specify('Fixtures should be loaded', function() {
             expect('Check story loaded',
                 Story::find()->one()
             )->notNull();
-        });*/
+        //});*/
 
-        $this->specify('model fields validation', function () {
+        //$this->specify('model fields validation', function () {
             $model = new Story();
 
-            expect('should not accept empty request_uuid', $model->validate(['request_uuid']))->false();
+            $this->assertFalse($model->validate(['request_uuid']));
             //expect('should not accept empty suggestion_uuid', $model->validate(['suggestion_uuid']))->false();
 
             $model->suggestion_uuid = 'test';
-            expect('should not accept random string for suggestion_uuid', $model->validate(['suggestion_uuid']))->false();
+            $this->assertFalse($model->validate(['suggestion_uuid']));
 
             $model->suggestion_uuid = 999;
-            expect('should not accept invalid value for suggestion_uuid', $model->validate(['suggestion_uuid']))->false();
+            $this->assertFalse($model->validate(['suggestion_uuid']));
 
             $model->request_uuid = 'test';
-            expect('should not accept random string for request_uuid', $model->validate(['request_uuid']))->false();
+            $this->assertFalse($model->validate(['request_uuid']));
 
             $model->request_uuid = 999;
-            expect('should not accept invalid value for request_uuid', $model->validate(['request_uuid']))->false();
+            $this->assertFalse($model->validate(['request_uuid']));
 
             $model->staff_id = 'test';
-            expect('should not accept random string for staff_id', $model->validate(['staff_id']))->false();
+            $this->assertFalse($model->validate(['staff_id']));
 
             $model->staff_id = 999;
-            expect('should not accept invalid value for staff_id', $model->validate(['staff_id']))->false();
+            $this->assertFalse($model->validate(['staff_id']));
 
             $model->story_status = 'story_status';
-            expect('should not accept random string for story_status', $model->validate(['story_status']))->false();
-        });
+            $this->assertFalse($model->validate(['story_status']));
+        //});
     }
 }

@@ -2,6 +2,7 @@
 
 $transfer_file_id = Yii::$app->db->createCommand('SELECT transfer_file_id from transfer_file order by rand() limit 1')->queryScalar();
 
+//todo: fix
 return [
 	'tfe_uuid' => 'tfe_' . $faker->uuid, 
 	'transfer_file_id' => $transfer_file_id,
@@ -42,10 +43,10 @@ return [
 	'changes_type' => 'Service', 
 	'sort_code' => 0,
 	'BIC_code' => '12234234', 
-	'IBAN' => 'IBAN12313123123' 
+	'IBAN' => 'IBAN12313123123',
 	'ABA_routing_code' => 'ASD55333', 
 	'created_by' => $admin_id,
 	'updated_by' => $admin_id, 
 	'created_at' => $faker->date('Y-m-d H:i:s'),
 	'updated_at' => $faker->date('Y-m-d H:i:s'),
-]
+];

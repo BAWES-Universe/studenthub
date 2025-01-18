@@ -54,8 +54,8 @@ class StoryActivity extends \yii\db\ActiveRecord
             [['activity_last_updated_at','activity_created_at'], 'safe'],
             [['story_activity_uuid', 'story_uuid'], 'string', 'max' => 60],
             [['story_activity_uuid'], 'unique'],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
-            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::class, 'targetAttribute' => ['story_uuid' => 'story_uuid']],
         ];
     }
 
@@ -147,7 +147,7 @@ class StoryActivity extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'story_activity_uuid',
                 ],
@@ -159,7 +159,7 @@ class StoryActivity extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'activity_created_at',
                 'updatedAtAttribute' => 'activity_last_updated_at',
                 'value' => new Expression('NOW()'),

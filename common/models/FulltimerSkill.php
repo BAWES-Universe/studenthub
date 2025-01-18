@@ -37,7 +37,7 @@ class FulltimerSkill extends \yii\db\ActiveRecord
             [['fulltimer_uuid', 'skill'], 'required'],
             [['fulltimer_skill_created_at'], 'safe'],
             [['skill'], 'string', 'max' => 128],
-            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::className(), 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
+            [['fulltimer_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Fulltimer::class, 'targetAttribute' => ['fulltimer_uuid' => 'fulltimer_uuid']],
         ];
     }
 
@@ -61,7 +61,7 @@ class FulltimerSkill extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'fulltimer_skill_created_at',
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),

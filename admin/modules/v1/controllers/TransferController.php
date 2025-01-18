@@ -32,7 +32,7 @@ class TransferController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => \yii\filters\Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PATCH', 'OPTIONS'],
@@ -51,7 +51,7 @@ class TransferController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => \yii\filters\auth\HttpBearerAuth::class,
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -144,8 +144,8 @@ class TransferController extends Controller
                         $transferCandidate->transferFileEntry->credit_amount -
                         $transferCandidate->bonus + $transferCandidate->bonus_commission
                     ) / $transferCandidate->hours +
-                    ($transferCandidate->minutes / 60) +
-                    ($transferCandidate->seconds / 3600);
+                    ( (double) $transferCandidate->minutes / 60.0) +
+                    ( (double) $transferCandidate->seconds / 3600);
 
                 //- $transferCandidate['transfer_cost']
             }

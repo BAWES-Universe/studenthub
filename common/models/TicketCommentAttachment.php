@@ -35,8 +35,8 @@ class TicketCommentAttachment extends \yii\db\ActiveRecord
         return [
             [['ticket_comment_attachment_uuid', 'ticket_comment_uuid', 'attachment_uuid'], 'string', 'max' => 60],
             [['ticket_comment_uuid'], 'unique'],
-            [['attachment_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Attachment::className(), 'targetAttribute' => ['attachment_uuid' => 'attachment_uuid']],
-            [['ticket_comment_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => TicketComment::className(), 'targetAttribute' => ['ticket_comment_uuid' => 'ticket_comment_uuid']],
+            [['attachment_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Attachment::class, 'targetAttribute' => ['attachment_uuid' => 'attachment_uuid']],
+            [['ticket_comment_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => TicketComment::class, 'targetAttribute' => ['ticket_comment_uuid' => 'ticket_comment_uuid']],
         ];
     }
 
@@ -48,7 +48,7 @@ class TicketCommentAttachment extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className (),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'ticket_comment_attachment_uuid',
                 ],

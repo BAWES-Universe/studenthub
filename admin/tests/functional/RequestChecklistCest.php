@@ -16,8 +16,8 @@ class RequestChecklistCest
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'requestChecklist' => RequestChecklistFixture::className()
+            'adminToken' => AdminTokenFixture::class,
+            'requestChecklist' => RequestChecklistFixture::class
         ];
     }
 

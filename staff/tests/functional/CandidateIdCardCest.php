@@ -18,8 +18,8 @@ class CandidateIdCardCest {
 
     public function _fixtures() {
         return [
-            'staffToken' => StaffTokenFixture::className(),
-            'candidateIdCard' => CandidateIdCardFixture::className()
+            'staffToken' => StaffTokenFixture::class,
+            'candidateIdCard' => CandidateIdCardFixture::class
         ];
     }
 

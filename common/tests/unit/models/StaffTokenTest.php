@@ -18,8 +18,8 @@ class StaffTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className(),
-            'staff' => StaffFixture::className(),
+            'staffToken' => StaffTokenFixture::class,
+            'staff' => StaffFixture::class,
         ];
     }
 
@@ -32,19 +32,19 @@ class StaffTokenTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Staff Token is in the table', StaffToken::findOne(['staff_id'=>'1']))->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(StaffToken::findOne(['staff_id'=>'1']));
+        //});
 
 
-        $this->specify('Test Validator', function() {
+        //$this->specify('Test Validator', function() {
             $model = new StaffToken();
             $model->validate();
-            expect('staff_id required error',$model->errors)->hasKey('staff_id');
-            expect('token_value required error',$model->errors)->hasKey('token_value');
-            expect('token_status required error',$model->errors)->hasKey('token_status');
-            expect('total 3 errors',count($model->errors))->equals(3);
-        });
+            $this->assertArrayHasKey('staff_id', $model->errors);
+            $this->assertArrayHasKey('token_value', $model->errors);
+            $this->assertArrayHasKey('token_status', $model->errors);
+            $this->assertEquals(3, count($model->errors));
+        //});
     }
 
     /**
@@ -53,17 +53,17 @@ class StaffTokenTest extends \Codeception\Test\Unit
      */
     public function testGenerateToken()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Staff Token is in the table', StaffToken::findOne(['staff_id'=>'1']))->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(StaffToken::findOne(['staff_id'=>'1']));
+        //});
 
 
-        $this->specify('Test existing Token', function() {
-            expect('unique token string',strlen(StaffToken::generateUniqueTokenString()))->greaterThan(31);
-        });
+        //$this->specify('Test existing Token', function() {
+            $this->assertGreaterThan(31, strlen(StaffToken::generateUniqueTokenString()));
+        //});
 
-        $this->specify('relation testing', function() {
-            expect('relative data testing', StaffToken::findOne(['staff_id'=>'1'])->getStaff()->one()->staff_email)->equals($this->tester->grabFixture('staff', 0)->staff_email);
-        });
+        //$this->specify('relation testing', function() {
+            $this->assertEquals($this->tester->grabFixture('staff', 0)->staff_email, StaffToken::findOne(['staff_id'=>'1'])->getStaff()->one()->staff_email);
+        //});
     }
 }

@@ -37,8 +37,8 @@ class CandidateEvaluationAnswer extends \yii\db\ActiveRecord
             [['can_eval_uuid', 'ceq_uuid'], 'string', 'max' => 60],
             [['question'], 'string', 'max' => 225],
             [['rating'], 'number', 'min' => 1, 'max' => 10],
-            [['can_eval_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateEvaluation::className(), 'targetAttribute' => ['can_eval_uuid' => 'can_eval_uuid']],
-            [['ceq_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateEvalQues::className(), 'targetAttribute' => ['ceq_uuid' => 'ceq_uuid']],
+            [['can_eval_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateEvaluation::class, 'targetAttribute' => ['can_eval_uuid' => 'can_eval_uuid']],
+            [['ceq_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateEvalQues::class, 'targetAttribute' => ['ceq_uuid' => 'ceq_uuid']],
         ];
     }
 

@@ -12,7 +12,7 @@ class AccountCest
 {
 	public function _fixtures() {
 		return [
-			'contactToken' => ContactTokenFixture::className()
+			'contactToken' => ContactTokenFixture::class
 		];
 	}
 

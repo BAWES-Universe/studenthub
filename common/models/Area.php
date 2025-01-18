@@ -46,7 +46,7 @@ class Area extends \yii\db\ActiveRecord
             [['area_uuid', 'area_created_by', 'area_updated_by'], 'string', 'max' => 60],
             [['area_name_en', 'area_name_ar'], 'string', 'max' => 255],
             [['area_uuid'], 'unique'],
-            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']]
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['country_id' => 'country_id']]
         ];
     }
 
@@ -75,18 +75,18 @@ class Area extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'area_created_by',
                 'updatedByAttribute' => 'area_updated_by',
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'area_created_at',
                 'updatedAtAttribute' => 'area_updated_at',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'area_uuid',
                 ],

@@ -89,10 +89,10 @@ class Fulltimer extends \yii\db\ActiveRecord
                 }
             ],
             [['fulltimer_uuid', 'fulltimer_email','fulltimer_name','fulltimer_phone'], 'unique'],
-            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
-            [['fulltimer_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['fulltimer_area_uuid' => 'area_uuid']],
-            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['nationality_id' => 'country_id']],
-            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['country_id' => 'country_id']],
+            [['fulltimer_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::class, 'targetAttribute' => ['fulltimer_area_uuid' => 'area_uuid']],
+            [['nationality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['nationality_id' => 'country_id']],
+            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::class, 'targetAttribute' => ['university_id' => 'university_id']],
         ];
     }
 
@@ -102,7 +102,7 @@ class Fulltimer extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'fulltimer_uuid',
                 ],
@@ -114,7 +114,7 @@ class Fulltimer extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'fulltimer_created_datetime',
                 'updatedAtAttribute' => 'fulltimer_updated_datetime',
                 'value' => new Expression('NOW()'),
@@ -329,7 +329,8 @@ class Fulltimer extends \yii\db\ActiveRecord
             'fulltimer_updated_datetime' => $this->fulltimer_updated_datetime,
             'have_resume' => $this->fulltimer_pdf_cv? 'Yes': 'No',
             'fulltimer_employed' => $this->fulltimer_employed? 'Yes': 'No',
-            'fulltimer_birth_timestamp' =>$this->fulltimer_birth_date? strtotime($this->fulltimer_birth_date): null,
+            'fulltimer_birth_timestamp' => $this->fulltimer_birth_date?
+                strtotime($this->fulltimer_birth_date): null,
             'fulltimer_driving_license' => $this->fulltimer_driving_license
         ];
 
@@ -406,9 +407,11 @@ class Fulltimer extends \yii\db\ActiveRecord
         } else {
             $data['fulltimer_created_datetime'] = $this->fulltimer_created_datetime;
             //could be `new Expression('NOW()')` on update
-            $data['fulltimer_updated_datetime'] = is_string($this->fulltimer_updated_datetime) ? $this->fulltimer_updated_datetime : date('Y-m-d H:i:s');
-            $data['fulltimer_created_timestamp'] = $this->fulltimer_created_datetime? strtotime($this->fulltimer_created_datetime): null;
-            $data['fulltimer_updated_timestamp'] = $this->fulltimer_updated_datetime? strtotime($this->fulltimer_updated_datetime): null;
+            $data['fulltimer_updated_datetime'] = is_string($this->fulltimer_updated_datetime) ?
+                $this->fulltimer_updated_datetime : date('Y-m-d H:i:s');
+            $data['fulltimer_created_timestamp'] = strtotime($this->fulltimer_created_datetime);
+            $data['fulltimer_updated_timestamp'] = $this->fulltimer_updated_datetime?
+                strtotime($this->fulltimer_updated_datetime): null;
         }
 
         //fulltimer_tags

@@ -32,7 +32,7 @@ class PermissionSubSection extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'permission_sub_section_uuid',
                 ],
@@ -44,7 +44,7 @@ class PermissionSubSection extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => false,
                 'value' => new Expression('NOW()'),
@@ -62,7 +62,7 @@ class PermissionSubSection extends \yii\db\ActiveRecord
             [['permission_sub_section_uuid', 'permission_uuid'], 'string', 'max' => 60],
             [['sub_section_name'], 'string', 'max' => 255],
             [['permission_sub_section_uuid'], 'unique'],
-            [['permission_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => PermissionSection::className(), 'targetAttribute' => ['permission_uuid' => 'permission_uuid']],
+            [['permission_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => PermissionSection::class, 'targetAttribute' => ['permission_uuid' => 'permission_uuid']],
         ];
     }
 

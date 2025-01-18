@@ -24,7 +24,7 @@ class EventController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => \yii\filters\Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PATCH', 'OPTIONS'],
@@ -43,7 +43,7 @@ class EventController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => \yii\filters\auth\HttpBearerAuth::class,
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -188,7 +188,7 @@ class EventController extends Controller
                 continue;
             }
 
-            $datetime = isset($value['Datetime'])?
+            $datetime = !empty($value['Datetime'])?
                     new \DateTime(strtotime($value['Datetime'])): new \DateTime();
 
             Yii::$app->eventManager->track($event, $value, $datetime->format('c'));

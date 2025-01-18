@@ -18,9 +18,9 @@ class TransferFileCest
     public function _fixtures()
     {
         return [
-            'admin' => AdminFixture::className(),
-            'adminToken' => AdminTokenFixture::className(),
-            'transferFiles' => TransferFileFixture::className(),
+            'admin' => AdminFixture::class,
+            'adminToken' => AdminTokenFixture::class,
+            'transferFiles' => TransferFileFixture::class,
         ];
     }
 

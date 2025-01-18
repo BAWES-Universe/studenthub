@@ -50,7 +50,7 @@ class Degree extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'degree_uuid',
                 ],
@@ -62,7 +62,7 @@ class Degree extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'degree_created_at',
                 'updatedAtAttribute' => 'degree_updated_at',
                 'value' => new Expression('NOW()'),

@@ -19,11 +19,11 @@ class CandidateCest
 
 	public function _fixtures() {
 		return [
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-			'contactToken' => ManagerTokenFixture::className(),
-			'candidate'    => CandidateFixture::className(),
-            'manager' => StoreManagerFixture::className()
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+			'contactToken' => ManagerTokenFixture::class,
+			'candidate'    => CandidateFixture::class,
+            'manager' => StoreManagerFixture::class
 		] ;
 	}
 

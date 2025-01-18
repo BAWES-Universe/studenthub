@@ -13,8 +13,8 @@ class AccountCest
     public function _fixtures()
     {
         return [
-            'inspectors' => InspectorFixture::className(),
-            'token' => InspectorTokenFixture::className()
+            'inspectors' => InspectorFixture::class,
+            'token' => InspectorTokenFixture::class
         ];
     }
 

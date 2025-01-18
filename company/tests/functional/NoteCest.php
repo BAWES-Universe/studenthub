@@ -21,12 +21,12 @@ class NoteCest
     public function _fixtures()
     {
         return [
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'contactToken' => ContactTokenFixture::className(),
-            'invitation' => InvitationFixture::className (),
-            'suggestion' => SuggestionFixture::className (),
-            'note' => NoteFixture::className(),
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'contactToken' => ContactTokenFixture::class,
+            'invitation' => InvitationFixture::class,
+            'suggestion' => SuggestionFixture::class,
+            'note' => NoteFixture::class,
         ];
     }
 

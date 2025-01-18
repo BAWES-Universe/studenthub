@@ -31,7 +31,7 @@ class InvitationController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -49,7 +49,7 @@ class InvitationController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
         
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -380,8 +380,11 @@ class InvitationController extends Controller
             $first_seen_at = $invitation->invitation_app_seen_at;
 
             if (
-                $invitation->invitation_email_seen_at &&
-                strtotime($invitation->invitation_email_seen_at) < strtotime($invitation->invitation_app_seen_at)
+                !$first_seen_at ||
+                (
+                    $invitation->invitation_email_seen_at &&
+                    strtotime($invitation->invitation_email_seen_at) < strtotime($first_seen_at)
+                )
             ) {
                 $first_seen_at = $invitation->invitation_email_seen_at;
             }

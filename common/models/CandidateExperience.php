@@ -41,7 +41,7 @@ class CandidateExperience extends \yii\db\ActiveRecord
             [['candidate_experience_created_at'], 'safe'],
             [['experience', 'employer'], 'string', 'max' => 128],
             [['start_year', 'end_year'], 'number'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
     }
 
@@ -79,7 +79,7 @@ class CandidateExperience extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'candidate_experience_created_at',
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),

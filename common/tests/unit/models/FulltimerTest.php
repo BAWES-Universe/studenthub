@@ -22,10 +22,10 @@ class FulltimerTest extends \Codeception\Test\Unit
 
     public function _fixtures(){
         return [
-            'fulltimer' => FulltimerFixture::className(),
-            'area' => AreaFixture::className(),
-            'country' => CountryFixture::className(),
-            'university' => UniversityFixture::className(),
+            'fulltimer' => FulltimerFixture::class,
+            'area' => AreaFixture::class,
+            'country' => CountryFixture::class,
+            'university' => UniversityFixture::class,
         ];
     }
 
@@ -38,40 +38,39 @@ class FulltimerTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Check fulltimer tags loaded',
-                Fulltimer::find()->one()
-            )->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(Fulltimer::find()->one());
+        //});
 
-        $this->specify('Fulltimer model fields validation', function () {
+        //$this->specify('Fulltimer model fields validation', function () {
 
             $model = new Fulltimer();
             
-            expect('should not accept empty nationality_id', $model->validate(['nationality_id']))->false();
-            //expect('should not accept empty university_id', $model->validate(['university_id']))->false();
-            expect('should not accept empty country_id', $model->validate(['country_id']))->false();
-            expect('should not accept empty fulltimer_area_uuid', $model->validate(['fulltimer_area_uuid']))->false();
-            expect('should not accept empty fulltimer_latitude', $model->validate(['fulltimer_latitude']))->false();
-            expect('should not accept empty fulltimer_longitude', $model->validate(['fulltimer_longitude']))->false();
-            expect('should not accept empty fulltimer_name', $model->validate(['fulltimer_name']))->false();
-            expect('should not accept empty fulltimer_phone', $model->validate(['fulltimer_phone']))->false();
-            expect('should not accept empty fulltimer_email', $model->validate(['fulltimer_email']))->false();
-            //expect('should not accept empty fulltimer_pdf_cv', $admin->validate(['fulltimer_pdf_cv']))->false();
-            //expect('should not accept empty fulltimer_current_salary', $model->validate(['fulltimer_current_salary']))->false();
-            //expect('should not accept empty fulltimer_expected_salary', $model->validate(['fulltimer_expected_salary']))->false();
+            $this->assertFalse($model->validate(['nationality_id']), "Nationality ID is not valid   ");
+           // $this->assertFalse($model->validate(['university_id']), "University ID is not valid");
+            $this->assertFalse($model->validate(['country_id']), "Country ID is not valid");
+            $this->assertFalse($model->validate(['fulltimer_area_uuid']), "Fulltimer Area UUID is not valid");
+            $this->assertFalse($model->validate(['fulltimer_latitude']), "Fulltimer Latitude is not valid");
+            $this->assertFalse($model->validate(['fulltimer_longitude']), "Fulltimer Longitude is not valid");
+            $this->assertFalse($model->validate(['fulltimer_name']), "Fulltimer Name is not valid");
+            $this->assertFalse($model->validate(['fulltimer_phone']), "Fulltimer Phone is not valid");
+            $this->assertFalse($model->validate(['fulltimer_email']), "Fulltimer Email is not valid");
+            /*$this->assertFalse($model->validate(['fulltimer_pdf_cv']), "Fulltimer PDF CV is not valid");
+            $this->assertFalse($model->validate(['fulltimer_current_salary']), "Fulltimer Current Salary is not valid");
+            $this->assertFalse($model->validate(['fulltimer_expected_salary']), "Fulltimer Expected Salary is not valid");
+            */
 
             $model->fulltimer_area_uuid = 1121212;
-            expect('should not accept invalid fulltimer_area_uuid', $model->validate(['fulltimer_area_uuid']))->false();
+            $this->assertFalse($model->validate(['fulltimer_area_uuid']));
 
             $model->fulltimer_gender = 1121212;
-            expect('should not accept invalid fulltimer_gender', $model->validate(['fulltimer_gender']))->false();
+            $this->assertFalse($model->validate(['fulltimer_gender']));
 
             $model->fulltimer_gender = 1;
-            expect('should not accept invalid fulltimer_gender', $model->validate(['fulltimer_gender']))->true();
+            $this->assertTrue($model->validate(['fulltimer_gender']));
 
             //fulltimer_employed
-        });
+        //});
     }
 
     /**
@@ -79,7 +78,7 @@ class FulltimerTest extends \Codeception\Test\Unit
      */
     public function testCrud()
     {
-        $this->specify('Create New Fulltimer', function () {
+        //$this->specify('Create New Fulltimer', function () {
 
             $response = Yii::$app->temporaryBucketResourceManager->save(
                 null,
@@ -105,10 +104,10 @@ class FulltimerTest extends \Codeception\Test\Unit
             $model->fulltimer_expected_salary = '10';
             $model->fulltimer_current_salary = '11';
 
-            expect('Created successfully', $model->save())->true();
-        });
+            $this->assertTrue($model->save());
+        //});
 
-        $this->specify('Update fulltimer', function() {
+        //$this->specify('Update fulltimer', function() {
             $area = Area::find()->one();
 
             $model = Fulltimer::find()
@@ -120,8 +119,8 @@ class FulltimerTest extends \Codeception\Test\Unit
             $model->university_id = 1;
             $model->validate();
 
-            expect('updated successfully', $model->save())->true();
-            expect('Updated Record is in database', $model->findOne(['fulltimer_name' => 'Matro']))->notNull();
-        });
+            $this->assertTrue($model->save());
+            $this->assertNotNull($model->findOne(['fulltimer_name' => 'Matro']));
+        //});
     }
 }

@@ -11,7 +11,7 @@ class CountryTest extends \Codeception\Test\Unit
 
     public function _fixtures()
     {
-        return ['country' => CountryFixture::className()];
+        return ['country' => CountryFixture::class];
     }
 
     protected function _before(){}
@@ -22,12 +22,12 @@ class CountryTest extends \Codeception\Test\Unit
     {
         $country = $this->tester->grabFixture('country', 0);
 
-        expect('model adding new country', $country->save())->true();
+        $this->assertTrue($country->save());
 
         $country->country_name_en = null;
-        expect('country_name_en Validating', $country->validate(['country_name_en']))->false();
+        $this->assertFalse($country->validate(['country_name_en']));
 
         $country->country_nationality_name_en = null;
-        expect('country_nationality_name_en Validating', $country->validate(['country_nationality_name_en']))->false();
+        $this->assertFalse($country->validate(['country_nationality_name_en']));
     }
 }

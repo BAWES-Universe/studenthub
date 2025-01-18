@@ -35,7 +35,7 @@ class TransferController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -53,7 +53,7 @@ class TransferController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -381,8 +381,13 @@ class TransferController extends Controller
         $end_date = Yii::$app->request->getBodyParam("end_date");
 
         $candidates = Yii::$app->request->getBodyParam("candidates");
-        $start_date = $start_date?date('Y-m-d', strtotime ($start_date)): null;
-        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
+
+        if ($start_date)
+            $start_date = date('Y-m-d', strtotime ($start_date));
+
+        if ($end_date)
+            $end_date = date('Y-m-d', strtotime ($end_date));
+
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
@@ -425,8 +430,17 @@ class TransferController extends Controller
 
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        $start_date =$start_date? date('Y-m-d', strtotime ($start_date)): null;
-        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
+
+
+        $start_date = Yii::$app->request->getBodyParam("start_date");
+        $end_date = Yii::$app->request->getBodyParam("end_date");
+
+        if ($start_date)
+            $start_date = date('Y-m-d', strtotime ($start_date));
+
+        if ($end_date)
+            $end_date = date('Y-m-d', strtotime ($end_date));
+
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
@@ -491,8 +505,16 @@ class TransferController extends Controller
 
         $model = new TranferExcel;
         $model->excel = Yii::$app->request->getBodyParam('excel');
-        $start_date = $start_date?date('Y-m-d', strtotime ($start_date)): null;
-        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
+
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
+
+        if ($start_date)
+            $start_date = date('Y-m-d', strtotime ($start_date));
+
+        if ($end_date)
+            $end_date = date('Y-m-d', strtotime ($end_date));
+
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {
@@ -563,8 +585,16 @@ class TransferController extends Controller
 
         $company_id = Yii::$app->request->getBodyParam("company_id");
         $candidates = Yii::$app->request->getBodyParam("candidates");
-        $start_date = $start_date? date('Y-m-d', strtotime ($start_date)): null;
-        $end_date = $end_date?date('Y-m-d', strtotime ($end_date)): null;
+
+        $start_date = Yii::$app->request->getBodyParam('start_date');
+        $end_date = Yii::$app->request->getBodyParam('end_date');
+
+        if ($start_date)
+            $start_date = date('Y-m-d', strtotime ($start_date));
+
+        if ($end_date)
+            $end_date = date('Y-m-d', strtotime ($end_date));
+
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
 
         if(!$currency_code) {

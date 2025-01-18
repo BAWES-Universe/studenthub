@@ -40,14 +40,14 @@ class ContactEmail extends \yii\db\ActiveRecord
             [['email_uuid', 'contact_uuid'], 'string', 'max' => 60],
             [['email_address'], 'string', 'max' => 255],
             [['email_uuid'], 'unique'],
-            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::class, 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
         ];
     }
 
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'email_uuid',
                 ],
@@ -59,7 +59,7 @@ class ContactEmail extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'email_created_datetime',
                 'updatedAtAttribute' => 'email_updated_datetime',
                 'value' => new Expression('NOW()'),

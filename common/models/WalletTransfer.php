@@ -89,9 +89,9 @@ class WalletTransfer extends \yii\db\ActiveRecord
             [['transfer_benef_iban'], 'string', 'max' => 50],
             [['transfer_uuid', 'transfer_uuid_short'], 'unique'],
             ['transfer_total', 'validateTotal'],
-            [['bank_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletBank::className(), 'targetAttribute' => ['bank_uuid' => 'bank_uuid']],
-            [['transfer_file_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::className(), 'targetAttribute' => ['transfer_file_uuid' => 'transfer_file_uuid']],
-            [['user_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletUser::className(), 'targetAttribute' => ['user_uuid' => 'user_uuid']],
+            [['bank_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletBank::class, 'targetAttribute' => ['bank_uuid' => 'bank_uuid']],
+            [['transfer_file_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::class, 'targetAttribute' => ['transfer_file_uuid' => 'transfer_file_uuid']],
+            [['user_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletUser::class, 'targetAttribute' => ['user_uuid' => 'user_uuid']],
         ];
     }
 
@@ -128,7 +128,7 @@ class WalletTransfer extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'transfer_uuid',
                 ],
@@ -140,7 +140,7 @@ class WalletTransfer extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'transfer_uuid_short',
                 ],
@@ -152,7 +152,7 @@ class WalletTransfer extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'transfer_created_at',
                 'updatedAtAttribute' => 'transfer_updated_at',
                 'value' => new Expression('NOW()'),

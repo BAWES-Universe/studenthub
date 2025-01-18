@@ -31,6 +31,32 @@ Detailed documentation is available in the `docs/` directory:
 - Access backend container: `docker-compose exec backend bash`
 - Code generator: http://localhost:8888/bawes/studenthub/admin/web/gii
 
+## allow access from docker to local mysql server 
+
+`GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.5' IDENTIFIED BY 'root' WITH GRANT OPTION;`
+
+## allow access from docker to local mysql server 
+`GRANT ALL PRIVILEGES ON wallet.* TO 'studenthubuser'@'127.0.0.1'`
+
+# copy to s3 
+
+`aws s3 cp ./db.sql s3://studenthub-uploads-dev-server/exports/db.sql`
+
+# Docker 
+
+`docker-compose -f docker-compose-dev.yml down`
+`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d`
+ 
+`docker-compose -f docker-compose-local.yml -p studenthub-local-server up`
+
+## mysql 
+
+`docker-compose exec mysql mysql -u root -p`
+
+`docker-compose exec mysql mysql -u studenthubuser -pstudenthub -h mysql-1`
+
 ## License
 
 Proprietary software. All rights reserved.
+
+

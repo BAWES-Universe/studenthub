@@ -438,7 +438,7 @@ class Candidate extends \common\models\Candidate {
 
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
@@ -466,7 +466,7 @@ class Candidate extends \common\models\Candidate {
             $path = (YII_ENV == 'prod') ? "candidate-photo/" : "dev/candidate-photo/";
             Yii::$app->cloudinaryManager->delete( $path . $this->oldAttributes['candidate_personal_photo']);
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 

@@ -19,11 +19,11 @@ class SuggestionCest
 
     public function _fixtures() {
         return [
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'contactToken' => ContactTokenFixture::className(),
-            'candidate'    => CandidateFixture::className(),
-            'suggestion' => SuggestionFixture::className (),
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'contactToken' => ContactTokenFixture::class,
+            'candidate'    => CandidateFixture::class,
+            'suggestion' => SuggestionFixture::class,
         ];
     }
 

@@ -14,11 +14,11 @@ class AccountCest
 {
 	public function _fixtures() {
 		return [
-            'manager' => StoreManagerFixture::className(),
-            'managerToken' => ManagerTokenFixture::className(),
+            'manager' => StoreManagerFixture::class,
+            'managerToken' => ManagerTokenFixture::class,
 
-            "company" => CompanyFixture::className(),
-            "stores" => StoreFixture::className(),
+            "company" => CompanyFixture::class,
+            "stores" => StoreFixture::class,
 
 		];
 	}

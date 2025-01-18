@@ -60,7 +60,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'inspector_uuid',
                 ],
@@ -72,7 +72,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'inspector_created_at',
                 'updatedAtAttribute' => 'inspector_updated_at',
                 'value' => new Expression('NOW()'),

@@ -18,9 +18,9 @@ class StoryCest
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className(),
-            'story' => StoryFixture::className(),
-            'request' => RequestFixture::className(),
+            'staffToken' => StaffTokenFixture::class,
+            'story' => StoryFixture::class,
+            'request' => RequestFixture::class,
         ];
     }
 

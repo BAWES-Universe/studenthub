@@ -18,7 +18,7 @@ class FileTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'fileToken' => FileFixture::className()
+            'fileToken' => FileFixture::class
         ];
     }
 
@@ -33,9 +33,9 @@ class FileTest extends \Codeception\Test\Unit
     {
         $data = new File();
         $data->file_title = null;
-        expect('File file_title should be required field', $data->validate(['file_title']))->false();
+        $this->assertFalse($data->validate(['file_title']));
 
         $data->company_id = '123123123';
-        expect('Invalid Company id', $data->validate(['company_id']))->false();
+        $this->assertFalse($data->validate(['company_id']));
     }
 }
