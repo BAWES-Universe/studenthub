@@ -19,9 +19,10 @@ $nameSections = mb_split(' ', $candidate->candidate_name_ar);
 
         <p class="sub-title">بالتعاون مع</p>
 
+        <!--
         <img class="brand-2" src="images/brand-2.jpg" />
 
-        <img class="brand-1" src="images/brand-1.jpg" />
+        <img class="brand-1" src="images/brand-1.jpg" />-->
     </div>
 
     <?php if($id) { ?>
