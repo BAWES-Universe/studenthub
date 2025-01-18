@@ -1,7 +1,7 @@
 version: '3.8'
 
 networks:
-  studenthub-network:
+  studenthub-dev-network:
     driver: bridge
 
 services:
@@ -20,7 +20,7 @@ services:
     ports:
       - "3307:3306"
     networks:
-      - studenthub-network
+      - studenthub-dev-network
 
   app:
     build: 
@@ -40,6 +40,7 @@ services:
     #    tail -f /dev/null  # Keep container running
     ports:
       - "8080:80" #app endpoint
+      - "80:80" #app endpoint
       - "21080:21080" # admin app port
       - "22080:22080" # candidate app port
       - "23080:23080" # employer app port
@@ -55,14 +56,14 @@ services:
       - redis
       - mysql
     networks:
-      - studenthub-network
+      - studenthub-dev-network
 
   redis:
     image: redis:6.2.3
     ports:
       - "6379:6379"
     networks:
-      - studenthub-network
+      - studenthub-dev-network
    # command:
    #   - redis-server --port 7777
     volumes:

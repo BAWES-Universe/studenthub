@@ -62,7 +62,7 @@ COPY ./cron/cronlist /etc/cron.d/cronlist
 RUN chmod 0644 /etc/cron.d/cronlist
 RUN crontab /etc/cron.d/cronlist
 
-RUN ./init --env=Production-Nginx --overwrite=All 
+#RUN ./init --env=Production-Nginx --overwrite=All 
   
 # copy php configuration
 COPY ./nginx/php.conf /etc/nginx/php.conf
@@ -75,4 +75,5 @@ RUN ln -s /etc/nginx/sites-available/production.conf /etc/nginx/sites-enabled/
 EXPOSE 80
 
 # Start Nginx and PHP-FPM
-CMD ["sh", "-c", "sleep 5 && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
+#CMD ["sh", "-c", "sleep 5 && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
+CMD ["sh", "-c", "./init --env=Production-Nginx --overwrite=All && sleep 5 && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    

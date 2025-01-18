@@ -3,7 +3,7 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=192.168.1.5:8889;dbname=studenthub',
+            'dsn' => 'mysql:host=localhost:8889;dbname=studenthub',
             'username' => 'root',
             'password' => 'root',
             'charset' => 'utf8',
@@ -14,15 +14,15 @@ return [
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=192.168.1.5:8889;dbname=wallet',
+            'dsn' => 'mysql:host=localhost:8889;dbname=wallet',
             'username' => 'root',
             'password' => 'root',
             'charset' => 'utf8',
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => '192.168.1.5',
-            'port' => 7777,//6379,
+            'hostname' => 'localhost',
+            'port' => 6379,
             'database' => 0,
         ],
         'cache' => [
