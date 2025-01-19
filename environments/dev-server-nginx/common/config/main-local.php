@@ -48,14 +48,6 @@ return [
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
-            'useFileTransport' => true,
-        ],/*
-        'mailer' => [
-            'class' => \yii\symfonymailer\Mailer::class,
-            'viewPath' => '@common/mail',
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
@@ -69,9 +61,9 @@ return [
                 'username' => 'apikey',
                 'password' => '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',//WeLoveSHTrainingProg!121',
                 'port' => '587',
-                'encryption' => 'tls',*
+                'encryption' => 'tls',*/
             ],
-        ],*/
+        ],
         'eventManager' => [
             'class' => 'common\components\EventManager',
             "sqsRagion" => "eu-west-2",
