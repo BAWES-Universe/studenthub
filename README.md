@@ -56,11 +56,13 @@ Detailed documentation is available in the `docs/` directory:
 
 ### Run container 
 
-`docker-compose -f docker-compose-local.yml -p studenthub-local-server up --force-recreate`
+`docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up --force-recreate`
 
 ## execute docker build 
 
 `docker exec -it <container_id> /bin/bash`
+
+docker exec -it b019f98548b1 /bin/bash
 
 ## fixes 
 - why composer install not working 
