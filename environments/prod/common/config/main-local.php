@@ -71,7 +71,7 @@ return [
             //'class' => 'yii\caching\FileCache',
         ],
         'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
+            'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
             'transport' => [
                 /*'class' => 'Swift_SmtpTransport',
@@ -103,7 +103,7 @@ return [
         ],
         /*
         'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
+            'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
             'transport' => [
                 'class' => 'Swift_SmtpTransport',
