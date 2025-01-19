@@ -74,12 +74,12 @@ return [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
             'transport' => [
-                'scheme' => 'smtps',
+                'scheme' => 'smtp',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
                 'username' => 'AKIAWMITDJRKVNB2AFUL',
                 'password' => 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',
                 'port' => 587,
-                //   'dsn' => 'smtps://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
+                //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
             ],
         ],/*
         'mailer' => [
