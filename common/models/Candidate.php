@@ -1501,7 +1501,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function signup($byStaff = false)
     {
 
-        $this->setPassword($this->candidate_password_hash);
+        if ($this->candidate_password_hash) {
+            $this->setPassword($this->candidate_password_hash);
+        }
+
         $this->generateAuthKey();
 
         if(!$this->save()) {

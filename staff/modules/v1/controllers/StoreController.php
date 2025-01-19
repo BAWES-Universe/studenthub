@@ -132,7 +132,11 @@ class StoreController extends Controller
             $mmodel->name = $manager['name'];
             $mmodel->email = $manager['email'];
             $mmodel->phone_number = $manager['phone_number'];
-            $mmodel->setPassword($manager['password']);
+            
+            if ($manager['password']) {
+                $mmodel->setPassword($manager['password']);
+            }
+
             $mmodel->save(false);
         }
 

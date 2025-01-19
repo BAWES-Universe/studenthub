@@ -80,7 +80,9 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
      */
     public function signUp($validate = false) {
 
-        $this->setPassword($this->contact_password_hash);
+        if ($this->contact_password_hash) {
+            $this->setPassword($this->contact_password_hash);
+        }
 
         //$this->contact_status = self::STATUS_INACTIVE;
 

@@ -178,7 +178,11 @@ class CompanyContactController extends Controller
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
 
-        $model->setPassword(Yii::$app->request->getBodyParam("password"));
+        $password = Yii::$app->request->getBodyParam("password");
+
+        if ($password) {
+            $model->setPassword($password);
+        }
 
         $model->generateAuthKey();
 

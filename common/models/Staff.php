@@ -818,7 +818,11 @@ class Staff extends ActiveRecord implements IdentityInterface
     public function signup()
     {
         if ($this->validate()) {
-            $this->setPassword($this->staff_password_hash);
+            
+            if ($this->staff_password_hash) {
+                $this->setPassword($this->staff_password_hash);
+            }
+
             $this->generateAuthKey();
             $this->save(false);
 
