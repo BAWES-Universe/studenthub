@@ -467,8 +467,12 @@ class CronController extends \yii\console\Controller {
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "email_campaign");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -610,8 +614,12 @@ class CronController extends \yii\console\Controller {
 
                 try {
                     $send->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "email_campaign");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
                 @unlink(sys_get_temp_dir() . '/' . $fileName);
@@ -807,8 +815,12 @@ class CronController extends \yii\console\Controller {
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "email_campaign");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }*/
 
@@ -862,8 +874,12 @@ class CronController extends \yii\console\Controller {
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "email_campaign");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
                 Console::updateProgress($count, count($staffList));

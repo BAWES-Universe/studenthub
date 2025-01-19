@@ -623,7 +623,9 @@ class AuthController extends Controller
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
-                'message' => isset($model->errors['email'])?isset($model->errors['email']): $model->errors
+                "code" => 1,
+                "errors"=> $model->errors,
+                'message' => isset($model->errors['email'])?$model->errors['email']: $model->errors
             ];
         }
 
@@ -634,6 +636,7 @@ class AuthController extends Controller
         if (!$candidate) {
             return [
                 'operation' => 'error',
+                "code" => 2,
                 'message' => 'candidate not found'
             ];
         }
@@ -659,6 +662,7 @@ class AuthController extends Controller
         if($errors) {
             return [
                 'operation' => 'error',
+                "code" => 3,
                 'message' => $errors
             ];
         }

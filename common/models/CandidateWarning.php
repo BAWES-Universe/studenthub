@@ -128,8 +128,12 @@ class CandidateWarning extends \yii\db\ActiveRecord
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "warning");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 

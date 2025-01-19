@@ -491,8 +491,12 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 try {
                     $message->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "password-reset-token");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
@@ -651,8 +655,12 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 try {
                     $message->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "password-reset-token");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);

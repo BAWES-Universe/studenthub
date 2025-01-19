@@ -74,12 +74,24 @@ return [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
             'transport' => [
+                'scheme' => 'smtps',
+                'host' => 'email-smtp.eu-west-1.amazonaws.com',
+                'username' => 'AKIAWMITDJRKVNB2AFUL',
+                'password' => 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',
+                'port' => 587,
+                //   'dsn' => 'smtps://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
+            ],
+        ],/*
+        'mailer' => [
+            'class' => \yii\symfonymailer\Mailer::class,
+            'viewPath' => '@common/mail',
+            'transport' => [
                 /*'class' => 'Swift_SmtpTransport',
                 'host' => 'smtp.elasticemail.com',
                 'username' => 'contact@studenthub.co',
                 'password' => 'B53B9967191B1466BA30B027F95A726ECE49',
                 'port' => '2525',
-                'encryption' => 'tls'*/
+                'encryption' => 'tls'*
 
                 'class' => 'Swift_SmtpTransport',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
@@ -98,9 +110,9 @@ return [
                 //     [
                 //         'class' => 'Openbuildings\Swiftmailer\CssInlinerPlugin',
                 //     ],
-                // ],*/
+                // ],*
             ],
-        ],
+        ],*/
         /*
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,

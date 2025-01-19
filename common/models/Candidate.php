@@ -1553,8 +1553,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -1602,9 +1606,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
+        } /*catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
-        }
+        }*/
     }
 
     /**
@@ -1851,8 +1861,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "birthday-alert");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
 
@@ -1915,8 +1929,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "password-reset-token");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
         }
@@ -2577,8 +2595,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -3305,8 +3327,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -3370,8 +3396,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                     try {
                         $mailer->send();
-                    } catch (\Swift_TransportException $e) {
-                        Yii::error($e->getMessage(), "kuwaiti-mom");
+                    } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                        // Handle email transport-specific exceptions
+                        Yii::error( "Failed to send email: " . $e->getMessage());
+                    } catch (\Exception $e) {
+                        // Handle any other exceptions
+                        Yii::error( "An error occurred: " . $e->getMessage());
                     }
 
                     //$total++;
@@ -3548,8 +3578,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "civil-id");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
         }
@@ -3599,8 +3633,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "bank-info");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
         }
