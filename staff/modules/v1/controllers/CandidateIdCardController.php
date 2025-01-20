@@ -295,13 +295,13 @@ class CandidateIdCardController extends Controller
 
         } else {// Download Zip File
             // Clear output buffer to avoid any additional data being sent
-            if (ob_get_level()) {
+            /*if (ob_get_level()) {
                 ob_end_clean();
-            }
+            }*/
 
             return Yii::$app->response->sendFile($result['zip'], "IDCard.zip", [
-                'mimeType' => 'application/zip',
-                'inline' => false, // Force download
+            //    'mimeType' => 'application/zip',
+            //    'inline' => false, // Force download
             ]);
         }
     }

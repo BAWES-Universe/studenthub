@@ -97,11 +97,19 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
                 $command = $binPath . " " . $card_url. " " . $path . '/' . $value->candidate_uid;
 
-                Yii::debug($command);
+                //Yii::debug($command);
 
                 exec($command, $output, $returnVar);
 
-                Yii::debug(var_dump($output) . ":" . var_dump($returnVar));
+                if ($returnVar !== 0) {
+                    Yii::error("Command failed: " . implode("\n", $output));
+                    return [
+                        'operation' => 'success',
+                        'message' => 'Command failed: ' . implode("\n", $output)
+                    ];
+                }
+
+                //Yii::debug(var_dump($output) . ":" . var_dump($returnVar));
 
                 /*Browsershot::url($card_url . '?side=front')
                     ->timeout(0)
