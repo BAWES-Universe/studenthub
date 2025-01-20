@@ -57,7 +57,8 @@ return [
             'class' => 'yii\web\UrlManager',
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'baseUrl' => 'http://localhost:8888/bawes/studenthub/staff/web/v1'
+            'baseUrl' => 'http://localhost:25080/v1'
+//http://localhost:8888/bawes/studenthub/staff/web/v1'
         ],
         'urlManagerCandidate' => [
             'class' => 'yii\web\UrlManager',

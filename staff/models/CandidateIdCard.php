@@ -53,15 +53,18 @@ class CandidateIdCard extends \common\models\CandidateIdCard
      */
     public static function createIdCards($candidates)
     {
-        $path = sys_get_temp_dir().'/id-cards';
+        $path = Yii::getAlias("@common/runtime/id-cards");
+            //sys_get_temp_dir().'/id-cards';
 
         //remove old content
 
-        FileHelper::removeDirectory($path);
+        //FileHelper::removeDirectory($path);
 
         //create directory if not exists 
 
-        FileHelper::createDirectory($path);
+        if (!is_dir($path)) {
+            FileHelper::createDirectory($path);
+        }
 
         // Create zip
         $zipname = 'IdCards.zip';
@@ -76,7 +79,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             ];
         }
 
-        $binPath = Yii::getAlias("@common"). "/bin/png-linux-386";
+        $binPath = Yii::getAlias("@common"). "/bin/png-linux-386";//linux-arm linux-386
 
         // Create card images
         
@@ -91,15 +94,26 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl(
                 "/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
-           // if (!is_dir($path. '/' . $value->candidate_uid)) {
-
-                FileHelper::createDirectory($path . '/' . $value->candidate_uid, 777);
+            if (!is_dir($path. '/' . $value->candidate_uid)) {
+                FileHelper::createDirectory($path . '/' . $value->candidate_uid);
+            }
 
                 $command = $binPath . " " . $card_url. " " . $path . '/' . $value->candidate_uid;
 
                 //Yii::debug($command);
 
-                exec($command . " > /dev/null 2>&1");//, $output, $returnVar);
+                //exec($command . " > /dev/null 2>&1");//, $output, $returnVar);
+
+                $output = shell_exec($command);
+
+                /*if ($output) {
+                    return [
+                        'operation' => 'error',
+                        // 'zip' => $path.'/'.$zipname,
+                        "output" => $output,
+                        "command" => $command
+                    ];
+                }/*/
 
                 //sleep(5);
 
@@ -127,9 +141,29 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
                 // Add photo folder to zip
 
+            try {
                 $zip->addFile($path . '/' . $value->candidate_uid . '/front.png', $value->candidate_uid . '/front.png');
 
                 $zip->addFile($path . '/' . $value->candidate_uid . '/back.png', $value->candidate_uid . '/back.png');
+            } catch ( \yii\base\ErrorException $e) {
+                return [
+                    'operation' => 'error',
+                    // 'zip' => $path.'/'.$zipname,
+                    "output" => $output,
+                    "command" => $command,
+                    "message" => $e->getMessage()
+                ];
+            }
+            catch (\Exception $e) {
+                return [
+                    'operation' => 'error',
+                    // 'zip' => $path.'/'.$zipname,
+                    "output" => $output,
+                    "command" => $command,
+                    "message" => $e->getMessage()
+                ];
+            }
+
           //  }
         }
         

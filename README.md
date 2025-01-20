@@ -68,6 +68,8 @@ Detailed documentation is available in the `docs/` directory:
 
 docker exec -it b019f98548b1 /bin/bash
 
+docker logs b019f98548b1
+
 docker exec -it 50ae5a2794bf0a7f2baa087230036f7b5866b6c868d9e8168b59ec19fa0b7ada /bin/bash
 
 ## fixes 
@@ -108,7 +110,7 @@ http://localhost:8888/bawes/studenthub/staff/web/v1/candidate-id-cards/1/BjE4JvI
 
 https://staff.api.dev.studenthub.co/v1/candidate-id-cards/1/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6
 
-$command = "/var/www/html/common/bin/.png-linux https://staff.api.dev.studenthub.co/v1/candidate-id-cards/8/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6 /var/www";
+$command = "/var/www/html/common/bin/png-linux-386 https://staff.api.dev.studenthub.co/v1/candidate-id-cards/8/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6 /tmp/id-cards/IJE71DHapkjGgL2dqy4M > /dev/null 2>&1";
 
 exec($command, $output, $returnVar);
 
