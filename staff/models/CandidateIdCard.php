@@ -76,7 +76,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             ];
         }
 
-        $binPath = Yii::getAlias("@common"). "/bin/png-linux";
+        $binPath = Yii::getAlias("@common"). "/bin/png-linux-386";
 
         // Create card images
         
