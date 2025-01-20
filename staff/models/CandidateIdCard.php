@@ -93,7 +93,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
            // if (!is_dir($path. '/' . $value->candidate_uid)) {
 
-                FileHelper::createDirectory($path . '/' . $value->candidate_uid);
+                FileHelper::createDirectory($path . '/' . $value->candidate_uid, 777);
 
                 $command = $binPath . " " . $card_url. " " . $path . '/' . $value->candidate_uid;
 
@@ -101,7 +101,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
                 exec($command . " > /dev/null 2>&1");//, $output, $returnVar);
 
-                sleep(5);
+                //sleep(5);
 
                 /*if ($returnVar !== 0) {
                     Yii::error("Command failed: " . implode("\n", $output));
