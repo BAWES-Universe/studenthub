@@ -53,8 +53,8 @@ class CandidateIdCard extends \common\models\CandidateIdCard
      */
     public static function createIdCards($candidates)
     {
-        $path = Yii::getAlias("@common/runtime/id-cards");
-            //sys_get_temp_dir().'/id-cards';
+        $path = sys_get_temp_dir().'/id-cards';
+            //Yii::getAlias("@common/runtime/id-cards");
 
         //remove old content
 
