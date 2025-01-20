@@ -108,7 +108,12 @@ http://localhost:8888/bawes/studenthub/staff/web/v1/candidate-id-cards/1/BjE4JvI
 
 https://staff.api.dev.studenthub.co/v1/candidate-id-cards/1/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6
 
-https://staff.api.dev.studenthub.co/v1/candidate-id-cards/8/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6
+$command = "/var/www/html/common/bin/.png-linux https://staff.api.dev.studenthub.co/v1/candidate-id-cards/8/yGVo9g1t4urP9ScpxP1A2yMwUuNN7hl6 /var/www";
+
+exec($command, $output, $returnVar);
+
+var_dump($output);
+var_dump($returnVar);
 
 ## License
 

@@ -99,15 +99,15 @@ class CandidateIdCard extends \common\models\CandidateIdCard
 
                 //Yii::debug($command);
 
-                exec($command, $output, $returnVar);
+                exec($command . " > /dev/null 2>&1");//, $output, $returnVar);
 
-                if ($returnVar !== 0) {
+                /*if ($returnVar !== 0) {
                     Yii::error("Command failed: " . implode("\n", $output));
                     return [
                         'operation' => 'success',
-                        'message' => 'Command failed: ' . implode("\n", $output)
+                        'message' => 'Command failed: ' .$command . " " . implode("\n", $output)
                     ];
-                }
+                }*/
 
                 //Yii::debug(var_dump($output) . ":" . var_dump($returnVar));
 
