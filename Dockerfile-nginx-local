@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
      ffmpeg \
      nginx \
      cron \
+     #imagemagick \
+     #curl \
      #composer \
      && docker-php-ext-configure gd --with-freetype --with-jpeg \
      && docker-php-ext-install gd pdo pdo_mysql zip opcache exif 
@@ -47,6 +49,18 @@ COPY . /var/www/html
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Install puppeteer to convert url to image (using it to generate candidate ID photos)
+#RUN curl -fsSL https://deb.nodesource.com/setup_23.x -o nodesource_setup.sh
+#RUN bash nodesource_setup.sh && apt-get install -y nodejs
+##&& apt-get install -y -g npm && npm i puppeteer -g -y
+##&& npx puppeteer browsers install
+
+#RUN apt-get -f install -y nodejs gcc g++ make gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libnss3 lsb-release xdg-utils wget libgbm-dev
+#RUN npm install --global --unsafe-perm puppeteer
+#RUN chmod -R o+rx /usr/local/lib/node_modules/puppeteer/.local-chromium
+
+#RUN node /usr/lib/node_modules/puppeteer/install.mjs
+
 # Set permissions for the web server
 #RUN chown -R www-data:www-data /var/www/html \
 RUN chmod -R 775 /var/www/html
@@ -76,5 +90,5 @@ EXPOSE 80
 
 # Start Nginx and PHP-FPM
 #CMD ["sh", "-c", "service nginx start && ./yii migrate && php-fpm "]
-CMD ["sh", "-c", "composer install && ./init --env=Krushn-Nginx --overwrite=All && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
+CMD ["sh", "-c", "composer install && ./init --env=Krushn-Nginx --overwrite=All && ./yii migrate --interactive=0 && service nginx restart && php-fpm && tail -f /dev/null"]
 

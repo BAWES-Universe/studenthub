@@ -48,6 +48,10 @@ Detailed documentation is available in the `docs/` directory:
 `docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d`
 `docker-compose -f docker-compose-dev.yml -p studenthub-dev-server down`
 
+`docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d`
+
+`docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d`
+
 ## CI/ CD 
 
 ### Build image 
@@ -63,6 +67,8 @@ Detailed documentation is available in the `docs/` directory:
 `docker exec -it <container_id> /bin/bash`
 
 docker exec -it b019f98548b1 /bin/bash
+
+docker exec -it 50ae5a2794bf0a7f2baa087230036f7b5866b6c868d9e8168b59ec19fa0b7ada /bin/bash
 
 ## fixes 
 - why composer install not working 

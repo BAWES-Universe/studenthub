@@ -53,7 +53,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
      */
     public static function createIdCards($candidates)
     {
-        $path = sys_get_temp_dir().'/id-cards/';
+        $path = sys_get_temp_dir().'/id-cards';
 
         //remove old content
 
@@ -76,6 +76,8 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             ];
         }
 
+        $binPath = Yii::getAlias("@common"). "/bin/png-linux";
+
         // Create card images
         
         foreach ($candidates as $key => $value) {
@@ -86,12 +88,22 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             
             $token = Yii::$app->user->identity->accessTokens[0]->token_value;
 
-            $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl("/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
+            $card_url = Yii::$app->urlManagerStaff->createAbsoluteUrl(
+                "/candidate-id-cards/".$value->candidateIdCard->id.'/'.$token);
 
-            if (!is_dir($path. '/' . $value->candidate_uid)) {
+           // if (!is_dir($path. '/' . $value->candidate_uid)) {
+
                 FileHelper::createDirectory($path . '/' . $value->candidate_uid);
 
-                Browsershot::url($card_url . '?side=front')
+                $command = $binPath . " " . $card_url. " " . $path . '/' . $value->candidate_uid;
+
+                Yii::debug($command);
+
+                exec($command, $output, $returnVar);
+
+                Yii::debug(var_dump($output) . ":" . var_dump($returnVar));
+
+                /*Browsershot::url($card_url . '?side=front')
                     ->timeout(0)
                     ->waitUntilNetworkIdle()
                     ->windowSize(638, 1011)
@@ -101,14 +113,14 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                     ->timeout(0)
                     ->waitUntilNetworkIdle()
                     ->windowSize(638, 1011)
-                    ->save($path . '/' . $value->candidate_uid . '/back.png');
+                    ->save($path . '/' . $value->candidate_uid . '/back.png');*/
 
                 // Add photo folder to zip
 
                 $zip->addFile($path . '/' . $value->candidate_uid . '/front.png', $value->candidate_uid . '/front.png');
 
                 $zip->addFile($path . '/' . $value->candidate_uid . '/back.png', $value->candidate_uid . '/back.png');
-            }
+          //  }
         }
         
         $zip->close();
@@ -118,7 +130,7 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             'zip' => $path.'/'.$zipname
         ];
     }
-    
+
     /**
      * Create Zip
      * @param  [type] $candidates [description]

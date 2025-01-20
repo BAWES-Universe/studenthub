@@ -20,7 +20,6 @@
         "openbuildings/swiftmailer-css-inliner": "^0.7",
         "moonlandsoft/yii2-phpexcel": "^2.0",
         "kartik-v/yii2-mpdf": "^1.0",
-        "2amigos/qrcode-library": "^1.1",
         "guzzlehttp/guzzle": "^7.5",
         "php-http/guzzle7-adapter": "^1.0",
         "notamedia/yii2-sentry": "^1.7",
@@ -33,7 +32,8 @@
         "segmentio/analytics-php": "^3.0",
         "yiisoft/yii2-redis": "^2.0.17",
         "xeroapi/xero-php-oauth2": "^7.0",
-        "yiisoft/yii2-symfonymailer": "^4.0"
+        "yiisoft/yii2-symfonymailer": "^4.0",
+        "chillerlan/php-qrcode": "^5.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "^2.1",

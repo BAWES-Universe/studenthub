@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
      ffmpeg \
      nginx \
      cron \
+     #imagemagick \
+     #curl \
      #composer \
      && docker-php-ext-configure gd --with-freetype --with-jpeg \
      && docker-php-ext-install gd pdo pdo_mysql zip opcache exif 
@@ -77,4 +79,4 @@ EXPOSE 80
 
 # Start Nginx and PHP-FPM
 #CMD ["sh", "-c", "sleep 5 && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
-CMD ["sh", "-c", "composer install && ./init --env=Production-Nginx --overwrite=All && ./yii migrate && service nginx restart && php-fpm && tail -f /dev/null"]    
+CMD ["sh", "-c", "composer install && ./init --env=Production-Nginx --overwrite=All && ./yii migrate --interactive=0 && service nginx restart && php-fpm && tail -f /dev/null"]

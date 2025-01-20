@@ -2,9 +2,12 @@
 
 namespace staff\modules\v1\controllers;
 
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QRGdImagePNG;
+use chillerlan\QRCode\Output\QROutputInterface;
 use staff\models\Note;
 use staff\models\Staff;
-use Da\QrCode\QrCode;
+//use Da\QrCode\QrCode;
 use Yii;
 use yii\helpers\ArrayHelper; 
 use yii\web\NotFoundHttpException;
@@ -12,7 +15,8 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use staff\models\CandidateIdCard;
-
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 
 /**
  * CandidateIdcard controller - Manage Candidate ID as Staff
@@ -89,13 +93,28 @@ class CandidateIdCardController extends Controller
         $qrCode = null;
         
         if ($model->candidate->candidate_uid) {
-            $writer = new \Da\QrCode\Writer\JpgWriter();
+            //$writer = new \Da\QrCode\Writer\JpgWriter();
 
             $path = (YII_ENV == 'prod') ? "https://v.studenthub.co/" : "https://v.dev.studenthub.co/";
-            
-            $qrCode = (new QrCode($path . $model->candidate->candidate_uid, null, $writer))
+
+            $options = new QROptions(
+                [
+                    'eccLevel' => EccLevel::L,// QRCode::ECC_L,
+                   // 'outputType' => QROutputInterface::MARKUP_SVG,
+                    'outputInterface' => QRGdImagePNG::class,
+                    'version' => 7,
+                ]
+            );
+
+            $qrCode = (new QRCode($options))
+                ->render($path . $model->candidate->candidate_uid);
+
+            /*$qrCode = (new QrCode($path . $model->candidate->candidate_uid, null, $writer))
                 ->setSize(500)
-                ->setMargin(5);
+                ->setMargin(5);*/
+
+         //   echo $qrcode;
+           // die();
         }
         
         return $this->renderPartial('view', [
@@ -266,8 +285,15 @@ class CandidateIdCardController extends Controller
             ];
 
         } else {// Download Zip File
+            // Clear output buffer to avoid any additional data being sent
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
 
-            return Yii::$app->response->sendFile($result['zip']);
+            return Yii::$app->response->sendFile($result['zip'], "IDCard.zip", [
+                'mimeType' => 'application/zip',
+                'inline' => false, // Force download
+            ]);
         }
     }
 
