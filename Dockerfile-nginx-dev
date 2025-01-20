@@ -11,13 +11,21 @@ RUN apt-get update && apt-get install -y \
      ffmpeg \
      nginx \
      cron \
-     chromium \
+    # wkhtmltopdf \
+     #chromium \
      #imagemagick \
      #curl \
      #gh \
      #composer \
      && docker-php-ext-configure gd --with-freetype --with-jpeg \
      && docker-php-ext-install gd pdo pdo_mysql zip opcache exif 
+
+# Install Imagick PHP extension
+#RUN apt-get install -y libmagickwand-dev \
+#    && pecl install imagick \
+#    && docker-php-ext-enable imagick
+
+#RUN sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="read|write" pattern="PDF" \/>/' /etc/ImageMagick-6/policy.xml
 
 # Install PHP dependencies
 #RUN pecl install ffmpeg \

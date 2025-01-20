@@ -6,8 +6,8 @@ use Yii;
 use yii\helpers\Url;
 use yii\helpers\FileHelper;
 use common\components\Excel;
-use Da\QrCode\QrCode;
-use Spatie\Browsershot\Browsershot;
+//use Da\QrCode\QrCode;
+//use Spatie\Browsershot\Browsershot;
 
 
 /**
@@ -54,7 +54,9 @@ class CandidateIdCard extends \common\models\CandidateIdCard
     public static function createIdCards($candidates)
     {
         $path = sys_get_temp_dir().'/id-cards';
-            //Yii::getAlias("@common/runtime/id-cards");
+        //Yii::getAlias("@common/runtime/id-cards");
+        //
+            //
 
         //remove old content
 
@@ -79,7 +81,8 @@ class CandidateIdCard extends \common\models\CandidateIdCard
             ];
         }
 
-        $binPath = Yii::getAlias("@common"). "/bin/png-linux-386";//linux-arm linux-386
+        $binPath = "/usr/bin/wkhtmltopdf";
+        //Yii::getAlias("@common"). "/bin/png-linux-arm";//linux-arm linux-386
 
         // Create card images
         
@@ -98,13 +101,51 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 FileHelper::createDirectory($path . '/' . $value->candidate_uid);
             }
 
-                $command = $binPath . " " . $card_url. " " . $path . '/' . $value->candidate_uid;
+                //$command = $binPath . " " . $card_url. "?side=front " . $path . '/' . $value->candidate_uid . "/front.png";
 
+                $output = exec($binPath . " " . $card_url. "?side=front " . $path . '/' . $value->candidate_uid . "/front.pdf");
+                $output = exec($binPath . " " . $card_url. "?side=back " . $path . '/' . $value->candidate_uid . "/back.pdf");
+               /*
                 //Yii::debug($command);
+                try {
+                    $htmlContent = file_get_contents($path . '/' . $value->candidate_uid . "/front.pdf");
+                    $image = new \Imagick();
+                    $image->setResolution(638, 1011);
+                    $image->readImageBlob($htmlContent);
+                    $image->setImageFormat('png');
+                    $image->writeImage($path . '/' . $value->candidate_uid . '/front.png');
+                    $image->clear();
+                    $image->destroy();
+                } catch (\Exception $e) {
+                    Yii::error($e->getMessage());
+                    return [
+                        'operation' => 'error',
+                        "htmlContent" => $htmlContent,
+                        "message" => $e->getMessage()
+                    ];
+                }
+
+              /*  try {
+                    $htmlContent = file_get_contents($path . '/' . $value->candidate_uid . "/back.pdf");
+                    $image = new \Imagick();
+                    $image->setResolution(638, 1011);
+                    $image->readImageBlob($htmlContent);
+                    $image->setImageFormat('png');
+                    $image->writeImage($path . '/' . $value->candidate_uid . '/back.png');
+                    $image->clear();
+                    $image->destroy();
+                } catch (\Exception $e) {
+                    Yii::error($e->getMessage());
+                    return [
+                        'operation' => 'error',
+                        "htmlContent" => $htmlContent,
+                        "message" => $e->getMessage()
+                    ];
+                } */
 
                 //exec($command . " > /dev/null 2>&1");//, $output, $returnVar);
 
-                $output = shell_exec($command);
+                //$output = shell_exec($command);
 
                 /*if ($output) {
                     return [
@@ -142,15 +183,17 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 // Add photo folder to zip
 
             try {
-                $zip->addFile($path . '/' . $value->candidate_uid . '/front.png', $value->candidate_uid . '/front.png');
+                $zip->addFile($path . '/' . $value->candidate_uid . '/front.png', $value->candidate_uid . '/front.pdf');
 
-                $zip->addFile($path . '/' . $value->candidate_uid . '/back.png', $value->candidate_uid . '/back.png');
+                $zip->addFile($path . '/' . $value->candidate_uid . '/back.png', $value->candidate_uid . '/back.pdf');
+              //  $zip->addFile($path . '/' . $value->candidate_uid . '/front.pdf', $value->candidate_uid . '/front.png');
+              //  $zip->addFile($path . '/' . $value->candidate_uid . '/back.pdf', $value->candidate_uid . '/back.png');
             } catch ( \yii\base\ErrorException $e) {
                 return [
                     'operation' => 'error',
                     // 'zip' => $path.'/'.$zipname,
-                    "output" => $output,
-                    "command" => $command,
+                    //"output" => $output,
+                    //"command" => $command,
                     "message" => $e->getMessage()
                 ];
             }
@@ -158,8 +201,8 @@ class CandidateIdCard extends \common\models\CandidateIdCard
                 return [
                     'operation' => 'error',
                     // 'zip' => $path.'/'.$zipname,
-                    "output" => $output,
-                    "command" => $command,
+                    //"output" => $output,
+                    //"command" => $command,
                     "message" => $e->getMessage()
                 ];
             }

@@ -464,6 +464,7 @@ return [
                         'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
                         'POST generate' => 'generate',
+                        "POST candidate-id-request" =>  'generate',
                         'GET list-expired' => 'list-expired',
                         'POST renew' => 'renew',
                         'GET total-expired' => 'total-expired',
@@ -477,7 +478,7 @@ return [
                         'OPTIONS renew' => 'options',
                         'OPTIONS total-expired' => 'options',
                         'OPTIONS <id>/<token>' => 'options',
-                         'OPTIONS generate' => 'options',
+                         'OPTIONS candidate-id-request' => 'options',
                         'OPTIONS list-candidate-without-card' => 'options',
                     ]
                 ],

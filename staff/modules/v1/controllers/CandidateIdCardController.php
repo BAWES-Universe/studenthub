@@ -15,6 +15,7 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use staff\models\CandidateIdCard;
+use common\models\CandidateIdRequest;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 
@@ -90,7 +91,6 @@ class CandidateIdCardController extends Controller
     {
         if (!$this->loginByAccessToken($token)) {
             throw new \yii\web\ForbiddenHttpException('Invalid Access');
-            exit;
         }
 
         $side = Yii::$app->request->get('side');
@@ -181,9 +181,6 @@ class CandidateIdCardController extends Controller
      */
     public function actionGenerate()
     {
-        if(empty(Yii::$app->params['inCodeception']))
-            $transaction = Yii::$app->db->beginTransaction();
-
         $candidate_ids = [];
 
         //remove null values
@@ -203,6 +200,24 @@ class CandidateIdCardController extends Controller
             if($value)
                 $candidate_ids[] = $value;
         }
+
+        $model = new CandidateIdRequest();
+        $model->candidate_ids = implode(",", $candidate_ids);
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "cir_uuid" => $model->cir_uuid,
+            "message" => "We processing your request"
+        ];
+/*if(empty(Yii::$app->params['inCodeception']))
+            $transaction = Yii::$app->db->beginTransaction();
 
         // create ID Card entry
 
@@ -297,13 +312,13 @@ class CandidateIdCardController extends Controller
             // Clear output buffer to avoid any additional data being sent
             /*if (ob_get_level()) {
                 ob_end_clean();
-            }*/
+            }*
 
             return Yii::$app->response->sendFile($result['zip'], "IDCard.zip", [
             //    'mimeType' => 'application/zip',
             //    'inline' => false, // Force download
             ]);
-        }
+        }*/
     }
 
     /**
