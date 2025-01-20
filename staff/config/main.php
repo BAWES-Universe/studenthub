@@ -477,6 +477,7 @@ return [
                         'OPTIONS renew' => 'options',
                         'OPTIONS total-expired' => 'options',
                         'OPTIONS <id>/<token>' => 'options',
+                         'OPTIONS generate' => 'options',
                         'OPTIONS list-candidate-without-card' => 'options',
                     ]
                 ],

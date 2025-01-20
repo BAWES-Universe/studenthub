@@ -100,7 +100,7 @@ docker exec -it 50ae5a2794bf0a7f2baa087230036f7b5866b6c868d9e8168b59ec19fa0b7ada
 
 # Fix 
 
-./common/bin/png-linux "http://localhost:8888/bawes/studenthub/staff/web/v1/candidate-id-cards/1/BjE4JvIxqgIO3SiNyNpTPdIzK6YwWLlm" "/var/www/html/common/runtime/cache";
+./common/bin/png-linux-386 "http://localhost:8888/bawes/studenthub/staff/web/v1/candidate-id-cards/1/BjE4JvIxqgIO3SiNyNpTPdIzK6YwWLlm" "/var/www/html/common/runtime/cache";
 
 bash: ./common/bin/png-linux: cannot execute binary file: Exec format error
 
