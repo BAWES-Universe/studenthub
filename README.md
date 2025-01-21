@@ -62,6 +62,7 @@ Detailed documentation is available in the `docs/` directory:
 
 `docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up --force-recreate`
 
+
 ## execute docker build 
 
 `docker exec -it <container_id> /bin/bash`
@@ -85,10 +86,17 @@ docker exec -it 50ae5a2794bf0a7f2baa087230036f7b5866b6c868d9e8168b59ec19fa0b7ada
 
 ### cross platform build 
 - docker buildx build --platform linux/amd64 -t studenthub/backend-dev -f Dockerfile-nginx-dev .
+- docker buildx build --platform linux/amd64 -t studenthub/backend-prod -f Dockerfile-nginx-prod .
 
 ### tag and push 
+
+For dev 
 - docker tag studenthub/backend-dev:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
 - docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-dev:latest
+
+For prod 
+- docker tag studenthub/backend-prod:latest 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
+- docker push 438663597141.dkr.ecr.eu-west-2.amazonaws.com/studenthub/backend-prod:latest
 
 ## using docker compose 
 - docker-compose -f docker-compose-dev.yml build --build-arg platform=linux/amd64 tag=studenthub/backend-dev .
@@ -99,6 +107,17 @@ docker exec -it 50ae5a2794bf0a7f2baa087230036f7b5866b6c868d9e8168b59ec19fa0b7ada
 `docker-compose exec mysql mysql -u root -p`
 
 `docker-compose exec mysql mysql -u studenthubuser -pstudenthub -h mysql-1`
+
+# flush dns cache 
+
+sudo vim /etc/hosts
+- add 127.0.0.1 student.api.studenthub.co
+
+sudo killall -HUP mDNSResponder
+- to clear cache 
+
+open any frontend app (candidate, staff, admin, employer) and test 
+- make sure to use http in local 
 
 # Fix 
 
