@@ -36,6 +36,8 @@ RUN apt-get update && apt-get install -y \
 
 #RUN ln -s /etc/nginx/sites-available/basic.conf /etc/nginx/sites-enabled/
     
+RUN ln -s /var/www/html ~/www
+
 # Copy Nginx site configuration files
 #COPY ./nginx/development.conf /etc/nginx/conf.d/development.conf
 #COPY ./nginx/basic.conf /etc/nginx/conf.d/basic.conf

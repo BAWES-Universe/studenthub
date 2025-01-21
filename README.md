@@ -62,6 +62,7 @@ Detailed documentation is available in the `docs/` directory:
 
 `docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up --force-recreate`
 
+## To rebuild this image you must use `docker-compose build` or `docker-compose up --build`.
 
 ## execute docker build 
 
@@ -135,9 +136,12 @@ exec($command, $output, $returnVar);
 
 var_dump($output);
 var_dump($returnVar);
+ 
+ # on reboot, don't forget to run this based on the environment you want to run
+ 
+ - docker-compose -f docker-compose-prod.yml -p studenthub-prod-server up -d
 
-## License
+ - docker-compose -f docker-compose-dev.yml -p studenthub-dev-server up -d
 
-Proprietary software. All rights reserved.
-
+ - docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d
 

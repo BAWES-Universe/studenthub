@@ -50,6 +50,8 @@ RUN apt-get update && apt-get install -y \
 #RUN ln -sf /etc/nginx/conf.d/development.conf /etc/nginx/sites-enabled/
 #RUN ln -sf /etc/nginx/conf.d/basic.conf /etc/nginx/sites-enabled/
 
+RUN ln -s /var/www/html ~/www
+
 # Set working directory in the container
 WORKDIR /var/www/html
 
