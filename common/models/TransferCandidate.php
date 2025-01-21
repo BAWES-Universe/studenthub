@@ -99,13 +99,13 @@ class TransferCandidate extends \yii\db\ActiveRecord
             
             ['company_hourly_rate', 'compare', 'compareAttribute' => 'candidate_hourly_rate', 'operator' => '>='],
 
-            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['prev_candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['prev_candidate_id' => 'candidate_id']],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
-            [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::className(), 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']]
+            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::class, 'targetAttribute' => ['bank_id' => 'bank_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['prev_candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['prev_candidate_id' => 'candidate_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::class, 'targetAttribute' => ['transfer_id' => 'transfer_id']],
+            [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::class, 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']]
         ];
     }
 
@@ -166,7 +166,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'tc_created_at',
                 'updatedAtAttribute' => 'tc_updated_at',
                 'value' => new Expression('NOW()'),
@@ -262,15 +262,15 @@ class TransferCandidate extends \yii\db\ActiveRecord
         };
         
         $fields['bonus_commission'] = function ($model) {
-            return (double)$this->bonus_commission;
+            return (double) $this->bonus_commission;
         };
         
         $fields['candidate_bonus'] = function ($model) {
-            return $this->bonus - $this->bonus_commission;
+            return (double) $this->bonus - (double) $this->bonus_commission;
         };
         
         $fields['transfer_cost'] = function ($model) {
-            return (double)$this->transfer_cost;
+            return (double) $this->transfer_cost;
         };
 
         $fields['candidate_hourly_rate'] = function ($model) {
@@ -498,8 +498,12 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
         try {
             return  $message->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -639,7 +643,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      */
     public function getProfit()
     {
-        return $this->company_total - $this->candidate_total;
+        return (double) $this->company_total - (double) $this->candidate_total;
         //(($this->company_hourly_rate - $this->candidate_hourly_rate) * $this->hours) + $this->transfer_cost
         //    + $this->bonus_commission;
     }
@@ -931,9 +935,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * @param type $candidate
      * @param type $model
      * @param type $value
+     * @param number $noOfPayout - how many times we paying per month, so can divide and pay
      * @return type
      */
-    public static function saveCandidateTransfer($candidate, $model, $value) {
+    public static function saveCandidateTransfer($candidate, $model, $value, $noOfPayout = 1) {
 
         if (!isset($value['minutes'])) {
             $value['minutes'] = 0;
@@ -1025,9 +1030,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         {
             $TCModel->transfer_cost = $model->contract->transfer_cost;
 
-            $TCModel->candidate_total = $model->contract->amount->candidate_total;
+            $TCModel->candidate_total = $model->contract->amount->candidate_total/ $noOfPayout;
 
-            $TCModel->company_total = $model->contract->amount->company_total;
+            $TCModel->company_total = $model->contract->amount->company_total/ $noOfPayout;
         }
         else if ($model->contract->type == Contract::TYPE_FIXED_PRICE)
         {

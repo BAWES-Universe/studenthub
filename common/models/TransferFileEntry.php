@@ -85,18 +85,18 @@ class TransferFileEntry extends \yii\db\ActiveRecord
             [['dealRefNo', 'value_date', 'payment_details_1', 'payment_details_2', 'payment_details_3', 'payment_details_4', 'beneficiary_name', 'beneficiary_address_line_1', 'beneficiary_address_line_2', 'beneficiary_bank_name', 'beneficiary_bank_address_1', 'beneficiary_bank_address_2', 'beneficiary_bank_address_3', 'intermediary_account', 'intrmediary_name', 'intermediary_address_1', 'intermediary_address_2', 'intermediary_address_3', 'sort_code', 'BIC_code', 'IBAN', 'ABA_routing_code'], 'string', 'max' => 100],
             [['charges_type'], 'string', 'max' => 10],
             [['tfe_uuid'], 'unique'],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['created_by' => 'admin_id']],
-            [['credit_narrative'], 'exist', 'skipOnError' => true, 'targetClass' => TransferCandidate::className(), 'targetAttribute' => ['credit_narrative' => 'tc_id']],
-            [['debit_narrative'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['debit_narrative' => 'transfer_id']],
-            [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::className(), 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']],
-            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::className(), 'targetAttribute' => ['updated_by' => 'admin_id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['created_by' => 'admin_id']],
+            [['credit_narrative'], 'exist', 'skipOnError' => true, 'targetClass' => TransferCandidate::class, 'targetAttribute' => ['credit_narrative' => 'tc_id']],
+            [['debit_narrative'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::class, 'targetAttribute' => ['debit_narrative' => 'transfer_id']],
+            [['transfer_file_id'], 'exist', 'skipOnError' => true, 'targetClass' => TransferFile::class, 'targetAttribute' => ['transfer_file_id' => 'transfer_file_id']],
+            [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['updated_by' => 'admin_id']],
         ];
     }
 
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'tfe_uuid',
                 ],
@@ -108,12 +108,12 @@ class TransferFileEntry extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'created_by',
                 'updatedByAttribute' => 'updated_by'
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

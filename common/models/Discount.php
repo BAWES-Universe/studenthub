@@ -51,9 +51,9 @@ class Discount extends \yii\db\ActiveRecord
             [['discount_uuid'], 'string', 'max' => 60],
             [['how_to_apply_en', 'how_to_apply_ar', 'image'], 'string', 'max' => 255],
             [['discount_uuid'], 'unique'],
-            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => DiscountCategory::className(), 'targetAttribute' => ['category_id' => 'category_id']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => DiscountCategory::class, 'targetAttribute' => ['category_id' => 'category_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
              */
@@ -76,7 +76,7 @@ class Discount extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'discount_uuid',
                 ],
@@ -88,7 +88,7 @@ class Discount extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

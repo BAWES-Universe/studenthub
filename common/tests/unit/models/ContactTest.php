@@ -19,8 +19,8 @@ class ContactTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'company' => CompanyFixture::className(),
-            'contact' => ContactFixture::className()
+            'company' => CompanyFixture::class,
+            'contact' => ContactFixture::class
         ];
     }
 
@@ -30,37 +30,35 @@ class ContactTest extends \Codeception\Test\Unit
 
     public function testValidate()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Contact is in the table',
-                Contact::find()->one()
-            )->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(Contact::find()->one());
+        //});
 
-        $this->specify('Field validation', function() {
+        //$this->specify('Field validation', function() {
 
             $model = new Contact;
 
-            expect('contact email', $model->validate(['contact_email']))->false();
+            $this->assertFalse($model->validate(['contact_email']));
             //expect('password hash required', $model->validate(['contact_password_hash']))->false();
                 
             //email validation
 
             $model->contact_email = 'ashsakdhkashdkjhkhkhkhtest@gmail.com';
-            expect('company email should be valid email', $model->validate(['contact_email']))->true();
+            $this->assertTrue($model->validate(['contact_email']));
 
             $model->contact_email = 'testtets tests';
-            expect('company email should not accept random string', $model->validate(['contact_email']))->false();
+            $this->assertFalse($model->validate(['contact_email']));
 
             $model->contact_email = $this->tester->grabFixture('contact', 'contact0')->contact_email;
-            expect('company contact_email should not exists in db', $model->validate(['contact_email']))->false();
+            $this->assertFalse($model->validate(['contact_email']));
 
             $model->contact_email = 'comprrrrrr@localhost.com';//new email
-            expect('company email should be unique', $model->validate(['contact_email']))->true();
+            $this->assertTrue($model->validate(['contact_email']));
 
             $model->contact_name = null;
 
-            expect('Contact contact_name should be required field', $model->validate(['contact_name']))->false();
+            $this->assertFalse($model->validate(['contact_name']));
 
-        });
+        //});
     }
 }

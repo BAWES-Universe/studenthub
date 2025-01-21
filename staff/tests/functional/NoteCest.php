@@ -17,8 +17,8 @@ class NoteCest
     public function _fixtures()
     {
         return [
-        	'staffToken' => StaffTokenFixture::className(),
-            'note' => NoteFixture::className(),
+        	'staffToken' => StaffTokenFixture::class,
+            'note' => NoteFixture::class,
         ];
     }
 

@@ -5,7 +5,7 @@ use Codeception\Specify;
 use common\models\Admin;
 use common\models\AdminToken;
 use common\fixtures\AdminTokenFixture;
-
+ 
 class AdminTokenTest extends \Codeception\Test\Unit
 {
     use Specify;
@@ -18,32 +18,28 @@ class AdminTokenTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className()
+            'adminToken' => AdminTokenFixture::class
         ];
     }
-
-    protected function _before(){}
-
-    protected function _after(){}
 
     /**
      * Test Validation
      */
     public function testValidation()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Admin is in the table', Admin::find()->one())->notNull();
-            expect('Admin Token is in the table', AdminToken::find()->one())->notNull();
-        });
+        ////$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(Admin::find()->one(), 'Admin is in the table');
+            $this->assertNotNull(AdminToken::find()->one(), 'Admin Token is in the table');
+        ////});
 
-        $this->specify('Test Validator', function() {
+        ////$this->specify('Test Validator', function() {
             $model = new AdminToken();
             $model->validate();
-            expect('admin_id required error',$model->errors)->hasKey('admin_id');
-            expect('token_value required error',$model->errors)->hasKey('token_value');
-            expect('token_status required error',$model->errors)->hasKey('token_status');
-            expect('total 3 errors',count($model->errors))->equals(3);
-        });
+            $this->assertArrayHasKey('admin_id', $model->errors, 'admin_id required error');
+            $this->assertArrayHasKey('token_value', $model->errors, 'token_value required error');
+            $this->assertArrayHasKey('token_status', $model->errors, 'token_status required error');
+            $this->assertCount(3, $model->errors, 'total 3 errors');
+        ////});
     }
 
     /**
@@ -52,15 +48,49 @@ class AdminTokenTest extends \Codeception\Test\Unit
      */
     public function testGenerateToken()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Admin Token is in the table', AdminToken::find()->one())->notNull();
-        });
+        ////$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(AdminToken::find()->one(), 'Admin Token is in the table');
+        ////});
 
-        $this->specify('Test existing Token', function() {
-            expect(
-                'unique token string',
-                AdminToken::findOne(['token_value' => AdminToken::generateUniqueTokenString()])
-            )->null();
-        });
+        ////$this->specify('Test existing Token', function() {
+            $existingToken = AdminToken::find()->one();
+            $this->assertNotNull($existingToken, 'Existing token should not be null');
+            $this->assertEquals(AdminToken::STATUS_ACTIVE, $existingToken->token_status, 'Token status should be active');
+        ////});
+
+        ////$this->specify('Test unique token generation', function() {
+            $uniqueToken = AdminToken::generateUniqueTokenString();
+            $this->assertNull(AdminToken::findOne(['token_value' => $uniqueToken]), 'Generated token should be unique');
+        ////});
     }
-}
+
+    /**
+     * Test token expiration
+     *
+    public function testTokenExpiration()
+    {
+        ////$this->specify('Test token expiration', function() {
+            $token = AdminToken::find()->one();
+            $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime('-1 day'));
+            $token->save(false);
+            $this->assertEquals(AdminToken::STATUS_EXPIRED, 
+                $token->token_status, 
+                'Token status should be expired');
+       // //});
+    }*/
+
+    /**
+     * Test token last used datetime update
+     *
+    public function testTokenLastUsedDatetimeUpdate()
+    {
+       // //$this->specify('Test token last used datetime update', function() {
+            $token = AdminToken::find()->one();
+            $lastUsedBefore = $token->token_last_used_datetime;
+            $token->afterFind();
+            $this->assertNotEquals($lastUsedBefore, 
+                $token->token_last_used_datetime, 
+                'Token last used datetime should be updated');
+       // //});
+    }*/
+} 

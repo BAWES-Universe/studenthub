@@ -2,9 +2,12 @@
 
 namespace staff\modules\v1\controllers;
 
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Output\QRGdImagePNG;
+use chillerlan\QRCode\Output\QROutputInterface;
 use staff\models\Note;
 use staff\models\Staff;
-use Da\QrCode\QrCode;
+//use Da\QrCode\QrCode;
 use Yii;
 use yii\helpers\ArrayHelper; 
 use yii\web\NotFoundHttpException;
@@ -12,7 +15,9 @@ use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Candidate;
 use staff\models\CandidateIdCard;
-
+use common\models\CandidateIdRequest;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 
 /**
  * CandidateIdcard controller - Manage Candidate ID as Staff
@@ -28,25 +33,34 @@ class CandidateIdCardController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => \yii\filters\Cors::className(),
+            'class' => \yii\filters\Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
                 'Access-Control-Request-Headers' => ['*'],
+                'Access-Control-Allow-Headers' => ['*'],
                 'Access-Control-Allow-Credentials' => null,
                 'Access-Control-Max-Age' => 86400,
                 'Access-Control-Expose-Headers' => [
                     'X-Pagination-Current-Page',
                     'X-Pagination-Page-Count',
                     'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
+                    'X-Pagination-Total-Count',
+                    'Content-Range',
+                    'Pragma',
+                    'Expires',
+                    'Cache-Control',
+                    'Content-Disposition',
+                    'Content-Type',
+                    'Content-Length',
+                    'Location',
                 ],
             ],
         ];
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => \yii\filters\auth\HttpBearerAuth::className(),
+            'class' => \yii\filters\auth\HttpBearerAuth::class,
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -77,7 +91,6 @@ class CandidateIdCardController extends Controller
     {
         if (!$this->loginByAccessToken($token)) {
             throw new \yii\web\ForbiddenHttpException('Invalid Access');
-            exit;
         }
 
         $side = Yii::$app->request->get('side');
@@ -89,13 +102,28 @@ class CandidateIdCardController extends Controller
         $qrCode = null;
         
         if ($model->candidate->candidate_uid) {
-            $writer = new \Da\QrCode\Writer\JpgWriter();
+            //$writer = new \Da\QrCode\Writer\JpgWriter();
 
             $path = (YII_ENV == 'prod') ? "https://v.studenthub.co/" : "https://v.dev.studenthub.co/";
-            
-            $qrCode = (new QrCode($path . $model->candidate->candidate_uid, null, $writer))
+
+            $options = new QROptions(
+                [
+                    'eccLevel' => EccLevel::L,// QRCode::ECC_L,
+                   // 'outputType' => QROutputInterface::MARKUP_SVG,
+                    'outputInterface' => QRGdImagePNG::class,
+                    'version' => 7,
+                ]
+            );
+
+            $qrCode = (new QRCode($options))
+                ->render($path . $model->candidate->candidate_uid);
+
+            /*$qrCode = (new QrCode($path . $model->candidate->candidate_uid, null, $writer))
                 ->setSize(500)
-                ->setMargin(5);
+                ->setMargin(5);*/
+
+         //   echo $qrcode;
+           // die();
         }
         
         return $this->renderPartial('view', [
@@ -153,9 +181,6 @@ class CandidateIdCardController extends Controller
      */
     public function actionGenerate()
     {
-        if(empty(Yii::$app->params['inCodeception']))
-            $transaction = Yii::$app->db->beginTransaction();
-
         $candidate_ids = [];
 
         //remove null values
@@ -175,6 +200,24 @@ class CandidateIdCardController extends Controller
             if($value)
                 $candidate_ids[] = $value;
         }
+
+        $model = new CandidateIdRequest();
+        $model->candidate_ids = implode(",", $candidate_ids);
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "cir_uuid" => $model->cir_uuid,
+            "message" => "We processing your request"
+        ];
+/*if(empty(Yii::$app->params['inCodeception']))
+            $transaction = Yii::$app->db->beginTransaction();
 
         // create ID Card entry
 
@@ -266,9 +309,16 @@ class CandidateIdCardController extends Controller
             ];
 
         } else {// Download Zip File
+            // Clear output buffer to avoid any additional data being sent
+            /*if (ob_get_level()) {
+                ob_end_clean();
+            }*
 
-            return Yii::$app->response->sendFile($result['zip']);
-        }
+            return Yii::$app->response->sendFile($result['zip'], "IDCard.zip", [
+            //    'mimeType' => 'application/zip',
+            //    'inline' => false, // Force download
+            ]);
+        }*/
     }
 
     /**

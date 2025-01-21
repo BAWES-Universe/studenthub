@@ -33,7 +33,7 @@ class Invoice extends ActiveRecord
             [['transfer_id'], 'integer'],
             [['invoice_date'], 'safe'],
             [['invoice_status'], 'string'],
-            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::className(), 'targetAttribute' => ['transfer_id' => 'transfer_id']],
+            [['transfer_id'], 'exist', 'skipOnError' => true, 'targetClass' => Transfer::class, 'targetAttribute' => ['transfer_id' => 'transfer_id']],
         ];
     }
 
@@ -142,8 +142,12 @@ class Invoice extends ActiveRecord
 
         try {
             return  $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 

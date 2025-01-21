@@ -1,0 +1,326 @@
+# PHP CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-php/ for more details
+#
+version: 2.1
+
+executors:
+  docker-executor:
+    docker:
+      - image: cimg/base:stable  # Use a Docker image with basic tools
+
+jobs:
+  run_test:
+    branches:
+      only: 
+        - master
+        - develop
+        - kk/tech-766-upgrade-apps-aws-ec2-instances-to-use-latest-mysql-and-php #test upgrade
+
+    docker:
+      # specify the version you desire here
+      - image: cimg/php:8.2.27
+        environment:
+          PUPPETEER_SKIP_DOWNLOAD: true
+
+      - image: cimg/mysql:8.0 #5.7
+        environment:
+          PUPPETEER_SKIP_DOWNLOAD: true
+          MYSQL_ROOT_PASSWORD: rootpw
+          MYSQL_DATABASE: payroll_test
+          MYSQL_USER: bawes
+          MYSQL_PASSWORD: passw0rd
+        command: >
+            mysqld --sql-mode=NO_ENGINE_SUBSTITUTION 
+                 --character-set-server=utf8mb4 
+                 --collation-server=utf8mb4_bin 
+
+    # Specify Server Type. Keep it as small as possible to reduce costs
+    resource_class: small
+
+    working_directory: ~/studenthub
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install things we need
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libpng-dev libmcrypt-dev libreadline-dev zip zlib1g-dev default-mysql-client ffmpeg
+
+      - run:
+          name: Wait for MySQL to be ready
+          command: |
+            for i in `seq 1 30`; do
+              nc -z 127.0.0.1 3306 && echo "MySQL is ready" && exit 0
+              echo "Waiting for MySQL..."
+              sleep 1
+            done
+            echo "MySQL did not become ready in time" && exit 1
+
+      - run:
+          name: Create Additional Database and User Privileges
+          command: |
+            mysql -h 127.0.0.1 -u root -prootpw -e "
+              CREATE DATABASE wallet_test;
+              CREATE USER 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd';
+              GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1';
+            "
+            
+#  FLUSH PRIVILEGES;
+            
+      - run:
+          name: Install PHP exts
+          command: |
+            sudo apt-get install
+        #sudo docker-php-ext-install zip
+        #sudo docker-php-ext-install pdo_mysql exif && sudo docker-php-ext-enable pdo_mysql
+        #sudo docker-php-ext-install libonig-dev mbstring exif
+        # sudo docker-php-ext-configure intl
+        # sudo docker-php-ext-install intl
+        #sudo docker-php-ext-install gd
+      
+      #- run:
+      #    name: Install puppeteer
+      #    command: |
+      #      curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+      #      sudo apt-get -f install -y nodejs gcc g++ make gconf-service libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libnss3 lsb-release xdg-utils wget libgbm-dev
+      #      sudo npm install --global --unsafe-perm puppeteer
+      #      sudo chmod -R o+rx /usr/local/lib/node_modules/puppeteer/.local-chromium
+
+      - run:
+          name: Install Headless Chrome dependencies
+          command: |
+            sudo apt-get install -yq gconf-service libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
+
+      # todo: not working in circleci must have in live server
+      #- run:
+      #    name: Install puppeteer with chronium
+      #    environment:
+      #      PUPPETEER_SKIP_DOWNLOAD: true
+      #    command: |
+      #      sudo npm install --location=global --unsafe-perm puppeteer
+      #      sudo chmod -R o+rx /usr/local/lib/node_modules/puppeteer/.local-chromium
+
+      #libappindicator1 build failed as package was not found
+
+      #sudo apt-get install nodejs
+      #sudo apt-get install npm
+      #sudo npm i puppeteer -g
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "composer.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: Install Dependencies
+          command: composer install -n --prefer-dist
+
+      - save_cache:
+          paths:
+            - ./vendor
+          key: v1-dependencies-{{ checksum "composer.json" }}
+
+      - run:
+          name: Initialize Dev Environment
+          command: ./init --env=Circle-CI --overwrite=All
+
+      - run:
+          name: Install DB Migrations
+          command: ./yii_test migrate --interactive=0
+
+      #- run:
+      #    name: Configure secondary database for wallet
+      #    command: mysql -h 127.0.0.1 -u root -prootpw -e "CREATE DATABASE wallet_test"
+          #command: mysql -h 127.0.0.1 -u bawes -ppassw0rd -e "CREATE DATABASE wallet_test"
+
+      #- run:
+      #    name: Grant priviledges to database for wallet
+      #    command: mysql -h 127.0.0.1 -u root -prootpw -e "GRANT ALL PRIVILEGES ON wallet_test.* TO 'bawes'@'127.0.0.1' IDENTIFIED BY 'passw0rd'"
+
+      #- run:
+      #    name: Seed secondary database for wallet
+      #    command: ./yii cron/
+
+      #---------- staff app --------------#
+
+      - run:
+          name: Run Staff app Codeception functional tests and store result output
+          command: cd ./staff && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run Staff app Codeception tests and store result output
+         command: cd ./staff && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- company app --------------#
+
+      - run:
+          name: Run Company app Codeception functional tests and store result output
+          command: cd ./company && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+          name: Run Company app Codeception tests and store result output
+          command: cd ./company && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- manager app --------------#
+
+      - run:
+          name: Run Manager app Codeception functional tests and store result output
+          command: cd ./manager && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      #- run:
+      #   name: Run Manager app Codeception tests and store result output
+      #   command: ./vendor/bin/codecept run manager/tests/unit --xml --html --fail-fast
+
+      #---------- admin app --------------#
+
+      - run:
+          name: Run Admin app Codeception functional tests and store result output
+          command: cd ./admin && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run Codeception tests and store result output
+         command: cd ./admin && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- candidate app --------------#
+
+      - run:
+          name: Run User app Codeception functional tests and store result output
+          command: cd ./candidate && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run Candidate app Codeception unit tests and store result output
+         command: cd ./candidate && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- inspector app --------------#
+
+      - run:
+          name: Run inspector app Codeception functional tests and store result output
+          command: cd ./inspector && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+          name: Run inspector app Codeception unit tests and store result output
+          command: cd ./inspector && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- status app --------------#
+
+      - run:
+          name: Run status app Codeception functional tests and store result output
+          command: cd ./status && ../vendor/bin/codecept run functional --xml --html --fail-fast
+
+      - run:
+         name: Run status app Codeception unit tests and store result output
+         command: cd ./status && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      #---------- common --------------#
+
+      - run:
+          name: Run Common Codeception unit tests and store result output
+          command: cd ./common && ../vendor/bin/codecept run unit --xml --html --fail-fast
+
+      - store_test_results:
+         path: ~/studenthub/console/runtime/logs
+
+      - store_artifacts:
+         path: ~/studenthub/console/runtime/logs/report.html
+         destination: report
+
+  build-and-push:
+    executor: docker-executor
+    environment:
+      AWS_REGION: "<your-aws-region>"
+      IMAGE_NAME: "<your-image-name>"
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.16
+      - run:
+          name: Install AWS CLI
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y awscli
+      - run:
+          name: Authenticate to AWS ECR
+          command: |
+            aws ecr get-login-password --region $AWS_REGION | \
+            docker login --username AWS --password-stdin <account-id>.dkr.ecr.$AWS_REGION.amazonaws.com
+      - run:
+          name: Build Docker Image
+          command: |
+            IMAGE_TAG="${CIRCLE_BUILD_NUM}"  # Auto-incremented tag based on build number
+            echo "Building Docker image with tag: $IMAGE_TAG"
+            docker build -t $IMAGE_NAME:$IMAGE_TAG .
+      - run:
+          name: Tag Docker Image
+          command: |
+            IMAGE_TAG="${CIRCLE_BUILD_NUM}"
+            echo "Tagging Docker image: $IMAGE_NAME:$IMAGE_TAG"
+            docker tag $IMAGE_NAME:$IMAGE_TAG <account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:$IMAGE_TAG
+      - run:
+          name: Push Docker Image to ECR
+          command: |
+            IMAGE_TAG="${CIRCLE_BUILD_NUM}"
+            echo "Pushing Docker image to ECR: $IMAGE_NAME:$IMAGE_TAG"
+            docker push <account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:$IMAGE_TAG
+      - run:
+          name: Push Latest Tag to ECR
+          command: |
+            docker tag $IMAGE_NAME:$CIRCLE_BUILD_NUM <account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:latest
+            docker push <account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME:latest
+
+  update-ecs-service:
+    executor: docker-executor
+    environment:
+      AWS_REGION: "<your-aws-region>"
+      CLUSTER_NAME: "<your-cluster-name>"
+      SERVICE_NAME: "<your-service-name>"
+      IMAGE_NAME: "<your-image-name>"
+    steps:
+      - run:
+          name: Install AWS CLI
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y awscli
+      - run:
+          name: Environment Setup
+          command: |
+            echo "Running environment setup..."
+            # Add your environment setup commands here
+            # Example: Run a database migration
+            python manage.py migrate
+            # Example: Preload some data
+            python manage.py loaddata initial_data.json
+      - run:
+          name: Update ECS Service
+          command: |
+            aws ecs update-service \
+              --cluster $CLUSTER_NAME \
+              --service $SERVICE_NAME \
+              --force-new-deployment \
+              --region $AWS_REGION
+
+workflows:
+  version: 2.1
+
+  run_test:
+    jobs:
+      - run_test:
+          context:
+            - org-global
+
+  build-and-deploy:
+    filters:
+      branches:
+        only:
+          - kk/tech-766-upgrade-apps-aws-ec2-instances-to-use-latest-mysql-and-php  # Specify the branch to trigger this workflow
+    jobs:
+      - build-and-push
+          requires:
+            - run_test
+      - update-ecs-service:
+          requires:
+            - build-and-push

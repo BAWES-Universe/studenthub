@@ -28,7 +28,7 @@ class AuthController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -41,7 +41,7 @@ class AuthController extends Controller
 
         // Basic Auth accepts Base64 encoded username/password and decodes it for you
         $behaviors['authenticator'] = [
-            'class' => HttpBasicAuth::className(),
+            'class' => HttpBasicAuth::class,
             'except' => ['options'],
             'auth' => function ($email, $password) {
                 
@@ -623,7 +623,9 @@ class AuthController extends Controller
         if (!$model->validate()) {
             return [
                 'operation' => 'error',
-                'message' => isset($model->errors['email'])?isset($model->errors['email']): $model->errors
+                "code" => 1,
+                "errors"=> $model->errors,
+                'message' => isset($model->errors['email'])?$model->errors['email']: $model->errors
             ];
         }
 
@@ -634,6 +636,7 @@ class AuthController extends Controller
         if (!$candidate) {
             return [
                 'operation' => 'error',
+                "code" => 2,
                 'message' => 'candidate not found'
             ];
         }
@@ -659,6 +662,7 @@ class AuthController extends Controller
         if($errors) {
             return [
                 'operation' => 'error',
+                "code" => 3,
                 'message' => $errors
             ];
         }

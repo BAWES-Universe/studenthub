@@ -61,7 +61,7 @@ class BankTransaction extends \yii\db\ActiveRecord
             [['line_amount_types'], 'string', 'max' => 100],
             [['overpayment_id', 'prepayment_id', 'reference', 'status', 'status_attribute_string', 'type', 'url', 'validation_errors'], 'string', 'max' => 255],
             [['bank_transaction_id'], 'unique'],
-            [['contact_id'], 'exist', 'skipOnError' => true, 'targetClass' => BankTransactionContact::className(), 'targetAttribute' => ['contact_id' => 'contact_id']],
+            [['contact_id'], 'exist', 'skipOnError' => true, 'targetClass' => BankTransactionContact::class, 'targetAttribute' => ['contact_id' => 'contact_id']],
         ];
     }
 
@@ -72,7 +72,7 @@ class BankTransaction extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'bank_transaction_id',
                 ],
@@ -84,7 +84,7 @@ class BankTransaction extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
@@ -136,9 +136,9 @@ class BankTransaction extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getContact($modelClass = "\common\models\University")
+    public function getContact($modelClass = "\common\models\BankTransactionContact")
     {
-        return $this->hasOne(BankTransactionContact::className(), ['contact_id' => 'contact_id']);
+        return $this->hasOne($modelClass::className(), ['contact_id' => 'contact_id']);
     }
 
     /**

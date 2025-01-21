@@ -18,7 +18,7 @@ class FulltimerExperienceTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'fulltimerSkill' => FulltimerSkillFixture::className()
+            'fulltimerSkill' => FulltimerSkillFixture::class
         ];
     }
 
@@ -32,10 +32,10 @@ class FulltimerExperienceTest extends \Codeception\Test\Unit
 
         $model->fulltimer_uuid = null;
         $model->experience = null;
-        expect('fulltimerSkill fulltimer_uuid should be required field', $model->validate(['fulltimer_uuid']))->false();
-        expect('fulltimerSkill experience should be required field', $model->validate(['experience']))->false();
+        $this->assertFalse($model->validate(['fulltimer_uuid']));
+        $this->assertFalse($model->validate(['experience']));
 
         $model->fulltimer_uuid = '123123123';
-        expect('Invalid fulltimer uuid', $model->validate(['fulltimer_uuid']))->false();
+        $this->assertFalse($model->validate(['fulltimer_uuid']));
     }
 }

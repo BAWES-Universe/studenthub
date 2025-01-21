@@ -20,11 +20,11 @@ class CandidateCest
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className(),
-            'invoice' => InvoiceFixture::className(),
-            'candidates' => CandidateFixture::className(),
-            'transferCandidate' => TransferCandidateFixture::className(),
-            'candidateWorkHistory' => CandidateWorkHistoryFixture::className()
+            'staffToken' => StaffTokenFixture::class,
+            'invoice' => InvoiceFixture::class,
+            'candidates' => CandidateFixture::class,
+            'transferCandidate' => TransferCandidateFixture::class,
+            'candidateWorkHistory' => CandidateWorkHistoryFixture::class
         ];
     }
 

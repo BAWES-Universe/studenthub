@@ -60,7 +60,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'inspector_uuid',
                 ],
@@ -72,7 +72,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'inspector_created_at',
                 'updatedAtAttribute' => 'inspector_updated_at',
                 'value' => new Expression('NOW()'),
@@ -191,8 +191,12 @@ class Inspector extends ActiveRecord implements IdentityInterface
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -228,8 +232,12 @@ class Inspector extends ActiveRecord implements IdentityInterface
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 

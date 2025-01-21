@@ -14,8 +14,8 @@ class StaffCest
 	public function _fixtures()
 	{
 		return [
-			'staffToken' => StaffTokenFixture::className(),
-			'staff' => StaffFixture::className()
+			'staffToken' => StaffTokenFixture::class,
+			'staff' => StaffFixture::class
 		];
 	}
 

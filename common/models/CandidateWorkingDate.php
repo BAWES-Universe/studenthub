@@ -56,9 +56,9 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
             [['date', 'start_time', 'end_time', 'created_at', 'updated_at'], 'safe'],
             [['cwd_uuid'], 'string', 'max' => 60],
             [['cwd_uuid'], 'unique'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
 
@@ -68,7 +68,7 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'cwd_uuid',
                 ],
@@ -80,7 +80,7 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
@@ -99,6 +99,17 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
             $model->getCandidate
         };*/
 
+        $fields['isWorking']= function ($model) {
+            return \candidate\models\CandidateWorkingHour::find()
+                ->andWhere(['date' => $this->date])
+                ->andWhere([
+                    'candidate_id' => $this->candidate_id,
+                    "store_id" => $this->store_id
+                ])
+                ->andWhere(new Expression("end_time IS NULL"))
+                ->exists();
+        };
+
         $fields['health'] = function ($model) {
             $health = \candidate\models\CandidateWorkingHour::find()
                 ->andWhere(['date' => $this->date])
@@ -113,7 +124,8 @@ class CandidateWorkingDate extends \yii\db\ActiveRecord
 
         return array_merge($fields, [
             "latestCandidateWorkingHour",
-            "candidateWorkingHours"
+            "candidateWorkingHours",
+            "company"
         ]);
     }
 

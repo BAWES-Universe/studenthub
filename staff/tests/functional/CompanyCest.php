@@ -17,10 +17,10 @@ class CompanyCest
 	public function _fixtures()
 	{
 		return [
-                'company' => CompanyFixture::className(),
-                'staffToken' => StaffTokenFixture::className(),
-                'store' => StoreFixture::className(),
-                'candidate' => CandidateFixture::className(),
+                'company' => CompanyFixture::class,
+                'staffToken' => StaffTokenFixture::class,
+                'store' => StoreFixture::class,
+                'candidate' => CandidateFixture::class,
 		];
 	}
 

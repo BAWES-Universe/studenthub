@@ -176,14 +176,17 @@ class CandidateQuery extends \yii\db\ActiveQuery
     public function filterByJoiningDate($startDate = null, $endDate = null, $companyID = null)
     {
         $this->joinWith('workHistory');
+
         if ($startDate) {
             $startDate = date('Y-m-d', strtotime($startDate));
             $this->andWhere("DATE(candidate_work_history.start_date) >= '$startDate'");
         }
+
         if ($endDate) {
             $endDate = date('Y-m-d', strtotime($endDate));
             $this->andWhere("DATE(candidate_work_history.start_date) <= '$endDate'");
         }
+
         if ($companyID) {
             $this->andWhere(["`candidate_work_history`.`parent_company_id`" => $companyID]);
         }

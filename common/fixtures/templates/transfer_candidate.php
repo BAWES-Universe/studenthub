@@ -42,4 +42,4 @@ return [
 	'paid' => 1, 
 	'tc_created_at' => $faker->date('Y-m-d H:i:s'), 
 	'tc_updated_at' => $faker->date('Y-m-d H:i:s') 
-]
+];

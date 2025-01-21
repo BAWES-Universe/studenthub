@@ -105,7 +105,7 @@ class Company extends \yii\db\ActiveRecord
             [['parent_company_id'], 'validateCompany'],
             ['company_hourly_rate', 'validateHourlyRate'],
             [['company_name', 'company_email', 'company_common_name_en','company_common_name_ar'], 'string', 'max' => 255],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['company_common_name_en','company_common_name_ar','company_description_en','company_description_ar','company_website',
                 'company_status_override', 'last_request_datetime', 'last_payment_datetime'], 'safe'],
             /**
@@ -134,7 +134,7 @@ class Company extends \yii\db\ActiveRecord
                     return $model->{$attribute} !== $model->getOldAttribute($attribute);
                 }
             ],
-            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['country_id' => 'country_id']],
         ];
     }
   
@@ -174,7 +174,7 @@ class Company extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'company_created_at',
                 'updatedAtAttribute' => 'company_updated_at',
                 'value' => new Expression('NOW()'),
@@ -528,8 +528,12 @@ class Company extends \yii\db\ActiveRecord
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "request-hours");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
         }
@@ -716,7 +720,7 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('commercial_licence', Yii::t('app', 'Image not available to save.'));
+            $this->addError('commercial_licence', Yii::t('app', $e->getMessage() . ': Image not available to save.'));//
 
             return false;
         }
@@ -762,7 +766,7 @@ class Company extends \yii\db\ActiveRecord
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 
@@ -774,7 +778,7 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('commercial_licence', Yii::t('app', 'Image not available to save.'));
+            $this->addError('commercial_licence', Yii::t('app', $e->getMessage() . ': Image not available to save.'));
 
             return false;
         }
@@ -795,7 +799,7 @@ class Company extends \yii\db\ActiveRecord
                 return Yii::$app->cloudinaryManager->delete($path . $this->commercial_licence);
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 
@@ -824,7 +828,7 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+            $this->addError('company_logo', Yii::t('app', $e->getMessage(). ': Image not available to save.'));
 
             return false;
         }
@@ -870,7 +874,7 @@ class Company extends \yii\db\ActiveRecord
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 
@@ -882,7 +886,7 @@ class Company extends \yii\db\ActiveRecord
 
             Yii::error($e->getMessage(), 'company');
 
-            $this->addError('company_logo', Yii::t('app', 'Image not available to save.'));
+            $this->addError('company_logo', Yii::t('app', $e->getMessage(). ': Image not available to save.'));
 
             return false;
         }
@@ -904,7 +908,7 @@ class Company extends \yii\db\ActiveRecord
                 return Yii::$app->cloudinaryManager->delete($path . $this->company_logo);
             }
             
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'company');
 

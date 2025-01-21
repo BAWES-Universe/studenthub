@@ -74,8 +74,8 @@ class ExamQuestion extends \yii\db\ActiveRecord
             [['question_file_extensions', 'question_file_maxsize'], 'required', 'when' => function($model) {
                 return $this->question_type == Question::TYPE_FILE_INPUT;
             }],
-            [['exam_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Exam::className(), 'targetAttribute' => ['exam_uuid' => 'exam_uuid']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['exam_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Exam::class, 'targetAttribute' => ['exam_uuid' => 'exam_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 
@@ -85,7 +85,7 @@ class ExamQuestion extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'question_uuid',
                 ],
@@ -97,7 +97,7 @@ class ExamQuestion extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => "updated_at",
                 'value' => new Expression('NOW()'),

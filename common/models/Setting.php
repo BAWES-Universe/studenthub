@@ -52,7 +52,7 @@ class Setting extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className (),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'setting_uuid',
                 ],
@@ -64,7 +64,7 @@ class Setting extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className (),
+                'class' => TimestampBehavior::class,
                 'value' => new Expression('NOW()'),
             ],
         ];

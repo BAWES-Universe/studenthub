@@ -69,8 +69,8 @@ class Contact extends \yii\db\ActiveRecord
             [['contact_uuid'], 'unique'],//'contact_email'
             [['contact_password_reset_token'], 'unique'],
             [['contact_status', 'contact_email_verified_by'], 'number'],
-            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
-            [['contact_email_verified_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['contact_email_verified_by' => 'staff_id']],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::class, 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
+            [['contact_email_verified_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['contact_email_verified_by' => 'staff_id']],
         ];
     }
 
@@ -109,7 +109,7 @@ class Contact extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'contact_uuid',
                 ],
@@ -121,7 +121,7 @@ class Contact extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'contact_created_at',
                 'updatedAtAttribute' => 'contact_updated_at',
                 'value' => new Expression('NOW()'),
@@ -519,7 +519,7 @@ class Contact extends \yii\db\ActiveRecord
      * @param type $length
      * @return type
      */
-    public function generateUniqueRandomString($attribute, $length = 32) {
+    public function generateUniqueRandomString(string $attribute, $length = 32) {
         $min = pow(10, $length - 1);
         $max = pow(10, $length) - 1;
         $randomString = mt_rand($min, $max);
@@ -710,8 +710,12 @@ class Contact extends \yii\db\ActiveRecord
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 

@@ -21,10 +21,10 @@ class CompanyCest
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'company' => CompanyFixture::className(),
-            'files' => FileFixture::className(),
-            'country' => CountryFixture::className()
+            'adminToken' => AdminTokenFixture::class,
+            'company' => CompanyFixture::class,
+            'files' => FileFixture::class,
+            'country' => CountryFixture::class
         ];
     }
 
@@ -120,6 +120,7 @@ class CompanyCest
                 'name' => 'davert',
                 'common_name_en' => 'test',
                 'common_name_ar' => 'test',
+                "logo_url" => $response['ObjectURL'],
                 'logo' => basename($response['ObjectURL']),
                 'commercial_licence' => basename($response['ObjectURL']),
                 'description_en' => 'test',

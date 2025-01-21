@@ -40,7 +40,7 @@ class StaffSalaryProcess extends \yii\db\ActiveRecord
             [['staff_salary_process_uuid'], 'string', 'max' => 60],
             [['salary_tags'], 'string', 'max' => 225],
             [['staff_salary_process_uuid'], 'unique'],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 

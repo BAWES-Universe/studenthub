@@ -138,7 +138,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_name','candidate_name_ar'], 'trim'],
             [['candidate_password_hash'], 'required'],
             [['store_id', 'candidate_status', 'candidate_email_verification', 'approved', 'bank_id', 'candidate_driving_license','candidate_mom_kuwaiti'], 'integer'],
-            [['candidate_name', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video', 'candidate_video_job_id'], 'string', 'max' => 255],
+            [['candidate_name','candidate_name_ar', 'candidate_email', 'candidate_password_hash', 'candidate_password_reset_token', 'candidate_personal_photo', 'candidate_video', 'candidate_video_job_id'], 'string', 'max' => 255],
             [['candidate_iban', 'candidate_address_line1'], 'string', 'max' => 70],
             [['bank_account_name'], 'string', 'max' => 35],
             [['candidate_auth_key'], 'string', 'max' => 32],
@@ -208,11 +208,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_civil_expiry_date'], 'validateCivilExpiry'],
             [['candidate_password_reset_token'], 'unique'],
             ['candidate_status', 'default', 'value' => self::STATUS_PENDING],
-            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'country_id']],
+            [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::class, 'targetAttribute' => ['country_id' => 'country_id']],
 
-            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::className(), 'targetAttribute' => ['university_id' => 'university_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
-            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::className(), 'targetAttribute' => ['bank_id' => 'bank_id']],
+            [['university_id'], 'exist', 'skipOnError' => true, 'targetClass' => University::class, 'targetAttribute' => ['university_id' => 'university_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
+            [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::class, 'targetAttribute' => ['bank_id' => 'bank_id']],
 
             ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
 
@@ -226,8 +226,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             [['candidate_latitude', 'candidate_longitude'], 'number'],
 
-            [['candidate_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::className(), 'targetAttribute' => ['candidate_area_uuid' => 'area_uuid']],
-            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::className(), 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
+            [['candidate_area_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Area::class, 'targetAttribute' => ['candidate_area_uuid' => 'area_uuid']],
+            [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::class, 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],
 
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -679,7 +679,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'candidate_created_at',
                 'updatedAtAttribute' => 'candidate_updated_at',
                 'value' => new Expression('NOW()'),
@@ -1121,7 +1121,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getAge()
     {
-        return floor((time() - strtotime($this->candidate_birth_date))/31556926);
+        return $this->candidate_birth_date?
+            floor((time() - strtotime($this->candidate_birth_date))/31556926): null;
     }
 
     /**
@@ -1200,14 +1201,16 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->candidate_uid = $this->generateUid();
         }
 
-        $this->bank_id = null;
+        if ($this->candidate_iban) {
+            $this->bank_id = null;
 
-        $banks = Bank::find()->all();
+            $banks = Bank::find()->all();
 
-        foreach($banks as $bank) {
-            if($bank->bank_iban_code && strpos(strtolower($this->candidate_iban), strtolower($bank->bank_iban_code)) > -1) {
-                $this->bank_id = $bank->bank_id;
-                break;
+            foreach($banks as $bank) {
+                if($bank->bank_iban_code && strpos(strtolower($this->candidate_iban), strtolower($bank->bank_iban_code)) > -1) {
+                    $this->bank_id = $bank->bank_id;
+                    break;
+                }
             }
         }
 
@@ -1498,7 +1501,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function signup($byStaff = false)
     {
 
-        $this->setPassword($this->candidate_password_hash);
+        if ($this->candidate_password_hash) {
+            $this->setPassword($this->candidate_password_hash);
+        }
+
         $this->generateAuthKey();
 
         if(!$this->save()) {
@@ -1547,8 +1553,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -1596,9 +1606,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
+        } /*catch (\Swift_TransportException $e) {
             Yii::error($e->getMessage(), "password-reset-token");
-        }
+        }*/
     }
 
     /**
@@ -1845,8 +1861,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "birthday-alert");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
 
@@ -1909,8 +1929,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "password-reset-token");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
         }
@@ -2374,7 +2398,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             return true;
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
@@ -2432,7 +2456,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'candidate');
 
@@ -2571,8 +2595,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -2943,8 +2971,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 ->one();
 
             if($candidateWorkHistory) {
-                $data['start_date_timestamp'] = strtotime($candidateWorkHistory['start_date']);
-                $data['end_date_timestamp'] = strtotime($candidateWorkHistory['end_date']);
+                $data['start_date_timestamp'] = $candidateWorkHistory['start_date']? strtotime($candidateWorkHistory['start_date']): null;
+                $data['end_date_timestamp'] = $candidateWorkHistory['end_date']?strtotime($candidateWorkHistory['end_date']): null;
                 //could be `new Expression('NOW()')` on update
 
                 $data['candidateWorkHistory'] = $candidateWorkHistory;
@@ -3299,8 +3327,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -3314,8 +3346,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $query = Candidate::find()
             ->andWhere(['candidate_email_verification' => true])
             ->verifiedProfile()
-            ->candidateMomKuwaitiFieldIsNull()
-            ->all();
+            ->candidateMomKuwaitiFieldIsNull();
+            //->all();
 
         foreach ($query->batch(100) as $candidates) {
 
@@ -3364,8 +3396,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                     try {
                         $mailer->send();
-                    } catch (\Swift_TransportException $e) {
-                        Yii::error($e->getMessage(), "kuwaiti-mom");
+                    } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                        // Handle email transport-specific exceptions
+                        Yii::error( "Failed to send email: " . $e->getMessage());
+                    } catch (\Exception $e) {
+                        // Handle any other exceptions
+                        Yii::error( "An error occurred: " . $e->getMessage());
                     }
 
                     //$total++;
@@ -3542,8 +3578,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "civil-id");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
         }
@@ -3593,8 +3633,12 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
                 try {
                     $mailer->send();
-                } catch (\Swift_TransportException $e) {
-                    Yii::error($e->getMessage(), "bank-info");
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    // Handle email transport-specific exceptions
+                    Yii::error( "Failed to send email: " . $e->getMessage());
+                } catch (\Exception $e) {
+                    // Handle any other exceptions
+                    Yii::error( "An error occurred: " . $e->getMessage());
                 }
             }
         }

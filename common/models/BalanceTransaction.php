@@ -51,7 +51,7 @@ class BalanceTransaction extends \yii\db\ActiveRecord
             [['data'], 'string'],
             [['created_at', 'transaction_datetime','file'], 'safe'],
             [['account_uuid', 'user_uuid'], 'string', 'max' => 60],
-            [['user_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletUser::className(), 'targetAttribute' => ['user_uuid' => 'user_uuid']],
+            [['user_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => WalletUser::class, 'targetAttribute' => ['user_uuid' => 'user_uuid']],
         ];
     }
 
@@ -61,7 +61,7 @@ class BalanceTransaction extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'balance_transaction_uuid',
                 ],
@@ -73,7 +73,7 @@ class BalanceTransaction extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'transaction_datetime',
                 ],

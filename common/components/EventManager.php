@@ -58,7 +58,7 @@ class EventManager extends Component
     {
     	/*if ($this->key === null) {
             throw new InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                '{class}' => static::className(),
+                '{class}' => static::class,
                 '{attribute}' => '$key'
             ]));
         }*/

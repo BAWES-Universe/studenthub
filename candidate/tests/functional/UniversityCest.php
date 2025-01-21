@@ -18,9 +18,9 @@ class UniversityCest
     public function _fixtures()
     {
         return [
-            'candidate' => CandidateFixture::className(),
-            'candidateToken' => CandidateTokenFixture::className(),
-            'university' => UniversityFixture::className()
+            'candidate' => CandidateFixture::class,
+            'candidateToken' => CandidateTokenFixture::class,
+            'university' => UniversityFixture::class
         ];
     }
 

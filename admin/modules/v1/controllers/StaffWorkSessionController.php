@@ -24,7 +24,7 @@ class StaffWorkSessionController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -42,7 +42,7 @@ class StaffWorkSessionController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -166,7 +166,7 @@ class StaffWorkSessionController extends Controller
         $query->filterByOrder();
         header('Access-Control-Allow-Origin: *');
 
-        \moonland\phpexcel\Excel::export([
+        \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
             'models' => $query->all(),
             'columns' => [
@@ -202,14 +202,14 @@ class StaffWorkSessionController extends Controller
                     'attribute'=>'created_at',
                     'label'=>'From',
                     'value'=>function($model) {
-                        return date('Y-m-d',strtotime($model->created_at));
+                        return $model->created_at? date('Y-m-d',strtotime($model->created_at)): null;
                     }
                 ],
                 [
                     'attribute'=>'updated_at',
                     'label'=>'To',
                     'value'=>function($model) {
-                        return date('Y-m-d',strtotime($model->updated_at));
+                        return $model->updated_at? date('Y-m-d',strtotime($model->updated_at)): null;
                     }
                 ],
             ]

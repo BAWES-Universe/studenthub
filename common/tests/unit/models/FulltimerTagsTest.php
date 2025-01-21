@@ -17,7 +17,7 @@ class FulltimerTagsTest extends \Codeception\Test\Unit
     protected $tester;
 
     public function _fixtures(){
-        return ['fulltimerTags' => FulltimerTagsFixture::className()];
+        return ['fulltimerTags' => FulltimerTagsFixture::class];
     }
 
     protected function _before(){}
@@ -29,16 +29,14 @@ class FulltimerTagsTest extends \Codeception\Test\Unit
      */
     public function testValidators()
     {
-        $this->specify('Fixtures should be loaded', function() {
-            expect('Check fulltimer tags loaded',
-                FulltimerTags::find()->one()
-            )->notNull();
-        });
+        //$this->specify('Fixtures should be loaded', function() {
+            $this->assertNotNull(FulltimerTags::find()->one());
+        //});
 
-        $this->specify('model fields validation', function () {
+        //$this->specify('model fields validation', function () {
             $model = new FulltimerTags();
-            expect('should not accept tag name', $model->validate(['tag']))->false();
-        });
+            $this->assertFalse($model->validate(['tag']));
+        //});
     }
 
     /**
@@ -46,15 +44,15 @@ class FulltimerTagsTest extends \Codeception\Test\Unit
      */
     public function testCrud()
     {
-        $this->specify('Create New Fulltimer Tag', function () {
+        //$this->specify('Create New Fulltimer Tag', function () {
             
             $fulltimer = Fulltimer::find()->one();
 
             $model = new FulltimerTags();
             $model->tag = 'BigBazar';
             $model->fulltimer_uuid  = $fulltimer->fulltimer_uuid;
-            expect('Created successfully', $model->save())->true();
-            expect('Record is in database', $model->findOne(['fulltimer_uuid' => $fulltimer->fulltimer_uuid, 'tag' => 'BigBazar']))->notNull();
-        });
+            $this->assertTrue($model->save());
+            $this->assertNotNull($model->findOne(['fulltimer_uuid' => $fulltimer->fulltimer_uuid, 'tag' => 'BigBazar']));
+        //});
     }
 }

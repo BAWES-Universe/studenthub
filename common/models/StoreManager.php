@@ -54,8 +54,8 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             [['name', 'email', 'new_email', 'phone_number'], 'string', 'max' => 100],
             [['password_hash', 'auth_key', 'password_reset_token'], 'string', 'max' => 255],
             [['store_manager_uuid'], 'unique'],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
 
@@ -65,7 +65,7 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'store_manager_uuid',
                 ],
@@ -77,7 +77,7 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
@@ -239,7 +239,7 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
      * @param type $length
      * @return type
      */
-    public function generateUniqueRandomString($attribute, $length = 32) {
+    public function generateUniqueRandomString(string $attribute, $length = 32) {
         $min = pow(10, $length - 1);
         $max = pow(10, $length) - 1;
         $randomString = mt_rand($min, $max);
@@ -401,8 +401,12 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
     
@@ -442,8 +446,12 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 

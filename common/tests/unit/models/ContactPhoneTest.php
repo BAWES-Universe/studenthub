@@ -15,8 +15,8 @@ class ContactPhoneTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'contactPhone' => ContactPhoneFixture::className(),
-            'contact' => ContactFixture::className(),
+            'contactPhone' => ContactPhoneFixture::class,
+            'contact' => ContactFixture::class,
         ];
     }
 
@@ -28,13 +28,13 @@ class ContactPhoneTest extends \Codeception\Test\Unit
     {
         $data = $this->tester->grabFixture('contactPhone', 'contact_phone0');
 
-        expect('model adding new contactPhone', $data->save())->true();
+        $this->assertTrue($data->save());
 
         $data->phone_number = null;
 
-        expect('contactPhone phone_number should be required field', $data->validate(['phone_number']))->false();
+        $this->assertFalse($data->validate(['phone_number']));
 
         $data->contact_uuid = '123123123';
-        expect('Invalid contact uuid', $data->validate(['contact_uuid']))->false();
+        $this->assertFalse($data->validate(['contact_uuid']));
     }
 }

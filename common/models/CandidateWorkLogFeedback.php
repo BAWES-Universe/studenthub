@@ -59,11 +59,11 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
             [['cwlf_uuid', "candidate_working_hour_uuid"], 'string', 'max' => 60],
             [['reason'], 'string', 'max' => 255],
             //[['cwlf_uuid'], 'unique'],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'created_by']],
-            [['candidate_working_hour_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHour::className(), 'targetAttribute' => ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::class, 'targetAttribute' => ['contact_uuid' => 'created_by']],
+            [['candidate_working_hour_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkingHour::class, 'targetAttribute' => ['candidate_working_hour_uuid' => 'candidate_working_hour_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
         ];
     }
 
@@ -73,7 +73,7 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'cwlf_uuid',
                 ],
@@ -85,12 +85,12 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'created_by',
                 'updatedByAttribute' => null
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
@@ -127,7 +127,8 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return array_merge(parent::extraFields(), [
-            "createdBy"
+            "createdBy",
+            "store"
         ]);
     }
 
@@ -144,6 +145,7 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
             CandidateWorkingHour::updateAll([
                 "status" => $this->status,
+                "cwlf_uuid" => $this->cwlf_uuid
             ], [
                 "AND",
                 ["candidate_working_hour_uuid" => $this->candidate_working_hour_uuid],
@@ -189,6 +191,7 @@ class CandidateWorkLogFeedback extends \yii\db\ActiveRecord
 
             CandidateWorkingHour::updateAll([
                 "status" => $this->status,
+                "cwlf_uuid" => $this->cwlf_uuid
             ], [
                 "AND",
                 [

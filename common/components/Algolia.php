@@ -1,10 +1,13 @@
 <?php
+
 namespace common\components;
+
+use Algolia\AlgoliaSearch\SearchClient;
 
 /**
  * $result = Yii::$app->algolia->search('getstarted_actors', 'cat');
  */
-class Algolia {
+class Algolia extends \yii\base\Component {
     
     public $appId;
     
@@ -17,10 +20,11 @@ class Algolia {
      */
     public function getSecureApiKey($params = []) 
     {
-        $client = $this->getClient();
-        
-        return $client::generateSecuredApiKey(
-            $this->publicKey,//apiKey
+        //$client = $this->getClient();
+        //$client::generateSecuredApiKey(publicKey,
+
+        return SearchClient::generateSecuredApiKey(
+            $this->apiKey,
             $params
         );
     }
@@ -43,9 +47,9 @@ class Algolia {
      *    'objectID'  => 'myID2',
      *    'firstname' => 'Warren'
      * ]
-     * @param type $index
-     * @param type $data
-     * @return type
+     * @param string $index
+     * @param array $data
+     * @return array
      */
     public function partialUpdate($index, $data) 
     {
@@ -67,9 +71,9 @@ class Algolia {
      *        'firstname' => 'Warren'
      *    ]
      * ]
-     * @param type $index
-     * @param type $data
-     * @return type
+     * @param string $index
+     * @param array $data
+     * @return array
      */
     public function partialUpdates($index, $data) 
     {
@@ -79,8 +83,8 @@ class Algolia {
             
     /**
      * Delete objects by params in index
-     * @param type $index
-     * @return type
+     * @param string $index
+     * @return array
      */
     public function deleteBy($index, $params = []) 
     {
@@ -91,7 +95,7 @@ class Algolia {
     /**
      * Delete all objects in index
      * @param string $index
-     * @return any
+     * @return array
      */
     public function clearObjects($index, $query = '') 
     {
@@ -101,9 +105,9 @@ class Algolia {
     
     /**
      * Update objects in index
-     * @param type $index
-     * @param type $data
-     * @return type
+     * @param string $index
+     * @param array $data
+     * @return array
      */
     public function updates($index, $data)
     {
@@ -113,9 +117,9 @@ class Algolia {
     
     /**
      * Update object in index
-     * @param type $index
-     * @param type $data
-     * @return type
+     * @param string $index
+     * @param array $data
+     * @return array
      */
     public function update($index, $data) 
     {
@@ -125,9 +129,9 @@ class Algolia {
     
     /**
      * Delete object from index
-     * @param type $index
-     * @param type $objectID
-     * @return type
+     * @param string $index
+     * @param string $objectID
+     * @return array
      */
     public function delete($index, $objectID) 
     {
@@ -138,8 +142,8 @@ class Algolia {
     
     /**
      * Delete objects from index
-     * @param type $index
-     * @param type $objectIDs
+     * @param string $index
+     * @param string $objectIDs
      * @return type
      */
     public function deleteObjects($index, $objectIDs, $requestOptions = []) 
@@ -150,10 +154,10 @@ class Algolia {
     
     /**
      * Search objects from index
-     * @param type $index
-     * @param type $query
-     * @param type $params
-     * @return type
+     * @param string $index
+     * @param string $query
+     * @param array $params
+     * @return array
      */
     public function search($index, $query, $params = []) 
     {
@@ -163,9 +167,9 @@ class Algolia {
 
     /**
      * get object from given index 
-     * @param type $index
-     * @param type $objectID
-     * @return type
+     * @param string $index
+     * @param string $objectID
+     * @return array
      */
     public function getObject($index, $objectID) 
     {
@@ -175,9 +179,9 @@ class Algolia {
     
     /**
      * get objects from given index
-     * @param type $index
-     * @param type $objectID
-     * @return type
+     * @param string $index
+     * @param string $objectID
+     * @return array
      */
     public function getObjects($index, $objectID)
     {
@@ -187,8 +191,8 @@ class Algolia {
 
     /**
      * Initialize index
-     * @param type $index
-     * @return type
+     * @param string $index
+     * @return array
      */
     public function initIndex($index) 
     {

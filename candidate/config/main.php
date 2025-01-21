@@ -286,6 +286,19 @@ return [
                         'OPTIONS appreciation-certificate/<wid>' => 'options',
                     ]
                 ],
+                [ // JobController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/job',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST apply/<id>' => 'apply',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS apply/<id>' => 'options',
+                    ]
+                ],
                 [ // CandidateWorkingHourController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-working-hour',
@@ -296,13 +309,18 @@ return [
                         'GET date/<date>' => 'hours-detail',
                         'GET date-detail/<date>' => 'date-detail',
                         "GET working-dates" => "working-dates",
+                        "GET appeal/<id>" => "appeal-detail",
+                        "POST appeal/<id>" => "appeal",
                         'POST' => "add-hour",
+                        "PATCH mark-read-appeal-update/<id>"=> "mark-read-appeal-update",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS appeal/<id>" => "options",
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
                         'OPTIONS stats' => 'options',
                         "OPTIONS working-dates" => 'options',
+                        "OPTIONS mark-read-appeal-update/<id>"=>'options',
                         'OPTIONS date/<date>' => 'options',
                         'OPTIONS date-detail/<date>' => 'options',
                     ]

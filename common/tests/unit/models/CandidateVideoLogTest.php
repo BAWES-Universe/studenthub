@@ -16,7 +16,7 @@ class CandidateVideoLogTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidate' => CandidateFixture::className ()
+            'candidate' => CandidateFixture::class
         ];
     }
 
@@ -33,6 +33,6 @@ class CandidateVideoLogTest extends \Codeception\Test\Unit
         $model = new CandidateVideoLog();
 
         $model->candidate_id = '123123123';
-        expect ('Invalid candidate id', $model->validate (['candidate_id']))->false ();
+        $this->assertFalse($model->validate (['candidate_id']));
     }
 }

@@ -12,7 +12,7 @@ class BankTest extends \Codeception\Test\Unit
 
     public function _fixtures()
     {
-        return ['bank' => BankFixture::className()];
+        return ['bank' => BankFixture::class];
     }
 
     protected function _before(){}
@@ -23,41 +23,44 @@ class BankTest extends \Codeception\Test\Unit
     {
         $bank = $this->tester->grabFixture('bank', 0);
 
-        expect('model adding new bank', $bank->save())->true();
+        $this->assertTrue($bank->save(), 'model adding new bank');
 
-        //bank name validation
-
+        // bank name validation
         $bank->bank_name = null;
-        expect('bank name should be required field', $bank->validate(['bank_name']))->false();
+        $this->assertFalse($bank->validate(['bank_name']), 'bank name should be required field');
 
         $bank->bank_name = 'toolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeee';
-        expect('should not accept too long bank name', $bank->validate(['bank_name']))->false();
+        $this->assertFalse($bank->validate(['bank_name']), 'should not accept too long bank name');
 
         $bank->bank_name = 'INDB';
-        expect('should accept valid bank name', $bank->validate(['bank_name']))->true();
+        $this->assertTrue($bank->validate(['bank_name']), 'should accept valid bank name');
 
-        //bank_swift_code validation
-
+        // bank_swift_code validation
         $bank->bank_swift_code = null;
-        expect('should not accept null for bank swift code', $bank->validate(['bank_swift_code']))->false();
+        $this->assertFalse($bank->validate(['bank_swift_code']), 'should not accept null for bank swift code');
 
         $bank->bank_swift_code = 'toolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeeetoolooooongnaaaaaaameeee';
-        expect('bank swift code should not too long', $bank->validate(['bank_swift_code']))->false();
+        $this->assertFalse($bank->validate(['bank_swift_code']), 'bank swift code should not be too long');
 
         $bank->bank_swift_code = 'SW275045';
-        expect('should accept valid bank swift code', $bank->validate(['bank_swift_code']))->true();
+        $this->assertTrue($bank->validate(['bank_swift_code']), 'should accept valid bank swift code');
 
-        //bank_address validation
-
+        // bank_address validation
         $bank->bank_address = null;
-        expect('bank address required', $bank->validate(['bank_address']))->false();
+        $this->assertFalse($bank->validate(['bank_address']), 'bank address required');
 
-        //bank_transfer_type validation
+        $bank->bank_address = '123 Bank Street';
+        $this->assertTrue($bank->validate(['bank_address']), 'should accept valid bank address');
 
+        // bank_transfer_type validation
         $bank->bank_transfer_type = null;
-        expect('bank transfer type required', in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']))->false();
+        $this->assertFalse(in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']), 'bank transfer type required');
 
         $bank->bank_transfer_type = 'SWF';
-        expect('should accept valid transfer type', in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']))->true();
+        $this->assertTrue(in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']), 'should accept valid transfer type');
+
+        $bank->bank_transfer_type = 'INVALID';
+        $this->assertFalse(in_array($bank->bank_transfer_type, ['LCL', 'SWF', 'TRF']), 'should not accept invalid transfer type');
+        
     }
 }

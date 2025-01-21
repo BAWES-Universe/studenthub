@@ -44,8 +44,8 @@ class CandidateEvaluation extends \yii\db\ActiveRecord
             [['candidate_id', 'dept_id','start_date','end_date'], 'required'],
             [['created_at', 'updated_at','start_date','end_date'], 'safe'],
             [['can_eval_uuid'], 'string', 'max' => 60],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 

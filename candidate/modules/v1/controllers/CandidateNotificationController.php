@@ -21,7 +21,7 @@ class CandidateNotificationController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -39,7 +39,7 @@ class CandidateNotificationController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
 
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -72,9 +72,15 @@ class CandidateNotificationController extends Controller
      */
     public function actionList()
     {
+        $appeal_uuid = Yii::$app->request->get('appeal_uuid');
+
         $query = CandidateNotification::find()
             ->andWhere(['candidate_id'=>Yii::$app->user->getId()])
             ->orderBy('created_at DESC');
+
+        if ($appeal_uuid) {
+            $query->andWhere(['appeal_uuid' => $appeal_uuid]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query

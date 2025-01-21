@@ -63,13 +63,13 @@ class Invitation extends \yii\db\ActiveRecord
             [["invitation_seen_via", 'invitation_email_seen_at', 'invitation_app_seen_at', 'invitation_created_at', 'invitation_updated_at'], 'safe'],
             [['invitation_uuid', 'request_uuid'], 'string', 'max' => 60],
             //[['invitation_seen_via'], 'string'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['invitation_created_by_company'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['invitation_created_by_company' => 'company_id']],
-            [['invitation_created_by_staff'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['invitation_created_by_staff' => 'staff_id']],
-            [['invitation_updated_by_company'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['invitation_updated_by_company' => 'company_id']],
-            [['invitation_updated_by_staff'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['invitation_updated_by_staff' => 'staff_id']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
-            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::className(), 'targetAttribute' => ['story_uuid' => 'story_uuid']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['invitation_created_by_company'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['invitation_created_by_company' => 'company_id']],
+            [['invitation_created_by_staff'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['invitation_created_by_staff' => 'staff_id']],
+            [['invitation_updated_by_company'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['invitation_updated_by_company' => 'company_id']],
+            [['invitation_updated_by_staff'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['invitation_updated_by_staff' => 'staff_id']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::class, 'targetAttribute' => ['story_uuid' => 'story_uuid']],
         ];
     }
 
@@ -102,7 +102,7 @@ class Invitation extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'invitation_uuid',
                 ],
@@ -114,13 +114,13 @@ class Invitation extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'invitation_created_at',
                 'updatedAtAttribute' => 'invitation_updated_at',
                 'value' => new Expression('NOW()'),
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'invitation_created_by_staff',
                 'updatedByAttribute' => 'invitation_updated_by_staff',
                 'value' => function() {
@@ -129,7 +129,7 @@ class Invitation extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'invitation_created_by_company',
                 'updatedByAttribute' => 'invitation_updated_by_company',
                 'value' => function() {
@@ -550,8 +550,12 @@ class Invitation extends \yii\db\ActiveRecord
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 

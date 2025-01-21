@@ -32,7 +32,7 @@ class RequestSkill extends \yii\db\ActiveRecord
             [['request_uuid'], 'string', 'max' => 60],
             [['skill'], 'string', 'max' => 128],
             [['request_uuid', 'skill'], 'unique', 'targetAttribute' => ['request_uuid', 'skill']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
         ];
     }
 

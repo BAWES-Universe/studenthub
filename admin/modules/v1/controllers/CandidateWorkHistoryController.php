@@ -28,7 +28,7 @@ class CandidateWorkHistoryController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -46,7 +46,7 @@ class CandidateWorkHistoryController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -82,14 +82,17 @@ class CandidateWorkHistoryController extends Controller
         }
         $start_date = Yii::$app->request->get('start_date', null);
         $end_date = Yii::$app->request->get('end_date', null);
+
         if ($start_date) {
             $query->andWhere(new Expression("DATE(start_date) >= DATE('".
                 date('Y-m-d', strtotime ($start_date)) ."')"));
         }
+
         if ($end_date) {
             $query->andWhere(new Expression("DATE(start_date) <= DATE('".
                 date('Y-m-d', strtotime ($start_date)) ."')"));
         }
+
         return new ActiveDataProvider([
             'query' => $query
         ]);

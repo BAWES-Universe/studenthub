@@ -147,7 +147,8 @@ $candidate_personal_photo = "https://res.cloudinary.com/studenthub/image/upload/
             <div class="qr-code">
                 <div class="qr-inner qr">
                     <?php if ($qrCode) { ?>
-                        <?php echo \yii\helpers\Html::img($qrCode->writeDataUri())?>
+                        <?php echo \yii\helpers\Html::img($qrCode)?>
+                        <!-- ->writeDataUri()  -->
                     <?php } ?>
                 </div>
                 <h3 class="txt-url">https://studenthub.co</h3>

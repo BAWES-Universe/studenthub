@@ -49,14 +49,14 @@ class ManagerToken extends \yii\db\ActiveRecord
             [['token_uuid', 'store_manager_uuid'], 'string', 'max' => 60],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
             [['token_uuid'], 'unique'],
-            [['store_manager_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => StoreManager::className(), 'targetAttribute' => ['store_manager_uuid' => 'store_manager_uuid']],
+            [['store_manager_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => StoreManager::class, 'targetAttribute' => ['store_manager_uuid' => 'store_manager_uuid']],
         ];
     }
 
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'token_uuid',
                 ],
@@ -68,7 +68,7 @@ class ManagerToken extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'token_created_datetime',
                 'updatedAtAttribute' => 'token_last_used_datetime',
                 'value' => new Expression('NOW()'),

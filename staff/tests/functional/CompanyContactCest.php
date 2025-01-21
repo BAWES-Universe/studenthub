@@ -20,10 +20,10 @@ class CompanyContactCest
     public function _fixtures()
     {
         return [
-        	'staffToken' => StaffTokenFixture::className(),
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'contact' => ContactFixture::className(),
+        	'staffToken' => StaffTokenFixture::class,
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'contact' => ContactFixture::class,
         ];
     }
 

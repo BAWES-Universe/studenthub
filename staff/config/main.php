@@ -457,6 +457,17 @@ return [
                         'OPTIONS <id>' => 'options'
                     ]
                 ],
+                [ // CandidateIdRequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-id-request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'DELETE <id>' => 'delete',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
                 [ // CandidateIdCardController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-id-card',
@@ -464,6 +475,7 @@ return [
                         'GET list-candidate-ids' => 'list-candidate-ids',
                         'GET list-candidates' => 'list-candidates',
                         'POST generate' => 'generate',
+                        "POST candidate-id-request" =>  'generate',
                         'GET list-expired' => 'list-expired',
                         'POST renew' => 'renew',
                         'GET total-expired' => 'total-expired',
@@ -477,7 +489,28 @@ return [
                         'OPTIONS renew' => 'options',
                         'OPTIONS total-expired' => 'options',
                         'OPTIONS <id>/<token>' => 'options',
+                         'OPTIONS candidate-id-request' => 'options',
                         'OPTIONS list-candidate-without-card' => 'options',
+                    ]
+                ],
+                [ // JobController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/job',
+                    'patterns' => [
+                        'GET' => 'list',
+                        "GET interests/filter" => "interests-filter",
+                        'GET interests' => 'list-interest',
+                        'GET interest/<id>' => 'view-interest',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS interests' => 'options',
+                        "OPTIONS interests/filter" => 'options',
+                        'OPTIONS interest/<id>' => 'options',
+                        'OPTIONS <id>' => 'options',
                     ]
                 ],
                 [ // NoteController
@@ -813,13 +846,24 @@ return [
                         'GET date' => 'list-date',
                         'GET hour' => 'list-hour',
                         'GET date/<date>/<candidateId>' => 'hours-detail',
+                        "GET appeals" => "appeal-list",
+                        "GET appeal/<id>" => "appeal-detail",
+                        "POST appeal-update/<id>" => "appeal-update",
+                        "POST appeal-update-status/<id>" => "appeal-update-status",
+                        "POST add-hour/<id>" => "add-hour",
                         "DELETE day/<id>" => 'delete-day',
                         "DELETE session/<id>" => 'delete-session',
                         // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS add-hour/<id>' => 'options',
                         'OPTIONS date' => 'options',
                         'OPTIONS hour' => 'options',
+                        'OPTIONS appeals' => 'options',
+                        "OPTIONS appeal/<id>" => "options",
+                        "OPTIONS appeal-update/<id>" => "options",
                         'OPTIONS day/<id>' => 'options',
                         'OPTIONS session/<id>' => 'options',
+                        "OPTIONS appeal-update-status/<id>"=> 'options',
                         'OPTIONS date/<date>/<candidateId>' => 'options',
                     ]
                 ],

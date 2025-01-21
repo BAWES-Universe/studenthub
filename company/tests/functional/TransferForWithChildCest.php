@@ -23,11 +23,11 @@ class TransferForWithChildCest
     public function _fixtures()
     {
             return [
-                'company' => CompanyFixture::className(),
-                'companyContact' => CompanyContactFixture::className(),
-                'contactToken' => ContactTokenFixture::className(),
-                'candidate'    => CandidateFixture::className(),
-                'invoice'    => InvoiceFixture::className()
+                'company' => CompanyFixture::class,
+                'companyContact' => CompanyContactFixture::class,
+                'contactToken' => ContactTokenFixture::class,
+                'candidate'    => CandidateFixture::class,
+                'invoice'    => InvoiceFixture::class
             ];
     }
 

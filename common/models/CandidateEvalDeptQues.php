@@ -37,7 +37,7 @@ class CandidateEvalDeptQues extends \yii\db\ActiveRecord
             [['dept_id','ceq_uuid'], 'required'],
             [['ceq_uuid'], 'string', 'max' => 60],
             [['dept_id'], 'in','range', 'between' => [self::DEPT_SALE, self::DEPT_CALL_CENTER,self::DEPT_IT, self::DEPT_OUTDOOR_SALE,self::DEPT_SOCIAL_MEDIA ]],
-            [['ceq_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateEvalQues::className(), 'targetAttribute' => ['ceq_uuid' => 'ceq_uuid']],
+            [['ceq_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateEvalQues::class, 'targetAttribute' => ['ceq_uuid' => 'ceq_uuid']],
         ];
     }
 

@@ -53,8 +53,8 @@ class Ticket extends \yii\db\ActiveRecord
             [['candidate_id', 'staff_id', 'ticket_status', 'response_time', 'resolution_time'], 'integer'],
             [['ticket_detail'], 'string'],
             [['created_at', 'updated_at', 'ticket_started_at', 'ticket_completed_at'], 'safe'],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 
@@ -66,7 +66,7 @@ class Ticket extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className (),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'ticket_uuid',
                 ],
@@ -78,7 +78,7 @@ class Ticket extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className (),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),
@@ -159,7 +159,8 @@ class Ticket extends \yii\db\ActiveRecord
             if($this->ticket_status == self::STATUS_COMPLETED)
             {
                 $this->ticket_completed_at = new Expression("NOW()");
-                $this->resolution_time = time() - strtotime($this->ticket_started_at);
+
+                $this->resolution_time = $this->ticket_started_at?time() - strtotime($this->ticket_started_at): 0;
 
                     Yii::$app->eventManager->track('Ticket Resolved', [
                         'ticket_id' => $this->ticket_uuid,

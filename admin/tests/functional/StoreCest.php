@@ -17,8 +17,8 @@ class StoreCest
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'store' => StoreFixture::className(),
+            'adminToken' => AdminTokenFixture::class,
+            'store' => StoreFixture::class,
         ];
     }
     

@@ -19,7 +19,7 @@ class TransferTest extends \Codeception\Test\Unit {
 
     public function _fixtures() {
         return [
-            'transferCandidate' => TransferCandidateFixture::className(),
+            'transferCandidate' => TransferCandidateFixture::class,
         ];
     }
 
@@ -27,8 +27,8 @@ class TransferTest extends \Codeception\Test\Unit {
      * test fixture loaded
      */
     public function testFixtureLoad() {
-        expect('Transfer is in the table', Transfer::findOne(['transfer_id' => 1]))->notNull();
-        expect('Transfer is in the table', TransferCandidate::find()->one())->notNull();
+        $this->assertNotNull(Transfer::findOne(['transfer_id' => 1]));
+        $this->assertNotNull(TransferCandidate::find()->one());
     }
 
     /**
@@ -41,7 +41,7 @@ class TransferTest extends \Codeception\Test\Unit {
      */
     public function testMarkPaymentStatusReceivedWhenTransferIsSent() {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
-        expect('Mark as "Payment Received" from "Payment Sent" Status', $transfer->paymentReceived())->true();
+        $this->assertTrue($transfer->paymentReceived());
 
         try {
             $transfer2 = Transfer::findOne(['transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS]);
@@ -50,7 +50,7 @@ class TransferTest extends \Codeception\Test\Unit {
             $result = false;
         }
 
-        expect('Mark as "Payment Received" from "Payment Received" Status', $result)->false();
+        $this->assertFalse($result);
     }
 
     /**
@@ -58,7 +58,7 @@ class TransferTest extends \Codeception\Test\Unit {
      */
     public function testMarkPaymentStatusUnlockWhenTransferStatusIsLocked() {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
-        expect('Unlock Transfer from Lock Status', $transfer->unlock())->true();
+        $this->assertTrue($transfer->unlock());
 
         try {
             $transfer2 = Transfer::findOne(['transfer_status' => Transfer::STATUS_INITIATED]);
@@ -66,7 +66,7 @@ class TransferTest extends \Codeception\Test\Unit {
         } catch (yii\base\Exception $ex) {
             $result = false;
         }
-        expect('Unlock Transfer from Unlock/Initiated Status', $result)->false();
+        $this->assertFalse($result);
     }
 
     /**
@@ -74,7 +74,7 @@ class TransferTest extends \Codeception\Test\Unit {
      */
     public function testMarkPaymentStatusLockedWhenTransferStatusIsSent() {
         $transfer = Transfer::findOne(['transfer_status' => Transfer::STATUS_PAYMENT_SENT]);
-        expect('Mark as lock from payment sent status', $transfer->lock())->true();
+            $this->assertTrue($transfer->lock());
 
         try {
             $transfer2 = Transfer::findOne(['transfer_status' => Transfer::STATUS_LOCK]);
@@ -82,7 +82,7 @@ class TransferTest extends \Codeception\Test\Unit {
         } catch (yii\base\Exception $ex) {
             $result = false;
         }
-        expect('Mark as lock from lock status', $result)->false();
+        $this->assertFalse($result);
     }
 
     /**
@@ -240,3 +240,4 @@ class TransferTest extends \Codeception\Test\Unit {
     }*/
 
 }
+    

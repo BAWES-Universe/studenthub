@@ -44,8 +44,8 @@ class DailyStandupAnswer extends \yii\db\ActiveRecord
             [['answer_uuid', 'question_uuid'], 'string', 'max' => 60],
             [['question'], 'string', 'max' => 255],
             [['answer_uuid'], 'unique'],
-            [['question_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => DailyStandupQuestion::className(), 'targetAttribute' => ['question_uuid' => 'question_uuid']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['question_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => DailyStandupQuestion::class, 'targetAttribute' => ['question_uuid' => 'question_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 
@@ -55,7 +55,7 @@ class DailyStandupAnswer extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'answer_uuid',
                 ],
@@ -67,7 +67,7 @@ class DailyStandupAnswer extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

@@ -20,8 +20,8 @@ class FulltimerCest
     public function _fixtures()
     {
         return [
-        	'staffToken' => StaffTokenFixture::className(),
-            'fulltimer' => FulltimerFixture::className(),
+        	'staffToken' => StaffTokenFixture::class,
+            'fulltimer' => FulltimerFixture::class,
         ];
     }
 

@@ -16,8 +16,8 @@ class GoogleMapCest
     public function _fixtures()
     {
         return [
-            'candidate' => CandidateFixture::className(),
-            'candidateToken' => CandidateTokenFixture::className(),
+            'candidate' => CandidateFixture::class,
+            'candidateToken' => CandidateTokenFixture::class,
         ];
     }
 

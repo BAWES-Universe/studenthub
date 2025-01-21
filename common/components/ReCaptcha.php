@@ -5,7 +5,7 @@ namespace common\components;
 use Yii;
 use yii\httpclient\Client;
 
-class ReCaptcha
+class ReCaptcha extends \yii\base\Component
 {
     public $secretKey;
 
@@ -17,7 +17,7 @@ class ReCaptcha
         foreach (['secretKey'] as $attribute) {
             if ($this->$attribute === null) {
                 throw new yii\base\InvalidConfigException(strtr('"{class}::{attribute}" cannot be empty.', [
-                    '{class}' => static::className(),
+                    '{class}' => static::class,
                     '{attribute}' => '$' . $attribute
                 ]));
             }

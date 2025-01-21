@@ -40,7 +40,9 @@ $videoUrl = Yii::$app->urlManagerVerification->createAbsoluteUrl(['view/video/'.
                 ?></div>
             <div class="at">At</div>
             <div class="store"><?=($certificate && $certificate->store) ? $certificate->store->store_name : '-';?></div>
+            <?php if ($certificate->start_date) { ?>
             <div class="date">From <?=date('F j, Y',strtotime($certificate->start_date))?> to <?=($certificate->end_date) ? date('F j, Y',strtotime($certificate->end_date)) : date('F j, Y',strtotime('now'))?></div>
+            <?php } ?>
         </div>
         <div class="footer">
             <div class="row">

@@ -46,11 +46,11 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             [['candidate_hourly_rate'], 'validateRate'],
             [['contract_uuid'], 'validateContract'],
             /*[['contract_uuid'], 'exist', 'skipOnError' => true,
-                'targetClass' => Contract::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']
+                'targetClass' => Contract::class, 'targetAttribute' => ['contract_uuid' => 'contract_uuid']
             ],*/
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
-            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::className(), 'targetAttribute' => ['store_id' => 'store_id']],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
         ];
     }
 

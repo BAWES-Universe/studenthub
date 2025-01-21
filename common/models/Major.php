@@ -58,7 +58,7 @@ class Major extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'major_uuid',
                 ],
@@ -70,7 +70,7 @@ class Major extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'major_created_at',
                 'updatedAtAttribute' => 'major_updated_at',
                 'value' => new Expression('NOW()'),
@@ -138,7 +138,7 @@ class Major extends \yii\db\ActiveRecord
             'major_name_ar' => $this->major_name_ar,
             'major_created_at' => $this->major_created_at,
             'major_updated_at' => $this->major_updated_at,
-            'data_source' => (int) mb_convert_encoding($this->data_source, "UTF-8")
+            'data_source' => (int) ($this->data_source? mb_convert_encoding($this->data_source, "UTF-8"): $this->data_source)
         ];
     }
 

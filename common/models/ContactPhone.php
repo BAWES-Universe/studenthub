@@ -39,14 +39,14 @@ class ContactPhone extends \yii\db\ActiveRecord
             [['phone_uuid', 'contact_uuid'], 'string', 'max' => 60],
             [['phone_number'], 'string', 'max' => 255],
             [['phone_uuid'], 'unique'],
-            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::className(), 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
+            [['contact_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contact::class, 'targetAttribute' => ['contact_uuid' => 'contact_uuid']],
         ];
     }
 
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'phone_uuid',
                 ],
@@ -58,7 +58,7 @@ class ContactPhone extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'phone_created_datetime',
                 'updatedAtAttribute' => 'phone_updated_datetime',
                 'value' => new Expression('NOW()'),

@@ -6,7 +6,7 @@ use yii\httpclient\Client;
 use common\models\Area;
 
 
-class GoogleMap {
+class GoogleMap extends \yii\base\Component {
     
     public $accessKey; 
     

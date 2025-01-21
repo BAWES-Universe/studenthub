@@ -3,6 +3,8 @@ namespace candidate\modules\v1\controllers;
 
 use candidate\models\CandidateWorkingHour;
 use common\models\CandidateWorkingDate;
+use common\models\CandidateWorkingHourAppeal;
+use common\models\CandidateWorkingHourAppealUpdates;
 use Yii;
 use yii\db\Expression;
 use yii\rest\Controller;
@@ -25,7 +27,7 @@ class CandidateWorkingHourController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -43,7 +45,7 @@ class CandidateWorkingHourController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
         
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
@@ -174,13 +176,20 @@ class CandidateWorkingHourController extends Controller
             ];
         }
 
-        $start_time = strtotime(Yii::$app->request->getBodyParam("start_time"));
-        $end_time = strtotime(Yii::$app->request->getBodyParam("end_time"));
+        $start_time = Yii::$app->request->getBodyParam("start_time");
+        $end_time= Yii::$app->request->getBodyParam("end_time");
+
+        if ($start_time)
+            $start_time = strtotime($start_time);
+
+        if ($end_time)
+            $end_time = strtotime($end_time);
+
         $date = Yii::$app->request->getBodyParam("date");
 
         $model = new CandidateWorkingHour();
-        $model->start_time = date('Y-m-d H:i:s', $start_time);
-        $model->end_time = date('Y-m-d H:i:s', $end_time);
+        $model->start_time = $start_time? date('Y-m-d H:i:s', $start_time): null;
+        $model->end_time = $end_time? date('Y-m-d H:i:s', $end_time): null;
         $model->note = Yii::$app->request->getBodyParam("note");
         $model->status = CandidateWorkingHour::STATUS_PENDING;
         $model->candidate_id = Yii::$app->user->getId();
@@ -213,12 +222,20 @@ class CandidateWorkingHourController extends Controller
     public function actionListHour()
     {
         $date = Yii::$app->request->get('date');
+        $appeal_uuid = Yii::$app->request->get('appeal_uuid');
 
         $query = CandidateWorkingHour::find()
-            ->andWhere(['date' => $date])
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
             //->andWhere(new Expression("end_time IS NOT NULL"))
             ->orderBy('created_at ASC');
+
+        if ($date) {
+            $query->andWhere(['date' => $date]);
+        }
+
+        if ($appeal_uuid) {
+            $query->andWhere(['appeal_uuid' => $appeal_uuid]);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -258,5 +275,93 @@ class CandidateWorkingHourController extends Controller
             ->andWhere(['date'=>$date])
             ->andWhere(['candidate_id'=>Yii::$app->user->getId()])
             ->one();
+    }
+
+    public function actionMarkReadAppealUpdate($id) {
+        $model = CandidateWorkingHourAppealUpdates::find()
+            ->andWhere(['appeal_update_uuid' => $id])
+            ->one();
+
+        $model->is_new = false;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation"  => "success",
+        ];
+    }
+
+    /**
+     * @param $id
+     * @return array
+     */
+    public function actionAppeal($id) {
+        $model = new CandidateWorkingHourAppeal();
+        $model->candidate_id = Yii::$app->user->getId();
+        $model->candidate_working_hour_uuid = $id;
+        $model->reason = Yii::$app->request->getBodyParam("reason");
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation"  => "success",
+            "message" => "Appeal received",
+            //"appeal" => $this->findAppeal($model->appeal_uuid)
+        ];
+    }
+
+    /**
+     * @param $id
+     * @return array|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function actionAppealDetail($id) {
+        return $this->findAppeal($id);
+    }
+
+    /**
+     * @param $id
+     * @return array|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function findAppeal($id) {
+        $model = CandidateWorkingHourAppeal::find()
+            ->andWhere(['appeal_uuid' => $id])
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException("record not found");
+        }
+
+        return $model;
+    }
+
+    /**
+     * @param $id
+     * @return array|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function findModel($id) {
+        $model = CandidateWorkingHour::find()
+            ->andWhere(['candidate_working_hour_uuid' => $id])
+            ->andWhere(['candidate_id' => Yii::$app->user->getId()])
+            ->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException("record not found");
+        }
+
+        return $model;
     }
 }

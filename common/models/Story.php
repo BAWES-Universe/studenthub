@@ -56,16 +56,16 @@ class Story extends \yii\db\ActiveRecord
             [['story_created_at','story_last_updated_at'], 'safe'],
             [['story_uuid', 'request_uuid','suggestion_uuid'], 'string', 'max' => 60],
             [['story_uuid'], 'unique'],
-            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::className(), 'targetAttribute' => ['staff_id' => 'staff_id']],
-            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::className(), 'targetAttribute' => ['request_uuid' => 'request_uuid']],
-            [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::className(), 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
+            [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
+            [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
+            [['suggestion_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Suggestion::class, 'targetAttribute' => ['suggestion_uuid' => 'suggestion_uuid']],
         ];
     }
 
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'story_uuid',
                 ],
@@ -77,7 +77,7 @@ class Story extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'story_created_at',
                 'updatedAtAttribute' => 'story_last_updated_at',
                 'value' => new Expression('NOW()'),
@@ -194,7 +194,8 @@ class Story extends \yii\db\ActiveRecord
             'staffs',
             'story',
             'storyActivities',
-            'latestStoryActivity'
+            'latestStoryActivity',
+            "job"
         ];
     }
 
@@ -214,6 +215,23 @@ class Story extends \yii\db\ActiveRecord
             'story_created_at' => 'Story Created At',
             'story_last_updated_at' => 'Story Last Updated At',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getJob($modelClass = "\common\models\Job")
+    {
+        return $this->hasOne($modelClass::className(), ['story_uuid' => 'story_uuid'])
+            ->orderBy('created_at DESC');//get latest job for story
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getJobs($modelClass = "\common\models\Job")
+    {
+        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
     }
 
     /**

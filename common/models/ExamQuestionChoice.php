@@ -43,7 +43,7 @@ class ExamQuestionChoice extends \yii\db\ActiveRecord
             [['choice_uuid', 'question_uuid'], 'string', 'max' => 60],
             [['choice_value_en', 'choice_value_ar'], 'string', 'max' => 255],
             [['choice_uuid'], 'unique'],
-            [['question_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => ExamQuestion::className(), 'targetAttribute' => ['question_uuid' => 'question_uuid']],
+            [['question_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => ExamQuestion::class, 'targetAttribute' => ['question_uuid' => 'question_uuid']],
         ];
     }
 
@@ -53,7 +53,7 @@ class ExamQuestionChoice extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'choice_uuid',
                 ],
@@ -65,7 +65,7 @@ class ExamQuestionChoice extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => "updated_at",
                 'value' => new Expression('NOW()'),

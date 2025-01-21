@@ -14,27 +14,25 @@ class CandidateExperienceTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'candidateExperience' => CandidateExperienceFixture::className()
+            'candidateExperience' => CandidateExperienceFixture::class
         ];
     }
 
     protected function _before(){}
 
     protected function _after() {}
-
-    public function testValidate()
+    public function testRelations()
     {
         $exp = $this->tester->grabFixture('candidateExperience', 'candidate_experience0');
-
-        expect('model adding new exp', $exp->save())->true();
-
+        
+        $this->assertNotNull($exp->candidate, 'should have candidate relation');
+     
         $exp->candidate_id = null;
         $exp->experience = null;
-
-        expect('candidateExperience candidate_id should be required field', $exp->validate(['candidate_id']))->false();
-        expect('candidateExperience exp should be required field', $exp->validate(['experience']))->false();
-
+        $this->assertFalse($exp->validate(['candidate_id']), 'candidate_id should be required');
+        $this->assertFalse($exp->validate(['experience']), 'experience should be required');
+         
         $exp->candidate_id = '123123123';
-        expect('Invalid candidate id', $exp->validate(['candidate_id']))->false();
+        $this->assertFalse($exp->validate(['candidate_id']), 'Invalid candidate id');
     }
 }

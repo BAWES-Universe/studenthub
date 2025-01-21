@@ -40,7 +40,7 @@ class CandidateIdCard extends \yii\db\ActiveRecord
             [['candidate_id', 'expiry_date'], 'required'],
             [['created_at', 'updated_at'], 'safe'],
             [['deleted'], 'default', 'value' => 0],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
     }
 
@@ -69,7 +69,7 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => 'updated_at',
                 'value' => new Expression('NOW()'),

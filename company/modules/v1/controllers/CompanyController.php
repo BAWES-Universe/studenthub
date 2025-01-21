@@ -250,7 +250,10 @@ class CompanyController extends BaseController
         }
 
         $contact->contact_email_verification = true;
-        $contact->setPassword($password);
+
+        if ($password) {
+            $contact->setPassword($password);
+        }
 
         if(!$contact->save()) {
 

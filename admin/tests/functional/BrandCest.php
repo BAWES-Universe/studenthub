@@ -20,10 +20,10 @@ class BrandCest
     public function _fixtures()
     {
         return [
-            'admin' => AdminFixture::className(),
-            'adminToken' => AdminTokenFixture::className(),
-            'brand' => BrandFixture::className(),
-            'company' => CompanyFixture::className(),
+            'admin' => AdminFixture::class,
+            'adminToken' => AdminTokenFixture::class,
+            'brand' => BrandFixture::class,
+            'company' => CompanyFixture::class,
         ];
     }
 

@@ -17,10 +17,10 @@ class InvitationCest
     public function _fixtures()
     {
         return [
-            'candidateToken' => CandidateTokenFixture::className(),
-            'invitation' => InvitationFixture::className (),
-            'candidate' => CandidateFixture::className (),
-            'request' => RequestFixture::className (),
+            'candidateToken' => CandidateTokenFixture::class,
+            'invitation' => InvitationFixture::class,
+            'candidate' => CandidateFixture::class,
+            'request' => RequestFixture::class,
         ];
     }
 

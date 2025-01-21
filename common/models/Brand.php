@@ -6,7 +6,7 @@ use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
-
+use Cloudinary\Cloudinary;
 
 /**
  * This is the model class for table "brand".
@@ -38,8 +38,11 @@ class Brand extends \yii\db\ActiveRecord
     {
         return [
             [['company_id','brand_name_en','brand_name_ar'], 'required'],
+            [['company_id'], 'integer'],
+            [['brand_name_en', 'brand_name_ar'], 'string', 'max' => 255],
+            [['brand_logo'], 'string', 'max' => 100],
             [['brand_created_datetime', 'brand_updated_datetime'], 'safe'],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
 
             /**
              *  Amazon S3 Temporary Bucket, validate that uploaded files exist if their values have been changed.
@@ -64,7 +67,7 @@ class Brand extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'brand_uuid',
                 ],
@@ -76,7 +79,7 @@ class Brand extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'brand_created_datetime',
                 'updatedAtAttribute' => 'brand_updated_datetime',
                 'value' => new Expression('NOW()'),
@@ -97,7 +100,7 @@ class Brand extends \yii\db\ActiveRecord
                 $this->addError('brand_logo', Yii::t('app', 'Image not available to save.'));
                 return false;
             }
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'common');
 
@@ -170,7 +173,7 @@ class Brand extends \yii\db\ActiveRecord
                 return true;
             }
 
-        } catch (\Cloudinary\Error $e) {
+        } catch (\Cloudinary\Exception\Error $e) {
 
             Yii::error($e->getMessage(), 'common');
 

@@ -37,7 +37,7 @@ class CandidateSkill extends \yii\db\ActiveRecord
             [['candidate_id', 'skill'], 'required'],
             [['candidate_skill_created_at'], 'safe'],
             [['skill'], 'string', 'max' => 128],
-            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::className(), 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
     }
 
@@ -61,7 +61,7 @@ class CandidateSkill extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'candidate_skill_created_at',
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),

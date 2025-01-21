@@ -55,7 +55,7 @@ class University extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'university_created_by',
                 'updatedByAttribute' => 'university_updated_by',
                 'value' => function() {
@@ -67,7 +67,7 @@ class University extends \yii\db\ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'university_created_at',
                 'updatedAtAttribute' => 'university_updated_at',
                 'value' => new Expression('NOW()'),

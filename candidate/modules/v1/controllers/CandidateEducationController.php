@@ -24,7 +24,7 @@ class CandidateEducationController extends Controller
 
         // Allow XHR Requests from our different subdomains and dev machines
         $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
+            'class' => Cors::class,
             'cors' => [
                 'Origin' => Yii::$app->params['allowedOrigins'],
                 'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
@@ -42,7 +42,7 @@ class CandidateEducationController extends Controller
 
         // Bearer Auth checks for Authorize: Bearer <Token> header to login the user
         $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::className(),
+            'class' => HttpBearerAuth::class,
         ];
         // avoid authentication on CORS-pre-flight requests (HTTP OPTIONS method)
         $behaviors['authenticator']['except'] = ['options'];
@@ -171,10 +171,10 @@ class CandidateEducationController extends Controller
 
             $model->candidate_id = Yii::$app->user->getId();
             $model->university_id = $candidateEducation['university_id'];
-            $model->degree_uuid = $candidateEducation['degree_uuid'];
-            $model->major_uuid = $candidateEducation['major_uuid'];
-            $model->graduation_year = $candidateEducation['graduation_year'];
-            $model->is_currently_studying = $candidateEducation['is_currently_studying'];
+            $model->degree_uuid = !empty($candidateEducation['degree_uuid'])? $candidateEducation['degree_uuid']: null;
+            $model->major_uuid = !empty($candidateEducation['major_uuid'])? $candidateEducation['major_uuid']: null;
+            $model->graduation_year = !empty($candidateEducation['graduation_year'])? $candidateEducation['graduation_year']: null;
+            $model->is_currently_studying = (int)$candidateEducation['is_currently_studying'];
 
             if (!$model->save()) {
 
@@ -212,7 +212,7 @@ class CandidateEducationController extends Controller
         $model->degree_uuid = Yii::$app->request->getBodyParam("degree_uuid");
         $model->major_uuid = Yii::$app->request->getBodyParam("major_uuid");
         $model->graduation_year = Yii::$app->request->getBodyParam("graduation_year");
-        $model->is_currently_studying = Yii::$app->request->getBodyParam("is_currently_studying");
+        $model->is_currently_studying = (int) Yii::$app->request->getBodyParam("is_currently_studying");
 
         if (!$model->save()) {
             return [
@@ -240,7 +240,7 @@ class CandidateEducationController extends Controller
         $model->degree_uuid = Yii::$app->request->getBodyParam("degree_uuid");
         $model->major_uuid = Yii::$app->request->getBodyParam("major_uuid");
         $model->graduation_year = Yii::$app->request->getBodyParam("graduation_year");
-        $model->is_currently_studying = Yii::$app->request->getBodyParam("is_currently_studying");
+        $model->is_currently_studying = (int)Yii::$app->request->getBodyParam("is_currently_studying");
 
         if (!$model->save()) {
             return [

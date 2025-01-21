@@ -17,8 +17,8 @@ class UniversityCest
     public function _fixtures()
     {
         return [
-            'adminToken' => AdminTokenFixture::className(),
-            'university' => UniversityFixture::className(),
+            'adminToken' => AdminTokenFixture::class,
+            'university' => UniversityFixture::class,
         ];
     }
 

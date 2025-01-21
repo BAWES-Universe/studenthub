@@ -21,7 +21,7 @@ class PasswordResetRequestForm extends Model
         return [
             [['email'], 'required'],
             [['email'], 'email'],
-            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => \common\models\Inspector::className(), 'targetAttribute' => ['email' => 'inspector_email']],
+            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => \common\models\Inspector::class, 'targetAttribute' => ['email' => 'inspector_email']],
         ];
     }
 
@@ -51,8 +51,12 @@ class PasswordResetRequestForm extends Model
 
         try {
             $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "email_campaign");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
 
         return true;

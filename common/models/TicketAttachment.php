@@ -35,8 +35,8 @@ class TicketAttachment extends \yii\db\ActiveRecord
         return [
             [['ticket_attachment_uuid', 'ticket_uuid', 'attachment_uuid'], 'string', 'max' => 60],
             [['ticket_attachment_uuid'], 'unique'],
-            [['ticket_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Ticket::className(), 'targetAttribute' => ['ticket_uuid' => 'ticket_uuid']],
-            [['attachment_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Attachment::className(), 'targetAttribute' => ['attachment_uuid' => 'attachment_uuid']],
+            [['ticket_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Ticket::class, 'targetAttribute' => ['ticket_uuid' => 'ticket_uuid']],
+            [['attachment_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Attachment::class, 'targetAttribute' => ['attachment_uuid' => 'attachment_uuid']],
         ];
     }
 
@@ -48,7 +48,7 @@ class TicketAttachment extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className (),
+                'class' => AttributeBehavior::class,
                 'attributes' => [
                     \yii\db\ActiveRecord::EVENT_BEFORE_INSERT => 'ticket_attachment_uuid',
                 ],

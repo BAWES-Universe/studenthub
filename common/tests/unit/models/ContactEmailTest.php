@@ -14,7 +14,7 @@ class ContactEmailTest extends \Codeception\Test\Unit
     public function _fixtures()
     {
         return [
-            'contactEmail' => ContactEmailFixture::className()
+            'contactEmail' => ContactEmailFixture::class
         ];
     }
 
@@ -26,15 +26,15 @@ class ContactEmailTest extends \Codeception\Test\Unit
     {
         $data = $this->tester->grabFixture('contactEmail', 'contact_email0');
 
-        expect('model adding new contactEmail', $data->save())->true();
+        $this->assertTrue($data->save());
 
         $data->email_address = null;
-        expect('contactEmail email_address should be required field', $data->validate(['email_address']))->false();
+        $this->assertFalse($data->validate(['email_address']));
 
         $data->email_address = 'Im-invalid';
-        expect('contactEmail email_address should be validated as email', $data->validate(['email_address']))->false();
+        $this->assertFalse($data->validate(['email_address']));
 
         $data->contact_uuid = '123123123';
-        expect('Invalid contact id', $data->validate(['contact_uuid']))->false();
+        $this->assertFalse($data->validate(['contact_uuid']));
     }
 }

@@ -24,12 +24,12 @@ class RequestCest
     public function _fixtures()
     {
         return [
-            'staffToken' => StaffTokenFixture::className(),
-            'staff' => StaffFixture::className(),
-            'request' => RequestFixture::className(),
-            'company' => CompanyFixture::className(),
-            'companyContact' => CompanyContactFixture::className(),
-            'contact' => ContactFixture::className(),
+            'staffToken' => StaffTokenFixture::class,
+            'staff' => StaffFixture::class,
+            'request' => RequestFixture::class,
+            'company' => CompanyFixture::class,
+            'companyContact' => CompanyContactFixture::class,
+            'contact' => ContactFixture::class,
         ];
     }
 

@@ -28,7 +28,7 @@ class PasswordResetRequestForm extends Model
                 'message' => Yii::t('app', "Phone must be 8 digit number")
             ],
             [['email'], 'email'],
-            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::className(), 'targetAttribute' => ['email' => 'candidate_email']],
+            [['email'], 'exist', 'skipOnError' => false, 'targetClass' => Candidate::class, 'targetAttribute' => ['email' => 'candidate_email']],
         ];
     }
     public function validateAnyOne($attribute) {
@@ -70,8 +70,12 @@ class PasswordResetRequestForm extends Model
 
         try {
             return $mailer->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
 
         return true;

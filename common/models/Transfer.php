@@ -90,8 +90,8 @@ class Transfer extends ActiveRecord
             ['contract_uuid', 'validateContract'],
             [["currency_code", "contract_type"], "string"],
             [['transfer_created_at', 'transfer_updated_at', 'payment_received_on','start_date','end_date'], 'safe'],
-            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::className(), 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
-            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::className(), 'targetAttribute' => ['company_id' => 'company_id']],
+            [['contract_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Contract::class, 'targetAttribute' => ['contract_uuid' => 'contract_uuid']],
+            [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
         ];
     }
 
@@ -122,7 +122,7 @@ class Transfer extends ActiveRecord
      * @return void
      */
     public function validateDates() {
-        if(strtotime($this->end_date) <= strtotime($this->start_date)) {
+        if($this->end_date && $this->start_date && strtotime($this->end_date) <= strtotime($this->start_date)) {
             $this->addError('start_date','End date should be greater then start date');
         }
     }
@@ -145,7 +145,7 @@ class Transfer extends ActiveRecord
     public function behaviors() {
         return [
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'createdByAttribute' => 'transfer_created_by',
                 'updatedByAttribute' => 'transfer_updated_by',
                 'value' => function() {
@@ -160,7 +160,7 @@ class Transfer extends ActiveRecord
                 }
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'transfer_created_at',
                 'updatedAtAttribute' => 'transfer_updated_at',
                 'value' => new Expression('NOW()'),
@@ -232,7 +232,8 @@ class Transfer extends ActiveRecord
         };
 
         $fields['transfer_updated_at_unix'] = function($model) {
-            return date('Y-m-d',strtotime($model->transfer_updated_at));
+            return $model->transfer_updated_at?
+                date('Y-m-d',strtotime($model->transfer_updated_at)): null;
         };
 
         $fields['transfer_created_at'] = function($model) {
@@ -814,8 +815,12 @@ class Transfer extends ActiveRecord
 
         try {
             return $message->send();
-        } catch (\Swift_TransportException $e) {
-            Yii::error($e->getMessage(), "password-reset-token");
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -853,6 +858,7 @@ class Transfer extends ActiveRecord
         $model->company_id = $this->company_id;
         $model->store_id = $transferCandidate->store_id;
         $model->type = CandidateNotification::TYPE_TRANSFER_INIT;
+        $model->appeal_uuid = null;
         if (!$model->save()) {
             Yii::error("Error saving notification: " . print_r($model->errors, true));
         }
@@ -1161,7 +1167,7 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null) {
+    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null, $noOfPayout = 1) {
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
@@ -1266,7 +1272,7 @@ class Transfer extends ActiveRecord
                 ];
             }
 
-            $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value);
+            $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value, $noOfPayout);
 
             if ($response['operation'] == "error") {
 

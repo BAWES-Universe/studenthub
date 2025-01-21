@@ -19,11 +19,11 @@ class AuthCest
 	public function _fixtures()
 	{
         return [
-            'companyContact' => CompanyContactFixture::className(),
-            'company' => CompanyFixture::className(),
-            'contact' => ContactFixture::className(),
-            "country" => CountryFixture::className(),
-            'contactToken' => ContactTokenFixture::className()
+            'companyContact' => CompanyContactFixture::class,
+            'company' => CompanyFixture::class,
+            'contact' => ContactFixture::class,
+            "country" => CountryFixture::class,
+            'contactToken' => ContactTokenFixture::class
         ];
     }
 
