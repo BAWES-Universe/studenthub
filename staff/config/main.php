@@ -457,6 +457,17 @@ return [
                         'OPTIONS <id>' => 'options'
                     ]
                 ],
+                [ // CandidateIdRequestController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-id-request',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'DELETE <id>' => 'delete',
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
                 [ // CandidateIdCardController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/candidate-id-card',
