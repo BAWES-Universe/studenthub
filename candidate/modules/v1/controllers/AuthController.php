@@ -762,8 +762,16 @@ class AuthController extends Controller
         $model = new Candidate();
         $model->scenario = "signup";
 
-        $name = ucfirst(Yii::$app->request->getBodyParam('name'));
-        $name_ar = ucfirst(Yii::$app->request->getBodyParam('name_ar'));
+        $name = Yii::$app->request->getBodyParam('name');
+        if ($name) {
+            $name = ucfirst($name);
+        }
+
+        $name_ar = Yii::$app->request->getBodyParam('name_ar');
+        if ($name_ar) {
+            $name = ucfirst($name_ar);
+        }
+
         $lang = Yii::$app->request->getBodyParam('lang');
         $token = Yii::$app->request->getBodyParam('token');
         $utm_uuid = Yii::$app->request->getBodyParam("utm_uuid");

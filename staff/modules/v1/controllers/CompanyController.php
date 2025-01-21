@@ -453,9 +453,11 @@ class CompanyController extends Controller
 
         if ($model->scenario == "newAccount") {
 
+            $name = Yii::$app->request->getBodyParam("name");
+
             $contactModel = new Contact();
 
-            $contactModel->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
+            $contactModel->contact_name =$name? ucfirst($name): $name;
             $contactModel->contact_email = Yii::$app->request->getBodyParam("email");
             $contactModel->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
             $contactModel->contact_receive_email = 1;

@@ -559,14 +559,18 @@ class AuthController extends Controller
 
         //create new request for staff to review
 
+        $company_name = Yii::$app->request->getBodyParam("company_name");
+        $name = Yii::$app->request->getBodyParam("name");
+        $password = Yii::$app->request->getBodyParam("password");
+
         $companyRequest = new CompanyRequest();
-        $companyRequest->company_name = ucfirst(Yii::$app->request->getBodyParam("company_name"));
+        $companyRequest->company_name = $company_name? ucfirst($company_name): $company_name;
         $companyRequest->company_email = Yii::$app->request->getBodyParam("email");
         $companyRequest->contact_position = Yii::$app->request->getBodyParam("contact_position");
         $companyRequest->requesting_for = Yii::$app->request->getBodyParam("requesting_for");
 
-        $companyRequest->contact_name = ucfirst(Yii::$app->request->getBodyParam("name"));
-        $companyRequest->contact_password_hash = Yii::$app->security->generatePasswordHash(Yii::$app->request->getBodyParam("password"));
+        $companyRequest->contact_name = $name?ucfirst($name): $name;
+        $companyRequest->contact_password_hash = $password?Yii::$app->security->generatePasswordHash($password): $password;
         $companyRequest->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $companyRequest->phone_number = Yii::$app->request->getBodyParam("phone_number");
         $companyRequest->currency_code = Yii::$app->request->getBodyParam("currency_code");
