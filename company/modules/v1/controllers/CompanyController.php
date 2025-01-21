@@ -95,13 +95,18 @@ class CompanyController extends BaseController
      */
     public function actionUpdate()
     {
+        $name = Yii::$app->request->getBodyParam("name");
+        $common_name_en = Yii::$app->request->getBodyParam("common_name_en");
+        $common_name_ar = Yii::$app->request->getBodyParam("common_name_ar");
+
         $model = Yii::$app->companyManager->getCompany();
 
         $model->setScenario('update');
-        
-        $model->company_name = ucfirst(Yii::$app->request->getBodyParam("name"));
-        $model->company_common_name_en = ucfirst(Yii::$app->request->getBodyParam("common_name_en"));
-        $model->company_common_name_ar = ucfirst(Yii::$app->request->getBodyParam("common_name_ar"));
+
+
+        $model->company_name = $name?ucfirst($name): $name;
+        $model->company_common_name_en = $common_name_en?ucfirst($common_name_en): null;
+        $model->company_common_name_ar = $common_name_ar?ucfirst($common_name_ar): null;
         $model->company_description_en = Yii::$app->request->getBodyParam("description_en");
         $model->company_description_ar = Yii::$app->request->getBodyParam("description_ar");
         $model->company_website = Yii::$app->request->getBodyParam("website");
