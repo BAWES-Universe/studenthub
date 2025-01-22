@@ -676,7 +676,7 @@ class CronController extends \yii\console\Controller {
                 else
                     $name = null;
 
-                $datetime = new \DateTime($tc->tc_updated_at);
+                $datetime =$tc->tc_updated_at? new \DateTime($tc->tc_updated_at): new \DateTime();
 
                 Yii::$app->eventManager->track(
                     'Candidate Transfer Paid',
@@ -722,7 +722,8 @@ class CronController extends \yii\console\Controller {
 
             foreach ($suggestions as $suggestion) {
 
-                $datetime = new \DateTime($suggestion->suggestion_datetime);
+                $datetime = $suggestion->suggestion_datetime?
+                    new \DateTime($suggestion->suggestion_datetime): new \DateTime();
 
                 $staff = $suggestion->getCreatedBy()->one();
 

@@ -398,7 +398,8 @@ class AuthController extends Controller
             }
 
             //Check if this user sent an email in past few minutes (to limit email spam)
-            $emailLimitDatetime = new \DateTime($candidate->candidate_limit_email);
+            $emailLimitDatetime = $candidate->candidate_limit_email?new \DateTime($candidate->candidate_limit_email):
+                new \DateTime();
             date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
             $currentDatetime = new \DateTime();
 
@@ -559,7 +560,8 @@ class AuthController extends Controller
         }*/
 
         //Check if this user sent an email in past few minutes (to limit email spam)
-        $emailLimitDatetime = new \DateTime($candidate->candidate_limit_sms);
+        $emailLimitDatetime = $candidate->candidate_limit_sms?new \DateTime($candidate->candidate_limit_sms):
+            new \DateTime();
         date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
         $currentDatetime = new \DateTime('now');
 
@@ -642,7 +644,8 @@ class AuthController extends Controller
         }
 
         //Check if this user sent an email in past few minutes (to limit email spam)
-        $emailLimitDatetime = new \DateTime($candidate->candidate_limit_email);
+        $emailLimitDatetime = $candidate->candidate_limit_email?
+            new \DateTime($candidate->candidate_limit_email): new \DateTime();
         date_add($emailLimitDatetime, date_interval_create_from_date_string('1 minutes'));
         $currentDatetime = new \DateTime('now');
 
