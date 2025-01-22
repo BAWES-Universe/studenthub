@@ -145,3 +145,9 @@ var_dump($returnVar);
 
  - docker-compose -f docker-compose-local.yml -p studenthub-local-server up -d
 
+# git tag 
+
+git tag -a v2.0 -m "Version 2.0: PHP 7.4 to 8.2"
+git push origin v2.0
+git tag -l
+
