@@ -78,6 +78,7 @@ class CandidateController extends Controller
             ->filterCandidate(\Yii::$app->user->id)
 //            ->with('store')
 //            ->asArray()
+            ->orderBy('start_date DESC, id DESC')
             ->all();
 
         if(!$model)
