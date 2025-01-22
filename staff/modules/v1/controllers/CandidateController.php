@@ -1014,7 +1014,7 @@ class CandidateController extends Controller
             ];
         }
 
-        $url = Yii::$app->params['candidateAppUrl']. '?auth_key='.$model->candidate_auth_key;
+        $url = Yii::$app->params['candidateAppUrl']. 'landing?auth_key='.$model->candidate_auth_key;
 
         return [
             'redirect' => $url
