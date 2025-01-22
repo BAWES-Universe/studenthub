@@ -163,7 +163,7 @@ class CandidateWorkingHourController extends Controller
      */
     public function actionAddHour() {
 
-        $model = \common\models\CandidateWorkingHour::find()
+        /*$model = \common\models\CandidateWorkingHour::find()
             ->andWhere(['candidate_id' => Yii::$app->user->getId()])
             ->andWhere(['store_id' => Yii::$app->user->identity->store_id])
             ->andWhere('end_time is null')
@@ -174,7 +174,7 @@ class CandidateWorkingHourController extends Controller
                 "operation" => "error",
                 "message" => Yii::t('candidate', 'You are already working')
             ];
-        }
+        }*/
 
         $start_time = Yii::$app->request->getBodyParam("start_time");
         $end_time= Yii::$app->request->getBodyParam("end_time");
