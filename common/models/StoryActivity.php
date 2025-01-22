@@ -98,7 +98,8 @@ class StoryActivity extends \yii\db\ActiveRecord
 
         if($lastActivity)
         {
-            $activity_created_at = new \DateTime(date ('Y-m-d H:i:s', strtotime ($lastActivity->activity_created_at)));
+            $activity_created_at = $lastActivity->activity_created_at?
+                new \DateTime(date ('Y-m-d H:i:s', strtotime ($lastActivity->activity_created_at))): new \DateTime();
 
             $activity_last_updated_at = new \DateTime(date ('Y-m-d H:i:s'));
 

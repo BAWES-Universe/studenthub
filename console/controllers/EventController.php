@@ -44,7 +44,7 @@ class EventController extends \yii\console\Controller {
                 if(!$staff)
                     continue;
 
-                $datetime = new \DateTime($story->story_created_at);
+                $datetime = $story->story_created_at?new \DateTime($story->story_created_at): new \DateTime();
 
                 Yii::$app->eventManager->setUser($staff->staff_id, [
                     'name' => trim($staff->staff_name),
@@ -90,7 +90,8 @@ class EventController extends \yii\console\Controller {
                 if(!$staff)
                     continue;
 
-                $datetime = new \DateTime($story->story_last_updated_at);
+                $datetime = $story->story_last_updated_at?
+                    new \DateTime($story->story_last_updated_at): new \DateTime();
 
                 Yii::$app->eventManager->setUser($staff->staff_id, [
                     'name' => trim($staff->staff_name),
@@ -131,7 +132,8 @@ class EventController extends \yii\console\Controller {
 
             foreach ($staffs as $staff) {
 
-                $datetime = new \DateTime($staff->staff_updated_at);
+                $datetime = $staff->staff_updated_at?
+                    new \DateTime($staff->staff_updated_at): new \DateTime();
 
                 Yii::$app->eventManager->track(
                     'Staff Updated v2',
@@ -168,7 +170,8 @@ class EventController extends \yii\console\Controller {
 
             foreach ($staffs as $staff) {
 
-                $datetime = new \DateTime($staff->staff_created_at);
+                $datetime = $staff->staff_created_at?
+                    new \DateTime($staff->staff_created_at): new \DateTime();
 
                 //$staff->attributes,
                 Yii::$app->eventManager->track(
@@ -206,7 +209,8 @@ class EventController extends \yii\console\Controller {
 
             foreach ($companies as $company) {
 
-                $datetime = new \DateTime($company->company_updated_at);
+                $datetime = $company->company_updated_at?
+                    new \DateTime($company->company_updated_at): new \DateTime();
 
                 Yii::$app->eventManager->track(
                     'Company Profile Updated',
