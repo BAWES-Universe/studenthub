@@ -389,7 +389,11 @@ class InvitationController extends Controller
                 $first_seen_at = $invitation->invitation_email_seen_at;
             }
 
-            $invitation->invitation_seen_in = strtotime($first_seen_at) - strtotime($invitation->invitation_created_at);
+            $first_seen_at = $first_seen_at? strtotime($first_seen_at): time();
+            $invitation->invitation_created_at = $invitation->invitation_created_at?
+                strtotime($invitation->invitation_created_at): time();
+
+            $invitation->invitation_seen_in = $first_seen_at - $invitation->invitation_created_at;
 
             $invitation->invitation_seen_via = "app";
 

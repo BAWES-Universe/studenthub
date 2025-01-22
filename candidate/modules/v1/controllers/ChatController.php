@@ -153,7 +153,7 @@ class ChatController extends Controller
 
         $counts = [
             'total' => 0,
-            "totalUnreadActity" => (int) Yii::$app->user->identity->getUnreadCandidateNotifications()->count(),
+            "totalUnreadActivity" => (int) Yii::$app->user->identity->getUnreadCandidateNotifications()->count(),
             'totalConversation' => sizeof($conversations),
         ];
 

@@ -32,7 +32,8 @@ class CandidateNotificationController extends Controller
                     'X-Pagination-Current-Page',
                     'X-Pagination-Page-Count',
                     'X-Pagination-Per-Page',
-                    'X-Pagination-Total-Count'
+                    'X-Pagination-Total-Count',
+                    'X-total-unread-activity'
                 ],
             ],
         ];
@@ -81,6 +82,12 @@ class CandidateNotificationController extends Controller
         if ($appeal_uuid) {
             $query->andWhere(['appeal_uuid' => $appeal_uuid]);
         }
+
+        $headers = Yii::$app->response->headers;
+
+        $total =  (int) Yii::$app->user->identity->getUnreadCandidateNotifications()->count();
+
+        $headers->add('X-total-unread-activity', $total);
 
         return new ActiveDataProvider([
             'query' => $query
