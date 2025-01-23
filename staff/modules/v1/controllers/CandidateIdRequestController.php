@@ -87,6 +87,30 @@ class CandidateIdRequestController extends Controller
      * @param $id
      * @return array|string[]
      * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
+     */
+    public function actionRegenerate($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->status = "pending";
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success"
+        ];
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */

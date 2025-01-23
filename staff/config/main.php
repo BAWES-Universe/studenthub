@@ -463,9 +463,11 @@ return [
                     'patterns' => [
                         'GET' => 'list',
                         'GET <id>' => 'view',
+                        'PATCH regenerate/<id>' => 'regenerate',
                         'DELETE <id>' => 'delete',
                         'OPTIONS' => 'options',
-                        'OPTIONS <id>' => 'options'
+                        'OPTIONS <id>' => 'options',
+                        'OPTIONS regenerate/<id>' => 'options',
                     ]
                 ],
                 [ // CandidateIdCardController
