@@ -1748,6 +1748,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function validatePassword($password)
     {
+        if (!$this->candidate_password_hash) {
+            return null;
+        }
+
         return Yii::$app->security->validatePassword($password, $this->candidate_password_hash);
     }
 

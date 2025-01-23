@@ -884,6 +884,10 @@ class Staff extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
+        if (!$this->staff_password_hash) {
+            return null;
+        }
+
         return Yii::$app->security->validatePassword($password, $this->staff_password_hash);
     }
 

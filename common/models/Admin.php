@@ -195,6 +195,10 @@ class Admin extends ActiveRecord implements IdentityInterface {
      * @return boolean if password provided is valid for current user
      */
     public function validatePassword($password) {
+        if (!$this->admin_password_hash) {
+            return null;
+        }
+
         return Yii::$app->security->validatePassword($password, $this->admin_password_hash);
     }
 

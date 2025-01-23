@@ -213,6 +213,10 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
      * @return boolean if password provided is valid for current user
      */
     public function validatePassword($password) {
+        if (!$this->password_hash) {
+            return null;
+        }
+
         return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 
