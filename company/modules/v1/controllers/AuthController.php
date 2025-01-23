@@ -52,7 +52,7 @@ class AuthController extends Controller
 
                 $contact = Contact::findByEmail($email);
 
-                if ($contact && $contact->validatePassword($password)) {
+                if ($contact && !empty($password) && $contact->validatePassword($password)) {
                     return $contact;
                 }
 
