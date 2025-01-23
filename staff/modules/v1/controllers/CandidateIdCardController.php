@@ -201,22 +201,7 @@ class CandidateIdCardController extends Controller
                 $candidate_ids[] = $value;
         }
 
-        $model = new CandidateIdRequest();
-        $model->candidate_ids = implode(",", $candidate_ids);
-
-        if (!$model->save()) {
-            return [
-                "operation" => "error",
-                "message" => $model->errors
-            ];
-        }
-
-        return [
-            "operation" => "success",
-            "cir_uuid" => $model->cir_uuid,
-            "message" => "We processing your request"
-        ];
-/*if(empty(Yii::$app->params['inCodeception']))
+        if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
 
         // create ID Card entry
@@ -271,9 +256,28 @@ class CandidateIdCardController extends Controller
             }
         }
 
+        $model = new CandidateIdRequest();
+        $model->candidate_ids = implode(",", $candidate_ids);
+
+        if (!$model->save()) {
+            if(empty(Yii::$app->params['inCodeception']))
+                $transaction->rollBack();
+
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
         if(empty(Yii::$app->params['inCodeception']))
             $transaction->commit();
 
+        return [
+            "operation" => "success",
+            "cir_uuid" => $model->cir_uuid,
+            "message" => "We processing your request"
+        ];
+        /*
         //create zip file to download generated IDs
 
         $candidates = Candidate::find()
