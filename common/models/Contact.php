@@ -492,6 +492,10 @@ class Contact extends \yii\db\ActiveRecord
      * @return boolean if password provided is valid for current user
      */
     public function validatePassword($password) {
+        if (!$this->contact_password_hash) {
+            return null;
+        }
+
         return Yii::$app->security->validatePassword($password, $this->contact_password_hash);
     }
 
