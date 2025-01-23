@@ -48,7 +48,7 @@ class AuthController extends Controller
 
                 $contact = StoreManager::findByEmail($email);
 
-                if ($contact && $contact->validatePassword($password)) {
+                if ($contact && !empty($password) && $contact->validatePassword($password)) {
                     return $contact;
                 }
 

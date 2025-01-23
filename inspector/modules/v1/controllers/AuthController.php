@@ -44,7 +44,7 @@ class AuthController extends Controller
 
                 $user = Inspector::findByEmail(trim($email));
                 
-                if ($user && $user->validatePassword(trim($password))) {
+                if ($user && !empty($password) && $user->validatePassword(trim($password))) {
                     return $user;
                 }
 
