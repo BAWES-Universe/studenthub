@@ -205,7 +205,40 @@ return [
             'status/config/main-local.php',
         ],
     ],
-
+    'Dev-Server-Nginx-Debug' => [
+        'path' => 'dev-server-nginx-debug',
+        'setWritable' => [
+            'admin/runtime',
+            'admin/web/assets',
+            'candidate/runtime',
+            'candidate/web/assets',
+            'company/runtime',
+            'company/web/assets',
+            'manager/runtime',
+            'manager/web/assets',
+            'staff/runtime',
+            'staff/web/assets',
+            'verification/runtime',
+            'verification/web/assets',
+            'inspector/runtime',
+            'inspector/web/assets',
+            'status/runtime',
+            'status/web/assets',
+        ],
+        'setExecutable' => [
+            'yii',
+        ],
+        'setCookieValidationKey' => [
+            'admin/config/main-local.php',
+            'candidate/config/main-local.php',
+            'company/config/main-local.php',
+            'manager/config/main-local.php',
+            'staff/config/main-local.php',
+            'verification/config/main-local.php',
+            'inspector/config/main-local.php',
+            'status/config/main-local.php',
+        ],
+    ],
     'Circle-CI' => [
         'path' => 'circle-ci',
         'setWritable' => [
