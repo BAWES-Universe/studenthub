@@ -92,6 +92,10 @@ class WalletUser extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    /**
+     * @param $insert
+     * @return bool
+     */
     public function beforeSave($insert) {
 
         if ($this->password) {
@@ -254,7 +258,8 @@ class WalletUser extends ActiveRecord implements IdentityInterface
         $walletUser = new WalletUser();
         $walletUser->username = $user->candidate_name;
         $walletUser->email = $user->candidate_email;
-        $walletUser->password_hash = $user->candidate_password_hash;
+        $walletUser->password_hash = !empty($user->candidate_password_hash) ? $user->candidate_password_hash:
+            Yii::$app->security->generateRandomString(32);
         $walletUser->generateAuthKey();
         $walletUser->status = WalletUser::STATUS_ACTIVE;
         $walletUser->bank_uuid = $bank? $bank->bank_uuid: null;
@@ -285,7 +290,8 @@ class WalletUser extends ActiveRecord implements IdentityInterface
         $walletUser = new WalletUser();
         $walletUser->username = $user->admin_name;
         $walletUser->email = $user->admin_email;
-        $walletUser->password_hash = $user->admin_password_hash;
+        $walletUser->password_hash = !empty($user->admin_password_hash) ?
+            $user->admin_password_hash: Yii::$app->security->generateRandomString(32);
         $walletUser->generateAuthKey();
         $walletUser->status = WalletUser::STATUS_ACTIVE;
         $walletUser->save();
@@ -312,7 +318,8 @@ class WalletUser extends ActiveRecord implements IdentityInterface
             $walletUser = new WalletUser();
             $walletUser->username = $user->contact_name;
             $walletUser->email = $user->contact_email;
-            $walletUser->password_hash = $user->contact_password_hash;
+            $walletUser->password_hash = !empty($user->contact_password_hash)?
+                $user->contact_password_hash: Yii::$app->security->generateRandomString(32);
             $walletUser->generateAuthKey();
             $walletUser->status = WalletUser::STATUS_ACTIVE;
             $walletUser->save();
