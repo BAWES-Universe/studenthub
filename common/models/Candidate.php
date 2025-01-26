@@ -1522,8 +1522,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             Yii::info("[New Student Account Created By ".Yii::$app->user->identity->staff_name . "] Name: ".$this->candidate_name. ", Phone: ".$this->candidate_phone.", Email: ".$this->candidate_email, __METHOD__);
 
         } else {
-            
-            $this->sendVerificationEmail();
+
+            if ($this->candidate_email_verification != self::EMAIL_VERIFIED) {
+                $this->sendVerificationEmail();
+            }
         
             Yii::info("[New Student Registration] ".$this->candidate_name. " has signed up. Phone: ".$this->candidate_phone.", Email: ".$this->candidate_email, __METHOD__);
         }
