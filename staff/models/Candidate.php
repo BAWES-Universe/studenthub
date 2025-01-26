@@ -317,7 +317,7 @@ class Candidate extends \common\models\Candidate {
             'candidate_id' => $this->candidate_id
         ]);
 
-        $tags_array = explode(',', $tags);
+        $tags_array = $tags? explode(',', $tags): [];
 
         if (empty($tags) || count($tags_array) == 0)
         {
@@ -359,7 +359,7 @@ class Candidate extends \common\models\Candidate {
             'candidate_id' => $this->candidate_id
         ]);
 
-        $skills_array = explode(',', $skills);
+        $skills_array = $skills? explode(',', $skills): [];
 
         if (empty($skills) || count($skills_array) == 0)
         {

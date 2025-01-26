@@ -69,6 +69,7 @@ class JWT extends \yii\base\Component
         $timestamp = is_null(static::$timestamp) ? time() : static::$timestamp;
  
         $tks = explode('.', $jwt);
+
         if (count($tks) != 3) {
             throw new ErrorException('Wrong number of segments');
         }

@@ -737,7 +737,7 @@ class TransferController extends Controller
                 //get reference number
                 //example: IB/LOCAL TRANSFER/O-000004206364/MARIAN AKRAM MAGDY HABIB/BILL SETTLEMENT/SALARY 88467 000004206364
 
-                $data = explode("/", $value['Description']);
+                $data = $value['Description']? explode("/", $value['Description']): $value['Description'];
 
                 $candidatesTransfers[] = [
                     'transfer_confirmation_id' => isset($data[2])? $data[2]: $data[0],

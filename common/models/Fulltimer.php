@@ -274,10 +274,14 @@ class Fulltimer extends \yii\db\ActiveRecord
                 $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'];
 
                 // as "X-Forwarded-For" is usually a list of IP addresses that have routed
-                $IParray = array_values(array_filter(explode(',', $forwardedFor)));
+                if ($forwardedFor) {
+                    $IParray = array_values(array_filter(explode(',', $forwardedFor)));
 
-                // Get the first ip from forwarded array to get original requester
-                $ip = $IParray[0];
+                    // Get the first ip from forwarded array to get original requester
+                    if ($IParray) {
+                        $ip = $IParray[0];
+                    }
+                }
             }
 
             $this->ip_address = $ip;

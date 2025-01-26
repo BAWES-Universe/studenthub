@@ -616,7 +616,9 @@ class PhpExcel extends \yii\base\Widget
         $_columns = [];
         foreach ($columns as $key => $value) {
             if (is_string($value)) {
-                $value_log = explode(':', $value);
+
+                $value_log = $value? explode(':', $value): null;
+
                 $_columns[$key] = ['attribute' => $value_log[0]];
 
                 if (isset($value_log[1]) && $value_log[1] !== null) {

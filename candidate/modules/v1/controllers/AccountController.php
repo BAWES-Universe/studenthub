@@ -88,7 +88,7 @@ class AccountController extends Controller
     {
         $experiences = Yii::$app->request->getBodyParam("experiences");
 
-        $experiences = explode(',', $experiences);
+        $experiences = $experiences? explode(',', $experiences): [];
         
         if (empty($experiences) || count($experiences) == 0) 
         {
@@ -141,9 +141,10 @@ class AccountController extends Controller
     {
         $skills_array = Yii::$app->request->getBodyParam("skills");
 
-        if (!is_array($skills_array))
-            $skills_array = explode(',', $skills_array);
-        
+        if (!is_array($skills_array)) {
+            $skills_array = $skills_array? explode(',', $skills_array): [];
+        }
+
         if (count($skills_array) == 0)
         {
             return [
@@ -259,7 +260,7 @@ class AccountController extends Controller
 
         $fileName = basename($detail->outputGroupDetails[0]->outputDetails[0]->outputFilePaths[0]);
 
-        $model->candidate_video = explode('.', $fileName)[0];
+        $model->candidate_video =  explode('.', $fileName)[0];
 
         $model->candidate_video_processed = true;
         
