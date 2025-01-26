@@ -507,7 +507,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $message = Yii::t('app', 'Please specify your full beneficiary name');
         }
 
-        if(sizeof(explode (' ', $this->$attribute)) == 1) {
+        if($this->$attribute && sizeof(explode (' ', $this->$attribute)) == 1) {
             $this->addError('candidate_name', Yii::t('app', $message));
         }
     }
@@ -1230,10 +1230,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'];
 
                 // as "X-Forwarded-For" is usually a list of IP addresses that have routed
-                $IParray = array_values(array_filter(explode(',', $forwardedFor)));
+                if ($forwardedFor) {
+                    $IParray = array_values(array_filter(explode(',', $forwardedFor)));
 
-                // Get the first ip from forwarded array to get original requester
-                $ip = $IParray[0];
+                    // Get the first ip from forwarded array to get original requester
+                    if ($IParray) {
+                        $ip = $IParray[0];
+                    }
+                }
             }
 
             $this->ip_address = $ip;
@@ -1585,7 +1589,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $webUrl = Yii::$app->params['candidateAppUrl'] . 'update-password/' . $this->candidate_password_reset_token;
 
-        $name = explode(' ',$this->candidate_name);
+        $name = explode(' ', $this->candidate_name);
 
         $ml = new MailLog();
         $ml->to = $this->candidate_email;
@@ -1953,7 +1957,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $this->deleted = 0;
 
-        $id = explode("-", $this->candidate_civil_id);
+        $id = $this->candidate_civil_id? explode("-", $this->candidate_civil_id): null;
 
         $this->candidate_civil_id = isset($id[1]) ? $id[1]: null;
         $this->candidate_password_reset_token = null;
