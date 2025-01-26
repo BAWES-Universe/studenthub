@@ -126,8 +126,9 @@ class StoryActivity extends \yii\db\ActiveRecord
 
         $story = Story::findOne($this->story_uuid);
 
-        if($this->staff_id)
+        if($this->staff_id) {
             $story->staff_id = $this->staff_id;
+        }
 
         $story->story_status = $this->activity_status;
 
