@@ -23,7 +23,7 @@ use yii\db\Expression;
  * @property int $hours_per_day
  * @property int $days_per_week
  * @property string $compensation_type
- * @property double $compensation_amount
+ * @property string $compensation_amount
  * @property string $compensation_description
  * @property string $compensation_description_ar
  * @property int $min_age
@@ -79,7 +79,7 @@ class Job extends \yii\db\ActiveRecord
             [['description','description_ar', 'compensation_type', 'compensation_description', 'compensation_description_ar'],
                 'string'],
             [['hours_per_day', 'days_per_week', 'min_age', 'max_age', 'gender', 'status'], 'integer'],
-            [['compensation_amount'], 'number'],
+            [['compensation_amount'], 'string', "max" => 255],
             ['status', 'default', 'value' => self::STATUS_DRAFT],
             [['available_from', 'available_to', 'created_at', 'updated_at'], 'safe'],
             [['story_uuid', 'request_uuid', 'area_uuid'], 'string', 'max' => 60],//'job_uuid',
