@@ -503,6 +503,8 @@ return [
                         "GET interests/filter" => "interests-filter",
                         'GET interests' => 'list-interest',
                         'GET interest/<id>' => 'view-interest',
+                        'PATCH reject-interest/<id>' => 'reject-interest',
+                        'PATCH shortlist-interest/<id>' => 'shortlist-interest',
                         'GET <id>' => 'view',
                         'POST' => 'create',
                         'PATCH <id>' => 'update',
@@ -512,6 +514,8 @@ return [
                         'OPTIONS interests' => 'options',
                         "OPTIONS interests/filter" => 'options',
                         'OPTIONS interest/<id>' => 'options',
+                        'OPTIONS reject-interest/<id>' => 'options',
+                        'OPTIONS shortlist-interest/<id>' => 'options',
                         'OPTIONS <id>' => 'options',
                     ]
                 ],

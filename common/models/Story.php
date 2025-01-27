@@ -223,6 +223,7 @@ class Story extends \yii\db\ActiveRecord
     public function getJob($modelClass = "\common\models\Job")
     {
         return $this->hasOne($modelClass::className(), ['story_uuid' => 'story_uuid'])
+            ->andWhere(new Expression('{{%job}}.deleted_at IS NULL'))
             ->orderBy('created_at DESC');//get latest job for story
     }
 
@@ -231,7 +232,8 @@ class Story extends \yii\db\ActiveRecord
      */
     public function getJobs($modelClass = "\common\models\Job")
     {
-        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid']);
+        return $this->hasMany($modelClass::className(), ['story_uuid' => 'story_uuid'])
+            ->andWhere(new Expression('{{%job}}.deleted_at IS NULL'));
     }
 
     /**
