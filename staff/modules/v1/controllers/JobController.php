@@ -367,16 +367,17 @@ class JobController extends BaseController
             ];
         }
 
-        $model = new CandidateNotification();
-        $model->candidate_id = $model->candidate_id;
-        $model->job_uuid = $model->job_uuid;
-        $model->job_interest_uuid = $model->job_interest_uuid;
-        $model->type = CandidateNotification::TYPE_JOB_INTEREST_SHORTLISTED;
+        $n_model = new CandidateNotification();
+        $n_model->staff_id = Yii::$app->user->getId();
+        $n_model->candidate_id = $model->candidate_id;
+        $n_model->job_uuid = $model->job_uuid;
+        $n_model->job_interest_uuid = $model->job_interest_uuid;
+        $n_model->type = CandidateNotification::TYPE_JOB_INTEREST_SHORTLISTED;
 
-        if (!$model->save()) {
+        if (!$n_model->save()) {
             return [
                 "operation" => "error",
-                "message" => $model->errors
+                "message" => $n_model->errors
             ];
         }
 
@@ -404,16 +405,17 @@ class JobController extends BaseController
             ];
         }
 
-        $model = new CandidateNotification();
-        $model->candidate_id = $model->candidate_id;
-        $model->job_uuid = $model->job_uuid;
-        $model->job_interest_uuid = $model->job_interest_uuid;
-        $model->type = CandidateNotification::TYPE_JOB_INTEREST_REJECTED;
+        $n_model = new CandidateNotification();
+        $n_model->staff_id = Yii::$app->user->getId();
+        $n_model->candidate_id = $model->candidate_id;
+        $n_model->job_uuid = $model->job_uuid;
+        $n_model->job_interest_uuid = $model->job_interest_uuid;
+        $n_model->type = CandidateNotification::TYPE_JOB_INTEREST_REJECTED;
 
-        if (!$model->save()) {
+        if (!$n_model->save()) {
             return [
                 "operation" => "error",
-                "message" => $model->errors
+                "message" => $n_model->errors
             ];
         }
 

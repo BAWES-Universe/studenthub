@@ -70,6 +70,9 @@ Detailed documentation is available in the `docs/` directory:
 
 docker exec -it b019f98548b1 /bin/bash
 
+docker exec -it studenthub-backend-dev /bin/bash
+docker exec -it studenthub-backend-prod /bin/bash
+
 docker logs b019f98548b1
 
 docker exec -it 50ae5a2794bf0a7f2baa087230036f7b5866b6c868d9e8168b59ec19fa0b7ada /bin/bash
