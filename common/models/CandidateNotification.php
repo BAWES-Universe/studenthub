@@ -23,12 +23,13 @@ use yii\db\Expression;
  * @property int $company_id
  * @property int $store_id
  * @property int $staff_id
+ * @property string $job_uuid
  * @property int $is_new
  * @property string $message
  * @property string $created_at
  * @property string $updated_at
  * @property string $appeal_uuid
- *
+ * @property string $job_interest_uuid
  * @property Candidate $candidate
  * @property CandidateWorkLogFeedback $candidateWorkLogFeedback
  * @property CandidateWorkHistory $candidateWorkHistory
@@ -38,6 +39,8 @@ use yii\db\Expression;
  * @property Invitation $invitation
  * @property Request $request
  * @property Staff $staff
+ * @property JobInterest $jobInrerest
+ * @property Job $job
  */
 class CandidateNotification extends \yii\db\ActiveRecord
 {
@@ -52,6 +55,8 @@ class CandidateNotification extends \yii\db\ActiveRecord
     const TYPE_WORK_SESSION_APPROVED = 8;
     const TYPE_WORK_SESSION_REJECTED = 9;
 
+    const TYPE_JOB_INTEREST_SHORTLISTED = 10;
+    const TYPE_JOB_INTEREST_REJECTED = 11;
     /**
      * {@inheritdoc}
      */
@@ -74,6 +79,10 @@ class CandidateNotification extends \yii\db\ActiveRecord
             [['cn_uuid', 'candidate_working_date_uuid', 'invitation_uuid', 'request_uuid', "appeal_uuid"], 'string', 'max' => 60],
             [['cn_uuid'], 'unique'],
             [['message'], "string"],
+
+            [['job_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Job::class, 'targetAttribute' => ['job_uuid' => 'job_uuid']],
+            [['job_interest_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => JobInterest::class, 'targetAttribute' => ['job_interest_uuid' => 'job_interest_uuid']],
+
             [['staff_id'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['staff_id' => 'staff_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
             [['cwlf_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => CandidateWorkLogFeedback::class, 'targetAttribute' => ['cwlf_uuid' => 'cwlf_uuid']],
@@ -170,8 +179,26 @@ class CandidateNotification extends \yii\db\ActiveRecord
             "store",
             "staff",
             "invitation",
-            "request"
+            "request",
+            "job",
+            "jobInterest"
         ]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getJob($modelClass = "\common\models\Job")
+    {
+        return $this->hasOne($modelClass::className(), ['job_uuid' => 'job_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getJobInrerest($modelClass = "\common\models\JobInrerest")
+    {
+        return $this->hasOne($modelClass::className(), ['job_interest_uuid' => 'job_interest_uuid']);
     }
 
     /**

@@ -42,6 +42,7 @@ use yii\db\Expression;
  * @property Request $request
  * @property Story $story
  * @property Staff $updatedBy
+ * @property Staff $deletedBy
  * @property JobInterest[] $jobInterests
  * @property JobSkills[] $jobSkills
  */
@@ -77,7 +78,7 @@ class Job extends \yii\db\ActiveRecord
             [['story_uuid',  'position'], 'required'],//'request_uuid',
             [['description','description_ar', 'compensation_type', 'compensation_description', 'compensation_description_ar'],
                 'string'],
-            [['hours_per_day', 'days_per_week', 'min_age', 'max_age', 'gender', 'status', 'created_by', 'updated_by'], 'integer'],
+            [['hours_per_day', 'days_per_week', 'min_age', 'max_age', 'gender', 'status'], 'integer'],
             [['compensation_amount'], 'number'],
             ['status', 'default', 'value' => self::STATUS_DRAFT],
             [['available_from', 'available_to', 'created_at', 'updated_at'], 'safe'],
@@ -89,6 +90,7 @@ class Job extends \yii\db\ActiveRecord
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['created_by' => 'staff_id']],
             [['request_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Request::class, 'targetAttribute' => ['request_uuid' => 'request_uuid']],
             [['story_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Story::class, 'targetAttribute' => ['story_uuid' => 'story_uuid']],
+            [['deleted_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['deleted_by' => 'staff_id']],
             [['updated_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['updated_by' => 'staff_id']],
         ];
     }
@@ -228,7 +230,9 @@ class Job extends \yii\db\ActiveRecord
     {
         return array_merge([
             'area', 'jobSkills', 'jobInterests', 'createdBy',
-            'updatedBy', 'request', 'story'
+            'updatedBy',
+            "deletedBy",
+            'request', 'story'
         ], parent::extraFields());
     }
 
@@ -275,6 +279,14 @@ class Job extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getDeletedBy($modelClass = "\common\models\Staff")
+    {
+        return $this->hasOne($modelClass::className(), ['staff_id' => 'deleted_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getJobInterests($modelClass = "\common\models\JobInterest")
     {
         return $this->hasMany($modelClass::className(), ['job_uuid' => 'job_uuid']);
@@ -286,5 +298,14 @@ class Job extends \yii\db\ActiveRecord
     public function getJobSkills($modelClass = "\common\models\JobSkills")
     {
         return $this->hasMany($modelClass::className(), ['job_uuid' => 'job_uuid']);
+    }
+
+    /**
+     * @inheritdoc
+     * @return query\JobQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new query\JobQuery(get_called_class());
     }
 }

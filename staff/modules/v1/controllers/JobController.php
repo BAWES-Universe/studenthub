@@ -3,6 +3,7 @@
 namespace staff\modules\v1\controllers;
 
 use candidate\models\CandidateSkill;
+use common\models\CandidateNotification;
 use common\models\JobInterest;
 use common\models\Candidate;
 use common\models\Area;
@@ -92,7 +93,6 @@ class JobController extends BaseController
     public function actionListInterest()
     {
         $job_uuid = Yii::$app->request->get("job_uuid");
-        $status = Yii::$app->request->get("status");
         $candidate_id = Yii::$app->request->get("candidate_id");
         $country_id = Yii::$app->request->get("country_id");
         $nationality_country_id = Yii::$app->request->get("nationality_country_id");
@@ -101,9 +101,14 @@ class JobController extends BaseController
         $gender = Yii::$app->request->get("gender");
         $skills = Yii::$app->request->get("skills");
         $areas = Yii::$app->request->get("areas");
+        $status = Yii::$app->request->get("status");
 
         $query = JobInterest::find()
-            ->joinWith(['candidate', 'candidate.area', 'candidate.candidateSkills'])
+            ->joinWith([
+                'candidate',
+                'candidate.area',
+           //     'candidate.candidateSkills'
+            ])
             ->orderBy("created_at DESC");
 
         if ($job_uuid) {
@@ -140,7 +145,14 @@ class JobController extends BaseController
         }
 
         if ($skills) {
-            $query->andWhere(['IN', 'candidate_skill.skill', explode(",", $skills)]);
+
+            $subQuery = CandidateSkill::find()
+                ->select('candidate_skill.candidate_id')
+                ->andWhere(['IN', 'candidate_skill.skill', explode(",", $skills)]);
+
+            $query->andWhere(['IN', 'job_interest.candidate_id', $subQuery]);
+
+            //$query->andWhere(['IN', 'candidate_skill.skill', explode(",", $skills)]);
         }
 
         return new ActiveDataProvider([
@@ -162,7 +174,6 @@ class JobController extends BaseController
         $hours_per_day = Yii::$app->request->get("hours_per_day");
         $days_per_week = Yii::$app->request->get("days_per_week");
         $compensation_type = Yii::$app->request->get("compensation_type");
-
         $compensation_amount = Yii::$app->request->get("compensation_amount");
         $compensation_description = Yii::$app->request->get("compensation_description");
         $min_age = Yii::$app->request->get("min_age");
@@ -170,6 +181,7 @@ class JobController extends BaseController
         $gender = Yii::$app->request->get("gender");
         $from = Yii::$app->request->get("from");
         $to = Yii::$app->request->get("to");
+        //$status = Yii::$app->request->get("status");
 
         $query = Job::find()
             ->orderBy("created_at DESC");
@@ -338,6 +350,80 @@ class JobController extends BaseController
     }
 
     /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
+     */
+    public function actionShortlistInterest($id) {
+        $model = $this->findJobInterest($id);
+
+        $model->status = JobInterest::STATUS_SHORTLISTED;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        $model = new CandidateNotification();
+        $model->candidate_id = $model->candidate_id;
+        $model->job_uuid = $model->job_uuid;
+        $model->job_interest_uuid = $model->job_interest_uuid;
+        $model->type = CandidateNotification::TYPE_JOB_INTEREST_SHORTLISTED;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Shortlisted"
+        ];
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
+     */
+    public function actionRejectInterest($id) {
+        $model = $this->findJobInterest($id);
+
+        $model->status = JobInterest::STATUS_REJECTED;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        $model = new CandidateNotification();
+        $model->candidate_id = $model->candidate_id;
+        $model->job_uuid = $model->job_uuid;
+        $model->job_interest_uuid = $model->job_interest_uuid;
+        $model->type = CandidateNotification::TYPE_JOB_INTEREST_REJECTED;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Rejected"
+        ];
+    }
+
+    /**
      * Create a Job account
      * @param $id
      * @return array
@@ -428,7 +514,16 @@ class JobController extends BaseController
     {
         $model = $this->findModel($id);
  
-        $model->delete();
+        //$model->delete();
+        $model->deleted_at = new Expression("NOW()");
+        $model->deleted_by = Yii::$app->user->getId();
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
 
         return [
             "operation" => "success",
