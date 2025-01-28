@@ -52,7 +52,7 @@ return [
         ],
         'walletManager' => [
             'class' => 'common\components\WalletManager',
-            'apiKey' => 'imx4kpyVCXbi7sVy-zEvEITL63sQWisn',//QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG
+            'apiKey' => 'POAO-BiBxj-Oqp2XOIDZgSDrTYJxOa3M',
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
