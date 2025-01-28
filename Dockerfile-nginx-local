@@ -96,6 +96,9 @@ COPY ./nginx/php.conf /etc/nginx/php.conf
 COPY ./nginx/basic.conf /etc/nginx/sites-available/basic.conf
 RUN ln -s /etc/nginx/sites-available/basic.conf /etc/nginx/sites-enabled/
        
+# run default nginx config
+RUN rm /etc/nginx/sites-enabled/default
+
 # Expose port 80
 EXPOSE 80
 
