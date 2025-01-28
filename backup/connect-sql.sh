@@ -1,1 +1,0 @@
-mysql --host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com --user=bawes --password=bawes12student!hub studenthub
