@@ -826,7 +826,34 @@ class AccountController extends Controller
             'message' => Yii::t('candidate', 'Profile Photo Uploaded Successfully')
         ];
     }
-    
+
+    public function actionUpdateNames() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $candidate->candidate_name = Yii::$app->request->getBodyParam('name_en');
+        $candidate->candidate_name_ar = Yii::$app->request->getBodyParam('name_ar');
+
+        $candidate->scenario = "updateName";
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => Yii::t('candidate', "Candidate Name Info Updated Successfully"),
+        ];
+    }
+
     /**
      * update candidate name
      * @return type
