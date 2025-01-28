@@ -255,6 +255,7 @@ class CronController extends \yii\console\Controller {
     }
 
     public function actionProcessTransferFiles() {
+
         $query = TransferFile::find()->andWhere(['status' => TransferFile::STATUS_PENDING]);
 
         foreach ($query->batch(100) as $transferFiles) {

@@ -452,9 +452,9 @@ class TransferFile extends \yii\db\ActiveRecord
 
                 if(!$transferCandidate || !$transferCandidate->candidate) {
 
-                    $this->markFailed("Invalid excel");
-
                     $transaction->rollBack();
+
+                    $this->markFailed("Invalid excel");
 
                     Yii::error('Invalid excel');
 
@@ -531,10 +531,10 @@ class TransferFile extends \yii\db\ActiveRecord
 
                 if(!$transferCandidate) {
 
+                    $transaction->rollBack();
+
                     $this->markFailed("No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].
                         " Amount: " . $value['Amount Deducted']);
-
-                    $transaction->rollBack();
 
                     Yii::error("No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].
                         " Amount: " . $value['Amount Deducted']);
@@ -544,10 +544,10 @@ class TransferFile extends \yii\db\ActiveRecord
 
                 if (!$transferCandidate->candidate) {
 
+                    $transaction->rollBack();
+
                     $this->markFailed("No candidate profile found with Beneficiary Account: " . $value['Beneficiary Account'].
                         " Amount: " . $value['Amount Deducted']);
-
-                    $transaction->rollBack();
 
                     Yii::error("No candidate profile found with Beneficiary Account: " . $value['Beneficiary Account'].
                         " Amount: " . $value['Amount Deducted']);
@@ -654,11 +654,11 @@ class TransferFile extends \yii\db\ActiveRecord
 
         if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
 
+            $transaction->rollBack();
+
             $this->markFailed("Error reading file");
 
             Yii::error("Error reading file");
-
-            $transaction->rollBack();
 
             die();
         }
@@ -678,11 +678,12 @@ class TransferFile extends \yii\db\ActiveRecord
         $keys = \yii\helpers\ArrayHelper::remove($excelData, '8');
 
         if(empty($keys)) {
+
+            $transaction->rollBack();
+
             $this->markFailed("Error reading bank statement file");
 
             Yii::error("Error reading bank statement");
-
-            $transaction->rollBack();
 
             die();
 
@@ -695,11 +696,12 @@ class TransferFile extends \yii\db\ActiveRecord
         }
 
         if (!isset($keys['Description'])) {
-            $this->markFailed("Invalid file format for bank statement");
 
             Yii::error("Invalid file format for bank statement");
 
             $transaction->rollBack();
+
+            $this->markFailed("Invalid file format for bank statement");
 
             die();
         }
@@ -755,9 +757,9 @@ class TransferFile extends \yii\db\ActiveRecord
                     'errorCode' => 4
                 ];*/
 
-                $this->markFailed("No candidate profile found for candidate transfer : " . $tc_id);
-
                 $transaction->rollBack();
+
+                $this->markFailed("No candidate profile found for candidate transfer : " . $tc_id);
 
                 Yii::error("No candidate profile found for candidate transfer: " . $tc_id);
 
@@ -830,11 +832,11 @@ class TransferFile extends \yii\db\ActiveRecord
 
         if (!file_put_contents ($tmpFile, file_get_contents ($fileUrl))) {
 
-            $this->markFailed("Error reading file");
-
             Yii::error("Error reading file");
 
             $transaction->rollBack();
+
+            $this->markFailed("Error reading file");
 
             die();
         }
@@ -898,10 +900,10 @@ class TransferFile extends \yii\db\ActiveRecord
                     'errorCode' => 4
                 ];*/
 
+                $transaction->rollBack();
+
                 $this->markFailed("No candidate profile found with Candidate Account: " . $value['Candidate ID'].
                     " Amount: " . $value['Candidate Total']);
-
-                $transaction->rollBack();
 
                 Yii::error("No candidate profile found with Candidate Account: " . $value['Candidate ID'].
                     " Amount: " . $value['Candidate Total']);
