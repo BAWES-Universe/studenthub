@@ -207,13 +207,6 @@ class AccountController extends Controller
 
         $data = json_decode(file_get_contents("php://input"));
 
-        if(!$data) {
-            $data = (object) Yii::$app->request->post ();
-            $detail = (object) $data->detail;
-        } else {
-            $detail = $data->detail;
-        }
-
         if(isset($data->SubscribeURL)) {
             //log to sentry
 
@@ -221,6 +214,31 @@ class AccountController extends Controller
 
             return [
                 'operation' => 'success',
+            ];
+        }
+        else if(!$data)
+        {
+            $data = (object) Yii::$app->request->post ();
+            $detail = (object) $data->detail;
+        }
+        else if (isset($data->detail))
+        {
+            $detail = $data->detail;
+        }
+        else
+        {
+           // Yii::warning("[AWS Webhook with no details] " . print_r($data, true), 'webhook');
+
+            return [
+                'operation' => 'error',
+                "message" => "Empty message"
+            ];
+        }
+
+        if (empty($detail->jobId)) {
+            return [
+                'operation' => 'error',
+                "message" => "No video job id found"
             ];
         }
 
