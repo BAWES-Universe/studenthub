@@ -3,6 +3,7 @@
 namespace common\models;
 
 
+use Detection\MobileDetect;
 use Yii;
 use yii\db\Exception;
 use yii\db\Expression;
@@ -1663,18 +1664,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        $token = CandidateToken::find()->andWhere(['token_value' => $token])
-            ->with('candidate')->one();
-        if($token){
-            return $token->candidate;
-        }
-    }
-
-    /**
      * Finds candidate by email
      *
      * @param string $email
@@ -1805,18 +1794,86 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
+        $token = CandidateToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                'token_status' => CandidateToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('candidate')
+            ->one();
+
+        if ($token && $token->candidate && !$token->candidate->deleted) {
+            return $token->candidate;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        $token = CandidateToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                'token_status' => CandidateToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('candidate')->one();
+
+        if (!$token) {
+            return false;
+        }
+
+        //update last used datetime
+
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->candidate && $token->candidate->candidate_email_verification) {
+            return $token->candidate;
+        }
+
+        //invalid token
+
+        $token->delete();
+    }
+
+    /**
      * Create an Access Token Record for this Candidate
      * if the candidate already has one, it will return it instead
      * @return \common\models\CandidateToken
      */
     public function getAccessToken(){
         // Return existing inactive token if found
-        $token = CandidateToken::findOne([
-            'candidate_id' => $this->candidate_id,
-            'token_status' => CandidateToken::STATUS_ACTIVE
-        ]);
+        $token = CandidateToken::find()
+            ->andWhere([
+                'candidate_id' => $this->candidate_id,
+                'token_status' => CandidateToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
         if($token){
             return $token;
+        }
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
         }
 
         // Create new inactive token
@@ -1824,7 +1881,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $token->candidate_id = $this->candidate_id;
         $token->token_value = CandidateToken::generateUniqueTokenString();
         $token->token_status = CandidateToken::STATUS_ACTIVE;
-        $token->save(false);
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?? Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
 
         return $token;
     }
@@ -2041,20 +2104,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'paid' => $totalPaid,
             'bonus' => $totalBonus,
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
-        $token = CandidateToken::find()
-            ->andWhere(['token_value' => $token])
-            ->with('candidate')
-            ->one();
-
-        if ($token && $token->candidate && !$token->candidate->deleted) {
-            return $token->candidate;
-        }
     }
 
     /**

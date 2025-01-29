@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use Detection\MobileDetect;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -261,11 +262,79 @@ class Inspector extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null) {
         $token = InspectorToken::find()
-            ->andWhere(['token_value' => $token])->with('inspector')->one();
+            ->andWhere([
+                'token_value' => $token,
+                'token_status' => InspectorToken::STATUS_ACTIVE
+            ])
+            >andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('inspector')
+            ->one();
 
-        if($token){
+        if (!$token) {
+            return false;
+        }
+
+        //update last used datetime
+
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->inspector) {//&& $token->inspector->email_verification
             return $token->inspector;
         }
+
+        //invalid token
+
+        $token->delete();
+    }
+
+    /**
+     * Create an Access Token Record for this Inspector
+     * if the admin already has one, it will return it instead
+     * @return \common\models\InspectorToken
+     */
+    public function getAccessToken(){
+        // Return existing inactive token if found
+        $token = InspectorToken::find()
+            ->andWhere([
+                'inspector_uuid' => $this->inspector_uuid,
+                'token_status' => InspectorToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
+        if($token) {
+            return $token;
+        }
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
+        }
+
+        // Create new inactive token
+        $token = new InspectorToken();
+        $token->inspector_uuid = $this->inspector_uuid;
+        $token->token_value = AdminToken::generateUniqueTokenString();
+        $token->token_status = AdminToken::STATUS_ACTIVE;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?? Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        return $token;
     }
 
     /**
@@ -374,31 +443,6 @@ class Inspector extends ActiveRecord implements IdentityInterface
      */
     public function removePasswordResetToken() {
         $this->inspector_password_reset_token = null;
-    }
-
-    /**
-     * Create an Access Token Record for this Inspector
-     * if the admin already has one, it will return it instead
-     * @return \common\models\InspectorToken
-     */
-    public function getAccessToken(){
-        // Return existing inactive token if found
-        $token = InspectorToken::findOne([
-            'inspector_uuid' => $this->inspector_uuid,
-            'token_status' => InspectorToken::STATUS_ACTIVE
-        ]);
-        if($token){
-            return $token;
-        }
-
-        // Create new inactive token
-        $token = new InspectorToken();
-        $token->inspector_uuid = $this->inspector_uuid;
-        $token->token_value = AdminToken::generateUniqueTokenString();
-        $token->token_status = AdminToken::STATUS_ACTIVE;
-        $token->save(false);
-
-        return $token;
     }
 
     /**

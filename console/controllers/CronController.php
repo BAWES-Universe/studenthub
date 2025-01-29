@@ -2,6 +2,7 @@
 
 namespace console\controllers;
 
+use admin\models\AdminToken;
 use admin\models\Expense;
 use admin\models\Transfer;
 use admin\models\TransferCandidate;
@@ -35,9 +36,6 @@ use common\models\Request;
 class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
-
-        echo "cloud name: " . Yii::$app->cloudinaryManager->cloud_name;
-         die();
 
        // Yii::error("test error");
 
@@ -206,6 +204,24 @@ class CronController extends \yii\console\Controller {
      * Method called by cron once a day
      */
     public function actionDaily() {
+        
+        \common\models\AdminToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime < NOW()"));
+
+        \common\models\CandidateToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime < NOW()"));
+
+        \common\models\ContactToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime < NOW()"));
+
+        \common\models\InspectorToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime < NOW()"));
+
+        \common\models\ManagerToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime < NOW()"));
+
+        \common\models\StaffToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime < NOW()"));
 
         //check for birthday
 

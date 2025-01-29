@@ -3,6 +3,7 @@
 namespace common\models;
 
 use company\models\Request;
+use Detection\MobileDetect;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
@@ -88,21 +89,6 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        $token = StaffToken::find()
-            ->andWhere(['token_value' => $token])
-            ->with('staff')
-            ->one();
-
-        if ($token) {
-            return $token->staff;
-        }
-    }
-
-    /**
      * Finds staff by email
      *
      * @param string $email
@@ -158,6 +144,10 @@ class Staff extends ActiveRecord implements IdentityInterface
         return new query\StaffQuery(get_called_class());
     }
 
+    /**
+     * @param $string
+     * @return false|string
+     */
     public static function encryptPass($string)
     {
 
@@ -924,19 +914,68 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        $token = StaffToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                "token_status" => StaffToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('staff')
+            ->one();
+
+        if (!$token) {
+            return false;
+        }
+
+        //update last used datetime
+
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->staff) {//&& $token->staff->email_verification
+            return $token->staff;
+        }
+
+        //invalid token
+
+        $token->delete();
+    }
+
+    /**
      * Create an Access Token Record for this Staff
      * if the staff user already has one, it will return it instead
      * @return \common\models\StaffToken
      */
     public function getAccessToken()
     {
-        // Return existing inactive token if found
-        $token = StaffToken::findOne([
-            'staff_id' => $this->staff_id,
-            'token_status' => StaffToken::STATUS_ACTIVE
-        ]);
+        $token = StaffToken::find()
+            ->andWhere([
+                'staff_id' => $this->staff_id,
+                'token_status' => StaffToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
         if ($token) {
             return $token;
+        }
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
         }
 
         // Create new inactive token
@@ -944,7 +983,13 @@ class Staff extends ActiveRecord implements IdentityInterface
         $token->staff_id = $this->staff_id;
         $token->token_value = StaffToken::generateUniqueTokenString();
         $token->token_status = StaffToken::STATUS_ACTIVE;
-        $token->save(false);
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?? Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
 
         return $token;
     }

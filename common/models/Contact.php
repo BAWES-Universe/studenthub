@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use Detection\MobileDetect;
 use staff\models\Staff;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -396,14 +397,63 @@ class Contact extends \yii\db\ActiveRecord
     }
 
     /**
+     * Create an Access Token Record for this Company
+     * if the company already has one, it will return it instead
+     * @return \common\models\ContactToken
+     */
+    public function getAccessToken(){
+        // Return existing inactive token if found
+        $token = ContactToken::find()
+            ->andWhere([
+                'contact_uuid' => $this->contact_uuid,
+                'token_status' => ContactToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
+        if($token) {
+            return $token;
+        }
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
+        }
+
+        // Create new inactive token
+        $token = new ContactToken();
+        $token->contact_uuid = $this->contact_uuid;
+        $token->token_value = ContactToken::generateUniqueTokenString();
+        $token->token_status = ContactToken::STATUS_ACTIVE;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?? Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        return $token;
+    }
+
+    /**
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
 
-        $token = ContactToken::find()->andWhere([
+        $token = ContactToken::find()
+            ->andWhere([
                 'token_value' => $token,
                 'token_status' => ContactToken::STATUS_ACTIVE
             ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
             ->with('contact')
             ->one();
 
@@ -561,32 +611,6 @@ class Contact extends \yii\db\ActiveRecord
      */
     public function removePasswordResetToken() {
         $this->contact_password_reset_token = null;
-    }
-
-    /**
-     * Create an Access Token Record for this Company
-     * if the company already has one, it will return it instead
-     * @return \common\models\ContactToken
-     */
-    public function getAccessToken(){
-        // Return existing inactive token if found
-        $token = ContactToken::findOne([
-            'contact_uuid' => $this->contact_uuid,
-            'token_status' => ContactToken::STATUS_ACTIVE
-        ]);
-
-        if($token) {
-            return $token;
-        }
-
-        // Create new inactive token
-        $token = new ContactToken();
-        $token->contact_uuid = $this->contact_uuid;
-        $token->token_value = ContactToken::generateUniqueTokenString();
-        $token->token_status = ContactToken::STATUS_ACTIVE;
-        $token->save(false);
-
-        return $token;
     }
 
     /**

@@ -7,7 +7,7 @@ use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
-
+use Detection\MobileDetect;
 
 /**
  * Admin model
@@ -66,6 +66,9 @@ class Admin extends ActiveRecord implements IdentityInterface {
         return $fields;
     }
 
+    /**
+     * @return array[]
+     */
     public function behaviors() {
         return [
             [
@@ -119,10 +122,79 @@ class Admin extends ActiveRecord implements IdentityInterface {
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        $token = AdminToken::find()->andWhere(['token_value' => $token])->with('admin')->one();
-        if($token){
+        $token = AdminToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                "token_status" => AdminToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('admin')
+            ->one();
+
+        if (!$token) {
+            return false;
+        }
+
+        //update last used datetime
+
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->admin) {//&& $token->admin->email_verification
             return $token->admin;
         }
+
+        //invalid token
+
+        $token->delete();
+    }
+
+    /**
+     * Create an Access Token Record for this Admin
+     * if the admin already has one, it will return it instead
+     * @return \common\models\AdminToken
+     */
+    public function getAccessToken() {
+        // Return existing inactive token if found
+        $token = AdminToken::find()
+            ->andWhere([
+                'admin_id' => $this->admin_id,
+                'token_status' => AdminToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
+        if($token) {
+            return $token;
+        }
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
+        }
+
+        $token = new AdminToken();
+        $token->admin_id = $this->admin_id;
+        $token->token_value = AdminToken::generateUniqueTokenString();
+        $token->token_status = AdminToken::STATUS_ACTIVE;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?? Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        return $token;
     }
 
     /**
@@ -147,7 +219,7 @@ class Admin extends ActiveRecord implements IdentityInterface {
         }
 
         return static::findOne([
-                    'admin_password_reset_token' => $token,
+            'admin_password_reset_token' => $token,
         ]);
     }
 
@@ -230,31 +302,6 @@ class Admin extends ActiveRecord implements IdentityInterface {
      */
     public function removePasswordResetToken() {
         $this->admin_password_reset_token = null;
-    }
-
-    /**
-     * Create an Access Token Record for this Admin
-     * if the admin already has one, it will return it instead
-     * @return \common\models\AdminToken
-     */
-    public function getAccessToken(){
-        // Return existing inactive token if found
-        $token = AdminToken::findOne([
-            'admin_id' => $this->admin_id,
-            'token_status' => AdminToken::STATUS_ACTIVE
-        ]);
-        if($token){
-            return $token;
-        }
-
-        // Create new inactive token
-        $token = new AdminToken();
-        $token->admin_id = $this->admin_id;
-        $token->token_value = AdminToken::generateUniqueTokenString();
-        $token->token_status = AdminToken::STATUS_ACTIVE;
-        $token->save(false);
-
-        return $token;
     }
 
     /**

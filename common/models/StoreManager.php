@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use Detection\MobileDetect;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -113,14 +114,63 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
     }
 
     /**
+     * Create an Access Token Record for this Company
+     * if the company already has one, it will return it instead
+     * @return \common\models\ManagerToken
+     */
+    public function getAccessToken(){
+        // Return existing inactive token if found
+        $token = ManagerToken::find()
+            ->andWhere([
+                'store_manager_uuid' => $this->store_manager_uuid,
+                'token_status' => ManagerToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
+        if($token) {
+            return $token;
+        }
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
+        }
+
+        // Create new inactive token
+        $token = new ManagerToken();
+        $token->store_manager_uuid = $this->store_manager_uuid;
+        $token->token_value = ManagerToken::generateUniqueTokenString();
+        $token->token_status = ManagerToken::STATUS_ACTIVE;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?? Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        return $token;
+    }
+
+    /**
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
 
-        $token = ManagerToken::find()->andWhere([
-            'token_value' => $token,
-            'token_status' => ManagerToken::STATUS_ACTIVE
-        ])
+        $token = ManagerToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                'token_status' => ManagerToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
             ->with('manager')
             ->one();
 
@@ -134,7 +184,7 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
 
         //should not able to login, if email not verified but have valid token
 
-        if ($token->manager) {//&& $token->manager->email_verification
+        if ($token->manager && $token->manager->email_verification) {
             return $token->manager;
         }
 
@@ -278,33 +328,6 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
     public function removePasswordResetToken() {
         $this->password_reset_token = null;
     }
-
-    /**
-     * Create an Access Token Record for this Company
-     * if the company already has one, it will return it instead
-     * @return \common\models\ManagerToken
-     */
-    public function getAccessToken(){
-        // Return existing inactive token if found
-        $token = ManagerToken::findOne([
-            'store_manager_uuid' => $this->store_manager_uuid,
-            'token_status' => ManagerToken::STATUS_ACTIVE
-        ]);
-
-        if($token) {
-            return $token;
-        }
-
-        // Create new inactive token
-        $token = new ManagerToken();
-        $token->store_manager_uuid = $this->store_manager_uuid;
-        $token->token_value = ManagerToken::generateUniqueTokenString();
-        $token->token_status = ManagerToken::STATUS_ACTIVE;
-        $token->save(false);
-
-        return $token;
-    }
-
 
     /**
      * Verifies the candidate email

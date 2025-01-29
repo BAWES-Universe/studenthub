@@ -400,7 +400,7 @@ class AuthController extends Controller
      */
     public function actionLogin()
     {
-        $token = Yii::$app->request->get("token");
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
 
         if(YII_ENV != 'test') {
             $response = Yii::$app->reCaptcha->verify($token);

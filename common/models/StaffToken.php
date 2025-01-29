@@ -17,6 +17,7 @@ use yii\db\Expression;
  * @property integer $token_status
  * @property string $token_last_used_datetime
  * @property string $token_expiry_datetime
+ * @property string $ip_address
  * @property string $token_created_datetime
  *
  * @property Staff $staff
@@ -42,6 +43,7 @@ class StaffToken extends \yii\db\ActiveRecord
     {
         return [
             [['staff_id', 'token_value', 'token_status'], 'required'],
+         //   [['ip_address'], 'string', 'max' => 45],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
         ];
     }
