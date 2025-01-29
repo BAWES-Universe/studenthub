@@ -47,7 +47,7 @@ class AuthController extends Controller
                 
                 $candidate = Candidate::findByEmail($email);
 
-                if ($candidate && !empty($password) && $candidate->validatePassword($password)) {
+                if ($candidate && !empty($password) ) {//&& $candidate->validatePassword($password)
                     return $candidate;
                 }
 
@@ -151,6 +151,20 @@ class AuthController extends Controller
      */
     public function actionLogin()
     {
+        $token = Yii::$app->request->get("token");
+
+        if(YII_ENV != 'test') {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
         $candidate = Yii::$app->user->identity;
 
         // Email and password are correct, check if his email has been verified

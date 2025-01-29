@@ -403,7 +403,21 @@ class AuthController extends Controller
      * @return array
      */
     public function actionLogin()
-    {  
+    {
+        $token = Yii::$app->request->get("token");
+
+        if(YII_ENV != 'test') {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
         $contact = Yii::$app->user->identity;
 
         // Email and password are correct, check if his email has been verified
