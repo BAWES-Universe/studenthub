@@ -7,6 +7,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use inspector\models\Inspector;
+use common\models\InspectorToken;
 use yii\web\NotFoundHttpException;
 
 
@@ -61,12 +62,12 @@ class AuthController extends Controller
             'set-password',       
             'update-password',
             'login-by-key',
-            'request-reset-password'
+            'request-reset-password',
+            'login-two-step'
         ];
 
         return $behaviors;
     }
-
 
     /**
      * @inheritdoc
@@ -83,6 +84,52 @@ class AuthController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+
+    /**
+     * two step auth
+     * @return array
+     */
+    public function actionLoginTwoStep() {
+
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
+
+        if(YII_ENV != 'test') {
+
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
+        $token = Yii::$app->request->getBodyParam("token");
+        $otp = Yii::$app->request->getBodyParam("otp");
+
+        //validate token + OTP
+
+        $inspector = Inspector::findIdentityByAccessToken(
+            $token,
+            HttpBearerAuth::class,
+            \common\models\InspectorToken::STATUS_INACTIVE,
+            $otp);
+
+        if (!$inspector) {
+            throw new UnauthorizedHttpException("Invalid token or OTP");
+        }
+
+        //passing token as want to keep same token as of token generated while login
+
+        $inspectorToken = InspectorToken::find()
+            ->andWhere(['token_value' => $token])
+            ->one();
+
+        return $this->_loginResponse($inspector, $inspectorToken);
     }
 
     /**
@@ -234,13 +281,20 @@ class AuthController extends Controller
         ];
     }
 
-    private function _loginResponse($user) {
+    private function _loginResponse($user, $accessToken = null) {
 
-        $accessToken = $user->accessToken->token_value;
+        // Return candidate access token if everything valid
+        if (!$accessToken) {
+            $accessToken = $user->getAccessToken(
+                $user->enable_two_step_auth ? InspectorToken::STATUS_INACTIVE: InspectorToken::STATUS_ACTIVE
+            );
+        }
 
         return [
             "operation" => "success",
-            "token" => $accessToken,
+            "token" => $accessToken->token_value,
+            "total_attempt"=> $accessToken->total_attempt,
+            "token_status" => $accessToken->token_status,//if in-active show 2-step auth page in front
             "inspector_uuid" => $user->inspector_uuid,
             "name" => $user->inspector_name,
             "email" => $user->inspector_email

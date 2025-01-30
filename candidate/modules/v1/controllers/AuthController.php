@@ -72,7 +72,8 @@ class AuthController extends Controller
             'is-email-verified',
             'name-by-civil-id',
             'login-auth0',
-            "locate"
+            "locate",
+            "login-two-step"
         ];
 
         return $behaviors;
@@ -93,6 +94,50 @@ class AuthController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * two step auth
+     * @return array
+     */
+    public function actionLoginTwoStep() {
+
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
+
+        if(YII_ENV != 'test') {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
+        $token = Yii::$app->request->getBodyParam("token");
+        $otp = Yii::$app->request->getBodyParam("otp");
+
+        //validate token + OTP
+
+        $candidate = Candidate::findIdentityByAccessToken(
+            $token,
+            HttpBearerAuth::class,
+            \common\models\CandidateToken::STATUS_INACTIVE,
+            $otp);
+
+        if (!$candidate) {
+            throw new UnauthorizedHttpException("Invalid token or OTP");
+        }
+
+        //passing token as want to keep same token as of token generated while login
+
+        $candidateToken = CandidateToken::find()
+            ->andWhere(['token_value' => $token])
+            ->one();
+
+        return $this->_loginResponse($candidate, $candidateToken);
     }
 
     /**
@@ -883,15 +928,20 @@ class AuthController extends Controller
      * @param type $candidate
      * @return type
      */
-    private function _loginResponse($candidate) {
-
-        // Return Candidate access token if everything valid
-
-        $accessToken = $candidate->accessToken->token_value;
+    private function _loginResponse($candidate, $accessToken = null) {
+ 
+        // Return candidate access token if everything valid
+        if (!$accessToken) {
+            $accessToken = $candidate->getAccessToken(
+                $candidate->enable_two_step_auth ? CandidateToken::STATUS_INACTIVE: CandidateToken::STATUS_ACTIVE
+            );
+        }
 
         return [
             "operation" => "success",
-            "token" => $accessToken,
+            "token" => $accessToken->token_value,
+            "total_attempt"=> $accessToken->total_attempt,
+            "token_status" => $accessToken->token_status,//if in-active show 2-step auth page in front
             "id" => $candidate->candidate_id,
             "name" => $candidate->candidate_name,
             "email" => $candidate->candidate_email,

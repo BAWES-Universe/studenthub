@@ -204,7 +204,7 @@ class CronController extends \yii\console\Controller {
      * Method called by cron once a day
      */
     public function actionDaily() {
-        
+
         \common\models\AdminToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
                 token_expiry_datetime < NOW()"));
 

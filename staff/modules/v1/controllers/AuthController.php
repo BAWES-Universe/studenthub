@@ -8,6 +8,7 @@ use Yii;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use staff\models\Staff;
+use common\models\StaffToken;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -60,6 +61,7 @@ class AuthController extends Controller
             'login-auth0',
             'login-by-key',
             'login-by-google',
+            'login-two-step'
         ];
 
         return $behaviors;
@@ -80,6 +82,52 @@ class AuthController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+
+    /**
+     * two step auth
+     * @return array
+     */
+    public function actionLoginTwoStep() {
+
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
+
+        if(YII_ENV != 'test') {
+
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
+        $token = Yii::$app->request->getBodyParam("token");
+        $otp = Yii::$app->request->getBodyParam("otp");
+
+        //validate token + OTP
+
+        $staff = Staff::findIdentityByAccessToken(
+            $token,
+            HttpBearerAuth::class,
+            \common\models\StaffToken::STATUS_INACTIVE,
+            $otp);
+
+        if (!$staff) {
+            throw new UnauthorizedHttpException("Invalid token or OTP");
+        }
+
+        //passing token as want to keep same token as of token generated while login
+
+        $staffToken = StaffToken::find()
+            ->andWhere(['token_value' => $token])
+            ->one();
+
+        return $this->_loginResponse($staff, $staffToken);
     }
 
     /**
@@ -257,12 +305,18 @@ class AuthController extends Controller
      */
     private function _loginResponse($staff) {
 
-        // Return Staff access token if everything valid
-        $accessToken = $staff->accessToken->token_value;
+        // Return staff access token if everything valid
+        if (!$accessToken) {
+            $accessToken = $staff->getAccessToken(
+                $staff->enable_two_step_auth ? StaffToken::STATUS_INACTIVE: StaffToken::STATUS_ACTIVE
+            );
+        }
 
         return [
             "operation" => "success",
-            "token" => $accessToken,
+            "token" => $accessToken->token_value,
+            "total_attempt"=> $accessToken->total_attempt,
+            "token_status" => $accessToken->token_status,//if in-active show 2-step auth page in front
             "staff_id" => $staff->staff_id,
             "name" => $staff->staff_name,
             "email" => $staff->staff_email,

@@ -93,6 +93,7 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'GET locate' => 'locate',
+                        "POST login-two-step" => "login-two-step",
                         'POST email-check' => 'email-check',
                         'POST register' => 'signup',
                         'POST request-reset-password' => 'request-reset-password',
@@ -109,6 +110,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS name-by-civil-id' => 'options',
                         'OPTIONS login' => 'options',
+                        "OPTIONS login-two-step" => "options",
                         'OPTIONS locate' => 'options',
                         'OPTIONS register' => 'options',
                         'OPTIONS email-check' => 'options',

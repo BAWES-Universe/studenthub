@@ -2,11 +2,14 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\AdminToken;
 use Yii;
+use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\Cors;
 use admin\models\Admin;
+use yii\web\UnauthorizedHttpException;
 
 
 /**
@@ -54,6 +57,7 @@ class AuthController extends Controller
         // also avoid for public actions like registration and password reset
         $behaviors['authenticator']['except'] = [
             'options',
+            'login-two-step',
             'login-auth0',
             "login-by-google"
         ];
@@ -76,6 +80,50 @@ class AuthController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * two step auth
+     * @return array
+     */
+    public function actionLoginTwoStep() {
+
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
+
+        if(YII_ENV != 'test') {
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
+        $token = Yii::$app->request->getBodyParam("token");
+        $otp = Yii::$app->request->getBodyParam("otp");
+
+        //validate token + OTP
+
+        $admin = Admin::findIdentityByAccessToken(
+            $token,
+            HttpBearerAuth::class,
+            \common\models\AdminToken::STATUS_INACTIVE,
+            $otp);
+
+        if (!$admin) {
+            throw new UnauthorizedHttpException("Invalid token or OTP");
+        }
+
+        //passing token as want to keep same token as of token generated while login
+
+        $adminToken = AdminToken::find()
+            ->andWhere(['token_value' => $token])
+            ->one();
+
+        return $this->_loginResponse($admin, $adminToken);
     }
 
     /**
@@ -140,7 +188,6 @@ class AuthController extends Controller
         return $this->_loginResponse($model);
     }
 
-
     /**
      * login with auth0 token
      * @return array
@@ -202,14 +249,25 @@ class AuthController extends Controller
         return $this->_loginResponse($user);
     }
 
-    private function _loginResponse($admin) {
+    /**
+     * @param $admin
+     * @param $accessToken
+     * @return array
+     */
+    private function _loginResponse($admin, $accessToken = null) {
 
         // Return Admin access token if everything valid
-        $accessToken = $admin->accessToken->token_value;
+        if (!$accessToken) {
+            $accessToken = $admin->getAccessToken(
+                $admin->enable_two_step_auth ? AdminToken::STATUS_INACTIVE: AdminToken::STATUS_ACTIVE
+            );
+        }
 
         return [
             "operation" => "success",
-            "token" => $accessToken,
+            "token" => $accessToken->token_value,
+            "total_attempt"=> $accessToken->total_attempt,
+            "token_status" => $accessToken->token_status,//if in-active show 2-step auth page in front
             "id" => $admin->admin_id,
             "name" => $admin->admin_name,
             "email" => $admin->admin_email,
