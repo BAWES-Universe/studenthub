@@ -154,3 +154,6 @@ git tag -a v2.0 -m "Version 2.0: PHP 7.4 to 8.2"
 git push origin v2.0
 git tag -l
 
+# fix migration applied but ActiveRecord/ Table column not found error getting trigger 
+
+`./yii cache/flush cache`
