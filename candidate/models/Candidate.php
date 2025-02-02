@@ -197,6 +197,8 @@ class Candidate extends \common\models\Candidate {
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
+        return parent::findIdentityByAccessToken($token, $type);
+        /*
         $token = CandidateToken::find()
             ->andWhere(['token_value' => $token])
             ->with('candidate')
@@ -204,7 +206,7 @@ class Candidate extends \common\models\Candidate {
 
         if($token) {
             return $token->candidate;
-        }
+        }*/
     }
 
     public function getNationality($modelClass = "\candidate\models\Country")

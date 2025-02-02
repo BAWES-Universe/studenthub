@@ -26,6 +26,8 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
+        return parent::findIdentityByAccessToken($token, $type);
+        /*
         $token = ContactToken::find()
             ->andWhere(['token_value' => $token])
             ->with('contact')
@@ -33,7 +35,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
 
         if($token) {
             return $token->contact;
-        }
+        }*/
     }
 
     /**
