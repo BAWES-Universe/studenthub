@@ -261,19 +261,19 @@ class Inspector extends ActiveRecord implements IdentityInterface
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = InspectorToken::STATUS_ACTIVE, $otp = null) {
-        /*$token = InspectorToken::find()
+        $token = InspectorToken::find()
             ->andWhere([
                 'token_value' => $token,
                 'token_status' => $type
             ])
-            >andWhere(new Expression("token_expiry_datetime IS NULL OR 
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
                 token_expiry_datetime > NOW()"))
             ->with('inspector')
             ->one();
 
         if (!$token) {
             return false;
-        }*/
+        }
 
         if ($otp && $otp != $token->otp) {
             $token->total_attempt = $token->total_attempt + 1;
