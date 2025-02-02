@@ -8,6 +8,7 @@ use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 use yii\web\IdentityInterface;
 
 /**
@@ -1041,7 +1042,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             [
                 "model" => $this,
                 "otp" => $token->otp,
-                'logo_1' => Url::to('@web/images/logo.png', true),
+                'logo_1' =>  Url::to('@web/images/logo.png', true),
                 'logo_2' => ''
             ])
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])

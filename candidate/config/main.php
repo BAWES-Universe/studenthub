@@ -174,6 +174,7 @@ return [
                         'POST update-preferred-time' => 'update-preferred-time',
                         'POST update-profile-url' => 'profile-url',
                         'POST validate-password' => 'validate-user-password',
+                        'PATCH toggle-two-step-auth' => 'toggle-two-step-auth',
                         'DELETE discard-session' => 'discard-session',
                         'DELETE remove-photo' => 'remove-photo',
                         'DELETE remove-video' => 'remove-video',
@@ -229,6 +230,7 @@ return [
                         'OPTIONS current-status' => 'options',
                         'OPTIONS remove-candidate-profile' => 'options',
                         'OPTIONS validate-password' => 'options',
+                        'OPTIONS toggle-two-step-auth' => 'options',
                         'OPTIONS update-profile-url' => 'options',
                     ]
                 ],

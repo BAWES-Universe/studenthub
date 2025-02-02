@@ -519,7 +519,7 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
-        $mailer = Yii::$app->mailer->compose("contact/contact-otp",
+        $mailer = Yii::$app->mailer->compose("company/contact-otp",
             [
                 "model" => $this,
                 "otp" => $token->otp,

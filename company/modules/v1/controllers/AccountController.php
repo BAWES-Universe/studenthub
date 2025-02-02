@@ -83,12 +83,15 @@ class AccountController extends BaseController
      */
     public function actionUpdate()
     {
-        $model = Yii::$app->user->identity;
         $new_email = Yii::$app->request->getBodyParam("email");
+
+        $model = Yii::$app->user->identity;
+
         $model->contact_name = Yii::$app->request->getBodyParam("name");
         //$model->contact_position = Yii::$app->request->getBodyParam("position");
         $model->contact_receive_email = Yii::$app->request->getBodyParam("receive_email");
         $model->contact_receive_notification = Yii::$app->request->getBodyParam("receive_notification");
+        $model->enable_two_step_auth = Yii::$app->request->getBodyParam("enable_two_step_auth");
 
         if ($new_email && ($new_email != $model->contact_email)) {
             $model->contact_new_email = Yii::$app->request->getBodyParam("email");

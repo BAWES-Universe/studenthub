@@ -123,6 +123,7 @@ class AccountController extends Controller
         $model->staff_name = Yii::$app->request->getBodyParam("name");
         $model->staff_notification = Yii::$app->request->getBodyParam("staff_notification");
         $model->staff_job_title = Yii::$app->request->getBodyParam("staff_job_title");
+        $model->enable_two_step_auth = Yii::$app->request->getBodyParam("enable_two_step_auth");
 
         $staff_photo = Yii::$app->request->getBodyParam('staff_photo');
 

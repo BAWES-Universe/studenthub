@@ -133,6 +133,28 @@ class AccountController extends Controller
         ];
     }
     
+
+    public function actionToggleTwoStepAuth() {
+
+        $candidate = Yii::$app->user->identity;
+        $candidate->enable_two_step_auth = !$candidate->enable_two_step_auth;
+        
+        if (!$candidate->save()) {
+            return [
+                'operation' => 'error',
+                'message' => $candidate->errors
+            ];
+        }
+
+        return [
+            'operation' => 'success',
+            "enable_two_step_auth" => $candidate->enable_two_step_auth,
+            'message' =>  Yii::t('candidate', $candidate->enable_two_step_auth ? 
+                'Two-step authentication enabled' : 
+                'Two-step authentication disabled')
+        ];        
+    }
+
     /**
      * update candidate skills
      * @return array
