@@ -203,6 +203,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             [['staff_auth_key', 'staff_salary_currency'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
             [['staff_email'], 'email'],
+            [['enable_two_step_auth'], 'safe'],
             [['staff_password_reset_token'], 'unique'],
         ];
     }

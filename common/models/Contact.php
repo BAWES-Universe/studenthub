@@ -68,6 +68,7 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             [['contact_new_email'], 'validateNewEmail'],
             [['contact_name', 'contact_password_reset_token',], 'string', 'max' => 255],
             [['contact_uuid'], 'unique'],//'contact_email'
+            [['enable_two_step_auth'], 'safe'],
             [['contact_password_reset_token'], 'unique'],
             [['contact_status', 'contact_email_verified_by'], 'number'],
             [['utm_uuid'], 'exist', 'skipOnError' => true, 'targetClass' => Campaign::class, 'targetAttribute' => ['utm_uuid' => 'utm_uuid']],

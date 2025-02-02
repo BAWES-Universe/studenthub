@@ -49,6 +49,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
             [['inspector_name', 'inspector_email', 'inspector_password_hash', 'inspector_password_reset_token'], 'string', 'max' => 255],
             [['inspector_auth_key'], 'string', 'max' => 32],
             [['inspector_email'], 'unique'],
+            [['enable_two_step_auth'], 'safe'],
             [['inspector_password_reset_token'], 'unique'],
             [['inspector_uuid'], 'unique'],
         ];
