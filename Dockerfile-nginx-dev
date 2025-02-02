@@ -76,6 +76,9 @@ COPY ./cron/cronlist /etc/cron.d/cronlist
 RUN chmod 0644 /etc/cron.d/cronlist
 RUN crontab /etc/cron.d/cronlist
 
+# Start cron service
+RUN service cron start
+
 #todo: not getting fired
 #RUN ./init --env=Dev-Server-Nginx --overwrite=All 
   

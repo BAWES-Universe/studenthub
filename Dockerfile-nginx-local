@@ -86,6 +86,8 @@ RUN cd /var/www/html
 COPY ./cron/cronlist /etc/cron.d/cronlist
 RUN chmod 0644 /etc/cron.d/cronlist
 RUN crontab /etc/cron.d/cronlist
+# Start cron service
+RUN service cron start
 
 #RUN ./init --env=Krushn-Nginx --overwrite=All 
   
