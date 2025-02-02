@@ -265,11 +265,21 @@ class CronController extends \yii\console\Controller {
      * Method called by cron every minute
      * php yii cron/every-minute
      */
-    public function actionEveryMinute() {
+    public function actionEveryMinute()
+    {
         Suggestion::suggestionCandidateNotification();
         Suggestion::suggestionFulltimerNotification();
     }
 
+    /**
+     * @return void
+     */
+    public function actionEvery5Minute() {
+    }
+
+    /**
+     * @return void
+     */
     public function actionProcessTransferFiles() {
 
         $query = TransferFile::find()->andWhere(['status' => TransferFile::STATUS_PENDING]);
