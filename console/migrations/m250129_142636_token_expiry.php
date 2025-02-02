@@ -67,9 +67,20 @@ class m250129_142636_token_expiry extends Migration
      */
     public function safeDown()
     {
-        echo "m250129_142636_token_expiry cannot be reverted.\n";
+        $this->dropColumn("admin_token", "ip_address");
 
-        return false;
+        $this->dropColumn("candidate_token", "ip_address");
+
+        $this->dropColumn("company_token", "ip_address");
+
+        $this->dropColumn("contact_token", "ip_address");
+
+        $this->dropColumn("inspector_token", "ip_address");
+
+        $this->dropColumn("manager_token", "ip_address");
+
+        $this->dropColumn("staff_token", "ip_address");
+
     }
 
     /*

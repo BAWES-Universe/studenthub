@@ -50,6 +50,7 @@ class Admin extends ActiveRecord implements IdentityInterface {
             [['admin_email'], 'unique'],
             [['admin_password_hash'], 'required', 'on'=>'newAccount'],
             [['admin_email'], 'email'],
+            [['enable_two_step_auth'], 'safe'],
         ];
     }
 

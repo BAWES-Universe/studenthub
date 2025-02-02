@@ -203,6 +203,7 @@ class Staff extends ActiveRecord implements IdentityInterface
             [['staff_auth_key', 'staff_salary_currency'], 'string', 'max' => 32],
             [['staff_email'], 'unique'],
             [['staff_email'], 'email'],
+            [['enable_two_step_auth'], 'safe'],
             [['staff_password_reset_token'], 'unique'],
         ];
     }
@@ -1003,8 +1004,8 @@ class Staff extends ActiveRecord implements IdentityInterface
         $token->token_device = $device;
         $token->token_device_id = $detect->getUserAgent();
         $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
-        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?
-            Yii::$app->params['user_ip_address']: Yii::$app->request->getRemoteIP();
+       // $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?
+       //     Yii::$app->params['user_ip_address']: Yii::$app->request->getRemoteIP();
         if (!$token->save()) {
             Yii::error("Error saving token : ". print_r($token->errors, true));
         }

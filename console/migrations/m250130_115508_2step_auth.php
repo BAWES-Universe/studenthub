@@ -91,9 +91,54 @@ class m250130_115508_2step_auth extends Migration
      */
     public function safeDown()
     {
-        echo "m250130_115508_2step_auth cannot be reverted.\n";
+        $this->dropColumn("admin", "enable_two_step_auth");
 
-        return false;
+        $this->dropColumn("candidate", "enable_two_step_auth");
+
+        /*
+        $this->dropColumn("company", "enable_two_step_auth");
+*/
+
+        $this->dropColumn("contact", "enable_two_step_auth");
+
+        $this->dropColumn("inspector", "enable_two_step_auth");
+
+        $this->dropColumn("store_manager", "enable_two_step_auth");
+
+        $this->dropColumn("staff", "enable_two_step_auth");
+
+        //otp
+
+        $this->dropColumn("admin_token", "otp");
+
+        $this->dropColumn("candidate_token", "otp");
+
+        $this->dropColumn("company_token", "otp");
+
+        $this->dropColumn("contact_token", "otp");
+
+        $this->dropColumn("inspector_token", "otp");
+
+        $this->dropColumn("manager_token", "otp");
+
+        $this->dropColumn("staff_token", "otp");
+
+        //total_attempt
+
+        $this->dropColumn("admin_token", "total_attempt");
+
+        $this->dropColumn("candidate_token", "total_attempt");
+
+        $this->dropColumn("company_token", "total_attempt");
+
+        $this->dropColumn("contact_token", "total_attempt");
+
+        $this->dropColumn("inspector_token", "total_attempt");
+
+        $this->dropColumn("manager_token", "total_attempt");
+
+        $this->dropColumn("staff_token", "total_attempt");
+
     }
 
     /*

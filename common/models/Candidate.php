@@ -151,6 +151,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
 
+            [['enable_two_step_auth'], 'safe'],
+
             ['deleted', 'default', 'value'=> 0],
 
             [['candidate_new_email', 'candidate_email'], 'validateEmail'],

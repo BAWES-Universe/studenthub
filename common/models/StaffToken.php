@@ -44,6 +44,7 @@ class StaffToken extends \yii\db\ActiveRecord
         return [
             [['staff_id', 'token_value', 'token_status'], 'required'],
          //   [['ip_address'], 'string', 'max' => 45],
+            [['ip_address', 'otp', 'total_attempt'], 'safe'],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
         ];
     }

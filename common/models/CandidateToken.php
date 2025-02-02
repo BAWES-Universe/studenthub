@@ -44,6 +44,7 @@ class CandidateToken extends \yii\db\ActiveRecord
         return [
             [['candidate_id', 'token_value', 'token_status'], 'required'],
            // [['ip_address'], 'string', 'max' => 45],
+            [['ip_address', 'otp', 'total_attempt'], 'safe'],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],
             //[['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
         ];
