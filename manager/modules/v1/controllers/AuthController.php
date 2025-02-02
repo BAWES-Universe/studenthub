@@ -12,7 +12,7 @@ use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\Cors;
 use yii\web\NotFoundHttpException;
-
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Auth controller provides the initial access token that is required for further requests

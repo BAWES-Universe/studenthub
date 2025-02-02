@@ -108,8 +108,8 @@ class Staff extends \common\models\Staff {
      * @param null $type
      * @return mixed
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
-        return parent::findIdentityByAccessToken($token, $type);
+    public static function findIdentityByAccessTokenfindIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = StaffToken::STATUS_ACTIVE, $otp = null) {
+        return parent::findIdentityByAccessToken($token, $authType, $type, $otp);
 
         /*$token = StaffToken::find()
             ->andWhere(['token_value' => $token])

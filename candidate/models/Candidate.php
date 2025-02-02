@@ -195,9 +195,9 @@ class Candidate extends \common\models\Candidate {
     /**
      * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = CandidateToken::STATUS_ACTIVE, $otp = null)
     {
-        return parent::findIdentityByAccessToken($token, $type);
+        return parent::findIdentityByAccessToken($token, $authType, $type, $otp);
         /*
         $token = CandidateToken::find()
             ->andWhere(['token_value' => $token])

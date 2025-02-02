@@ -4,8 +4,10 @@ namespace company\tests;
 use common\fixtures\CandidateFixture;
 use common\fixtures\CompanyContactFixture;
 use common\fixtures\CompanyFixture;
+use common\fixtures\CountryFixture;
 use company\models\Company;
 use company\models\Contact;
+use company\models\Country;
 use Yii;
 use company\models\ContactToken;
 use common\fixtures\ContactTokenFixture;
@@ -18,6 +20,7 @@ class CompanyCest
 
 	public function _fixtures() {
 		return [
+            "country" => CountryFixture::class,
             'company' => CompanyFixture::class,
             'companyContact' => CompanyContactFixture::class,
             'contactToken' => ContactTokenFixture::class,
@@ -61,7 +64,9 @@ class CompanyCest
                 'description_en' => 'ravan',
                 'description_ar' => 'ravan',
                 'website' => 'google.com',
-                'email' => 'tets@lol.com'
+                'email' => 'tets@lol.com',
+                "country_id" => 1,
+                "currency_code" => "KWD"
             ]
         );
         $I->seeResponseCodeIs(HttpCode::OK); // 200

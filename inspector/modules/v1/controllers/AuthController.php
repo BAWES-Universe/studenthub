@@ -9,7 +9,7 @@ use yii\filters\auth\HttpBasicAuth;
 use inspector\models\Inspector;
 use common\models\InspectorToken;
 use yii\web\NotFoundHttpException;
-
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Auth controller provides the initial access token that is required for further requests

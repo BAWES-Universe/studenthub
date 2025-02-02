@@ -73,6 +73,7 @@ class Company extends \yii\db\ActiveRecord
 
     const SCENARIO_ACTIVATE = "activate";
     const SCENARIO_APPROVE = "approve";
+    const SCENARIO_UPDATE = "update";
 
     /**
      * @var mixed|null
@@ -194,6 +195,10 @@ class Company extends \yii\db\ActiveRecord
         $scenarios[self::SCENARIO_APPROVE] = ["company_name", "company_common_name_en", "company_common_name_ar",
             "company_email", "company_bonus_commission", "company_approved_to_hire", "company_followup", "company_followup_interval_weeks",
             "company_last_followup_datetime", "company_next_followup_datetime", "currency_code", "country_id"];
+
+        $scenarios[self::SCENARIO_UPDATE] = ["company_name", "company_common_name_en", "company_common_name_ar",
+            "company_description_en", "company_description_ar", "company_website",
+            "company_email", "currency_code", "country_id"];
 
         $scenarios['updateFollowup'] = ['company_followup'];
         $scenarios['updateStaff'] = ['staff_id'];

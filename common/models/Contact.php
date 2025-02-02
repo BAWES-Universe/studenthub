@@ -37,7 +37,7 @@ use yii\helpers\Url;
  * @property CompanyContactPhone[] $companyContactPhones
  * @property Campaign $campaign
  */
-class Contact extends \yii\db\ActiveRecord
+class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     //Email verification values for `contact_email_verification`
     const EMAIL_VERIFIED = 1;

@@ -10,6 +10,7 @@ use yii\filters\auth\HttpBasicAuth;
 use staff\models\Staff;
 use common\models\StaffToken;
 use yii\web\NotFoundHttpException;
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Auth controller provides the initial access token that is required for further requests
@@ -303,7 +304,7 @@ class AuthController extends Controller
      * @param $staff
      * @return array
      */
-    private function _loginResponse($staff) {
+    private function _loginResponse($staff, $accessToken = null) {
 
         // Return staff access token if everything valid
         if (!$accessToken) {

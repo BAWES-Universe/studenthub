@@ -101,8 +101,7 @@ class CompanyController extends BaseController
 
         $model = Yii::$app->companyManager->getCompany();
 
-        $model->setScenario('update');
-
+        $model->setScenario(Company::SCENARIO_UPDATE);
 
         $model->company_name = $name?ucfirst($name): $name;
         $model->company_common_name_en = $common_name_en?ucfirst($common_name_en): null;

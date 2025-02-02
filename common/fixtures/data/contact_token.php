@@ -9,7 +9,7 @@ return [
         'token_device_id' => null,
         'token_status' => 1,
         'token_last_used_datetime' => '2017-06-17 15:51:54',
-        'token_expiry_datetime' => '2017-06-17 15:51:54',
+        'token_expiry_datetime' => null,
         'token_created_datetime' => '2017-06-17 15:51:54',
     ],
     [
@@ -20,7 +20,7 @@ return [
         'token_device_id' => null,
         'token_status' => 1,
         'token_last_used_datetime' => '2017-06-17 15:51:54',
-        'token_expiry_datetime' => '2017-06-17 15:51:54',
+        'token_expiry_datetime' => null,
         'token_created_datetime' => '2017-06-17 15:51:54',
     ],
 ];

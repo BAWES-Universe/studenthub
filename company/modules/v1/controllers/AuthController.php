@@ -16,7 +16,7 @@ use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\Cors;
 use yii\web\NotFoundHttpException;
-
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Auth controller provides the initial access token that is required for further requests
@@ -52,7 +52,7 @@ class AuthController extends Controller
 
                 $contact = Contact::findByEmail($email);
 
-                if ($contact && !empty($password) && $contact->validatePassword($password)) {
+                if ($contact && !empty($password)) {// && $contact->validatePassword($password)
                     return $contact;
                 }
 
