@@ -3,10 +3,12 @@
 namespace common\models;
 
 use company\models\Request;
+use Detection\MobileDetect;
 use Yii;
 use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 use yii\web\IdentityInterface;
 
 /**
@@ -88,21 +90,6 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        $token = StaffToken::find()
-            ->andWhere(['token_value' => $token])
-            ->with('staff')
-            ->one();
-
-        if ($token) {
-            return $token->staff;
-        }
-    }
-
-    /**
      * Finds staff by email
      *
      * @param string $email
@@ -158,6 +145,10 @@ class Staff extends ActiveRecord implements IdentityInterface
         return new query\StaffQuery(get_called_class());
     }
 
+    /**
+     * @param $string
+     * @return false|string
+     */
     public static function encryptPass($string)
     {
 
@@ -924,29 +915,149 @@ class Staff extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = StaffToken::STATUS_ACTIVE, $otp = null)
+    {
+        $token = StaffToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                "token_status" => $type
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('staff')
+            ->one();
+
+        if (!$token) {
+            return false;
+        }
+
+        if ($otp && $otp != $token->otp) {
+            $token->total_attempt = $token->total_attempt + 1;
+
+            if ($token->total_attempt > 3) {
+                $token->delete();
+                return false;
+            }
+
+            if (!$token->save()) {
+                Yii::error($token->errors);
+            }
+
+            return false;
+        }
+
+        //update last used datetime
+
+        $token->token_status = StaffToken::STATUS_ACTIVE;//make inactive token to active on found with OTP
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->staff) {//&& $token->staff->email_verification
+            return $token->staff;
+        }
+
+        //invalid token
+
+        $token->delete();
+    }
+
+    /**
      * Create an Access Token Record for this Staff
      * if the staff user already has one, it will return it instead
      * @return \common\models\StaffToken
      */
-    public function getAccessToken()
+    public function getAccessToken($type = StaffToken::STATUS_ACTIVE)
     {
-        // Return existing inactive token if found
-        $token = StaffToken::findOne([
-            'staff_id' => $this->staff_id,
-            'token_status' => StaffToken::STATUS_ACTIVE
-        ]);
+        /*$token = StaffToken::find()
+            ->andWhere([
+                'staff_id' => $this->staff_id,
+                'token_status' => StaffToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
         if ($token) {
             return $token;
+        }*/
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
         }
 
         // Create new inactive token
         $token = new StaffToken();
         $token->staff_id = $this->staff_id;
         $token->token_value = StaffToken::generateUniqueTokenString();
-        $token->token_status = StaffToken::STATUS_ACTIVE;
-        $token->save(false);
+        $token->token_status = $type;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?
+            Yii::$app->params['user_ip_address']: Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        //if 2 step auth enable, send OTP
+        if ($type == AdminToken::STATUS_INACTIVE) {
+            $this->sendOTPMail($token);
+        }
 
         return $token;
+    }
+
+    /**
+     * Send OTP mail to staff
+     * @param \common\models\StaffToken $token
+     * @return bool
+     */
+    public function sendOTPMail($token) {
+
+        //generate OTP
+        $token->otp = Yii::$app->security->generateRandomString(4);
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        $ml = new MailLog();
+        $ml->to = $this->staff_email;   
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'OTP for 2 step verification';
+        $ml->save();
+
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $mailer = Yii::$app->mailer->compose("staff/staff-otp", 
+            [
+                "model" => $this,
+                "otp" => $token->otp,
+                'logo_1' =>  Url::to('@web/images/logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->staff_email)
+            ->setSubject('OTP for 2 step verification');
+
+        try {
+            return $mailer->send();
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
+        }
     }
 
     /**

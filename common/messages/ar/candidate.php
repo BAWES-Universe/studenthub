@@ -1,5 +1,7 @@
 <?php
 return [
+    "Two-step authentication enabled" => "تم تفعيل المصادقة الثنائية",
+    "Two-step authentication disabled" => "تم تعطيل المصادقة الثنائية",
     "Session saved successfully" => "تم حفظ الجلسة بنجاح",
     "Session removed successfully" => "تمت إزالة الجلسة بنجاح",
     "Please check the link sent to you on your phone number to set new password." => "يرجى التحقق من الرابط المرسل إليك على رقم هاتفك لتعيين كلمة مرور جديدة.",

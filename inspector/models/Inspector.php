@@ -32,10 +32,12 @@ class Inspector extends \common\models\Inspector {
      * @param null $type
      * @return mixed
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
+    public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = InspectorToken::STATUS_ACTIVE, $otp = null) {
+        return parent::findIdentityByAccessToken($token, $authType, $type, $otp);
+        /*
         $token = InspectorToken::find()->where(['token_value' => $token])->with('inspector')->one();
         if($token){
             return $token->inspector;
-        }
+        }*/
     }
 }

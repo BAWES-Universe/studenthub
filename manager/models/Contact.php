@@ -25,7 +25,9 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
     /**
      * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
+    public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = ContactToken::STATUS_ACTIVE, $otp = null) {
+        return parent::findIdentityByAccessToken($token, $authType, $type, $otp);
+        /*
         $token = ContactToken::find()
             ->andWhere(['token_value' => $token])
             ->with('contact')
@@ -33,7 +35,7 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
 
         if($token) {
             return $token->contact;
-        }
+        }*/
     }
 
     /**

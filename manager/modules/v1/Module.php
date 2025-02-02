@@ -65,6 +65,8 @@ class Module extends \yii\base\Module
             }
         }
 
+        Yii::$app->params['user_ip_address'] = $ip;
+
         //check if ip is blocked
 
         $isBlocked = BlockedIp::find()->andWhere(['ip_address' => $ip])->exists();

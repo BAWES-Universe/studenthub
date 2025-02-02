@@ -5,6 +5,7 @@ use Yii;
 use company\models\ContactToken;
 use common\fixtures\CompanyFixture;
 use common\fixtures\ContactTokenFixture;
+use common\fixtures\ContactFixture;
 use Codeception\Util\HttpCode;
 
 
@@ -12,6 +13,8 @@ class AccountCest
 {
 	public function _fixtures() {
 		return [
+            'company' => CompanyFixture::class,
+            'contact' => ContactFixture::class,
 			'contactToken' => ContactTokenFixture::class
 		];
 	}

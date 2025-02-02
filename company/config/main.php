@@ -121,6 +121,7 @@ return [
                     'patterns' => [
                         'GET login' => 'login',
                         'GET locate' => 'locate',
+                        "POST login-two-step" => "login-two-step",
                         'POST create-account' => 'create-account',
                         'POST request-reset-password' => 'request-reset-password',
                         'POST verify-email' => 'verify-email',
@@ -144,6 +145,7 @@ return [
                         'OPTIONS login-by-google' => 'options',
                         'OPTIONS login-by-key' => 'options',
                         'OPTIONS create-account' => 'options',
+                        'OPTIONS login-two-step' => 'options',
                     ]
                 ],
                 [ // NoteController

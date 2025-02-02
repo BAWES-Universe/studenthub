@@ -103,6 +103,7 @@ class AdminController extends Controller
         $model->admin_email =Yii::$app->request->getBodyParam("email");
         $model->admin_password_hash = Yii::$app->request->getBodyParam("password");
         $model->admin_limited_access = Yii::$app->request->getBodyParam("limited_access");
+        $model->enable_two_step_auth = Yii::$app->request->getBodyParam("enable_two_step_auth");
 
         if (!$model->signup())
         {
@@ -151,6 +152,7 @@ class AdminController extends Controller
         $model->admin_name = Yii::$app->request->getBodyParam("name");
         $model->admin_email =Yii::$app->request->getBodyParam("email");
         $model->admin_limited_access = Yii::$app->request->getBodyParam("limited_access");
+        $model->enable_two_step_auth = Yii::$app->request->getBodyParam("enable_two_step_auth");
 
         if (!$model->save())
         {

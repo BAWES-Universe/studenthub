@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use Detection\MobileDetect;
 use staff\models\Staff;
 use Yii;
 use yii\behaviors\TimestampBehavior;
@@ -36,7 +37,7 @@ use yii\helpers\Url;
  * @property CompanyContactPhone[] $companyContactPhones
  * @property Campaign $campaign
  */
-class Contact extends \yii\db\ActiveRecord
+class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     //Email verification values for `contact_email_verification`
     const EMAIL_VERIFIED = 1;
@@ -396,22 +397,92 @@ class Contact extends \yii\db\ActiveRecord
     }
 
     /**
+     * Create an Access Token Record for this Company
+     * if the company already has one, it will return it instead
+     * @return \common\models\ContactToken
+     */
+    public function getAccessToken($type = ContactToken::STATUS_ACTIVE){
+        // Return existing inactive token if found
+        /*$token = ContactToken::find()
+            ->andWhere([
+                'contact_uuid' => $this->contact_uuid,
+                'token_status' => $type
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
+        if($token) {
+            return $token;
+        }*/
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
+        }
+
+        // Create new inactive token
+        $token = new ContactToken();
+        $token->contact_uuid = $this->contact_uuid;
+        $token->token_value = ContactToken::generateUniqueTokenString();
+        $token->token_status = $type;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?
+            Yii::$app->params['user_ip_address']: Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        //if 2 step auth enable, send OTP
+        if ($type == AdminToken::STATUS_INACTIVE) {
+            $this->sendOTPMail($token);
+        }
+
+        return $token;
+    }
+
+    /**
      * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
+    public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = ContactToken::STATUS_ACTIVE, $otp = null) {
 
-        $token = ContactToken::find()->andWhere([
+        $token = ContactToken::find()
+            ->andWhere([
                 'token_value' => $token,
-                'token_status' => ContactToken::STATUS_ACTIVE
+                'token_status' => $type
             ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
             ->with('contact')
             ->one();
 
         if (!$token)
             return false;
 
+        if ($otp && $otp != $token->otp) {
+            $token->total_attempt = $token->total_attempt + 1;
+
+            if ($token->total_attempt > 3) {
+                $token->delete();
+                return false;
+            }
+
+            if (!$token->save()) {
+                Yii::error($token->errors);
+            }
+
+            return false;
+        }
         //update last used datetime
 
+        $token->token_status = ContactToken::STATUS_ACTIVE;//make inactive token to active on found with OTP
         $token->token_last_used_datetime = new Expression('NOW()');
         $token->save();
 
@@ -424,6 +495,50 @@ class Contact extends \yii\db\ActiveRecord
         //invalid token
 
         $token->delete();
+    }
+
+
+    /**
+     * Send OTP mail to contact
+     * @param \common\models\ContactToken $token
+     * @return bool
+     */
+    public function sendOTPMail($token) {
+
+        //generate OTP
+        $token->otp = Yii::$app->security->generateRandomString(4);
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        $ml = new MailLog();
+        $ml->to = $this->contact_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'OTP for 2 step verification';
+        $ml->save();
+
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $mailer = Yii::$app->mailer->compose("company/contact-otp",
+            [
+                "model" => $this,
+                "otp" => $token->otp,
+                'logo_1' => Url::to('@web/images/logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->contact_email)
+            ->setSubject('OTP for 2 step verification');
+
+        try {
+            return $mailer->send();
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
+        }
     }
 
     /**
@@ -561,32 +676,6 @@ class Contact extends \yii\db\ActiveRecord
      */
     public function removePasswordResetToken() {
         $this->contact_password_reset_token = null;
-    }
-
-    /**
-     * Create an Access Token Record for this Company
-     * if the company already has one, it will return it instead
-     * @return \common\models\ContactToken
-     */
-    public function getAccessToken(){
-        // Return existing inactive token if found
-        $token = ContactToken::findOne([
-            'contact_uuid' => $this->contact_uuid,
-            'token_status' => ContactToken::STATUS_ACTIVE
-        ]);
-
-        if($token) {
-            return $token;
-        }
-
-        // Create new inactive token
-        $token = new ContactToken();
-        $token->contact_uuid = $this->contact_uuid;
-        $token->token_value = ContactToken::generateUniqueTokenString();
-        $token->token_status = ContactToken::STATUS_ACTIVE;
-        $token->save(false);
-
-        return $token;
     }
 
     /**

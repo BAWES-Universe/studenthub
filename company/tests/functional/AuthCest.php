@@ -8,7 +8,7 @@ use common\fixtures\ContactFixture;
 use common\fixtures\CompanyFixture;
 use common\fixtures\ContactTokenFixture;
 use Codeception\Util\HttpCode;
-
+use common\models\ContactToken;
 
 class AuthCest
 {
@@ -65,6 +65,46 @@ class AuthCest
             "operation"=>"success",
             "company_id"=> $this->company->company_id
         ]);
+    }
+
+    /**
+     * Login with wrong password
+     * @param FunctionalTester $I
+     */
+    public function tryToLoginWithWrongPassword(FunctionalTester $I) {
+        $I->wantTo('Validate auth > login with wrong password api');
+        $I->sendGET('v1/auth/login');
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);     
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Login with two step verification token
+     * @param FunctionalTester $I
+     */
+    public function tryToLoginWithTwoStepVerificationToken(FunctionalTester $I) {
+        $this->token = ContactToken::find()   
+             ->one();
+ 
+        $this->token->otp = 12344;
+        $this->token->token_status = 0;
+        $this->token->save();
+
+        $I->wantTo('Validate auth > login with two step verification api');
+        $I->sendPOST('v1/auth/login-two-step', ['token' => $this->token->token_value, 'otp' => $this->token->otp]);
+        $I->seeResponseCodeIs(HttpCode::OK); // 200
+        $I->seeResponseIsJson();
+    }
+
+    /**
+     * Login with invalid two step verification OTP
+     * @param FunctionalTester $I
+     */
+    public function tryToLoginWithInvalidTwoStepVerificationOTP(FunctionalTester $I) {
+        $I->wantTo('Validate auth > login with two step verification api');
+        $I->sendPOST('v1/auth/login-two-step', ['token' => 'test@me.admin', 'otp' => '12345']);
+        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED); // 200
+        $I->seeResponseIsJson();
     }
 
     /**

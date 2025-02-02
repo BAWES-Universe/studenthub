@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use Detection\MobileDetect;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -259,12 +260,145 @@ class Inspector extends ActiveRecord implements IdentityInterface
     /**
      * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null) {
+    public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = InspectorToken::STATUS_ACTIVE, $otp = null) {
         $token = InspectorToken::find()
-            ->andWhere(['token_value' => $token])->with('inspector')->one();
+            ->andWhere([
+                'token_value' => $token,
+                'token_status' => $type
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('inspector')
+            ->one();
 
-        if($token){
+        if (!$token) {
+            return false;
+        }
+
+        if ($otp && $otp != $token->otp) {
+            $token->total_attempt = $token->total_attempt + 1;
+
+            if ($token->total_attempt > 3) {
+                $token->delete();
+                return false;
+            }
+
+            if (!$token->save()) {
+                Yii::error($token->errors);
+            }
+
+            return false;
+        }
+
+        //update last used datetime
+
+        $token->token_status = InspectorToken::STATUS_ACTIVE;//make inactive token to active on found with OTP
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->inspector) {//&& $token->inspector->email_verification
             return $token->inspector;
+        }
+
+        //invalid token
+
+        $token->delete();
+    }
+
+    /**
+     * Create an Access Token Record for this Inspector
+     * if the admin already has one, it will return it instead
+     * @return \common\models\InspectorToken
+     */
+    public function getAccessToken($type = InspectorToken::STATUS_ACTIVE){
+        // Return existing inactive token if found
+        /*$token = InspectorToken::find()
+            ->andWhere([
+                'inspector_uuid' => $this->inspector_uuid,
+                'token_status' => InspectorToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
+        if($token) {
+            return $token;
+        }*/
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
+        }
+
+        // Create new inactive token
+        $token = new InspectorToken();
+        $token->inspector_uuid = $this->inspector_uuid;
+        $token->token_value = AdminToken::generateUniqueTokenString();
+        $token->token_status = $type;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?
+            Yii::$app->params['user_ip_address']: Yii::$app->request->getRemoteIP();
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        //if 2 step auth enable, send OTP
+        if ($type == AdminToken::STATUS_INACTIVE) {
+            $this->sendOTPMail($token);
+        }
+
+        return $token;
+    }
+
+    /**
+     * Send OTP mail to inspector
+     * @param \common\models\InspectorToken $token
+     * @return bool
+     */
+    public function sendOTPMail($token) {
+
+        //generate OTP
+        $token->otp = Yii::$app->security->generateRandomString(4);
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        $ml = new MailLog();
+        $ml->to = $this->inspector_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'OTP for 2 step verification';
+        $ml->save();
+
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $mailer = Yii::$app->mailer->compose("inspector/inspector-otp", 
+            [
+                "model" => $this,
+                "otp" => $token->otp,
+                'logo_1' => Url::to('@web/images/logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->inspector_email)
+            ->setSubject('OTP for 2 step verification');
+
+        try {
+            return $mailer->send();
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
         }
     }
 
@@ -374,31 +508,6 @@ class Inspector extends ActiveRecord implements IdentityInterface
      */
     public function removePasswordResetToken() {
         $this->inspector_password_reset_token = null;
-    }
-
-    /**
-     * Create an Access Token Record for this Inspector
-     * if the admin already has one, it will return it instead
-     * @return \common\models\InspectorToken
-     */
-    public function getAccessToken(){
-        // Return existing inactive token if found
-        $token = InspectorToken::findOne([
-            'inspector_uuid' => $this->inspector_uuid,
-            'token_status' => InspectorToken::STATUS_ACTIVE
-        ]);
-        if($token){
-            return $token;
-        }
-
-        // Create new inactive token
-        $token = new InspectorToken();
-        $token->inspector_uuid = $this->inspector_uuid;
-        $token->token_value = AdminToken::generateUniqueTokenString();
-        $token->token_status = AdminToken::STATUS_ACTIVE;
-        $token->save(false);
-
-        return $token;
     }
 
     /**

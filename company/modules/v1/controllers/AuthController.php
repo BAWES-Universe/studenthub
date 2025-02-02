@@ -16,7 +16,7 @@ use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\Cors;
 use yii\web\NotFoundHttpException;
-
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Auth controller provides the initial access token that is required for further requests
@@ -74,7 +74,8 @@ class AuthController extends Controller
             'login-auth0',
             'login-by-google',
             'login-by-key',
-            "locate"
+            "locate",
+            "login-two-step"
         ];
 
         return $behaviors;
@@ -96,6 +97,51 @@ class AuthController extends Controller
             'resourceOptions' => ['GET', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
         ];
         return $actions;
+    }
+
+    /**
+     * two step auth
+     * @return array
+     */
+    public function actionLoginTwoStep() {
+
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
+
+        if(YII_ENV != 'test') {
+
+            $response = Yii::$app->reCaptcha->verify($token);
+
+            if (!$response->data || !$response->data['success']) {
+                return [
+                    "operation" => "error",
+                    "code" => 0,
+                    "message" => Yii::t('candidate', "Invalid captcha validation")
+                ];
+            }
+        }
+
+        $token = Yii::$app->request->getBodyParam("token");
+        $otp = Yii::$app->request->getBodyParam("otp");
+
+        //validate token + OTP
+
+        $contact = Contact::findIdentityByAccessToken(
+            $token,
+            HttpBearerAuth::class,
+            \common\models\ContactToken::STATUS_INACTIVE,
+            $otp);
+
+        if (!$contact) {
+            throw new UnauthorizedHttpException("Invalid token or OTP");
+        }
+
+        //passing token as want to keep same token as of token generated while login
+
+        $contactToken = ContactToken::find()
+            ->andWhere(['token_value' => $token])
+            ->one();
+
+        return $this->_loginResponse($contact, null, $contactToken);
     }
 
     /**
@@ -404,7 +450,7 @@ class AuthController extends Controller
      */
     public function actionLogin()
     {
-        $token = Yii::$app->request->get("token");
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
 
         if(YII_ENV != 'test') {
             $response = Yii::$app->reCaptcha->verify($token);
@@ -509,17 +555,23 @@ class AuthController extends Controller
         ];
     }
 
-    private function _loginResponse($contact, $company = false) {
-        // Return Company access token if everything valid
-        $accessToken = $contact->accessToken->token_value;
+    private function _loginResponse($contact, $company = false, $accessToken = null) {
 
         if(!$company) {
             $company = $contact->getManagedCompanies()->one();
         }
 
+        if (!$accessToken) {
+            $accessToken = $contact->getAccessToken(
+                $contact->enable_two_step_auth ? ContactToken::STATUS_INACTIVE: ContactToken::STATUS_ACTIVE
+            );
+        }
+
         return [
             "operation" => "success",
-            "token" => $accessToken,
+            "token" => $accessToken->token_value,
+            "total_attempt"=> $accessToken->total_attempt,
+            "token_status" => $accessToken->token_status,//if in-active show 2-step auth page in front
             "company_id" => $company? $company->company_id: null,
             "profile_name" => $contact->contact_name,
             "email" => $contact->contact_email,

@@ -12,7 +12,7 @@ use yii\rest\Controller;
 use yii\filters\auth\HttpBasicAuth;
 use yii\filters\Cors;
 use yii\web\NotFoundHttpException;
-
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Auth controller provides the initial access token that is required for further requests
@@ -400,7 +400,7 @@ class AuthController extends Controller
      */
     public function actionLogin()
     {
-        $token = Yii::$app->request->get("token");
+        $token = Yii::$app->request->headers->get("g-recaptcha-response");
 
         if(YII_ENV != 'test') {
             $response = Yii::$app->reCaptcha->verify($token);

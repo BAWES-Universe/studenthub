@@ -18,6 +18,7 @@ use yii\db\Expression;
  * @property int $token_status
  * @property string $token_last_used_datetime
  * @property string $token_expiry_datetime
+ * @property string $ip_address
  * @property string $token_created_datetime
  *
  * @property StoreManager $storeManagerUu
@@ -45,6 +46,7 @@ class ManagerToken extends \yii\db\ActiveRecord
             [[ 'token_value', 'token_status', 'token_created_datetime'], 'required'],
             //'token_uuid',
             [['token_status'], 'integer'],
+          //  [['ip_address'], 'string', 'max' => 45],
             [['token_last_used_datetime', 'token_expiry_datetime', 'token_created_datetime'], 'safe'],
             [['token_uuid', 'store_manager_uuid'], 'string', 'max' => 60],
             [['token_value', 'token_device', 'token_device_id'], 'string', 'max' => 255],

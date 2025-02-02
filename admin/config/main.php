@@ -85,11 +85,13 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        "POST login-two-step" => "login-two-step",
                         'POST login-auth0' => 'login-auth0',
                         'POST login-by-key' => 'login-by-key',
                         'POST login-by-google' => 'login-by-google',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        "OPTIONS login-two-step" => "options",
                         'OPTIONS login-auth0' => 'options',
                         'OPTIONS login-by-google' => 'options',
                         'OPTIONS login-by-key' => 'options',

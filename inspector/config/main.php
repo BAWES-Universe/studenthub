@@ -64,12 +64,14 @@ return [
                     'pluralize' => false,
                     'patterns' => [
                         'GET login' => 'login',
+                        'POST login-two-step' => 'login-two-step',
                         'POST login-by-key' => "login-by-key",
                         'POST request-reset-password' => 'request-reset-password',
                         'PATCH update-password' => 'update-password',
                         'PATCH set-password' => 'update-password',
                         // OPTIONS VERBS
                         'OPTIONS login' => 'options',
+                        'OPTIONS login-two-step' => 'options',
                         'OPTIONS login-by-key' => 'options',
                         'OPTIONS request-reset-password' => 'options',
                         'OPTIONS update-password' => 'options',

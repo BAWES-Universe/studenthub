@@ -3,6 +3,7 @@
 namespace common\models;
 
 
+use Detection\MobileDetect;
 use Yii;
 use yii\db\Exception;
 use yii\db\Expression;
@@ -1663,18 +1664,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        $token = CandidateToken::find()->andWhere(['token_value' => $token])
-            ->with('candidate')->one();
-        if($token){
-            return $token->candidate;
-        }
-    }
-
-    /**
      * Finds candidate by email
      *
      * @param string $email
@@ -1805,28 +1794,169 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
+        $token = CandidateToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                'token_status' => CandidateToken::STATUS_ACTIVE
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('candidate')
+            ->one();
+
+        if ($token && $token->candidate && !$token->candidate->deleted) {
+            return $token->candidate;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = CandidateToken::STATUS_ACTIVE, $otp = null)
+    {
+        $token = CandidateToken::find()
+            ->andWhere([
+                'token_value' => $token,
+                'token_status' => $type
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->with('candidate')
+            ->one();
+
+        if (!$token) {
+            return false;
+        }
+
+        if ($otp && $otp != $token->otp) {
+            $token->total_attempt = $token->total_attempt + 1;
+
+            if ($token->total_attempt > 3) {
+                $token->delete();
+                return false;
+            }
+
+            if (!$token->save()) {
+                Yii::error($token->errors);
+            }
+
+            return false;
+        }
+
+        //update last used datetime
+
+        $token->token_status = CandidateToken::STATUS_ACTIVE;//make inactive token to active on found with OTP
+        $token->token_last_used_datetime = new Expression('NOW()');
+        $token->save();
+
+        //should not able to login, if email not verified but have valid token
+
+        if ($token->candidate && $token->candidate->candidate_email_verification) {
+            return $token->candidate;
+        }
+
+        //invalid token
+
+        $token->delete();
+    }
+
+    /**
      * Create an Access Token Record for this Candidate
      * if the candidate already has one, it will return it instead
      * @return \common\models\CandidateToken
      */
-    public function getAccessToken(){
+    public function getAccessToken($type = CandidateToken::STATUS_ACTIVE){
         // Return existing inactive token if found
-        $token = CandidateToken::findOne([
-            'candidate_id' => $this->candidate_id,
-            'token_status' => CandidateToken::STATUS_ACTIVE
-        ]);
+        /*$token = CandidateToken::find()
+            ->andWhere([
+                'candidate_id' => $this->candidate_id,
+                'token_status' => $type
+            ])
+            ->andWhere(new Expression("token_expiry_datetime IS NULL OR 
+                token_expiry_datetime > NOW()"))
+            ->one();
+
         if($token){
             return $token;
+        }*/
+
+        $detect = new MobileDetect();
+
+        $device = "Desktop Device";
+
+        if ($detect->isMobile()) {
+            $device = "Mobile Device";
+        } elseif ($detect->isTablet()) {
+            $device = "Tablet Device";
         }
 
         // Create new inactive token
         $token = new CandidateToken();
         $token->candidate_id = $this->candidate_id;
         $token->token_value = CandidateToken::generateUniqueTokenString();
-        $token->token_status = CandidateToken::STATUS_ACTIVE;
-        $token->save(false);
+        $token->token_status = $type;
+        $token->token_device = $device;
+        $token->token_device_id = $detect->getUserAgent();
+        $token->token_expiry_datetime = date('Y-m-d H:i:s', strtotime("+1 month"));
+        $token->ip_address = isset(Yii::$app->params['user_ip_address']) ?
+            Yii::$app->params['user_ip_address']: Yii::$app->request->getRemoteIP();
+
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        //if 2 step auth enable, send OTP
+        if ($type == AdminToken::STATUS_INACTIVE) {
+            $this->sendOTPMail($token);
+        }
 
         return $token;
+    }
+
+    /**
+     * Send OTP mail to candidate
+     * @param \common\models\CandidateToken $token
+     * @return bool
+     */
+    public function sendOTPMail($token) {
+
+        //generate OTP
+        $token->otp = Yii::$app->security->generateRandomString(4);
+        if (!$token->save()) {
+            Yii::error("Error saving token : ". print_r($token->errors, true));
+        }
+
+        $ml = new MailLog();
+        $ml->to = $this->candidate_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = 'OTP for 2 step verification';
+        $ml->save();
+
+        Yii::$app->mailer->htmlLayout = 'layouts/html';
+
+        $mailer = Yii::$app->mailer->compose("candidate/candidate-otp",
+            [
+                "model" => $this,
+                "otp" => $token->otp,
+                'logo_1' => Url::to('@web/images/logo.png', true),
+                'logo_2' => ''
+            ])
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($this->candidate_email)
+            ->setSubject('OTP for 2 step verification');
+
+        try {
+            return $mailer->send();
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
+        }
     }
 
     /**
@@ -2041,20 +2171,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'paid' => $totalPaid,
             'bonus' => $totalBonus,
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByUnVerifiedTokenToken($token, $type = null) {
-        $token = CandidateToken::find()
-            ->andWhere(['token_value' => $token])
-            ->with('candidate')
-            ->one();
-
-        if ($token && $token->candidate && !$token->candidate->deleted) {
-            return $token->candidate;
-        }
     }
 
     /**
