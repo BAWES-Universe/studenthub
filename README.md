@@ -155,5 +155,19 @@ git push origin v2.0
 git tag -l
 
 # fix migration applied but ActiveRecord/ Table column not found error getting trigger 
-
+`docker exec -it studenthub-backend-prod /bin/bash`
+`./yii cache/flush-schema db`
 `./yii cache/flush cache`
+
+## if still not working 
+
+rm -rf /var/www/html/admin/runtime/cache
+rm -rf /var/www/html/candidate/runtime/cache
+rm -rf /var/www/html/company/runtime/cache
+rm -rf /var/www/html/console/runtime/cache
+rm -rf /var/www/html/common/runtime/cache
+rm -rf /var/www/html/staff/runtime/cache
+rm -rf /var/www/html/inspector/runtime/cache
+rm -rf /var/www/html/manager/runtime/cache
+rm -rf /var/www/html/status/runtime/cache
+rm -rf /var/www/html/verification/runtime/cache

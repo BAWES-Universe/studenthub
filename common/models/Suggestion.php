@@ -486,8 +486,8 @@ class Suggestion extends \yii\db\ActiveRecord
                 $ml->subject = $request->suggestionEmailSubject;
                 $ml->save();
 
-                $message->setFrom([Yii::$app->params['operationsEmail'] => "Recruitment team"])
-                    //->setFrom([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
+                $message->setFrom([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
+                    //->setFrom([Yii::$app->params['operationsEmail'] => "Recruitment team"])
                     //->setReplyTo([$staff->staff_email => $staff->staff_name])
                     ->setReplyTo([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
                     ->setTo($setTo)

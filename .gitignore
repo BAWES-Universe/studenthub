@@ -43,3 +43,6 @@ manager/tests/_support/_generated/UnitTesterActions.php
 manager/web/index-test.php
 manager/web/index.php
 .vscode/settings.json
+
+# temp files
+temp.md

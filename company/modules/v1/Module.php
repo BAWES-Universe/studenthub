@@ -56,7 +56,6 @@ class Module extends \yii\base\Module
         // Get initial IP address of requester
         $ip = Yii::$app->request->getRemoteIP();
 
-
         // Check if request is forwarded via load balancer or cloudfront on behalf of user
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'];

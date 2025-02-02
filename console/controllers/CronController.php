@@ -51,7 +51,7 @@ class CronController extends \yii\console\Controller {
         /*Yii::$app->mailer->compose ([
             'text' => 'test',
         ])
-            ->setFrom ([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
+            ->setFrom([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
             ->setSubject ('Test email')
             ->setTo ("kathrechakrushn@gmail.com")
             //->setCc($contactEmails)
