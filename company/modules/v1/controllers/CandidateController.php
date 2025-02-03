@@ -546,7 +546,9 @@ class CandidateController extends BaseController
         $q = Yii::$app->request->get("q");
 
         $query = Yii::$app->companyManager->getCompany()
-            ->getCandidates();
+            ->getCandidates()
+            ->groupBy(['candidate.candidate_id']);
+            //->orderBy('candidate_working_date.updated_at DESC');
 
         if($store_id) {
             $query->andWhere(['candidate.store_id' => $store_id]);
