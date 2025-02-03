@@ -83,6 +83,9 @@ use Segment\Segment;
  */
 class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
+    const MOM_KUWAITI = 1;
+    const MOM_NOT_KUWAITI = 2;
+
     // Candidate Status
     const STATUS_READY = 1;
     const STATUS_PENDING = 0;
@@ -114,7 +117,6 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         'candidate_civil_photo_front' => 'civil-id',
         'candidate_civil_photo_back' => 'civil-id'
     ];
-
 
     /**
      * @inheritdoc
@@ -339,6 +341,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $scenarios['updateNationality'] = ['country_id', 'is_incomplete_profile'];
 
         $scenarios['updateDrivingLicense'] = ['candidate_driving_license', 'is_incomplete_profile'];
+
+        $scenarios['updateKuwaitiNationality'] = ['country_id', 'candidate_mom_kuwaiti', 'is_incomplete_profile'];
 
         $scenarios['updateKuwaitiNational'] = ['candidate_mom_kuwaiti', 'is_incomplete_profile'];
 

@@ -134,7 +134,6 @@ return [
                     'patterns' => [
                         'GET salary/<id>' => 'salary-detail',
                         'GET salary' => 'salary',
-
                         'GET profile' => 'profile',
                         'GET job-search-status' => 'get-job-search-status',
                         'GET area-by-location' => 'area-by-location',
@@ -156,6 +155,7 @@ return [
                         'POST update-university' => 'update-university',
                         'POST update-driving-license' => 'update-driving-license',
                         'POST update-kuwaiti-national' => 'update-kuwaiti-national',
+                        'POST update-nationality-with-kuwaiti-status' => 'update-nationality-with-kuwaiti-status',
                         'POST update-gender' => 'update-gender',
                         'POST update-objective' => 'update-objective',
                         'POST update-intro' => 'update-intro',
@@ -196,6 +196,7 @@ return [
                         'OPTIONS profile' => 'options',
                         'OPTIONS salary' => 'options',
                         'OPTIONS salary/<id>' => 'options',
+                        'OPTIONS update-nationality-with-kuwaiti-status' => 'options',
                         'OPTIONS update-email' => 'options', 
                         'OPTIONS change-password' => 'options',
                         'OPTIONS language-pref' => 'options', 
