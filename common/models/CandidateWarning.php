@@ -126,6 +126,10 @@ class CandidateWarning extends \yii\db\ActiveRecord
             ->setTo($this->candidate->candidate_email)
             ->setSubject($this->title);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

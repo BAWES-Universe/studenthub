@@ -140,6 +140,10 @@ class Invoice extends ActiveRecord
             ->setTo(Yii::$app->params['adminEmail'])
             ->setSubject('Company not paid in current month');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return  $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

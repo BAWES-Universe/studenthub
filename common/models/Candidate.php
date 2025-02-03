@@ -1560,6 +1560,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo($this->candidate_email)
             ->setSubject('Your password reset was a success');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -1613,6 +1617,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo($this->candidate_email)
             ->setSubject('Reset your StudentHub password');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -1950,6 +1958,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo($this->candidate_email)
             ->setSubject('OTP for 2 step verification');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -2001,6 +2013,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ->setTo($candidate->candidate_email)
                     ->setSubject('Happy Birthday from StudentHub');
 
+                if(\Yii::$app->params['elasticMailIpPool']) {
+                    $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+                }
+                
                 try {
                     $mailer->send();
                 } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -2069,6 +2085,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     ->setTo($candidate->candidate_email)
                     ->setSubject('Please update your civil id');
 
+                if(\Yii::$app->params['elasticMailIpPool']) {
+                    $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+                }
+                
                 try {
                     $mailer->send();
                 } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -2721,6 +2741,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo($email)
             ->setSubject('Please confirm your email address');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -3453,6 +3477,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setTo($this->candidate_email)
             ->setSubject("We'll stop recommending your profile to companies");
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -3522,9 +3550,13 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                         ->setTo($candidate->candidate_email)
                         ->setSubject("Jobs in restaurants, cafes, and cinemas");
 
-                    try {
-                        $mailer->send();
-                    } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                if(\Yii::$app->params['elasticMailIpPool']) {
+                    $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+                }
+
+                try {
+                    $mailer->send();
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
                         // Handle email transport-specific exceptions
                         Yii::error( "Failed to send email: " . $e->getMessage());
                     } catch (\Exception $e) {
@@ -3688,6 +3720,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setFrom([Yii::$app->params['finance_transfer'] => Yii::$app->params['appName']])
             ->setSubject($subject);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         foreach ($query->batch(100) as $candidates) {
 
             foreach ($candidates as $candidate) {
@@ -3743,6 +3779,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ->setFrom([Yii::$app->params['finance_transfer'] => Yii::$app->params['appName']])
             ->setSubject($subject);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         foreach ($query->batch(100) as $candidates) {
 
             foreach ($candidates as $candidate) {

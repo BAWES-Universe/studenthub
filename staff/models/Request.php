@@ -213,6 +213,10 @@ class Request extends \common\models\Request {
             ->setTo($arrEmails)
             ->setSubject($subject);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -262,6 +266,10 @@ class Request extends \common\models\Request {
             ->setReplyTo([\Yii::$app->user->identity->staff_email => \Yii::$app->user->identity->staff_name])
             ->setTo($arrEmails)
             ->setSubject($subject);
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();

@@ -68,6 +68,10 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             ->setTo($this->contact_email)
             ->setSubject('Reset your StudentHub password');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -146,6 +150,10 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($email)
             ->setSubject('Please confirm your email address');
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();

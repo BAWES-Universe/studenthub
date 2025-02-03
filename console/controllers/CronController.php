@@ -492,6 +492,10 @@ class CronController extends \yii\console\Controller {
             ->setCc($emails)
             ->setSubject('Morning Report for ' . date('F j, Y'));
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -638,6 +642,10 @@ class CronController extends \yii\console\Controller {
                         'fileName' => $fileName,
                         'contentType' => $mimeTypes[$extension]
                     ]);
+
+                if(\Yii::$app->params['elasticMailIpPool']) {
+                    $send->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+                }
 
                 try {
                     $send->send();
@@ -841,6 +849,7 @@ class CronController extends \yii\console\Controller {
             ->setTo(['kathrechakrushn@gmail.com'])
             ->setSubject('Test email');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -899,6 +908,10 @@ class CronController extends \yii\console\Controller {
                     ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setTo($staff->staff_email)
                     ->setSubject("Daily Attendance notification");
+
+                if(\Yii::$app->params['elasticMailIpPool']) {
+                    $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+                }
 
                 try {
                     $mailer->send();

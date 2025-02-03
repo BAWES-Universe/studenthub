@@ -195,6 +195,10 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ->setTo($this->inspector_email)
             ->setSubject('Your password reset was a success');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -235,6 +239,10 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->inspector_email)
             ->setSubject('Reset your StudentHub password');
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();
@@ -391,6 +399,10 @@ class Inspector extends ActiveRecord implements IdentityInterface
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($this->inspector_email)
             ->setSubject('OTP for 2 step verification');
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();

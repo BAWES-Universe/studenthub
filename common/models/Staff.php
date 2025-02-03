@@ -1050,6 +1050,10 @@ class Staff extends ActiveRecord implements IdentityInterface
             ->setTo($this->staff_email)
             ->setSubject('OTP for 2 step verification');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

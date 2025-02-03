@@ -80,6 +80,10 @@ class Staff extends \common\models\Staff {
             ->setTo($model->staff_email)
             ->setSubject('Your account password has been reset');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -148,6 +152,10 @@ class Staff extends \common\models\Staff {
             ->setTo($this->staff_email)
             ->setSubject('Reset your StudentHub password');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+        
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

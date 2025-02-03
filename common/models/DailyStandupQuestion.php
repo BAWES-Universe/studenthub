@@ -119,6 +119,10 @@ class DailyStandupQuestion extends \yii\db\ActiveRecord
                 ->setTo(Yii::$app->params['adminEmail'])
                 ->setSubject('Stand-up report');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

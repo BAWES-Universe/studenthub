@@ -684,6 +684,10 @@ class Transfer extends ActiveRecord
             )
         ]);
         
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $message->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']]);
         
         $i=1;

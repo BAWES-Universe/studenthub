@@ -548,6 +548,10 @@ class Invitation extends \yii\db\ActiveRecord
             ->setTo($this->candidate->candidate_email)
             ->setSubject("You’re invited to apply for a job opening");
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

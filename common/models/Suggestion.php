@@ -364,6 +364,10 @@ class Suggestion extends \yii\db\ActiveRecord
                 'staff' => $staff
             ]);
 
+            if(\Yii::$app->params['elasticMailIpPool']) {
+                $message->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+            }
+
             // fetch all suggestion make for each not mailed request
 
             $suggestions = $request->getSuggestions()
@@ -583,6 +587,10 @@ class Suggestion extends \yii\db\ActiveRecord
                     'requestSuggestion' => $suggestionByStaff,
                     'staff' => $staff,
                 ]);
+
+                if(\Yii::$app->params['elasticMailIpPool']) {
+                    $message->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+                }
 
                 // looping for each suggestion
 

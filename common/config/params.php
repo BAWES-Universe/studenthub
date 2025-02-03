@@ -17,7 +17,7 @@ return [
     'mailThreshold' => 500,
     "aws_temp_access_key_id" => 'AKIAWMITDJRKTSQ4T67K',
     "aws_temp_secret_access_key" => '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',
-
+    "elasticMailIpPool" => "Default",
     'bankInfo' => [ //BAWES Bank Info
         'accountName' => 'BAWES FOR COMPUTER AND OPERATION COMPANY',
         'accountNameArabic' => "شركة باوس لبرمجة وتشغيل الكمبيوتر وتصميم وإدارة مواقع الانترنت",
