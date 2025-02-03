@@ -239,6 +239,10 @@ class Company extends \common\models\Company {
             ->setCc([Yii::$app->params['operationsEmail']=>'operations'])
             ->setSubject($subject);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return  $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -294,6 +298,10 @@ class Company extends \common\models\Company {
                 ->setTo(array_unique($emails))
                 ->setCc([Yii::$app->params['invoiceCC'],Yii::$app->params['operationsEmail']])
                 ->setSubject($lastMonth . ' Payroll '. $year);
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();

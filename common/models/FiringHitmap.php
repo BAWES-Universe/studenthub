@@ -202,6 +202,10 @@ class FiringHitmap extends \yii\db\ActiveRecord
             ->setCc(['khalid@bawes.net'=>'Khalid'])
             ->setSubject($subject);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return  $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

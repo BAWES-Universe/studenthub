@@ -515,6 +515,10 @@ class Company extends \yii\db\ActiveRecord
             ->setFrom([Yii::$app->params['finance_transfer'] => Yii::$app->params['appName']])
             ->setSubject($subject);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         $companiesQuery = Company::find()
             ->andWhere(new Expression('parent_company_id IS NULL AND total_candidate > 0'));
 

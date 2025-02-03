@@ -356,6 +356,10 @@ class TransferFile extends \yii\db\ActiveRecord
                 'contentType' => $mimeTypes[$extension]
             ]);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

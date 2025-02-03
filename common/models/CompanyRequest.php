@@ -160,6 +160,10 @@ class CompanyRequest extends \yii\db\ActiveRecord
             ->setTo("sales@bawes.net")
             ->setSubject('New company account request');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -196,6 +200,10 @@ class CompanyRequest extends \yii\db\ActiveRecord
             ->setTo($this->company_email)
             ->setSubject('Congratulation! Your account request approved!');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -229,6 +237,10 @@ class CompanyRequest extends \yii\db\ActiveRecord
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($this->company_email)
             ->setSubject('New company account request not approved!');
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();

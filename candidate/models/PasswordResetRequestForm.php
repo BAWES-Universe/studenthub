@@ -68,6 +68,10 @@ class PasswordResetRequestForm extends Model
             ->setTo($candidate->candidate_email)
             ->setSubject('Password reset token');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+            
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

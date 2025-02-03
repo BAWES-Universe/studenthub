@@ -531,6 +531,10 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ->setTo($this->contact_email)
             ->setSubject('OTP for 2 step verification');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -805,6 +809,10 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($email)
             ->setSubject('Please confirm your email address');
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();

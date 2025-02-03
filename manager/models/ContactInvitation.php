@@ -34,6 +34,10 @@ class ContactInvitation extends \common\models\ContactInvitation {
             ->setSubject($this->company->company_name . " has invited you to collaborate in 
                         their recruitment process on StudentHub");
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -62,6 +66,10 @@ class ContactInvitation extends \common\models\ContactInvitation {
                         ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
                         ->setTo($this->contact->contact_email)
                         ->setSubject('Contact Invitation accepted');
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();

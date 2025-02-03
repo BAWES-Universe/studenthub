@@ -406,6 +406,10 @@ class Candidate extends \common\models\Candidate {
             ->setTo($model->candidate_email)
             ->setSubject('Your account password has been reset');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

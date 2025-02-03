@@ -496,6 +496,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setSubject($subjectLine);
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $message->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return  $message->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {

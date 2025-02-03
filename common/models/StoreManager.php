@@ -426,6 +426,10 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             ->setTo($this->email)
             ->setSubject('Reset your StudentHub password');
 
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
         try {
             return $mailer->send();
         } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
@@ -470,6 +474,10 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
             ->setFrom([\Yii::$app->params['supportEmail'] => \Yii::$app->params['appName']])
             ->setTo($email)
             ->setSubject('Please confirm your email address');
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
 
         try {
             return $mailer->send();
