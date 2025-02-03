@@ -454,7 +454,7 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = ContactToken::STATUS_ACTIVE, $otp = null) {
 
-        $token = ContactToken::find()
+        $token = \company\models\ContactToken::find()
             ->andWhere([
                 'token_value' => $token,
                 'token_status' => $type

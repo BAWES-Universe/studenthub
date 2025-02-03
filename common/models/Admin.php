@@ -126,7 +126,7 @@ class Admin extends ActiveRecord implements IdentityInterface {
      */
     public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = AdminToken::STATUS_ACTIVE, $otp = null) {
 
-        $token = AdminToken::find()
+        $token = \admin\models\AdminToken::find()
             ->andWhere([
                 'token_value' => $token,
                 "token_status" => $type

@@ -920,6 +920,7 @@ class Staff extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = StaffToken::STATUS_ACTIVE, $otp = null)
     {
+        //\staff\models\
         $token = StaffToken::find()
             ->andWhere([
                 'token_value' => $token,

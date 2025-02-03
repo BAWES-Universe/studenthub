@@ -1831,7 +1831,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = CandidateToken::STATUS_ACTIVE, $otp = null)
     {
-        $token = CandidateToken::find()
+        $token = \candidate\models\CandidateToken::find()
             ->andWhere([
                 'token_value' => $token,
                 'token_status' => $type
