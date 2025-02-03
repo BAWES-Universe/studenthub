@@ -1553,6 +1553,39 @@ class AccountController extends Controller
     }
 
     /**
+     * @return array
+     * @throws \yii\db\Exception
+     * @throws \yii\web\HttpException
+     */
+    public function actionUpdateNationalityWithKuwaitiStatus() {
+
+        $candidate = Candidate::findOne(Yii::$app->user->getId());
+
+        if (!$candidate) {
+            throw new \yii\web\HttpException(404, Yii::t('candidate', 'The requested Item could not be found.'));
+        }
+
+        $candidate->candidate_mom_kuwaiti = Yii::$app->request->getBodyParam('candidate_mom_kuwaiti');
+        $candidate->country_id = Yii::$app->request->getBodyParam('country_id');
+
+        $candidate->scenario = "updateKuwaitiNationality";
+
+        if (!$candidate->save()) {
+
+            return [
+                "operation" => "error",
+                "message" => $candidate->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "country" => Country::findOne($candidate->country_id),
+            "message" => Yii::t('candidate', "Candidate kuwaiti National Info Updated Successfully"),
+        ];
+    }
+
+    /**
      * update candidate Kuwaiti National
      * @return array
      * @throws \yii\web\HttpException
