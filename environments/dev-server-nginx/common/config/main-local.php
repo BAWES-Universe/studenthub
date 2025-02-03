@@ -48,14 +48,14 @@ return [
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
-            'transport' => [
+            /*'transport' => [
                 'scheme' => 'smtp',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
                 'username' => 'AKIAWMITDJRKSH3JXFI4',//AKIAWMITDJRKVNB2AFUL
                 'password' => 'd5QvU/BEagVVlKAfVjr6Nxpf2xCJyRZpmnG69YGU',// 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',
                 'port' => 587,
                 //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
-            ],/*
+            ],*/
             'transport' => [
                 'scheme' => 'smtp',
                 'host' => 'smtp.elasticemail.com',
@@ -64,7 +64,7 @@ return [
                 'port' => 2525,
                 'encryption' => 'tls'
                 //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
-            ],*/
+            ],
         ],
         /*'transport' => [
                'class' => 'Swift_SmtpTransport',
