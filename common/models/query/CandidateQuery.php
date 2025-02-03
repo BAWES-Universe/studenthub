@@ -3,8 +3,8 @@
 namespace common\models\query;
 
 use common\models\Request;
-use staff\models\Candidate;
-use staff\models\Transfer;
+use common\models\Candidate;
+use common\models\Transfer;
 use Yii;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;

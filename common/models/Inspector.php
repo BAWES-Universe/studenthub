@@ -270,6 +270,7 @@ class Inspector extends ActiveRecord implements IdentityInterface
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $authType = HttpBearerAuth::class, $type = InspectorToken::STATUS_ACTIVE, $otp = null) {
+        //\insector\models\
         $token = InspectorToken::find()
             ->andWhere([
                 'token_value' => $token,

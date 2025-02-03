@@ -69,7 +69,7 @@ class Candidate extends \common\models\Candidate {
         }
 
         $fields['candidate_name'] = function($model){
-            return strtolower($model->candidate_name);
+            return $model->candidate_name? strtolower($model->candidate_name): null;
         };
         
         // Clear bank info from array
@@ -370,8 +370,8 @@ class Candidate extends \common\models\Candidate {
 
         //todo: query cache?
 
-        return $query
-            ->orderBy("candidate_working_date.created_at DESC");
+        return $query;
+            //->orderBy("candidate_working_date.created_at DESC");
     }
 
     /**
