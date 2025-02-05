@@ -13,6 +13,16 @@ class CandidateWorkingDateQuery extends \yii\db\ActiveQuery
      */
     public function filterByDateRange($start_date, $end_date) {
 
+        if ($start_date) {
+            $this->andWhere(new Expression('DATE(candidate_working_date.date) >= DATE("'. $start_date .'")'));
+        }
+
+        if ($end_date) {
+            $this->andWhere(new Expression('DATE(candidate_working_date.date) <= DATE("'. $end_date .'")'));
+        }
+
+        return $this;
+        /*
         if(empty($start_date) || empty($end_date)) {
             return $this;
         }
@@ -20,6 +30,6 @@ class CandidateWorkingDateQuery extends \yii\db\ActiveQuery
         return $this->andWhere (new Expression("  
             DATE(candidate_working_date.date) BETWEEN DATE('".date('Y-m-d', strtotime($start_date))."') 
             AND DATE('".date('Y-m-d', strtotime($end_date))."')
-        "));
+        "));*/
     }
 }
