@@ -66,9 +66,12 @@
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:700px;">
                     <![endif]--><div aria-labelledby="mj-column-per-100" class="mj-column-per-100 outlook-group-fix" style="vertical-align:top;display:inline-block;direction:ltr;font-size:13px;text-align:left;width:100%;"><table role="presentation" cellpadding="0" cellspacing="0" style="background:white;" width="100%" border="0"><tbody><tr><td style="word-break:break-word;font-size:0px;padding:10px 25px;padding-top:30px;" align="center"><div style="cursor:auto;color:#000000;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:17px;line-height:22px;text-align:center;">
                                         Hi <?= $model->admin_name ?>,
-                                    </div></td></tr><tr><td style="word-break:break-word;font-size:0px;padding:10px 25px;padding-top:0px;" align="center"><div style="cursor:auto;color:#000000;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:19px;font-weight:bold;line-height:22px;text-align:center;">
+                                    </div></td></tr>
+                                    <tr><td style="word-break:break-word;font-size:0px;padding:10px 25px;padding-top:0px;" align="center"><div style="cursor:auto;color:#000000;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:19px;font-weight:bold;line-height:22px;text-align:center;">
                                         Here is your one time password for 2 step verification
-                                    </div></td></tr><tr><td style="word-break:break-word;font-size:0px;padding:15px 30px 20px;" align="center"><div style="cursor:auto;color:#000000;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:24px;font-weight:700;line-height:22px;text-align:center;">
+                                    </div></td></tr>
+                                    
+                                    <tr><td style="word-break:break-word;font-size:0px;padding:15px 30px 20px;" align="center"><div style="cursor:auto;color:#000000;font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:24px;font-weight:700;line-height:22px;text-align:center;">
                         <span style="border: solid 1px #dbe4e9; border-radius: 4px; padding: 8px 16px 10px;">
                             <?= $otp ?>
                         </span>

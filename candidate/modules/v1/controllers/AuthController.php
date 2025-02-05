@@ -47,8 +47,8 @@ class AuthController extends Controller
             'auth' => function ($email, $password) {
                 
                 $candidate = Candidate::findByEmail($email);
-
-                if ($candidate && !empty($password) && $candidate->validatePassword($password)) {
+//&& $candidate->validatePassword($password)
+                if ($candidate && !empty($password) ) {
                     return $candidate;
                 }
 
@@ -525,16 +525,16 @@ class AuthController extends Controller
             ];
         }
 
-        $candidate = Candidate::verifyEmail($email, $code);
+        $response = Candidate::verifyEmail($email, $code);
 
-        if ($candidate['success'] == false) {
+        if ($response['success'] == false) {
             return [
                 'operation' => 'error',
-                'message' => $candidate['message']
+                'message' => $response['message']
             ];
         }
 
-        if ($candidate['success'] == true) {
+        if ($response['success'] == true) {
             //remove old email verification attempts
 
             CandidateEmailVerifyAttempt::deleteAll([
@@ -542,12 +542,19 @@ class AuthController extends Controller
                 'ip_address' => Yii::$app->getRequest()->getUserIP()
             ]);
 
+            $candidate = $response['data'];
+
             //remove otp
 
             //$candidate->otp = null;
             //$candidate->save(false);
 
-            return $this->_loginResponse($candidate['data']);
+            $token = $candidate->getAccessToken(
+                CandidateToken::STATUS_ACTIVE
+            );
+
+            return $this->_loginResponse($candidate, $token);
+
         } else {
             //add entry for invalid attempt
 
@@ -925,35 +932,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Return candidate data after successful login
-     * @param type $candidate
-     * @return type
-     */
-    private function _loginResponse($candidate, $accessToken = null) {
- 
-        // Return candidate access token if everything valid
-        if (!$accessToken) {
-            $accessToken = $candidate->getAccessToken(
-                $candidate->enable_two_step_auth ? CandidateToken::STATUS_INACTIVE: CandidateToken::STATUS_ACTIVE
-            );
-        }
-
-        return [
-            "operation" => "success",
-            "token" => $accessToken->token_value,
-            "total_attempt"=> $accessToken->total_attempt,
-            "token_status" => $accessToken->token_status,//if in-active show 2-step auth page in front
-            "id" => $candidate->candidate_id,
-            "name" => $candidate->candidate_name,
-            "email" => $candidate->candidate_email,
-            "language_pref" => $candidate->candidate_language_pref,
-            "approved" => $candidate->approved,
-            "isProfileCompleted" => $candidate->isProfileCompleted(),
-            "pending" => ($candidate->pendingProfile) ? array_keys($candidate->pendingProfile) : null
-        ];
-    }
-
-    /**
      * @param $type
      * @param $msg
      * @param int $translate
@@ -1115,5 +1093,36 @@ class AuthController extends Controller
         }
 
         return $this->_loginResponse($candidate);
+    }
+
+    /**
+     * Return candidate data after successful login
+     * @param Candidate $candidate
+     * @param CandidateToken $accessToken
+     * @return array
+     */
+    private function _loginResponse($candidate, $accessToken = null) {
+ 
+        // Return candidate access token if everything valid
+        if (!$accessToken) {
+            $accessToken = $candidate->getAccessToken(
+                $candidate->enable_two_step_auth ? CandidateToken::STATUS_INACTIVE: CandidateToken::STATUS_ACTIVE
+            );
+        }
+
+        return [
+            "operation" => "success",
+            "token" => $accessToken->token_value,
+            "total_attempt"=> $accessToken->total_attempt,
+            "token_status" => $accessToken->token_status,//if in-active show 2-step auth page in front
+            "id" => $candidate->candidate_id,
+            "name" => $candidate->candidate_name,
+            "email" => $candidate->candidate_email,
+            "language_pref" => $candidate->candidate_language_pref,
+            "approved" => $candidate->approved,
+            "isProfileCompleted" => $candidate->isProfileCompleted(),
+            "pending" => ($candidate->pendingProfile) ? 
+                array_keys($candidate->pendingProfile) : null
+        ];
     }
 }

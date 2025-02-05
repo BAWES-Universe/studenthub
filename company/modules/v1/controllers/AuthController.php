@@ -831,7 +831,12 @@ class AuthController extends Controller
                 'ip_address' => Yii::$app->getRequest()->getUserIP()
             ]);
 
-            return $this->_loginResponse($model);
+
+            $token = $model->getAccessToken(
+                ContactToken::STATUS_ACTIVE
+            );
+
+            return $this->_loginResponse($model, null, $token);
         }
         else
         {
