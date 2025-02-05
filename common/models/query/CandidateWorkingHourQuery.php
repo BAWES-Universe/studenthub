@@ -13,14 +13,24 @@ class CandidateWorkingHourQuery extends \yii\db\ActiveQuery
      */
     public function filterByDateRange($start_date, $end_date) {
 
-        if(empty($start_date) || empty($end_date)) {
+        if ($start_date) {
+            $this->andWhere(new Expression('DATE(candidate_working_hour.date) >= DATE("'. $start_date .'")'));
+        }
+
+        if ($end_date) {
+            $this->andWhere(new Expression('DATE(candidate_working_hour.date) <= DATE("'. $end_date .'")'));
+        }
+
+        return $this;
+
+        /*if(empty($start_date) || empty($end_date)) {
             return $this;
         }
 
         return $this->andWhere (new Expression("  
             DATE(candidate_working_hour.date) BETWEEN DATE('".date('Y-m-d', strtotime($start_date))."') 
             AND DATE('".date('Y-m-d', strtotime($end_date))."')
-        "));
+        "));*/
     }
 
     public function filterFrom($date) {

@@ -2,7 +2,6 @@
 
 namespace company\modules\v1\controllers;
 
-use common\models\CandidateWorkingDate;
 use company\models\CandidateWorkingHour;
 use company\models\Request;
 use Yii;
@@ -89,7 +88,9 @@ class CandidateController extends BaseController
             ->getCandidates();
 
         if ($contract_uuid) {
-            $query->joinWith(['candidateWorkHistories'])
+            $query
+                ->groupBy(['candidate.candidate_id'])
+                ->joinWith(['candidateWorkHistories'])
                 ->andWhere([
                     "AND",
                     ['contract_uuid' => $contract_uuid],
@@ -107,8 +108,8 @@ class CandidateController extends BaseController
     public function actionWorkingDates() {
 
         $candidate_id = Yii::$app->request->get("candidate_id");
-        //$start_date = Yii::$app->request->get("start_date");
-        //$end_date = Yii::$app->request->get("end_date");
+        $start_date = Yii::$app->request->get("start_date");
+        $end_date = Yii::$app->request->get("end_date");
 
         $candidate = Yii::$app->companyManager->getCompany()
             ->getCandidates()
@@ -125,6 +126,14 @@ class CandidateController extends BaseController
         /*if ($start_date && $end_date) {
             $query->filterByDateRange($start_date, $end_date);
         }*/
+
+        if ($start_date) {
+            $query->andWhere(new Expression('DATE(candidate_working_date.date) >= DATE("'. $start_date .'")'));
+        }
+
+        if ($end_date) {
+            $query->andWhere(new Expression('DATE(candidate_working_date.date) <= DATE("'. $end_date .'")'));
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -162,13 +171,22 @@ class CandidateController extends BaseController
             ]);
         }
 
-        if ($session_status || $start_date || $end_date) {
+        if (in_array($session_status, [0, 1, 2]) || $start_date || $end_date) {
 
-            $query->joinWith(['candidateWorkingDates']);
+            $query->joinWith(['candidateWorkingDates'])
+                ->groupBy(['candidate.candidate_id']);
             //->andWhere(new Expression('end_time IS NOT NULL'));
 
-            if ($session_status) {
+            /*if ($session_status) {
                 $query->andWhere(['candidate_working_date.status' => $session_status]);
+            }*/
+
+            if ($session_status == \common\models\CandidateWorkingHour::STATUS_APPROVED) {
+                $query->andWhere(new Expression('candidate_working_date.total_approved > 0'));
+            } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_REJECTED) {
+                $query->andWhere(new Expression('candidate_working_date.total_rejected > 0'));
+            } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_PENDING) {
+                $query->andWhere(new Expression('candidate_working_date.total_pending > 0'));
             }
 
             if ($start_date) {
@@ -265,17 +283,21 @@ class CandidateController extends BaseController
 
             foreach ($candidates as $candidate) {
 
-                $query = CandidateWorkingHour::find()->andWhere([
-                    "candidate_id" => $candidate->candidate_id,
-                    "store_id" => $candidate->store_id, //filter by store, in case store changed in month
-                ])
+                $hourQuery = CandidateWorkingHour::find()->andWhere([
+                        "candidate_id" => $candidate->candidate_id,
+                        "store_id" => $candidate->store_id, //filter by store, in case store changed in month
+                    ])
                     ->filterByDateRange($start_date, $end_date);
 
                 if ($approved) {
-                    $query->andWhere(["status" => CandidateWorkingHour::STATUS_APPROVED]);
+                    $hourQuery->andWhere(["status" => CandidateWorkingHour::STATUS_APPROVED]);
                 }
 
-                $seconds = $query
+                if (in_array($session_status, [0, 1, 2])) {
+                    $hourQuery->andWhere(["status" => $session_status]);
+                }
+
+                $seconds = $hourQuery
                     ->sum("total_time");
 
                 $hours = floor($seconds / 3600);
@@ -288,13 +310,13 @@ class CandidateController extends BaseController
                     "bonus" => 0
                 ];
 
-                if ($query->count() == 0) {
+                if ($hourQuery->count() == 0) {
                     continue;
                 }
 
                 $key = explode(" ", $candidate->candidate_name)[0] . " #" . $candidate->candidate_id;
 
-                $models[$key] = $query->all();
+                $models[$key] = $hourQuery->all();
                 $columns[$key] = $sessionColumns;
             }
         }
@@ -393,13 +415,22 @@ class CandidateController extends BaseController
             ]);
         }
 
-        if ($session_status || $start_date || $end_date) {
+        if (in_array($session_status, [0, 1, 2]) || $start_date || $end_date) {
 
-            $query->joinWith(['candidateWorkingDates']);
+            $query->groupBy(['candidate.candidate_id'])
+                ->joinWith(['candidateWorkingDates']);
                 //->andWhere(new Expression('end_time IS NOT NULL'));
 
-            if ($session_status) {
+            /*if ($session_status) {
                 $query->andWhere(['candidate_working_date.status' => $session_status]);
+            }*/
+
+            if ($session_status == \common\models\CandidateWorkingHour::STATUS_APPROVED) {
+                $query->andWhere(new Expression('candidate_working_date.total_approved > 0'));
+            } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_REJECTED) {
+                $query->andWhere(new Expression('candidate_working_date.total_rejected > 0'));
+            } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_PENDING) {
+                $query->andWhere(new Expression('candidate_working_date.total_pending > 0'));
             }
 
             if ($start_date) {
@@ -417,17 +448,21 @@ class CandidateController extends BaseController
 
             foreach ($candidates as $candidate) {
 
-                $query = CandidateWorkingHour::find()->andWhere([
+                $hourQuery = CandidateWorkingHour::find()->andWhere([
                         "candidate_id" => $candidate->candidate_id,
                         "store_id" => $candidate->store_id, //filter by store, in case store changed in month
                     ])
                     ->filterByDateRange($start_date, $end_date);
 
                 if ($approved) {
-                    $query->andWhere(["status" => CandidateWorkingHour::STATUS_APPROVED]);
+                    $hourQuery->andWhere(["status" => CandidateWorkingHour::STATUS_APPROVED]);
                 }
 
-                $seconds = $query
+                if (in_array($session_status, [0, 1, 2])) {
+                    $hourQuery->andWhere(["status" => $session_status]);
+                }
+
+                $seconds = $hourQuery
                     ->sum("total_time");
 
                 $hours = floor($seconds / 3600);
@@ -546,8 +581,7 @@ class CandidateController extends BaseController
         $q = Yii::$app->request->get("q");
 
         $query = Yii::$app->companyManager->getCompany()
-            ->getCandidates()
-            ->groupBy(['candidate.candidate_id']);
+            ->getCandidates();
             //->orderBy('candidate_working_date.updated_at DESC');
 
         if($store_id) {
@@ -562,16 +596,16 @@ class CandidateController extends BaseController
             ]);
         }
 
-        if ($with_session || $session_status || $start_date || $end_date) {
+        if ($with_session || in_array($session_status, [0, 1, 2]) || $start_date || $end_date) {
             
-            $query->joinWith(['candidateWorkingDates']);
+            $query->groupBy(['candidate.candidate_id'])
+                ->joinWith(['candidateWorkingDates']);
                // ->andWhere(new Expression('end_time IS NOT NULL'));
 
             /*if ($session_status) {
                 $query->andWhere(['candidate_working_date.status' => $session_status]);
             }*/
 
-            if ($session_status !== null) {
                 if ($session_status == \common\models\CandidateWorkingHour::STATUS_APPROVED) {
                     $query->andWhere(new Expression('candidate_working_date.total_approved > 0'));
                 } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_REJECTED) {
@@ -579,7 +613,6 @@ class CandidateController extends BaseController
                 } else if ($session_status == \common\models\CandidateWorkingHour::STATUS_PENDING) {
                     $query->andWhere(new Expression('candidate_working_date.total_pending > 0'));
                 }
-            }
 
             if ($start_date) {
                 $query->andWhere(new Expression('DATE(candidate_working_date.date) >= DATE("'. $start_date .'")'));
@@ -602,7 +635,8 @@ class CandidateController extends BaseController
     public function actionTotal()
     {
         return Yii::$app->companyManager->getCompany()
-            ->getCandidates()->count();
+            ->getCandidates()
+            ->count();
     }
 
     /**
