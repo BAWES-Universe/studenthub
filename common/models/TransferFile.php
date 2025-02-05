@@ -282,7 +282,7 @@ class TransferFile extends \yii\db\ActiveRecord
             echo "Candidate transfer marked as paid #" . $value['tc_id'] . "\n";
 
             //todo: this can make it slow
-            $tc->emailTransferSuccess();
+            //$tc->emailTransferSuccess();
         }
 
         // Check if all paid, mark transfer as complete

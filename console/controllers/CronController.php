@@ -208,6 +208,26 @@ class CronController extends \yii\console\Controller {
      */
     public function actionDaily() {
 
+        $transferCandidatesQuery = TransferCandidate::find()
+            ->andWhere(['paid' => 1, "is_candidate_notified" => 0]);
+
+        foreach ($transferCandidatesQuery->batch() as $transferCandidates) {
+            foreach ($transferCandidates as $transferCandidate) {
+                $transferCandidate->emailTransferSuccess();
+                $transferCandidate->sendTransferPaidNotification();
+                $transferCandidate->is_candidate_notified = 1;
+                if (!$transferCandidate->save()) {
+                    $msg = "Error updating transfer candidate mail status :" . print_r($transferCandidate->errors, true);
+
+                    echo $msg . "\n";
+
+                    Yii::error($msg);
+
+                    die();
+                }
+            }
+        }
+
         \common\models\AdminToken::deleteAll(new Expression("token_expiry_datetime IS NULL OR 
                 token_expiry_datetime < NOW()"));
 

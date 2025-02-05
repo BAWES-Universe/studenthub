@@ -333,9 +333,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
 //        } else
         if (isset($changedAttributes['paid']) && $this->paid == self::PAID) {
 
-            $this->emailTransferSuccess();
+           // $this->emailTransferSuccess();
 
-            $this->sendTransferPaidNotification();
+          //  $this->sendTransferPaidNotification();
 
             $this->updateStats();
 
