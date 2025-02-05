@@ -127,7 +127,8 @@ class TransferFile extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            'transferCandidates'
+            'transferCandidates',
+            "transferFileEntry",
         ];
     }
     
