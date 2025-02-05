@@ -251,11 +251,13 @@ class TransferFile extends \yii\db\ActiveRecord
                     {
                         $transaction->rollBack();
 
-                        echo "Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                            print_r($tc->getErrors(), true) . "\n";
+                        $msg = "Error updating candidate transfer: #" . $value['tc_id'] .
+                            " file entry: ". print_r($value, true) . "  \n" .
+                            " errors: " . print_r($tc->getErrors(), true) . "  \n";
 
-                        $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                            print_r($tc->getErrors(), true));
+                        echo $msg;
+
+                        $this->markFailed($msg);
 
                         /*return [
                             "operation" => "error",
