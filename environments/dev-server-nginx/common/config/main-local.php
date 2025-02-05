@@ -59,11 +59,10 @@ return [
             'transport' => [
                 'scheme' => 'smtp',
                 'host' => 'smtp.elasticemail.com',
-                'username' => 'contact@studenthub.co',
-                'password' => 'B53B9967191B1466BA30B027F95A726ECE49',
+                'username' => 'no-reply@mail.studenthub.co',
+                'password' => 'FB28388CE97459B250D9A24BBC650AAD2466',
                 'port' => 2525,
                 'encryption' => 'tls'
-                //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
             ],
         ],
         /*'transport' => [

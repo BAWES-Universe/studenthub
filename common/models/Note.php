@@ -239,7 +239,20 @@ class Note extends \yii\db\ActiveRecord
             if ($insert) {
                 //update `request_updated_at` field
                 $this->request->request_updated_datetime = '';
-                $this->request->update(false);
+
+                for ($i = 0; $i < 3; $i++) {
+                    try {
+                        $this->request->update(false);
+
+                        break; // Exit loop if successful
+                    } catch (Exception $e) {
+                        if ($e->getCode() == 1213) { // Deadlock
+                            sleep(1); // Brief pause before retry
+                            continue;
+                        }
+                        throw $e; // Rethrow other exceptions
+                    }
+                }
             }
 
             $staffName = 'Guest';
