@@ -856,6 +856,8 @@ class TransferController extends Controller
                 continue;//ignore empty values
             }
 
+
+
             /* --------------- not having status on this bank's excel -----------------------
 
             if($value['Status'] == 'FAIL') {
@@ -898,6 +900,7 @@ class TransferController extends Controller
                     ->one();
 
                 if(!$transferCandidate) {
+
                     return [
                         'operation' => 'error',
                         'message' => "No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].

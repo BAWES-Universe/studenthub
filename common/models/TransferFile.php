@@ -561,6 +561,25 @@ class TransferFile extends \yii\db\ActiveRecord
 
                 if(!$transferCandidate) {
 
+                    //check if already processed in other excel with same reference number
+
+                    $exist = TransferCandidate::find()
+                        ->andWhere([
+                            'transfer_benef_iban' => $value['Beneficiary Account'],
+                            "candidate_total" => $value['Amount'],
+                            "currency_code" => $value['Transfer Currency'], // good to have filter, if same bank account in 2 country
+                            "paid" => 1,
+                            "transfer_confirmation_id" => $value['Refrence Number']
+                        ])
+                        // having latest transfern as can have same bank account (for duplicate profile), same amount + currency (for previous month's transfer),
+                        ->orderBy("tc_id DESC")
+                        ->one();
+
+                    if ($exist) {
+                        Yii::error("Duplicate bank file entry #".$this->transfer_file_id." : " . print_r($value, true));
+                        continue;
+                    }
+
                     $transaction->rollBack();
 
                     $this->markFailed("No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].
