@@ -29,6 +29,7 @@ class TransferFile extends \yii\db\ActiveRecord
     const STATUS_PENDING = 0;
     const STATUS_FAILED = 1;
     const STATUS_PROCESSED = 2;
+    const STATUS_PROCESSING = 3;
 
     /**
      * {@inheritdoc}
@@ -47,7 +48,7 @@ class TransferFile extends \yii\db\ActiveRecord
             [['transfer_file_s3_path', "currency_code"], 'required'],
             [['currency_code'], "string", "max" => 3],
             [['bank'], "string", "max" => 100],
-            ['status', 'in', 'range' => [self::STATUS_PENDING, self::STATUS_FAILED, self::STATUS_PROCESSED]],
+            ['status', 'in', 'range' => [self::STATUS_PENDING, self::STATUS_PROCESSING, self::STATUS_FAILED, self::STATUS_PROCESSED]],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path', "error"], 'string', 'max' => 255],
             [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['admin_id' => 'admin_id']],
@@ -126,7 +127,8 @@ class TransferFile extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return [
-            'transferCandidates'
+            'transferCandidates',
+            "transferFileEntry",
         ];
     }
     
@@ -176,6 +178,14 @@ class TransferFile extends \yii\db\ActiveRecord
      */
     public function process() {
 
+        //mark as processing
+        $this->status = self::STATUS_PROCESSING;
+        if (!$this->save(false)) {
+            echo "Error updating trasfer file status :" . print_r($this->getErrors()) . "\n";
+            Yii::error("Error updating trasfer file status :" . print_r($this->getErrors()));
+            die();
+        }
+
         $transaction = Yii::$app->db->beginTransaction();
 
         //mark candidates as paid
@@ -194,6 +204,8 @@ class TransferFile extends \yii\db\ActiveRecord
             $transaction->rollBack();
 
             $this->markFailed("no data");
+
+            echo "No data \n";
 
             die();
         }
@@ -214,6 +226,8 @@ class TransferFile extends \yii\db\ActiveRecord
             {
                 $transaction->rollBack();
 
+                echo "Invalid request \n";
+
                 $this->markFailed('Invalid request');
 
                 die();
@@ -229,15 +243,21 @@ class TransferFile extends \yii\db\ActiveRecord
             //validation adding extra overhead in system
 
             for ($i = 0; $i < 3; $i++) {
+
                 try {
 
                     // Execute your query
-                    if(!$tc->update())
+                    if(!$tc->save())
                     {
                         $transaction->rollBack();
 
-                        $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                            json_encode($tc->getErrors()));
+                        $msg = "Error updating candidate transfer: #" . $value['tc_id'] .
+                            " file entry: ". print_r($value, true) . "  \n" .
+                            " errors: " . print_r($tc->getErrors(), true) . "  \n";
+
+                        echo $msg;
+
+                        $this->markFailed($msg);
 
                         /*return [
                             "operation" => "error",
@@ -252,7 +272,9 @@ class TransferFile extends \yii\db\ActiveRecord
 
                     break; // Exit loop if successful
                 } catch (Exception $e) {
+
                     if ($e->getCode() == 1213) { // Deadlock
+                        echo "Sleeping for 1 second \n";
                         sleep(1); // Brief pause before retry
                         continue;
                     }
@@ -260,7 +282,10 @@ class TransferFile extends \yii\db\ActiveRecord
                 }
             }
 
-            $tc->emailTransferSuccess();
+            echo "Candidate transfer marked as paid #" . $value['tc_id'] . "\n";
+
+            //todo: this can make it slow
+            //$tc->emailTransferSuccess();
         }
 
         // Check if all paid, mark transfer as complete
@@ -270,6 +295,7 @@ class TransferFile extends \yii\db\ActiveRecord
         );
 
         foreach($transfer_ids as $transfer_id) {
+            echo "Transfer marked as paid #" . $transfer_id . "\n";
             Transfer::markTransferCompleteOnCandidatePaid($transfer_id);
         }
 
@@ -303,6 +329,8 @@ class TransferFile extends \yii\db\ActiveRecord
         $transaction->commit();
 
         if(YII_ENV == 'prod') {
+            echo "Transfer Payable Candidate Event \n";
+
             Transfer::triggerPayableCandidateEvent();
         }
     }
@@ -535,6 +563,25 @@ class TransferFile extends \yii\db\ActiveRecord
 
                 if(!$transferCandidate) {
 
+                    //check if already processed in other excel with same reference number
+
+                    $exist = TransferCandidate::find()
+                        ->andWhere([
+                            'transfer_benef_iban' => $value['Beneficiary Account'],
+                            "candidate_total" => $value['Amount'],
+                            "currency_code" => $value['Transfer Currency'], // good to have filter, if same bank account in 2 country
+                            "paid" => 1,
+                            "transfer_confirmation_id" => $value['Refrence Number']
+                        ])
+                        // having latest transfern as can have same bank account (for duplicate profile), same amount + currency (for previous month's transfer),
+                        ->orderBy("tc_id DESC")
+                        ->one();
+
+                    if ($exist) {
+                        Yii::error("Duplicate bank file entry #".$this->transfer_file_id." : " . print_r($value, true));
+                        continue;
+                    }
+
                     $transaction->rollBack();
 
                     $this->markFailed("No unpaid transfer found with Beneficiary Account: " . $value['Beneficiary Account'].
@@ -632,13 +679,13 @@ class TransferFile extends \yii\db\ActiveRecord
     public function markFailed($error) {
         $this->status = self::STATUS_FAILED;
         $this->error = $error;
-        $this->update(false);
+        $this->save(false);
     }
 
     public function markProcessed($count, $fileName) {
 
         $this->status = self::STATUS_PROCESSED;
-        $this->update(false);
+        $this->save(false);
 
         TransferFile::transferMail($this, $count, $fileName);
     }

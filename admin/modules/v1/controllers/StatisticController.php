@@ -185,6 +185,8 @@ class StatisticController extends Controller
 
         $result['didnt_attended'] = (int) ($totalStaff - $result['attended'] - $result['absent']);
 
+        $result['lastCronRun'] = Yii::$app->cache->get("lastCronRun");
+
         return $result;
     }
 

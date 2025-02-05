@@ -397,8 +397,10 @@ return [
                     'patterns' => [
                         'GET' => 'list', 
                         'GET <id>' => 'view',
+                        "PATCH re-schedule/<id>" => "re-schedule",
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
+                        "OPTIONS re-schedule/<id>"=> 'options',
                         'OPTIONS <id>' => 'options'
                     ]
                 ],
