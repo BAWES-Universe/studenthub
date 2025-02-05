@@ -178,7 +178,9 @@ $logo = yii\helpers\Url::to('@web/images/logo.png', 'https');
                                                                                     <div
                                                                                         style="font-family:Proxima Nova, Arial, Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;text-align:left;color:#000000;"
                                                                                         >
-                                                                                        Thanks for signing up on StudentHub. Please take a sec to confirm your email.
+                                                                                        Thanks for signing up on StudentHub. Please take a sec to confirm your email.<br /><br /> 
+
+                                                                                        Your verification code : <?= $candidate->candidate_auth_key ?>
                                                                                     </div>
 
                                                                                 </td>
