@@ -241,31 +241,20 @@ class TransferFile extends \yii\db\ActiveRecord
 
             //validation adding extra overhead in system
 
-            if(!$tc->update(false)) //false
-            {
-                echo "Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                    print_r($tc->getErrors(), true) . "\n";
-
-                $transaction->rollBack();
-
-                $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                    json_encode($tc->getErrors()));
-            }
-
             for ($i = 0; $i < 3; $i++) {
 
                 try {
 
                     // Execute your query
-                    if(!$tc->update())
+                    if(!$tc->save())
                     {
                         $transaction->rollBack();
 
                         echo "Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                            json_encode($tc->getErrors()) . "\n";
+                            print_r($tc->getErrors(), true) . "\n";
 
                         $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
-                            json_encode($tc->getErrors()));
+                            print_r($tc->getErrors(), true));
 
                         /*return [
                             "operation" => "error",
@@ -668,13 +657,13 @@ class TransferFile extends \yii\db\ActiveRecord
     public function markFailed($error) {
         $this->status = self::STATUS_FAILED;
         $this->error = $error;
-        $this->update(false);
+        $this->save(false);
     }
 
     public function markProcessed($count, $fileName) {
 
         $this->status = self::STATUS_PROCESSED;
-        $this->update(false);
+        $this->save(false);
 
         TransferFile::transferMail($this, $count, $fileName);
     }

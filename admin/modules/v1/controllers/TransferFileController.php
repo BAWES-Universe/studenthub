@@ -2,6 +2,7 @@
 
 namespace admin\modules\v1\controllers;
 
+use admin\models\Transfer;
 use Yii;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -87,6 +88,37 @@ class TransferFileController extends Controller
         return new ActiveDataProvider([
             'query' => $query
         ]);
+    }
+
+    /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
+     */
+    public function actionReSchedule($id) {
+        $model = $this->findModel($id);
+
+        if($model->status != TransferFile::STATUS_FAILED) {
+            return [
+                "operation" => "error",
+                "message" => "Only failed file can be re-scheduled!"
+            ];
+        }
+
+        $model->status = TransferFile::STATUS_PENDING;
+
+        if(!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "Done"
+        ];
     }
 
     /**
