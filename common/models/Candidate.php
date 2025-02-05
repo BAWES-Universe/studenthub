@@ -1479,6 +1479,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
             ->andWhere(['store_id' => $this->store_id])
             ->andWhere(new Expression("end_date IS NULL"));
+            //->andWhere(['{{%candidate_work_history}}.deleted'=>0]);
     }
 
     /**
