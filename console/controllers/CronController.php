@@ -37,6 +37,9 @@ class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
 
+      //  $model = TransferFile::findOne(1199);
+      //  $model->process();
+
        // Yii::error("test error");
 
         //https://studenthub-uploads-dev-server.s3.amazonaws.com/photos/MBK-Civil-ID-1600531990157.png
@@ -267,6 +270,8 @@ class CronController extends \yii\console\Controller {
      */
     public function actionEveryMinute()
     {
+        \Yii::$app->cache->set("lastCronRun", time());
+
         Suggestion::suggestionCandidateNotification();
         Suggestion::suggestionFulltimerNotification();
     }
@@ -282,7 +287,8 @@ class CronController extends \yii\console\Controller {
      */
     public function actionProcessTransferFiles() {
 
-        $query = TransferFile::find()->andWhere(['status' => TransferFile::STATUS_PENDING]);
+        $query = TransferFile::find()
+            ->andWhere(['status' => TransferFile::STATUS_PENDING]);
 
         foreach ($query->batch(100) as $transferFiles) {
             foreach ($transferFiles as $transferFile) {

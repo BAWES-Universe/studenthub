@@ -84,6 +84,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 'targetAttribute' => ['transfer_confirmation_id', "bank_id", 'deleted']],
 
             ['paid', 'validateStatus'],
+
             [['currency_code'], "string", "max" => 3],
             [['transfer_benef_name'], 'string', 'max' => 60],
             [['bank_id', 'transfer_confirmation_id', 'transfer_benef_name', 'transfer_benef_iban'], 'validateBankDetails'],
@@ -156,7 +157,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             )      
         ) {
             $this->addError($attribute, 'Bank detail can not be updated on paid transfer.');
+            return false;
         }
+
+        return true;
     }
            
     /**
@@ -181,7 +185,11 @@ class TransferCandidate extends \yii\db\ActiveRecord
     {
         $scenarios = parent::scenarios();
 
-        $scenarios[TransferCandidate::SCENARIO_MARKING_PAID] = ['paid', 'transfer_file_id', "transfer_confirmation_id"];
+        $scenarios[TransferCandidate::SCENARIO_MARKING_PAID] = [
+            'paid',
+            'transfer_file_id',
+            "transfer_confirmation_id"
+        ];
 
         return $scenarios;
     }

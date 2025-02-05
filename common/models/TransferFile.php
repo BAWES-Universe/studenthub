@@ -29,6 +29,7 @@ class TransferFile extends \yii\db\ActiveRecord
     const STATUS_PENDING = 0;
     const STATUS_FAILED = 1;
     const STATUS_PROCESSED = 2;
+    const STATUS_PROCESSING = 3;
 
     /**
      * {@inheritdoc}
@@ -47,7 +48,7 @@ class TransferFile extends \yii\db\ActiveRecord
             [['transfer_file_s3_path', "currency_code"], 'required'],
             [['currency_code'], "string", "max" => 3],
             [['bank'], "string", "max" => 100],
-            ['status', 'in', 'range' => [self::STATUS_PENDING, self::STATUS_FAILED, self::STATUS_PROCESSED]],
+            ['status', 'in', 'range' => [self::STATUS_PENDING, self::STATUS_PROCESSING, self::STATUS_FAILED, self::STATUS_PROCESSED]],
             [['transfer_file_created_at', 'transfer_file_updated_at', 'transfer_amount'], 'safe'],
             [['transfer_file_s3_path', "error"], 'string', 'max' => 255],
             [['admin_id'], 'exist', 'skipOnError' => true, 'targetClass' => Admin::class, 'targetAttribute' => ['admin_id' => 'admin_id']],
@@ -176,6 +177,14 @@ class TransferFile extends \yii\db\ActiveRecord
      */
     public function process() {
 
+        //mark as processing
+        $this->status = self::STATUS_PROCESSING;
+        if (!$this->save(false)) {
+            echo "Error updating trasfer file status :" . print_r($this->getErrors()) . "\n";
+            Yii::error("Error updating trasfer file status :" . print_r($this->getErrors()));
+            die();
+        }
+
         $transaction = Yii::$app->db->beginTransaction();
 
         //mark candidates as paid
@@ -194,6 +203,8 @@ class TransferFile extends \yii\db\ActiveRecord
             $transaction->rollBack();
 
             $this->markFailed("no data");
+
+            echo "No data \n";
 
             die();
         }
@@ -214,6 +225,8 @@ class TransferFile extends \yii\db\ActiveRecord
             {
                 $transaction->rollBack();
 
+                echo "Invalid request \n";
+
                 $this->markFailed('Invalid request');
 
                 die();
@@ -228,13 +241,28 @@ class TransferFile extends \yii\db\ActiveRecord
 
             //validation adding extra overhead in system
 
+            if(!$tc->update(false)) //false
+            {
+                echo "Error updating candidate transfer: #" . $value['tc_id'] . " ".
+                    print_r($tc->getErrors(), true) . "\n";
+
+                $transaction->rollBack();
+
+                $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
+                    json_encode($tc->getErrors()));
+            }
+
             for ($i = 0; $i < 3; $i++) {
+
                 try {
 
                     // Execute your query
                     if(!$tc->update())
                     {
                         $transaction->rollBack();
+
+                        echo "Error updating candidate transfer: #" . $value['tc_id'] . " ".
+                            json_encode($tc->getErrors()) . "\n";
 
                         $this->markFailed("Error updating candidate transfer: #" . $value['tc_id'] . " ".
                             json_encode($tc->getErrors()));
@@ -252,7 +280,9 @@ class TransferFile extends \yii\db\ActiveRecord
 
                     break; // Exit loop if successful
                 } catch (Exception $e) {
+
                     if ($e->getCode() == 1213) { // Deadlock
+                        echo "Sleeping for 1 second \n";
                         sleep(1); // Brief pause before retry
                         continue;
                     }
@@ -260,6 +290,9 @@ class TransferFile extends \yii\db\ActiveRecord
                 }
             }
 
+            echo "Candidate transfer marked as paid #" . $value['tc_id'] . "\n";
+
+            //todo: this can make it slow
             $tc->emailTransferSuccess();
         }
 
@@ -270,6 +303,7 @@ class TransferFile extends \yii\db\ActiveRecord
         );
 
         foreach($transfer_ids as $transfer_id) {
+            echo "Transfer marked as paid #" . $transfer_id . "\n";
             Transfer::markTransferCompleteOnCandidatePaid($transfer_id);
         }
 
@@ -303,6 +337,8 @@ class TransferFile extends \yii\db\ActiveRecord
         $transaction->commit();
 
         if(YII_ENV == 'prod') {
+            echo "Transfer Payable Candidate Event \n";
+
             Transfer::triggerPayableCandidateEvent();
         }
     }
