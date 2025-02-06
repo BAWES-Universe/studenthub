@@ -746,7 +746,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ];*/
         }
 
-        if (!isset($keys['Description'])) {
+        /*if (!isset($keys['Description'])) {
 
             Yii::error("Invalid file format for bank statement");
 
@@ -755,7 +755,7 @@ class TransferFile extends \yii\db\ActiveRecord
             $this->markFailed("Invalid file format for bank statement");
 
             die();
-        }
+        }*/
 
         //create array with key to read data
 
