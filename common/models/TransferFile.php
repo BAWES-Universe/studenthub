@@ -775,6 +775,10 @@ class TransferFile extends \yii\db\ActiveRecord
 
         foreach ($data as $key => $value) {
 
+            if (empty($value['Description'])) {
+                continue;
+            }
+
             //extract candidate transfer id
 
             // Initialize a variable to store the extracted number
