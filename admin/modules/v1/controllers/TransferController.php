@@ -685,6 +685,10 @@ class TransferController extends Controller
 
         foreach ($data as $key => $value)
         {
+            if (empty($value['Description'])) {
+                continue;
+            }
+            
             // Initialize a variable to store the extracted number
             $tc_id = null;
 
@@ -748,7 +752,9 @@ class TransferController extends Controller
                 //get reference number
                 //example: IB/LOCAL TRANSFER/O-000004206364/MARIAN AKRAM MAGDY HABIB/BILL SETTLEMENT/SALARY 88467 000004206364
 
-                $data = $value['Description']? explode("/", $value['Description']): $value['Description'];
+                $data = $value['Description']?
+                    explode("/", $value['Description']):
+                    $value['Description'];
 
                 $candidatesTransfers[] = [
                     'transfer_confirmation_id' => isset($data[2])? $data[2]: $data[0],
