@@ -820,13 +820,14 @@ class TransferFile extends \yii\db\ActiveRecord
                     'errorCode' => 4
                 ];*/
 
-                $transaction->rollBack();
+                /*$transaction->rollBack();
 
                 $this->markFailed("No candidate profile found for candidate transfer : " . $tc_id);
+                */
 
                 Yii::error("No candidate profile found for candidate transfer: " . $tc_id);
 
-                die();
+                continue; //ignoring invalid tc_id as bank statement can have any reference number
             }
 
             //get reference number
