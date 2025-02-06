@@ -688,7 +688,7 @@ class TransferController extends Controller
             if (empty($value['Description'])) {
                 continue;
             }
-            
+
             // Initialize a variable to store the extracted number
             $tc_id = null;
 
@@ -778,7 +778,8 @@ class TransferController extends Controller
             return [
                 'operation' => 'error',
                 'message' => 'Invalid excel',
-                'errorCode' => 5
+                'errorCode' => 5,
+                "errors" => $errors
             ];
         }
 
