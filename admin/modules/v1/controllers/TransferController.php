@@ -649,7 +649,7 @@ class TransferController extends Controller
             \yii\helpers\ArrayHelper::remove($excelData, $i);
         }
 
-        //9th row will be key
+        //8th row will be key
 
         $keys = \yii\helpers\ArrayHelper::remove($excelData, '8');
 
@@ -685,18 +685,29 @@ class TransferController extends Controller
 
         foreach ($data as $key => $value)
         {
+            // Initialize a variable to store the extracted number
+            $tc_id = null;
+
             //extract candidate transfer id
 
             // Define the regex pattern to match a number after "SALARY"
-            $pattern = '/S\s+(\d+)/';
-
-            // Initialize a variable to store the extracted number
-            $tc_id = null;
+            $pattern = '/SALARY\s+(\d+)/';
 
             // Perform the regex match
             if (preg_match($pattern, $value['Description'], $matches)) {
                 // The first capturing group contains the number after "SALARY"
                 $tc_id = $matches[1];
+            }
+
+            // Define the regex pattern to match a number after "SALARY"
+            if (!$tc_id) {
+                $pattern = '/S\s+(\d+)/';
+
+                // Perform the regex match
+                if (preg_match($pattern, $value['Description'], $matches)) {
+                    // The first capturing group contains the number after "SALARY"
+                    $tc_id = $matches[1];
+                }
             }
 
             if (!$tc_id) {

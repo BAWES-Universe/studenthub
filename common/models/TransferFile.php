@@ -724,7 +724,7 @@ class TransferFile extends \yii\db\ActiveRecord
             \yii\helpers\ArrayHelper::remove($excelData, $i);
         }
 
-        //9th row will be key
+        //8th row will be key
 
         $keys = \yii\helpers\ArrayHelper::remove($excelData, '8');
 
@@ -777,16 +777,28 @@ class TransferFile extends \yii\db\ActiveRecord
 
             //extract candidate transfer id
 
-            // Define the regex pattern to match a number after "SALARY"
-            $pattern = '/SALARY\s+(\d+)/';
-
             // Initialize a variable to store the extracted number
             $tc_id = null;
+
+            // Define the regex pattern to match a number after "SALARY"
+            $pattern = '/SALARY\s+(\d+)/';
 
             // Perform the regex match
             if (preg_match($pattern, $value['Description'], $matches)) {
                 // The first capturing group contains the number after "SALARY"
                 $tc_id = $matches[1];
+            }
+
+            //one more way for Al Ahli Bank
+
+            if (!$tc_id) {
+
+                $pattern = '/S\s+(\d+)/';
+
+                if (preg_match($pattern, $value['Description'], $matches)) {
+                    // The first capturing group contains the number after "SALARY"
+                    $tc_id = $matches[1];
+                }
             }
 
             if (!$tc_id) {
