@@ -526,13 +526,21 @@ class CandidateController extends Controller
     {
         $sar_id = Yii::$app->request->getBodyParam("sar_id");
         $store_id = Yii::$app->request->getBodyParam("store_id");
-        $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $start_date = Yii::$app->request->getBodyParam("start_date");
-        $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
+        $end_date = Yii::$app->request->getBodyParam("end_date");
         $transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
-        $company_transfer_cost = Yii::$app->request->getBodyParam("company_transfer_cost");
-        $contract_uuid = Yii::$app->request->getBodyParam("contract_uuid");
+    //$company_transfer_cost = Yii::$app->request->getBodyParam("company_transfer_cost");
+ 
+        $contract_type = Yii::$app->request->getBodyParam("type");
+        $contract_detail = Yii::$app->request->getBodyParam("detail");
+        $contract_amount_details = Yii::$app->request->getBodyParam("amount");
 
+        $contract_currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
+        
+        //deprecated field 
+        $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
+        $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
+        
         $model = $this->findModel($id);
 
         if ($model->store_id) {
@@ -543,7 +551,7 @@ class CandidateController extends Controller
             ];
         }
 
-        $isExists = CandidateWorkHistory::find()
+        $isExists = Contract::find()
             ->andWhere([
                 'candidate_id' => $model->candidate_id,
                 'store_id' => $store_id
@@ -626,6 +634,7 @@ class CandidateController extends Controller
         $company_id = !empty($company->parent_company_id) ?
             $company->parent_company_id: $company->company_id;
 
+            /*
         $transfer_cost_model = TransferCost::find()
             ->andWhere([
                 "candidate_id" => $model->candidate_id,
@@ -677,25 +686,58 @@ class CandidateController extends Controller
                 "code" => 7,
                 "message" => $transfer_cost_model->errors,
             ];
-        }
+        }*/
 
         // saving candidate work history
-        $candidateWorkHistory = CandidateWorkHistory::saveAssignedHistory(
+        $contract = new Contract();
+
+        $contract->scenario = Contract::SCENARIO_ASSIGN;// _TEMPLATE;
+
+        $contract->candidate_id = $id;
+        $contract->store_id = $store_id;
+
+        $contract->type = $contract_type;
+        $contract->detail = $contract_detail;
+        $contract->start_date = $start_date;
+        $contract->end_date = $end_date;
+        $contract->transfer_cost = $transfer_cost;
+        $contract->currency_code = $contract_currency_code;
+        $contract->status = Contract::STATUS_INACTIVE;
+        $contract->amountDetails = $contract_amount_details;
+ 
+        if (!$model->save()) {
+            $transaction->rollBack();
+
+            if (isset($model->errors)) {
+                return [
+                    "operation" => "error",
+                    "message" => $model->getErrors()
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => "We've faced a problem adding the contract, please contact us for assistance"
+                ];
+            }
+        }
+
+        //backup code
+        $workHistory = CandidateWorkHistory::saveAssignedHistory(
             $model,
             $start_date,
             $company_hourly_rate,
             $transfer_cost,
-            $contract_uuid
+            $contract->contract_uuid
         );
 
-        if($candidateWorkHistory->errors) {
+        if($workHistory->errors) {     
 
             $transaction->rollBack();
 
             return [
                 "operation" => "error",
                 "code" => 8,
-                "message" => $candidateWorkHistory->errors,
+                "message" => $workHistory->errors,
             ];
         }
 
@@ -727,11 +769,11 @@ class CandidateController extends Controller
 
         $transaction->commit(); 
 
-        Yii::info('[Candidate '.$model->candidate_name.' assigned to work at '.$storeName.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
+        Yii::info('[Candidate contract created to work at '.$storeName.' for  '.$model->candidate_name.'] By '.Yii::$app->user->identity->staff_name, __METHOD__);
 
         return [
             "operation" => "success",
-            "message" => "Candidate assigned to store successfully",
+            "message" => "Candidate contract created successfully",
             "candidate_detail" => $model
         ];
     }
