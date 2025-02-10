@@ -531,12 +531,13 @@ class CandidateController extends Controller
         $transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
     //$company_transfer_cost = Yii::$app->request->getBodyParam("company_transfer_cost");
  
-        $contract_type = Yii::$app->request->getBodyParam("type");
-        $contract_detail = Yii::$app->request->getBodyParam("detail");
-        $contract_amount_details = Yii::$app->request->getBodyParam("amount");
+        $contract_type = Yii::$app->request->getBodyParam("contract_type");
+        $contract_detail = Yii::$app->request->getBodyParam("contract_detail");
+        $contract_amount_details = Yii::$app->request->getBodyParam("contract_amount_details");
 
         $contract_currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
-        
+        //Yii::$app->request->headers->get("Currency", "KWD");
+
         //deprecated field 
         $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
         $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
