@@ -22,7 +22,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function all($db = null)
     {
-        $this->andWhere(['{{%candidate}}.deleted'=>0]);
+     //   $this->andWhere(['{{%candidate}}.deleted'=>0]);
         return parent::all($db);
     }
 
@@ -42,7 +42,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
      */
     public function count($q = '*', $db = null)
     {
-        $this->andWhere(['{{%candidate}}.deleted' => 0]);
+      //  $this->andWhere(['{{%candidate}}.deleted' => 0]);
         return parent::count($q);
     }
 

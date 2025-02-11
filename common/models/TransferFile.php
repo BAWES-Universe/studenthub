@@ -746,7 +746,7 @@ class TransferFile extends \yii\db\ActiveRecord
             ];*/
         }
 
-        if (!isset($keys['Description'])) {
+        /*if (!isset($keys['Description'])) {
 
             Yii::error("Invalid file format for bank statement");
 
@@ -755,7 +755,7 @@ class TransferFile extends \yii\db\ActiveRecord
             $this->markFailed("Invalid file format for bank statement");
 
             die();
-        }
+        }*/
 
         //create array with key to read data
 
@@ -774,6 +774,10 @@ class TransferFile extends \yii\db\ActiveRecord
         $candidatesTransfers = [];
 
         foreach ($data as $key => $value) {
+
+            if (empty($value['Description'])) {
+                continue;
+            }
 
             //extract candidate transfer id
 
@@ -820,13 +824,14 @@ class TransferFile extends \yii\db\ActiveRecord
                     'errorCode' => 4
                 ];*/
 
-                $transaction->rollBack();
+                /*$transaction->rollBack();
 
                 $this->markFailed("No candidate profile found for candidate transfer : " . $tc_id);
+                */
 
                 Yii::error("No candidate profile found for candidate transfer: " . $tc_id);
 
-                die();
+                continue; //ignoring invalid tc_id as bank statement can have any reference number
             }
 
             //get reference number

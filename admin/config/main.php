@@ -369,6 +369,8 @@ return [
                     'controller' => 'v1/transfer-candidate',
                     'patterns' => [
                         'GET' => 'list',
+                        'GET payable-candidates' => 'payable-candidates',
+                        'GET payable-candidates-stats' => 'payable-candidates-stats',
                         'GET by-transfer/<id>' => 'by-transfer',
                         'GET by-transfer-file/<id>' => 'by-transfer-file',
                         'GET <id>' => 'view',
@@ -381,6 +383,8 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        "OPTIONS payable-candidates-stats" => 'options',
+                        "OPTIONS payable-candidates" => 'options',
                         'OPTIONS by-transfer/<id>' => 'options',
                         'OPTIONS by-transfer-file/<id>' => 'options',
                         'OPTIONS unpaid/<id>' => 'options',

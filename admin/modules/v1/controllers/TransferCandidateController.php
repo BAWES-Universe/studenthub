@@ -69,6 +69,103 @@ class TransferCandidateController extends Controller
         return $actions;
     }
 
+    public function actionPayableCandidatesStats()
+    {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+
+        // Candidates whose company paid to admin but admin have not paid yet
+        $query = TransferCandidate::find()
+            ->filterUnpaid()
+            ->joinWith(['transfer'])
+            ->andWhere(['transfer.transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            /*->andWhere([
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])*/
+            ->andWhere('transfer.parent_transfer_id IS NULL');
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
+
+        return [
+            "totalUnpaid" => (double) (clone $query)->sum('candidate_total'),
+            "totalPayable" => (double) (clone $query)->havingBankInfo()
+                ->activeCivilId()
+                ->completeProfile()
+                ->sum('candidate_total'),
+            "totalOfMissingBankInfo" =>
+                (double) (clone $query)->missingBankInfo()
+                    ->sum('candidate_total'),
+            "totalOfExpiredCivil" =>
+                (double) (clone $query)->civilIdExpired()
+                    ->sum('candidate_total'),
+            "totalOfIncompleteProfile" => (double) (clone $query)
+                ->incompleteProfile()
+                ->sum('candidate_total')
+        ];
+    }
+
+    public function actionPayableCandidates()
+    {
+        $currency = Yii::$app->request->headers->get("Currency", "KWD");
+        $searchName = Yii::$app->request->get("searchName");
+        $candidateTransferStatus = Yii::$app->request->get("candidateTransferStatus");
+
+        // Candidates whose company paid to admin but admin have not paid yet
+        $query = TransferCandidate::find()
+            ->filterUnpaid()
+            ->joinWith(['transfer'])
+            ->andWhere(['transfer.transfer_status' => Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS])
+            /*->andWhere([
+                'IN',
+                'transfer.transfer_status', [
+                    Transfer::STATUS_SALARY_DISTRIBUTION_IN_PROGRESS,
+                    Transfer::STATUS_TRANSFER_COMPLETE
+                ]
+            ])*/
+            ->andWhere('transfer.parent_transfer_id IS NULL');
+
+        if($currency) {
+            $query->andWhere(['transfer.currency_code' => $currency]);
+        }
+
+        if ($searchName) {
+            $query->joinWith(['candidate'])
+                ->andWhere([
+                    "OR",
+                    ['like', 'candidate.candidate_name', $searchName],
+                    ['like', 'candidate.candidate_name_ar', $searchName]
+                ]);
+        }
+
+        switch ($candidateTransferStatus) {
+            case "active-profile":
+                $query->havingBankInfo()
+                    ->activeCivilId()
+                    ->completeProfile();
+                break;
+            case "missing-bank-info":
+                $query->missingBankInfo();
+                break;
+            case  "civil-expired":
+                $query->civilIdExpired();
+                break;
+            case "incomplete-profile":
+                $query->incompleteProfile();
+                break;
+            default:
+                break;
+        }
+
+        return new \yii\data\ActiveDataProvider([
+            'query' => $query
+        ]);
+    }
+
     /**
      * Return a List of Transfer.
      * @return array|\yii\db\ActiveRecord[]

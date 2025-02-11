@@ -226,6 +226,8 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
+        $searchName = Yii::$app->request->get("searchName");
+        $candidateTransferStatus = Yii::$app->request->get("candidateTransferStatus");
 
         // Candidates whose company paid to admin but admin have not paid yet
         $query = Transfer::find()
@@ -241,6 +243,20 @@ class TransferController extends Controller
 
         if($currency) {
             $query->andWhere(['transfer.currency_code' => $currency]);
+        }
+
+        if($searchName || $candidateTransferStatus) {
+
+            /**
+             * active-profile
+            missing-bank-info
+            civil-expired
+            incomplete-profile
+
+             */
+
+            //    $query->joinWith('transferCandidates');
+        //    $query->andWhere(['transfer.currency_code' => $currency]);
         }
 
         return new \yii\data\ActiveDataProvider([
@@ -685,6 +701,10 @@ class TransferController extends Controller
 
         foreach ($data as $key => $value)
         {
+            if (empty($value['Description'])) {
+                continue;
+            }
+
             // Initialize a variable to store the extracted number
             $tc_id = null;
 
@@ -748,7 +768,9 @@ class TransferController extends Controller
                 //get reference number
                 //example: IB/LOCAL TRANSFER/O-000004206364/MARIAN AKRAM MAGDY HABIB/BILL SETTLEMENT/SALARY 88467 000004206364
 
-                $data = $value['Description']? explode("/", $value['Description']): $value['Description'];
+                $data = $value['Description']?
+                    explode("/", $value['Description']):
+                    $value['Description'];
 
                 $candidatesTransfers[] = [
                     'transfer_confirmation_id' => isset($data[2])? $data[2]: $data[0],
@@ -772,7 +794,8 @@ class TransferController extends Controller
             return [
                 'operation' => 'error',
                 'message' => 'Invalid excel',
-                'errorCode' => 5
+                'errorCode' => 5,
+                "errors" => $errors
             ];
         }
 
