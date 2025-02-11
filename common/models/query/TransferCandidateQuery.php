@@ -231,6 +231,14 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
         );
     }
 
+    public function missingBankInfo() {
+        return $this->andWhere(new Expression(
+                'transfer_candidate.bank_id IS NULL OR 
+            transfer_candidate.transfer_benef_iban IS NULL OR 
+            transfer_candidate.transfer_benef_name IS NULL')
+        );
+    }
+
     /**
      * @param $company_id
      * @return $this
@@ -354,5 +362,21 @@ class TransferCandidateQuery extends \yii\db\ActiveQuery {
     {
         return $this->joinWith(['candidate'])
             ->andWhere('DATE({{%candidate}}.candidate_civil_expiry_date) >= DATE(NOW())');
+    }
+
+    /**
+     * @return TransferCandidateQuery
+     */
+    public function incompleteProfile() {
+        return $this->joinWith(['candidate'])
+            ->andWhere(['is_incomplete_profile' => true]);
+    }
+
+    /**
+     * @return TransferCandidateQuery
+     */
+    public function completeProfile() {
+        return $this->joinWith(['candidate'])
+            ->andWhere(['is_incomplete_profile' => false]);
     }
 }

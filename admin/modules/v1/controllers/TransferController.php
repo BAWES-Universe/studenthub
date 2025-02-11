@@ -226,6 +226,8 @@ class TransferController extends Controller
     public function actionPayableCandidates()
     {
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
+        $searchName = Yii::$app->request->get("searchName");
+        $candidateTransferStatus = Yii::$app->request->get("candidateTransferStatus");
 
         // Candidates whose company paid to admin but admin have not paid yet
         $query = Transfer::find()
@@ -241,6 +243,20 @@ class TransferController extends Controller
 
         if($currency) {
             $query->andWhere(['transfer.currency_code' => $currency]);
+        }
+
+        if($searchName || $candidateTransferStatus) {
+
+            /**
+             * active-profile
+            missing-bank-info
+            civil-expired
+            incomplete-profile
+
+             */
+
+            //    $query->joinWith('transferCandidates');
+        //    $query->andWhere(['transfer.currency_code' => $currency]);
         }
 
         return new \yii\data\ActiveDataProvider([
