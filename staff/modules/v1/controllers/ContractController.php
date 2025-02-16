@@ -128,7 +128,13 @@ class ContractController extends Controller
     {
         $model = new Contract();
 
+        $model->scenario = Contract::SCENARIO_ASSIGN;// _TEMPLATE;
+
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->parent_company_id = Yii::$app->request->getBodyParam("parent_company_id");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+        $model->store_id = Yii::$app->request->getBodyParam("store_id");
+
         $model->type = Yii::$app->request->getBodyParam("type");
         $model->detail = Yii::$app->request->getBodyParam("detail");
         $model->start_date = Yii::$app->request->getBodyParam("start_date");
@@ -166,8 +172,14 @@ class ContractController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        
+        $model->scenario = Contract::SCENARIO_ASSIGN;// _TEMPLATE;
 
         $model->company_id = Yii::$app->request->getBodyParam("company_id");
+        $model->parent_company_id = Yii::$app->request->getBodyParam("parent_company_id");
+        $model->candidate_id = Yii::$app->request->getBodyParam("candidate_id");
+        $model->store_id = Yii::$app->request->getBodyParam("store_id");
+
         $model->type = Yii::$app->request->getBodyParam("type");
         $model->detail = Yii::$app->request->getBodyParam("detail");
         $model->start_date = Yii::$app->request->getBodyParam("start_date");

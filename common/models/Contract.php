@@ -12,7 +12,10 @@ use yii\db\Expression;
  * This is the model class for table "contract".
  *
  * @property string $contract_uuid
+ * @property int $candidate_id
+ * @property int $parent_company_id
  * @property int $company_id
+ * @property int $store_id
  * @property string $type
  * @property string $detail
  * @property string $start_date
@@ -33,12 +36,18 @@ use yii\db\Expression;
  */
 class Contract extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 1;
+    const STATUS_INACTIVE = 0;
+
     const TYPE_FIXED_PRICE = "FIXED_PRICE";
     const TYPE_HOURLY = "HOURLY";
     const TYPE_MONTHLY_SALARY = "MONTHLY_SALARY";
 
     public $amountDetails;
     
+    const SCENARIO_TEMPLATE = "template";
+    const SCENARIO_ASSIGN = "assign";
+
     /**
      * {@inheritdoc}
      */
@@ -53,7 +62,8 @@ class Contract extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['company_id', 'type'], 'required'],
+            [['company_id',  'type'], 'required'],
+            [['candidate_id', 'store_id'], 'required', 'on' => self::SCENARIO_ASSIGN],
             [['company_id', 'status', 'created_by'], 'integer'],
             [['detail'], 'string'],
             [['deleted'], 'boolean'],
@@ -66,6 +76,9 @@ class Contract extends \yii\db\ActiveRecord
             [['type'], 'string', 'max' => 255],
             [['currency_code'], 'string', 'max' => 3],
             [['contract_uuid'], 'unique'],
+            [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
+            [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
+            [['parent_company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['parent_company_id' => 'company_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Staff::class, 'targetAttribute' => ['created_by' => 'staff_id']],
         ];
@@ -130,23 +143,43 @@ class Contract extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return array_merge(parent::extraFields(), [
-            "amount"
+            "amount",
+            "store",
+            "candidate",
+            "parentCompany",
+            "company"
         ]);
     }
 
     /**
      * @param $insert
+     * @return bool
+     */
+    public function beforeSave($insert) {
+        if ($this->scenario == self::SCENARIO_ASSIGN) {
+            $this->company_id = $this->store->company_id;
+            $this->parent_company_id = $this->store->company->parent_company_id;
+        }
+
+        return parent::beforeSave($insert);
+    }
+
+    /**
+     * @param $insert
      * @param $changedAttributes
-     * @return array|string[]|void
+     * @return array|string[]|void|bool
      */
     public function afterSave($insert, $changedAttributes) {
 
-        if (isset($changedAttributes['deleted'])) {
-            return true;
-        }
+        if (!$insert) { 
 
-        if (!$insert && isset($changedAttributes['type'])) {
-            $this->amount->delete();
+            if (isset($changedAttributes['deleted'])) {
+                return true;
+            }
+
+            if (isset($changedAttributes['type'])) {
+                $this->amount->delete();
+            }
         }
 
         if ($this->type == Contract::TYPE_FIXED_PRICE) {
@@ -195,6 +228,7 @@ class Contract extends \yii\db\ActiveRecord
             $hourlyContract->company_hourly_rate = $this->amountDetails['company_hourly_rate'];
 
             if (!$hourlyContract->save()) {
+
                 if (isset($hourlyContract->errors)) {
 
                     Yii::error($hourlyContract->errors);
@@ -248,6 +282,113 @@ class Contract extends \yii\db\ActiveRecord
                 }
             }
         }
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+
+    /**
+     * @return void
+     */
+    public function generateCertificate() {
+        $model = new CandidateCertificate();
+        $model->candidate_id = $this->candidate_id;
+        $model->contract_uuid = $this->contract_uuid;
+        $model->certificate_type = CandidateCertificate::TYPE_EXPERIENCE;
+        $model->store_id = $this->store_id;
+        $model->company_id = $this->company_id;
+        $model->parent_company_id = $this->parent_company_id;
+        $model->start_date = $this->start_date;
+        $model->end_date = !empty($this->end_date) ? $this->end_date: new \yii\db\Expression('NOW()');;
+        $model->staff_id = $this->created_by;// Yii::$app->user->getId();
+
+        if(!$model->save()) {
+            echo "error";
+            print_r($model->errors);
+            Yii::error($model->errors);
+        }
+    }
+
+    /**
+     * save candidate un-assign record
+     * @param $candidate
+     * @return array
+     */
+    public static function saveUnAssignedHistory($candidate) {
+
+        // check if candidate assigned today then delete assigned history
+        if (CandidateWorkHistory::checkTotalHistory($candidate)) {
+            //['candidate_id'=>$candidate->candidate_id,'start_date'=>date('Y-m-d')]
+
+            $expression = "candidate_id='".$candidate->candidate_id."' AND 
+                DATE(start_date) >= DATE('".date('Y-m-d')."')";
+
+            return CandidateWorkHistory::updateAll(["deleted" => true],
+                new Expression($expression)
+            );
+
+        } else {
+            
+            // else save unassigned history
+            $model = CandidateWorkHistory::find()
+                ->filterCandidate($candidate->candidate_id)
+                ->emptyEndDate()
+                ->one();
+
+            if ($model) {
+                
+                $model->end_date  = new \yii\db\Expression('NOW()');
+
+                if ($model->save()) {
+
+                    $model->generateCertificate();
+
+                    return [
+                        'operation' =>'success',
+                        'message' =>Yii::t('candidate','record successfully updated')
+                    ];
+                } else {
+                    return [
+                        'operation' =>'error',
+                        'message' =>Yii::t('candidate','error while updating record. Please try again')
+                    ];
+                }
+            } else {
+                return [
+                    'operation' =>'error',
+                    'message' =>Yii::t('app','no record found')
+                ];
+            }
+        }
+    }
+
+    /**
+     * check is candidate assigned
+     * today to store
+     * @param $candidate
+     * @return mixed
+     */
+    public static function checkTotalHistory($candidate) {
+        $expression = "DATE(start_date) >= DATE('".date('Y-m-d')."')";
+
+        return CandidateWorkHistory::find()
+            ->filterCandidate($candidate->candidate_id)
+            //->filterDate(date('Y-m-d'))
+            ->andWhere(new Expression($expression))
+            ->exists();
+    }
+
+    public function getStore($className = '\common\models\Store')
+    {
+        return $this->hasOne($className::className(), ['store_id' => 'store_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidate($className = '\common\models\Candidate')
+    {
+        return $this->hasOne($className::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
@@ -256,6 +397,14 @@ class Contract extends \yii\db\ActiveRecord
     public function getCompany($className = '\common\models\Company')
     {
         return $this->hasOne($className::className(), ['company_id' => 'company_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getParentCompany($className = '\common\models\Company')
+    {
+        return $this->hasOne($className::className(), ['company_id' => 'parent_company_id']);
     }
 
     /**
