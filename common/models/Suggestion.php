@@ -352,7 +352,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 'suggestions',
                 'suggestions.note',
                 //'suggestions.createdBy',
-                'requestCreatedBy',
+               // 'requestCreatedBy',
                 //'requestUpdatedBy',
             ])
             ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
@@ -508,7 +508,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 ];
 
                 $ml = new MailLog();
-                $ml->to = $setTo;
+                $ml->to = implode(',', $setTo);
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = $request->suggestionEmailSubject;
                 if (!$ml->save()) {
@@ -538,7 +538,7 @@ class Suggestion extends \yii\db\ActiveRecord
             }
 
             //  update suggestion table to set mail to company
-            Suggestion::updateAllCounters(['mail_to_company' => 1], [
+            Suggestion::updateAll(['mail_to_company' => 1], [
                 "IN",
                 'suggestion_uuid',
                 ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
@@ -561,7 +561,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 'suggestions',
                 'suggestions.note',
                 //'suggestions.createdBy',
-                'requestCreatedBy',
+              //  'requestCreatedBy',
                 //'requestUpdatedBy',
             ])
             ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
@@ -609,7 +609,9 @@ class Suggestion extends \yii\db\ActiveRecord
             if($latestSuggestion && $latestSuggestion->note && $latestSuggestion->note->createdBy) {     
                 $staff = $latestSuggestion->note->createdBy;
             } else {
-                $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+                $staff = ($request->requestCreatedBy) ?
+                    $request->requestCreatedBy :
+                    $request->requestUpdatedBy;
             }
 
             foreach ($suggestionGroup as $suggestionByStaff)
@@ -656,7 +658,7 @@ class Suggestion extends \yii\db\ActiveRecord
                     $noOfAttachments++;
 
                     //  update suggestion table to set mail to company
-                    Suggestion::updateAllCounters(['mail_to_company' => 1], [
+                    Suggestion::updateAll(['mail_to_company' => true], [
                         'suggestion_uuid' => $eachSuggestion->suggestion_uuid
                     ]);
                 }
@@ -675,7 +677,7 @@ class Suggestion extends \yii\db\ActiveRecord
                     $setTo = array_unique(self::getContactEmailByRequest($request));
                 }
 
-                $setCc = array_merge(
+                /*$setCc = array_merge(
                     [
                         Yii::$app->params['operationsEmail'] => 'Operations',
                         $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
@@ -687,10 +689,15 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 if($author && $author->staff_email != $suggestedByStaff->staff_email) {
                     $setCc[$author->staff_email] = $author->staff_name;
-                }
+                }*/
+
+                $setCc = [
+                    Yii::$app->params['operationsEmail'] => 'Operations',
+                    Yii::$app->params['accountManagerEmail'] => 'Account Manager'
+                ];
 
                 $ml = new MailLog();
-                $ml->to = $setTo;
+                $ml->to = implode(',', $setTo);
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = $request->suggestionEmailSubject;
                 if (!$ml->save()) {
