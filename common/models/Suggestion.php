@@ -106,19 +106,30 @@ class Suggestion extends \yii\db\ActiveRecord
     {
         if (
             ($this->candidate_id || $this->fulltimer_uuid) &&
-            $this->request_uuid && $this->suggestion_status == Suggestion::TYPE_SUGGESTED
+            $this->request_uuid &&
+            $this->suggestion_status == Suggestion::TYPE_SUGGESTED
         ) {
-            $query = Suggestion::find();
-            $query->andWhere(['suggestion_status' => Suggestion::TYPE_SUGGESTED, 'request_uuid' => $this->request_uuid]);
+            $query = Suggestion::find()
+                ->andWhere([
+                    'suggestion_status' => Suggestion::TYPE_SUGGESTED,
+                    'request_uuid' => $this->request_uuid
+                ]);
+
+            if ($this->suggestion_uuid) {
+                $query->andWhere(['!=', 'suggestion_uuid', $this->suggestion_uuid]);
+            }
 
             if ($this->candidate_id) {
                 $query->andWhere(['candidate_id' => $this->candidate_id]);
             }
+
             if ($this->fulltimer_uuid) {
                 $query->andWhere(['fulltimer_uuid' => $this->fulltimer_uuid]);
             }
+
             if ($query->exists()) {
-                $this->addError('candidate_id', Yii::t('app', 'Suggestion already suggested'));
+                $this->addError('candidate_id',
+                    Yii::t('app', 'Suggestion already suggested'));
             }
         }
     }
@@ -353,6 +364,8 @@ class Suggestion extends \yii\db\ActiveRecord
 
         //todo: mark request as processing cv mail to avoid duplicate mail
 
+      //  print_r($requests);
+      //  die();
         // fetch all request which are suggested to part timer and not mailed
 
         foreach ($requests as $request) {
@@ -368,7 +381,9 @@ class Suggestion extends \yii\db\ActiveRecord
             if($latestSuggestion && $latestSuggestion->note->createdBy) {     
                 $staff = $latestSuggestion->note->createdBy;
             } else {
-                $staff = ($request->requestCreatedBy) ? $request->requestCreatedBy : $request->requestUpdatedBy;
+                $staff = ($request->requestCreatedBy) ?
+                    $request->requestCreatedBy :
+                    $request->requestUpdatedBy;
             }
 
             $message = Yii::$app->mailer->compose('company/suggestion-notification', [
@@ -412,7 +427,7 @@ class Suggestion extends \yii\db\ActiveRecord
 
                     if (!$eachSuggestion->candidate) {
                         continue;
-                        //throw new \yii\console\Exception('Resume not available to attach');
+                       // throw new \yii\console\Exception('Resume not available to attach');
                     }
 
                     //get invitation accepted note
@@ -456,17 +471,13 @@ class Suggestion extends \yii\db\ActiveRecord
                     );
 
                     $noOfAttachments++;
-
-                    //  update suggestion table to set mail to company
-                    Suggestion::updateAllCounters(['mail_to_company' => 1], [
-                        'suggestion_uuid' => $eachSuggestion->suggestion_uuid
-                    ]);
                 }
 
                 /**
                  * send mail only when cv available
                  */
                 if($noOfAttachments == 0) {
+                    Yii::error('No CV on suggestions :' . print_r($suggestionByStaff, true));
                     continue;
                 }
 
@@ -525,6 +536,13 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
             }
+
+            //  update suggestion table to set mail to company
+            Suggestion::updateAllCounters(['mail_to_company' => 1], [
+                "IN",
+                'suggestion_uuid',
+                ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
+            ]);
         }
     }
 
