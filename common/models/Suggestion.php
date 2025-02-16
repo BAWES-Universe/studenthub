@@ -538,7 +538,7 @@ class Suggestion extends \yii\db\ActiveRecord
             }
 
             //  update suggestion table to set mail to company
-            Suggestion::updateAllCounters(['mail_to_company' => 1], [
+            Suggestion::updateAll(['mail_to_company' => 1], [
                 "IN",
                 'suggestion_uuid',
                 ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
@@ -656,7 +656,7 @@ class Suggestion extends \yii\db\ActiveRecord
                     $noOfAttachments++;
 
                     //  update suggestion table to set mail to company
-                    Suggestion::updateAllCounters(['mail_to_company' => 1], [
+                    Suggestion::updateAll(['mail_to_company' => true], [
                         'suggestion_uuid' => $eachSuggestion->suggestion_uuid
                     ]);
                 }
