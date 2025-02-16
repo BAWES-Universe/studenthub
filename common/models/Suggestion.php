@@ -545,7 +545,15 @@ class Suggestion extends \yii\db\ActiveRecord
                     Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
-                Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
+                $output = "";
+
+                if ($staff->staff_email)  {
+                    $output = "email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n";
+                } else {
+                    $output = "email sent for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+                }
+
+                Console::stdout($output, Console::FG_RED, Console::BOLD);
             }
         }
     }
@@ -731,7 +739,15 @@ class Suggestion extends \yii\db\ActiveRecord
                     Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
-                Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
+                $output = "";
+
+                if ($staff->staff_email)  {
+                    $output = "email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+                } else {
+                    $output = "email sent for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+                }
+
+                Console::stdout($output, Console::FG_RED, Console::BOLD);
             }
         }
     }
