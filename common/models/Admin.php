@@ -246,7 +246,9 @@ class Admin extends ActiveRecord implements IdentityInterface {
         $ml->to = $this->admin_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'OTP for 2 step verification';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 

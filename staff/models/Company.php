@@ -224,7 +224,9 @@ class Company extends \common\models\Company {
         $ml->to = "khalid@bawes.net";
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $subject;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("report-company-crud",
             [
@@ -287,7 +289,9 @@ class Company extends \common\models\Company {
         $ml->to = $emails[0];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $lastMonth . ' Payroll '. $year;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("attendance-sheet",
                 [

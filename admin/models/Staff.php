@@ -65,7 +65,9 @@ class Staff extends \common\models\Staff {
         $ml->to = $model->staff_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Your account password has been reset';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
         
@@ -137,7 +139,9 @@ class Staff extends \common\models\Staff {
         $ml->to = $this->staff_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Reset your StudentHub password';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $webUrl = Yii::$app->params['staffAppUrl'] . 'update-password/' . $this->staff_password_reset_token;
 

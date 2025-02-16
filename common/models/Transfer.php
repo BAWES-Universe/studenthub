@@ -801,7 +801,9 @@ class Transfer extends ActiveRecord
             $ml->to = $email;
             $ml->from = \Yii::$app->params['supportEmail'];
             $ml->subject = $subjectLine;
-            $ml->save();
+            if (!$ml->save()) {
+                Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+            }
         }
 
         /**

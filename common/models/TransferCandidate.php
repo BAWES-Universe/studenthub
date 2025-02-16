@@ -488,7 +488,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         $ml->to = $this->candidate->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $subjectLine;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $message = Yii::$app->mailer->compose('candidate/transfer-success',[
             'name' => strtoupper (explode (' ', $name)[0]),

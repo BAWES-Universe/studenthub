@@ -160,7 +160,9 @@ class Request extends \common\models\Request
             $ml->to = $staff_email;
             $ml->from = \Yii::$app->params['supportEmail'];
             $ml->subject = $subject;
-            $ml->save();
+            if (!$ml->save()) {
+                Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+            }
         }
 
         $mailer = \Yii::$app->mailer->compose("company/request-created-bycompany",

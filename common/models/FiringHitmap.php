@@ -187,7 +187,9 @@ class FiringHitmap extends \yii\db\ActiveRecord
         $ml->to = \Yii::$app->params['operationsEmail'];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $subject;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("staff/company-firing-spike-html",
             [

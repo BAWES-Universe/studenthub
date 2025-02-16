@@ -210,7 +210,9 @@ class Ticket extends \yii\db\ActiveRecord
         $ml->to = $this->staff->staff_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Ticket assigned for ' . $this->candidate->candidate_name;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         \Yii::$app->mailer->htmlLayout = "layouts/text";
 
@@ -248,7 +250,9 @@ class Ticket extends \yii\db\ActiveRecord
         $ml->to = Yii::$app->params['supportEmail'];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'New ticket generated for ' . $this->candidate->candidate_name;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         \Yii::$app->mailer->htmlLayout = "layouts/text";
 

@@ -391,7 +391,9 @@ class Candidate extends \common\models\Candidate {
         $ml->to = $model->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Your account password has been reset';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 

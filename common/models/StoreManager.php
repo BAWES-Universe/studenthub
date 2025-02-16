@@ -413,7 +413,9 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         $ml->to = $this->email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Reset your StudentHub password";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("manager/password-reset-html",
             [
@@ -463,7 +465,9 @@ class StoreManager extends \yii\db\ActiveRecord implements \yii\web\IdentityInte
         $ml->to = $email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Please confirm your email address";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'manager/verify-email-html',

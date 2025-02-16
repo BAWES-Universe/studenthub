@@ -130,7 +130,9 @@ class Invoice extends ActiveRecord
         $ml->to = \Yii::$app->params['adminEmail'];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Company not paid in current month';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer =Yii::$app->mailer->compose("companyNotPaid",
             [

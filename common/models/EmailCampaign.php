@@ -244,7 +244,9 @@ class EmailCampaign extends \yii\db\ActiveRecord
         $ml->to = $candidate->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $this->subject;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = \Yii::$app->mailer->compose()
             ->setHtmlBody($message)
