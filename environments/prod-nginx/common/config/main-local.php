@@ -75,19 +75,25 @@ return [
             'viewPath' => '@common/mail',
             'transport' => [
                 'scheme' => 'smtp',
-                'host' => 'smtp.elasticemail.com',
-                'username' => 'no-reply@mail.studenthub.co',
-                'password' => 'FB28388CE97459B250D9A24BBC650AAD2466',
-                'port' => 2525,
-                'encryption' => 'tls'
-                /*
-                'scheme' => 'smtp',
                 'host' => 'email-smtp.eu-west-1.amazonaws.com',
-                'username' => 'AKIAWMITDJRKSH3JXFI4',//AKIAWMITDJRKVNB2AFUL
-                'password' => 'd5QvU/BEagVVlKAfVjr6Nxpf2xCJyRZpmnG69YGU',// 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',
+                'username' => 'AKIAWMITDJRKUESNXW5I',
+                'password' => 'BNLEls4MLvkjiAltRpWLTic7IMwKhggzqRVpHU5C9TFh',
                 'port' => 587,
-                //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
-            */
+
+                /*
+               'host' => 'smtp.elasticemail.com',
+               'username' => 'no-reply@mail.studenthub.co',
+               'password' => 'FB28388CE97459B250D9A24BBC650AAD2466',
+               'port' => 2525,
+               'encryption' => 'tls'
+
+               'scheme' => 'smtp',
+               'host' => 'email-smtp.eu-west-1.amazonaws.com',
+               'username' => 'AKIAWMITDJRKSH3JXFI4',//AKIAWMITDJRKVNB2AFUL
+               'password' => 'd5QvU/BEagVVlKAfVjr6Nxpf2xCJyRZpmnG69YGU',// 'BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6',
+               'port' => 587,
+               //   'dsn' => 'smtp://AKIAWMITDJRKVNB2AFUL:BFXl6illZPE3NP5EQrVNbCO+gMBCopuIi/uy5nwCsUZ6@email-smtp.eu-west-1.amazonaws.com:587',
+           */
             ],
         ],/*
         'mailer' => [
