@@ -347,7 +347,6 @@ class Suggestion extends \yii\db\ActiveRecord
             ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
             ->andWhere("`request`.request_position_type=2")
             ->andWhere(['!=', 'request.request_status', Request::STATUS_CANCELLED])
-            ->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 12 DAY")//since last server upgrade
             //->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
             ->limit(1)//limiting 1 request to make it light and fast and avoid duplicate mail
             ->all();
@@ -547,8 +546,8 @@ class Suggestion extends \yii\db\ActiveRecord
             ])
             ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
             ->andWhere("`request`.request_position_type=1")
-            ->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 12 DAY")//since last server upgrade
             //->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
+            //->andWhere(new Expression('suggestion_datetime > DATE("2025-02-01")'))//since last upgrade
             ->andWhere(['!=', 'request.request_status', Request::STATUS_CANCELLED])
             ->limit(1)//limit 1 per minute
             ->all();
