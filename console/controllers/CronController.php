@@ -508,7 +508,9 @@ class CronController extends \yii\console\Controller {
         $ml->to = Yii::$app->params['invoiceFrom'];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Morning Report for ' . date('F j, Y');
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'summary',
@@ -652,7 +654,9 @@ class CronController extends \yii\console\Controller {
                 $ml->to = Yii::$app->params['operationsEmail'];
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = $subject;
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $send = Yii::$app->mailer->compose("report-payment-required",
                     [
@@ -924,7 +928,9 @@ class CronController extends \yii\console\Controller {
                 $ml->to = $staff->staff_email;
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = "Daily Attendance notification";
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $mailer = Yii::$app->mailer->compose("staff/timer-notification",
                     [

@@ -55,7 +55,9 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         $ml->to = $this->contact_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Reset your StudentHub password";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("company/password-reset-html",
             [
@@ -139,7 +141,9 @@ class Contact extends \common\models\Contact implements \yii\web\IdentityInterfa
         $ml->to = $email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Please confirm your email address";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/verify-email-html',

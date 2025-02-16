@@ -376,7 +376,9 @@ class TransferCandidate extends \common\models\TransferCandidate
         $ml->to = $this->candidate->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Transfer failed. Please update your bank info';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("candidate/transfer-fail.php",
             [

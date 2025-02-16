@@ -114,7 +114,9 @@ class CandidateWarning extends \yii\db\ActiveRecord
         $ml->to = $this->candidate->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $this->title;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("candidate/warning",
             [

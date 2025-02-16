@@ -147,7 +147,9 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $ml->to = "sales@bawes.net";
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "New company account request";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'staff/company-account-request-html',
@@ -185,7 +187,9 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $ml->to = $this->company_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Congratulation! Your account request approved!";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-approved-html',
@@ -225,7 +229,9 @@ class CompanyRequest extends \yii\db\ActiveRecord
         $ml->to = $this->company_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "New company account request not approved!";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/account-rejected-html',

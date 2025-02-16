@@ -363,7 +363,9 @@ class TransferFile extends \yii\db\ActiveRecord
         $ml->to = \Yii::$app->params['finance_transfer'];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $subject;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
 

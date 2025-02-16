@@ -150,7 +150,9 @@ class TicketComment extends \yii\db\ActiveRecord
         $ml->to = $toEmails[0];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'New comment on ticket #' . $this->ticket_uuid;
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         \Yii::$app->mailer->htmlLayout = "layouts/text";
 

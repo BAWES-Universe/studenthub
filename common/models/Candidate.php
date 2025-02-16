@@ -1553,7 +1553,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $ml->to = $this->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Your password reset was a success';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("candidate/password-updated-html",
             [
@@ -1609,7 +1611,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $ml->to = $this->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Reset your StudentHub password';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("candidate/password-reset-html",
             [
@@ -1948,7 +1952,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $ml->to = $this->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'OTP for 2 step verification';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
@@ -2006,7 +2012,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $ml->to = $candidate->candidate_email;
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = 'Happy Birthday from StudentHub';
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $mailer = Yii::$app->mailer->compose("birthday",
                     [
@@ -2078,7 +2086,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $ml->to = $candidate->candidate_email;
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = 'Please update your civil id';
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $mailer = Yii::$app->mailer->compose("civil-expired",
                     [
@@ -2734,7 +2744,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $ml->to = $email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'Please confirm your email address';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'candidate/verify-email-html',
@@ -3471,7 +3483,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $ml->to = $this->candidate_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "We'll stop recommending your profile to companies";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("candidate/commitment-warning",
             [
@@ -3543,7 +3557,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     $ml->to = $candidate->candidate_email;
                     $ml->from = \Yii::$app->params['supportEmail'];
                     $ml->subject = "Jobs in restaurants, cafes, and cinemas";
-                    $ml->save();
+                    if (!$ml->save()) {
+                        Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                    }
 
                     $mailer = Yii::$app->mailer->compose("candidate/kuwaiti-mom",
                         [
@@ -3740,7 +3756,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $ml->to = $candidate->candidate_email;
                 $ml->from = \Yii::$app->params['finance_transfer'];
                 $ml->subject = $subject;
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $mailer
                     ->setTo($candidate->candidate_email);
@@ -3799,7 +3817,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $ml->to = $candidate->candidate_email;
                 $ml->from = \Yii::$app->params['finance_transfer'];
                 $ml->subject = $subject;
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $mailer
                     ->setTo($candidate->candidate_email);

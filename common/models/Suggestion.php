@@ -500,7 +500,9 @@ class Suggestion extends \yii\db\ActiveRecord
                 $ml->to = $setTo;
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = $request->suggestionEmailSubject;
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $message->setFrom([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
                     //->setFrom([Yii::$app->params['operationsEmail'] => "Recruitment team"])
@@ -673,7 +675,9 @@ class Suggestion extends \yii\db\ActiveRecord
                 $ml->to = $setTo;
                 $ml->from = \Yii::$app->params['supportEmail'];
                 $ml->subject = $request->suggestionEmailSubject;
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
                     ->setReplyTo([$staff->staff_email => $staff->staff_name])

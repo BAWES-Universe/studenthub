@@ -106,7 +106,9 @@ class DailyStandupQuestion extends \yii\db\ActiveRecord
         $ml->to = \Yii::$app->params['adminEmail'];
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Stand-up report";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
             $mailer = Yii::$app->mailer->compose("stand-up-report",
                 [

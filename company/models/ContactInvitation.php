@@ -24,7 +24,9 @@ class ContactInvitation extends \common\models\ContactInvitation {
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = $this->company->company_name . " has invited you to collaborate in 
                         their recruitment process on StudentHub";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose('company/contact-invitation', [
                 'model' => $this
@@ -58,7 +60,9 @@ class ContactInvitation extends \common\models\ContactInvitation {
         $ml->to = $this->contact->contact_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Contact Invitation accepted";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose('company/contact-invitation-acceptance', [
                             'model' => $this

@@ -42,7 +42,9 @@ class PasswordResetRequestForm extends Model
         $ml->to = $contact->email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Password reset token";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose("passwordResetRequest",
             [

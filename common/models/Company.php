@@ -367,7 +367,9 @@ class Company extends \yii\db\ActiveRecord
             $ml->to = $this->company_email;
             $ml->from = \Yii::$app->params['supportEmail'];
             $ml->subject = 'Your account is live now, let’s explore';
-            $ml->save();
+            if (!$ml->save()) {
+                Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+            }
 
             Yii::$app->mailer->compose ([
                 'html' => 'company/account-live-email-html',
@@ -530,7 +532,9 @@ class Company extends \yii\db\ActiveRecord
                 $ml->to = $company->company_email;
                 $ml->from = \Yii::$app->params['finance_transfer'];
                 $ml->subject = $subject;
-                $ml->save();
+                if (!$ml->save()) {
+                    Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+                }
 
                 $mailer
                     ->setTo($company->company_email);
@@ -1132,7 +1136,9 @@ class Company extends \yii\db\ActiveRecord
         $ml->to = "sales@bawes.net";
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "[Studenthub] Company under review!";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         Yii::$app->mailer->compose ([
             'html' => 'company/under-review-email-html',

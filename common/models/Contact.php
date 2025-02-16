@@ -516,7 +516,9 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $ml->to = $this->contact_email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = 'OTP for 2 step verification';
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         Yii::$app->mailer->htmlLayout = 'layouts/html';
 
@@ -798,7 +800,9 @@ class Contact extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         $ml->to = $email;
         $ml->from = \Yii::$app->params['supportEmail'];
         $ml->subject = "Please confirm your email address";
-        $ml->save();
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
 
         $mailer = Yii::$app->mailer->compose([
             'html' => 'company/verify-email-html',
