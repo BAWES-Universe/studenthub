@@ -264,6 +264,31 @@ class SuggestionController extends Controller
     }
 
     /**
+     * @param $id
+     * @return array|string[]
+     * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
+     */
+    public function actionRescheduleCvEmail($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->mail_to_company = false;
+
+        if (!$model->save()) {
+            return [
+                "operation" => "error",
+                "message" => $model->errors
+            ];
+        }
+
+        return [
+            "operation" => "success",
+            "message" => "CV Email rescheduled successfully"
+        ];
+    }
+
+    /**
      * accept a Suggestion 
      * @return array
      */
