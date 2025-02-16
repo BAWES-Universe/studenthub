@@ -405,6 +405,13 @@ class Suggestion extends \yii\db\ActiveRecord
                 ->filterNotMailed()
                 ->all();
 
+            //  update suggestion table to set mail to company
+            Suggestion::updateAll(['mail_to_company' => 1], [
+                "IN",
+                'suggestion_uuid',
+                ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
+            ]);
+
             foreach ($suggestions as $suggestion)
             {
                 if (!$suggestion->note) {
@@ -540,13 +547,6 @@ class Suggestion extends \yii\db\ActiveRecord
 
                 Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
             }
-
-            //  update suggestion table to set mail to company
-            Suggestion::updateAll(['mail_to_company' => 1], [
-                "IN",
-                'suggestion_uuid',
-                ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
-            ]);
         }
     }
 
@@ -591,6 +591,13 @@ class Suggestion extends \yii\db\ActiveRecord
             $suggestions = $request->getSuggestions()
                 ->filterNotMailed()
                 ->all();
+
+            //  update suggestion table to set mail to company
+            Suggestion::updateAll(['mail_to_company' => 1], [
+                "IN",
+                'suggestion_uuid',
+                ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
+            ]);
 
             foreach ($suggestions as $suggestion) {
 
@@ -664,11 +671,6 @@ class Suggestion extends \yii\db\ActiveRecord
 //                    }
 
                     $noOfAttachments++;
-
-                    //  update suggestion table to set mail to company
-                    Suggestion::updateAll(['mail_to_company' => true], [
-                        'suggestion_uuid' => $eachSuggestion->suggestion_uuid
-                    ]);
                 }
 
                 /**
