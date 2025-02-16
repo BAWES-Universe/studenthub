@@ -4,7 +4,6 @@ namespace candidate\modules\v1\controllers;
 
 use kartik\mpdf\Pdf;
 use Yii;
-use yii\base\BaseObject;
 use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\filters\Cors;
@@ -122,6 +121,10 @@ class CandidateController extends Controller
             ->andWhere(['id' => $wid])
             ->one();
 
+        if (!$workHistory) {
+            throw new NotFoundHttpException('The requested record does not exist.');
+        }
+
         $this->layout = 'main';
 
         $content = $this->render('candidate-appreciation-certificate-pdf', [
@@ -153,7 +156,6 @@ class CandidateController extends Controller
         header('Access-Control-Allow-Origin: *');
         return $pdf->render();
     }
-
 
     /**
      * @return ActiveDataProvider

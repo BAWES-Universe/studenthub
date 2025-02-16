@@ -405,6 +405,13 @@ class Suggestion extends \yii\db\ActiveRecord
                 ->filterNotMailed()
                 ->all();
 
+            //  update suggestion table to set mail to company
+            Suggestion::updateAll(['mail_to_company' => 1], [
+                "IN",
+                'suggestion_uuid',
+                ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
+            ]);
+
             foreach ($suggestions as $suggestion)
             {
                 if (!$suggestion->note) {
@@ -538,15 +545,16 @@ class Suggestion extends \yii\db\ActiveRecord
                     Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
-                Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
-            }
+                $output = "";
 
-            //  update suggestion table to set mail to company
-            Suggestion::updateAll(['mail_to_company' => 1], [
-                "IN",
-                'suggestion_uuid',
-                ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
-            ]);
+                if ($staff->staff_email)  {
+                    $output = "email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n";
+                } else {
+                    $output = "email sent for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+                }
+
+                Console::stdout($output, Console::FG_RED, Console::BOLD);
+            }
         }
     }
 
@@ -591,6 +599,13 @@ class Suggestion extends \yii\db\ActiveRecord
             $suggestions = $request->getSuggestions()
                 ->filterNotMailed()
                 ->all();
+
+            //  update suggestion table to set mail to company
+            Suggestion::updateAll(['mail_to_company' => 1], [
+                "IN",
+                'suggestion_uuid',
+                ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
+            ]);
 
             foreach ($suggestions as $suggestion) {
 
@@ -664,11 +679,6 @@ class Suggestion extends \yii\db\ActiveRecord
 //                    }
 
                     $noOfAttachments++;
-
-                    //  update suggestion table to set mail to company
-                    Suggestion::updateAll(['mail_to_company' => true], [
-                        'suggestion_uuid' => $eachSuggestion->suggestion_uuid
-                    ]);
                 }
 
                 /**
@@ -729,7 +739,15 @@ class Suggestion extends \yii\db\ActiveRecord
                     Yii::error( "An error occurred: " . $e->getMessage());
                 }
 
-                Console::stdout("email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n", Console::FG_RED, Console::BOLD);
+                $output = "";
+
+                if ($staff->staff_email)  {
+                    $output = "email sent from staff ($staff->staff_email) for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+                } else {
+                    $output = "email sent for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+                }
+
+                Console::stdout($output, Console::FG_RED, Console::BOLD);
             }
         }
     }

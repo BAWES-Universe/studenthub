@@ -7,6 +7,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
 use yii\helpers\ArrayHelper;
+use yii\web\NotFoundHttpException;
 
 /**
  * This is the model class for table "story_activity".
@@ -124,7 +125,13 @@ class StoryActivity extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        $story = Story::findOne($this->story_uuid);
+        $story = Story::find()
+            ->andWhere(["story_uuid" => $this->story_uuid])
+            ->one();
+
+        if (!$story) {
+            throw new NotFoundHttpException('The requested record does not exist.');
+        }
 
         if($this->staff_id) {
             $story->staff_id = $this->staff_id;

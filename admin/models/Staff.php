@@ -47,7 +47,10 @@ class Staff extends \common\models\Staff {
         $fields['staff_password_reset_token']);
 
         $fields['staff_gmail_password'] = function ($model) {
-            return \staff\models\Staff::decryptPass($model->staff_gmail_password);
+            if($model->staff_gmail_password) {
+                return \staff\models\Staff::decryptPass($model->staff_gmail_password);
+            }
+            return null;
         };
 
         return $fields;

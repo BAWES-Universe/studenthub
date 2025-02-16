@@ -258,39 +258,12 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
             $expression = "candidate_id='".$candidate->candidate_id."' AND 
                 DATE(start_date) >= DATE('".date('Y-m-d')."')";
 
-            Contract::updateAll(["deleted" => true],
-                new Expression($expression)
-            );
-
             return CandidateWorkHistory::updateAll(["deleted" => true],
                 new Expression($expression)
             );
 
         } else {
             
-            $contract = Contract::find()
-            ->filterCandidate($candidate->candidate_id)
-            ->emptyEndDate()
-            ->one();
-
-            if ($contract) {
-                 
-                $contract->end_date  = new \yii\db\Expression('NOW()');
-
-                if (!$contract->save()) {
-                    return [
-                        'operation' =>'error',
-                        'message' =>Yii::t('candidate','error while updating record. Please try again')
-                    ];
-                }
-
-            } else {
-                return [
-                    'operation' =>'error',
-                    'message' =>Yii::t('app','no record found')
-                ];
-            }
-
             // else save unassigned history
             $model = CandidateWorkHistory::find()
                 ->filterCandidate($candidate->candidate_id)
