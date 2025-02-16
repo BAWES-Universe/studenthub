@@ -352,7 +352,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 'suggestions',
                 'suggestions.note',
                 //'suggestions.createdBy',
-                'requestCreatedBy',
+               // 'requestCreatedBy',
                 //'requestUpdatedBy',
             ])
             ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
@@ -561,7 +561,7 @@ class Suggestion extends \yii\db\ActiveRecord
                 'suggestions',
                 'suggestions.note',
                 //'suggestions.createdBy',
-                'requestCreatedBy',
+              //  'requestCreatedBy',
                 //'requestUpdatedBy',
             ])
             ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
