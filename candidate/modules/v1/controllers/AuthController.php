@@ -2,7 +2,6 @@
 
 namespace candidate\modules\v1\controllers;
 
-use common\models\StaffToken;
 use Yii;
 use yii\filters\Cors;
 use yii\base\DynamicModel;
@@ -1015,13 +1014,7 @@ class AuthController extends Controller
             }
         }
 
-        //no need 2 step on google auth
-
-        $accessToken = $model->getAccessToken(
-            CandidateToken::STATUS_ACTIVE
-        );
-
-        return $this->_loginResponse($model, $accessToken);
+        return $this->_loginResponse($model);
     }
 
     /**

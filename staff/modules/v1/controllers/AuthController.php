@@ -235,13 +235,7 @@ class AuthController extends Controller
             ];
         }
 
-        //no need 2 step on google auth
-
-        $accessToken = $model->getAccessToken(
-             StaffToken::STATUS_ACTIVE
-        );
-
-        return $this->_loginResponse($model, $accessToken);
+        return $this->_loginResponse($model);
     }
 
     /**
