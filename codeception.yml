@@ -7,7 +7,7 @@ include:
     - staff
 paths:
     log: console/runtime/logs
-    outpur: console/runtime/logs
+    output: console/runtime/logs
 settings:
     colors: true
 enabled:
