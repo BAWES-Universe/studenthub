@@ -3334,6 +3334,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         $data['candidateIdCard'] = $this->getCandidateIdCard()
+            ->asArray()
             ->one();
 
         if ($data['candidateIdCard']) {
