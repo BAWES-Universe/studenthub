@@ -131,6 +131,18 @@ class CandidateIdCard extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return true
+     * @throws \yii\db\Exception
+     */
+    public function afterSave($insert, $changedAttribute)
+    {
+        //trigger algolia update
+        $this->candidate->save(false);
+
+        return true;
+    }
+
+    /**
      * @param string $modelClass
      * @return \yii\db\ActiveQuery
      */

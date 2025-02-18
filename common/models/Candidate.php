@@ -1450,7 +1450,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      */
     public function getCandidateIdCard($modelClass = "\common\models\CandidateIdCard")
     {
-        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id']);
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            ->andwhere(['candidate_id_card.deleted' => 0]);
     }
 
     /**
@@ -3330,6 +3331,20 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data['candidateTags'][] = [
                 'tag' => $candidateTag->tag
             ];
+        }
+
+        $data['candidateIdCard'] = $this->getCandidateIdCard()
+            ->one();
+
+        if ($data['candidateIdCard']) {
+            if (
+                $data['candidateIdCard']['expiry_date'] &&
+                strtotime($data['candidateIdCard']['expiry_date']) < strtotime(date('Y-m-d'))
+            ) {
+                $data['candidateIdCard']['status'] = "Expired";
+            } else {
+                $data['candidateIdCard']['status'] = "Not Expired";
+            }
         }
 
         return $data;
