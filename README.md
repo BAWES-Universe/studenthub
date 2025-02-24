@@ -171,3 +171,13 @@ rm -rf /var/www/html/inspector/runtime/cache
 rm -rf /var/www/html/manager/runtime/cache
 rm -rf /var/www/html/status/runtime/cache
 rm -rf /var/www/html/verification/runtime/cache
+
+
+# Automatically start ssh-agent and add GitHub SSH key
+
+Add the following lines to the ubuntu user's ~/.bashrc (or ~/.profile):
+
+`if [ -z "$SSH_AUTH_SOCK" ]; then
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/github
+fi`
