@@ -900,7 +900,7 @@ class AuthController extends Controller
             'email' => $emailInput,
         ]);
 
-        $errors = false;
+        $errors = [];
         $errorCode = null; //error code
 
         if ($contact) {

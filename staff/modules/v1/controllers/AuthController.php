@@ -343,7 +343,7 @@ class AuthController extends Controller
         $model = new \staff\models\PasswordResetRequestForm();
         $model->email = $emailInput;
 
-        $errors = false;
+        $errors = [];
 
         if ($model->validate()) {
 

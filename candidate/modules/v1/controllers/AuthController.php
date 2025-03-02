@@ -445,7 +445,7 @@ class AuthController extends Controller
             ])
             ->one();
 
-        $errors = false;
+        $errors = [];
         $errorCode = null; //error code
 
         if ($candidate) {
