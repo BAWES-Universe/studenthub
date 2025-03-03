@@ -86,8 +86,8 @@ RUN service cron start
 COPY ./nginx/php.conf /etc/nginx/php.conf
 
 # load environment specific configuration
-COPY ./nginx/railway-dev.conf /etc/nginx/sites-available/railway-dev.conf
-RUN ln -s /etc/nginx/sites-available/railway-dev.conf /etc/nginx/sites-enabled/
+COPY ./nginx/railway-prod.conf /etc/nginx/sites-available/railway-prod.conf
+RUN ln -s /etc/nginx/sites-available/railway-prod.conf /etc/nginx/sites-enabled/
 
 # run default nginx config
 RUN rm /etc/nginx/sites-enabled/default
@@ -97,5 +97,5 @@ EXPOSE 80
 
 # Start Nginx and PHP-FPM
 #CMD ["sh", "-c", "service nginx start && ./yii migrate && php-fpm"]
-CMD ["sh", "-c", "./init --env=Dev-Server-Railway --overwrite=All && ./yii migrate --interactive=0 && service nginx restart && php-fpm && tail -f /dev/null"]
-#composer install
+CMD ["sh", "-c", "./init --env=Production-Railway --overwrite=All && ./yii migrate --interactive=0 && service nginx restart && php-fpm && tail -f /dev/null"]
+#composer install && 

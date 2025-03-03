@@ -3,15 +3,16 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=studenthub',
-            'username' => 'bawes',
-            'password' => 'bawes12student!hub',
+            'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
+            'username' => 'root',
+            'password' => 'mECIXVloEolvFJXnDTcuLGUtvbwzoCgS',
             // Old config
             // 'dsn' => 'mysql:host=10.131.43.120;dbname=payroll',
             // 'username' => 'studenthubpayrollbawes',
             // 'password' => 'bawes12student!hub',
             'charset' => 'utf8',
 
+            /*
             // common configuration for slaves
             'slaveConfig' => [
                 'username' => 'bawes',
@@ -24,7 +25,7 @@ return [
             // list of slave configurations for Read-write splitting
             'slaves' => [
                 ['dsn' => 'mysql:host=studenthub-prod.cluster-ro-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=studenthub']
-            ],
+            ],*/
 
             // Enable Caching of Schema to Reduce SQL Queries
             'enableSchemaCache' => true,
@@ -35,13 +36,10 @@ return [
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=studenthub-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=wallet',
-            'username' => 'bawes',
-            'password' => 'bawes12student!hub',
-            
-            //'dsn' => 'mysql:host=wallet-prod.cluster-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=bawes_wallet',
-            //'username' => 'wll3t1232',
-            //'password' => '24uJQLOx55q$',
+            'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
+            'username' => 'root',
+            'password' => 'JImnisvcRDpKLdWpoMECoHHoCbutPhQC',
+             
             'charset' => 'utf8',
             // Enable Caching of Schema to Reduce SQL Queries
             'enableSchemaCache' => true,
@@ -56,7 +54,9 @@ return [
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => 'redis',
+            'hostname' => 'redis.railway.internal',
+            'username' => 'default',
+            'password' => 'VjCTsdeqMTNwmzBidlzbciDRVceiFXYS',
             'port' => 6379,
             'database' => 0,
         ],/*

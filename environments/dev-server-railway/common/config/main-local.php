@@ -3,24 +3,26 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql:3306;dbname=studenthub',
-            'username' => 'studenthubuser',
-            'password' => 'studenthub',
+            'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
+            'username' => 'root',
+            'password' => 'TpijAlObvfdvZxzPgrnMTHMxyekEqTtt',
             'charset' => 'utf8',
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql:3306;dbname=wallet',//todo: replace with wallet db from sandbox
-            'username' => 'studenthubuser',
-            'password' => 'studenthub',
+            'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
+            'username' => 'root',
+            'password' => 'hOCpxbVoSIbPUnuuBmaQGILPshVyRRuj',
             'charset' => 'utf8',
         ],
+        //todo: replace with wallet from sandbox
         'walletManager' => [
             'class' => 'common\components\WalletManager',
             'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
             'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',//todo:
             'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
         ],
+        //todo: replace with yeaster from sandbox
         'yeaster' => [
             'class' => 'common\components\Yeaster',
             "apiEndpoint" => "http://localhost:3001"
@@ -37,7 +39,9 @@ return [
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => 'redis',
+            'hostname' => 'redis.railway.internal',
+            'username' => 'default',
+            'password' => 'nySjmLVspFXlYOzKrOFQcRwuUprjyDli',
             'port' => 6379,
             'database' => 0,
         ],
