@@ -34,9 +34,10 @@ class TransferCost extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['candidate_id', 'company_id', 'transfer_cost'], 'required'],
+            [['candidate_id', 'company_id'], 'required'],//'transfer_cost'
             [['candidate_id', 'company_id'], 'integer'],
             [['transfer_cost'], 'number'],//, "max" => 1000
+            [['transfer_cost'],  "default", "value" => 0],
             [['created_at', 'updated_at'], 'safe'],
             [['candidate_id', 'company_id'], 'unique', 'targetAttribute' => ['candidate_id', 'company_id']],
             [['candidate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Candidate::class, 'targetAttribute' => ['candidate_id' => 'candidate_id']],
