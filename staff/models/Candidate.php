@@ -278,9 +278,14 @@ class Candidate extends \common\models\Candidate {
             'candidate_id' => $this->candidate_id
         ]);
 
+        if (empty($experiences))
+        {
+            return null;
+        }
+
         $experiences = explode(',', $experiences);
 
-        if (empty($experiences) || count($experiences) == 0)
+        if (count($experiences) == 0)
         {
             return null;
         }
