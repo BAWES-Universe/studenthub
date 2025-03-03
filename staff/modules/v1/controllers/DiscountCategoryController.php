@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
-class DiscountCategoryCategoryController extends Controller
+class DiscountCategoryController extends Controller
 {
     public function behaviors()
     {
