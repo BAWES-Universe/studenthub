@@ -538,9 +538,14 @@ class CandidateController extends Controller
         $contract_currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
         //Yii::$app->request->headers->get("Currency", "KWD");
 
-        //deprecated field 
-        $hourly_rate = Yii::$app->request->getBodyParam("hourly_rate");
-        $company_hourly_rate = Yii::$app->request->getBodyParam("company_hourly_rate");
+        //deprecated field
+
+        $hourly_rate = isset($contract_amount_details['candidate_hourly_rate'])?
+            $contract_amount_details['candidate_hourly_rate']:
+            Yii::$app->request->getBodyParam("hourly_rate");
+
+        $company_hourly_rate = isset($contract_amount_details['company_hourly_rate'])?
+            $contract_amount_details['company_hourly_rate']: Yii::$app->request->getBodyParam("company_hourly_rate");
         
         $model = $this->findModel($id);
 
@@ -696,7 +701,8 @@ class CandidateController extends Controller
 
         $contract->candidate_id = $id;
         $contract->store_id = $store_id;
-
+        $contract->company_id = $company->company_id;
+        $contract->parent_company_id = $company->parent_company_id || $company->company_id;
         $contract->type = $contract_type;
         $contract->detail = $contract_detail;
         $contract->start_date = $start_date;
@@ -706,17 +712,19 @@ class CandidateController extends Controller
         $contract->status = Contract::STATUS_INACTIVE;
         $contract->amountDetails = $contract_amount_details;
  
-        if (!$model->save()) {
+        if (!$contract->save()) {
             $transaction->rollBack();
 
-            if (isset($model->errors)) {
+            if (isset($contract->errors)) {
                 return [
                     "operation" => "error",
-                    "message" => $model->getErrors()
+                    "code" => 7,
+                    "message" => $contract->getErrors()
                 ];
             } else {
                 return [
                     "operation" => "error",
+                    "code" => 8,
                     "message" => "We've faced a problem adding the contract, please contact us for assistance"
                 ];
             }
@@ -737,7 +745,7 @@ class CandidateController extends Controller
 
             return [
                 "operation" => "error",
-                "code" => 8,
+                "code" => 9,
                 "message" => $workHistory->errors,
             ];
         }
@@ -762,7 +770,7 @@ class CandidateController extends Controller
 
                 return [
                     "operation" => "error",
-                    "code" => 9,
+                    "code" => 10,
                     "message" => $sar->errors
                 ];
             }
