@@ -17,7 +17,7 @@ class m250120_201548_id_request extends Migration
             ->getSchema()
             ->getTableSchema('candidate_id_request');
 
-        if (!$columnData) {
+        if ($columnData) {
             return true;
         }
 

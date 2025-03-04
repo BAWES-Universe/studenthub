@@ -18,7 +18,7 @@ class m250127_131617_job_delete extends Migration
             ->getTableSchema('job')
             ->getColumn('deleted_at');
 
-        if (!$columnData) {
+        if ($columnData) {
             return true;
         }
 

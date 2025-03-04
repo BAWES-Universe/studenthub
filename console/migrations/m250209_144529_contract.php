@@ -23,53 +23,52 @@ class m250209_144529_contract extends Migration
             ->getColumn('candidate_id');
 
         if (!$columnData) {
-            return true;
+
+            //candidate_id
+
+            $this->addColumn('contract', 'candidate_id', $this->integer(11)->after('contract_uuid'));
+
+            $this->createIndex('idx-contract-candidate_id', 'contract', 'candidate_id');
+
+            $this->addForeignKey(
+                'fk-contract-candidate_id',
+                'contract',
+                'candidate_id',
+                'candidate',
+                'candidate_id',
+                'CASCADE'
+            );
+
+            //parent_company_id
+
+            $this->addColumn('contract', 'parent_company_id', $this->integer(11)->after('candidate_id'));
+
+            $this->createIndex('idx-contract-parent_company_id', 'contract', 'parent_company_id');
+
+            $this->addForeignKey(
+                'fk-contract-parent_company_id',
+                'contract',
+                'parent_company_id',
+                'company',
+                'company_id',
+                'CASCADE'
+            );
+
+            //store_id
+
+            $this->addColumn('contract', 'store_id', $this->integer(11)->after('parent_company_id'));
+
+            $this->createIndex('idx-contract-store_id', 'contract', 'store_id');
+
+            $this->addForeignKey(
+                'fk-contract-store_id',
+                'contract',
+                'store_id',
+                'store',
+                'store_id',
+                'CASCADE'
+            );
         }
-        
-        //candidate_id
-
-        $this->addColumn('contract', 'candidate_id', $this->integer(11)->after('contract_uuid'));
-
-        $this->createIndex('idx-contract-candidate_id', 'contract', 'candidate_id');
-
-        $this->addForeignKey(
-            'fk-contract-candidate_id',
-            'contract',
-            'candidate_id',
-            'candidate',
-            'candidate_id',
-            'CASCADE'
-        );
-
-        //parent_company_id
-
-        $this->addColumn('contract', 'parent_company_id', $this->integer(11)->after('candidate_id'));
-
-        $this->createIndex('idx-contract-parent_company_id', 'contract', 'parent_company_id');
-
-        $this->addForeignKey(
-            'fk-contract-parent_company_id',
-            'contract',
-            'parent_company_id',
-            'company',
-            'company_id',
-            'CASCADE'
-        );
-
-        //store_id
-
-        $this->addColumn('contract', 'store_id', $this->integer(11)->after('parent_company_id'));
-
-        $this->createIndex('idx-contract-store_id', 'contract', 'store_id');
-
-        $this->addForeignKey(
-            'fk-contract-store_id',
-            'contract',
-            'store_id',
-            'store',
-            'store_id',
-            'CASCADE'
-        );
 
         //move work history to contract table
 

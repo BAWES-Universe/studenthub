@@ -18,7 +18,7 @@ class m250129_142636_token_expiry extends Migration
             ->getTableSchema('admin_token')
             ->getColumn('ip_address');
 
-        if (!$columnData) {
+        if ($columnData) {
             return true;
         }
 

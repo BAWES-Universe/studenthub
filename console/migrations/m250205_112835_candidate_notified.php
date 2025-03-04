@@ -19,11 +19,9 @@ class m250205_112835_candidate_notified extends Migration
             ->getColumn('is_candidate_notified');
 
         if (!$columnData) {
-            return true;
+            $this->addColumn("transfer_candidate", "is_candidate_notified",
+                $this->boolean()->defaultValue(false)->after("paid"));
         }
-
-        $this->addColumn("transfer_candidate", "is_candidate_notified",
-            $this->boolean()->defaultValue(false)->after("paid"));
 
         \admin\models\TransferCandidate::updateAll([
             "is_candidate_notified" => 1,

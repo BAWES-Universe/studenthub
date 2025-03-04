@@ -18,7 +18,7 @@ class m250130_115508_2step_auth extends Migration
             ->getTableSchema('admin')
             ->getColumn('enable_two_step_auth');
 
-        if (!$columnData) {
+        if ($columnData) {
             return true;
         }
 
