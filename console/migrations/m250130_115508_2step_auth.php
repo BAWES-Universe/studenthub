@@ -12,6 +12,16 @@ class m250130_115508_2step_auth extends Migration
      */
     public function safeUp()
     {
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('admin')
+            ->getColumn('enable_two_step_auth');
+
+        if (!$columnData) {
+            return true;
+        }
+
         //enable_two_step_auth
 
         $this->addColumn("admin", "enable_two_step_auth",

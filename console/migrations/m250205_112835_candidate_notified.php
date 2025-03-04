@@ -12,6 +12,16 @@ class m250205_112835_candidate_notified extends Migration
      */
     public function safeUp()
     {
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('transfer_candidate')
+            ->getColumn('is_candidate_notified');
+
+        if (!$columnData) {
+            return true;
+        }
+
         $this->addColumn("transfer_candidate", "is_candidate_notified",
             $this->boolean()->defaultValue(false)->after("paid"));
 

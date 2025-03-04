@@ -16,6 +16,16 @@ class m250209_144529_contract extends Migration
      */
     public function safeUp()
     {
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('contract')
+            ->getColumn('candidate_id');
+
+        if (!$columnData) {
+            return true;
+        }
+        
         //candidate_id
 
         $this->addColumn('contract', 'candidate_id', $this->integer(11)->after('contract_uuid'));

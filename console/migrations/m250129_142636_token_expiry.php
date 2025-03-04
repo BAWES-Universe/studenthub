@@ -12,6 +12,16 @@ class m250129_142636_token_expiry extends Migration
      */
     public function safeUp()
     {
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('admin_token')
+            ->getColumn('ip_address');
+
+        if (!$columnData) {
+            return true;
+        }
+
         $this->addColumn("admin_token", "ip_address",
             $this->string(45)->after("token_expiry_datetime"));
 

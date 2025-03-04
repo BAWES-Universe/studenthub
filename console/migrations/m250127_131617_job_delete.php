@@ -12,6 +12,16 @@ class m250127_131617_job_delete extends Migration
      */
     public function safeUp()
     {
+        $columnData = $this
+            ->getDb()
+            ->getSchema()
+            ->getTableSchema('job')
+            ->getColumn('deleted_at');
+
+        if (!$columnData) {
+            return true;
+        }
+
         $this->addColumn("job", "deleted_at",  $this->dateTime()->null()->after("updated_at"));
         $this->addColumn("job", "deleted_by",  $this->integer(11)->after("updated_by"));
 
