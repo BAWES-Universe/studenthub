@@ -182,6 +182,19 @@ class Contract extends \yii\db\ActiveRecord
             }
         }
 
+        if ($this->amountDetails && !empty($this->amountDetails)) {
+            $this->updateAmountDetails();
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+    /**
+     * @return array|string[]|void
+     * @throws \yii\db\Exception
+     */
+    public function updateAmountDetails()
+    {
         if ($this->type == Contract::TYPE_FIXED_PRICE) {
 
             $fixedPriceContract = empty($this->amountDetails['fp_contract_uuid']) ?
@@ -282,10 +295,7 @@ class Contract extends \yii\db\ActiveRecord
                 }
             }
         }
-
-        return parent::afterSave($insert, $changedAttributes);
     }
-
 
     /**
      * @return void
