@@ -2455,6 +2455,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $ffmpegPath = exec('which ffmpeg');//'/usr/local/bin/ffmpeg'
 
+        //todo: fix security risk by file name 
         exec($ffmpegPath . ' -y -i "'.$source.'" -ss 00:00:01.000 -vframes 1 ' . $tmpFile . ' 2>&1');
 
         // Save thumbnail to S3

@@ -93,17 +93,21 @@ return [
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
-            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'region' => 'eu-west-2', // based in London
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
-            'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
+            'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default",
+            "key" => "AKIAWMITDJRK5STO55KF",
+            "secret" => "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"
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
-            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'region' => 'eu-west-2', // Bucket based in London
             'bucket' => 'studenthub-uploads-dev-server',
+            'key' => 'AKIAWMITDJRKWZZEWCUM',//railway-s3-access
+            'secret' => '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',
             /**
              * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
              *
