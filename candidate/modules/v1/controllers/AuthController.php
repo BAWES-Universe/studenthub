@@ -985,8 +985,9 @@ class AuthController extends Controller
                 'candidate_email' => $response->email,
                 'candidate_name' => $candidate_name ,
                 //'candidate_name_ar' => $candidate_name,
-                'candidate_email_verification' => isset($response->email_verified) ?
-                    $response->email_verified: Candidate::EMAIL_NOT_VERIFIED,
+                'candidate_email_verification' => Candidate::EMAIL_VERIFIED,
+                    //isset($response->email_verified) ?
+                    //$response->email_verified: Candidate::EMAIL_NOT_VERIFIED,
                 'candidate_status' => Candidate::STATUS_ACTIVE,
                 'approved' => 1,
                 'utm_uuid' =>  !empty($utm_uuid)? $utm_uuid : null
