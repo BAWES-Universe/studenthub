@@ -100,7 +100,7 @@ class CandidateController extends BaseController
             $query->andWhere(['contract.contract_uuid' => $contract_uuid]);
         }
 
-        if ($contract_type) {
+        if ($contract_type && $contract_type != "ALL") {
             $query->andWhere(['contract.type' => $contract_type]);
         }
 

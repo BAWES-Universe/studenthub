@@ -1297,7 +1297,7 @@ class Transfer extends ActiveRecord
                 ];
             }
 
-            $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value, $noOfPayout);
+            $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value, $noOfPayout, $contract_type);
 
             if ($response['operation'] == "error") {
 
@@ -1377,7 +1377,7 @@ class Transfer extends ActiveRecord
      * @return array
      */
     public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD",
-                                   $contract_uuid = null) {
+                                   $contract_uuid = null, $contract_type = null) {
 
         $this->start_date = $start_date;
         $this->end_date = $end_date;
@@ -1387,6 +1387,10 @@ class Transfer extends ActiveRecord
             $this->transfer_cost = $this->contract->transfer_cost;
             $this->contract_type = $this->contract->type;
             $this->currency_code = $this->contract->currency_code;
+        }
+
+        if ($contract_type) {
+            $this->contract_type = $contract_type;
         }
 
         if($this->parent_transfer_id > 0) {
@@ -1491,7 +1495,7 @@ class Transfer extends ActiveRecord
             }
 
             // save candidate transfer
-            $response = TransferCandidate::saveCandidateTransfer($candidate, $this, $value);
+            $response = TransferCandidate::saveCandidateTransfer($candidate, $this, $value, 1, $this->contract_type);
 
             if ($response['operation'] == "error") {
                 if(empty(Yii::$app->params['inCodeception']))

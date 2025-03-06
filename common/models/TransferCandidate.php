@@ -952,7 +952,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * @param number $noOfPayout - how many times we paying per month, so can divide and pay
      * @return type
      */
-    public static function saveCandidateTransfer($candidate, $model, $value, $noOfPayout = 1) {
+    public static function saveCandidateTransfer($candidate, $model, $value, $noOfPayout = 1, $contract_type = null) {
 
         if (!isset($value['minutes'])) {
             $value['minutes'] = 0;
@@ -1001,6 +1001,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             ])
             ->filterActive();//not expired
             //->filterOrg($store['company_id'])
+
+        if ($contract_type && $contract_type != "ALL") {
+            $contractQuery->andWhere(['contract.type' => $contract_type]);
+        }
 
         if ($contractQuery->count() > 1) {
             return [
