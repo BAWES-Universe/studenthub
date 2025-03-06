@@ -1927,6 +1927,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (!$token->save()) {
             Yii::error("Error saving token : ". print_r($token->errors, true));
+
         }
 
         //if 2 step auth enable, send OTP
