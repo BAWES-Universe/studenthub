@@ -249,53 +249,45 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
      * @param $candidate
      * @return array
      */
-    public static function saveUnAssignedHistory($candidate) {
+    public static function saveUnAssignedHistory($candidate, $store_id, $work_history_id = "") {
 
         // check if candidate assigned today then delete assigned history
-        if (CandidateWorkHistory::checkTotalHistory($candidate)) {
+        if (!$work_history_id && CandidateWorkHistory::checkTotalHistory($candidate)) {
             //['candidate_id'=>$candidate->candidate_id,'start_date'=>date('Y-m-d')]
 
             $expression = "candidate_id='".$candidate->candidate_id."' AND 
-                DATE(start_date) >= DATE('".date('Y-m-d')."')";
+                store_id = '".$store_id."' AND (start_date IS NULL OR 
+                DATE(start_date) >= DATE('".date('Y-m-d')."'))";
 
-            Contract::updateAll(["deleted" => true],
+            Contract::updateAll([
+                "deleted" => true,
+                "end_date" => new \yii\db\Expression('NOW()')
+            ],
                 new Expression($expression)
             );
 
-            return CandidateWorkHistory::updateAll(["deleted" => true],
+            CandidateWorkHistory::updateAll(["deleted" => true],
                 new Expression($expression)
             );
+
+            return [
+                'operation' =>'success',
+                'message' =>Yii::t('candidate','record successfully updated')
+            ];
 
         } else {
-            
-            $contract = Contract::find()
-            ->filterCandidate($candidate->candidate_id)
-            ->emptyEndDate()
-            ->one();
-
-            if ($contract) {
-                 
-                $contract->end_date  = new \yii\db\Expression('NOW()');
-
-                if (!$contract->save()) {
-                    return [
-                        'operation' =>'error',
-                        'message' =>Yii::t('candidate','error while updating record. Please try again')
-                    ];
-                }
-
-            } else {
-                return [
-                    'operation' =>'error',
-                    'message' =>Yii::t('app','no record found')
-                ];
-            }
 
             // else save unassigned history
-            $model = CandidateWorkHistory::find()
+            $query = CandidateWorkHistory::find()
                 ->filterCandidate($candidate->candidate_id)
-                ->emptyEndDate()
-                ->one();
+                ->andWhere(['candidate_work_history.store_id' => $store_id])
+                ->andWhere(new Expression('candidate_work_history.end_date IS NULL'));
+
+            if ($work_history_id) {
+                $query->andWhere(['candidate_work_history.id' => $work_history_id]);
+            }
+
+            $model = $query->one();
 
             if ($model) {
                 
@@ -304,6 +296,19 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
                 if ($model->save()) {
 
                     $model->generateCertificate();
+
+                    if ($model->contract) {
+
+                        $model->contract->end_date = new \yii\db\Expression('NOW()');
+                        $model->contract->status = \common\models\Contract::STATUS_INACTIVE;
+
+                        if(!$model->contract->save(false)) {
+                            return [
+                                "operation" => "error",
+                                "message" => $model->contract->errors
+                            ];
+                        }
+                    }
 
                     return [
                         'operation' =>'success',
@@ -506,8 +511,8 @@ class CandidateWorkHistory extends \yii\db\ActiveRecord
         return $this->hasOne($className::className(), ['contract_uuid' => 'contract_uuid'])
             ->andWhere([
                 "OR",
-                ["company_id" => $this->parent_company_id],
-                ["company_id" => $this->company_id],
+                ["contract.company_id" => $this->parent_company_id],
+                ["contract.company_id" => $this->company_id],
             ]);
     }
 

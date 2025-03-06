@@ -83,19 +83,25 @@ class CandidateController extends BaseController
     public function actionList()
     {
         $contract_uuid = Yii::$app->request->get('contract_uuid');
+        $contract_type = Yii::$app->request->get('contract_type');
 
-        $query = Yii::$app->companyManager->getCompany()
-            ->getCandidates();
+        $company = Yii::$app->companyManager->getCompany();
+
+        $query = $company->getCandidates()
+            ->joinWith(['contracts' => function($subQuery) use ($company) {
+                $subQuery->filterActive()
+                    ->filterOrg($company->company_id);
+                // ->orderBy(['contract.created_at' => 'DESC']);
+            }])
+            ->andWhere(new Expression('contract.contract_uuid IS NOT NULL'));
+            //->groupBy(['candidate.candidate_id']);
 
         if ($contract_uuid) {
-            $query
-                ->groupBy(['candidate.candidate_id'])
-                ->joinWith(['candidateWorkHistories'])
-                ->andWhere([
-                    "AND",
-                    ['contract_uuid' => $contract_uuid],
-                    new Expression("end_date IS NULL")
-                ]);
+            $query->andWhere(['contract.contract_uuid' => $contract_uuid]);
+        }
+
+        if ($contract_type) {
+            $query->andWhere(['contract.type' => $contract_type]);
         }
 
         return $query->all();

@@ -123,6 +123,7 @@ class TransferController extends Controller
     }
 
     /**
+     * todo: fix for different contract types
      * update transfer total from transfer file entry
      */
     public function actionUpdateTransferFromFile($id)

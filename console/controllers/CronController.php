@@ -342,6 +342,7 @@ class CronController extends \yii\console\Controller {
     }
 
     /**
+     * todo: fix for new structure, contract per candidate
      * Method called by cron once a week
      */
     public function actionWeekly() {

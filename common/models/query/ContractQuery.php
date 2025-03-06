@@ -65,6 +65,10 @@ class ContractQuery extends \yii\db\ActiveQuery
         return $this->andWhere('end_date is null');
     }
 
+    public function filterActive() {
+        return $this->andWhere('contract.end_date is null OR contract.end_date >= CURDATE()');
+    }
+
     public function filterByJoiningDate($startDate = null, $endDate = null, $companyID = null)
     {
         if ($startDate) {
@@ -119,7 +123,15 @@ class ContractQuery extends \yii\db\ActiveQuery
      * @return void
      */
     public function filterCompany($companyID) {
-        $this->andWhere(["`contract`.`parent_company_id`" => $companyID]);
+        return $this->andWhere(["`contract`.`parent_company_id`" => $companyID]);
+    }
+
+    public function filterOrg($companyID) {
+        return $this->andWhere([
+            "OR",
+            ["`contract`.`parent_company_id`" => $companyID],
+            ["`contract`.`company_id`" => $companyID]
+        ]);
     }
 
     /**
@@ -165,7 +177,7 @@ class ContractQuery extends \yii\db\ActiveQuery
 
     public function filterSearch($q)
     {
-        $this->joinWith(['candidate'])
+        return $this->joinWith(['candidate'])
             ->andWhere([
                 "OR",
                 ['like', 'detail', $q],

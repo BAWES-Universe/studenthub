@@ -119,7 +119,9 @@ class Candidate extends \common\models\Candidate {
             'invitations',
             'invitedCount',
             'isInvitedForCompany',
-            'currentWorkHistory'
+            'currentWorkHistory',
+            "currentContract",
+            "currentContract.amount",
         ];
     }
 

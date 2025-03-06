@@ -72,6 +72,21 @@ class HourlyContract extends \yii\db\ActiveRecord
         ];
     }
 
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['candidate_hourly_rate'] = function($model) {
+            return (double) $model->candidate_hourly_rate;
+        };
+
+        $fields['company_hourly_rate'] = function($model) {
+            return (double) $model->company_hourly_rate;
+        };
+
+        return $fields;
+    }
+
     /**
      * @param $insert
      * @param $changedAttributes

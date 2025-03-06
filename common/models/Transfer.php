@@ -1173,17 +1173,33 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public static function saveTransfer($company, $candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null, $noOfPayout = 1) {
+    public static function saveTransfer(
+        $company,
+        $candidates,
+        $start_date,
+        $end_date,
+        $currency_code = "KWD",
+        $contract_uuid = null,
+        $noOfPayout = 1,
+        $contract_type = null
+    ) {
+
+        if (sizeof($candidates) == 0) {
+            return [
+                "operation" => "error",
+                "message" => "No candidates provided"
+            ];
+        }
 
         if(empty(Yii::$app->params['inCodeception']))
             $transaction = Yii::$app->db->beginTransaction();
 
-        $contract = Contract::find()
+        /*$contract = Contract::find()
             ->andWhere([
                 "company_id" => $company->company_id,
                 'contract_uuid' => $contract_uuid
             ])
-            ->one();
+            ->one();*/
 
         $transfer = new Transfer;
         $transfer->contract_uuid = $contract_uuid;
@@ -1191,12 +1207,13 @@ class Transfer extends ActiveRecord
         $transfer->candidates = $candidates;
         $transfer->start_date = $start_date;
         $transfer->end_date   = $end_date;
+        $transfer->contract_type = $contract_type;
         $transfer->currency_code = $currency_code;
 
-        if ($contract) {
+        /*if ($contract) {
             $transfer->contract_type = $contract->type;
             $transfer->currency_code = $contract->currency_code;
-        }
+        }*/
 
         if(!$transfer->save()) {
             if(isset($transfer->errors)) {
@@ -1217,6 +1234,8 @@ class Transfer extends ActiveRecord
 
         $total = $company_total = $transfer_cost = 0;
 
+        $response = 0;
+
         foreach ($candidates as $key => $value) {
 
             $value['currency_code'] = $transfer->currency_code;
@@ -1233,13 +1252,13 @@ class Transfer extends ActiveRecord
             if(empty($value['seconds']) || $value['seconds'] < 0)
                 $value['seconds'] = 0;
 
-            if (
+            /*if (
                 (!$contract || $contract->type == Contract::TYPE_HOURLY) &&
                 $value['bonus'] == 0 &&
                 $value['hours'] == 0
             ) {
                 continue;
-            }
+            }*/
 
             if(empty($value['candidate_id']))
             {
@@ -1300,6 +1319,7 @@ class Transfer extends ActiveRecord
 
             return [
                 "operation" => "error",
+                "response" => $response,
                 "message" => "Transfer total is zero. Please input hours worked."
             ];
         }
@@ -1356,7 +1376,8 @@ class Transfer extends ActiveRecord
      * @param $candidates
      * @return array
      */
-    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD", $contract_uuid = null) {
+    public function updateTransfer($candidates, $start_date, $end_date, $currency_code = "KWD",
+                                   $contract_uuid = null) {
 
         $this->start_date = $start_date;
         $this->end_date = $end_date;
@@ -1433,13 +1454,13 @@ class Transfer extends ActiveRecord
             if(empty($value['seconds']) || $value['seconds'] < 0)
                 $value['seconds'] = 0;
 
-            if (
+            /*if (
                 (!$this->contract || $this->contract->type == Contract::TYPE_HOURLY) &&
                 $value['bonus'] == 0 &&
                 $value['hours'] == 0
             ) {
                 continue;
-            }
+            }*/
 
             if(empty($value['candidate_id']))
             {

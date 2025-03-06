@@ -75,6 +75,21 @@ class MonthlySalaryContract extends \yii\db\ActiveRecord
         ];
     }
 
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['candidate_total'] = function($model) {
+            return (double) $model->candidate_total;
+        };
+
+        $fields['company_total'] = function($model) {
+            return (double) $model->company_total;
+        };
+
+        return $fields;
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
