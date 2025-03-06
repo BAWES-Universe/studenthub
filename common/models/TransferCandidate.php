@@ -100,6 +100,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             
             ['company_hourly_rate', 'compare', 'compareAttribute' => 'candidate_hourly_rate', 'operator' => '>='],
 
+            [['contract_uuid'], "exist", "skipOnError" => true, "targetClass" => Contract::class, "targetAttribute" => ["contract_uuid" => "contract_uuid"]],
             [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::class, 'targetAttribute' => ['bank_id' => 'bank_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
@@ -1181,6 +1182,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 "operation" => "error",
                 "message" => "Can not create candidate transfer with 0 amount."
             ];
+        }
+
+        if ($contract) {
+            $TCModel->contract_uuid = $contract->contract_uuid;
         }
 
         if (!$TCModel->save()) {
