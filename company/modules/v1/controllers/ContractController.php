@@ -2,8 +2,10 @@
 
 namespace company\modules\v1\controllers;
 
+use common\models\Contract;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -71,14 +73,25 @@ class ContractController extends Controller
 
         $keyword = Yii::$app->request->get('keyword');
         $page = Yii::$app->request->get('page');
+        $type = Yii::$app->request->get('type');
 
         $company = Yii::$app->companyManager->getCompany();
 
-        $query = $company
-            ->getContracts();
+        $query = Contract::find()->andWhere([
+            "OR",
+            ['company_id' => $company->company_id],
+            ['parent_company_id' => $company->company_id]
+        ]);
+
+        //list only candidate contracts
+        $query->andWhere(new Expression("contract.candidate_id IS NOT NULL"));
 
         if ($keyword) {
-            $query->andWhere(['like', 'detail', $keyword]);
+            $query->filterSearch($keyword);
+        }
+
+        if ($type) {
+            $query->andWhere(['type' => $type]);
         }
 
         if(!$page) {
@@ -111,8 +124,12 @@ class ContractController extends Controller
     {
         $company = Yii::$app->companyManager->getCompany();
 
-        $model = $company
-            ->getContracts()
+        $model = Contract::find()
+            ->andWhere([
+                "OR",
+                ['company_id' => $company->company_id],
+                ['parent_company_id' => $company->company_id]
+            ])
             ->andWhere(['contract_uuid' => $id])
             ->one();
 

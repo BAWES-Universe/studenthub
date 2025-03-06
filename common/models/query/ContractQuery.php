@@ -163,6 +163,18 @@ class ContractQuery extends \yii\db\ActiveQuery
         return $this->joinWith(['candidate'])->andWhere(['like', '{{%candidate}}.candidate_email', $candidate_email]);
     }
 
+    public function filterSearch($q)
+    {
+        $this->joinWith(['candidate'])
+            ->andWhere([
+                "OR",
+                ['like', 'detail', $q],
+                ['like', '{{%candidate}}.candidate_name', $q],
+                ['like', '{{%candidate}}.candidate_name_ar', $q],
+                ['like', '{{%candidate}}.candidate_email', $q],
+            ]);
+    }
+
     /**
      * @param $date
      * @return $this

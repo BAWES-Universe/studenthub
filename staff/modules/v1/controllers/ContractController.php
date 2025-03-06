@@ -5,6 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use common\models\Contract;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 
@@ -66,11 +67,28 @@ class ContractController extends Controller
     public function actionList()
     {
         $company_id = Yii::$app->request->get("company_id");
+        $type = Yii::$app->request->get("type");
+        $q = Yii::$app->request->get("q");
 
         $query = Contract::find();
 
+        //list only candidate contracts
+        $query->andWhere(new Expression("contract.candidate_id IS NOT NULL"));
+
         if ($company_id) {
-            $query->andWhere(['company_id' => $company_id]);
+            $query->andWhere([
+                "OR",
+                ['company_id' => $company_id],
+                ['parent_company_id' => $company_id]
+            ]);
+        }
+
+        if ($type) {
+            $query->andWhere(['type' => $type]);
+        }
+
+        if ($q) {
+            $query->filterSearch($q);
         }
 
         return new ActiveDataProvider([
