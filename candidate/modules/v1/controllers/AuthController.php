@@ -971,6 +971,7 @@ class AuthController extends Controller
             "deleted" => false
         ])->one();
 
+
         if (!$model) {
 
             $model = new Candidate;
@@ -1013,6 +1014,21 @@ class AuthController extends Controller
                         "message" => Yii::t('job', "We've faced a problem creating your account, please contact us for assistance."),
                     ];
                 }
+            }
+        }
+
+        /**
+         * mark email as verified if someone have tried signup and abandoned email verification
+         */
+        if ($model->candidate_email_verification != Candidate::EMAIL_VERIFIED) {
+            $model->candidate_email_verification = Candidate::EMAIL_VERIFIED;
+
+            if (!$model->save(false)) {
+                return [
+                    "operation" => "error",
+                    "code" => 4,
+                    "message" => $model->errors,
+                ];
             }
         }
 
