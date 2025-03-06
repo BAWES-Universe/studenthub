@@ -14,7 +14,7 @@ class m250306_191700_transfer_contract extends Migration
     {
         $this->execute("SET foreign_key_checks = 0;");
 
-        $this->dropColumn('transfer_candidate', 'contract_uuid');
+       // $this->dropColumn('transfer_candidate', 'contract_uuid');
 
         $this->addColumn('transfer_candidate', 'contract_uuid',
             $this->char(60)->null()->defaultValue(null));
