@@ -100,6 +100,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             
             ['company_hourly_rate', 'compare', 'compareAttribute' => 'candidate_hourly_rate', 'operator' => '>='],
 
+            [['contract_uuid'], "exist", "skipOnError" => true, "targetClass" => Contract::class, "targetAttribute" => ["contract_uuid" => "contract_uuid"]],
             [['bank_id'], 'exist', 'skipOnError' => true, 'targetClass' => Bank::class, 'targetAttribute' => ['bank_id' => 'bank_id']],
             [['store_id'], 'exist', 'skipOnError' => true, 'targetClass' => Store::class, 'targetAttribute' => ['store_id' => 'store_id']],
             [['company_id'], 'exist', 'skipOnError' => true, 'targetClass' => Company::class, 'targetAttribute' => ['company_id' => 'company_id']],
@@ -952,7 +953,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
      * @param number $noOfPayout - how many times we paying per month, so can divide and pay
      * @return type
      */
-    public static function saveCandidateTransfer($candidate, $model, $value, $noOfPayout = 1) {
+    public static function saveCandidateTransfer($candidate, $model, $value, $noOfPayout = 1, $contract_type = null) {
 
         if (!isset($value['minutes'])) {
             $value['minutes'] = 0;
@@ -991,7 +992,86 @@ class TransferCandidate extends \yii\db\ActiveRecord
         //todo: ability to override from contract form
         $company_bonus_commission = $company['company_bonus_commission'];
 
-        if (!$model->contract)
+        //get contract details
+
+        $contractQuery = Contract::find()
+            ->andWhere([
+                'candidate_id' => $candidate['candidate_id'],
+                'store_id' => $candidate['store_id'],
+                "deleted" => 0,
+            ])
+            ->filterActive();//not expired
+            //->filterOrg($store['company_id'])
+
+        if (isset($value['contract_uuid'])) {
+            $contractQuery->andWhere(['contract.contract_uuid' => $value['contract_uuid']]);
+        }
+
+        if ($contract_type && $contract_type != "ALL") {
+            $contractQuery->andWhere(['contract.type' => $contract_type]);
+        }
+
+        if ($contractQuery->count() > 1) {
+            return [
+                "operation" => "error",
+                "message" => "Multiple active contracts found for candidate."
+            ];
+        }
+
+        if ($contractQuery->count() == 0) {
+            return [
+                "operation" => "error",
+                "message" => "No active contracts found for candidate."
+            ];
+        }
+
+        $contract = $contractQuery->one();
+
+        if (!$contract)
+        {
+            return [
+                "operation" => "error",
+                "message" => "No active contracts found for candidate."
+            ];
+        }
+
+        if ($contract->type == Contract::TYPE_HOURLY &&
+            $value['bonus'] == 0 &&
+            $value['hours'] == 0
+        ) {
+            return [
+                "operation" => "success",
+                "total" => 0,
+                "company_total" => 0,
+                "transfer_cost" => 0
+            ];
+        }
+
+        //currentWorkHistory?
+        //    $candidate->currentWorkHistory->contract: null;
+
+        /*
+       if ($contract_uuid) {
+           $contract = Contract::find()
+               ->andWhere(['contract.contract_uuid' => $contract_uuid])
+               ->filterCompany($model->company_id)
+               ->andWhere(['contract.store_id' => $candidate->store_id])
+               ->filterActive()
+               ->orderBy('contract.created_at DESC')
+               ->one();
+       }
+
+       /*if (!$contract) {
+           $contract = Contract::find()
+               ->filterCompany($model->company_id)
+               ->andWhere(['contract.store_id' => $candidate->store_id])
+               ->andWhere(['contract.candidate_id' => $candidate->candidate_id])
+               ->filterActive()
+               ->orderBy('contract.created_at DESC')
+               ->one();
+       }*/
+
+        if (!$contract)
         {
             $assignment = CandidateWorkHistory::find()
                 ->andWhere ([
@@ -1029,38 +1109,38 @@ class TransferCandidate extends \yii\db\ActiveRecord
 
             $TCModel->transfer_cost = $assignment ? $assignment->getTransferCost() : Yii::$app->params['transfer_cost'];
         }
-        else if ($model->contract->type == Contract::TYPE_HOURLY)
+        else if ($contract->type == Contract::TYPE_HOURLY)
         {
-            $TCModel->candidate_hourly_rate = $model->contract->amount->candidate_hourly_rate;
+            $TCModel->candidate_hourly_rate = (double)$contract->amount->candidate_hourly_rate;
 
-            $TCModel->company_hourly_rate = $model->contract->amount->company_hourly_rate;
+            $TCModel->company_hourly_rate = (double)$contract->amount->company_hourly_rate;
 
             $minute_rate = $TCModel->candidate_hourly_rate / 60;
             $second_rate = $minute_rate / 60;
 
-            $TCModel->transfer_cost = $model->contract->transfer_cost;
+            $TCModel->transfer_cost = $model->transfer_cost;
         }
-        else if ($model->contract->type == Contract::TYPE_MONTHLY_SALARY)
+        else if ($contract->type == Contract::TYPE_MONTHLY_SALARY)
         {
-            $TCModel->transfer_cost = $model->contract->transfer_cost;
+            $TCModel->transfer_cost = $contract->transfer_cost;
 
-            $TCModel->candidate_total = $model->contract->amount->candidate_total/ $noOfPayout;
+            $TCModel->candidate_total = (double)$contract->amount->candidate_total/ $noOfPayout;
 
-            $TCModel->company_total = $model->contract->amount->company_total/ $noOfPayout;
+            $TCModel->company_total = (double)$contract->amount->company_total/ $noOfPayout;
         }
-        else if ($model->contract->type == Contract::TYPE_FIXED_PRICE)
+        else if ($contract->type == Contract::TYPE_FIXED_PRICE)
         {
-            $TCModel->transfer_cost = $model->contract->transfer_cost;
+            $TCModel->transfer_cost = $contract->transfer_cost;
 
             //todo: based on contract completion percentage
-            $TCModel->candidate_total = $model->contract->amount->candidate_total;
+            $TCModel->candidate_total = (double) $contract->amount->candidate_total;
 
-            $TCModel->company_total = $model->contract->amount->company_total;
+            $TCModel->company_total =(double) $contract->amount->company_total;
         }
 
         // hourly based calculation
 
-        if (!$model->contract || $model->contract->type == Contract::TYPE_HOURLY) {
+        if (!$contract || $contract->type == Contract::TYPE_HOURLY) {
 
             //if bonus commission or hourly rate not set
 
@@ -1106,6 +1186,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
                 "operation" => "error",
                 "message" => "Can not create candidate transfer with 0 amount."
             ];
+        }
+
+        if ($contract) {
+            $TCModel->contract_uuid = $contract->contract_uuid;
         }
 
         if (!$TCModel->save()) {

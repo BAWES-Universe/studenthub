@@ -7,7 +7,7 @@ networks:
 services:
   
   mysql:
-    image: mysql:8.4.3
+    image: mysql:9
     restart: always
     volumes:
       - mysql-data:/var/lib/mysql

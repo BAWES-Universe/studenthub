@@ -3,24 +3,26 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql:3306;dbname=studenthub',
-            'username' => 'studenthubuser',
-            'password' => 'studenthub',
+            'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
+            'username' => 'root',
+            'password' => 'TpijAlObvfdvZxzPgrnMTHMxyekEqTtt',
             'charset' => 'utf8',
         ],
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql:3306;dbname=wallet',//todo: replace with wallet db from sandbox
-            'username' => 'studenthubuser',
-            'password' => 'studenthub',
+            'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
+            'username' => 'root',
+            'password' => 'hOCpxbVoSIbPUnuuBmaQGILPshVyRRuj',
             'charset' => 'utf8',
         ],
+        //todo: replace with wallet from sandbox
         'walletManager' => [
             'class' => 'common\components\WalletManager',
             'apiKey' => 'QSw2ByGUITXFNjJVNNjyzxdbvYP9rXbG',
-            'apiEndpoint' => 'http://localhost/wallet/webhook/web/v1',//todo:
+            'apiEndpoint' => 'https://webhook.dev.wallet.bawes.net/v1',
             'companyWalletUserID' => 'user_fcac8a5f-52a2-11ed-a68e-d85ed3a264df'
         ],
+        //todo: replace with yeaster from sandbox
         'yeaster' => [
             'class' => 'common\components\Yeaster',
             "apiEndpoint" => "http://localhost:3001"
@@ -37,7 +39,9 @@ return [
         ],
         'redis' => [
             'class' => 'yii\redis\Connection',
-            'hostname' => 'redis',
+            'hostname' => 'redis.railway.internal',
+            'username' => 'default',
+            'password' => 'nySjmLVspFXlYOzKrOFQcRwuUprjyDli',
             'port' => 6379,
             'database' => 0,
         ],
@@ -89,17 +93,21 @@ return [
         ],
         'mediaConvert' => [
             'class' => 'common\components\MediaConvert',
-            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'region' => 'eu-west-2', // based in London
             'endpoint' => 'https://ey3xqwxpb.mediaconvert.eu-west-2.amazonaws.com',
             'role' => 'arn:aws:iam::438663597141:role/MediaConvertPermissions',
-            'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default"
+            'jobQueue' =>  "arn:aws:mediaconvert:eu-west-2:438663597141:queues/Default",
+            "key" => "AKIAWMITDJRK5STO55KF",
+            "secret" => "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"
         ],
         'resourceManager' => [
             'class' => 'common\components\S3ResourceManager',
-            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_IAM_ROLE,
+            'authMethod' => \common\components\S3ResourceManager::AUTH_VIA_KEY_AND_SECRET,
             'region' => 'eu-west-2', // Bucket based in London
             'bucket' => 'studenthub-uploads-dev-server',
+            'key' => 'AKIAWMITDJRKWZZEWCUM',//railway-s3-access
+            'secret' => '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',
             /**
              * For Dev and Production servers, access is via server embedded IAM roles so no key/secret required
              *

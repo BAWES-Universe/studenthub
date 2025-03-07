@@ -64,7 +64,7 @@ class CandidateQuery extends \yii\db\ActiveQuery
 
         // create store_id array 
         $stores = Store::find()
-            ->andWhere(['in', 'company_id', $company_ids])
+            ->andWhere(['in', 'store.company_id', $company_ids])
             ->all();
 
         $store_ids = ArrayHelper::map($stores, 'store_id', 'store_id');

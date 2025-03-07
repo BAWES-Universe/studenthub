@@ -538,6 +538,8 @@ class CandidateController extends Controller
         $contract_currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
         //Yii::$app->request->headers->get("Currency", "KWD");
 
+        $auto_generate = Yii::$app->request->getBodyParam("auto_generate", false);
+
         //deprecated field
 
         $hourly_rate = isset($contract_amount_details['candidate_hourly_rate'])?
@@ -557,22 +559,6 @@ class CandidateController extends Controller
             ];
         }
 
-        $isExists = Contract::find()
-            ->andWhere([
-                'candidate_id' => $model->candidate_id,
-                'store_id' => $store_id
-            ])
-            ->andWhere(new \yii\db\Expression("start_date = CURDATE()"))
-            ->count();
-
-        if ($isExists) {
-            return [
-                "operation" => "error",
-                "code" => 2,
-                "message" => "Same Store not possible to assign on same day",
-            ];
-        }
-
         $store = Store::find()
             ->andWhere (['store_id' => $store_id])
             ->one();
@@ -582,6 +568,26 @@ class CandidateController extends Controller
                 "operation" => "error",
                 "code" => 3,
                 "message" => "Store not found",
+            ];
+        }
+
+        $company = $store->getCompany()->one();
+
+        $isExists = Contract::find()
+            ->andWhere([
+                'candidate_id' => $model->candidate_id,
+               // 'store_id' => $store_id
+            ])
+            ->filterOrg($company->company_id)
+            ->filterActive()
+            //->andWhere(new \yii\db\Expression("start_date = CURDATE()"))
+            ->count();
+
+        if ($isExists) {
+            return [
+                "operation" => "error",
+                "code" => 2,
+                "message" => "Duplicate contract not allowed",
             ];
         }
 
@@ -705,11 +711,13 @@ class CandidateController extends Controller
         $contract->parent_company_id = $company->parent_company_id || $company->company_id;
         $contract->type = $contract_type;
         $contract->detail = $contract_detail;
-        $contract->start_date = $start_date;
+        $contract->start_date = empty($start_date) ? date('Y-m-d'):
+            date('Y-m-d', strtotime($start_date));
         $contract->end_date = $end_date;
         $contract->transfer_cost = $transfer_cost;
         $contract->currency_code = $contract_currency_code;
-        $contract->status = Contract::STATUS_INACTIVE;
+        $contract->status = Contract::STATUS_ACTIVE;
+        $contract->auto_generate = (boolean) $auto_generate;
         $contract->amountDetails = $contract_amount_details;
  
         if (!$contract->save()) {
@@ -798,6 +806,7 @@ class CandidateController extends Controller
 
         $store_id = Yii::$app->request->get('store_id', null);
         $sar_id = Yii::$app->request->getBodyParam("sar_id");
+        $work_history_id = Yii::$app->request->getBodyParam("work_history_id");
 
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -807,10 +816,15 @@ class CandidateController extends Controller
         if ($store_id  && $store_id != $model->store_id) {
 
             // else save unassigned history
-            $candidateHistoryModel = \common\models\CandidateWorkHistory::find()
+            $candidateHistoryModelQuery = \common\models\CandidateWorkHistory::find()
                 ->filterCandidate($model->candidate_id)
-                ->andWhere(['store_id'=>$store_id])
-                ->one();
+                ->andWhere(['store_id'=>$store_id]);
+
+            if ($work_history_id) {
+                $candidateHistoryModelQuery->andWhere(['id' => $work_history_id]);
+            }
+
+            $candidateHistoryModel = $candidateHistoryModelQuery->one();
 
             if ($candidateHistoryModel) {
                 $storeName = $candidateHistoryModel->store->store_name;
@@ -831,6 +845,20 @@ class CandidateController extends Controller
 
                 $candidateHistoryModel->generateCertificate();
 
+                if ($candidateHistoryModel->contract) {
+
+                    $candidateHistoryModel->contract->end_date = new \yii\db\Expression('NOW()');
+                    $candidateHistoryModel->contract->status = \common\models\Contract::STATUS_INACTIVE;
+
+                    if(!$candidateHistoryModel->contract->save(false)) {
+                        $transaction->rollBack();
+
+                        return [
+                            "operation" => "error",
+                            "message" => $candidateHistoryModel->contract->errors
+                        ];
+                    }
+                }
             } else {
                 $transaction->rollBack();
 
@@ -863,7 +891,13 @@ class CandidateController extends Controller
                 }
             }
 
-            CandidateWorkHistory::saveUnAssignedHistory($model);
+            $response = CandidateWorkHistory::saveUnAssignedHistory($model, $store_id, $work_history_id);
+
+            if ($response['operation'] == 'error') {
+                $transaction->rollBack();
+
+                return $response;
+            }
         }
 
         // save note

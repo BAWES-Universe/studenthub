@@ -6,6 +6,9 @@ class m130524_201442_init extends Migration
 {
     public function up()
     {
+       // $this->db->createCommand("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))")
+       //     ->execute();
+
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
             // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci

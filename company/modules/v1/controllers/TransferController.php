@@ -6,6 +6,7 @@ use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHour;
 use common\models\Contract;
 use Yii;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
@@ -193,6 +194,7 @@ class TransferController extends Controller
         $end_date = Yii::$app->request->getBodyParam('end_date');
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
         $contract_uuid = Yii::$app->request->getBodyParam('contract_uuid');
+        $contract_type = Yii::$app->request->getBodyParam('contract_type');
 
         if(!$currency_code) {
             Yii::$app->request->headers->get('currency');
@@ -240,7 +242,10 @@ class TransferController extends Controller
         }
 
         //save transfer
-        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code, $contract_uuid);
+
+        $noOfPayout = 1;
+
+        return Transfer::saveTransfer($company, $candidates, $start_date, $end_date, $currency_code, $contract_uuid, $noOfPayout, $contract_type);
     }
 
     /**
@@ -256,6 +261,7 @@ class TransferController extends Controller
         $end_date = Yii::$app->request->getBodyParam('end_date');
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
         $contract_uuid = Yii::$app->request->getBodyParam('contract_uuid');
+        $contract_type = Yii::$app->request->getBodyParam('contract_type');
 
         if(!$currency_code) {
             Yii::$app->request->headers->get('currency');
@@ -306,7 +312,7 @@ class TransferController extends Controller
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid, $contract_type);
     }
 
     /**
@@ -321,6 +327,7 @@ class TransferController extends Controller
         $end_date = Yii::$app->request->getBodyParam('end_date');
         $currency_code = Yii::$app->request->getBodyParam('currency_code');
         $contract_uuid = Yii::$app->request->getBodyParam('contract_uuid');
+        $contract_type = Yii::$app->request->getBodyParam('contract_type');
 
         if(!$currency_code) {
             Yii::$app->request->headers->get('currency');
@@ -328,7 +335,7 @@ class TransferController extends Controller
 
         $transfer = $this->findModel($id);
 
-        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid);
+        return $transfer->updateTransfer($candidates, $start_date, $end_date, $currency_code, $contract_uuid, $contract_type);
     }
 
     /**
@@ -528,16 +535,26 @@ class TransferController extends Controller
         $startDate = Yii::$app->request->get("startDate");
         $endDate = Yii::$app->request->get("endDate");
         $contract_uuid = Yii::$app->request->get("contract_uuid");
+        $contract_type = Yii::$app->request->get("contract_type");
 
         $company = Yii::$app->companyManager->getCompany();
 
         $transferCandidates = [];
 
-        $candidateQuery = $company->getCandidates();
+        $candidateQuery = $company->getCandidates()
+            ->joinWith(['contracts' => function($subQuery) use ($company) {
+                $subQuery->filterActive()
+                    ->filterOrg($company->company_id);
+                // ->orderBy(['contract.created_at' => 'DESC']);
+            }])
+            ->andWhere(new Expression('contract.contract_uuid IS NOT NULL'));
 
         if ($contract_uuid) {
-            $candidateQuery->joinWith(['latestCandidateWorkHistory'])
-                ->andWhere(['candidate_work_history.contract_uuid' => $contract_uuid]);
+            $candidateQuery->andWhere(['contract.contract_uuid' => $contract_uuid]);
+        }
+
+        if ($contract_type && $contract_type != "ALL") {
+            $candidateQuery->andWhere(['contract.type' => $contract_type]);
         }
 
         if ($preFilled) {
@@ -622,11 +639,12 @@ class TransferController extends Controller
             ],
         ];
 
-        $contract = $company->getContracts()
-            ->andWhere(['contract_uuid' => $contract_uuid])
-            ->one();
+        //$contract = $company->getContracts()
+        //    ->andWhere(['contract_uuid' => $contract_uuid])
+         //   ->one();
 
-        if (!$contract || $contract->type == Contract::TYPE_HOURLY) {
+        if (!$contract_type || $contract_type == Contract::TYPE_HOURLY) {
+            //!$contract || $contract->type == Contract::TYPE_HOURLY) {
             $columns = array_merge($columns, [
                 [
                     'header' => 'bonus',

@@ -1079,7 +1079,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidateStats',
             "candidateWorkingHour",
             "candidateWorkingDates",
-            "certificates"
+            "certificates",
+            "currentContract",
+            "currentContract.amount",
         ];
     }
 
@@ -1476,11 +1478,33 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getContracts($modelClass = "\common\models\Contract")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
+    }
+
+    /**
+     * @param $modelClass
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrentContract($modelClass = "\common\models\Contract")
+    {
+        return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
+            //->filterActive()
+            ->andOnCondition(new Expression('contract.store_id = '.$this->store_id.' AND (
+                contract.end_date is null OR contract.end_date >= CURDATE()
+            )'));
+           // ->andWhere(['store_id' => $this->store_id]);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCurrentWorkHistory($modelClass = "\common\models\CandidateWorkHistory")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'candidate_id'])
-            ->andWhere(['store_id' => $this->store_id])
-            ->andWhere(new Expression("end_date IS NULL"));
+            ->andWhere(['candidate_work_history.store_id' => $this->store_id])
+            ->andWhere(new Expression("candidate_work_history.end_date IS NULL"));
             //->andWhere(['{{%candidate_work_history}}.deleted'=>0]);
     }
 
@@ -2457,6 +2481,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $ffmpegPath = exec('which ffmpeg');//'/usr/local/bin/ffmpeg'
 
+        //todo: fix security risk by file name 
         exec($ffmpegPath . ' -y -i "'.$source.'" -ss 00:00:01.000 -vframes 1 ' . $tmpFile . ' 2>&1');
 
         // Save thumbnail to S3

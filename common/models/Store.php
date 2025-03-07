@@ -202,13 +202,22 @@ class Store extends \yii\db\ActiveRecord
     /**
      * @return Contract[]
      */
-    public function getContracts() {
-        $contracts =  $this->company->contracts;
+    public function getContracts($modelClass = "\common\models\Contract") {
+        return $this->hasOne($modelClass::className(), ['store_id' => 'store_id']);
+
+        /*$contracts =  $this->company->contracts;
 
         if ($this->company->parentCompany)
             $contracts = array_merge($contracts, $this->company->parentCompany->contracts);
 
-        return $contracts;
+        return $contracts;*/
+    }
+
+    public function getActiveContracts($modelClass = "\common\models\Contract")
+    {
+        return $this->getContracts($modelClass)
+            ->andWhere(['contract.deleted' => false])
+            ->filterActive();
     }
 
     /**
@@ -227,8 +236,7 @@ class Store extends \yii\db\ActiveRecord
      */
     public function getCandidatesSummary($modelClass = "\common\models\Candidate")
     {
-        return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
-            ->andWhere(['candidate.deleted'=>0])
+        return $this->getCandidates($modelClass)
             ->limit(3);
     }
 
@@ -240,6 +248,14 @@ class Store extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
             ->andWhere(['candidate.deleted'=>0]);
+        /*
+            ->andWhere([
+                "IN",
+                "candidate_id",
+                $this->getActiveContracts()
+                    ->andWhere(new Expression("candidate_id IS NOT NULL"))
+                    ->select('candidate_id')
+            ])*/
     }
 
     /**
@@ -283,7 +299,8 @@ class Store extends \yii\db\ActiveRecord
      */
     public function getCandidatesCount($modelClass = "\staff\models\Candidate")
     {
-        return $this->getCandidates($modelClass)->count();
+        return $this->getCandidates($modelClass)
+            ->count();
     }
 
     /**

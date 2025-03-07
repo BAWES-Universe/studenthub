@@ -22,6 +22,7 @@ use yii\db\Expression;
  * @property string $end_date
  * @property string $transfer_cost
  * @property string $currency_code
+ * @property boolean $auto_generate
  * @property int $status
  * @property int $created_by
  * @property boolean $deleted
@@ -66,7 +67,7 @@ class Contract extends \yii\db\ActiveRecord
             [['candidate_id', 'store_id'], 'required', 'on' => self::SCENARIO_ASSIGN],
             [['company_id', 'status', 'created_by'], 'integer'],
             [['detail'], 'string'],
-            [['deleted'], 'boolean'],
+            [['deleted', 'auto_generate'], 'boolean'],
             [["status"], "default", "value" => 0],
             [['transfer_cost'],  "default", "value" => 0],
             [['currency_code'],  "default", "value" => "KWD"],
@@ -129,6 +130,7 @@ class Contract extends \yii\db\ActiveRecord
             'end_date' => Yii::t('app', 'End Date'),
             'transfer_cost' => Yii::t('app', 'Transfer Cost'),
             'currency_code' => Yii::t('app', 'Currency Code'),
+            "auto_generate" => Yii::t('app', 'Auto Generate'),
             'status' => Yii::t('app', 'Status'),
             'created_by' => Yii::t('app', 'Created By'),
             "deleted" => Yii::t('app', 'Deleted'),
