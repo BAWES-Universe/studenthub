@@ -479,20 +479,30 @@ class Company extends \yii\db\ActiveRecord
      */
     public function getCandidates($modelClass = "\common\models\Candidate")
     {
+        $query = null;
+
         if($this->subCompanyStores)
         {
             //for parent company
-            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
-                ->via('subCompanyStores')
-                ->andWhere(['{{%candidate}}.deleted' => 0]);
+            $query = $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+                ->via('subCompanyStores');
         }
         else
         {
             //for child company
-            return $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
-                ->via('stores')
-                ->andWhere(['{{%candidate}}.deleted' => 0]);
-        }        
+            $query = $this->hasMany($modelClass::className(), ['store_id' => 'store_id'])
+                ->via('stores');
+        }
+
+        return $query->andWhere(['{{%candidate}}.deleted' => 0]);/*
+            ->andWhere([
+                "IN",
+                "candidate.candidate_id",
+                $this->getActiveContracts()
+                   // ->andWhere([''])
+                    ->andWhere(new Expression("contract.candidate_id IS NOT NULL"))
+                    ->select('contract.candidate_id')
+            ]);*/
     }
 
     /**
@@ -1186,5 +1196,16 @@ class Company extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
             ->orderBy("contract.created_at DESC");
+    }
+
+    /**
+     * @param $modelClass
+     * @return mixed
+     */
+    public function getActiveContracts($modelClass = "\common\models\Contract")
+    {
+        return $this->getContracts($modelClass)
+            ->andWhere(['contract.deleted' => false])
+            ->filterActive();
     }
 }

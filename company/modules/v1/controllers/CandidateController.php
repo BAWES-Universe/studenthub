@@ -100,7 +100,7 @@ class CandidateController extends BaseController
             $query->andWhere(['contract.contract_uuid' => $contract_uuid]);
         }
 
-        if ($contract_type && $contract_type != "ALL") {
+            if ($contract_type && $contract_type != "ALL") {
             $query->andWhere(['contract.type' => $contract_type]);
         }
 
@@ -602,7 +602,7 @@ class CandidateController extends BaseController
             ]);
         }
 
-        if ($with_session || in_array($session_status, [0, 1, 2]) || $start_date || $end_date) {
+        if ($with_session && (in_array($session_status, [0, 1, 2]) || $start_date || $end_date)) {
             
             $query->groupBy(['candidate.candidate_id'])
                 ->joinWith(['candidateWorkingDates']);
