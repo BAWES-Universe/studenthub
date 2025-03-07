@@ -1003,6 +1003,10 @@ class TransferCandidate extends \yii\db\ActiveRecord
             ->filterActive();//not expired
             //->filterOrg($store['company_id'])
 
+        if (isset($value['contract_uuid'])) {
+            $contractQuery->andWhere(['contract.contract_uuid' => $value['contract_uuid']]);
+        }
+
         if ($contract_type && $contract_type != "ALL") {
             $contractQuery->andWhere(['contract.type' => $contract_type]);
         }

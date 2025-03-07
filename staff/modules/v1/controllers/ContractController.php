@@ -160,6 +160,7 @@ class ContractController extends Controller
         $model->transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
         $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
         $model->status =  Yii::$app->request->getBodyParam("status");
+        $model->auto_generate = Yii::$app->request->getBodyParam("auto_generate");
         $model->amountDetails = Yii::$app->request->getBodyParam("amount");
 
         if (!$model->save()) {
@@ -205,6 +206,7 @@ class ContractController extends Controller
         $model->transfer_cost = Yii::$app->request->getBodyParam("transfer_cost");
         $model->currency_code = Yii::$app->request->getBodyParam("currency_code");
         $model->status =  Yii::$app->request->getBodyParam("status");
+        $model->auto_generate = Yii::$app->request->getBodyParam("auto_generate");
         $model->amountDetails = Yii::$app->request->getBodyParam("amount");
 
         if (!$model->save()) {

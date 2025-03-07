@@ -1297,7 +1297,8 @@ class Transfer extends ActiveRecord
                 ];
             }
 
-            $response = TransferCandidate::saveCandidateTransfer($candidate, $transfer, $value, $noOfPayout, $contract_type);
+            $response = TransferCandidate::saveCandidateTransfer(
+                $candidate, $transfer, $value, $noOfPayout, $contract_type);
 
             if ($response['operation'] == "error") {
 

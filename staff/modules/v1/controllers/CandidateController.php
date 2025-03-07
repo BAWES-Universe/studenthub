@@ -538,6 +538,8 @@ class CandidateController extends Controller
         $contract_currency_code = Yii::$app->request->getBodyParam("currency_code", "KWD");
         //Yii::$app->request->headers->get("Currency", "KWD");
 
+        $auto_generate = Yii::$app->request->getBodyParam("auto_generate", false);
+
         //deprecated field
 
         $hourly_rate = isset($contract_amount_details['candidate_hourly_rate'])?
@@ -709,11 +711,13 @@ class CandidateController extends Controller
         $contract->parent_company_id = $company->parent_company_id || $company->company_id;
         $contract->type = $contract_type;
         $contract->detail = $contract_detail;
-        $contract->start_date = $start_date || date('Y-m-d');
+        $contract->start_date = empty($start_date) ? date('Y-m-d'):
+            date('Y-m-d', strtotime($start_date));
         $contract->end_date = $end_date;
         $contract->transfer_cost = $transfer_cost;
         $contract->currency_code = $contract_currency_code;
         $contract->status = Contract::STATUS_ACTIVE;
+        $contract->auto_generate = (boolean) $auto_generate;
         $contract->amountDetails = $contract_amount_details;
  
         if (!$contract->save()) {

@@ -349,38 +349,63 @@ class CronController extends \yii\console\Controller {
 
         $noOfPayout = 4;// 4 weeks per month/ salary/4 = 1 week salary
 
-        $query = Contract::find()
+        $activeMonthlyContracts = Contract::find()
+            ->joinWith(['candidate'])
+            ->andWhere([
+                'contract.type' => Contract::TYPE_MONTHLY_SALARY,
+                'contract.deleted' => 0,
+                'candidate.deleted' => 0,
+                "auto_generate" => true
+            ])
             //contract already started
             ->andWhere(new Expression("start_date IS NULL OR DATE(start_date) <= CURDATE()"))
             //not finished
             ->andWhere(new Expression("end_date IS NULL OR DATE(end_date) >= CURDATE()"))
-            ->andWhere(['type' => Contract::TYPE_MONTHLY_SALARY, 'deleted' => 0]);
+            ->all();
 
-        foreach ($query->each() as $contract) {
-            $company = $contract->company->parent_company_id?
-                $contract->company->parentCompany: $contract->company;
+        $data = [];
+
+        foreach ($activeMonthlyContracts as $activeMonthlyContract) {
+
+            $company = $activeMonthlyContract->parent_company_id?
+                $activeMonthlyContract->parentCompany: $activeMonthlyContract->company;
+
+            $candidate = $activeMonthlyContract->getCandidate()
+                ->asArray()
+                ->one();
+
+            $candidate['contract_uuid'] = $activeMonthlyContract->contract_uuid;
+
+            if (!isset($data[$company->company_id])) {
+                $data[$company->company_id] = [
+                    "company" => $company,
+                    "candidates" => [
+                        $candidate
+                    ]
+                ];
+            } else {
+                $data[$company->company_id]["candidates"][] = $candidate;
+            }
+        }
+
+        //get all companies with monthly contract
+
+        foreach ($data as $values) {
 
             $start_date = date("Y-m-d", strtotime("-6 days"));
             $end_date = date("Y-m-d");
 
-            $candidates =  CandidateWorkHistory::find()
-                ->select(['candidate_id'])
-                ->andWhere(['contract_uuid' => $contract->contract_uuid])
-                //currently, working or was working on current payroll period
-                ->andWhere(new Expression("end_date IS NULL OR DATE(end_date) >= DATE('".$start_date."')"))
-                ->asArray()
-                ->all();
-
             //save transfer
 
             return \company\models\Transfer::saveTransfer(
-                $company,
-                $candidates,
+                $values['company'],
+                $values['candidates'],
                 $start_date,
                 $end_date,
-                $contract->currency_code,
-                $contract->contract_uuid,
-                $noOfPayout
+                "KWD",
+                null,
+                $noOfPayout,
+                Contract::TYPE_MONTHLY_SALARY
             );
         }
     }
