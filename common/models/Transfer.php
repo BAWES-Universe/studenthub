@@ -1091,20 +1091,26 @@ class Transfer extends ActiveRecord
 
         //check if is there any candidate in transfer who not working any more with this company
 
-        $companyCandidates = $this->company->getCandidates()->select('candidate_id');
+        $companyCandidates = $this->company->getCandidates()
+            ->select('candidate_id');
 
-        $extraCandidates = $this->getTransferCandidates()
+        $extraCandidateQuery = $this->getTransferCandidates()
             ->andWhere([
                 'not in',
                 'candidate_id',
                 $companyCandidates
-            ])
-            ->count();
+            ]);
 
-        if($extraCandidates > 0)
+        $extraCandidateCount = $extraCandidateQuery->count();
+
+        if($extraCandidateCount > 0)
         {
-            throw new Exception('You got '.$extraCandidates.' candidate who not assign to you anymore. '
-                . 'Please remove this transfer and create new one!');
+            $extraCandidates = $extraCandidateQuery->all();
+
+            $extraCandidatesIds = ArrayHelper::getColumn($extraCandidates, 'candidate_id');
+
+            throw new Exception('You got '.$extraCandidateCount.' candidate who not assign to you anymore. '
+                . 'Please remove this transfer and create new one! Candidate IDS: '. implode(', ', $extraCandidatesIds));
         }
 
         $this->transfer_status = Transfer::STATUS_LOCK;
