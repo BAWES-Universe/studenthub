@@ -403,6 +403,7 @@ class TransferCandidate extends \yii\db\ActiveRecord
             'store',
             'company',
             'candidate',
+            "contract",
             'transfer',
             'invoice',
             'bank',
@@ -701,6 +702,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
     public function getPrevCandidate($modelClass = "\common\models\Candidate")
     {
         return $this->hasOne($modelClass::className(), ['candidate_id' => 'prev_candidate_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getContract($modelClass = "\common\models\Contract")
+    {
+        return $this->hasOne($modelClass::className(), ['contract_uuid' => 'contract_uuid']);
     }
 
     /**
