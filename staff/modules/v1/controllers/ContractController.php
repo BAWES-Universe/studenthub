@@ -5,6 +5,7 @@ namespace staff\modules\v1\controllers;
 use Yii;
 use common\models\Contract;
 use yii\data\ActiveDataProvider;
+use yii\db\Exception;
 use yii\db\Expression;
 use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
@@ -209,7 +210,12 @@ class ContractController extends Controller
         $model->auto_generate = Yii::$app->request->getBodyParam("auto_generate");
         $model->amountDetails = Yii::$app->request->getBodyParam("amount");
 
+        $transaction = Yii::$app->db->beginTransaction();
+
         if (!$model->save()) {
+
+            $transaction->rollBack();
+
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",
@@ -221,6 +227,46 @@ class ContractController extends Controller
                     "message" => "We've faced a problem updating the contract, please contact us for assistance"
                 ];
             }
+        }
+
+        //make sure to update candidate work history as well
+
+        if ($model->candidateWorkHistory) {
+            $model->candidateWorkHistory->transfer_cost = $model->transfer_cost;
+
+            if (isset($model->amountDetails['candidate_hourly_rate'])) {
+                $model->candidateWorkHistory->candidate_hourly_rate = $model->amountDetails['candidate_hourly_rate'];
+                $model->candidateWorkHistory->company_hourly_rate = $model->amountDetails['company_hourly_rate'];
+            } else {
+                $model->candidateWorkHistory->candidate_hourly_rate = null;
+                $model->candidateWorkHistory->company_hourly_rate = null;
+            }
+
+            if (!$model->candidateWorkHistory->save()) {
+                $transaction->rollBack();
+
+                if (isset($model->candidateWorkHistory->errors)) {
+                    return [
+                        "operation" => "error",
+                        "message" => $model->candidateWorkHistory->getErrors()
+                    ];
+                } else {
+                    return [
+                        "operation" => "error",
+                        "message" => "We've faced a problem updating the contract, please contact us for assistance"
+                    ];
+                }
+            }
+        }
+
+        try {
+            $transaction->commit();
+        } catch (Exception $e) {
+            return [
+                "operation" => "error",
+                "error" => $e->getMessage(),
+                "message" => "We've faced a problem updating the contract, please contact us for assistance"
+            ];
         }
 
         return [
