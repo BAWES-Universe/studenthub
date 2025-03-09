@@ -221,6 +221,13 @@ class TransferController extends Controller
         ]);
     }
 
+    public function actionMarkPaid($id)
+    {
+        $transfer = $this->findModel($id);
+
+        return Transfer::markTransferCompleteOnCandidatePaid($transfer->transfer_id);
+    }
+
     /**
      * Return a List of all Payable Candidates with invoice status paid
      */
