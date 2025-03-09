@@ -179,9 +179,9 @@ class Contract extends \yii\db\ActiveRecord
                 return true;
             }
 
-            if (isset($changedAttributes['type'])) {
+            /*if (isset($changedAttributes['type']) && $this->amount) {
                 $this->amount->delete();
-            }
+            }*/
         }
 
         if ($this->amountDetails && !empty($this->amountDetails)) {
@@ -198,6 +198,10 @@ class Contract extends \yii\db\ActiveRecord
     public function updateAmountDetails()
     {
         if ($this->type == Contract::TYPE_FIXED_PRICE) {
+
+            //delete old amount details
+            HourlyContract::deleteAll(['contract_uuid' => $this->contract_uuid]);
+            MonthlySalaryContract::deleteAll(['contract_uuid' => $this->contract_uuid]);
 
             $fixedPriceContract = empty($this->amountDetails['fp_contract_uuid']) ?
                 new FixedPriceContract(): FixedPriceContract::findOne($this->amountDetails['fp_contract_uuid']);
@@ -230,6 +234,10 @@ class Contract extends \yii\db\ActiveRecord
             }
 
         } else if ($this->type ==  Contract::TYPE_HOURLY) {
+
+            //delete old amount details
+            FixedPriceContract::deleteAll(['contract_uuid' => $this->contract_uuid]);
+            MonthlySalaryContract::deleteAll(['contract_uuid' => $this->contract_uuid]);
 
             $hourlyContract = empty($this->amountDetails['h_contract_uuid']) ?
                 new HourlyContract(): HourlyContract::findOne($this->amountDetails['h_contract_uuid']);
@@ -264,6 +272,11 @@ class Contract extends \yii\db\ActiveRecord
             }
 
         } else if ($this->type == Contract::TYPE_MONTHLY_SALARY) {
+
+            //delete old amount details
+
+            HourlyContract::deleteAll(['contract_uuid' => $this->contract_uuid]);
+            FixedPriceContract::deleteAll(['contract_uuid' => $this->contract_uuid]);
 
             $monthlySalaryContract = empty($this->amountDetails['ms_contract_uuid']) ?
                 new MonthlySalaryContract(): MonthlySalaryContract::findOne($this->amountDetails['ms_contract_uuid']);
@@ -406,6 +419,14 @@ class Contract extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getCandidateWorkHistory($className = '\common\models\CandidateWorkHistory')
+    {
+        return $this->hasOne($className::className(), ['contract_uuid' => 'contract_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCompany($className = '\common\models\Company')
     {
         return $this->hasOne($className::className(), ['company_id' => 'company_id']);
@@ -432,11 +453,14 @@ class Contract extends \yii\db\ActiveRecord
      */
     public function getAmount() {
         if ($this->type == self::TYPE_FIXED_PRICE) {
-                return $this->getFixedPriceContract()->one();
+                return $this->getFixedPriceContract()
+                    ->one();
         } else if ($this->type == self::TYPE_HOURLY) {
-                return $this->getHourlyContract()->one();
+                return $this->getHourlyContract()
+                    ->one();
         } else if ($this->type == self::TYPE_MONTHLY_SALARY) {
-                return $this->getMonthlySalaryContract()->one();
+                return $this->getMonthlySalaryContract()
+                    ->one();
         }
     }
 
