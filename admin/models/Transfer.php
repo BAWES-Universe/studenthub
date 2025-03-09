@@ -122,12 +122,19 @@ class Transfer extends \common\models\Transfer
         if (($this->transfer_status == Transfer::STATUS_PAYMENT_SENT) || ($this->transfer_status == Transfer::STATUS_LOCK)) {
 
             if(YII_ENV == 'prod') {
-                Yii::$app->walletManager->addEntry([
+                $response = Yii::$app->walletManager->addEntry([
                     'amount' => $this->company_total,
                     'data' => 'Studenthub payment received #' . $this->transfer_id,
                     'tagNames' => 'Studenthub payment received',
                     'user_uuid' => Yii::$app->walletManager->companyWalletUserID
                 ]);
+
+                if ($response['operation'] == 'error') {
+                    //$transaction->rollBack();
+                    Yii::error('Failed to add entry to wallet: ' . print_r($response, true));
+                    
+                    return $response;
+                }
             }
 
             // Set payment received date and update transfer status

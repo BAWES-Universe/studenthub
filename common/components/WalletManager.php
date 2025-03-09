@@ -24,7 +24,7 @@ class WalletManager extends \yii\base\Component
         $client = new Client();
 
         try {
-            return $client->createRequest()
+            $response = $client->createRequest()
                 ->setMethod('POST')
                 ->setUrl($this->apiEndpoint . '/balance/add-wallet-entry')
                 ->setFormat(Client::FORMAT_JSON)
@@ -35,8 +35,25 @@ class WalletManager extends \yii\base\Component
                     'content-type' => 'application/json',
                 ])
                 ->send();
+
+            if ($response->isOk) {
+                return [
+                    "operation" => "success",
+                ];
+            } else {
+                return [
+                    "operation" => "error",
+                    "message" => isset($response->data['message'])?
+                        $response->data['message']: $response->content,
+                ];
+            }
         } catch (\Exception $e) {
             \Yii::error($e->getMessage());
+
+            return [
+                "operation" => "error",
+                "message" => $e->getMessage(),
+            ];
         } 
     }
 }
