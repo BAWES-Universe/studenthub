@@ -6,26 +6,7 @@ return [
             'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
             'username' => 'root',
             'password' => 'JImnisvcRDpKLdWpoMECoHHoCbutPhQC',
-            // Old config
-            // 'dsn' => 'mysql:host=10.131.43.120;dbname=payroll',
-            // 'username' => 'studenthubpayrollbawes',
-            // 'password' => 'bawes12student!hub',
             'charset' => 'utf8',
-            /*
-            // common configuration for slaves
-            'slaveConfig' => [
-                'username' => 'bawes',
-                'password' => 'bawes12student!hub',
-                'attributes' => [
-                    // use a smaller connection timeout
-                    PDO::ATTR_TIMEOUT => 10,
-                ],
-            ],
-            // list of slave configurations for Read-write splitting
-            'slaves' => [
-                ['dsn' => 'mysql:host=studenthub-prod.cluster-ro-c8mekjvvbygf.eu-west-2.rds.amazonaws.com;dbname=studenthub']
-            ],*/
-
             // Enable Caching of Schema to Reduce SQL Queries
             'enableSchemaCache' => true,
             // Duration of schema cache.
