@@ -3,9 +3,9 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
+            'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
             'username' => 'root',
-            'password' => 'mECIXVloEolvFJXnDTcuLGUtvbwzoCgS',
+            'password' => 'JImnisvcRDpKLdWpoMECoHHoCbutPhQC',
             // Old config
             // 'dsn' => 'mysql:host=10.131.43.120;dbname=payroll',
             // 'username' => 'studenthubpayrollbawes',
@@ -34,12 +34,13 @@ return [
             // Name of the cache component used to store schema information
             'schemaCache' => 'cache',
         ],
+
         'walletDb' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=mysql.railway.internal;dbname=railway',
+            'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
             'username' => 'root',
-            'password' => 'JImnisvcRDpKLdWpoMECoHHoCbutPhQC',
-             
+            'password' => 'mECIXVloEolvFJXnDTcuLGUtvbwzoCgS',
+
             'charset' => 'utf8',
             // Enable Caching of Schema to Reduce SQL Queries
             'enableSchemaCache' => true,
