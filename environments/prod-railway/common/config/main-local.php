@@ -11,7 +11,6 @@ return [
             // 'username' => 'studenthubpayrollbawes',
             // 'password' => 'bawes12student!hub',
             'charset' => 'utf8',
-
             /*
             // common configuration for slaves
             'slaveConfig' => [
@@ -34,7 +33,6 @@ return [
             // Name of the cache component used to store schema information
             'schemaCache' => 'cache',
         ],
-
         'walletDb' => [
             'class' => 'yii\db\Connection',
             'dsn' => 'mysql:host=mysql-5abl.railway.internal;dbname=railway',
