@@ -140,13 +140,27 @@ class EmailCampaignController extends Controller
 
         $model->subject = Yii::$app->request->getBodyParam("subject");
         $model->message = Yii::$app->request->getBodyParam("message");
+
+        $model->trigger_date_time = Yii::$app->request->getBodyParam("trigger_date_time");
+
+        if ($model->trigger_date_time) {
+            $model->trigger_date_time = date('Y-m-d H:i:s', strtotime($model->trigger_date_time));
+        }
+
+       // $model->last_trigger_date_time = Yii::$app->request->getBodyParam("last_trigger_date_time");
+        $model->is_recurring = Yii::$app->request->getBodyParam("is_recurring");
+        $model->trigger_period = Yii::$app->request->getBodyParam("trigger_period");
+        $model->target = Yii::$app->request->getBodyParam("target");
+
         $model->status = EmailCampaign::STATUS_DRAFT;
+
 
         if (!$model->save()) {
             if (isset($model->errors)) {
                 return [
                     "operation" => "error",
-                    "message" => $model->errors
+                    "message" => $model->errors,
+                    "values" => $model->attributes
                 ];
             } else {
                 return [
@@ -194,6 +208,17 @@ class EmailCampaignController extends Controller
 
         $model->subject = Yii::$app->request->getBodyParam("subject");
         $model->message = Yii::$app->request->getBodyParam("message");
+
+        $model->trigger_date_time = Yii::$app->request->getBodyParam("trigger_date_time");
+
+        if ($model->trigger_date_time) {
+            $model->trigger_date_time = date('Y-m-d H:i:s', strtotime($model->trigger_date_time));
+        }
+
+        //$model->last_trigger_date_time = Yii::$app->request->getBodyParam("last_trigger_date_time");
+        $model->is_recurring = Yii::$app->request->getBodyParam("is_recurring");
+        $model->trigger_period = Yii::$app->request->getBodyParam("trigger_period");
+        $model->target = Yii::$app->request->getBodyParam("target");
 
         if (!$model->save()) {
             if (isset($model->errors)) {

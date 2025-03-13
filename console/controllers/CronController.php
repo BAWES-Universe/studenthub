@@ -332,6 +332,8 @@ class CronController extends \yii\console\Controller {
     {
         $campaigns = EmailCampaign::find()
             ->andWhere(['status' => EmailCampaign::STATUS_READY])
+            ->andWhere(new Expression("trigger_date_time is null || 
+                trigger_date_time < NOW()"))
             ->all();
 
         foreach ($campaigns as $campaign) {
