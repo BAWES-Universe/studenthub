@@ -16,6 +16,11 @@ use yii\helpers\Console;
  * @property string $subject
  * @property string $message
  * @property int $progress
+ * @property string $trigger_date_time
+ * @property string $last_trigger_date_time
+ * @property boolean $is_recurring
+ * @property int $trigger_period
+ * @property string $target
  * @property int $status
  * @property string $created_at
  * @property string $updated_at
@@ -28,6 +33,10 @@ class EmailCampaign extends \yii\db\ActiveRecord
     const STATUS_IN_PROGRESS = 1;
     const STATUS_COMPLETED = 2;
     const STATUS_READY = 3;
+
+    const TARGET_PART_TIMERS = 'part-timers';
+    const TARGET_FULL_TIMERS = 'full-timer';
+    const TARGET_BOTH = 'both';
 
     /**
      * {@inheritdoc}
@@ -45,7 +54,11 @@ class EmailCampaign extends \yii\db\ActiveRecord
         return [
             //[['campaign_uuid'], 'required'],
             [['message'], 'string'],
-            [['progress', 'status'], 'integer'],
+            ['target', "in", 'range' => ['part-timers', 'full-timer', 'both']],
+            [['trigger_date_time', 'last_trigger_date_time'], "string"],
+            [['is_recurring'], 'boolean'],
+            [['target'], "default", "value" => self::TARGET_PART_TIMERS],
+            [['progress', 'status', "trigger_period"], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['campaign_uuid'], 'string', 'max' => 60],
             [['subject'], 'string', 'max' => 255],
@@ -111,28 +124,18 @@ class EmailCampaign extends \yii\db\ActiveRecord
         return array_merge(["emailCampaignFilters"], parent::extraFields());
     }
 
-    /**
-     * process campaign
-     * @return void
-     */
-    public function process() {
-
-        $this->status = self::STATUS_IN_PROGRESS;
-
-        if(!$this->save()) {
-            throw new Exception(print_r($this->errors, true));
-        }
-
+    private function _processForPartTimers()
+    {
         $query = Candidate::find();
 
         $filters = $this->getEmailCampaignFilters()->all();
 
         foreach ($filters as $filter) {
-            
+
             if ($filter['param'] == "filterAssigned")
             {
                 $query->filterAssigned();
-            } 
+            }
             else if ($filter['param'] == "filterNotAssigned")
             {
                 $query->filterNotAssigned();
@@ -143,11 +146,18 @@ class EmailCampaign extends \yii\db\ActiveRecord
             }
             else if ($filter['param'] == "filterCountry")
             {
-                $query->filterCountry($filter['value']);
+                $country_id = (int) $filter['value'];
+
+                if ($country_id == 0) {
+                    $query->filterCountryName($filter['value']);
+                } else {
+                    $query->filterCountry($country_id);
+                }
             }
             else if ($filter['param'] == "filterUniversity")
             {
                 $query->filterUniversity($filter['value']);
+
             }
             else if ($filter['param'] == "idExpired")
             {
@@ -179,7 +189,7 @@ class EmailCampaign extends \yii\db\ActiveRecord
         }
 
         $total = $query->count();
- 
+
         Console::startProgress(0, $total);
 
         $processed = 0;
@@ -207,8 +217,106 @@ class EmailCampaign extends \yii\db\ActiveRecord
 
             sleep(10);
         }
+    }
 
-        $this->status = self::STATUS_COMPLETED;
+    private function _processForFullTimers()
+    {
+        $fulltimerQuery = Fulltimer::find();
+
+        $filters = $this->getEmailCampaignFilters()->all();
+
+        foreach ($filters as $filter) {
+
+            if ($filter['param'] == "filterAssigned")
+            {
+                $fulltimerQuery->filterEmployed(true);
+            }
+            else if ($filter['param'] == "filterNotAssigned")
+            {
+                $fulltimerQuery->filterEmployed(false);
+            }
+            else if ($filter['param'] == "filterCountry")
+            {
+                $country_id = (int) $filter['value'];
+
+                if ($country_id == 0) {
+                    $fulltimerQuery->filterCountryName($filter['value']);
+                } else {
+                    $fulltimerQuery->filterCountry($country_id);
+                }
+            }
+            else if ($filter['param'] == "filterUniversity")
+            {
+                $fulltimerQuery->filterUniversity($filter['value']);
+            }
+            else if($filter['param'] == "ageRange")
+            {
+                $values = explode(":", $filter['value']);
+
+                $fulltimerQuery->filterAge($values);
+            }
+        }
+
+        $total = $fulltimerQuery->count();
+
+        Console::startProgress(0, $total);
+
+        $processed = 0;
+
+        foreach ($fulltimerQuery->batch(100) as $fulltimers) {
+
+            foreach ($fulltimers as $fulltimer) {
+                try {
+                    $this->sendEmailToFulltimer($fulltimer);
+                } catch (\Exception $e) {
+                    Yii::error($e, 'campaign');
+                    continue;
+                }
+            }
+
+            $processed += sizeof($fulltimers);
+
+            $this->progress = ceil($processed * 100 / $total);
+
+            if(!$this->save()) {
+                throw new Exception(print_r($this->errors, true));
+            }
+
+            Console::updateProgress($processed, $total);
+
+            sleep(10);
+        }
+    }
+
+    /**
+     * process campaign
+     * @return void
+     */
+    public function process() {
+
+        $this->status = self::STATUS_IN_PROGRESS;
+
+        if(!$this->save()) {
+            throw new Exception(print_r($this->errors, true));
+        }
+
+        if ($this->target == "part-timer") {
+            $this->_processForPartTimers();
+        } else if ($this->target == "full-timer") {
+            $this->_processForFullTimers();
+        } else {
+            $this->_processForPartTimers();
+            $this->_processForFullTimers();
+        }
+
+        $this->last_trigger_date_time = date('Y-m-d H:i:s');//new Expression('NOW()');
+
+        if ($this->is_recurring) {
+            $this->trigger_date_time = date('Y-m-d H:i:s', strtotime("+".$this->trigger_period." days"));
+            $this->status = self::STATUS_READY;
+        } else {
+            $this->status = self::STATUS_COMPLETED;
+        }
 
         if(!$this->save()) {
             throw new Exception(print_r($this->errors, true));
@@ -253,6 +361,56 @@ class EmailCampaign extends \yii\db\ActiveRecord
             ->setSubject($this->subject)
             ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
             ->setTo($candidate->candidate_email);
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
+        try {
+            return $mailer->send();
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            // Handle email transport-specific exceptions
+            Yii::error( "Failed to send email: " . $e->getMessage());
+        } catch (\Exception $e) {
+            // Handle any other exceptions
+            Yii::error( "An error occurred: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * @param $fulltimer
+     * @return bool|void
+     * @throws \yii\db\Exception
+     */
+    public function sendEmailToFulltimer($fulltimer) {
+
+        $arrSearch = [
+            "[candidate_name]",
+            "[candidate_name_ar]",
+            "[candidate_email]"
+        ];
+
+        $arrReplace = [
+            $fulltimer->fulltimer_name,
+            "",
+            $fulltimer->fulltimer_email
+        ];
+
+        $message = str_replace($arrSearch, $arrReplace, $this->message);
+
+        $ml = new MailLog();
+        $ml->to = $fulltimer->fulltimer_email;
+        $ml->from = \Yii::$app->params['supportEmail'];
+        $ml->subject = $this->subject;
+        if (!$ml->save()) {
+            Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+        }
+
+        $mailer = \Yii::$app->mailer->compose()
+            ->setHtmlBody($message)
+            ->setSubject($this->subject)
+            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+            ->setTo($fulltimer->fulltimer_email);
 
         if(\Yii::$app->params['elasticMailIpPool']) {
             $mailer->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);

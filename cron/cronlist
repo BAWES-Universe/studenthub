@@ -1,23 +1,29 @@
-# Daily CRON at 1:30 PM Every Day
-30 13 * * * /usr/local/bin/php ~/www/yii cron/daily > /dev/null 2>&1
-
 # CRON every minute
 * * * * * /usr/local/bin/php ~/www/yii cron/every-minute > /dev/null 2>&1
 * * * * * /usr/local/bin/php ~/www/yii cron/process-transfer-files > /dev/null 2>&1
+* * * * * /usr/local/bin/php ~/www/yii cron/process-campaign > /dev/null 2>&1
+
+# Daily CRON at 1:00 AM Every Day
+#0 1 * * * /usr/local/bin/php ~/www/yii cron/process-campaign > /dev/null 2>&1
+
+# Daily CRON at 5:00 AM, Payable reminder if any
+0 5 * * * /usr/local/bin/php ~/www/yii cron/payable-candidate-notification > /dev/null 2>&1
+
+# Daily CRON At 7:30 AM, on every day-of-week from Sunday through Thursday
+#30 7 * * 0-4 /usr/local/bin/php ~/www/yii cron/check-daily-attendance > /dev/null 2>&1
+
+# Daily CRON at 8:00 AM, Morning report
+0 5 * * * /usr/local/bin/php ~/www/yii cron/summary > /dev/null 2>&1
+
+# Daily CRON at 1:30 PM Every Day
+30 13 * * * /usr/local/bin/php ~/www/yii cron/daily > /dev/null 2>&1
+
+# Daily CRON At 8:00 PM on every day-of-week from Sunday through Thursday
+0 17 * * 0-4 /usr/local/bin/php ~/www/yii report/recruiter > /dev/null 2>&1
 
 # Every Saturday
 0 0 * * 6 /usr/local/bin/php ~/www/yii cron/weekly > /dev/null 2>&1
 
+#At 13:30 on day-of-month 28
 30 13 28 * * /usr/local/bin/php ~/www/yii cron/end-of-month
 
-# Morning report at 8:00 AM every day
-0 5 * * * /usr/local/bin/php ~/www/yii cron/summary > /dev/null 2>&1
-
-# Payable reminder if any: every day
-0 5 * * * /usr/local/bin/php ~/www/yii cron/payable-candidate-notification > /dev/null 2>&1
-
-# Daily CRON At 10:30 on every day-of-week from Sunday through Thursday
-#30 7 * * 0-4 /usr/local/bin/php ~/www/yii cron/check-daily-attendance > /dev/null 2>&1
-
-# Daily CRON At 8:00 PM on every day-of-week from Sunday through Thursday
-0 17 * * 0-4 /usr/local/bin/php ~/www/yii report/recruiter > /dev/null 2>&1

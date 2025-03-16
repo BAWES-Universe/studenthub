@@ -181,3 +181,26 @@ Add the following lines to the ubuntu user's ~/.bashrc (or ~/.profile):
     eval "$(ssh-agent -s)"
     ssh-add ~/.ssh/github
 fi`
+
+
+#mysql trigger 
+
+SHOW CREATE TRIGGER after_candidate_working_hour_update \G;
+
+DROP TRIGGER IF EXISTS after_candidate_working_hour_update;
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`%` TRIGGER `after_candidate_working_hour_update`
+BEFORE UPDATE ON `candidate_working_hour`
+FOR EACH ROW
+BEGIN
+    IF (NEW.total_time < 0 OR NEW.total_time IS NULL) THEN
+        SET NEW.total_time = TIMESTAMPDIFF(SECOND, OLD.start_time, NEW.end_time);
+    END IF;
+END $$
+
+DELIMITER;
+
+
+
