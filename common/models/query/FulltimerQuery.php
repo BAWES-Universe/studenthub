@@ -56,6 +56,10 @@ class FulltimerQuery extends \yii\db\ActiveQuery
         return $this->andWhere(['like', '{{%fulltimer}}.fulltimer_email', $fulltimer_email]);
     }
 
+    /**
+     * @param $gender
+     * @return FulltimerQuery
+     */
     public function filterGender($gender)
     {
         return $this->andWhere(['{{%fulltimer}}.fulltimer_gender' => $gender]);
@@ -80,6 +84,20 @@ class FulltimerQuery extends \yii\db\ActiveQuery
     public function filterCountry($country_id)
     {
         return $this->andWhere(['{{%fulltimer}}.country_id' => $country_id]);
+    }
+
+    /**
+     * @param $country
+     * @return CandidateQuery
+     */
+    public function filterCountryName($country) {
+        return $this
+            ->joinWith('country')
+            ->andWhere([
+                "OR",
+                ['{{%country}}.country_name_en' => $country],
+                ['{{%country}}.country_name_ar' => $country]
+            ]);
     }
 
     public function filterPhone($fulltimer_phone)

@@ -68,8 +68,14 @@ class CountryController extends Controller
      */
     public function actionList()
     {
+        $q = Yii::$app->request->get("q");
+
         $query = Country::find()
             ->listWithCandidateCount();
+
+        if ($q) {
+            $query->filterName($q);
+        }
 
         return new ActiveDataProvider([
             'query' => $query
@@ -82,8 +88,16 @@ class CountryController extends Controller
      */
     public function actionAll()
     {
-          return Country::find()
-            ->listWithCandidateCount()
+        $q = Yii::$app->request->get("q");
+
+        $query = Country::find()
+            ->listWithCandidateCount();
+
+        if ($q) {
+            $query->filterName($q);
+        }
+
+        return $query
             ->all();
     }
 

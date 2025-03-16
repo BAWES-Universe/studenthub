@@ -13,6 +13,7 @@ use common\models\CandidateWorkingHour;
 use common\models\CompanyStats;
 use common\models\Contract;
 use common\models\DailyStandupQuestion;
+use common\models\EmailCampaign;
 use common\models\FiringHitmap;
 use common\models\MailLog;
 use common\models\RequestInterview;
@@ -36,7 +37,10 @@ use common\models\Request;
 class CronController extends \yii\console\Controller {
 
     public function actionIndex() {
- 
+
+       // $model = EmailCampaign::findOne("campaign_a39cc89c-0257-11f0-8f8f-e778a3c7fb94");
+       // $model->process();
+
       //  $model = TransferFile::findOne(1199);
       //  $model->process();
 

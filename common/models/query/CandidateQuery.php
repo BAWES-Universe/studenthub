@@ -143,6 +143,20 @@ class CandidateQuery extends \yii\db\ActiveQuery
     }
 
     /**
+     * @param $country
+     * @return CandidateQuery
+     */
+    public function filterCountryName($country) {
+        return $this
+            ->joinWith('country')
+            ->andWhere([
+                "OR",
+                ['{{%country}}.country_name_en' => $country],
+                ['{{%country}}.country_name_ar' => $country]
+            ]);
+    }
+
+    /**
      * @param $university_id
      * @return $this
      */

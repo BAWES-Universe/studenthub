@@ -146,7 +146,13 @@ class EmailCampaign extends \yii\db\ActiveRecord
             }
             else if ($filter['param'] == "filterCountry")
             {
-                $query->filterCountry($filter['value']);
+                $country_id = (int) $filter['value'];
+
+                if ($country_id == 0) {
+                    $query->filterCountryName($filter['value']);
+                } else {
+                    $query->filterCountry($country_id);
+                }
             }
             else if ($filter['param'] == "filterUniversity")
             {
@@ -231,7 +237,13 @@ class EmailCampaign extends \yii\db\ActiveRecord
             }
             else if ($filter['param'] == "filterCountry")
             {
-                $fulltimerQuery->filterCountry($filter['value']);
+                $country_id = (int) $filter['value'];
+
+                if ($country_id == 0) {
+                    $fulltimerQuery->filterCountryName($filter['value']);
+                } else {
+                    $fulltimerQuery->filterCountry($country_id);
+                }
             }
             else if ($filter['param'] == "filterUniversity")
             {
@@ -297,7 +309,7 @@ class EmailCampaign extends \yii\db\ActiveRecord
             $this->_processForFullTimers();
         }
 
-        $this->last_trigger_date_time = new Expression('NOW()');
+        $this->last_trigger_date_time = date('Y-m-d H:i:s');//new Expression('NOW()');
 
         if ($this->is_recurring) {
             $this->trigger_date_time = date('Y-m-d H:i:s', strtotime("+".$this->trigger_period." days"));
