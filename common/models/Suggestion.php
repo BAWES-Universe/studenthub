@@ -360,10 +360,10 @@ class Suggestion extends \yii\db\ActiveRecord
             ->andWhere(['NOT IN', 'request.request_status', [
                 Request::STATUS_CANCELLED,
                 Request::STATUS_DELIVERED,
-                Request::STATUS_FINISHED
+            //    Request::STATUS_FINISHED
             ]])
             //->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
-            ->limit(1)//limiting 1 request to make it light and fast and avoid duplicate mail
+            ->limit(10)//limiting 1 request to make it light and fast and avoid duplicate mail
             ->all();
 
         //todo: mark request as processing cv mail to avoid duplicate mail
@@ -583,9 +583,9 @@ class Suggestion extends \yii\db\ActiveRecord
             ->andWhere(['NOT IN', 'request.request_status', [
                 Request::STATUS_CANCELLED,
                 Request::STATUS_DELIVERED,
-                Request::STATUS_FINISHED
+             //   Request::STATUS_FINISHED
             ]])
-            ->limit(1)//limit 1 per minute
+            ->limit(10)//limit 1 per minute
             ->all();
 
         // fetch all request which are suggested to part timer and not mailed
