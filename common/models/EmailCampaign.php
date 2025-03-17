@@ -186,6 +186,11 @@ class EmailCampaign extends \yii\db\ActiveRecord
                 $query->andWhere(new Expression("YEAR(CURDATE()) - YEAR(candidate_birth_date) BETWEEN ".$values[0].
                     " AND ".$values[1]));
             }
+            else if ($filter['param'] == "filterProfileCompleted") {
+                $query->completedProfile();
+            } else if ($filter['param'] == "filterProfileNotCompleted") {
+                $query->incompletedProfile();
+            }
         }
 
         $total = $query->count();

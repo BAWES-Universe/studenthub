@@ -89,6 +89,7 @@ class CandidateController extends Controller
 
         $candidate_civil_need_verification = Yii::$app->request->headers->get("candidate_civil_need_verification");
         $filter_minor = Yii::$app->request->get('filter_minor');
+        $incomplete_profiles = Yii::$app->request->get('incomplete_profiles');
 
         $query = Candidate::find();
 
@@ -102,6 +103,10 @@ class CandidateController extends Controller
 
         if ($filter_minor) {
             $query->andWhere(new Expression("candidate.candidate_birth_date < DATE_SUB(NOW(), INTERVAL 16 YEAR)"));
+        }
+
+        if ($incomplete_profiles) {
+            $query->incompletedProfile();
         }
 
         return new ActiveDataProvider([
@@ -1228,6 +1233,7 @@ class CandidateController extends Controller
         $civilId = Yii::$app->request->get('civilId');
         $candidate_civil_need_verification = Yii::$app->request->get('candidate_civil_need_verification');
         $filter_minor = Yii::$app->request->get('filter_minor');
+        $incomplete_profiles = Yii::$app->request->get('incomplete_profiles');
 
         $query = Candidate::find();
 
@@ -1287,6 +1293,10 @@ class CandidateController extends Controller
             $query->andWhere(new Expression("candidate.candidate_birth_date > DATE_SUB(NOW(), INTERVAL 16 YEAR)"));
         }
 
+        if ($incomplete_profiles) {
+            $query->incompletedProfile();
+        }
+
         $query->addOrderBy('candidate.candidate_id DESC');
 
         return new ActiveDataProvider([
@@ -1303,11 +1313,15 @@ class CandidateController extends Controller
         $currency = Yii::$app->request->headers->get("Currency", "KWD");
 
         $candidate_name = Yii::$app->request->get("candidate_name");
-
+        $incomplete_profiles= Yii::$app->request->get("incomplete_profiles");
         $query = Candidate::withoutBankInfoOrWithPayment($candidate_name);
 
         if($currency) {
             $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
+        if ($incomplete_profiles) {
+            $query->incompletedProfile();
         }
 
         return new ActiveDataProvider([
@@ -1329,7 +1343,7 @@ class CandidateController extends Controller
         $country_id = Yii::$app->request->get('country_id');
         $match_request_id = Yii::$app->request->get('match_request_id');
         $candidate_civil_need_verification = Yii::$app->request->get('candidate_civil_need_verification');
-
+        $incomplete_profiles = Yii::$app->request->get('incomplete_profiles');
         $by = Yii::$app->request->get('by');
 
         $query = Candidate::find()
@@ -1341,6 +1355,10 @@ class CandidateController extends Controller
 
         if($currency) {
             $query->andWhere(['candidate.currency_code' => $currency]);
+        }
+
+        if ($incomplete_profiles) {
+            $query->incompletedProfile();
         }
 
         switch ($by) {
