@@ -70,6 +70,9 @@ class Request extends \yii\db\ActiveRecord
     const OUR_FEES_PER_HOUR = "per hour";
     const OUR_FEES_PER_MONTH = "per month";
 
+    const POSITION_TYPE_PART_TIME = 2;
+    const POSITION_TYPE_FULL_TIME = 1;
+
     /**
      * {@inheritdoc}
      */

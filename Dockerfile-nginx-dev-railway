@@ -101,4 +101,4 @@ CMD ["sh", "-c", "./init --env=Dev-Server-Railway --overwrite=All \
     && ./yii migrate --interactive=0 && service nginx restart && php-fpm \
     && tail -f /dev/null"]
 #composer install
-#&& service cron restart && crontab ./cron/cronlist
+#&& service cron start && crontab ./cron/cronlist
