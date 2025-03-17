@@ -353,6 +353,11 @@ class CandidateQuery extends \yii\db\ActiveQuery
 //            ->asArray();*/
     }
 
+    public function completedProfile()
+    {
+        return $this->andWhere(['{{%candidate}}.is_incomplete_profile' => 0]);
+    }
+
     public function completedProfileWithoutApproval() {
         return $this->andWhere(['{{%candidate}}.is_incomplete_profile' => 0, 'approved' => 0]);
 
