@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
      ffmpeg \
      nginx \
      cron \
+     vim \
     # wkhtmltopdf \
      #chromium \
      #imagemagick \

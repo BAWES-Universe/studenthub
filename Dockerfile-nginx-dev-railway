@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
      ffmpeg \
      nginx \
      cron \
+     vim \
     # wkhtmltopdf \
      #chromium \
      #imagemagick \
@@ -101,4 +102,4 @@ CMD ["sh", "-c", "./init --env=Dev-Server-Railway --overwrite=All \
     && ./yii migrate --interactive=0 && service nginx restart && php-fpm \
     && tail -f /dev/null"]
 #composer install
-#&& service cron start && crontab ./cron/cronlist
+#&& service cron start -f && crontab ./cron/cronlist
