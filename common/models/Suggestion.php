@@ -355,13 +355,20 @@ class Suggestion extends \yii\db\ActiveRecord
                // 'requestCreatedBy',
                 //'requestUpdatedBy',
             ])
-            ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
-            ->andWhere("`request`.request_position_type=2")
-            ->andWhere(['NOT IN', 'request.request_status', [
-                Request::STATUS_CANCELLED,
-                Request::STATUS_DELIVERED,
-            //    Request::STATUS_FINISHED
-            ]])
+            ->andWhere([
+                "note.note_type" => 'Suggested',
+                "suggestion.mail_to_company" => 0,
+                "request.request_position_type" => Request::POSITION_TYPE_PART_TIME,
+            ])
+            ->andWhere([
+                'NOT IN',
+                'request.request_status',
+                [
+                    Request::STATUS_CANCELLED,
+                    Request::STATUS_DELIVERED,
+                    //    Request::STATUS_FINISHED
+                ]
+            ])
             //->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
             ->limit(10)//limiting 1 request to make it light and fast and avoid duplicate mail
             ->all();
@@ -378,7 +385,10 @@ class Suggestion extends \yii\db\ActiveRecord
 
             $latestSuggestion = $request->getSuggestions()
                 ->joinWith(['note'])
-                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
+                ->andWhere([
+                    "note.note_type" => 'Suggested',
+                    "suggestion.mail_to_company" => 0
+                ])
                 ->orderBy('suggestion_datetime DESC')//lastest suggestion
                 ->one();
 
@@ -437,6 +447,7 @@ class Suggestion extends \yii\db\ActiveRecord
                     $suggestedByStaff = $eachSuggestion->note->createdBy;
 
                     if (!$eachSuggestion->candidate) {
+                        Yii::error('No Candidate on suggestions :' . print_r($eachSuggestion, true));
                         continue;
                        // throw new \yii\console\Exception('Resume not available to attach');
                     }
@@ -553,6 +564,8 @@ class Suggestion extends \yii\db\ActiveRecord
                     $output = "email sent for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
                 }
 
+                Yii::info($output);
+
                 Console::stdout($output, Console::FG_RED, Console::BOLD);
             }
         }
@@ -576,8 +589,11 @@ class Suggestion extends \yii\db\ActiveRecord
               //  'requestCreatedBy',
                 //'requestUpdatedBy',
             ])
-            ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
-            ->andWhere("`request`.request_position_type=1")
+            ->andWhere([
+                "note.note_type" => 'Suggested',
+                "suggestion.mail_to_company" => 0,
+                "request.request_position_type" => Request::POSITION_TYPE_FULL_TIME,
+            ])
             //->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
             //->andWhere(new Expression('suggestion_datetime > DATE("2025-02-01")'))//since last upgrade
             ->andWhere(['NOT IN', 'request.request_status', [
@@ -625,7 +641,10 @@ class Suggestion extends \yii\db\ActiveRecord
 
             $latestSuggestion = $request->getSuggestions()
                 ->joinWith(['note'])
-                ->andWhere("`note`.note_type='Suggested' and `suggestion`.`mail_to_company` = 0")
+                ->andWhere([
+                    "note.note_type" => 'Suggested',
+                    "suggestion.mail_to_company" => 0,
+                ])
                 ->orderBy('suggestion_datetime DESC')//lastest suggestion
                 ->one();
 
@@ -685,6 +704,7 @@ class Suggestion extends \yii\db\ActiveRecord
                  * send mail only when cv available
                  */
                 if($noOfAttachments == 0) {
+                    Yii::error('No CV on suggestions :' . print_r($suggestionByStaff, true));
                     continue;
                 }
 
@@ -746,6 +766,8 @@ class Suggestion extends \yii\db\ActiveRecord
                 } else {
                     $output = "email sent for request : `($request->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
                 }
+
+                Yii::info($output);
 
                 Console::stdout($output, Console::FG_RED, Console::BOLD);
             }
