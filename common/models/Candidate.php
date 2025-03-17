@@ -2853,9 +2853,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['uid'] = true;
         }
 
-        if (!$this->university_id) {
+        /*if (!$this->university_id) {
             $this->pendingProfile['university'] = true;
-        }
+        }*/
 
         if (!$this->country_id) {
             $this->pendingProfile['country'] = true;
@@ -2910,11 +2910,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if (!$this->candidate_driving_license) {
-            $this->pendingProfile['driving license'] = false;
+            $this->pendingProfile['driving license'] = true;
         }
 
         if (!$this->candidate_latitude && !$this->candidate_longitude && !$this->candidate_area_uuid) {
-            $this->pendingProfile['location'] = false;
+            $this->pendingProfile['location'] = true;
         }
 
         if (
@@ -2925,7 +2925,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             !$this->candidate_mom_kuwaiti
         ) {
             #https://www.pivotaltracker.com/story/show/175607833
-            $this->pendingProfile['candidate_mom_kuwaiti'] = false;
+            $this->pendingProfile['candidate_mom_kuwaiti'] = true;
         }
 
 //        if (!$this->candidate_resume) {
@@ -2936,12 +2936,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 //            $this->pendingProfile['hourly rate'] = false;
 //        }
 
+
+        if ($this->getCandidateEducations()->count() == 0) {
+            $this->pendingProfile['education'] = true;
+        }
+
         if ($this->getCandidateExperiences()->count() == 0) {
-            $this->pendingProfile['experience'] = false;
+            $this->pendingProfile['experience'] = true;
         }
 
         if ($this->getCandidateSkills()->count() == 0) {
-            $this->pendingProfile['skill'] = false;
+            $this->pendingProfile['skill'] = true;
         }
 
         if (count($this->pendingProfile) > 0) {
@@ -2953,7 +2958,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
     /**
      * Checks is candidate have incomplete profile
-     * creating seperatly so that we can avoid pending field
+     * creating separately so that we can avoid pending field
      * candidate_mom_kuwaiti check as its required but not
      * mandatory for algolia upload
      * @return void|string
@@ -2964,9 +2969,9 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $this->pendingProfile['uid'] = true;
         }
 
-        if (!$this->university_id) {
+        /*if (!$this->university_id) {
             $this->pendingProfile['university'] = true;
-        }
+        }*/
 
         if (!$this->country_id) {
             $this->pendingProfile['country'] = true;
@@ -3021,19 +3026,23 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         }
 
         if (!$this->candidate_driving_license) {
-            $this->pendingProfile['driving license'] = false;
+            $this->pendingProfile['driving license'] = true;
         }
 
         if (!$this->candidate_latitude && !$this->candidate_longitude && !$this->candidate_area_uuid) {
-            $this->pendingProfile['location'] = false;
+            $this->pendingProfile['location'] = true;
+        }
+
+        if ($this->getCandidateEducations()->count() == 0) {
+            $this->pendingProfile['education'] = true;
         }
 
         if ($this->getCandidateExperiences()->count() == 0) {
-            $this->pendingProfile['experience'] = false;
+            $this->pendingProfile['experience'] = true;
         }
 
         if ($this->getCandidateSkills()->count() == 0) {
-            $this->pendingProfile['skill'] = false;
+            $this->pendingProfile['skill'] = true;
         }
 
         if (count($this->pendingProfile) > 0) {
@@ -3082,15 +3091,15 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             return false;
         }
 
-        $isInCompleteProfile = $this->isInCompleteProfileForAlgolia();
+        /*$isInCompleteProfile = $this->isInCompleteProfileForAlgolia();
 
         /**
          * delete from algolia when profile incomplete
-         */
+         *
         if ($isInCompleteProfile) {
             Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
             return false;
-        }
+        }*/
 
         $data = [
             'objectID' => $this->candidate_id,
@@ -3100,6 +3109,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_name' => $this->candidate_name,
             'candidate_name_ar' => $this->candidate_name_ar,
             'candidate_objective' => $this->candidate_objective,
+            //'candidate_intro' => $this->candidate_intro,
             'candidate_personal_photo' => $this->candidate_personal_photo,
             'candidate_video' => $this->candidate_video,
             'candidate_resume' => $this->candidate_resume,
@@ -3110,7 +3120,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_email' => $this->candidate_email,
             'candidate_phone' => $this->candidate_phone,
             'candidate_birth_date' => $this->candidate_birth_date,
-            'candidate_birth_timestamp' => strtotime($this->candidate_birth_date),
+            'candidate_birth_timestamp' => $this->candidate_birth_date?
+                strtotime($this->candidate_birth_date): null,
             'candidate_driving_license' => $this->candidate_driving_license,
             'candidate_language_pref' => $this->candidate_language_pref,
             'candidate_job_search_status' => $this->candidate_job_search_status,
@@ -3118,7 +3129,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_mom_kuwaiti' => $this->candidate_mom_kuwaiti,
             'candidate_email_verification' => true,   // using in candidate card
             "currency_code" => $this->currency_code,
-            'isProfileCompleted' => true,  // using in candidate card
+            'isProfileCompleted' => $this->isInCompleteProfileForAlgolia()? false: true,  // using in candidate card
         ];
 
         if($this->university) {
@@ -3141,7 +3152,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             ];
         }
 
-        if($this->country) {
+        if($this->nationality) {
             $data['country'] = [
                 'country_id' => $this->country_id,
                 'country_name_en' => $this->nationality->country_name_en,
@@ -3160,6 +3171,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                     'company_name' => $this->store->company->company_name
                 ]
             ];
+
             $data['assigned'] = 1;
 
             $candidateWorkHistory = $this->getCandidateWorkHistories()
@@ -3234,8 +3246,10 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             $data['candidate_created_at'] = $this->candidate_created_at;
             //could be `new Expression('NOW()')` on update
             $data['candidate_updated_at'] = is_string($this->candidate_updated_at) ? $this->candidate_updated_at : date('Y-m-d H:i:s');
-            $data['candidate_created_at_timestamp'] = strtotime($this->candidate_created_at);
-            $data['candidate_updated_at_timestamp'] = strtotime($data['candidate_updated_at']);
+            $data['candidate_created_at_timestamp'] = $this->candidate_created_at?
+                strtotime($this->candidate_created_at): null;
+            $data['candidate_updated_at_timestamp'] = $data['candidate_updated_at']?
+                strtotime($data['candidate_updated_at']): null;
         }
 
         //candidate_certificate
