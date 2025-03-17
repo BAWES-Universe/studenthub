@@ -63,6 +63,8 @@ use Segment\Segment;
  * @property integer $candidate_status
  * @property integer $approved
  * @property integer $candidate_mom_kuwaiti
+ * @property string $candidate_pending_profile
+ * @property number $is_incomplete_profile
  * @property string $profile_url
  * @property string $candidate_created_at
  * @property string $candidate_updated_at
@@ -3129,7 +3131,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_mom_kuwaiti' => $this->candidate_mom_kuwaiti,
             'candidate_email_verification' => true,   // using in candidate card
             "currency_code" => $this->currency_code,
-            'isProfileCompleted' => $this->isInCompleteProfileForAlgolia()? false: true,  // using in candidate card
+            'isProfileCompleted' => !($this->is_incomplete_profile == 1),
+                //$this->isInCompleteProfileForAlgolia()? false: true,  // using in candidate card
         ];
 
         if($this->university) {
