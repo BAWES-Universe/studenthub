@@ -1123,6 +1123,7 @@ class TransferController extends Controller
                             $transferCandidates[$data->candidate_id]['bonus']: 0;;
                     }
                 ],
+               // "company_total",
                 'currency_code'
             ]
         ]);

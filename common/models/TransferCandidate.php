@@ -1023,7 +1023,9 @@ class TransferCandidate extends \yii\db\ActiveRecord
         if ($contractQuery->count() > 1) {
             return [
                 "operation" => "error",
-                "message" => "Multiple active contracts found for candidate."
+                "message" => "Multiple active contracts found for candidate.",
+                "candidate_id" => $candidate['candidate_id'],
+                "store_id" => $candidate['store_id']
             ];
         }
 
@@ -1136,6 +1138,14 @@ class TransferCandidate extends \yii\db\ActiveRecord
             $TCModel->candidate_total = (double)$contract->amount->candidate_total/ $noOfPayout;
 
             $TCModel->company_total = (double)$contract->amount->company_total/ $noOfPayout;
+
+            //if over time or leave
+
+            if (isset ($value['company_total']) && $value['company_total'] > 0) {
+                $TCModel->candidate_total = $TCModel->candidate_total *
+                    (double) $value['company_total'] /$TCModel->company_total;
+                $TCModel->company_total = (double) $value['company_total'];
+            }
         }
         else if ($contract->type == Contract::TYPE_FIXED_PRICE)
         {
