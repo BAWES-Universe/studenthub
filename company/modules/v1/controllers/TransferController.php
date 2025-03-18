@@ -643,7 +643,7 @@ class TransferController extends Controller
         //    ->andWhere(['contract_uuid' => $contract_uuid])
          //   ->one();
 
-        if (!$contract_type || $contract_type == Contract::TYPE_HOURLY) {
+        if (!$contract_type || $contract_type == "ALL" || $contract_type == Contract::TYPE_HOURLY) {
             //!$contract || $contract->type == Contract::TYPE_HOURLY) {
             $columns = array_merge($columns, [
                 [
@@ -675,24 +675,51 @@ class TransferController extends Controller
                     }
                 ],
             ]);
-        } /*else { //fixed or monthly
+        }
+
+        //fixed or monthly
+
+        if ($contract_type != Contract::TYPE_HOURLY) {
+
+            $contractQuery = Contract::find()
+                ->joinWith(['fixedPriceContract', 'monthlySalaryContract'])
+                ->filterActive()
+                ->andWhere(["!=", 'type', Contract::TYPE_HOURLY])
+                ->filterOrg($company->company_id);
+
+            $contracts = [];
+
+            foreach ($contractQuery->all() as $contract) {
+                if ($contract->type == Contract::TYPE_MONTHLY_SALARY) {
+                    $contracts[$contract->candidate_id] = [
+                        "candidate_total" => $contract->monthlySalaryContract->candidate_total,
+                        "company_total" => $contract->monthlySalaryContract->company_total
+                    ];
+                } else {
+                    $contracts[$contract->candidate_id] = [
+                        "candidate_total" => $contract->fixedPriceContract->candidate_total,
+                        "company_total" => $contract->fixedPriceContract->company_total
+                    ];
+                }
+            }
+
             $columns = array_merge($columns, [
-                [
+               /* [
                     'header' => 'candidate_total',
-                    'value' => function($data) use ($transferCandidates, $preFilled) {
-                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
-                            $transferCandidates[$data->candidate_id]['candidate_total']: 0;
+                    'value' => function($data) use ($contracts) {
+                        return isset($contracts[$data->candidate_id]) ?
+                            $contracts[$data->candidate_id]['candidate_total']: 0;
                     }
-                ],
+                ],*/
                 [
                     'header' => 'company_total',
-                    'value' => function($data) use ($transferCandidates, $preFilled) {
-                        return $preFilled && isset($transferCandidates[$data->candidate_id]) ?
-                            $transferCandidates[$data->candidate_id]['company_total']: 0;
+                    'value' => function($data) use ($contracts) {
+                        return isset($contracts[$data->candidate_id]) ?
+                            $contracts[$data->candidate_id]['company_total']: 0;
                     }
                 ],
             ]);
-        }*/
+        }
 
         \common\components\PhpExcel::export([
             'isMultipleSheet' => false,
