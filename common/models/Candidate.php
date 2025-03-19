@@ -1061,6 +1061,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            "candidateLinks",
             "transferCost",
             "invitationStats",
             "avgTimeToViewInvitations",
@@ -1410,6 +1411,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getArea($modelClass = "\common\models\Area")
     {
         return $this->hasOne($modelClass::className(), ['area_uuid' => 'candidate_area_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateLinks($modelClass = "\common\models\CandidateLink")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
