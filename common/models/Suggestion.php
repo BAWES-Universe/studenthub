@@ -361,12 +361,12 @@ class Suggestion extends \yii\db\ActiveRecord
                 "request.request_position_type" => Request::POSITION_TYPE_PART_TIME,
             ])
             ->andWhere([
-                'NOT IN',
+                'IN',
                 'request.request_status',
                 [
-                    Request::STATUS_CANCELLED,
-                    Request::STATUS_DELIVERED,
-                    //    Request::STATUS_FINISHED
+                    //Request::STATUS_CANCELLED,
+                    //Request::STATUS_DELIVERED,
+                    Request::STATUS_FINISHED
                 ]
             ])
             //->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
@@ -596,11 +596,15 @@ class Suggestion extends \yii\db\ActiveRecord
             ])
             //->andWhere("`suggestion_datetime` <= NOW() - INTERVAL 20 MINUTE")
             //->andWhere(new Expression('suggestion_datetime > DATE("2025-02-01")'))//since last upgrade
-            ->andWhere(['NOT IN', 'request.request_status', [
-                Request::STATUS_CANCELLED,
-                Request::STATUS_DELIVERED,
-             //   Request::STATUS_FINISHED
-            ]])
+            ->andWhere([
+                'IN',
+                'request.request_status',
+                [
+                    //Request::STATUS_CANCELLED,
+                    //Request::STATUS_DELIVERED,
+                    Request::STATUS_FINISHED
+                ]
+            ])
             ->limit(10)//limit 1 per minute
             ->all();
 
