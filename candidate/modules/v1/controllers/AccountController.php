@@ -7,6 +7,7 @@ use common\models\CandidateWorkingHour;
 use common\models\Country;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\filters\Cors;
 use yii\filters\auth\HttpBearerAuth;
@@ -609,6 +610,7 @@ class AccountController extends Controller
             ];
         }
         $model->candidate_job_search_status = $job_search_status;
+        $model->candidate_job_search_updated_at = new Expression("NOW()");
 
         $model->scenario = 'updateJobSearchStatus';
 

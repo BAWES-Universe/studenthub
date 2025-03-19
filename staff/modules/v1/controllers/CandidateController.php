@@ -394,6 +394,7 @@ class CandidateController extends Controller
         }
 
         $model->candidate_job_search_status = $job_search_status;
+        $model->candidate_job_search_updated_at = new Expression("NOW()");
 
         $model->scenario = 'updateJobSearchStatus';
 

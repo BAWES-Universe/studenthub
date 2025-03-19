@@ -58,6 +58,7 @@ use Segment\Segment;
  * @property string $candidate_password_reset_token
  * @property string $candidate_language_pref
  * @property string $candidate_job_search_status
+ * @property string $candidate_job_search_updated_at
  * @property integer $candidate_committed
  * @property string $candidate_preferred_time
  * @property integer $candidate_status
@@ -98,6 +99,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     const EMAIL_NOT_VERIFIED = 0;
 
     const ACTIVELY_LOOKING_FOR_JOB = 1;
+    const NOT_LOOKING_OPEN_FOR_OFFER = 2;//Not looking but open to offers
     const NOT_LOOKING_FOR_JOB = 0;
 
     const COMMITTED = 1;
@@ -155,7 +157,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             [['candidate_video_processed', 'is_duplicate'], 'boolean'],
             [['candidate_email', 'candidate_new_email'], 'email'],
             //['approved', 'default', 'value'=> false],
-
+    //candidate_job_search_updated_at
             [['enable_two_step_auth'], 'safe'],
 
             ['deleted', 'default', 'value'=> 0],
@@ -224,7 +226,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
             ['candidate_gender', 'in', 'range' => [self::GENDER_MALE, self::GENDER_FEMALE, self::GENDER_OTHER]],
 
-            ['candidate_job_search_status', 'in', 'range' => [self::NOT_LOOKING_FOR_JOB, self::ACTIVELY_LOOKING_FOR_JOB]],
+            ['candidate_job_search_status', 'in', 'range' => [self::NOT_LOOKING_FOR_JOB, self::ACTIVELY_LOOKING_FOR_JOB, self::NOT_LOOKING_OPEN_FOR_OFFER]],
 
             ['candidate_committed', 'in', 'range' => [self::COMMITTED, self::NOT_COMMITTED]],
 
@@ -317,7 +319,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         $scenarios["updateLanguagePref"] = ["candidate_language_pref", 'is_incomplete_profile'];
 
-        $scenarios['updateJobSearchStatus'] = ['candidate_job_search_status', 'is_incomplete_profile'];
+        $scenarios['updateJobSearchStatus'] = ['candidate_job_search_status', 'is_incomplete_profile', 'candidate_job_search_updated_at'];
 
         $scenarios['updateCommitted'] = ['candidate_committed', 'is_incomplete_profile'];
 
@@ -740,6 +742,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
             'candidate_password_reset_token' => Yii::t('candidate','Password Reset Token'),
             'candidate_language_pref' => Yii::t('candidate','Language preference'),
             'candidate_job_search_status' => Yii::t('candidate', 'Job search status'),
+            'candidate_job_search_updated_at'=> Yii::t('candidate', 'Job search status updated at'),
             'candidate_committed' => Yii::t('candidate', 'Committed'),
             'candidate_preferred_time' => Yii::t('candidate', 'Preferred time'),
             'candidate_status' => Yii::t('candidate','Status'),
@@ -846,7 +849,11 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
 
         if (
             //$this->candidate_status == self::STATUS_ACTIVE &&
-            $this->candidate_job_search_status === self::ACTIVELY_LOOKING_FOR_JOB &&
+            in_array(
+                $this->candidate_job_search_status,
+                [self::NOT_LOOKING_OPEN_FOR_OFFER, self::ACTIVELY_LOOKING_FOR_JOB]
+            )
+            &&
             //$this->approved &&
             !in_array(
                 $this->scenario, [
@@ -876,7 +883,8 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
                 $this->deleted
             )
         ) {
-            Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'], $this->candidate_id);
+            Yii::$app->algolia->delete(Yii::$app->params['algolia_candidate_index'],
+                $this->candidate_id);
         }
 
 
