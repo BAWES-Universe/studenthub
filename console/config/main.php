@@ -23,6 +23,7 @@ return [
         'httpclient' => [
             'class' => 'yii\httpclient\Client',
         ],
+
         'slack' => [
             'class' => 'understeam\slack\Client',
             'url' => 'https://hooks.slack.com/services/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',
