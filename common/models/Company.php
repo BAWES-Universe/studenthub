@@ -75,6 +75,8 @@ class Company extends \yii\db\ActiveRecord
     const SCENARIO_APPROVE = "approve";
     const SCENARIO_UPDATE = "update";
 
+    private $_cacheDuration = 60 * 60; //1 hour then delete from cache
+
     /**
      * @var mixed|null
      */
@@ -333,8 +335,151 @@ class Company extends \yii\db\ActiveRecord
                         new Expression("DATE(transfer_created_at) > DATE_SUB(NOW(),INTERVAL 40 DAY)")
                     ])
                     ->count();
-            }
+            },
+            "averageHireRate",
+            "averageHourlyRate",
+            "totalHire",
+            "totalActiveHire",
+            "totalHoursHired",
+            "totalSpent",
+            "totalRequests",
+            "totalOpenRequests"
         ];
+    }
+
+    /*
+     * # of jobs posted,
+     * current open requests,
+     * total money spent,
+     * total hours hired ppl for.
+     * total hires and
+     * total active hires,
+     * average hourly rate and
+     *
+     * hire rate,
+     * average hire rates,
+     */
+
+    /**
+     * 100 * total contract (hired) / total suggestion
+     * @return float
+     */
+    public function getAverageHireRate(): float
+    {
+        return self::getDb()->cache(function($db) {
+            $totalContract = Contract::find()
+                ->select("contract_uuid")
+                ->andWhere([
+                    "OR",
+                    ["company_id" => $this->company_id],
+                    ["parent_company_id" => $this->company_id],
+                ])
+                ->count();
+
+            $totalSuggestion = Suggestion::find()
+                ->joinWith(['request'])
+                ->andWhere(["request.company_id" => $this->company_id])
+                ->count();
+
+            return round(100 * $totalContract / $totalSuggestion, 2);
+        }, $this->_cacheDuration);//$cacheDependency
+    }
+
+    /**
+     * @return float
+     */
+    public function getAverageHourlyRate() {
+        return self::getDb()->cache(function($db) {
+            $contractQuery = Contract::find()
+                ->select("contract_uuid")
+                ->andWhere([
+                    "OR",
+                    ["company_id" => $this->company_id],
+                    ["parent_company_id" => $this->company_id],
+                ]);
+
+            return (float) HourlyContract::find()
+                ->andWhere(["IN", "contract_uuid", $contractQuery])
+                ->average("company_hourly_rate");
+        }, $this->_cacheDuration);//$cacheDependency
+    }
+
+    public function getTotalHire()
+    {
+        return self::getDb()->cache(function($db) {
+            return Contract::find()
+                ->andWhere([
+                    "OR",
+                    ["company_id" => $this->company_id],
+                    ["parent_company_id" => $this->company_id],
+                ])
+                ->count();
+        }, $this->_cacheDuration);//$cacheDependency
+    }
+
+    public function getTotalActiveHire()
+    {
+        return self::getDb()->cache(function($db) {
+            return Contract::find()
+                ->andWhere([
+                    "OR",
+                    ["company_id" => $this->company_id],
+                    ["parent_company_id" => $this->company_id],
+                ])
+                ->filterActive()
+                ->count();
+        }, $this->_cacheDuration);//$cacheDependency
+    }
+
+    /**
+     * @param $modelClass
+     * @return mixed
+     */
+    public function getActiveContracts($modelClass = "\common\models\Contract")
+    {
+        return $this->getContracts($modelClass)
+            ->andWhere(['contract.deleted' => false])
+            ->filterActive();
+    }
+
+    public function getTotalHoursHired() {
+        return self::getDb()->cache(function($db) {
+            return TransferCandidate::find()
+                ->andWhere(["IN", "company_id", [
+                    $this->company_id,
+                    ArrayHelper::getColumn($this->getSubCompanies()->select('company_id')->all(), 'company_id'),
+                ]])
+                ->andWhere(['deleted' => 0])
+                ->select("SUM(hours) + SUM(minutes / 60) + SUM(seconds / 3600)")
+                ->scalar();
+        }, $this->_cacheDuration);//$cacheDependency
+    }
+
+    public function getTotalSpent() {
+        return self::getDb()->cache(function($db) {
+            return $this->getTransfers()
+                ->andWhere(['deleted' => 0])
+                ->sum("company_total");
+        }, $this->_cacheDuration);//$cacheDependency
+    }
+
+    public function getTotalRequests() : int {
+        return $this->getRequests()->count();
+    }
+
+    public function getTotalOpenRequests() {
+        return self::getDb()->cache(function($db) {
+            return $this->getRequests()
+                ->andWhere([
+                    'NOT IN',
+                    "request_status",
+                    [
+                        Request::STATUS_DELIVERED,
+                        Request::STATUS_CANCELLED
+                    ]
+                ])
+                ->count();
+        }, $this->_cacheDuration);//$cacheDependency
     }
 
     /**
@@ -1196,16 +1341,5 @@ class Company extends \yii\db\ActiveRecord
     {
         return $this->hasMany($modelClass::className(), ['company_id' => 'company_id'])
             ->orderBy("contract.created_at DESC");
-    }
-
-    /**
-     * @param $modelClass
-     * @return mixed
-     */
-    public function getActiveContracts($modelClass = "\common\models\Contract")
-    {
-        return $this->getContracts($modelClass)
-            ->andWhere(['contract.deleted' => false])
-            ->filterActive();
     }
 }
