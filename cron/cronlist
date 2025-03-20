@@ -7,7 +7,7 @@
 #0 1 * * * /usr/local/bin/php ~/www/yii cron/process-campaign > /dev/null 2>&1
 
 # Daily CRON at 2:00 AM Every Day
-0 2 * * * /usr/local/bin/php ~/www/yii algolia candidate > /dev/null 2>&1
+0 2 * * * /usr/local/bin/php ~/www/yii algolia candidate civilIdExpiredToday > /dev/null 2>&1
 
 # Daily CRON at 5:00 AM, Payable reminder if any
 0 5 * * * /usr/local/bin/php ~/www/yii cron/payable-candidate-notification > /dev/null 2>&1
