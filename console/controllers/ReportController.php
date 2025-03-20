@@ -77,5 +77,8 @@ class ReportController extends \yii\console\Controller
         }
 
         //todo: send to notion, email pdf report etc,...
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'report/recruiter']);
     }
 }

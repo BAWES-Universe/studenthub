@@ -27,6 +27,11 @@
 # Every Saturday
 0 0 * * 6 /usr/local/bin/php ~/www/yii cron/weekly > /dev/null 2>&1
 
+#At 13:30 on mid-of-month 15th
+30 13 15 * * /usr/local/bin/php ~/www/yii cron/mid-month
+30 13 15 * * /usr/local/bin/php ~/www/yii cron/update-candidate-stats
+30 13 15 * * /usr/local/bin/php ~/www/yii cron/update-company-stats
+
 #At 13:30 on day-of-month 28
 30 13 28 * * /usr/local/bin/php ~/www/yii cron/end-of-month
-
+30 13 28 * * /usr/local/bin/php ~/www/yii cron/gen-hit-map
