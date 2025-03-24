@@ -10,6 +10,8 @@ use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
 use yii\helpers\ArrayHelper;
 use Segment\Segment;
+use yii\helpers\Console;
+use function Sentry\continueTrace;
 
 /**
  * This is the model class for table "request".
@@ -715,5 +717,218 @@ class Request extends \yii\db\ActiveRecord
     public function getSuggestionEmailSubject() {
         $type = ($this->request_position_type == 1) ? 'full-time' : 'part-time';
         return 'Suggested candidates for your ' . $type . ' ' . $this->request_position_title . ' position @ ' . $this->company->company_common_name_en;
+    }
+
+    /**
+     * @return false|string[]|void
+     * @throws \Mpdf\MpdfException
+     * @throws \setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException
+     * @throws \setasign\Fpdi\PdfParser\PdfParserException
+     * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function suggestionCandidateNotification()
+    {
+        Yii::$app->controller->layout = '@common/mail/layouts/pdf';
+
+        Yii::$app->mailer->htmlLayout = "layouts/studenthub-html";
+
+        $suggestionGroup = [];
+
+        $latestSuggestion = $this->getSuggestions()
+            ->joinWith(['note'])
+            ->andWhere([
+                "note.note_type" => 'Suggested',
+                "suggestion.mail_to_company" => 0
+            ])
+            ->orderBy('suggestion_datetime DESC')//lastest suggestion
+            ->one();
+
+        if($latestSuggestion && $latestSuggestion->note->createdBy) {
+            $staff = $latestSuggestion->note->createdBy;
+        } else {
+            $staff = ($this->requestCreatedBy) ?
+                $this->requestCreatedBy :
+                $this->requestUpdatedBy;
+        }
+
+        $message = Yii::$app->mailer->compose('company/suggestion-notification', [
+            'model' => $this,
+            'staff' => $staff
+        ]);
+
+        if(\Yii::$app->params['elasticMailIpPool']) {
+            $message->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+        }
+
+        // fetch all suggestion make for each not mailed request
+
+        $suggestions = $this->getSuggestions()
+            ->filterNotMailed()
+            ->all();
+
+        //  update suggestion table to set mail to company
+        Suggestion::updateAll(['mail_to_company' => 1], [
+            "IN",
+            'suggestion_uuid',
+            ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
+        ]);
+
+        foreach ($suggestions as $suggestion)
+        {
+            if (!$suggestion->note) {
+                return [
+                    "operation" => "error",
+                    "message" => "No suggestion note found"
+                ];
+            }
+
+            if (!isset($suggestionGroup[$suggestion->note->created_by])) {
+                $suggestionGroup[$suggestion->note->created_by] = [];
+            }
+
+            // grouping of suggestion which are suggested by staff
+            $suggestionGroup[$suggestion->note->created_by][] = $suggestion;
+        }
+
+        $output = [];
+
+        foreach ($suggestionGroup as $suggestionByStaff) {
+
+            // looping for each suggestion
+
+            $noOfAttachments = 0;
+
+            foreach ($suggestionByStaff as $eachSuggestion) {
+
+                $suggestedByStaff = $eachSuggestion->note->createdBy;
+
+                if (!$eachSuggestion->candidate) {
+                    Yii::error('No Candidate on suggestions :' . print_r($eachSuggestion, true));
+                    continue;
+                    // throw new \yii\console\Exception('Resume not available to attach');
+                }
+
+                //get invitation accepted note
+
+                $inviation = Invitation::find()
+                    ->where([
+                        'candidate_id' => $eachSuggestion->candidate_id,
+                        'request_uuid' => $this->request_uuid
+                    ])
+                    ->one();
+
+                $inviationAcceptedNote = null;
+
+                if($inviation) {
+                    $inviationAcceptedNote = Note::find ()
+                        ->where ([
+                            'invitation_uuid' => $inviation->invitation_uuid,
+                            'candidate_id' => $eachSuggestion->candidate_id,
+                            'note_type' => Note::TYPE_INVITATION_ACCEPTED
+                        ])
+                        ->one ();
+                }
+
+                $content = Yii::$app->controller->render(
+                    '@console/controllers/views/candidate-resume-pdf',
+                    [
+                        'candidate' => $eachSuggestion->candidate,
+                        'withNumber' => true,
+                        'staff' => $suggestedByStaff,
+                        'because' => $inviationAcceptedNote? $inviationAcceptedNote->note_text: $suggestion->note->note_text,
+                        'positionTitle' => $this->request_position_title
+                    ]
+                );
+
+                $message->attachContent(
+                    Suggestion::getPdfObj($eachSuggestion->note, $content),
+                    [
+                        'fileName' => $eachSuggestion->candidate_id . '.pdf',
+                        'contentType' => 'application/pdf'
+                    ]
+                );
+
+                $noOfAttachments++;
+            }
+
+            /**
+             * send mail only when cv available
+             */
+            if($noOfAttachments == 0) {
+                Yii::error('No CV on suggestions :' . print_r($suggestionByStaff, true));
+
+                continue;
+            }
+
+            // in case if contact doesn't have email address
+            if ($this->contact->email && $this->contact->contact_email_verification) {
+                $setTo = [$this->contact->email => $this->contact->contact_name];
+            } else {
+                $setTo = array_unique(Suggestion::getContactEmailByRequest($this));
+            }
+
+            /*$setCc = array_merge(
+                [
+                    Yii::$app->params['operationsEmail'] => 'Operations',
+                    $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
+                ],
+                array_unique(self::getContactEmailByRequest($this))
+            );
+
+            $author = ($this->requestCreatedBy) ? $this->requestCreatedBy : $this->requestUpdatedBy;
+
+            if($author && $author->staff_email != $suggestedByStaff->staff_email) {
+                $setCc[$author->staff_email] = $author->staff_name;
+            }*/
+
+            $setCc = [
+                Yii::$app->params['operationsEmail'] => 'Operations',
+                Yii::$app->params['accountManagerEmail'] => 'Account Manager'
+            ];
+
+            $ml = new MailLog();
+            $ml->to = implode(',', $setTo);
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $this->suggestionEmailSubject;
+            if (!$ml->save()) {
+                Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+            }
+
+            $message->setFrom([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
+                //->setFrom([Yii::$app->params['operationsEmail'] => "Recruitment team"])
+                //->setReplyTo([$staff->staff_email => $staff->staff_name])
+                ->setReplyTo([Yii::$app->params['recruitmentEmail'] => "Recruitment team"])
+                ->setTo($setTo)
+                ->setCc($setCc)
+                //->setBcc([$staff->staff_email => $staff->staff_name])
+                ->setSubject($this->suggestionEmailSubject);
+
+            try {
+                $message->send();
+            } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                // Handle email transport-specific exceptions
+                Yii::error( "Failed to send email: " . $e->getMessage());
+            } catch (\Exception $e) {
+                // Handle any other exceptions
+                Yii::error( "An error occurred: " . $e->getMessage());
+            }
+
+            if ($staff->staff_email)  {
+                $info = "email sent from staff ($staff->staff_email) for request : `($this->request_position_title)` total candidates: " . count($suggestionByStaff) . " \n";
+            } else {
+                $info = "email sent for request : `($this->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+            }
+
+            Yii::info($info);
+
+            $output[] = $info;
+        }
+
+        return [
+            "operation" => "success",
+            "message"  => $output
+        ];
     }
 }

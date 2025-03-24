@@ -487,7 +487,7 @@ class Fulltimer extends \yii\db\ActiveRecord
      * Synch with algolia
      * @return type
      */
-    public static function synchWithAlgolia() {
+    public static function synchWithAlgolia($type = "all") {
 
         //delete all objects
 

@@ -69,6 +69,20 @@ services:
     volumes:
     - redis-data:/data
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: studenthubuser
+      PMA_PASSWORD: studenthub
+    ports:
+      - "8081:80"
+    networks:
+      - studenthub-network
+    depends_on:
+      - mysql
+
 volumes:
   redis-data:
   mysql-data: 

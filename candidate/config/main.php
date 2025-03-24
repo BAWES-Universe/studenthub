@@ -376,6 +376,21 @@ return [
                         'OPTIONS <id>' => 'options'
                     ]
                 ],
+                [
+                    //CandidateLinkController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/candidate-link',
+                    'patterns' => [
+                        'GET' => 'list',
+                        'GET <id>' => 'view',
+                        'POST' => 'create',
+                        'PATCH <id>' => 'update',
+                        'DELETE <id>' => 'delete',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                        'OPTIONS <id>' => 'options'
+                    ]
+                ],
                 [ // InvitationController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/invitation',

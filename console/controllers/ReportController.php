@@ -3,6 +3,7 @@
 namespace console\controllers;
 
 use admin\models\Staff;
+use common\models\CronLog;
 use Yii;
 use yii\db\Expression;
 

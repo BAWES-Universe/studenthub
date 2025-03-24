@@ -1061,6 +1061,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function extraFields()
     {
         return [
+            "candidateLinks",
             "transferCost",
             "invitationStats",
             "avgTimeToViewInvitations",
@@ -1410,6 +1411,14 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
     public function getArea($modelClass = "\common\models\Area")
     {
         return $this->hasOne($modelClass::className(), ['area_uuid' => 'candidate_area_uuid']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCandidateLinks($modelClass = "\common\models\CandidateLink")
+    {
+        return $this->hasMany($modelClass::className(), ['candidate_id' => 'candidate_id']);
     }
 
     /**
@@ -3407,7 +3416,7 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
      * Synch with algolia
      * @return type
      */
-    public static function synchWithAlgolia() {
+    public static function synchWithAlgolia($type = "all") {
 
         //delete all objects
         //Yii::$app->algolia->clearObjects(Yii::$app->params['algolia_candidate_index']);
@@ -3417,6 +3426,17 @@ class Candidate extends \yii\db\ActiveRecord implements \yii\web\IdentityInterfa
         $query = self::find()
             ->andWhere(['candidate.deleted' => 0]);
 
+        switch ($type) {
+            case "civilIdExpired" :
+                $query->civilIdExpired();
+                break;
+            case "civilIdExpiredToday":
+                $query->civilIdExpiredToday();
+                break;
+            default:
+                // Code to be executed if the expression doesn't match any of the cases
+                break;
+        }
 
             /*->joinWith([
                 "candidateCertificates"
