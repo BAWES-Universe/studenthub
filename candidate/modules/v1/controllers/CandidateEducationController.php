@@ -84,6 +84,7 @@ class CandidateEducationController extends Controller
 
         $page = Yii::$app->request->get("page");
         $q = Yii::$app->request->get("q");
+        $limit = Yii::$app->request->get("limit");
 
         $query = Major::find();
 
@@ -103,7 +104,10 @@ class CandidateEducationController extends Controller
         }
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => $limit > 0 ? $limit: 20,
+            ],
         ]);
     }
 
@@ -113,6 +117,7 @@ class CandidateEducationController extends Controller
     public function actionListDegreeGroup() {
         $query = DegreeGroup::find();
         $page = Yii::$app->request->get("page");
+        $limit = Yii::$app->request->get("limit");
 
         if ($page == -1) {
             return new ActiveDataProvider([
@@ -122,7 +127,10 @@ class CandidateEducationController extends Controller
         }
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => $limit > 0 ? $limit: 20,
+            ],
         ]);
     }
 
@@ -132,7 +140,8 @@ class CandidateEducationController extends Controller
     public function actionListDegree() {
         $page = Yii::$app->request->get("page");
         $q = Yii::$app->request->get("q");
-
+        $limit = Yii::$app->request->get("limit");
+        
         $query = Degree::find();
         
         if ($q) {
@@ -151,7 +160,10 @@ class CandidateEducationController extends Controller
         }
 
         return new ActiveDataProvider([
-            'query' => $query
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => $limit > 0 ? $limit: 20,
+            ],
         ]);
     }
 

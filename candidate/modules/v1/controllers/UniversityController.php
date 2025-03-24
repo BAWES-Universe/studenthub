@@ -72,6 +72,7 @@ class UniversityController extends Controller
     {
         $q = Yii::$app->request->getQueryParam('q');
         $page = Yii::$app->request->get("page");
+        $limit = Yii::$app->request->get("limit");
 
         $query = University::find();
         
@@ -89,7 +90,7 @@ class UniversityController extends Controller
         return new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => 200,
+                'pageSize' => $limit > 0 ? $limit: 200,
             ],
         ]);
     }
