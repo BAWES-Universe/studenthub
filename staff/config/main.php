@@ -48,6 +48,16 @@ return [
                         'OPTIONS' => 'options',
                     ]
                 ],
+                [ // CronLogController
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'v1/cron-log',
+                    'pluralize' => false,
+                    'patterns' => [
+                        'GET' => 'list',
+                        // OPTIONS VERBS
+                        'OPTIONS' => 'options',
+                    ]
+                ],
                 [ // PingController
                     'class' => 'yii\rest\UrlRule',
                     'controller' => 'v1/ping',

@@ -12,6 +12,7 @@ use common\models\CandidateWorkingDate;
 use common\models\CandidateWorkingHour;
 use common\models\CompanyStats;
 use common\models\Contract;
+use common\models\CronLog;
 use common\models\DailyStandupQuestion;
 use common\models\EmailCampaign;
 use common\models\FiringHitmap;
@@ -104,6 +105,9 @@ class CronController extends \yii\console\Controller {
                 candidate_civil_expiry_date IS NULL"));
 
         Candidate::updateCivilExpiry($this, $query);
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'fill-civil-id-expiry-date']);
     }
 
     /**
@@ -121,6 +125,9 @@ class CronController extends \yii\console\Controller {
                 candidate_civil_expiry_date IS NULL"));
 
         Candidate::updateCivilExpiry($this, $query);
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'fill-civil-id-expiry-date-not-assigned']);
     }
 
     /**
@@ -182,6 +189,9 @@ class CronController extends \yii\console\Controller {
                 }
             }
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'validate-civil-id']);
     }
 
     /**
@@ -205,6 +215,9 @@ class CronController extends \yii\console\Controller {
         }
 
         $this->stdout(implode (', ', $ids) . " \n", Console::FG_RED, Console::BOLD);
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'check-if-candidate-total-mismatch']);
     }
 
     /**
@@ -264,28 +277,37 @@ class CronController extends \yii\console\Controller {
        // DailyStandupQuestion::standupReport();
 
         FiringHitmap::updateHitMap();
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'daily']);
     }
 
+    /**
+     * Generate hit map for the last 1 year
+     */
     public function actionGenHitMap() {
+ 
+        $months = [];
 
-        $arr = [
-            [7, 2023],
-            [8, 2023],
-            [9, 2023],
-            [10, 2023],
-            [11, 2023],
-            [12, 2023],
-            [1, 2024],
-            [2, 2024],
-            [3, 2024],
-            [4, 2024],
-            [5, 2024],
-            [6, 2024],
-        ];
+        $currentMonth = date('n'); // Current month as a number (1-12)
+        $currentYear = date('Y'); // Current year
 
-        foreach ($arr as $item) {
+        // Generate array of months and years from last year current month to this month
+        for ($year = $currentYear - 1; $year <= $currentYear; $year++) {
+            $startMonth = ($year == $currentYear - 1) ? $currentMonth : 1; // Start from current month last year
+            $endMonth = ($year == $currentYear) ? $currentMonth : 12; // End at current month this year
+
+            for ($month = $startMonth; $month <= $endMonth; $month++) {
+                $months[] = [$month, $year];
+            }
+        }
+         
+        foreach ($months as $item) {
             FiringHitmap::updateHitMap($item[0], $item[1]);
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'gen-hit-map']);
     }
 
     /**
@@ -298,12 +320,17 @@ class CronController extends \yii\console\Controller {
 
         Suggestion::suggestionCandidateNotification();
         Suggestion::suggestionFulltimerNotification();
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'every-minute']);
     }
 
     /**
      * @return void
      */
     public function actionEvery5Minute() {
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'every-5-minute']);
     }
 
     /**
@@ -329,6 +356,9 @@ class CronController extends \yii\console\Controller {
                 //echo "Time taken: " . $executionTime . " seconds" . PHP_EOL;
             }
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'process-transfer-files']);
     }
 
     // todo: user separate email server for marketing?
@@ -345,6 +375,9 @@ class CronController extends \yii\console\Controller {
         }
 
         $this->stdout( sizeof($campaigns) . " Email Campaign processed \n", Console::FG_RED, Console::BOLD);
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'process-campaign']);
     }
 
     /**
@@ -414,6 +447,9 @@ class CronController extends \yii\console\Controller {
                 Contract::TYPE_MONTHLY_SALARY
             );
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'weekly']);
     }
 
     /**
@@ -426,7 +462,8 @@ class CronController extends \yii\console\Controller {
 
         Candidate::notifyCivilIDExpiring();
 
-        return 0;
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'mid-month']);
     }
 
     /**
@@ -442,7 +479,8 @@ class CronController extends \yii\console\Controller {
 
         Candidate::notifyCivilIDExpiring();
 
-        return 0;
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'end-of-month']);
     }
 
     /**
@@ -565,6 +603,9 @@ class CronController extends \yii\console\Controller {
             // Handle any other exceptions
             Yii::error( "An error occurred: " . $e->getMessage());
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'summary']);
     }
 
     /**
@@ -725,7 +766,8 @@ class CronController extends \yii\console\Controller {
             }
         }
 
-        return true;
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'payable-candidate-notification']);
     }
 
     /**
@@ -740,7 +782,9 @@ class CronController extends \yii\console\Controller {
         // SELECT * FROM `candidate` where candidate_email_verification = 1 and country_id != 84 and candidate_area_uuid IN
         // (SELECT `area_uuid` FROM `area` WHERE `country_id` = 84)
         Candidate::kuwaitiNationalityEmail();
-        return true;
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'kuwait-mom-check']);
     }
 
     /**
@@ -990,6 +1034,9 @@ class CronController extends \yii\console\Controller {
                 Console::updateProgress($count, count($staffList));
             }
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'check-daily-attendance']);
     }
 
     /**
@@ -1000,7 +1047,12 @@ class CronController extends \yii\console\Controller {
         $candidateQuery = \common\models\Candidate::find();
 
         $count = 0;
-        $total = $candidateQuery->count();
+
+        $total = $candidateQuery
+            ->notDeleted()
+           // ->filterAssigned()
+            ->count();
+
         Console::startProgress(0, $total);
 
         foreach ($candidateQuery->batch() as $candidates) {
@@ -1042,6 +1094,9 @@ class CronController extends \yii\console\Controller {
                 Console::updateProgress($count, $total);
             }
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'update-candidate-stats']);
     }
 
     /**
@@ -1094,6 +1149,9 @@ class CronController extends \yii\console\Controller {
                 Console::updateProgress($count, $total);
             }
         }
+
+        CronLog::updateAll(['last_ran_at' => date('Y-m-d H:i:s')],
+            ['task' => 'update-company-stats']);
     }
 
     /**
