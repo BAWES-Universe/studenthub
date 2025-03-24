@@ -4,6 +4,7 @@ namespace staff\modules\v1\controllers;
 
 
 use Yii;
+use yii\db\Expression;
 use yii\rest\Controller;
 use yii\data\ActiveDataProvider;
 use staff\models\Suggestion;
@@ -96,6 +97,18 @@ class SuggestionController extends Controller
 
         if($request_uuid) {
             $query->andWhere(['request_uuid' => $request_uuid]);
+
+            $request = Request::findOne($request_uuid);
+
+            if(!$request) {
+                throw new NotFoundHttpException("no request found");
+            }
+
+            if ($request->request_position_type == \common\models\Request::POSITION_TYPE_PART_TIME) {
+                $query->andWhere(new Expression('candidate.candidate_id IS NOT NULL'));
+            } else {
+                $query->andWhere(new Expression('fulltimer.fulltimer_uuid IS NOT NULL'));
+            }
         }
 
         if($fulltimer_uuid) {
@@ -303,7 +316,13 @@ class SuggestionController extends Controller
 
         $model = Request::findOne(['request_uuid' => $request_uuid]);
 
-        return $model->suggestionCandidateNotification();
+        if (!$model) {
+            throw new NotFoundHttpException("not found");
+        }
+
+        return $model->request_position_type == \common\models\Request::POSITION_TYPE_PART_TIME ?
+            $model->suggestionCandidateNotification():
+            $model->suggestionFulltimerNotification();
     }
 
     /**
