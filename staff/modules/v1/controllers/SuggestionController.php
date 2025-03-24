@@ -289,6 +289,24 @@ class SuggestionController extends Controller
     }
 
     /**
+     * @return false|string[]|null
+     * @throws \Mpdf\MpdfException
+     * @throws \setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException
+     * @throws \setasign\Fpdi\PdfParser\PdfParserException
+     * @throws \setasign\Fpdi\PdfParser\Type\PdfTypeException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function actionMailSuggestions() {
+        $request_uuid = Yii::$app->request->get("request_uuid");
+        //$story_uuid = Yii::$app->request->get("story_uuid");
+
+        $model = Request::findOne(['request_uuid' => $request_uuid]);
+
+        return $model->suggestionCandidateNotification();
+    }
+
+    /**
      * accept a Suggestion 
      * @return array
      */

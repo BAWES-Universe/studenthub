@@ -761,6 +761,7 @@ return [
                         'GET' => 'list',
                         'GET <id>' => 'view',
                         'POST' => 'create',
+                        "PATCH mail-suggestions" => "mail-suggestions",
                         "PATCH reschedule-cv-email/<id>" => "reschedule-cv-email",
                         'PATCH accept/<id>' => 'accept',
                         'PATCH reject/<id>' => 'reject',
@@ -768,6 +769,7 @@ return [
                         // OPTIONS VERBS
                         'OPTIONS' => 'options',
                         'OPTIONS <id>' => 'options',
+                        "OPTIONS mail-suggestions" => "options",
                         'OPTIONS reschedule-cv-email/<id>' => 'options',
                         'OPTIONS accept/<id>' => 'options',
                         'OPTIONS reject/<id>' => 'options',
