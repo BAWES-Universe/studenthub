@@ -9,9 +9,7 @@ use yii\db\Expression;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeBehavior;
 use yii\helpers\ArrayHelper;
-use Segment\Segment;
-use yii\helpers\Console;
-use function Sentry\continueTrace;
+
 
 /**
  * This is the model class for table "request".
@@ -778,10 +776,12 @@ class Request extends \yii\db\ActiveRecord
         foreach ($suggestions as $suggestion)
         {
             if (!$suggestion->note) {
+                continue;
+                /*
                 return [
                     "operation" => "error",
                     "message" => "No suggestion note found"
-                ];
+                ];*/
             }
 
             if (!isset($suggestionGroup[$suggestion->note->created_by])) {
@@ -923,7 +923,193 @@ class Request extends \yii\db\ActiveRecord
 
             Yii::info($info);
 
+            //Console::stdout($info, Console::FG_GREEN, Console::BOLD);
+
             $output[] = $info;
+        }
+
+        return [
+            "operation" => "success",
+            "message"  => $output
+        ];
+    }
+
+    /**
+     * @return string[]
+     * @throws \yii\console\Exception
+     * @throws \yii\db\Exception
+     */
+    public function suggestionFulltimerNotification() {
+        
+        $output = [];
+
+        // fetch all suggestion make for each not mailed request
+
+        $suggestionGroup = [];
+
+        $suggestions = $this->getSuggestions()
+            ->filterNotMailed()
+            ->all();
+
+        //  update suggestion table to set mail to company
+        Suggestion::updateAll(['mail_to_company' => 1], [
+            "IN",
+            'suggestion_uuid',
+            ArrayHelper::getColumn($suggestions, 'suggestion_uuid')
+        ]);
+
+        foreach ($suggestions as $suggestion) {
+
+            if (!$suggestion->note) {
+                $output[] = "No suggestion note found";
+                continue;
+            }
+
+            if (!isset($suggestionGroup[$suggestion->note->created_by])) {
+                $suggestionGroup[$suggestion->note->created_by] = [];
+            }
+
+            // grouping of suggestion which are suggested by staff
+            $suggestionGroup[$suggestion->note->created_by][] = $suggestion;
+        }
+
+        //$staff = ($this->requestCreatedBy) ? $this->requestCreatedBy : $this->requestUpdatedBy;
+
+        $latestSuggestion = $this->getSuggestions()
+            ->joinWith(['note'])
+            ->andWhere([
+                "note.note_type" => 'Suggested',
+                "suggestion.mail_to_company" => 0,
+            ])
+            ->orderBy('suggestion_datetime DESC')//lastest suggestion
+            ->one();
+
+        if($latestSuggestion && $latestSuggestion->note && $latestSuggestion->note->createdBy) {
+            $staff = $latestSuggestion->note->createdBy;
+        } else {
+            $staff = ($this->requestCreatedBy) ?
+                $this->requestCreatedBy :
+                $this->requestUpdatedBy;
+        }
+
+        foreach ($suggestionGroup as $suggestionByStaff)
+        {
+            $message = Yii::$app->mailer->compose('company/suggestion-fulltime', [
+                'model' => $this,
+                'requestSuggestion' => $suggestionByStaff,
+                'staff' => $staff,
+            ]);
+
+            if(\Yii::$app->params['elasticMailIpPool']) {
+                $message->setHeader ("poolName", \Yii::$app->params['elasticMailIpPool']);
+            }
+
+            // looping for each suggestion
+
+            $noOfAttachments = 0;
+
+            foreach ($suggestionByStaff as $eachSuggestion)
+            {
+                $suggestedByStaff = $eachSuggestion->note->createdBy;
+
+                if (
+                    $eachSuggestion->fulltimer &&
+                    $eachSuggestion->fulltimer->fulltimer_pdf_cv
+                ) {
+                    $url = Yii::$app->resourceManager->getUrl("fulltimer-resume/" . $eachSuggestion->fulltimer->fulltimer_pdf_cv);
+
+                    if ($url) {
+                        $message->attachContent(file_get_contents($url), [
+                            'fileName' => $eachSuggestion->fulltimer->fulltimer_pdf_cv,
+                            'contentType' => Yii::$app->resourceManager->getType("fulltimer-resume/" . $eachSuggestion->fulltimer->fulltimer_pdf_cv)
+                        ]);
+                    } else {
+                        //continue;
+                        throw new \yii\console\Exception('Resume not available to attach for #'. $eachSuggestion->fulltimer_uuid);
+                    }
+                }
+//                    else {
+//                        //continue;
+//                        throw new \yii\console\Exception('Candidate Profile not available #'. $eachSuggestion->fulltimer_uuid);
+//                    }
+
+                $noOfAttachments++;
+            }
+
+            /**
+             * send mail only when cv available
+             */
+            if($noOfAttachments == 0) {
+                $info = 'No CV on suggestions :' . print_r($suggestionByStaff, true);
+                $output[] = $info;
+                Yii::error($info);
+                continue;
+            }
+
+            // in case if contact doesn't have email address
+            if ($this->contact->email && $this->contact->contact_email_verification) {
+                $setTo = [$this->contact->email => $this->contact->contact_name];
+            } else {
+                $setTo = array_unique(self::getContactEmailByRequest($this));
+            }
+
+            /*$setCc = array_merge(
+                [
+                    Yii::$app->params['operationsEmail'] => 'Operations',
+                    $suggestedByStaff->staff_email => $suggestedByStaff->staff_name
+                ],
+                array_unique(self::getContactEmailByRequest($this))
+            );
+
+            $author = ($this->requestCreatedBy) ? $this->requestCreatedBy : $this->requestUpdatedBy;
+
+            if($author && $author->staff_email != $suggestedByStaff->staff_email) {
+                $setCc[$author->staff_email] = $author->staff_name;
+            }*/
+
+            $setCc = [
+                Yii::$app->params['operationsEmail'] => 'Operations',
+                Yii::$app->params['accountManagerEmail'] => 'Account Manager'
+            ];
+
+            $ml = new MailLog();
+            $ml->to = implode(',', $setTo);
+            $ml->from = \Yii::$app->params['supportEmail'];
+            $ml->subject = $this->suggestionEmailSubject;
+            if (!$ml->save()) {
+                Yii::error('Failed to save mail log :' . print_r($ml->errors, true));
+            }
+
+            $message->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->params['appName']])
+                ->setReplyTo([$staff->staff_email => $staff->staff_name])
+                ->setTo($setTo)
+                ->setCc($setCc)
+                ->setBcc([$staff->staff_email => $staff->staff_name])
+                ->setSubject($this->suggestionEmailSubject);
+
+            try {
+                $message->send();
+            } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                // Handle email transport-specific exceptions
+                Yii::error( "Failed to send email: " . $e->getMessage());
+            } catch (\Exception $e) {
+                // Handle any other exceptions
+                Yii::error( "An error occurred: " . $e->getMessage());
+            }
+
+            $info = "";
+
+            if ($staff->staff_email)  {
+                $info = "email sent from staff ($staff->staff_email) for request : `($this->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+            } else {
+                $info = "email sent for request : `($this->request_position_title)` total fulltimer candidates: " . count($suggestionByStaff) . " \n";
+            }
+
+            $output[] = $info;
+
+            Yii::info($info);
+
+            //Console::stdout($output, Console::FG_RED, Console::BOLD);
         }
 
         return [
